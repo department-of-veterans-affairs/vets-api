@@ -10,6 +10,102 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
   include CommitteeHelper
 
   let!(:user) { sis_user }
+  let(:meta) do
+    {
+      'meta' => { 'hasDependentDebts' => false }
+    }
+  end
+  let(:debt5) do
+    { 'type' => 'debts',
+      'attributes' =>
+        {
+          'fileNumber' => '796043735',
+          'payeeNumber' => '00',
+          'personEntitled' => nil,
+          'deductionCode' => '72',
+          'benefitType' => 'CH33 Housing EDU',
+          'diaryCode' => '914',
+          'diaryCodeDescription' => 'Paid In Full',
+          'amountOverpaid' => 123.34,
+          'amountWithheld' => 321.76,
+          'originalAr' => 321.76,
+          'currentAr' => 123.34,
+          'debtHistory' =>
+            [{ 'date' => '08/08/2018', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
+             { 'date' => '07/19/2018', 'letterCode' => '100',
+               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }],
+          'fiscalTransactionData' => []
+        } }
+  end
+  let(:debt4) do
+    {
+      'type' => 'debts',
+      'attributes' =>
+        {
+          'fileNumber' => '796043735',
+          'payeeNumber' => '00',
+          'personEntitled' => nil,
+          'deductionCode' => '74',
+          'benefitType' => 'CH33 Student Tuition EDU',
+          'diaryCode' => '914',
+          'diaryCodeDescription' => 'Paid In Full',
+          'amountOverpaid' => 123.34,
+          'amountWithheld' => 475.0,
+          'originalAr' => 2210.9,
+          'currentAr' => 123.34,
+          'debtHistory' =>
+            [{ 'date' => '04/01/2017', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
+             { 'date' => '11/18/2015', 'letterCode' => '130', 'description' => 'Debt Increase - Due Process' },
+             { 'date' => '04/08/2015', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
+             { 'date' => '03/26/2015', 'letterCode' => '100',
+               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }],
+          'fiscalTransactionData' => []
+        }
+    }
+  end
+  let(:debt3) do
+    {
+      'type' => 'debts',
+      'attributes' => {
+        'fileNumber' => '796043735',
+        'payeeNumber' => '00',
+        'personEntitled' => nil,
+        'deductionCode' => '71',
+        'benefitType' => 'CH33 Books, Supplies/MISC EDU',
+        'diaryCode' => '914',
+        'diaryCodeDescription' => 'Paid In Full',
+        'amountOverpaid' => 0.0,
+        'amountWithheld' => 0.0,
+        'originalAr' => 166.67,
+        'currentAr' => 0.0,
+        'debtHistory' => [],
+        'fiscalTransactionData' => []
+      }
+    }
+  end
+  let(:debt2) do
+    {
+      'type' => 'debts',
+      'attributes' =>
+        { 'fileNumber' => '796043735',
+          'payeeNumber' => '00',
+          'personEntitled' => nil,
+          'deductionCode' => '30',
+          'benefitType' => 'Comp & Pen',
+          'diaryCode' => '914',
+          'diaryCodeDescription' => 'Paid In Full',
+          'amountOverpaid' => 123.34,
+          'amountWithheld' => 0.0,
+          'originalAr' => 136.24,
+          'currentAr' => 123.34,
+          'debtHistory' =>
+            [{ 'date' => '02/12/2009',
+               'letterCode' => '487',
+               'description' => 'Death Case Pending Action' }],
+          'fiscalTransactionData' => [] }
+
+    }
+  end
   let(:debt1) do
     { 'type' => 'debts',
       'attributes' =>
@@ -46,105 +142,28 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
           'fiscalTransactionData' => [] } }
   end
 
-  let(:debt2) do
-    {
-      'type' => 'debts',
-      'attributes' =>
-        { 'fileNumber' => '796043735',
-          'payeeNumber' => '00',
-          'personEntitled' => nil,
-          'deductionCode' => '30',
-          'benefitType' => 'Comp & Pen',
-          'diaryCode' => '914',
-          'diaryCodeDescription' => 'Paid In Full',
-          'amountOverpaid' => 123.34,
-          'amountWithheld' => 0.0,
-          'originalAr' => 136.24,
-          'currentAr' => 123.34,
-          'debtHistory' =>
-            [{ 'date' => '02/12/2009',
-               'letterCode' => '487',
-               'description' => 'Death Case Pending Action' }],
-          'fiscalTransactionData' => [] }
-
-    }
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mobile_debts_enabled, anything).and_return(true)
   end
 
-  let(:debt3) do
-    {
-      'type' => 'debts',
-      'attributes' => {
-        'fileNumber' => '796043735',
-        'payeeNumber' => '00',
-        'personEntitled' => nil,
-        'deductionCode' => '71',
-        'benefitType' => 'CH33 Books, Supplies/MISC EDU',
-        'diaryCode' => '914',
-        'diaryCodeDescription' => 'Paid In Full',
-        'amountOverpaid' => 0.0,
-        'amountWithheld' => 0.0,
-        'originalAr' => 166.67,
-        'currentAr' => 0.0,
-        'debtHistory' => [],
-        'fiscalTransactionData' => []
-      }
-    }
-  end
+  context 'when mobile_debts_enabled feature flag is disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mobile_debts_enabled, anything).and_return(false)
+    end
 
-  let(:debt4) do
-    {
-      'type' => 'debts',
-      'attributes' =>
-        {
-          'fileNumber' => '796043735',
-          'payeeNumber' => '00',
-          'personEntitled' => nil,
-          'deductionCode' => '74',
-          'benefitType' => 'CH33 Student Tuition EDU',
-          'diaryCode' => '914',
-          'diaryCodeDescription' => 'Paid In Full',
-          'amountOverpaid' => 123.34,
-          'amountWithheld' => 475.0,
-          'originalAr' => 2210.9,
-          'currentAr' => 123.34,
-          'debtHistory' =>
-            [{ 'date' => '04/01/2017', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
-             { 'date' => '11/18/2015', 'letterCode' => '130', 'description' => 'Debt Increase - Due Process' },
-             { 'date' => '04/08/2015', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
-             { 'date' => '03/26/2015', 'letterCode' => '100',
-               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }],
-          'fiscalTransactionData' => []
-        }
-    }
-  end
+    it 'returns forbidden for index' do
+      get '/mobile/v0/debts', headers: sis_headers
 
-  let(:debt5) do
-    { 'type' => 'debts',
-      'attributes' =>
-        {
-          'fileNumber' => '796043735',
-          'payeeNumber' => '00',
-          'personEntitled' => nil,
-          'deductionCode' => '72',
-          'benefitType' => 'CH33 Housing EDU',
-          'diaryCode' => '914',
-          'diaryCodeDescription' => 'Paid In Full',
-          'amountOverpaid' => 123.34,
-          'amountWithheld' => 321.76,
-          'originalAr' => 321.76,
-          'currentAr' => 123.34,
-          'debtHistory' =>
-            [{ 'date' => '08/08/2018', 'letterCode' => '608', 'description' => 'Full C&P Benefit Offset Notification' },
-             { 'date' => '07/19/2018', 'letterCode' => '100',
-               'description' => 'First Demand Letter - Inactive Benefits - Due Process' }],
-          'fiscalTransactionData' => []
-        } }
-  end
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
 
-  let(:meta) do
-    {
-      'meta' => { 'hasDependentDebts' => false }
-    }
+    it 'returns forbidden for show' do
+      get '/mobile/v0/debts/some-id', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
   end
 
   describe 'GET /mobile/v0/debts' do

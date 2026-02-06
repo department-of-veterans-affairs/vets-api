@@ -8,7 +8,7 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
   let(:icn) { '1013062086V794840' }
   let(:personalisation) { { first_name: 'Jane', date_submitted: 'May 1, 2024' } }
   let(:template_id) { 'template-id-123' }
-  let(:api_key) { 'fake-api-key' }
+  let(:api_key_path) { 'Settings.vanotify.services.va_gov.api_key' }
   let(:callback_options) { { callback_metadata: { notification_type: 'confirmation' } } }
   let(:key) { 'fake-redis-key' }
 
@@ -24,28 +24,29 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       allow(VaNotify::Service).to receive(:new).and_return(instance_double(VaNotify::Service, send_email: true))
 
       Sidekiq::Testing.inline! do
-        key = Sidekiq::AttrPackage.create(personalisation:, api_key:)
-        expect(Sidekiq::AttrPackage.find(key)).to eq({ personalisation:, api_key: })
+        key = Sidekiq::AttrPackage.create(personalisation:)
+        expect(Sidekiq::AttrPackage.find(key)).to eq({ personalisation: })
 
-        described_class.perform_async(user_account.id, template_id, key, callback_options)
-        expect(Sidekiq::AttrPackage.find(key)).to eq({ personalisation:, api_key: })
+        described_class.perform_async(user_account.id, template_id, key, api_key_path, callback_options)
+        expect(Sidekiq::AttrPackage.find(key)).to eq({ personalisation: })
       end
     end
   end
 
   describe '.enqueue' do
     it 'creates an AttrPackage and enqueues the job' do
-      expect(Sidekiq::AttrPackage).to receive(:create).with(personalisation:, api_key:).and_return(key)
-      expect(described_class).to receive(:perform_async).with(user_account.id, template_id, key, callback_options)
+      expect(Sidekiq::AttrPackage).to receive(:create).with(personalisation:).and_return(key)
+      expect(described_class).to receive(:perform_async).with(user_account.id, template_id, key, api_key_path,
+                                                              callback_options)
 
-      described_class.enqueue(user_account.id, template_id, personalisation, api_key, callback_options)
+      described_class.enqueue(user_account.id, template_id, personalisation, api_key_path, callback_options)
     end
 
     it 'uses empty hash for callback_options when not provided' do
-      expect(Sidekiq::AttrPackage).to receive(:create).with(personalisation:, api_key:).and_return(key)
-      expect(described_class).to receive(:perform_async).with(user_account.id, template_id, key, {})
+      expect(Sidekiq::AttrPackage).to receive(:create).with(personalisation:).and_return(key)
+      expect(described_class).to receive(:perform_async).with(user_account.id, template_id, key, api_key_path, {})
 
-      described_class.enqueue(user_account.id, template_id, personalisation, api_key)
+      described_class.enqueue(user_account.id, template_id, personalisation, api_key_path)
     end
 
     context 'when Redis fails' do
@@ -60,7 +61,7 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
         expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.enqueue_failure')
 
         expect do
-          described_class.enqueue(user_account.id, template_id, personalisation, api_key, callback_options)
+          described_class.enqueue(user_account.id, template_id, personalisation, api_key_path, callback_options)
         end.to raise_error(Redis::ConnectionError)
       end
     end
@@ -77,7 +78,7 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
         expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.enqueue_failure')
 
         expect do
-          described_class.enqueue(user_account.id, template_id, personalisation, api_key, callback_options)
+          described_class.enqueue(user_account.id, template_id, personalisation, api_key_path, callback_options)
         end.to raise_error(Sidekiq::AttrPackageError)
       end
     end
@@ -99,7 +100,7 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       )
 
       expect do
-        described_class.new.perform(user_account.id, template_id, key, callback_options)
+        described_class.new.perform(user_account.id, template_id, key, api_key_path, callback_options)
       end.to raise_error(ArgumentError, 'AttrPackage retrieval failed')
     end
 
@@ -112,12 +113,12 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       )
 
       expect do
-        described_class.new.perform(user_account.id, template_id, key, callback_options)
+        described_class.new.perform(user_account.id, template_id, key, api_key_path, callback_options)
       end.to raise_error(ArgumentError, /Missing personalisation data in Redis/)
     end
 
     it 'handles VANotify::Error (400) and calls handle_backend_exception' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation:, api_key: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation: })
 
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::BadRequest.new(400, 'bad request')
@@ -127,11 +128,11 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       expect_any_instance_of(described_class).to receive(:handle_backend_exception).with(error)
       expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.failure')
 
-      described_class.new.perform(user_account.id, template_id, key, callback_options)
+      described_class.new.perform(user_account.id, template_id, key, api_key_path, callback_options)
     end
 
     it 'raises and increments failure stat for VANotify::Error (5xx)' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation:, api_key: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation: })
 
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::ServerError.new(500, 'server error')
@@ -141,12 +142,12 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.failure')
 
       expect do
-        described_class.new.perform(user_account.id, template_id, key, callback_options)
+        described_class.new.perform(user_account.id, template_id, key, api_key_path, callback_options)
       end.to raise_error(VANotify::ServerError)
     end
 
     it 'raises and increments failure stat for unexpected errors' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation:, api_key: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation: })
 
       va_notify_service = instance_double(VaNotify::Service)
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
@@ -155,8 +156,26 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       expect(StatsD).to receive(:increment).with('api.vanotify.v2.queue_user_account_job.failure')
 
       expect do
-        described_class.new.perform(user_account.id, template_id, key, callback_options)
+        described_class.new.perform(user_account.id, template_id, key, api_key_path, callback_options)
       end.to raise_error(StandardError, 'unexpected')
+    end
+
+    it 'raises ArgumentError when api_key_path does not start with Settings.' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation: })
+
+      expect do
+        described_class.new.perform(user_account.id, template_id, key, 'vanotify.services.va_gov.api_key',
+                                    callback_options)
+      end.to raise_error(ArgumentError, "API key path must start with 'Settings.': vanotify.services.va_gov.api_key")
+    end
+
+    it 'raises ArgumentError when api_key_path is invalid' do
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return({ personalisation: })
+
+      expect do
+        described_class.new.perform(user_account.id, template_id, key, 'Settings.invalid.path.to.api_key',
+                                    callback_options)
+      end.to raise_error(ArgumentError, 'Unable to resolve API key from path: Settings.invalid.path.to.api_key')
     end
   end
 

@@ -90,16 +90,20 @@ module IncreaseCompensation
     #
     def to_pdf(file_name = nil, fill_options = {})
       pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      Rails.logger.info('IncreaseCompensation::ToPdf filling', { path: pdf_path })
       # test fails because form is nil
       if form && pdf_path.present?
         signed_path = IncreaseCompensation::PdfStamper.stamp_signature(pdf_path, parsed_form)
+        Rails.logger.info('IncreaseCompensation::ToPdf Stamped', { signed_path:, pdf_path: })
 
         # stamp_signature will return the original file_path if signature is blank OR on failure
         if pdf_path != signed_path
+          Rails.logger.info('IncreaseCompensation::ToPdf moving files', { from_path: signed_path, to_path: pdf_path })
           # Pdf Stamper changes the file name so change it back here
           FileUtils.mv(signed_path, pdf_path, force: true)
         end
       end
+      Rails.logger.info('IncreaseCompensation::ToPdf final', { path: pdf_path })
       pdf_path
     end
 
