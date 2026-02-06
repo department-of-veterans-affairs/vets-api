@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../../app/services/vass/va_notify_service'
+require_relative '../../../support/vass_settings_helper'
 
 RSpec.describe 'Vass::V0::Sessions', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
@@ -16,25 +17,8 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
 
-    # Stub VASS settings (same pattern as service specs)
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(
-        auth_url: 'https://login.microsoftonline.us',
-        tenant_id: 'test-tenant-id',
-        client_id: 'test-client-id',
-        client_secret: 'test-client-secret',
-        jwt_secret: 'test-jwt-secret',
-        scope: 'https://api.va.gov/.default',
-        api_url: 'https://api.vass.va.gov',
-        subscription_key: 'test-subscription-key',
-        service_name: 'vass_api',
-        redis_otp_expiry: 600,
-        redis_session_expiry: 7200,
-        redis_token_expiry: 3540,
-        rate_limit_max_attempts: 5,
-        rate_limit_expiry: 900
-      )
-    )
+    # Stub VASS settings
+    stub_vass_settings
 
     # Mock Settings for VANotify
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')

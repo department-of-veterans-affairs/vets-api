@@ -1865,6 +1865,7 @@ vass:
   service_name: VASS-API
   subscription_key: fake_subscription_key
   tenant_id: fake_tenant_id
+  token_encryption_key: test-encryption-key-32chars-min-for-aes256-security-required
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true

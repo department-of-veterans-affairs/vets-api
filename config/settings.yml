@@ -1847,6 +1847,7 @@ vass:
   service_name: VASS-API
   subscription_key: <%= ENV['vass__subscription_key'] %>
   tenant_id: <%= ENV['vass__tenant_id'] %>
+  token_encryption_key: <%= ENV['vass__token_encryption_key'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>

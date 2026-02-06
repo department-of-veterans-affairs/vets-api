@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../app/services/vass/appointments_service'
+require_relative '../../support/vass_settings_helper'
 
 describe Vass::AppointmentsService do
   subject { described_class.build(edipi:, correlation_id:) }
@@ -18,19 +19,7 @@ describe Vass::AppointmentsService do
     Rails.cache.clear
 
     # Stub Settings.vass
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(
-        auth_url: 'https://login.microsoftonline.us',
-        tenant_id: 'test-tenant-id',
-        client_id: 'test-client-id',
-        client_secret: 'test-client-secret',
-        jwt_secret: 'test-jwt-secret',
-        scope: 'https://api.va.gov/.default',
-        api_url: 'https://api.vass.va.gov',
-        subscription_key: 'test-subscription-key',
-        service_name: 'vass_api'
-      )
-    )
+    stub_vass_settings
   end
 
   describe '.build' do

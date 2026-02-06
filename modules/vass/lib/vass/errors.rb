@@ -31,5 +31,8 @@ module Vass
     class MissingContactInfoError < BaseError; end
     class AuditLogError < BaseError; end
     class SerializationError < BaseError; end
+    class EncryptionError < BaseError; end
+    class DecryptionError < BaseError; end
+    class ConfigurationError < BaseError; end
   end
 end
