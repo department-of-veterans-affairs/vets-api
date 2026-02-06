@@ -39,9 +39,9 @@ module BioHeartApi
           # 5B - Date Signed
           'DATE_SIGNED' => parse_date(form.dig('recipient', 'signature_date')),
 
-          # Form Type
-          'FORM_TYPE' => FORM_TYPE
-        }.compact # Remove nil values
+          # Form Type (must be prefixed with StructuredData: to be ingested)
+          'FORM_TYPE' => "StructuredData:#{FORM_TYPE}"
+        }.compact
       end
 
       private
