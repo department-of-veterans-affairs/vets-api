@@ -50,8 +50,12 @@ class MultiPartyFormSubmission < ApplicationRecord
   end
 
   # Scopes
-  scope :pending_for_secondary,
-      ->(email) { where(secondary_email: email, status: %w[awaiting_secondary_start secondary_in_progress]) }
+  scope :pending_for_secondary, lambda { |email|
+    where(
+      secondary_email: email,
+      status: %w[awaiting_secondary_start secondary_in_progress]
+    )
+  }
   scope :for_primary_user, ->(uuid) { where(primary_user_uuid: uuid) }
   scope :for_secondary_user, ->(uuid) { where(secondary_user_uuid: uuid) }
 
@@ -76,6 +80,7 @@ class MultiPartyFormSubmission < ApplicationRecord
   def verify_secondary_token(token)
     return false if secondary_access_token_expires_at.nil?
     return false if secondary_access_token_expires_at < Time.current
+
     Digest::SHA256.hexdigest(token) == secondary_access_token_digest
   end
 
