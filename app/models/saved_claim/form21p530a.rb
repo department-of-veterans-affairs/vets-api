@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class SavedClaim::Form21p530a < SavedClaim
+  include IbmDataDictionary
+
   FORM = '21P-530a'
   DEFAULT_ZIP_CODE = '00000'
 
@@ -93,5 +95,132 @@ class SavedClaim::Form21p530a < SavedClaim
     first = parsed_form.dig('veteranInformation', 'fullName', 'first')
     last = parsed_form.dig('veteranInformation', 'fullName', 'last')
     "#{first} #{last}".strip.presence
+  end
+
+  # Convert form data to IBM MMS VBA Data Dictionary format
+  # @return [Hash] VBA Data Dictionary payload for form 21P-530A
+  # Reference: /Users/calvincosta/Desktop/repos/va.gov-team/docs/VBA_Data_Dictionaries/OCT 2024 Data Dictionary-Table 1.csv
+  def to_ibm
+    build_ibm_payload(parsed_form)
+  end
+
+  # Build the IBM data dictionary payload from the parsed claim form
+  # @param form [Hash]
+  # @return [Hash]
+  def build_ibm_payload(form)
+    build_veteran_fields(form)
+      .merge(build_service_period_fields(form))
+      .merge(build_burial_fields(form))
+      .merge(build_recipient_org_fields(form))
+      .merge(build_certification_fields(form))
+      .merge(build_metadata_fields(form))
+  end
+
+  # Build veteran identification fields (Boxes 1-7)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_veteran_fields(form)
+    vet_info = form['veteranInformation'] || {}
+
+    build_veteran_basic_fields(vet_info, full_name_field: 'VETERAN_NAME').merge(
+      'VETERAN_SERVICE_NUMBER' => vet_info['vaServiceNumber'],
+      'VETERAN_PLACE_OF_BIRTH' => vet_info['placeOfBirth'],
+      'VETERAN_DATE_OF_DEATH' => format_date_for_ibm(vet_info['dateOfDeath'])
+    )
+  end
+
+  # Build service period fields (Boxes 8-10) - supports up to 3 periods
+  # @param form [Hash]
+  # @return [Hash]
+  def build_service_period_fields(form)
+    service_periods = form['veteranServicePeriods'] || {}
+    periods = service_periods['periods'] || []
+
+    {
+      'BRANCH_OF_SERVICE_1' => periods.dig(0, 'serviceBranch'),
+      'DATE_ENTERED_TO_SERVICE_1' => format_date_for_ibm(periods.dig(0, 'dateEnteredService')),
+      'PLACE_ENTERED_TO_SERVICE_1' => periods.dig(0, 'placeEnteredService'),
+      'GRADE_RANK_1' => periods.dig(0, 'rankAtSeparation'),
+      'SEPARATION_DATE_1' => format_date_for_ibm(periods.dig(0, 'dateLeftService')),
+      'SEPARATION_PLACE_1' => periods.dig(0, 'placeLeftService'),
+      'BRANCH_OF_SERVICE_2' => periods.dig(1, 'serviceBranch'),
+      'DATE_ENTERED_TO_SERVICE_2' => format_date_for_ibm(periods.dig(1, 'dateEnteredService')),
+      'PLACE_ENTERED_TO_SERVICE_2' => periods.dig(1, 'placeEnteredService'),
+      'GRADE_RANK_2' => periods.dig(1, 'rankAtSeparation'),
+      'SEPARATION_DATE_2' => format_date_for_ibm(periods.dig(1, 'dateLeftService')),
+      'SEPARATION_PLACE_2' => periods.dig(1, 'placeLeftService'),
+      'BRANCH_OF_SERVICE_3' => periods.dig(2, 'serviceBranch'),
+      'DATE_ENTERED_TO_SERVICE_3' => format_date_for_ibm(periods.dig(2, 'dateEnteredService')),
+      'PLACE_ENTERED_TO_SERVICE_3' => periods.dig(2, 'placeEnteredService'),
+      'GRADE_RANK_3' => periods.dig(2, 'rankAtSeparation'),
+      'SEPARATION_DATE_3' => format_date_for_ibm(periods.dig(2, 'dateLeftService')),
+      'SEPARATION_PLACE_3' => periods.dig(2, 'placeLeftService'),
+      'VET_NAME_OTHER' => service_periods['servedUnderDifferentName']
+    }
+  end
+
+  # Build burial information fields (Boxes 11-13)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_burial_fields(form)
+    burial_info = form['burialInformation'] || {}
+    place_of_burial = burial_info['placeOfBurial'] || {}
+    cemetery_location = place_of_burial['cemeteryLocation'] || {}
+
+    {
+      'ORG_CLAIMING_ALLOWANCE' => burial_info['nameOfStateCemeteryOrTribalOrganization'],
+      'CEMETERY_NAME' => place_of_burial['stateCemeteryOrTribalCemeteryName'],
+      'CEMETERY_LOCATION' => build_cemetery_location(cemetery_location),
+      'VETERAN_DATE_OF_BURIAL' => format_date_for_ibm(burial_info['dateOfBurial'])
+    }
+  end
+
+  # Build recipient organization fields (Boxes 14-16)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_recipient_org_fields(form)
+    burial_info = form['burialInformation'] || {}
+    recipient_org = burial_info['recipientOrganization'] || {}
+    recipient_addr = recipient_org['address'] || {}
+
+    {
+      'REP_NAME' => recipient_org['name'],
+      'REP_PHONE_NUMBER' => format_phone_for_ibm(recipient_org['phoneNumber'])
+    }.merge(build_address_fields(recipient_addr, 'REP_ADDRESS'))
+  end
+
+  # Build certification fields (Box 17)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_certification_fields(form)
+    burial_info = form['burialInformation'] || {}
+
+    {
+      'OFFICIAL_SIGNATURE' => burial_info['officialSignature'],
+      'OFFICIAL_TITLE' => burial_info['officialTitle'],
+      'DATE_SIGNED' => format_date_for_ibm(burial_info['dateSigned']),
+      'REMARKS' => form['remarks']
+    }
+  end
+
+  # Build form metadata fields
+  # @param form [Hash]
+  # @return [Hash]
+  def build_metadata_fields(form)
+    vet_info = form['veteranInformation'] || {}
+
+    build_form_metadata('21P-530a', {
+                          'VETERAN_SSN_1' => vet_info['ssn']
+                        })
+  end
+
+  # Build cemetery location string from location hash
+  # @param location_hash [Hash, nil]
+  # @return [String, nil]
+  def build_cemetery_location(location_hash)
+    return nil unless location_hash
+
+    parts = [location_hash['city'], location_hash['state']].compact
+    parts.join(', ').strip.presence
   end
 end

@@ -148,5 +148,93 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       end
     end
   end
+
+  describe '#govcio_upload' do
+    let(:ibm_service) { double('Ibm::Service') }
+    let(:lighthouse_service) { double('BenefitsIntakeService::Service', uuid: '123-456-789') }
+    let(:form21p530a_claim) { create(:va21p530a) }
+
+    before do
+      job.instance_variable_set(:@claim, form21p530a_claim)
+      job.instance_variable_set(:@lighthouse_service, lighthouse_service)
+      allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+    end
+
+    context 'when form responds to to_ibm and flipper is enabled' do
+      before do
+        allow(form21p530a_claim).to receive(:to_ibm).and_return({ 'VETERAN_NAME' => 'John Doe' })
+        job.instance_variable_set(:@ibm_payload, form21p530a_claim.to_ibm)
+        allow(Flipper).to receive(:enabled?).with(:form_21p_530a_govcio_mms).and_return(true)
+      end
+
+      it 'uploads to IBM MMS successfully' do
+        expect(Rails.logger).to receive(:info).with(
+          'Lighthouse::SubmitBenefitsIntakeClaim uploading to IBM MMS',
+          anything
+        )
+        expect(ibm_service).to receive(:upload_form).with(
+          form: '{"VETERAN_NAME":"John Doe"}',
+          guid: '123-456-789'
+        )
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success')
+
+        job.send(:govcio_upload)
+      end
+
+      it 'handles upload errors gracefully' do
+        allow(ibm_service).to receive(:upload_form).and_raise(StandardError, 'Upload failed')
+        expect(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:error).with(
+          'Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload error: Upload failed',
+          anything
+        )
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.failure')
+
+        job.send(:govcio_upload)
+      end
+    end
+
+    context 'when flipper is disabled' do
+      before do
+        allow(form21p530a_claim).to receive(:to_ibm).and_return({ 'VETERAN_NAME' => 'John Doe' })
+        job.instance_variable_set(:@ibm_payload, form21p530a_claim.to_ibm)
+        allow(Flipper).to receive(:enabled?).with(:form_21p_530a_govcio_mms).and_return(false)
+      end
+
+      it 'does not upload to IBM MMS' do
+        expect(ibm_service).not_to receive(:upload_form)
+        expect(StatsD).not_to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success')
+
+        job.send(:govcio_upload)
+      end
+    end
+
+    context 'when form does not respond to to_ibm' do
+      before do
+        job.instance_variable_set(:@ibm_payload, nil)
+      end
+
+      it 'does not attempt upload' do
+        expect(Flipper).not_to receive(:enabled?)
+        expect(ibm_service).not_to receive(:upload_form)
+
+        job.send(:govcio_upload)
+      end
+    end
+
+    context 'with different form IDs' do
+      let(:form210779_claim) { create(:va210779) }
+
+      it 'uses correct flipper key for form 21-0779' do
+        job.instance_variable_set(:@claim, form210779_claim)
+        allow(form210779_claim).to receive(:to_ibm).and_return({ 'VETERAN_NAME' => 'Jane Doe' })
+        job.instance_variable_set(:@ibm_payload, form210779_claim.to_ibm)
+
+        expect(Flipper).to receive(:enabled?).with(:form_21_0779_govcio_mms).and_return(false)
+
+        job.send(:govcio_upload)
+      end
+    end
+  end
   # Rspec.describe
 end

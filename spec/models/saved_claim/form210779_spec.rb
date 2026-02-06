@@ -98,4 +98,53 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       saved_claim.to_pdf(file_name, fill_options)
     end
   end
+
+  describe '#to_ibm' do
+    let(:claim) { create(:va210779) }
+    let(:ibm_payload) { claim.to_ibm }
+
+    it 'returns a hash with VBA Data Dictionary fields' do
+      expect(ibm_payload).to be_a(Hash)
+    end
+
+    it 'includes veteran identification fields' do
+      parsed = JSON.parse(claim.form)
+      vet_info = parsed['veteranInformation']
+
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME' => vet_info.dig('fullName', 'first'),
+        'VETERAN_LAST_NAME' => vet_info.dig('fullName', 'last'),
+        'VETERAN_SSN' => vet_info['ssn']
+      )
+    end
+
+    it 'includes claimant information fields when present' do
+      parsed = JSON.parse(claim.form)
+      next unless parsed['claimantInformation']
+
+      claimant = parsed['claimantInformation']
+      expect(ibm_payload).to include(
+        'CLAIMANT_FIRST_NAME' => claimant.dig('fullName', 'first'),
+        'CLAIMANT_LAST_NAME' => claimant.dig('fullName', 'last')
+      )
+    end
+
+    it 'includes form metadata' do
+      expect(ibm_payload).to include('FORM_TYPE' => '21-0779')
+    end
+
+    it 'formats dates in MM/DD/YYYY format' do
+      parsed = JSON.parse(claim.form)
+      if parsed.dig('veteranInformation', 'dateOfBirth')
+        dob = ibm_payload['VETERAN_DOB']
+        expect(dob).to match(%r{\d{2}/\d{2}/\d{4}}) if dob.present?
+      end
+    end
+
+    it 'handles checkbox values as X or nil' do
+      # Medicaid checkboxes should be 'X' for true, nil for false
+      medicaid_approved = ibm_payload['MEDICAID_APPROVED']
+      expect([nil, 'X']).to include(medicaid_approved)
+    end
+  end
 end
