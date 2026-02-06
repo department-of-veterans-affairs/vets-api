@@ -38,7 +38,7 @@
             "read_receipt": { "type": ["null", "string"] },
             "triage_group_name": { "type": ["null", "string"] },
             "proxy_sender_name": { "type": ["null", "string"] },
-            "can_reply": { "type": "boolean" }
+            "reply_disabled": { "type": "boolean" }
           }
         },
         "relationships": {

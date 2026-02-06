@@ -153,7 +153,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
       end
 
-      it 'includes canReply' do
+      it 'includes replyDisabled' do
         VCR.use_cassette('mobile/messages/v1_get_thread_reply_disabled') do
           get "/mobile/v1/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
         end
