@@ -138,6 +138,7 @@ app/controllers/v1/sessions_controller.rb @department-of-veterans-affairs/octo-i
 app/controllers/v1/medical_copays_controller.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/helpers/parameter_filter_helper.rb @department-of-veterans-affairs/backend-review-group
 app/mailers/application_mailer.rb @department-of-veterans-affairs/backend-review-group
+app/mailers/bio_submission_status_report_mailer.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/mailers/create_daily_spool_files_mailer.rb @department-of-veterans-affairs/backend-review-group
 app/mailers/create_excel_files_mailer.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/mailers/create_staging_spool_files_mailer.rb @department-of-veterans-affairs/backend-review-group
@@ -487,6 +488,7 @@ app/sidekiq/lighthouse/benefits_intake/submit_central_form686c_job.rb @departmen
 app/sidekiq/lighthouse/benefits_intake/submit_central_form686c_v2_job.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/sidekiq/benefits_intake_remediation_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group
 app/sidekiq/benefits_intake_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+app/sidekiq/bio_submission_status_report_job.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/sidekiq/bgs @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/sidekiq/central_mail/submit_form4142_job.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/sidekiq/console1984_log_upload_job.rb @department-of-veterans-affairs/backend-review-group
@@ -1690,6 +1692,7 @@ spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department
 spec/lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/lib/zero_silent_failures/manual_remediation/saved_claim_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/logging/semantic_logger_exceptions_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/mailers/bio_submission_status_report_mailer_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_daily_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/mailers/create_excel_files_mailer_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 spec/mailers/create_staging_spool_files_mailer_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
@@ -2009,6 +2012,7 @@ spec/services/user_audit/ @department-of-veterans-affairs/octo-identity
 spec/services/user_visn_service_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 spec/services/users @department-of-veterans-affairs/octo-identity
 spec/sidekiq/benefits_intake_status_job_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+spec/sidekiq/bio_submission_status_report_job_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/bgs @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
 spec/sidekiq/central_mail/submit_central_form686c_job_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
 spec/sidekiq/central_mail/submit_form4142_job_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
