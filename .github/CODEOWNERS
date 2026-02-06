@@ -771,6 +771,7 @@ config/initializers/faraday_middleware.rb @department-of-veterans-affairs/backen
 config/initializers/fhir_client_patch.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 config/initializers/filter_parameter_logging.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/flipper.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/form_intake_integration.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 config/initializers/freeze_schemas.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 config/initializers/httpi.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/ial.rb @department-of-veterans-affairs/octo-identity
@@ -946,6 +947,8 @@ lib/form526_backup_submission/utilities @department-of-veterans-affairs/disabili
 lib/form526_backup_submission/utilities/convert_to_pdf.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/form214192/monitor.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 lib/form21p530a/monitor.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
+lib/form_intake/mappers/base_mapper.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
+lib/form_intake/mappers/registry.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 lib/formatters @department-of-veterans-affairs/octo-identity
 lib/forms/client.rb @department-of-veterans-affairs/backend-review-group
 lib/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
@@ -1577,6 +1580,9 @@ spec/lib/form1010_ezr @department-of-veterans-affairs/health-apps-backend @depar
 spec/lib/form526_backup_submission @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/lib/form214192/monitor_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 spec/lib/form21p530a/monitor_spec.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
+spec/lib/form_intake/mappers/base_mapper_spec.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
+spec/lib/form_intake/mappers/registry_spec.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
+spec/lib/form_intake_spec.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 spec/lib/formatters @department-of-veterans-affairs/octo-identity
 spec/lib/forms/client_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
