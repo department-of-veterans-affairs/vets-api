@@ -207,11 +207,6 @@ def sanitize_example_values!(data) # rubocop:disable Metrics/MethodLength
   utc_timestamp_regex = /^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC$/
   date_regex = /^\d{4}-\d{2}-\d{2}$/
 
-  # Fixed reference dates for normalization
-  fixed_present_date = Date.new(2024, 1, 1)
-  fixed_future_date = Date.new(2025, 12, 31)
-  today = Time.zone.today
-
   # Counter to generate sequential UUIDs
   @uuid_counter ||= 0
 
@@ -224,38 +219,28 @@ def sanitize_example_values!(data) # rubocop:disable Metrics/MethodLength
       format('00000000-0000-0000-0000-%012d', @uuid_counter)
     # Sanitize ISO 8601 timestamps (e.g., "2026-02-06T17:04:14.037Z")
     elsif v.match?(iso_timestamp_regex)
-      date = Date.parse(v.split('T').first)
-      if date > today
-        "#{fixed_future_date}T00:00:00.000Z"
-      elsif date == today
-        "#{fixed_present_date}T00:00:00.000Z"
-      else
-        v
-      end
+      normalize_date_value(v, Date.parse(v.split('T').first)) { |d| "#{d}T00:00:00.000Z" }
     # Sanitize UTC timestamps (e.g., "2026-02-06 17:04:47 UTC")
     elsif v.match?(utc_timestamp_regex)
-      date = Date.parse(v.split.first)
-      if date > today
-        "#{fixed_future_date} 00:00:00 UTC"
-      elsif date == today
-        "#{fixed_present_date} 00:00:00 UTC"
-      else
-        v
-      end
+      normalize_date_value(v, Date.parse(v.split.first)) { |d| "#{d} 00:00:00 UTC" }
     # Sanitize simple dates (e.g., "2026-02-06")
     elsif v.match?(date_regex)
-      date = Date.parse(v)
-      if date > today
-        fixed_future_date.to_s
-      elsif date == today
-        fixed_present_date.to_s
-      else
-        v
-      end
+      normalize_date_value(v, Date.parse(v), &:to_s)
     else
       v
     end
   end
 
   data.replace deep_transform(data, root: [], transformer:)
+end
+
+def normalize_date_value(original_value, parsed_date)
+  fixed_present_date = Date.new(2024, 1, 1)
+  fixed_future_date = Date.new(2025, 12, 31)
+  today = Time.zone.today
+
+  return original_value if parsed_date < today
+  return yield(fixed_future_date) if parsed_date > today
+
+  yield(fixed_present_date)
 end
