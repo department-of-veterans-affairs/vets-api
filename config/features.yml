@@ -716,9 +716,6 @@ features:
     actor_type: user
     description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
     enable_in_development: true
-  decision_review_use_new_appealable_issues_service:
-    actor_type: user
-    description: Enables use of the new Appealable Issues service for fetching appealable issues.
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
