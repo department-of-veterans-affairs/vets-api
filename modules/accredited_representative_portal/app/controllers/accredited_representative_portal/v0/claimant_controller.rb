@@ -8,10 +8,10 @@ module AccreditedRepresentativePortal
 
         claimant_profile =
           MPI::Service.new.find_profile_by_attributes(
-            first_name: params[:first_name],
-            last_name: params[:last_name],
-            ssn: params[:ssn].try(:gsub, /\D/, ''),
-            birth_date: params[:dob]
+            first_name: search_params[:first_name],
+            last_name: search_params[:last_name],
+            ssn: search_params[:ssn].try(:gsub, /\D/, ''),
+            birth_date: search_params[:birth_date]
           ).profile
 
         claimant_profile.present? or
@@ -49,6 +49,20 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::BadRequest.new(
           detail: e.message
         )
+      end
+
+      private
+
+      # Accepts both camelCase (from frontend with X-Key-Inflection header) and
+      # snake_case parameter formats to handle cases where OliveBranch middleware
+      # doesn't transform request params (e.g., when Content-Type isn't application/json)
+      def search_params
+        @search_params ||= {
+          first_name: params[:first_name] || params[:firstName],
+          last_name: params[:last_name] || params[:lastName],
+          ssn: params[:ssn],
+          birth_date: params[:dob] || params[:dateOfBirth] || params[:date_of_birth]
+        }
       end
     end
   end

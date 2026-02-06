@@ -19,8 +19,10 @@ module AccreditedRepresentativePortal
       # representative-specific customizations.
       #
       class DisabilityCompensation < ::SavedClaim
-        FORM_ID = '21-526EZ'
-        FORM = '21-526EZ'
+        # Use ALLCLAIMS schema which is the actual vets-json-schema for 526 submissions
+        # The '21-526EZ' schema doesn't exist, which causes JSONSchemer validation to fail
+        FORM_ID = '21-526EZ-ALLCLAIMS'
+        FORM = '21-526EZ-ALLCLAIMS'
 
         attr_accessor :form_hash
 
