@@ -16,7 +16,7 @@ module Vass
     # @!attribute contact_value
     #   @return [String] Email address or phone number
     # @!attribute otp_code
-    #   @return [String] User-provided one-time password (OTP) for validation (aliased as otp)
+    #   @return [String] User-provided one-time password (OTP) for validation
     # @!attribute redis_client
     #   @return [Vass::RedisClient] Redis client for storage operations
     #
@@ -260,7 +260,8 @@ module Vass
         redis_client.save_veteran_metadata(
           uuid:,
           edipi:,
-          veteran_id: uuid
+          veteran_id: uuid,
+          email: contact_value
         )
       end
 

@@ -4,6 +4,7 @@ module Mobile
   module V0
     class MedicalCopaysController < ApplicationController
       before_action { authorize :medical_copays, :access? }
+      before_action :validate_feature_flag
 
       def index
         render json: service.get_copays
@@ -26,6 +27,17 @@ module Mobile
       end
 
       private
+
+      def validate_feature_flag
+        return if Flipper.enabled?(:mobile_medical_copays_enabled, @current_user)
+
+        render json: {
+          error: {
+            code: 'FEATURE_NOT_AVAILABLE',
+            message: 'This feature is not currently available'
+          }
+        }, status: :forbidden
+      end
 
       def statement_params
         params.permit(:file_name)
