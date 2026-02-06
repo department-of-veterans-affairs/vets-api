@@ -108,7 +108,6 @@ PATH
     dependents_verification (0.1.0)
     dhp_connected_devices (0.1.0)
     digital_forms_api (0.1.0)
-    employment_questionnaires (0.1.0)
     facilities_api (0.1.0)
     income_and_assets (0.1.0)
     income_limits (0.1.0)
@@ -1335,7 +1334,6 @@ DEPENDENCIES
   dogstatsd-ruby
   dry-struct
   dry-types
-  employment_questionnaires!
   ethon (>= 0.13.0)
   facilities_api!
   factory_bot_rails

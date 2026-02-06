@@ -2497,24 +2497,6 @@ features:
     enable_in_development: true
     actor_type: user
     description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
-  employment_questionnaires_browser_monitoring_enabled:
-    actor_type: user
-    description: Employment Questionnaire form Datadog RUM monitoring
-  employment_questionnaires_content_updates:
-    actor_type: user
-    description: Implement plain language and content updates
-  employment_questionnaires_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Action Needed email notification
-  employment_questionnaires_received_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Received email notification
-  employment_questionnaires_submitted_email_notification:
-    actor_type: user
-    description: Toggle sending of the Submission in Progress email notification
-  employment_questionnaires_persistent_attachment_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
