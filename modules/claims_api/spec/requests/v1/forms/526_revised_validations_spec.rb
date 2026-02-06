@@ -689,7 +689,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
-    # FES allows anticipatedSeparationDate to be the same as title10ActivationDate, so we need to allow that here as well
+    # FES allows anticipatedSeparationDate to be the same as title10ActivationDate, so we allow here as well
     context 'when both anticipatedSeparationDate and title10ActivationDate are today' do
       let(:title10_activation_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { Time.zone.today.iso8601 }
