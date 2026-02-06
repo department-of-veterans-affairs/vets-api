@@ -231,7 +231,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
           champva_instance = double('ChampvaProvider')
           allow(champva_class).to receive(:new).with(user).and_return(champva_instance)
           allow(champva_instance).to receive(:get_claim).with(claim_id)
-            .and_return({ 'data' => { 'id' => claim_id } })
+                                                        .and_return({ 'data' => { 'id' => claim_id } })
 
           # Stub provider_class_for_type to return non-Lighthouse provider
           allow(controller).to receive(:provider_class_for_type).with('champva').and_return(champva_class)
@@ -305,7 +305,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
       it 'derives type from class name for other providers' do
         champva_class = double('ChampvaProvider')
         allow(champva_class).to receive(:name).and_return('BenefitsClaims::Providers::Champva::ChampvaProvider')
-        allow(controller).to receive(:is_lighthouse_provider?).with(champva_class).and_return(false)
+        allow(controller).to receive(:lighthouse_provider?).with(champva_class).and_return(false)
 
         result = controller.send(:detect_provider_type, champva_class)
 

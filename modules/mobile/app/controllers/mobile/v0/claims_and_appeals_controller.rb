@@ -236,8 +236,6 @@ module Mobile
         case provider_type.to_s.downcase
         when 'lighthouse'
           lighthouse_claims_adapter
-        else
-          nil
         end
       end
 

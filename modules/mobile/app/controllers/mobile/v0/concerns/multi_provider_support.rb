@@ -55,7 +55,7 @@ module Mobile
 
           {
             provider_type: actual_provider_type,
-            claim_response: claim_response
+            claim_response:
           }
         end
 
@@ -72,15 +72,13 @@ module Mobile
         # - Multiple providers: Default to Lighthouse (maintains existing bookmarked URLs)
         def get_claim_from_providers(claim_id, provider_type = nil)
           # If provider_type is specified, route based on type
-          if provider_type.present?
-            return get_claim_for_provider_type(claim_id, provider_type)
-          end
+          return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
 
           # No provider_type specified - check provider count
           if configured_providers.length == 1
             # Single provider - use it (whatever it is)
             provider_class = configured_providers.first
-            if is_lighthouse_provider?(provider_class)
+            if lighthouse_provider?(provider_class)
               lighthouse_claims_proxy.get_claim(claim_id)
             else
               provider = provider_class.new(@current_user)
@@ -121,13 +119,13 @@ module Mobile
         end
 
         # Checks if a provider class is the Lighthouse provider
-        def is_lighthouse_provider?(provider_class)
+        def lighthouse_provider?(provider_class)
           provider_class.name.include?('Lighthouse')
         end
 
         # Detects provider type string from provider class
         def detect_provider_type(provider_class)
-          if is_lighthouse_provider?(provider_class)
+          if lighthouse_provider?(provider_class)
             'lighthouse'
           else
             provider_class.name.split('::').last.gsub(/Provider$/, '').underscore

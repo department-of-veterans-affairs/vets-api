@@ -58,9 +58,9 @@ RSpec.describe Mobile::V0::ClaimsAndAppealsController, type: :controller do
       it 'uses the adapter to parse the response' do
         adapter = instance_double(Mobile::V0::Adapters::LighthouseIndividualClaims)
         allow(controller).to receive(:fetch_claim_and_provider).and_return({
-                                                                              provider_type: 'lighthouse',
-                                                                              claim_response: lighthouse_response
-                                                                            })
+                                                                             provider_type: 'lighthouse',
+                                                                             claim_response: lighthouse_response
+                                                                           })
         allow(controller).to receive(:adapter_for_provider).with('lighthouse').and_return(adapter)
         allow(adapter).to receive(:parse).with(lighthouse_response).and_return(parsed_claim)
         serializer = double('Serializer')
@@ -84,9 +84,9 @@ RSpec.describe Mobile::V0::ClaimsAndAppealsController, type: :controller do
 
       it 'uses the response as-is without adapter parsing' do
         allow(controller).to receive(:fetch_claim_and_provider).and_return({
-                                                                              provider_type: 'champva',
-                                                                              claim_response: champva_response
-                                                                            })
+                                                                             provider_type: 'champva',
+                                                                             claim_response: champva_response
+                                                                           })
         allow(controller).to receive(:adapter_for_provider).with('champva').and_return(nil)
         serializer = double('Serializer')
         allow(Mobile::V0::ClaimSerializer).to receive(:new).with(champva_response).and_return(serializer)
