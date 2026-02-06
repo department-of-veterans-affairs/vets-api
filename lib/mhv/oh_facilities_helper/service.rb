@@ -75,7 +75,7 @@ module MHV
       def get_phases_for_station_numbers(station_numbers)
         return {} if station_numbers.blank?
 
-        build_station_phases_map(station_numbers.map(&:to_s).to_set)
+        build_station_phases_map(station_numbers.to_set(&:to_s))
       rescue => e
         Rails.logger.error(
           'OH Migration Phase Batch Lookup Error',
