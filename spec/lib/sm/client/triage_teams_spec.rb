@@ -133,7 +133,7 @@ describe 'sm client' do
       end
 
       it 'sets blocked_status and migrating_to_oh to true when station is in p3 phase' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p3')
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p3' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do
@@ -148,7 +148,7 @@ describe 'sm client' do
       end
 
       it 'sets blocked_status and migrating_to_oh to true when station is in p4 phase' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p4')
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p4' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do
@@ -163,7 +163,7 @@ describe 'sm client' do
       end
 
       it 'sets blocked_status and migrating_to_oh to true when station is in p5 phase' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p5')
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p5' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do
@@ -178,7 +178,7 @@ describe 'sm client' do
       end
 
       it 'sets blocked_status and migrating_to_oh to true when station is in p6 phase' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p6')
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p6' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do
@@ -193,7 +193,7 @@ describe 'sm client' do
       end
 
       it 'does not modify blocked_status or migrating_to_oh when station is not in p3-p6 phase' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p2')
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p2' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do
@@ -209,7 +209,7 @@ describe 'sm client' do
       end
 
       it 'does not modify blocked_status or migrating_to_oh when phase is nil' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return(nil)
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({})
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do
@@ -224,7 +224,7 @@ describe 'sm client' do
       end
 
       it 'does not modify blocked_status or migrating_to_oh when station is in p7 phase' do
-        allow(oh_service).to receive(:get_phase_for_station_number).and_return('p7')
+        allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p7' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
           VCR.use_cassette('sm_client/get_unique_care_systems') do

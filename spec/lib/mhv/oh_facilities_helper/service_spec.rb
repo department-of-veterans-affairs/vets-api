@@ -790,7 +790,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
 
         it 'logs the error' do
-          expect(Rails.logger).to receive(:error).with('OH Migration Phase Lookup Error', anything)
+          expect(Rails.logger).to receive(:error).with('OH Migration Phase Batch Lookup Error', anything)
           service.get_phase_for_station_number('516')
         end
 
@@ -803,6 +803,134 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
           allow(Rails.logger).to receive(:error)
           expect { service.get_phase_for_station_number('516') }.not_to raise_error
         end
+      end
+    end
+  end
+
+  describe '#get_phases_for_station_numbers' do
+    let(:user) { build(:user, :loa3) }
+    let(:service) { described_class.new(user) }
+    let(:oh_migrations_list) { nil }
+
+    before do
+      allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
+    end
+
+    context 'when station_numbers is blank' do
+      it 'returns empty hash for nil' do
+        expect(service.get_phases_for_station_numbers(nil)).to eq({})
+      end
+
+      it 'returns empty hash for empty array' do
+        expect(service.get_phases_for_station_numbers([])).to eq({})
+      end
+    end
+
+    context 'when oh_migrations_list is not configured' do
+      let(:oh_migrations_list) { nil }
+
+      it 'returns empty hash' do
+        expect(service.get_phases_for_station_numbers(%w[516 517])).to eq({})
+      end
+    end
+
+    context 'when oh_migrations_list is empty' do
+      let(:oh_migrations_list) { '' }
+
+      it 'returns empty hash' do
+        expect(service.get_phases_for_station_numbers(%w[516 517])).to eq({})
+      end
+    end
+
+    context 'when no station_numbers are in the migrations list' do
+      let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA],[517,Other VA]' }
+
+      it 'returns empty hash' do
+        expect(service.get_phases_for_station_numbers(%w[999 888])).to eq({})
+      end
+    end
+
+    context 'when some station_numbers are in the migrations list' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'returns phases only for matching facilities' do
+        result = service.get_phases_for_station_numbers(%w[516 999])
+        expect(result).to eq({ '516' => 'p2' })
+      end
+    end
+
+    context 'when all station_numbers are in the migrations list' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'returns phases for all matching facilities' do
+        result = service.get_phases_for_station_numbers(%w[516 517])
+        expect(result).to eq({ '516' => 'p2', '517' => 'p2' })
+      end
+    end
+
+    context 'with multiple migrations in the list' do
+      let(:oh_migrations_list) do
+        date1 = (Time.zone.today + 30).strftime('%Y-%m-%d')
+        date2 = (Time.zone.today + 6).strftime('%Y-%m-%d')
+        "#{date1}:[516,Columbus VA];#{date2}:[517,Other VA]"
+      end
+
+      it 'returns correct phases for facilities in different migrations' do
+        result = service.get_phases_for_station_numbers(%w[516 517])
+        expect(result).to eq({ '516' => 'p2', '517' => 'p3' })
+      end
+    end
+
+    context 'when station_numbers are numeric' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'converts to string and matches correctly' do
+        result = service.get_phases_for_station_numbers([516, 517])
+        expect(result).to eq({ '516' => 'p2' })
+      end
+    end
+
+    context 'with duplicate station_numbers in input' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'returns unique results' do
+        result = service.get_phases_for_station_numbers(%w[516 516 516])
+        expect(result).to eq({ '516' => 'p2' })
+      end
+    end
+
+    context 'Error Handling' do
+      context 'when date parsing fails' do
+        let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error).with('OH Migration Phase Batch Lookup Error', anything)
+          service.get_phases_for_station_numbers(%w[516])
+        end
+
+        it 'returns empty hash' do
+          allow(Rails.logger).to receive(:error)
+          expect(service.get_phases_for_station_numbers(%w[516])).to eq({})
+        end
+
+        it 'does not raise an error' do
+          allow(Rails.logger).to receive(:error)
+          expect { service.get_phases_for_station_numbers(%w[516]) }.not_to raise_error
+        end
+      end
+    end
+
+    context 'performance optimization' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'parses migrations list only once for multiple lookups' do
+        expect(service).to receive(:parse_oh_migrations_list).once.and_call_original
+        service.get_phases_for_station_numbers(%w[516 517])
       end
     end
   end

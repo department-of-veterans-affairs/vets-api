@@ -65,30 +65,23 @@ module MHV
       def get_phase_for_station_number(station_number)
         return nil if station_number.blank?
 
-        raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
-        return nil if raw_value.to_s.strip.blank?
+        get_phases_for_station_numbers([station_number])[station_number.to_s]
+      end
 
-        raw_value.to_s.split(';').each do |migration_entry|
-          migration_entry = migration_entry.strip
-          next if migration_entry.blank?
+      # Batch looks up migration phases for multiple station numbers
+      # Parses oh_migrations_list once and returns a hash mapping station_number -> phase
+      # @param station_numbers [Array<String>] array of facility station numbers
+      # @return [Hash<String, String>] hash mapping station_number to phase (e.g., "p1") or nil
+      def get_phases_for_station_numbers(station_numbers)
+        return {} if station_numbers.blank?
 
-          date_part, facilities_part = migration_entry.split(':', 2)
-          next if date_part.blank? || facilities_part.blank?
-
-          facility_ids = facilities_part.scan(/\[([^,]+),/).flatten.map(&:strip)
-          next unless facility_ids.include?(station_number.to_s)
-
-          migration_date = Date.parse(date_part.strip)
-          return determine_current_phase(migration_date)
-        end
-
-        nil
+        build_station_phases_map(station_numbers.map(&:to_s).to_set)
       rescue => e
         Rails.logger.error(
-          'OH Migration Phase Lookup Error',
-          { error_class: e.class.name, error_message: e.message, station_number: }
+          'OH Migration Phase Batch Lookup Error',
+          { error_class: e.class.name, error_message: e.message, station_numbers: }
         )
-        nil
+        {}
       end
 
       # Gets the current phase of the soonest migration window
@@ -109,6 +102,21 @@ module MHV
         nil
       end
 
+      private
+
+      # Builds a hash mapping station numbers to their current migration phase
+      # @param station_numbers_set [Set<String>] set of station numbers to look up
+      # @return [Hash<String, String>] station_number => phase mapping
+      def build_station_phases_map(station_numbers_set)
+        parse_oh_migrations_list.each_with_object({}) do |migration, results|
+          phase = determine_current_phase(Date.parse(migration[:migration_date]))
+          migration[:facilities].each do |facility|
+            facility_id = facility[:facility_id].to_s
+            results[facility_id] = phase if station_numbers_set.include?(facility_id)
+          end
+        end
+      end
+
       # Extracts all valid migration dates from the migrations list string
       # @param raw_value [String] the raw migrations list setting
       # @return [Array<Date>] array of parsed migration dates
@@ -125,8 +133,6 @@ module MHV
           nil
         end
       end
-
-      private
 
       def pretransitioned_oh_facilities
         @pretransitioned_oh_facilities ||= parse_facility_setting(

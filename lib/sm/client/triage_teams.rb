@@ -35,10 +35,14 @@ module SM
         collection = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata],
                                                                        errors: json[:errors])
 
-        # Check each team for OH migration status and update blocked_status if in p3-p6
+        # Batch lookup OH migration phases for all teams at once
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
+        station_numbers = collection.data.map(&:station_number).compact.uniq
+        phases_map = oh_service.get_phases_for_station_numbers(station_numbers)
+
+        # Update blocked_status for teams in p3-p6
         collection.data.each do |team|
-          phase = oh_service.get_phase_for_station_number(team.station_number)
+          phase = phases_map[team.station_number.to_s]
           if %w[p3 p4 p5 p6].include?(phase)
             team.blocked_status = true
             team.migrating_to_oh = true
@@ -75,9 +79,10 @@ module SM
       #
       def get_triage_teams_station_numbers
         cache_key = "#{session.user_uuid}-all-triage-teams-station-numbers"
-        get_cached_or_fetch_data(true, cache_key, TriageTeamCache) do
-          get_all_triage_teams(session.user_uuid)
-        end
+        cached = TriageTeamCache.get_cached(cache_key)
+        return cached if cached.present?
+
+        get_all_triage_teams(session.user_uuid)
         TriageTeamCache.get_cached(cache_key)
       end
     end
