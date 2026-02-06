@@ -22,7 +22,11 @@ module Mobile
         {
           is_user_at_pretransitioned_oh_facility: service.user_at_pretransitioned_oh_facility?,
           is_user_facility_ready_for_info_alert: service.user_facility_ready_for_info_alert?,
-          is_user_facility_migrating_to_oh: service.user_facility_migrating_to_oh?
+          migrating_facilities_list: if Flipper.enabled?(:mhv_oh_migration_schedules, @current_user)
+                                       service.get_migration_schedules
+                                     else
+                                       []
+                                     end
         }
       end
     end

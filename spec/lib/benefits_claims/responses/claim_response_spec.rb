@@ -34,7 +34,15 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
         can_upload_file: true,
         support_aliases: ['PMR', 'Medical Records'],
         documents: '[]',
-        date: '2024-11-01'
+        date: '2024-11-01',
+        # New content override fields (populated when cst_evidence_requests_content_override is enabled)
+        long_description: { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test description' }] },
+        next_steps: { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test next steps' }] },
+        no_action_needed: false,
+        is_dbq: false,
+        is_proper_noun: false,
+        is_sensitive: false,
+        no_provide_prefix: false
       )
     ]
   end
@@ -243,6 +251,18 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.tracked_items.first.support_aliases).to eq(['PMR', 'Medical Records'])
       expect(claim.tracked_items.first.documents).to eq('[]')
       expect(claim.tracked_items.first.date).to eq('2024-11-01')
+      # New content override fields (populated when cst_evidence_requests_content_override is enabled)
+      expect(claim.tracked_items.first.long_description).to eq(
+        { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test description' }] }
+      )
+      expect(claim.tracked_items.first.next_steps).to eq(
+        { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test next steps' }] }
+      )
+      expect(claim.tracked_items.first.no_action_needed).to be(false)
+      expect(claim.tracked_items.first.is_dbq).to be(false)
+      expect(claim.tracked_items.first.is_proper_noun).to be(false)
+      expect(claim.tracked_items.first.is_sensitive).to be(false)
+      expect(claim.tracked_items.first.no_provide_prefix).to be(false)
     end
 
     it 'defaults type to "claim" if not provided' do
@@ -287,6 +307,28 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.evidence_submissions.first.document_type).to eq('Service Records')
       expect(claim.evidence_submissions.first.file_name).to eq('dd214.pdf')
       expect(claim.evidence_submissions.first.upload_status).to eq('PENDING')
+    end
+
+    context 'when array attributes are omitted' do
+      let(:claim) { described_class.new({ id: '999', status: 'PENDING' }) }
+      let(:array_attributes) do
+        %w[supporting_documents evidence_submissions contentions events issues evidence tracked_items]
+      end
+
+      it 'defaults all array attributes to empty arrays instead of nil' do
+        array_attributes.each do |attr|
+          expect(claim.send(attr)).to eq([])
+        end
+      end
+
+      it 'includes array attributes as empty arrays in serialized output' do
+        attributes = claim.attributes
+
+        array_attributes.each do |attr|
+          expect(attributes[attr]).to eq([])
+          expect(attributes[attr]).not_to be_nil
+        end
+      end
     end
   end
 end

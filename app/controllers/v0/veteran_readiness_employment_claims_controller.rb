@@ -11,10 +11,7 @@ module V0
         submission_id = setup_form_submission_tracking(claim, user_account)
         VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
         Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        # FIXME: revert to this with issue CVE-2253
-        # clear_saved_form(claim.form_id)
-        clear_saved_form('28-1900')
-        clear_saved_form('28-1900-V2')
+        clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
         StatsD.increment("#{stats_key}.failure")

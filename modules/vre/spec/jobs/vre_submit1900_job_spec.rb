@@ -54,9 +54,6 @@ describe VRE::VRESubmit1900Job do
   describe 'when queue is exhausted' do
     before do
       allow(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-      allow(Flipper).to receive(:enabled?)
-        .with(:vre_use_new_vfs_notification_library, claim)
-        .and_return(true)
     end
 
     it 'sends a failure email to user' do

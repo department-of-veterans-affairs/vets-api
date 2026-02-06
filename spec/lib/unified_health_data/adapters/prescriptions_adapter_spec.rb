@@ -202,9 +202,10 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         prescriptions = subject.parse(unified_response)
         oracle_prescription = prescriptions.find { |p| p.prescription_id == '15208365735' }
 
-        # Oracle Health prescription with status='active', 0 refills remaining = 'expired' refill_status
-        # which maps to 'Expired' disp_status (derived from refill_status when dispStatus is null)
-        expect(oracle_prescription.disp_status).to eq('Expired')
+        # Oracle Health prescription with status='active', 0 refills remaining, no expiration date
+        # = 'active' refill_status which maps to 'Active' disp_status
+        # (derived from refill_status when dispStatus is null)
+        expect(oracle_prescription.disp_status).to eq('Active')
       end
 
       context 'business rules filtering (applied regardless of current_only)' do

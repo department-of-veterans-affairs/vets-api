@@ -24,8 +24,8 @@ RSpec.describe VRE::Ch31CaseDetailsSerializer, type: :serializer do
     expect(attributes['is_transferred_to_cwnrs']).to eq(body['is_transferred_to_cwnrs'])
   end
 
-  it 'includes :is_interrupted' do
-    expect(attributes['is_interrupted']).to eq(body['is_interrupted'])
+  it 'includes :orientation_appointment_details' do
+    expect(attributes['orientation_appointment_details']).to eq(body['orientation_appointment_details'])
   end
 
   it 'includes :external_status' do

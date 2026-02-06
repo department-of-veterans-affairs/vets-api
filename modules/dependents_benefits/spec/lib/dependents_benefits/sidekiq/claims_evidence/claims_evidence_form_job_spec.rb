@@ -19,6 +19,33 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
   let(:claims_evidence_uploader) { instance_double(ClaimsEvidenceApi::Uploader) }
   let(:lighthouse_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
 
+  describe '#submit_claims_to_service' do
+    let(:child_claims) { [saved_claim] }
+
+    before do
+      allow(job).to receive(:child_claims).and_return(child_claims)
+      allow(job).to receive(:submit_claim_to_service).with(saved_claim).and_return(
+        DependentsBenefits::ServiceResponse.new(status: true)
+      )
+    end
+
+    it 'submits each child claim to the service' do
+      expect(job).to receive(:submit_claim_to_service).with(saved_claim)
+      response = job.submit_claims_to_service
+      expect(response).to be_a(DependentsBenefits::ServiceResponse)
+      expect(response.success?).to be true
+    end
+
+    it 'raises DependentSubmissionError on failure' do
+      allow(job).to receive(:submit_claim_to_service).with(saved_claim).and_return(
+        DependentsBenefits::ServiceResponse.new(status: false, error: 'Submission failed')
+      )
+      expect do
+        job.submit_claims_to_service
+      end.to raise_error(DependentsBenefits::Sidekiq::DependentSubmissionError, 'Submission failed')
+    end
+  end
+
   describe '#submit_to_claims_evidence_api' do
     before do
       allow(job).to receive(:claims_evidence_uploader).with(saved_claim).and_return(claims_evidence_uploader)
@@ -51,6 +78,28 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
       allow(lighthouse_submission).to receive(:process_pdf).and_raise(error)
 
       expect { job.submit_to_claims_evidence_api(saved_claim) }.to raise_error(StandardError, 'Test error')
+    end
+  end
+
+  describe '#submit_686c_form' do
+    before do
+      allow(job).to receive(:submit_to_claims_evidence_api).with(saved_claim)
+    end
+
+    it 'calls submit_to_claims_evidence_api with the claim' do
+      expect(job).to receive(:submit_to_claims_evidence_api).with(saved_claim)
+      job.submit_686c_form(saved_claim)
+    end
+  end
+
+  describe '#submit_674_form' do
+    before do
+      allow(job).to receive(:submit_to_claims_evidence_api).with(saved_claim)
+    end
+
+    it 'calls submit_to_claims_evidence_api with the claim' do
+      expect(job).to receive(:submit_to_claims_evidence_api).with(saved_claim)
+      job.submit_674_form(saved_claim)
     end
   end
 

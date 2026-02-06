@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'unified_health_data/adapters/oracle_health_categorizer'
 
 describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
-  # Create a test class that includes the module
+  include FhirResourceBuilder
+
   subject { helper_class.new }
 
   let(:helper_class) do
@@ -13,172 +14,15 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
     end
   end
 
-  describe '#extract_category' do
-    let(:base_resource) do
-      {
-        'resourceType' => 'MedicationRequest',
-        'id' => '12345'
-      }
-    end
-
-    context 'with category field containing inpatient code' do
-      let(:resource_with_inpatient_category) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'inpatient'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with inpatient' do
-        result = subject.send(:extract_category, resource_with_inpatient_category)
-        expect(result).to eq(['inpatient'])
-      end
-    end
-
-    context 'with category field containing outpatient code' do
-      let(:resource_with_outpatient_category) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'outpatient'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with outpatient' do
-        result = subject.send(:extract_category, resource_with_outpatient_category)
-        expect(result).to eq(['outpatient'])
-      end
-    end
-
-    context 'with category field containing community code' do
-      let(:resource_with_community_category) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'community'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns array with community' do
-        result = subject.send(:extract_category, resource_with_community_category)
-        expect(result).to eq(['community'])
-      end
-    end
-
-    context 'with multiple category codes' do
-      let(:resource_with_multiple_categories) do
-        base_resource.merge(
-          'category' => [
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'Inpatient'
-                }
-              ]
-            },
-            {
-              'coding' => [
-                {
-                  'system' => 'http://terminology.hl7.org/CodeSystem/medicationrequest-admin-location',
-                  'code' => 'COMMUNITY'
-                }
-              ]
-            }
-          ]
-        )
-      end
-
-      it 'returns sorted, lowercased array with all category codes' do
-        result = subject.send(:extract_category, resource_with_multiple_categories)
-        expect(result).to eq(%w[community inpatient])
-      end
-    end
-
-    context 'with no category field' do
-      it 'returns empty array' do
-        result = subject.send(:extract_category, base_resource)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with empty category array' do
-      let(:resource_with_empty_category) do
-        base_resource.merge('category' => [])
-      end
-
-      it 'returns empty array' do
-        result = subject.send(:extract_category, resource_with_empty_category)
-        expect(result).to eq([])
-      end
-    end
-
-    context 'with category but no coding' do
-      let(:resource_with_category_no_coding) do
-        base_resource.merge(
-          'category' => [
-            {
-              'text' => 'Inpatient'
-            }
-          ]
-        )
-      end
-
-      it 'returns empty array' do
-        result = subject.send(:extract_category, resource_with_category_no_coding)
-        expect(result).to eq([])
-      end
-    end
-  end
-
   describe '#categorize_medication' do
-    let(:base_resource) do
-      {
-        'resourceType' => 'MedicationRequest',
-        'id' => '12345'
-      }
-    end
-
-    context 'VA Prescription' do
-      let(:va_prescription_resource) do
-        base_resource.merge(
-          'reportedBoolean' => false,
-          'intent' => 'order',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] }
-          ]
-        )
+    context 'with VA Prescription' do
+      it 'returns :va_prescription for valid VA prescription' do
+        resource = fhir_resource(source: 'VA')
+        expect(subject.categorize_medication(resource)).to eq(:va_prescription)
       end
 
-      it 'returns :va_prescription' do
-        expect(subject.categorize_medication(va_prescription_resource)).to eq(:va_prescription)
-      end
-
-      it 'is case-insensitive for category codes' do
-        resource = base_resource.merge(
+      it 'handles case-insensitive category codes' do
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => false,
           'intent' => 'order',
           'category' => [
@@ -188,56 +32,134 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
         expect(subject.categorize_medication(resource)).to eq(:va_prescription)
       end
+
+      it 'returns :uncategorized when reportedBoolean is wrong' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized when intent is wrong' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized with extra category codes' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'discharge' }] },
+            { 'coding' => [{ 'code' => 'extra' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized with missing category codes' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
     end
 
-    context 'Documented/Non-VA Medication' do
-      let(:non_va_resource) do
-        base_resource.merge(
-          'reportedBoolean' => true,
+    context 'with Documented/Non-VA Medication' do
+      it 'returns :documented_non_va for valid non-VA medication' do
+        resource = fhir_resource(source: 'NV')
+        expect(subject.categorize_medication(resource)).to eq(:documented_non_va)
+      end
+
+      it 'returns :uncategorized when reportedBoolean is wrong' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
           'intent' => 'plan',
           'category' => [
             { 'coding' => [{ 'code' => 'community' }] },
             { 'coding' => [{ 'code' => 'patientspecified' }] }
           ]
         )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
       end
 
-      it 'returns :documented_non_va' do
-        expect(subject.categorize_medication(non_va_resource)).to eq(:documented_non_va)
+      it 'returns :uncategorized when intent is wrong' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'community' }] },
+            { 'coding' => [{ 'code' => 'patientspecified' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
       end
     end
 
-    context 'Clinic Administered Medication' do
-      let(:clinic_administered_resource) do
-        base_resource.merge(
+    context 'with Clinic Administered Medication' do
+      it 'returns :clinic_administered for valid clinic administered medication' do
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => false,
           'intent' => 'order',
           'category' => [
             { 'coding' => [{ 'code' => 'outpatient' }] }
           ]
         )
+        expect(subject.categorize_medication(resource)).to eq(:clinic_administered)
       end
 
-      it 'returns :clinic_administered' do
-        expect(subject.categorize_medication(clinic_administered_resource)).to eq(:clinic_administered)
+      it 'returns :uncategorized when reportedBoolean is wrong' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => true,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'outpatient' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized when intent is wrong' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'plan',
+          'category' => [
+            { 'coding' => [{ 'code' => 'outpatient' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
       end
     end
 
-    context 'Pharmacy Charges' do
-      let(:pharmacy_charges_resource) do
-        base_resource.merge(
+    context 'with Pharmacy Charges' do
+      it 'returns :pharmacy_charges for charge-only category' do
+        resource = base_fhir_resource.merge(
           'category' => [
             { 'coding' => [{ 'code' => 'charge-only' }] }
           ]
         )
-      end
-
-      it 'returns :pharmacy_charges' do
-        expect(subject.categorize_medication(pharmacy_charges_resource)).to eq(:pharmacy_charges)
+        expect(subject.categorize_medication(resource)).to eq(:pharmacy_charges)
       end
 
       it 'ignores reportedBoolean and intent for charge-only' do
-        resource = base_resource.merge(
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => true,
           'intent' => 'plan',
           'category' => [
@@ -248,171 +170,153 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
       end
     end
 
-    context 'Inpatient Medication' do
-      let(:inpatient_resource) do
-        base_resource.merge(
+    context 'with Inpatient Medication' do
+      it 'returns :inpatient for inpatient category' do
+        resource = base_fhir_resource.merge(
           'category' => [
             { 'coding' => [{ 'code' => 'inpatient' }] }
           ]
         )
+        expect(subject.categorize_medication(resource)).to eq(:inpatient)
       end
 
-      it 'returns :inpatient' do
-        expect(subject.categorize_medication(inpatient_resource)).to eq(:inpatient)
+      it 'ignores reportedBoolean and intent for inpatient' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'inpatient' }] }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:inpatient)
       end
     end
 
-    context 'Uncategorized' do
+    context 'with Uncategorized medications' do
       it 'returns :uncategorized for missing category' do
-        expect(subject.categorize_medication(base_resource)).to eq(:uncategorized)
+        expect(subject.categorize_medication(base_fhir_resource)).to eq(:uncategorized)
       end
 
-      it 'returns :uncategorized for partial match (wrong intent)' do
-        resource = base_resource.merge(
-          'reportedBoolean' => false,
-          'intent' => 'plan', # Wrong - should be 'order' for VA prescription
+      it 'returns :uncategorized for empty category array' do
+        resource = base_fhir_resource.merge('category' => [])
+        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      end
+
+      it 'returns :uncategorized for category with no coding' do
+        resource = base_fhir_resource.merge(
           'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] }
+            { 'text' => 'Inpatient' }
           ]
         )
         expect(subject.categorize_medication(resource)).to eq(:uncategorized)
       end
 
-      it 'returns :uncategorized for partial match (wrong reportedBoolean)' do
-        resource = base_resource.merge(
-          'reportedBoolean' => true, # Wrong - should be false for VA prescription
-          'intent' => 'order',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] }
-          ]
-        )
-        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+      it 'returns :uncategorized for nil resource' do
+        expect(subject.categorize_medication(nil)).to eq(:uncategorized)
       end
 
-      it 'returns :uncategorized for extra category codes' do
-        resource = base_resource.merge(
+      it 'returns :uncategorized for unknown category code' do
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => false,
           'intent' => 'order',
           'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] },
-            { 'coding' => [{ 'code' => 'extra' }] } # Extra code makes it not match exactly
+            { 'coding' => [{ 'code' => 'unknown-category' }] }
           ]
         )
         expect(subject.categorize_medication(resource)).to eq(:uncategorized)
       end
+    end
 
-      it 'returns :uncategorized for missing category codes' do
-        resource = base_resource.merge(
+    context 'with multiple category codes' do
+      it 'handles normalized (lowercase, sorted) category codes' do
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => false,
           'intent' => 'order',
           'category' => [
-            { 'coding' => [{ 'code' => 'community' }] }
-            # Missing 'discharge' code
+            { 'coding' => [{ 'code' => 'Discharge' }] },
+            { 'coding' => [{ 'code' => 'COMMUNITY' }] }
           ]
         )
-        expect(subject.categorize_medication(resource)).to eq(:uncategorized)
+        expect(subject.categorize_medication(resource)).to eq(:va_prescription)
+      end
+
+      it 'extracts codes from multiple codings within one category' do
+        resource = base_fhir_resource.merge(
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            {
+              'coding' => [
+                { 'code' => 'community' },
+                { 'code' => 'discharge' }
+              ]
+            }
+          ]
+        )
+        expect(subject.categorize_medication(resource)).to eq(:va_prescription)
       end
     end
   end
 
   describe '#non_va_med?' do
-    let(:base_resource) do
-      {
-        'resourceType' => 'MedicationRequest',
-        'id' => '12345'
-      }
-    end
-
-    context 'when medication is a VA prescription' do
-      let(:va_prescription_resource) do
-        base_resource.merge(
-          'reportedBoolean' => false,
-          'intent' => 'order',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'discharge' }] }
-          ]
-        )
-      end
-
+    context 'when medication is VA prescription' do
       it 'returns false' do
-        expect(subject.non_va_med?(va_prescription_resource)).to be false
+        resource = fhir_resource(source: 'VA')
+        expect(subject.non_va_med?(resource)).to be false
       end
     end
 
     context 'when medication is documented/non-VA' do
-      let(:non_va_resource) do
-        base_resource.merge(
-          'reportedBoolean' => true,
-          'intent' => 'plan',
-          'category' => [
-            { 'coding' => [{ 'code' => 'community' }] },
-            { 'coding' => [{ 'code' => 'patientspecified' }] }
-          ]
-        )
-      end
-
       it 'returns true' do
-        expect(subject.non_va_med?(non_va_resource)).to be true
+        resource = fhir_resource(source: 'NV')
+        expect(subject.non_va_med?(resource)).to be true
       end
     end
 
     context 'when medication is clinic administered' do
-      let(:clinic_administered_resource) do
-        base_resource.merge(
+      it 'returns true' do
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => false,
           'intent' => 'order',
           'category' => [
             { 'coding' => [{ 'code' => 'outpatient' }] }
           ]
         )
-      end
-
-      it 'returns true' do
-        expect(subject.non_va_med?(clinic_administered_resource)).to be true
+        expect(subject.non_va_med?(resource)).to be true
       end
     end
 
     context 'when medication is pharmacy charges' do
-      let(:pharmacy_charges_resource) do
-        base_resource.merge(
+      it 'returns true' do
+        resource = base_fhir_resource.merge(
           'category' => [
             { 'coding' => [{ 'code' => 'charge-only' }] }
           ]
         )
-      end
-
-      it 'returns true' do
-        expect(subject.non_va_med?(pharmacy_charges_resource)).to be true
+        expect(subject.non_va_med?(resource)).to be true
       end
     end
 
     context 'when medication is inpatient' do
-      let(:inpatient_resource) do
-        base_resource.merge(
+      it 'returns true' do
+        resource = base_fhir_resource.merge(
           'category' => [
             { 'coding' => [{ 'code' => 'inpatient' }] }
           ]
         )
-      end
-
-      it 'returns true' do
-        expect(subject.non_va_med?(inpatient_resource)).to be true
+        expect(subject.non_va_med?(resource)).to be true
       end
     end
 
     context 'when medication is uncategorized' do
       it 'returns true for resource with no category' do
-        expect(subject.non_va_med?(base_resource)).to be true
+        expect(subject.non_va_med?(base_fhir_resource)).to be true
       end
 
       it 'returns true for partial match missing required fields' do
-        resource = base_resource.merge(
+        resource = base_fhir_resource.merge(
           'reportedBoolean' => true,
-          'intent' => 'order', # Wrong intent for documented/non-VA
+          'intent' => 'order',
           'category' => [
             { 'coding' => [{ 'code' => 'community' }] },
             { 'coding' => [{ 'code' => 'patientspecified' }] }
@@ -420,11 +324,105 @@ describe UnifiedHealthData::Adapters::OracleHealthCategorizer do
         )
         expect(subject.non_va_med?(resource)).to be true
       end
+
+      it 'returns true for nil resource' do
+        expect(subject.non_va_med?(nil)).to be true
+      end
+    end
+  end
+
+  describe '#log_uncategorized_medication' do
+    let(:uncategorized_resource) do
+      base_fhir_resource.merge(
+        'id' => '12345',
+        'reportedBoolean' => true,
+        'intent' => 'order',
+        'category' => [
+          { 'coding' => [{ 'code' => 'unknown' }] }
+        ]
+      )
     end
 
-    context 'when resource is nil' do
-      it 'returns true' do
-        expect(subject.non_va_med?(nil)).to be true
+    before do
+      allow(Rails.logger).to receive(:warn)
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping).and_return(true)
+      end
+
+      it 'logs uncategorized medication with prescription ID suffix' do
+        subject.log_uncategorized_medication(uncategorized_resource)
+
+        expect(Rails.logger).to have_received(:warn).with(
+          message: 'Oracle Health medication uncategorized',
+          prescription_id_suffix: '345',
+          reported_boolean: true,
+          intent: 'order',
+          category_codes: ['unknown'],
+          service: 'unified_health_data'
+        )
+      end
+
+      it 'handles missing ID gracefully' do
+        resource = uncategorized_resource.except('id')
+        subject.log_uncategorized_medication(resource)
+
+        expect(Rails.logger).to have_received(:warn).with(
+          message: 'Oracle Health medication uncategorized',
+          prescription_id_suffix: 'unknown',
+          reported_boolean: true,
+          intent: 'order',
+          category_codes: ['unknown'],
+          service: 'unified_health_data'
+        )
+      end
+
+      it 'handles nil ID gracefully' do
+        resource = uncategorized_resource.merge('id' => nil)
+        subject.log_uncategorized_medication(resource)
+
+        expect(Rails.logger).to have_received(:warn).with(
+          message: 'Oracle Health medication uncategorized',
+          prescription_id_suffix: 'unknown',
+          reported_boolean: true,
+          intent: 'order',
+          category_codes: ['unknown'],
+          service: 'unified_health_data'
+        )
+      end
+
+      it 'includes normalized category codes' do
+        resource = base_fhir_resource.merge(
+          'id' => '999',
+          'reportedBoolean' => false,
+          'intent' => 'order',
+          'category' => [
+            { 'coding' => [{ 'code' => 'COMMUNITY' }] }
+          ]
+        )
+        subject.log_uncategorized_medication(resource)
+
+        expect(Rails.logger).to have_received(:warn).with(
+          message: 'Oracle Health medication uncategorized',
+          prescription_id_suffix: '999',
+          reported_boolean: false,
+          intent: 'order',
+          category_codes: ['community'],
+          service: 'unified_health_data'
+        )
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_v2_status_mapping).and_return(false)
+      end
+
+      it 'does not log' do
+        subject.log_uncategorized_medication(uncategorized_resource)
+        expect(Rails.logger).not_to have_received(:warn)
       end
     end
   end

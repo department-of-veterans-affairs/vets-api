@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'debts_api/v0/financial_status_report_service'
-require 'debts_api/v0/digital_dispute_submission_service'
 require 'sidekiq/attr_package'
 
 module DebtsApi
@@ -36,10 +35,10 @@ module DebtsApi
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
-    def perform(args) # rubocop:disable Metrics/MethodLength
+    def perform(args)
       submission_type = args['submission_type'] || 'fsr'
       cache_key = args['cache_key']
-      pii = retrieve_pii(args, cache_key)
+      pii = fetch_pii(cache_key, args)
 
       submissions_data = find_submissions(args['user_uuid'], submission_type)
 
@@ -48,13 +47,11 @@ module DebtsApi
           "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
           "No submissions found for user_uuid: #{args['user_uuid']}"
         )
+        Sidekiq::AttrPackage.delete(cache_key) if cache_key
         return
       end
 
-      DebtManagementCenter::VANotifyEmailJob.perform_async(
-        pii[:email], args['template_id'], email_personalization_info(pii, submissions_data,
-                                                                     submission_type), { id_type: 'email' }
-      )
+      send_vanotify_email(args['template_id'], pii, submissions_data, submission_type)
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue Sidekiq::AttrPackageError => e
       # Log AttrPackage errors as application logic errors (no retries)
@@ -67,13 +64,23 @@ module DebtsApi
 
     private
 
-    def retrieve_pii(args, cache_key)
+    def send_vanotify_email(template_id, pii, submissions_data, submission_type)
+      cache_key = Sidekiq::AttrPackage.create(
+        email: pii[:email],
+        personalisation: email_personalization_info(pii, submissions_data, submission_type)
+      )
+      DebtManagementCenter::VANotifyEmailJob.perform_async(
+        nil, template_id, nil, { id_type: 'email', cache_key: }
+      )
+    end
+
+    # Temporary fallback, after all pre-migration jobs have processed we will remove
+    def fetch_pii(cache_key, args)
       if cache_key
         attributes = Sidekiq::AttrPackage.find(cache_key)
         return { email: attributes[:email], first_name: attributes[:first_name] } if attributes
       end
 
-      # Fallback for backward compatibility (FSR still passes PII directly)
       { email: args['email'], first_name: args['first_name'] }
     end
 

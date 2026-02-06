@@ -227,7 +227,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by filesize --type rspec --only-group ${{ matrix.test_group }} -n 24 -o '--profile 20'"
 
       - name: Prepare SimpleCov shard payload
         if: always()

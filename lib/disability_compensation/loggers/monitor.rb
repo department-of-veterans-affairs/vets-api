@@ -19,8 +19,30 @@ module DisabilityCompensation
       CLAIM_STATS_KEY = 'api.disability_compensation'
       SUBMISSION_STATS_KEY = 'api.disability_compensation.submission'
 
+      TOXIC_EXPOSURE_ALLOWLIST = %w[
+        all
+        completely_removed
+        conditions
+        conditions_state
+        gulfWar1990
+        gulfWar1990Details
+        gulfWar2001
+        gulfWar2001Details
+        herbicide
+        herbicideDetails
+        orphaned_data_removed
+        otherExposures
+        otherExposuresDetails
+        otherHerbicideLocations
+        purge_reasons
+        removed_keys
+        specifyOtherExposures
+        submission_id
+        tags
+      ].freeze
+
       def initialize
-        super(SERVICE_NAME, allowlist: %w[completely_removed removed_keys submission_id tags])
+        super(SERVICE_NAME, allowlist: TOXIC_EXPOSURE_ALLOWLIST)
       end
 
       # Logs SavedClaim ActiveRecord save errors
@@ -85,8 +107,8 @@ module DisabilityCompensation
         in_progress_toxic_exposure = in_progress_form_data['toxic_exposure']
         submitted_toxic_exposure = submitted_data['toxicExposure']
 
-        # Only log if toxic exposure existed in save-in-progress but changed or was removed
-        return if in_progress_toxic_exposure.nil? || in_progress_toxic_exposure == submitted_toxic_exposure
+        # Skip if no toxic exposure data existed in save-in-progress
+        return if in_progress_toxic_exposure.nil?
 
         change_metadata = calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
 
@@ -218,23 +240,26 @@ module DisabilityCompensation
 
       # Log the toxic exposure changes with metadata
       #
-      # Submits a logging event to DataDog with minimal metadata about
-      # which toxic exposure keys were removed during submission.
-      # Uses minimal data to reduce fingerprinting risk.
+      # Submits a logging event to DataDog with metadata about which toxic
+      # exposure keys were removed and why. Includes enough detail to verify
+      # purges were appropriate without logging PII/PHI.
       #
       # @param submission [Form526Submission] The Form526Submission record
-      # @param change_metadata [Hash] Hash containing removed_keys and removal flags
+      # @param change_metadata [Hash] Hash containing removed_keys, purge_reasons, and conditions_state
       # @return [void]
       def log_toxic_exposure_changes(submission:, change_metadata:)
         log_data = {
           submission_id: submission.id,
           completely_removed: change_metadata[:completely_removed],
-          removed_keys: change_metadata[:removed_keys]
+          removed_keys: change_metadata[:removed_keys],
+          purge_reasons: change_metadata[:purge_reasons],
+          conditions_state: change_metadata[:conditions_state],
+          orphaned_data_removed: change_metadata[:orphaned_data_removed]
         }
 
         submit_event(
           :info,
-          'Form526Submission toxic exposure orphaned dates purged',
+          'Form526Submission toxic exposure data purged',
           "#{self.class::CLAIM_STATS_KEY}.toxic_exposure_changes",
           **log_data
         )
@@ -243,33 +268,158 @@ module DisabilityCompensation
       # Calculate removed keys from toxic exposure changes
       #
       # Analyzes differences between save-in-progress and submitted toxic exposure data
-      # to identify which keys were removed. Filters out empty hash values to reduce noise.
+      # to identify which keys were removed and why. Distinguishes between orphaned data
+      # (removed to prevent 422 errors) and user opt-outs (explicit user action).
       #
       # @param in_progress_toxic_exposure [Hash] InProgressForm data (snake_case)
       # @param submitted_toxic_exposure [Hash, nil] SavedClaim data (camelCase)
-      # @return [Hash] Metadata with completely_removed and removed_keys
+      # @return [Hash] Metadata: completely_removed, removed_keys, purge_reasons,
+      #   conditions_state, orphaned_data_removed
       def calculate_toxic_exposure_changes(in_progress_toxic_exposure, submitted_toxic_exposure)
         in_progress_camelized = OliveBranch::Transformations.transform(
-          in_progress_toxic_exposure,
-          OliveBranch::Transformations.method(:camelize)
+          in_progress_toxic_exposure, OliveBranch::Transformations.method(:camelize)
         )
 
-        in_progress_camel_keys = in_progress_camelized.keys
-        submitted_camel_keys = submitted_toxic_exposure&.keys || []
+        # Filter out view: prefixed keys - these are UI metadata always stripped by the
+        # submit transformer, not actual purge data. Including them causes false positives.
+        in_progress_keys = in_progress_camelized.keys.reject { |k| k.start_with?('view:') }
+        submitted_keys = (submitted_toxic_exposure&.keys || []).reject { |k| k.start_with?('view:') }
 
-        all_removed_keys = in_progress_camel_keys - submitted_camel_keys
+        # Filter removed keys to only include those with actual data
+        # Empty hashes {} are form scaffolding, not user data - don't count as "removed"
+        potentially_removed = in_progress_keys - submitted_keys
+        removed_keys = potentially_removed.select do |key|
+          value = in_progress_camelized[key]
+          value_has_meaningful_data?(value)
+        end.sort
 
-        # Filter out empty hashes to reduce noise
-        removed_keys = all_removed_keys.reject do |camel_key|
-          in_progress_camelized[camel_key].is_a?(Hash) && in_progress_camelized[camel_key].empty?
-        end
-
-        completely_removed = submitted_toxic_exposure.nil?
+        purge_analysis = analyze_purge_reasons(removed_keys, in_progress_camelized, submitted_toxic_exposure)
+        conditions_state = determine_conditions_state(submitted_toxic_exposure)
 
         {
-          completely_removed:,
-          removed_keys: removed_keys.sort
+          completely_removed: submitted_toxic_exposure.nil?,
+          removed_keys:,
+          purge_reasons: purge_analysis[:purge_reasons],
+          conditions_state:,
+          orphaned_data_removed: purge_analysis[:orphaned_data_removed]
         }
+      end
+
+      # Analyze purge reasons and detect orphaned data
+      #
+      # Maps each removed key to specific reason, distinguishing between:
+      # - Orphaned data (no parent, causes 422 errors)
+      # - User opt-outs (explicit false values, 'none' selected)
+      #
+      # @param removed_keys [Array<String>] Keys that were removed
+      # @param _in_progress_data [Hash] InProgressForm data (camelCase) - reserved for future use
+      # @param submitted_toxic_exposure [Hash, nil] The submitted toxic exposure data
+      # @return [Hash] { purge_reasons: Hash, orphaned_data_removed: Boolean }
+      def analyze_purge_reasons(removed_keys, _in_progress_data, submitted_toxic_exposure)
+        if submitted_toxic_exposure.nil?
+          return { purge_reasons: { all: 'user_opted_out_of_conditions' },
+                   orphaned_data_removed: false }
+        end
+
+        has_none_selected = submitted_toxic_exposure.dig('conditions', 'none') == true
+        orphaned_data_detected = false
+
+        purge_reasons = removed_keys.each_with_object({}) do |key, reasons|
+          reason, is_orphan = categorize_removed_key(key, has_none_selected, submitted_toxic_exposure)
+          reasons[key] = reason
+          orphaned_data_detected ||= is_orphan
+        end
+
+        { purge_reasons:, orphaned_data_removed: orphaned_data_detected }
+      end
+
+      # Categorize a single removed key and determine if it's orphaned
+      #
+      # @param key [String] The removed key to categorize
+      # @param has_none_selected [Boolean] Whether user selected 'none' for conditions
+      # @param submitted_toxic_exposure [Hash] The submitted toxic exposure data
+      # @return [Array<String, Boolean>] [reason, is_orphan]
+      def categorize_removed_key(key, has_none_selected, submitted_toxic_exposure)
+        return ['user_selected_none_for_conditions', false] if has_none_selected
+        return categorize_details_key(key, submitted_toxic_exposure) if key.end_with?('Details')
+        return categorize_other_field_key(key, submitted_toxic_exposure) if other_field_key?(key)
+
+        ['user_deselected_section', false]
+      end
+
+      # Check if key is an "other" field key
+      def other_field_key?(key)
+        %w[otherHerbicideLocations specifyOtherExposures].include?(key)
+      end
+
+      # Categorize a Details key (e.g., gulfWar1990Details)
+      def categorize_details_key(key, submitted_toxic_exposure)
+        parent_key = key.sub('Details', '')
+        parent_value = submitted_toxic_exposure[parent_key]
+        parent_valid = parent_value.is_a?(Hash)
+
+        if parent_valid
+          ['user_deselected_all_locations', false]
+        else
+          ['orphaned_details_no_parent', true]
+        end
+      end
+
+      # Categorize an "other" field key (otherHerbicideLocations, specifyOtherExposures)
+      def categorize_other_field_key(key, submitted_toxic_exposure)
+        parent_key = key == 'otherHerbicideLocations' ? 'herbicide' : 'otherExposures'
+        parent_value = submitted_toxic_exposure[parent_key]
+        parent_valid = parent_value.is_a?(Hash)
+
+        if parent_valid
+          ['user_opted_out_of_other_field', false]
+        else
+          ['orphaned_other_field_no_parent', true]
+        end
+      end
+
+      # Determine the final state of toxic exposure conditions
+      #
+      # @param submitted_toxic_exposure [Hash, nil] The submitted toxic exposure data
+      # @return [String] One of: 'none', 'has_selections', 'empty', 'removed'
+      def determine_conditions_state(submitted_toxic_exposure)
+        return 'removed' if submitted_toxic_exposure.nil?
+
+        conditions = submitted_toxic_exposure['conditions']
+        return 'empty' if conditions.blank?
+        return 'none' if conditions['none'] == true
+
+        has_selections = conditions.any? { |k, v| k != 'none' && v == true }
+        has_selections ? 'has_selections' : 'empty'
+      end
+
+      # Check if a value contains meaningful data (not just empty scaffolding)
+      #
+      # Recursively checks if a value contains actual user-entered data.
+      # Empty hashes, hashes with only empty nested values, nil, and empty strings
+      # are not considered meaningful data.
+      #
+      # @param value [Object] The value to check
+      # @return [Boolean] True if the value contains meaningful data
+      def value_has_meaningful_data?(value)
+        case value
+        when nil
+          false
+        when String
+          value.strip.present?
+        when TrueClass, FalseClass, Numeric
+          true # Boolean and numeric values are meaningful (user made a selection)
+        when Hash
+          # Empty hash is not meaningful
+          return false if value.empty?
+
+          # Check if any nested values have meaningful data
+          value.any? { |_k, v| value_has_meaningful_data?(v) }
+        when Array
+          value.any? { |v| value_has_meaningful_data?(v) }
+        else
+          value.present?
+        end
       end
 
       ##

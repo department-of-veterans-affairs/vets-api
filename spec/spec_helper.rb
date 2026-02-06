@@ -11,7 +11,6 @@ require 'support/silence_stream'
 require 'simplecov_helper'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/rswag/text_helpers'
-require 'support/sidekiq/batch'
 require 'support/stub_va_profile'
 require 'pundit/rspec'
 require 'rspec/its'

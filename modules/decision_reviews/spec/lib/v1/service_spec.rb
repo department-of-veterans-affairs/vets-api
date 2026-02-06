@@ -10,10 +10,6 @@ describe DecisionReviews::V1::Service do
   let(:ssn_with_mockdata) { '212222112' }
   let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
-  end
-
   describe 'VetsJsonSchema used in service' do
     describe 'ensure Contestable Issues schemas are present' do
       %w[
@@ -174,48 +170,44 @@ describe DecisionReviews::V1::Service do
     context '422 response' do
       let(:body) { {} }
 
-      it 'throws a DR_422 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
-            expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
-          end
+          expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
         end
       end
     end
 
     # test that additional error code mapping in exceptions.en.yml works
     context '503 response' do
-      it 'properly raises a 503 when the error is returned from the service' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-503_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_503')),
-            'BackendServiceException: {:source=>"Common::Client::Errors::ClientError ' \
-            'raised in DecisionReviews::V1::Service", :code=>"DR_503"}'
-          )
+          expect { subject }.to raise_error Common::Exceptions::ServiceUnavailable
         end
       end
+    end
 
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
+    context '418 response (unmapped error code)' do
+      let(:body) { {} }
 
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-503_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ServiceUnavailable
+      it 'throws a DecisionReviews::V1::ServiceException with DR_418 key' do
+        VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-418_V1') do
+          expect { subject }.to raise_error do |error|
+            expect(error).to be_a(DecisionReviews::V1::ServiceException)
+            expect(error.key).to eq('DR_418')
+            expect(error.original_status).to eq(418)
           end
+        end
+      end
+    end
+
+    context 'parsing error' do
+      it 'throws a DecisionReviews::V1::ServiceException with DR_502 key' do
+        allow_any_instance_of(DecisionReviews::V1::Service).to receive(:perform)
+          .and_raise(Faraday::ParsingError.new('Invalid JSON'))
+
+        expect { subject }.to raise_error do |error|
+          expect(error).to be_a(DecisionReviews::V1::ServiceException)
+          expect(error.key).to eq('DR_502')
         end
       end
     end
@@ -250,23 +242,9 @@ describe DecisionReviews::V1::Service do
     context '404 response' do
       let(:uuid) { '0' }
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -310,23 +288,9 @@ describe DecisionReviews::V1::Service do
         allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
       end
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -334,23 +298,9 @@ describe DecisionReviews::V1::Service do
     context '422 response' do
       let(:benefit_type) { 'apricot' }
 
-      it 'throws a DR_422 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
-            expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
-          end
+          expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
         end
       end
     end
@@ -379,23 +329,9 @@ describe DecisionReviews::V1::Service do
     context '422 response' do
       let(:body) { {} }
 
-      it 'throws a DR_422 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
-            expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
-          end
+          expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
         end
       end
     end
@@ -430,23 +366,9 @@ describe DecisionReviews::V1::Service do
     context '404 response' do
       let(:uuid) { '0' }
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -488,23 +410,9 @@ describe DecisionReviews::V1::Service do
         allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
       end
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -530,23 +438,9 @@ describe DecisionReviews::V1::Service do
     context '404 response' do
       let(:uuid) { 'this-id-not-found' }
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -630,23 +524,9 @@ describe DecisionReviews::V1::Service do
     context '422 response' do
       let(:body) { {} }
 
-      it 'throws a DR_422 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
-            expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
-          end
+          expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
         end
       end
     end
@@ -681,23 +561,9 @@ describe DecisionReviews::V1::Service do
     context '404 response' do
       let(:uuid) { '0' }
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/SC-SHOW-RESPONSE-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/SC-SHOW-RESPONSE-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -741,23 +607,9 @@ describe DecisionReviews::V1::Service do
         allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
       end
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end
@@ -765,23 +617,9 @@ describe DecisionReviews::V1::Service do
     context '422 response' do
       let(:benefit_type) { 'apricot' }
 
-      it 'throws a DR_422 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
-            expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
-          end
+          expect { subject }.to raise_error Common::Exceptions::UnprocessableEntity
         end
       end
     end
@@ -807,23 +645,9 @@ describe DecisionReviews::V1::Service do
     context '404 response' do
       let(:uuid) { 'this-id-not-found' }
 
-      it 'throws a DR_404 exception' do
+      it 'throws a Common::Exception' do
         VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-404_V1') do
-          expect { subject }.to raise_error(
-            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
-          )
-        end
-      end
-
-      describe 'with feature flag enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
-        end
-
-        it 'throws a Common::Exception' do
-          VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-404_V1') do
-            expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
-          end
+          expect { subject }.to raise_error Common::Exceptions::ResourceNotFound
         end
       end
     end

@@ -54,7 +54,6 @@ module AccreditedRepresentativePortal
           response = submit_form
           form_submission = create_form_submission!(response.body)
           enqueue_form_processing(form_submission)
-          track_acceptance_metrics
           form_submission
         end
       end
@@ -74,11 +73,6 @@ module AccreditedRepresentativePortal
 
       def enqueue_form_processing(form_submission)
         PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
-      end
-
-      def track_acceptance_metrics
-        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
-        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
       end
 
       def handle_resource_not_found(error)
@@ -130,7 +124,6 @@ module AccreditedRepresentativePortal
           error_message: message
         )
 
-        Monitoring.new.track_duration('ar.poa.submission.duration', from: @poa_request.created_at)
         Monitoring.new.track_duration('ar.poa.submission.enqueue_failed.duration', from: @poa_request.created_at)
       end
 

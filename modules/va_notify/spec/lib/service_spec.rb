@@ -339,6 +339,72 @@ describe VaNotify::Service do
           expect(notification.service_id).to be_nil
         end
       end
+
+      context 'when template URI is malformed' do
+        let(:notification_client) { instance_double(Notifications::Client) }
+
+        before do
+          allow(Notifications::Client).to receive(:new).and_return(notification_client)
+          allow(Settings.vanotify).to receive(:services).and_return(
+            { test_service: double('ServiceConfig', api_key: test_api_key) }
+          )
+          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
+          allow(Rails.logger).to receive(:info)
+          allow(StatsD).to receive(:increment)
+        end
+
+        it 'returns nil service_id when uri is blank' do
+          mock_response = double(
+            'response',
+            id: '11111111-1111-1111-1111-111111111111',
+            template: { 'uri' => '' }
+          )
+          allow(notification_client).to receive(:send_email).and_return(mock_response)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+        end
+
+        it 'returns nil service_id when uri has insufficient segments' do
+          mock_response = double(
+            'response',
+            id: '11111111-1111-1111-1111-111111111111',
+            template: { 'uri' => '/v2/templates' }
+          )
+          allow(notification_client).to receive(:send_email).and_return(mock_response)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'VANotify template URI has unexpected format',
+            template_uri: '/v2/templates'
+          )
+        end
+
+        it 'returns nil service_id when uri causes TypeError' do
+          mock_response = double(
+            'response',
+            id: '11111111-1111-1111-1111-111111111111',
+            template: { 'uri' => 12_345 }
+          )
+          allow(notification_client).to receive(:send_email).and_return(mock_response)
+
+          subject.send_email(send_email_parameters)
+
+          notification = VANotify::Notification.first
+          expect(notification.service_id).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Unable to derive VANotify service_id',
+            error: anything
+          )
+        end
+      end
     end
   end
 

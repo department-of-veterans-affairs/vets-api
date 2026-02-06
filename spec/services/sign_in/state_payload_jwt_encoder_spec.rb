@@ -11,7 +11,8 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
                                          type:,
                                          acr:,
                                          scope:,
-                                         client_config:).perform
+                                         client_config:,
+                                         operation:).perform
     end
 
     let(:code_challenge) { 'some-code-challenge' }
@@ -25,6 +26,7 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
     let(:shared_sessions) { false }
     let(:authentication) { SignIn::Constants::Auth::API }
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
+    let(:operation) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
 
     shared_context 'validated code challenge state payload jwt' do
       let(:code) { 'some-state-code-value' }
@@ -51,6 +53,8 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
           expect(decoded_jwt.client_state).to eq(client_state)
           expect(decoded_jwt.code).to eq(code)
           expect(decoded_jwt.created_at).to eq(created_at)
+          expect(decoded_jwt.scope).to eq(scope)
+          expect(decoded_jwt.operation).to eq(operation)
         end
 
         it 'saves a StateCode in redis' do

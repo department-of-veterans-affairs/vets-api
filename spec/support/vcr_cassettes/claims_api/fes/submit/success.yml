@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/oauth2/benefits-documents/system/v1/token"
     body:
       encoding: US-ASCII
-      string: grant_type=< valid data >
+      string: grant_type=valid
     headers:
       Accept:
       - application/json
@@ -21,21 +21,21 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 19 Aug 2025 17:50:30 GMT
+      - Thu, 15 Jan 2026 21:15:33 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
-      Ratelimit-Reset:
-      - '30'
-      X-Ratelimit-Remaining-Minute:
-      - '239'
       X-Ratelimit-Limit-Minute:
       - '240'
       Ratelimit-Remaining:
       - '239'
+      Ratelimit-Reset:
+      - '27'
       Ratelimit-Limit:
       - '240'
+      X-Ratelimit-Remaining-Minute:
+      - '239'
       Vary:
       - Origin
       Cache-Control:
@@ -43,24 +43,24 @@ http_interactions:
       Pragma:
       - no-cache
       Etag:
-      - W/"408-J7VBdOK0jsXLKrqt3Ebzb7aIWEk:dtagent10317250630095842XDWE"
+      - W/"420-8cELwbjKM0snkuQtm0uEKjh0bfg:dtagent10323250822043923XVuO"
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="992487840"
+      - dtSInfo;desc="0", dtRpid;desc="-1791676821"
       X-Envoy-Upstream-Service-Time:
-      - '407'
+      - '205'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 82b2b688-b1a9-473e-bec4-8df90240b134#470682
+      - 4839def6-ea95-4c4c-b528-e9e61971d383#1577924
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
-        documents.read","expires_in":600,"state":null}'
-  recorded_at: Tue, 19 Aug 2025 17:50:30 GMT
+      string: '{"access_token":"fake_token_here","token_type":"Bearer","scope":"system/Form526.read
+        system/Form526.write","expires_in":300,"state":null}'
+  recorded_at: Thu, 15 Jan 2026 21:15:34 GMT
 - request:
     method: post
     uri: "<FES_BASE_URL>/form526-establishment-service/v1/submit"
@@ -117,7 +117,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 19 Aug 2025 17:50:34 GMT
+      - Thu, 15 Jan 2026 21:15:36 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -125,17 +125,17 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="1496098952", dtSInfo;desc="0"
+      - dtRpid;desc="867709029", dtSInfo;desc="0"
       Pragma:
       - no-cache
       Cache-Control:
       - no-cache, no-store
       X-Envoy-Upstream-Service-Time:
-      - '3169'
+      - '2669'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"data":{"claimId":600781884,"requestId":101}}'
-  recorded_at: Tue, 19 Aug 2025 17:50:34 GMT
-recorded_with: VCR 6.3.1
+      string: '{"data":{"claimId":600883061,"requestId":6174}}'
+  recorded_at: Thu, 15 Jan 2026 21:15:37 GMT
+recorded_with: VCR 6.4.0

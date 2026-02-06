@@ -14,6 +14,7 @@ require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
 require 'simple_forms_api_submission/metadata_validator'
 require 'disability_compensation/factories/api_provider_factory'
+require 'common/s3_helpers'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
@@ -153,23 +154,15 @@ module Sidekiq
 
         s3_resource = new_s3_resource
 
-        if Aws::S3.const_defined?(:TransferManager)
-          options = {
-            content_type: 'application/zip',
-            multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
-          }
-          Aws::S3::TransferManager.new(client: s3_resource.client).upload_file(
-            zip_path_and_name,
-            bucket: s3_bucket,
-            key: zipname,
-            **options
-          )
-          obj = s3_resource.bucket(s3_bucket).object(zipname)
-          obj_ret = true
-        else
-          obj = s3_resource.bucket(s3_bucket).object(zipname)
-          obj_ret = obj.upload_file(zip_path_and_name, content_type: 'application/zip')
-        end
+        obj = Common::S3Helpers.upload_file(
+          s3_resource:,
+          bucket: s3_bucket,
+          key: zipname,
+          file_path: zip_path_and_name,
+          content_type: 'application/zip',
+          return_object: true
+        )
+        obj_ret = true
 
         if return_url
           obj.presigned_url(:get, expires_in: url_life_length)

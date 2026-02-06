@@ -7,13 +7,22 @@ module DependentsBenefits
 
     config.generators.api_only = true
 
-    initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
-      FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
+    # Make sure Rails eager loads lib/ properly for this engine.
+    # CRITICAL for Sidekiq jobs: When Sidekiq retries jobs asynchronously (minutes/hours/days later),
+    # it deserializes the job class name from Redis and needs to constantize it. If lib/ isn't in
+    # the eager load paths, Zeitwerk won't load classes like DependentsBenefits::BGS::BGSFormJob
+    # when the retry worker attempts to process the job, causing NameError and permanent job failures.
+    # This is especially important because retries often happen in different processes or after restarts.
+    config.eager_load_paths << root.join('lib').to_s
+
+    initializer 'dependents_benefits.zeitwerk_ignore' do
+      # Zeitwerk expects version.rb to define a Version class/module, but we use VERSION constant per Ruby convention.
+      # Tell Zeitwerk to ignore this file to avoid "uninitialized constant DependentsBenefits::Version" errors.
+      Rails.autoloaders.main.ignore(root.join('lib/dependents_benefits/version.rb'))
     end
 
-    # Make sure Rails autoloads lib/ properly
-    initializer :append_lib_to_autoload_paths do |_app|
-      ActiveSupport::Dependencies.autoload_paths << root.join('lib')
+    initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
+      FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
 
     # So that the app-wide migration command notices our engine's migrations.

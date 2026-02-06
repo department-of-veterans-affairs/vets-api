@@ -12,7 +12,9 @@ module SurvivorsBenefits
     #
     class ClaimsController < ClaimsBaseController
       include PdfS3Operations
+
       before_action :check_flipper_flag
+      skip_after_action :set_csrf_header, only: [:create]
       service_tag 'survivors-benefits'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
@@ -120,14 +122,6 @@ module SurvivorsBenefits
       #
       def monitor
         @monitor ||= SurvivorsBenefits::Monitor.new
-      end
-
-      def config
-        Settings.bio.survivors_benefits
-      end
-
-      def pdf_url(guid)
-        SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(guid, config:)
       end
     end
   end

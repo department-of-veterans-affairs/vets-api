@@ -182,6 +182,136 @@ RSpec.describe IvcChampva::VHA107959a do
     end
   end
 
+  describe '#track_submission' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_7959a' }
+    let(:form_version) { 'vha_10_7959a' }
+    let(:mock_user) { double(loa: { current: 3 }) }
+
+    context 'with standard form flow' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => { 'email' => 'test@example.com' },
+          'form_number' => '10-7959A'
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'increments StatsD with tags and logs submission info' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: %w[identity:applicant current_user_loa:3 email_used:yes form_version:vha_10_7959a claim_status:
+                   pdi_or_claim_number:]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-7959A Submission',
+          identity: 'applicant',
+          current_user_loa: 3,
+          email_used: 'yes',
+          form_version:,
+          claim_status: nil,
+          pdi_or_claim_number: nil
+        )
+
+        form_instance.track_submission(mock_user)
+      end
+    end
+
+    context 'when current_user is nil' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => {},
+          'form_number' => '10-7959A'
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'defaults loa to 0' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: %w[identity:applicant current_user_loa:0 email_used:no form_version:vha_10_7959a claim_status:
+                   pdi_or_claim_number:]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-7959A Submission',
+          identity: 'applicant',
+          current_user_loa: 0,
+          email_used: 'no',
+          form_version:,
+          claim_status: nil,
+          pdi_or_claim_number: nil
+        )
+
+        form_instance.track_submission(nil)
+      end
+    end
+
+    context 'with resubmission data' do
+      let(:resubmission_data) do
+        {
+          'certifier_role' => 'sponsor',
+          'primary_contact_info' => { 'email' => 'sponsor@example.com' },
+          'form_number' => '10-7959A',
+          'claim_status' => 'resubmission',
+          'pdi_or_claim_number' => 'PDI number'
+        }
+      end
+      let(:form_instance) { described_class.new(resubmission_data) }
+
+      it 'includes resubmission tags in StatsD and logs' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: ['identity:sponsor', 'current_user_loa:3', 'email_used:yes', 'form_version:vha_10_7959a',
+                 'claim_status:resubmission', 'pdi_or_claim_number:PDI number']
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-7959A Submission',
+          identity: 'sponsor',
+          current_user_loa: 3,
+          email_used: 'yes',
+          form_version:,
+          claim_status: 'resubmission',
+          pdi_or_claim_number: 'PDI number'
+        )
+
+        form_instance.track_submission(mock_user)
+      end
+    end
+
+    context 'with Control number resubmission' do
+      let(:control_number_data) do
+        {
+          'certifier_role' => 'sponsor',
+          'primary_contact_info' => {},
+          'form_number' => '10-7959A',
+          'claim_status' => 'resubmission',
+          'pdi_or_claim_number' => 'Control number'
+        }
+      end
+      let(:form_instance) { described_class.new(control_number_data) }
+
+      it 'tracks Control number in pdi_or_claim_number tag' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: ['identity:sponsor', 'current_user_loa:3', 'email_used:no', 'form_version:vha_10_7959a',
+                 'claim_status:resubmission', 'pdi_or_claim_number:Control number']
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'IVC ChampVA Forms - 10-7959A Submission',
+          identity: 'sponsor',
+          current_user_loa: 3,
+          email_used: 'no',
+          form_version:,
+          claim_status: 'resubmission',
+          pdi_or_claim_number: 'Control number'
+        )
+
+        form_instance.track_submission(mock_user)
+      end
+    end
+  end
+
   it 'is not past OMB expiration date' do
     # Update this date string to match the current PDF OMB expiration date:
     omb_expiration_date = Date.strptime('12312027', '%m%d%Y')

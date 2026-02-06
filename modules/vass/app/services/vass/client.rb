@@ -14,6 +14,7 @@ module Vass
   class Client < Common::Client::Base
     extend Forwardable
     include Common::Client::Concerns::Monitoring
+    include Vass::Logging
 
     GRANT_TYPE = 'client_credentials'
     STATSD_KEY_PREFIX = 'api.vass'
@@ -113,7 +114,7 @@ module Vass
     ##
     # Retrieves veteran information by veteran ID.
     #
-    # Used in the OTC flow where we only have the UUID from the welcome email.
+    # Used in the OTP flow where we only have the UUID from the welcome email.
     # The VASS API returns EDIPI in the response, so it's not required in the request.
     #
     # @param veteran_id [String] Veteran ID (UUID) in VASS system
@@ -195,6 +196,7 @@ module Vass
       if cached_token.present?
         @current_oauth_token = cached_token
       else
+        log_vass_event(action: 'oauth_cache_miss', correlation_id: @correlation_id)
         @current_oauth_token = mint_oauth_token
         redis_client.save_token(token: @current_oauth_token)
       end
@@ -211,12 +213,8 @@ module Vass
       resp = oauth_token_request
       token = resp.body['access_token']
       if token.blank?
-        Rails.logger.error('VassClient OAuth token response missing access_token', {
-                             correlation_id: @correlation_id,
-                             status: resp.status,
-                             has_body: resp.body.present?,
-                             body_keys: resp.body&.keys
-                           })
+        log_vass_event(action: 'oauth_token_missing', level: :error, correlation_id: @correlation_id,
+                       status: resp.status, has_body: resp.body.present?)
         raise Vass::ServiceException.new('VA900',
                                          { detail: 'OAuth auth missing access_token' }, 502)
       end
@@ -283,15 +281,12 @@ module Vass
     # ------------ Logging helpers ------------
 
     def log_auth_retry
-      Rails.logger.error('VassClient 401 error - retrying authentication', correlation_id: @correlation_id)
+      log_vass_event(action: 'auth_retry', level: :error, correlation_id: @correlation_id)
     end
 
     def log_auth_error(error_type, status_code)
-      Rails.logger.error('VassClient authentication failed', {
-                           correlation_id: @correlation_id,
-                           error_type:,
-                           status_code:
-                         })
+      log_vass_event(action: 'auth_failed', level: :error, correlation_id: @correlation_id,
+                     error_type:, status_code:)
     end
 
     ##
@@ -371,8 +366,4 @@ module Vass
       end
     end
   end
-
-  # Mirrors the middleware-defined VASS exception so callers can rely on
-  # BackendServiceException fields (e.g., original_status, original_body).
-  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Vass::ServiceException)
 end

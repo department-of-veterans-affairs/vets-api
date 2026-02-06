@@ -5,11 +5,12 @@ module Vass
     ##
     # AppointmentsController handles appointment availability operations for authenticated veterans.
     #
-    # All endpoints require JWT authentication from the OTC authentication flow.
+    # All endpoints require JWT authentication from the OTP authentication flow.
     # The JWT contains the veteran_id which is used to fetch veteran-specific data.
     #
     class AppointmentsController < Vass::ApplicationController
       include Vass::JwtAuthentication
+      include Vass::MetricsTracking
 
       before_action :authenticate_jwt
       before_action :set_appointments_service
@@ -30,9 +31,18 @@ module Vass
             veteran_id: @current_veteran_id,
             data: { appointment_id: result[:data][:appointment_id] }
           )
+          track_success(APPOINTMENTS_AVAILABILITY)
+        else
+          track_availability_scenario(result[:status])
         end
 
         render_availability_result(result)
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_AVAILABILITY, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -54,8 +64,17 @@ module Vass
       #   }
       #
       def topics
-        topics_list = @appointments_service.get_agent_skills || []
-        render json: { data: { topics: topics_list } }, status: :ok
+        response = @appointments_service.get_agent_skills
+        agent_skills = response.dig('data', 'agent_skills') || []
+        topics = map_agent_skills_to_topics(agent_skills)
+        track_success(APPOINTMENTS_TOPICS)
+        render_camelized_json({ data: { topics: } })
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_TOPICS, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -68,8 +87,8 @@ module Vass
       #   {
       #     "data": {
       #       "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea",
-      #       "startUTC": "2025-12-02T10:00:00Z",
-      #       "endUTC": "2025-12-02T10:30:00Z",
+      #       "startUtc": "2025-12-02T10:00:00Z",
+      #       "endUtc": "2025-12-02T10:30:00Z",
       #       "agentId": "353dd0fc-335b-ef11-bfe3-001dd80a9f48",
       #       "agentNickname": "Agent Name",
       #       "appointmentStatusCode": 1,
@@ -84,6 +103,7 @@ module Vass
         appointment_id = params[:appointment_id]
 
         response = @appointments_service.get_appointment(appointment_id:)
+        track_success(APPOINTMENTS_SHOW)
         render_vass_response(
           response,
           success_data: ->(r) { r['data'] },
@@ -91,6 +111,12 @@ module Vass
           error_message: 'Appointment not found',
           error_status: :not_found
         )
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_SHOW, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -111,6 +137,7 @@ module Vass
         appointment_id = params[:appointment_id]
 
         response = @appointments_service.cancel_appointment(appointment_id:)
+        track_success(APPOINTMENTS_CANCEL)
         render_vass_response(
           response,
           success_data: { appointmentId: appointment_id },
@@ -118,6 +145,12 @@ module Vass
           error_message: 'Failed to cancel appointment',
           error_status: :unprocessable_entity
         )
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_CANCEL, error_type: e.class.name)
+        raise
       end
 
       ##
@@ -126,7 +159,7 @@ module Vass
       # Creates/books an appointment for the authenticated veteran.
       # Requires JWT authentication and valid appointment_id from Redis session.
       #
-      # @example Request Body
+      # @example Request Body (camelCase transformed to snake_case by middleware)
       #   {
       #     "topics": ["67e0bd9f-5e53-f011-bec2-001dd806389e", "78f1ce0a-6f64-g122-cfd3-112ee917462f"],
       #     "dtStartUtc": "2026-01-10T10:00:00Z",
@@ -141,22 +174,51 @@ module Vass
       #   }
       #
       def create
-        validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
+        validate_required_params!(:topics, :dt_start_utc, :dt_end_utc)
 
         appointment_id = retrieve_appointment_id_from_session
-        return unless appointment_id
+        return handle_missing_appointment_id unless appointment_id
 
         response = save_appointment_with_service(appointment_id)
+        track_success(APPOINTMENTS_CREATE)
         render_vass_response(
           response,
-          success_data: ->(r) { { appointmentId: r.dig('data', 'appointmentId') } },
+          success_data: ->(r) { { appointment_id: r.dig('data', 'appointment_id') } },
           error_code: 'appointment_save_failed',
           error_message: 'Failed to save appointment',
           error_status: :unprocessable_entity
         )
+      rescue Vass::Errors::VassApiError,
+             Vass::Errors::ServiceError,
+             Vass::Errors::AuthenticationError,
+             Vass::Errors::NotFoundError => e
+        track_failure(APPOINTMENTS_CREATE, error_type: e.class.name)
+        raise
       end
 
       private
+
+      ##
+      # Tracks infrastructure metrics for availability check scenarios.
+      # Different scenarios indicate different operational states:
+      # - no_cohorts: Veteran outside all cohort windows
+      # - next_cohort: Booking window not yet open
+      # - already_booked: Veteran already has appointment in current cohort
+      # - no_slots_available: In valid window but zero bookable slots (capacity issue)
+      #
+      # @param status [Symbol] Result status from get_current_cohort_availability
+      #
+      def track_availability_scenario(status)
+        metric = case status
+                 when :available_slots then nil
+                 when :no_cohorts then AVAILABILITY_NO_COHORTS
+                 when :next_cohort then AVAILABILITY_NEXT_COHORT
+                 when :already_booked then AVAILABILITY_ALREADY_BOOKED
+                 when :no_slots_available then AVAILABILITY_NO_SLOTS
+                 end
+
+        track_infrastructure_metric(metric) if metric
+      end
 
       ##
       # Retrieves appointment_id from Redis booking session.
@@ -169,6 +231,8 @@ module Vass
         appointment_id = session_data&.fetch(:appointment_id, nil)
 
         unless appointment_id
+          log_vass_event(action: 'missing_booking_session', vass_uuid: @current_veteran_id, level: :warn,
+                         **audit_metadata)
           render_error(
             'missing_session_data',
             'Appointment session not found. Please check availability first.',
@@ -181,35 +245,19 @@ module Vass
       end
 
       ##
-      # Handles VASS API errors.
+      # Handles the missing appointment_id scenario by tracking failure metrics.
       #
-      # @param exception [Vass::Errors::VassApiError] The exception
-      #
-      def handle_vass_api_error(exception)
-        handle_error(exception, 'vass_api_error', 'External service error', :bad_gateway)
-      end
-
-      ##
-      # Handles service errors (timeouts, network issues).
-      #
-      # @param exception [Vass::Errors::ServiceError] The exception
-      #
-      def handle_service_error(exception)
-        handle_error(
-          exception,
-          'service_error',
-          'Unable to process request with appointment service',
-          :service_unavailable
-        )
+      def handle_missing_appointment_id
+        track_failure(APPOINTMENTS_CREATE, error_type: 'missing_session_data')
       end
 
       ##
       # Handles missing parameter errors from Rails params.require().
       #
-      # @param exception [ActionController::ParameterMissing] The exception
+      # @param _exception [ActionController::ParameterMissing] The exception (unused)
       #
-      def handle_parameter_missing(exception)
-        render_error('missing_parameter', exception.message, :bad_request)
+      def handle_parameter_missing(_exception)
+        render_error('missing_parameter', 'Required parameter is missing', :bad_request)
       end
 
       ##
@@ -224,14 +272,15 @@ module Vass
       ##
       # Sets up the appointments service with veteran EDIPI.
       #
-      # For appointments endpoints, we need the EDIPI which should be
-      # stored in Redis during OTC authentication flow.
+      # Retrieves EDIPI from session data which is stored when JWT is issued.
+      # Session is keyed by UUID (one session per veteran).
       #
       def set_appointments_service
-        veteran_metadata = redis_client.veteran_metadata(uuid: @current_veteran_id)
-        edipi = veteran_metadata&.fetch(:edipi, nil)
+        session_data = redis_client.session(uuid: @current_veteran_id)
+        edipi = session_data&.fetch(:edipi, nil)
 
         unless edipi
+          log_vass_event(action: 'missing_edipi', vass_uuid: @current_veteran_id, level: :error, **audit_metadata)
           return render_error('missing_edipi', 'Veteran EDIPI not found. Please re-authenticate.', :unauthorized)
         end
 
@@ -247,27 +296,7 @@ module Vass
       # @return [ActionController::Parameters] Permitted parameters
       #
       def permitted_params
-        params.permit(:correlation_id, :appointment_id, :dtStartUtc, :dtEndUtc, topics: [])
-      end
-
-      ##
-      # Handles errors by logging and rendering appropriate response.
-      #
-      # @param error [Exception] Error object
-      # @param code [String] Error code
-      # @param detail [String] Error detail message
-      # @param status [Symbol] HTTP status
-      #
-      def handle_error(error, code, detail, status)
-        Rails.logger.error({
-          service: 'vass',
-          controller: 'appointments',
-          action: action_name,
-          error_class: error.class.name,
-          timestamp: Time.current.iso8601
-        }.to_json)
-
-        render_error(code, detail, status)
+        params.permit(:correlation_id, :appointment_id, :dt_start_utc, :dt_end_utc, topics: [])
       end
 
       ##
@@ -278,14 +307,14 @@ module Vass
       # @param status [Symbol] HTTP status
       #
       def render_error(code, detail, status)
-        render json: {
-          errors: [
-            {
-              code:,
-              detail:
-            }
-          ]
-        }, status:
+        render_camelized_json({
+                                errors: [
+                                  {
+                                    code:,
+                                    detail:
+                                  }
+                                ]
+                              }, status:)
       end
 
       ##
@@ -306,7 +335,7 @@ module Vass
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
           render_error(error_code, message, :unprocessable_entity)
         else
-          Rails.logger.error("Unexpected availability status: #{status}")
+          log_vass_event(action: 'unexpected_availability_status', level: :error, status: status.to_s, **audit_metadata)
           render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
         end
       end
@@ -317,12 +346,12 @@ module Vass
       # @param data [Hash] Appointment data with available slots
       #
       def render_available_slots(data)
-        render json: {
-          data: {
-            appointmentId: data[:appointment_id],
-            availableSlots: data[:available_slots]
-          }
-        }, status: :ok
+        render_camelized_json({
+                                data: {
+                                  appointment_id: data[:appointment_id],
+                                  available_slots: data[:available_slots]
+                                }
+                              })
       end
 
       ##
@@ -331,17 +360,17 @@ module Vass
       # @param data [Hash] Existing appointment data
       #
       def render_already_booked(data)
-        render json: {
-          errors: [{
-            code: 'appointment_already_booked',
-            detail: 'already scheduled',
-            appointment: {
-              appointmentId: data[:appointment_id],
-              dtStartUTC: data[:start_utc],
-              dtEndUTC: data[:end_utc]
-            }
-          }]
-        }, status: :conflict
+        render_camelized_json({
+                                errors: [{
+                                  code: 'appointment_already_booked',
+                                  detail: 'already scheduled',
+                                  appointment: {
+                                    appointment_id: data[:appointment_id],
+                                    dt_start_utc: data[:start_utc],
+                                    dt_end_utc: data[:end_utc]
+                                  }
+                                }]
+                              }, status: :conflict)
       end
 
       ##
@@ -352,15 +381,30 @@ module Vass
       def render_next_cohort(data)
         next_cohort = data[:next_cohort]
 
-        render json: {
-          data: {
-            message: data[:message],
-            nextCohort: {
-              cohortStartUtc: next_cohort[:cohort_start_utc],
-              cohortEndUtc: next_cohort[:cohort_end_utc]
-            }
+        render_camelized_json({
+                                data: {
+                                  message: data[:message],
+                                  next_cohort: {
+                                    cohort_start_utc: next_cohort[:cohort_start_utc],
+                                    cohort_end_utc: next_cohort[:cohort_end_utc]
+                                  }
+                                }
+                              })
+      end
+
+      ##
+      # Maps agent skills from VASS API to topic format expected by frontend.
+      #
+      # @param agent_skills [Array<Hash>] Agent skills from VASS
+      # @return [Array<Hash>] Topics with topic_id and topic_name
+      #
+      def map_agent_skills_to_topics(agent_skills)
+        agent_skills.map do |skill|
+          {
+            'topic_id' => skill['skill_id'],
+            'topic_name' => skill['skill_name']
           }
-        }, status: :ok
+        end
       end
 
       ##
@@ -373,8 +417,8 @@ module Vass
         @appointments_service.save_appointment(
           appointment_params: {
             veteran_id: @current_veteran_id,
-            time_start_utc: permitted_params[:dtStartUtc],
-            time_end_utc: permitted_params[:dtEndUtc],
+            time_start_utc: permitted_params[:dt_start_utc],
+            time_end_utc: permitted_params[:dt_end_utc],
             appointment_id:,
             selected_agent_skills: permitted_params[:topics]
           }
@@ -394,7 +438,7 @@ module Vass
       def render_vass_response(response, success_data:, error_code:, error_message:, error_status:)
         if response['success']
           data = success_data.is_a?(Proc) ? success_data.call(response) : success_data
-          render json: { data: }, status: :ok
+          render_camelized_json({ data: })
         else
           render_error(error_code, error_message, error_status)
         end

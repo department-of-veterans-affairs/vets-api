@@ -15,7 +15,8 @@ require 'vets/model'
 
 module IvcChampva
   class VHA107959cRev2025
-    STATS_KEY = 'api.ivc_champva_form.10_7959c_rev2025'
+    STATS_KEY = 'api.ivc_champva_form.10_7959c'
+    FORM_VERSION = 'vha_10_7959c_rev2025'
 
     include Vets::Model
     include Attachments
@@ -84,6 +85,22 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 Email Used', email_used:)
     end
 
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.submission", tags: [
+                         "identity:#{identity}",
+                         "current_user_loa:#{current_user_loa}",
+                         "email_used:#{email_used}",
+                         "form_version:#{FORM_VERSION}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 Submission', identity:,
+                                                                           current_user_loa:,
+                                                                           email_used:,
+                                                                           form_version: FORM_VERSION)
+    end
+
     def track_delegate_form(parent_form_id)
       StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
       Rails.logger.info('IVC ChampVA Forms - 10-7959C-REV2025 Delegate Form', parent_form_id:)
@@ -123,6 +140,12 @@ module IvcChampva
       health_insurance = transformed['health_insurance'] || []
       map_policy_to_flat_fields(health_insurance[0], transformed, :primary) if health_insurance[0]
       map_policy_to_flat_fields(health_insurance[1], transformed, :secondary) if health_insurance[1]
+
+      if transformed['certifier_role'] == 'applicant'
+        transformed['applicant_email_address'] ||= transformed['certifier_email']
+      elsif transformed['applicant_email'].present?
+        transformed['applicant_email_address'] ||= transformed['applicant_email']
+      end
 
       transformed
     end

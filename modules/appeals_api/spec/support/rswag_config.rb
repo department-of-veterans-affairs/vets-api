@@ -8,6 +8,10 @@ RSpec.configure { |_config| include DocHelpers }
 
 # rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
+  def self.decision_reviews_description_file_name
+    Flipper.enabled?(:decision_review_evidence_final_status_field) ? "description_with_final_status#{DocHelpers.doc_suffix}.md" : "api_description#{DocHelpers.doc_suffix}.md"
+  end
+
   def rswag_doc_config(base_path_template:, description_file_path:, name:, tags:, version:)
     {
       # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
@@ -58,7 +62,7 @@ class AppealsApi::RswagConfig
       ),
       "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         version: 'v2',
-        description_file_path: AppealsApi::Engine.root.join("app/swagger/decision_reviews/v2/api_description#{DocHelpers.doc_suffix}.md"),
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/decision_reviews/v2/#{self.class.decision_reviews_description_file_name}"),
         base_path_template: '/services/appeals/{version}/decision_reviews',
         name: 'decision_reviews',
         tags: api_tags(*%i[higher_level_reviews notice_of_disagreements supplemental_claims contestable_issues legacy_appeals])
@@ -798,6 +802,11 @@ class AppealsApi::RswagConfig
                     type: 'string',
                     format: 'date-time',
                     example: '2018-07-30T17:31:15.958Z'
+                  },
+                  finalStatus: {
+                    description: 'Indicates whether the status of the submission is final. Submissions with a finalStatus of true will no longer update to a new status.',
+                    type: 'boolean',
+                    example: false
                   }
                 }
               }
@@ -993,6 +1002,11 @@ class AppealsApi::RswagConfig
                     type: 'string',
                     format: 'date-time',
                     example: '2018-07-30T17:31:15.958Z'
+                  },
+                  finalStatus: {
+                    description: 'Indicates whether the status of the submission is final. Submissions with a finalStatus of true will no longer update to a new status.',
+                    type: 'boolean',
+                    example: false
                   }
                 }
               }

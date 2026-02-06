@@ -17,12 +17,6 @@ RSpec.describe VRE::VREMonitor do
   let(:message_prefix) { "#{described_class} #{VRE::FORM_ID}" }
   let(:current_user) { create(:user) }
 
-  before do
-    allow(Flipper).to receive(:enabled?)
-      .with(:vre_use_new_vfs_notification_library)
-      .and_return(true)
-  end
-
   shared_examples 'create operations tracking' do |status, log_level|
     let(:base_payload) do
       {

@@ -20,6 +20,7 @@ module SignIn
         update_mpi_correlation_record
       else
         add_mpi_user
+        user_attribute_mismatch_checks(new_record: true)
         validate_existing_mpi_attributes
       end
 
@@ -83,11 +84,11 @@ module SignIn
       end
     end
 
-    def user_attribute_mismatch_checks
-      attribute_mismatch_check(:first_name, first_name, mpi_response_profile.given_names.first)
-      attribute_mismatch_check(:last_name, last_name, mpi_response_profile.family_name)
-      attribute_mismatch_check(:birth_date, birth_date, mpi_response_profile.birth_date)
-      attribute_mismatch_check(:ssn, ssn, mpi_response_profile.ssn, prevent_auth: true)
+    def user_attribute_mismatch_checks(new_record: false)
+      attribute_mismatch_check(:first_name, first_name, mpi_response_profile.given_names.first, new_record:)
+      attribute_mismatch_check(:last_name, last_name, mpi_response_profile.family_name, new_record:)
+      attribute_mismatch_check(:birth_date, birth_date, mpi_response_profile.birth_date, new_record:)
+      attribute_mismatch_check(:ssn, ssn, mpi_response_profile.ssn, new_record:, prevent_auth: true)
     end
 
     def validate_credential_attributes
@@ -111,14 +112,18 @@ module SignIn
                    error: Errors::CredentialMissingAttributeError)
     end
 
-    def attribute_mismatch_check(type, credential_attribute, mpi_attribute, prevent_auth: false)
+    def attribute_mismatch_check(type, credential_attribute, mpi_attribute, new_record: false, prevent_auth: false)
       return unless mpi_attribute
 
       if scrub_attribute(credential_attribute) != scrub_attribute(mpi_attribute)
         error = prevent_auth ? Errors::AttributeMismatchError : nil
+
+        error_code = type == :ssn ? Constants::ErrorCode::SSN_ATTRIBUTE_MISMATCH : Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
+
         handle_error("Attribute mismatch, #{type} in credential does not match MPI attribute",
-                     Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     error:)
+                     error_code,
+                     error:,
+                     new_record:)
       end
     end
 
@@ -151,10 +156,12 @@ module SignIn
       user_verification&.credential_attributes_digest != credential_attributes_digest
     end
 
-    def handle_error(error_message, error_code, error: nil, raise_error: true)
+    def handle_error(error_message, error_code, error: nil, new_record: nil, raise_error: true)
       sign_in_logger.info('attribute validator error', { errors: error_message,
+                                                         code: error_code,
                                                          credential_uuid:,
                                                          mhv_icn:,
+                                                         new_record:,
                                                          type: service_name }.compact)
       raise error.new message: error_message, code: error_code if error && raise_error
     end

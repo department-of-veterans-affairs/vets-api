@@ -16,7 +16,6 @@ require 'pdf_fill/forms/va1010ezr'
 require 'pdf_fill/forms/va686c674'
 require 'pdf_fill/forms/va686c674v2'
 require 'pdf_fill/forms/va281900'
-require 'pdf_fill/forms/va281900v2'
 require 'pdf_fill/forms/va288832'
 require 'pdf_fill/forms/va210779'
 require 'pdf_fill/forms/va21674'
@@ -89,7 +88,6 @@ module PdfFill
       '686C-674' => PdfFill::Forms::Va686c674,
       '686C-674-V2' => PdfFill::Forms::Va686c674v2,
       '28-1900' => PdfFill::Forms::Va281900,
-      '28-1900-V2' => PdfFill::Forms::Va281900v2,
       '28-8832' => PdfFill::Forms::Va288832,
       '21-674' => PdfFill::Forms::Va21674,
       '21-674-V2' => PdfFill::Forms::Va21674v2,
@@ -207,13 +205,14 @@ module PdfFill
     #
     # @return [None]
     #
+
     def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      Rails.logger.info("PdfFill::Filler HexaPDF template: #{template_path}") if Flipper.enabled?(:acroform_debug_logs)
       doc = HexaPDF::Document.open(template_path)
       form = doc.acro_form
       raise 'No AcroForm found in PDF template.' if form.nil?
 
       form.fill(hash_data)
-
       doc.write(output_path)
     end
 
@@ -259,11 +258,23 @@ module PdfFill
         fill_options[:created_at] || merged_form_data['signatureDate'] || Time.now.utc
       )
 
-      hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
-      new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
+      form_instance = form_class.new(merged_form_data)
+
+      # Dynamic KEY support (same pattern as question_key/template)
+      pdftk_keys = form_instance.try(:key) || form_class::KEY
+      hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options, merged_form_data)
+      new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys:)
 
       has_template = form_class.const_defined?(:TEMPLATE)
-      template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+
+      # Try instance method first (for dynamic templates), fallback to constant
+      template_path = if form_instance.respond_to?(:template)
+                        form_instance.template
+                      elsif has_template
+                        form_class::TEMPLATE
+                      else
+                        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+                      end
 
       if fill_options.fetch(:use_hexapdf, false)
         fill_form_with_hexapdf(template_path, file_path, new_hash)
@@ -301,15 +312,20 @@ module PdfFill
       processor.process
     end
 
-    def make_hash_converter(form_id, form_class, submit_date, fill_options)
+    # Pension/Burial Team to remove instance changes after V2 in production
+    def make_hash_converter(form_id, form_class, submit_date, fill_options, form_data = {})
+      form_instance = form_class.new(form_data) if form_data.present?
+      question_key = form_instance.try(:question_key) || form_class::QUESTION_KEY
+      sections = form_instance.try(:sections) || form_class::SECTIONS
+
       extras_generator =
         if fill_options.fetch(:extras_redesign, false)
           ExtrasGeneratorV2.new(
             form_name: form_id.sub(/V2\z/, ''),
             submit_date:,
-            question_key: form_class::QUESTION_KEY,
+            question_key:,
             start_page: form_class::START_PAGE,
-            sections: form_class::SECTIONS,
+            sections:,
             label_width: form_class::DEFAULT_LABEL_WIDTH,
             show_jumplinks: fill_options.fetch(:show_jumplinks, false),
             use_hexapdf: fill_options.fetch(:use_hexapdf, false)

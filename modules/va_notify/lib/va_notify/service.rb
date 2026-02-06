@@ -234,8 +234,19 @@ module VaNotify
     def set_service_id(response)
       return nil unless Flipper.enabled?(:va_notify_request_level_callbacks)
 
-      parsed_template_uri = response.template['uri']&.split('/')
-      parsed_template_uri[4]
+      template_uri = response&.template&.[]('uri')
+      return nil if template_uri.blank?
+
+      uri_segments = template_uri.split('/')
+      if uri_segments.length < 5
+        Rails.logger.info('VANotify template URI has unexpected format', template_uri:)
+        return nil
+      end
+
+      uri_segments[4]
+    rescue NoMethodError, TypeError => e
+      Rails.logger.info('Unable to derive VANotify service_id', error: e.class.name)
+      nil
     end
   end
 end

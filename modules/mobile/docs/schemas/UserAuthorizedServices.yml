@@ -27,6 +27,7 @@ properties:
           allergiesOracleHealthEnabled: false
           appeals: true
           appointments: true
+          benefitsPushNotification: false
           claims: true
           decisionLetters: true
           directDepositBenefits: true
@@ -50,7 +51,7 @@ properties:
     required:
       - isUserAtPretransitionedOhFacility
       - isUserFacilityReadyForInfoAlert
-      - isUserFacilityMigratingToOh
+      - migratingFacilitiesList
     properties:
       isUserAtPretransitionedOhFacility:
         type: boolean
@@ -60,7 +61,84 @@ properties:
         type: boolean
         example: false
         description: Indicates whether the user's facility is ready for the blue informational alert about Oracle Health transition.
-      isUserFacilityMigratingToOh:
-        type: boolean
-        example: false
-        description: Indicates whether the user is associated with a facility that is migrating to Oracle Health.
+      migratingFacilitiesList:
+        type: array
+        description: A list of facilities that are actively migrating to Oracle Health along with their migration dates.
+        items:
+          type: object
+          required:
+            - migrationDate
+            - facilities
+            - phases
+          properties:
+            migrationDate:
+              type: string
+              example: "October 1, 2026"
+              description: The date when the facilities are scheduled to migrate to Oracle Health.
+            facilities:
+              type: array
+              description: A list of facilities migrating on the specified date.
+              items:
+                type: object
+                required:
+                  - facilityId
+                  - facilityName
+                properties:
+                  facilityId:
+                    type: string
+                    example: "555"
+                    description: The unique identifier for the facility.
+                  facilityName:
+                    type: string
+                    example: "Facility Name"
+                    description: The name of the facility.
+            phases:
+              type: object
+              description: Lists all the dates for each phase of the migration and shows the current phase for the migration
+              additionalProperties: false
+              properties:
+                current:
+                  type: string
+                  nullable: true
+                  example: "p1"
+                  description: The current phase of the migration (e.g., "p1"), or null if no phase is currently active.
+                p0:
+                  type: string
+                  format: date
+                  example: "2026-09-01"
+                  description: The date when phase 0 begins (ISO 8601 date string).
+                p1:
+                  type: string
+                  format: date
+                  example: "2026-10-01"
+                  description: The date when phase 1 begins (ISO 8601 date string).
+                p2:
+                  type: string
+                  format: date
+                  example: "2026-11-01"
+                  description: The date when phase 2 begins (ISO 8601 date string).
+                p3:
+                  type: string
+                  format: date
+                  example: "2026-12-01"
+                  description: The date when phase 3 begins (ISO 8601 date string).
+                p4:
+                  type: string
+                  format: date
+                  example: "2027-01-01"
+                  description: The date when phase 4 begins (ISO 8601 date string).
+                p5:
+                  type: string
+                  format: date
+                  example: "2027-02-01"
+                  description: The date when phase 5 begins (ISO 8601 date string).
+                p6:
+                  type: string
+                  format: date
+                  example: "2027-03-01"
+                  description: The date when phase 6 begins (ISO 8601 date string).
+                p7:
+                  type: string
+                  format: date
+                  example: "2027-04-01"
+                  description: The date when phase 7 begins (ISO 8601 date string).

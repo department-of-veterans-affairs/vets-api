@@ -24,6 +24,7 @@ module CheckIn
         render json: check_in_session.client_error, status: :bad_request and return unless check_in_session.valid?
         render json: check_in_session.success_message and return if check_in_session.authorized?
 
+        log_session_creation_attempt(check_in_session) if Flipper.enabled?(:check_in_experience_detailed_logging)
         token_data = ::V2::Lorota::Service.build(check_in: check_in_session).token
 
         ::V2::Chip::Service.build(check_in: check_in_session).set_precheckin_started if pre_checkin?
@@ -42,6 +43,16 @@ module CheckIn
         check_in_param = params[:checkInType] # GET request
         check_in_param = params.dig(:session, :check_in_type) if check_in_param.nil?
         check_in_param == 'preCheckIn'
+      end
+
+      def log_session_creation_attempt(session)
+        Rails.logger.info({
+                            message: 'Check-in session creation',
+                            check_in_uuid: session.uuid,
+                            check_in_type: session.check_in_type,
+                            facility_type: session.facility_type,
+                            workflow: pre_checkin? ? 'Pre-Check-In' : 'Day-Of-Check-In'
+                          })
       end
 
       def authorize

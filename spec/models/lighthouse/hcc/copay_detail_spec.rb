@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Lighthouse::HCC::CopayDetail do
   describe 'initialization' do
     context 'with valid invoice data' do
-      subject { described_class.new(invoice_data:, account_data:) }
+      subject { described_class.new(invoice_data:, account_data:, facility_address:) }
 
       let(:invoice_data) do
         {
@@ -22,9 +22,28 @@ RSpec.describe Lighthouse::HCC::CopayDetail do
         { 'identifier' => [{ 'value' => 'ACCT-999' }] }
       end
 
+      let(:facility_address) do
+        {
+          address_line1: '123 Test',
+          address_line2: nil,
+          address_line3: nil,
+          city: 'Test City',
+          state: 'FL',
+          postalCode: '12345'
+        }
+      end
+
       it 'extracts basic attributes from invoice data' do
         expect(subject.external_id).to eq('invoice-123')
-        expect(subject.facility).to eq('VA Medical Center')
+        expect(subject.facility).to include(
+          'name' => 'VA Medical Center',
+          'address' => include(
+            'address_line1' => '123 Test',
+            'city' => 'Test City',
+            'state' => 'FL',
+            'postalCode' => '12345'
+          )
+        )
         expect(subject.bill_number).to eq('BILL-001')
         expect(subject.status).to eq('issued')
         expect(subject.status_description).to eq('Active')
@@ -66,7 +85,7 @@ RSpec.describe Lighthouse::HCC::CopayDetail do
         invoice_data = { 'id' => 'test-123' }
         detail = described_class.new(invoice_data:)
 
-        expect(detail.facility).to be_nil
+        expect(detail.facility).to eq({ 'name' => nil, 'address' => nil })
         expect(detail.bill_number).to be_nil
         expect(detail.status_description).to be_nil
       end

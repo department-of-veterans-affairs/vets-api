@@ -84,8 +84,6 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VAOS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
@@ -194,18 +192,14 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
-                                                  instance_of(User)).and_return(true)
       end
 
       context 'when va appointment create request is valid' do
         # appointment created using the Jacqueline Morgan user
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -262,7 +256,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when cc appointment create request is valid' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -282,7 +276,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when the patientIcn is missing' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -312,7 +306,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when the upstream server returns a 500' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                     instance_of(User)).and_return(true)
         end
 
@@ -1248,8 +1242,6 @@ describe VAOS::V2::AppointmentsService do
       context 'with Jaqueline Morgan' do
         context 'using VPG' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
-                                                      user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
@@ -1289,7 +1281,7 @@ describe VAOS::V2::AppointmentsService do
 
         context 'using vaos-service' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                       user).and_return(false)
           end
 
@@ -1327,7 +1319,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when there is a server error in updating an appointment' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
       end
 
       it 'throws a BackendServiceException' do
@@ -2301,8 +2293,7 @@ describe VAOS::V2::AppointmentsService do
           'name' => 'Ambulatory Visit Summary',
           'loinc_codes' => %w[4189669 96345-4],
           'note_type' => 'ambulatory_patient_summary',
-          'content_type' => 'application/pdf',
-          'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+          'content_type' => 'application/pdf'
         }
       ]
     end
@@ -2317,6 +2308,10 @@ describe VAOS::V2::AppointmentsService do
     let(:avs_error) { 'Error retrieving AVS info' }
 
     context 'OH AVS PDF' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(true)
+      end
+
       context 'when UHD Service successfully retrieved the AVS PDF' do
         it 'fetches the AVS PDF and updates the appt hash' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
@@ -2342,6 +2337,17 @@ describe VAOS::V2::AppointmentsService do
 
         it 'returns an avs error message field in the appointment response' do
           allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return([])
+          subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
+          expect(appt_cerner[:avs_pdf]).to be_nil
+        end
+      end
+
+      context 'when processing cerner appointment but flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_add_OH_avs).and_return(false)
+        end
+
+        it 'does not fetch the OH AVS' do
           subject.send(:fetch_avs_and_update_appt_body, appt_cerner)
           expect(appt_cerner[:avs_pdf]).to be_nil
         end
@@ -2376,6 +2382,107 @@ describe VAOS::V2::AppointmentsService do
           subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
           expect(appt_no_avs[:avs_path]).to be_nil
         end
+      end
+    end
+  end
+
+  describe '#fetch_avs_binaries' do
+    let(:avs_pdf) do
+      UnifiedHealthData::BinaryData.new(
+        content_type: 'application/pdf',
+        binary: 'binaryString'
+      )
+    end
+
+    context 'invalid arguments' do
+      it 'sets the error field when doc_id is nil' do
+        result = subject.send(:fetch_avs_binaries, 'appt', [nil])
+        expect(result).to eq([{
+                               doc_id: nil,
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+
+      it 'returns nil when appt_id is nil' do
+        result = subject.send(:fetch_avs_binaries, nil, ['doc1'])
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when doc_ids is nil' do
+        result = subject.send(:fetch_avs_binaries, 'appt', nil)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when doc_ids is empty' do
+        result = subject.send(:fetch_avs_binaries, 'appt', [])
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when UHD Service successfully retrieved the binaries' do
+      it 'returns the fetched PDF binaries' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               binary: 'binaryString'
+                             }])
+      end
+    end
+
+    context 'when an error occurs' do
+      it 'logs the error and sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Error retrieving AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there is no available binary' do
+      it 'sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(nil)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there are mixed results' do
+      it 'returns both successful binaries and error fields' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc2', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc3', appt_id: 'appt').and_return(nil)
+
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binaries, 'appt', %w[doc1 doc2 doc3])
+        expect(result).to eq([
+                               {
+                                 doc_id: 'doc1',
+                                 binary: 'binaryString'
+                               },
+                               {
+                                 doc_id: 'doc2',
+                                 error: 'Error retrieving AVS binary'
+                               },
+                               {
+                                 doc_id: 'doc3',
+                                 error: 'Retrieved empty AVS binary'
+                               }
+                             ])
       end
     end
   end

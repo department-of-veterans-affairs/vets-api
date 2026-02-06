@@ -12,6 +12,9 @@ accredited_representative_portal:
       repo: ~
   frontend_base_url: http://localhost:3001/representative
   lighthouse:
+    benefits_claims:
+      host: https://sandbox-api.va.gov
+      path: /services/claims/v2/veterans
     benefits_intake:
       api_key: ~
       host: https://sandbox-api.va.gov
@@ -21,6 +24,10 @@ accredited_representative_portal:
         stale_sla: 10
       use_mocks: false
       version: v1
+active_record_encryption:
+  deterministic_key: lRZb6GdKZX5L7zzuEe6osyDDC6V7R5PJ
+  key_derivation_salt: IdWoSgvha0ZyWLZPA4RLkYOMTbITYcKP
+  primary_key: Jhm5UbpDiP08qT2pW6EguvojkLSZjJdw
 adapted_housing:
   prefill: true
 argocd:
@@ -215,7 +222,11 @@ claims_api:
       ccg:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
         client_id: ~
-    host: https://qa.lighthouse.va.gov
+        secret_key: "/srv/vets-api/secret/claims_api_fes_ccg_secret.key"
+    service_url: ~
+    ssl: false
+    token_host: https://qa.lighthouse.va.gov
+    use_mocks: true
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -290,6 +301,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
@@ -625,6 +637,12 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: ~
+  path: "/api/validated-forms"
+  use_mocks: false
+  version: v1
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -757,6 +775,8 @@ lighthouse:
       - system/Encounter.read
       - system/Account.read
       - system/Medication.read
+      - system/Organization.read
+      - system/Patient.read
       - launch
     timeout: 30
     use_mocks: false
@@ -873,6 +893,7 @@ maintenance:
     form107959f2: ~
     form21p0537: ~
     form21p601: ~
+    form_upload_benefits_intake: ~
     global: PLPSIB0
     hcq: PWGA814
     idme: PVWB4R8
@@ -905,6 +926,7 @@ maintenance:
     vapro_military_info: ~
     vapro_notification_settings: ~
     vapro_personal_info: ~
+    vass: ~
     vbms: ~
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
@@ -975,8 +997,8 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   oh_facility_checks:
-    facilities_migrating_to_oh: 555, 001
     facilities_ready_for_info_alert: 612, 555
+    oh_migrations_list: "2026-02-11:[983,Test 1],[984,Test 2];2026-05-01:[518,Cleveland VA]"
     pretransitioned_oh_facilities: 612, 357, 555, 757
   rx:
     app_token: ~
@@ -1229,6 +1251,13 @@ reports:
       - jacob.finnern@accenturefederal.com
       - hocine.halli@accenturefederal.com
       - adam.freemer@accenturefederal.com
+representation_management:
+  geocoder:
+    mapbox:
+      api_key: ~
+  ogc_attorney_excel_list_uri: ~
+  ogc_claims_agent_excel_list_uri: ~
+  ogc_organizations_excel_list_uri: ~
 res:
   api_key: ~
   base_url: https://fake_url.com
@@ -1822,21 +1851,21 @@ vaos:
       hex_iv: "0123456789abcdef0123456789abcdef"
       hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vass:
-  api_url: <%= ENV['vass__api_url'] %>
-  auth_url: https://login.microsoftonline.us
-  client_id: <%= ENV['vass__client_id'] %>
-  client_secret: <%= ENV['vass__client_secret'] %>
-  jwt_secret: 'development-jwt-secret-key-not-for-production'
-  mock: <%= ENV['vass__mock'] %>
-  rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
-  rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
-  redis_otc_expiry: 600
+  api_url: https://fake-api.com
+  auth_url: https://fake-auth-url.com
+  client_id: fake_client_id
+  client_secret: fake_client_secret
+  jwt_secret: development-jwt-secret-key-not-for-production
+  mock: true
+  rate_limit_expiry: 7
+  rate_limit_max_attempts: 3
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
-  scope: <%= ENV['vass__scope'] %>
+  scope: 1
   service_name: VASS-API
-  subscription_key: <%= ENV['vass__subscription_key'] %>
-  tenant_id: <%= ENV['vass__tenant_id'] %>
+  subscription_key: fake_subscription_key
+  tenant_id: fake_tenant_id
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: ~

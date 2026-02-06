@@ -11,6 +11,7 @@ shared_examples 'medical records new eligibility check' do |path, cassette_name|
 
       before do
         allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: false))
+        allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return('12345678901')
         get path
       end
 
@@ -22,6 +23,7 @@ shared_examples 'medical records new eligibility check' do |path, cassette_name|
 
       before do
         allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: false))
+        allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return('12345678901')
         get path
       end
 
@@ -34,6 +36,7 @@ shared_examples 'medical records new eligibility check' do |path, cassette_name|
       context 'who is a VA patient' do
         before do
           allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: true))
+          allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return('12345678901')
         end
 
         it 'responds to GET #index' do
@@ -48,6 +51,7 @@ shared_examples 'medical records new eligibility check' do |path, cassette_name|
       context 'who is NOT a VA patient' do
         before do
           allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient: false))
+          allow_any_instance_of(User).to receive(:mhv_correlation_id).and_return('12345678901')
           get path
         end
 

@@ -29,17 +29,17 @@ module DependentsBenefits::Sidekiq
 
       # Use the class of the inheriting job that exhausted, not the base class
       job_class_name = msg['class']
-      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion',
-                                    claim_id:)
 
-      # If we don't have a job class name, the error is irrecoverable
       if job_class_name.blank?
+        # If we don't have a job class name, the error is irrecoverable
         monitor.log_silent_failure({ claim_id:, error: exception })
-        return
-      end
+      else
+        monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion',
+                                      claim_id:)
 
-      job_class = job_class_name.constantize
-      job_class.new.send(:handle_permanent_failure, claim_id, exception)
+        job_class = job_class_name.constantize
+        job_class.new.send(:handle_permanent_failure, claim_id, exception)
+      end
     end
 
     # Main job execution method for submitting dependent claims
@@ -155,11 +155,11 @@ module DependentsBenefits::Sidekiq
       submission_attempt = create_form_submission_attempt(submission)
       claim.add_veteran_info(user_data)
       if claim.form_id == DependentsBenefits::ADD_REMOVE_DEPENDENT
-        raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
+        raise DependentsBenefits::Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
         submit_686c_form(claim)
       elsif claim.form_id == DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL
-        raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
+        raise DependentsBenefits::Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
         submit_674_form(claim)
       end

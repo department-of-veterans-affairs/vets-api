@@ -266,22 +266,22 @@ module PdfFill
             limit: 3,
             question_num: 27,
             'make' => {
-              key: "automobiles.make[#{ITERATOR}]",
+              key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{56 + (i * 4)}[0]" },
               question_num: 27,
               question_text: 'Car make'
             },
             'year' => {
-              key: "automobiles.year[#{ITERATOR}]",
+              key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{57 + (i * 4)}[0]" },
               question_num: 27,
               question_text: 'Car year'
             },
             'model' => {
-              key: "automobiles.model[#{ITERATOR}]",
+              key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{58 + (i * 4)}[0]" },
               question_num: 27,
               question_text: 'Car model'
             },
             'resaleValue' => {
-              key: "automobiles.value[#{ITERATOR}]",
+              key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{59 + (i * 4)}[0]" },
               question_num: 27,
               question_text: 'Car value'
             }
@@ -306,10 +306,10 @@ module PdfFill
             limit: 3,
             question_num: 32,
             'name' => {
-              key: "otherAssets.name[#{ITERATOR}]"
+              key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{72 + (i * 2)}[0]" }
             },
             'amount' => {
-              key: "otherAssets.value[#{ITERATOR}]"
+              key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{73 + (i * 2)}[0]" }
             }
           },
           'totalAssets' => {
@@ -319,27 +319,27 @@ module PdfFill
         'installmentContractsAndOtherDebts' => {
           limit: 8,
           'nameAndAddress' => {
-            key: "debts.name[#{ITERATOR}]",
+            key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{79 + (i * 6)}[0]" },
             question_suffix: 'A'
           },
           'dateAndPurpose' => {
-            key: "debts.date[#{ITERATOR}]",
+            key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{80 + (i * 6)}[0]" },
             question_suffix: 'B'
           },
           'originalAmount' => {
-            key: "debts.originalAmount[#{ITERATOR}]",
+            key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{81 + (i * 6)}[0]" },
             question_suffix: 'C'
           },
           'unpaidBalance' => {
-            key: "debts.unpaidBalance[#{ITERATOR}]",
+            key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{82 + (i * 6)}[0]" },
             question_suffix: 'D'
           },
           'amountDueMonthly' => {
-            key: "debts.monthlyDue[#{ITERATOR}]",
+            key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{83 + (i * 6)}[0]" },
             question_suffix: 'E'
           },
           'amountPastDue' => {
-            key: "debts.pastDue[#{ITERATOR}]",
+            key_from_iterator: ->(i) { "vaco5655[0].#subform[1].Field#{84 + (i * 6)}[0]" },
             question_suffix: 'F'
           }
         },

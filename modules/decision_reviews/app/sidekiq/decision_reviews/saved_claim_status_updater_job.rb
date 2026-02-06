@@ -27,12 +27,14 @@ module DecisionReviews
 
     FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
 
+    BATCH_SIZE = 100
+
     def perform
       return unless should_perform?
 
-      StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.size)
+      StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.count)
 
-      records_to_update.each do |record|
+      records_to_update.find_each(batch_size: BATCH_SIZE) do |record|
         status, attributes = get_status_and_attributes(record)
         uploads_metadata = get_evidence_uploads_statuses(record)
         secondary_forms_complete = get_and_update_secondary_form_statuses(record)

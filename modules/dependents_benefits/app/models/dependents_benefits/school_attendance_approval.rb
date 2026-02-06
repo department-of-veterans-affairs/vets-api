@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'dependents_benefits/claim_behavior'
+require 'dependents_benefits/claim_behavior'
 
 module DependentsBenefits
   # DependentsBenefit 21-674 Active::Record

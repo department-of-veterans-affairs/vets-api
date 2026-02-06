@@ -18,6 +18,7 @@ module Mobile
                  :prescription_number,
                  :prescription_name,
                  :dispensed_date,
+                 :sorted_dispensed_date,
                  :station_number,
                  :is_refillable,
                  :is_trackable

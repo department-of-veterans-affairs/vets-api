@@ -52,6 +52,7 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
+    resource :veteran_status_card, only: :show
 
     resources :form210779, only: [:create] do
       collection do
@@ -182,7 +183,8 @@ Rails.application.routes.draw do
 
     resources :efolder, only: %i[index show]
 
-    resources :tsa_letter, only: %i[index show]
+    get :tsa_letter, to: 'tsa_letter#show'
+    get 'tsa_letter/:id/version/:version_id/download', to: 'tsa_letter#download'
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -207,6 +209,7 @@ Rails.application.routes.draw do
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+    get 'header_status', to: 'admin#header_status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
     get 'openapi', to: 'open_api#index'
@@ -308,6 +311,14 @@ Rails.application.routes.draw do
 
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
+
+      # "Email Verification" internally; "Email Confirmation" externally
+      resource :email_verification, only: %i[create], controller: 'email_verification' do
+        member do
+          get :status
+          get :verify
+        end
+      end
     end
 
     resources :search, only: :index

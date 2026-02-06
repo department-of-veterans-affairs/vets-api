@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://va.gov/schemas/benefits_claims/tracked_item_content.json",
+  "title": "TrackedItemContent",
+  "description": "Schema for tracked item content override entries with structured content blocks",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "friendlyName": {
+      "type": "string",
+      "description": "Human-readable friendly name for display"
+    },
+    "shortDescription": {
+      "type": "string",
+      "description": "Brief description of the tracked item"
+    },
+    "activityDescription": {
+      "type": "string",
+      "description": "Description of what activity this represents"
+    },
+    "supportAliases": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Alternative names that map to this item"
+    },
+    "canUploadFile": {
+      "type": "boolean",
+      "description": "Whether veteran can upload files for this item"
+    },
+    "noActionNeeded": {
+      "type": "boolean",
+      "description": "True if veteran does not need to take action"
+    },
+    "isDBQ": {
+      "type": "boolean",
+      "description": "True if this is a Disability Benefits Questionnaire"
+    },
+    "isProperNoun": {
+      "type": "boolean",
+      "description": "True if displayName is a proper noun"
+    },
+    "isSensitive": {
+      "type": "boolean",
+      "description": "True if content is sensitive"
+    },
+    "noProvidePrefix": {
+      "type": "boolean",
+      "description": "True to skip 'provide' prefix in descriptions"
+    },
+    "longDescription": {
+      "$ref": "#/definitions/structuredContent",
+      "description": "Detailed explanation rendered as paragraphs/lists"
+    },
+    "nextSteps": {
+      "$ref": "#/definitions/structuredContent",
+      "description": "Action items for the veteran"
+    }
+  },
+  "definitions": {
+    "structuredContent": {
+      "type": "object",
+      "required": ["blocks"],
+      "additionalProperties": false,
+      "properties": {
+        "blocks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/blockElement" }
+        }
+      }
+    },
+    "blockElement": {
+      "oneOf": [
+        { "$ref": "#/definitions/paragraph" },
+        { "$ref": "#/definitions/list" },
+        { "$ref": "#/definitions/lineBreakBlock" }
+      ]
+    },
+    "paragraph": {
+      "type": "object",
+      "required": ["type", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "paragraph" },
+        "content": { "$ref": "#/definitions/inlineContent" }
+      }
+    },
+    "list": {
+      "type": "object",
+      "required": ["type", "style", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "list" },
+        "style": { "enum": ["bullet", "numbered"] },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/inlineContent" }
+        }
+      }
+    },
+    "lineBreakBlock": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "lineBreak" }
+      }
+    },
+    "inlineContent": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "$ref": "#/definitions/inlineElement" }
+            ]
+          }
+        }
+      ]
+    },
+    "inlineElement": {
+      "oneOf": [
+        { "$ref": "#/definitions/bold" },
+        { "$ref": "#/definitions/italic" },
+        { "$ref": "#/definitions/link" },
+        { "$ref": "#/definitions/telephone" },
+        { "$ref": "#/definitions/lineBreakInline" }
+      ]
+    },
+    "bold": {
+      "type": "object",
+      "required": ["type", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "bold" },
+        "content": { "$ref": "#/definitions/inlineContent" }
+      }
+    },
+    "italic": {
+      "type": "object",
+      "required": ["type", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "italic" },
+        "content": { "$ref": "#/definitions/inlineContent" }
+      }
+    },
+    "link": {
+      "type": "object",
+      "required": ["type", "text", "href"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "link" },
+        "text": { "type": "string" },
+        "href": { "type": "string", "format": "uri-reference" },
+        "style": { "enum": ["active", "external", "default"] },
+        "testId": { "type": "string" }
+      }
+    },
+    "telephone": {
+      "type": "object",
+      "required": ["type", "contact"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "telephone" },
+        "contact": { "type": "string" },
+        "tty": { "type": "boolean" }
+      }
+    },
+    "lineBreakInline": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "lineBreak" }
+      }
+    }
+  }
+}

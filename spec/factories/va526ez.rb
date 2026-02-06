@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :va526ez, class: 'SavedClaim::DisabilityCompensation::Form526AllClaim' do
     form {
       JSON.parse(
-        File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json')
+        File.read('spec/support/disability_compensation_form/submit_all_claim/all.json')
       )['form526'].to_json
     }
   end
@@ -13,7 +13,7 @@ FactoryBot.define do
     # for Form 21-0781V2
     form {
       JSON.parse(
-        File.read('spec/support/disability_compensation_form/all_claims_with_0781v2_fe_submission.json')
+        File.read('spec/support/disability_compensation_form/submit_all_claim/0781v2.json')
       )['form526'].to_json
     }
   end

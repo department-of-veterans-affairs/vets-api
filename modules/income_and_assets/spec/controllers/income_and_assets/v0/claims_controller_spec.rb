@@ -159,6 +159,13 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
 
       subject.send(:process_attachments, in_progress_form, claim)
     end
+
+    it 'sets the user account on the claim' do
+      allow(IncomeAndAssets::SavedClaim).to receive(:new).and_call_original
+      post '/income_and_assets/v0/claims', params: { income_and_assets_claim: { form: claim.form } }
+      created_claim = IncomeAndAssets::SavedClaim.last
+      expect(created_claim.user_account).to eq(user.user_account)
+    end
   end
 
   describe '#log_validation_error_to_metadata' do
