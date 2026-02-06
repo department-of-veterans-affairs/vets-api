@@ -27,6 +27,17 @@ properties:
             - blockedStatus
             - preferredTeam
             - relationType
+            - locationName
+            - leadProviderName
+            - teamName
+            - suggestedNameDisplay
+            - healthCareSystemName
+            - groupTypeEnumVal
+            - subGroupTypeEnumVal
+            - groupTypePatientDisplay
+            - subGroupTypePatientDisplay
+            - ohTriageGroup
+            - migratingToOh
           properties:
             triageTeamId:
               type: integer
@@ -39,6 +50,10 @@ properties:
               example: 989
             blockedStatus:
               type: boolean
+              description:
+                Indicates if messaging to this team is blocked. Can be blocked for two reasons -
+                (1) patient was blocked by coordinators from messaging certain teams, or
+                (2) blocked due to migration to Oracle Health in certain phases.
               example: false
             preferredTeam:
               type: boolean
@@ -76,6 +91,10 @@ properties:
               example: "Specialty Care"
             ohTriageGroup:
               type: boolean
+              example: false
+            migratingToOh:
+              type: boolean
+              description: Indicates if this triage team's facility is migrating to Oracle Health
               example: false
   meta:
     type: object

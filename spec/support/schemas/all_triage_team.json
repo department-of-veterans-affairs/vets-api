@@ -7,7 +7,8 @@
     "station_number",
     "blocked_status",
     "preferred_team",
-    "relationship_type"
+    "relationship_type",
+    "migrating_to_oh"
   ],
   "properties": {
     "triage_team_id": {
@@ -27,6 +28,9 @@
     },
     "relationship_type": {
       "type": "string"
+    },
+    "migrating_to_oh": {
+      "type": "boolean"
     }
   }
 }

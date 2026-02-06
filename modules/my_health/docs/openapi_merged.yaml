@@ -3163,6 +3163,15 @@ components:
             suggestedNameDisplay:
               type: string
               example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
+            isOhMessage:
+              type: boolean
+              description: Indicates if this message is an Oracle Health message
+              example: false
+            ohMigrationPhase:
+              type: string
+              nullable: true
+              description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+              example: null
         links:
           type: object
           required:
@@ -3337,6 +3346,15 @@ components:
               type: string
               nullable: true
               example: SMITH, JOHN
+            isOhMessage:
+              type: boolean
+              description: Indicates if this message is an Oracle Health message
+              example: false
+            ohMigrationPhase:
+              type: string
+              nullable: true
+              description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+              example: null
         relationships:
           type: object
           required:
@@ -3549,6 +3567,15 @@ components:
             suggestedNameDisplay:
               type: string
               example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
+            isOhMessage:
+              type: boolean
+              description: Indicates if this message is an Oracle Health message
+              example: false
+            ohMigrationPhase:
+              type: string
+              nullable: true
+              description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+              example: null
         links:
           type: object
           required:
@@ -3692,6 +3719,15 @@ components:
                   download:
                     type: string
                     example: https://api.va.gov/my_health/v1/messaging/messages/3204755/attachments/3204753
+            isOhMessage:
+              type: boolean
+              description: Indicates if this message is an Oracle Health message
+              example: false
+            ohMigrationPhase:
+              type: string
+              nullable: true
+              description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+              example: null
         links:
           type: object
           required:
@@ -3785,6 +3821,17 @@ components:
                   - blockedStatus
                   - preferredTeam
                   - relationType
+                  - locationName
+                  - leadProviderName
+                  - teamName
+                  - suggestedNameDisplay
+                  - healthCareSystemName
+                  - groupTypeEnumVal
+                  - subGroupTypeEnumVal
+                  - groupTypePatientDisplay
+                  - subGroupTypePatientDisplay
+                  - ohTriageGroup
+                  - migratingToOh
                 properties:
                   triageTeamId:
                     type: integer
@@ -3797,6 +3844,7 @@ components:
                     example: 989
                   blockedStatus:
                     type: boolean
+                    description: Indicates if messaging to this team is blocked. Can be blocked for two reasons - (1) patient was blocked by coordinators from messaging certain teams, or (2) blocked due to migration to Oracle Health in certain phases.
                     example: false
                   preferredTeam:
                     type: boolean
@@ -3835,6 +3883,10 @@ components:
                     example: Specialty Care
                   ohTriageGroup:
                     type: boolean
+                    example: false
+                  migratingToOh:
+                    type: boolean
+                    description: Indicates if this triage team's facility is migrating to Oracle Health
                     example: false
         meta:
           type: object

@@ -63,6 +63,7 @@ class Message
   attribute :recipient_name, String, filterable: %w[eq not_eq match]
   attribute :read_receipt, String
   attribute :triage_group_name, String
+  attribute :triage_group_id, Integer
   attribute :proxy_sender_name, String
   attribute :attachments, Attachment, array: true
   attribute :has_attachments, Bool, default: false
@@ -72,6 +73,7 @@ class Message
   attribute :attachment4_id, Integer
   attribute :suggested_name_display, String
   attribute :is_oh_message, Bool, default: false
+  attribute :oh_migration_phase, String
   attribute :metadata, Hash, default: -> { {} }
   attribute :is_large_attachment_upload, Bool, default: false
 

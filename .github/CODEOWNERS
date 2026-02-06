@@ -339,6 +339,7 @@ app/models/tooltip.rb @department-of-veterans-affairs/vfs-mhv-integration @depar
 app/models/tracking.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/models/transaction_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/models/triage_team.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
+app/models/triage_team_cache.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/models/user_acceptable_verified_credential.rb @department-of-veterans-affairs/octo-identity
 app/models/user_account.rb @department-of-veterans-affairs/octo-identity
 app/models/user_action_event.rb @department-of-veterans-affairs/octo-identity

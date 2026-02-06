@@ -15,7 +15,7 @@ module Mobile
       end
 
       def all_recipients
-        resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        resource = client.get_all_triage_teams(@current_user.uuid)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
         resource.records = resource.records.reject(&:blocked_status)

@@ -58,6 +58,7 @@ FactoryBot.define do
       draft_date { Time.current.iso8601 }
       to_date { Time.current.iso8601 }
       has_attachments { false }
+      oh_migration_phase { nil }
     end
   end
 end

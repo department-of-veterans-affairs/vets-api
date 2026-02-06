@@ -41,7 +41,8 @@
             "triage_group_name": { "type": ["null", "string"] },
             "proxy_sender_name": { "type": ["null", "string"] },
             "suggested_name_display": { "type": ["null", "string"]},
-            "is_oh_message": { "type": "boolean" }
+            "is_oh_message": { "type": "boolean" },
+            "oh_migration_phase": { "type": ["null", "string"] }
           }
         },
         "relationships": {

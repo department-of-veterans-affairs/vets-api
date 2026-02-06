@@ -97,6 +97,12 @@
                   },
                   "isOhMessage": {
                     "type": "boolean"
+                  },
+                  "ohMigrationPhase": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
                   }
                 }
               },

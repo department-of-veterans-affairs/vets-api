@@ -40,7 +40,8 @@
               "recipient_name": { "type": "string" },
               "read_receipt": { "type": ["null", "string"] },
               "triage_group_name": { "type": ["null", "string"] },
-              "proxy_sender_name": { "type": ["null", "string"] }
+              "proxy_sender_name": { "type": ["null", "string"] },
+              "oh_migration_phase": { "type": ["null", "string"] }
             }
           },
           "links": {

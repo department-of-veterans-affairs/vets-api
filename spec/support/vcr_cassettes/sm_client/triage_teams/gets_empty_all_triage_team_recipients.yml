@@ -1,0 +1,56 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_SM_HOST>/v1/sm/patient/alltriageteams"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Thu, 06 Mar 2025 15:16:36 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "100"
+        X-Amzn-Requestid:
+          - 4bb8e19d-6835-43f2-a188-0e1511103f5e
+        X-Xss-Protection:
+          - "0"
+        X-Frame-Options:
+          - DENY
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - HApdOHJvvHMFnkA=
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Expires:
+          - "0"
+        X-Content-Type-Options:
+          - nosniff
+        Pragma:
+          - no-cache
+        X-Amzn-Remapped-Date:
+          - Thu, 06 Mar 2025 15:16:36 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string: '[{"associatedTriageGroups":0,"friendlyTriageTeamPilotFacilities":"","associatedBlockedTriageGroups":0},{"triageTeam":[]}]'
+    recorded_at: Thu, 06 Mar 2025 15:16:35 GMT
+recorded_with: VCR 6.3.1
