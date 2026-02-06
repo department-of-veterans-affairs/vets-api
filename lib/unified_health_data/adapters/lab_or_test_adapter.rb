@@ -70,7 +70,7 @@ module UnifiedHealthData
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          test_code_display: TEST_CODE_DISPLAY_MAP[code] || code,
+          test_code_display: TEST_CODE_DISPLAY_MAP.fetch(code, code),
           date_completed: date_completed_value,
           sort_date: normalize_date_for_sorting(date_completed_value),
           sample_tested: get_sample_tested(record['resource'], contained),

@@ -537,7 +537,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
   end
 
-  describe 'TEST_CODE_DISPLAY_MAP' do
+  describe '#parse_single_record test_code_display mapping' do
     let(:base_record) do
       {
         'resource' => {
@@ -614,7 +614,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.test_code_display).to eq('UNKNOWN')
       end
 
-      it 'falls back to the raw code for LP29708-2 (Cardiology)' do
+      it 'falls back to the raw code for LP29708-2' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'LP29708-2' }] }]
 
