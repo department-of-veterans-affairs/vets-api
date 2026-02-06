@@ -10,6 +10,6 @@ FactoryBot.define do
     representative_id { representative.representative_id }
     organization_poa { organization.poa }
 
-    acceptance_mode { 'no_acceptance' }
+    acceptance_mode { 'any_request' }
   end
 end
