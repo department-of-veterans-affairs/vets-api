@@ -97,7 +97,7 @@
               "isOhMessage": {
                 "type": "boolean"
               },
-              "canReply": {
+              "replyDisabled": {
                 "type": "boolean"
               }
             }
