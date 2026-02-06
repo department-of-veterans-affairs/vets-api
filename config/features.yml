@@ -1483,6 +1483,12 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
     enable_in_development: true
+  mhv_secure_messaging_stream_via_revproxy:
+    actor_type: user
+    description: >
+      When enabled, uses nginx X-Accel-Redirect to stream S3 attachment downloads via revproxy,
+      reducing memory usage and freeing Rails processes immediately instead of
+      blocking while streaming large files. Requires nginx/openresty configuration.
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production

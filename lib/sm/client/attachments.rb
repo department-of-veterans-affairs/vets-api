@@ -10,40 +10,65 @@ module SM
       CONTENT_DISPOSITION = 'attachment; filename='
 
       ##
-      # Retrieve a message attachment
-      # Endpoint returns either a binary file response, or object with AWS S3 URL details.
-      # If the response is a URL (string or object format), it will fetch the file from that URL.
-      # Object format includes: { "url": URL, "mimeType": "application/pdf", "name": "filename.pdf" }
-      # 10MB limit of the MHV API gateway.
+      # Retrieve attachment info, returning S3 metadata for X-Accel-Redirect or body for legacy streaming.
+      # This avoids duplicate requests by returning everything needed in one call.
       #
       # @param message_id [Fixnum] the message id
       # @param attachment_id [Fixnum] the attachment id
-      # @return [Hash] an object with binary file content and filename { body: binary_data, filename: string }
+      # @return [Hash] attachment info with consistent format:
+      #   - S3-backed: { s3_url: string, mime_type: string, filename: string, body: nil }
+      #   - Non-S3:    { s3_url: nil, mime_type: nil, filename: string, body: binary_data }
       #
-      def get_attachment(message_id, attachment_id)
+      def get_attachment_info(message_id, attachment_id)
         path = "message/#{message_id}/attachment/#{attachment_id}"
         response = perform(:get, path, nil, token_headers)
         data = response.body[:data] if response.body.is_a?(Hash)
 
-        # Attachments that are stored in AWS S3 via presigned URL return an object with URL details
+        # S3-backed attachments return metadata with presigned URL
         if data.is_a?(Hash) && data[:url] && data[:mime_type] && data[:name]
-          url = data[:url]
-          uri = URI.parse(url)
-          file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
-            http.get(uri.request_uri)
-          end
-          unless file_response.is_a?(Net::HTTPSuccess)
-            Rails.logger.error('Failed to fetch attachment from presigned URL')
-            raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
-                                                                  file_response.code)
-          end
-          filename = data[:name]
-          return { body: file_response.body, filename: }
+          {
+            s3_url: data[:url],
+            mime_type: data[:mime_type],
+            filename: data[:name],
+            body: nil
+          }
+        else
+          # Non-S3: direct binary response
+          filename = response.response_headers['content-disposition']&.gsub(CONTENT_DISPOSITION, '')&.gsub(/%22|"/, '')
+          {
+            s3_url: nil,
+            mime_type: nil,
+            filename:,
+            body: response.body
+          }
+        end
+      end
+
+      ##
+      # Retrieve a message attachment with full binary content (legacy method for mobile/fallback).
+      # For S3-backed attachments, fetches content from the presigned URL.
+      # @param message_id [Fixnum] the message id
+      # @param attachment_id [Fixnum] the attachment id
+      # @return [Hash] { body: binary_data, filename: string }
+      def get_attachment(message_id, attachment_id)
+        info = get_attachment_info(message_id, attachment_id)
+
+        # Non-S3: body is already populated
+        return { body: info[:body], filename: info[:filename] } if info[:body]
+
+        # S3-backed: fetch content from presigned URL
+        uri = URI.parse(info[:s3_url])
+        file_response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+          http.get(uri.request_uri)
         end
 
-        # Default: treat as binary file response
-        filename = response.response_headers['content-disposition']&.gsub(CONTENT_DISPOSITION, '')&.gsub(/%22|"/, '')
-        { body: response.body, filename: }
+        unless file_response.is_a?(Net::HTTPSuccess)
+          Rails.logger.error('Failed to fetch attachment from presigned URL')
+          raise Common::Exceptions::BackendServiceException.new('SM_ATTACHMENT_URL_FETCH_ERROR', {},
+                                                                file_response.code)
+        end
+
+        { body: file_response.body, filename: info[:filename] }
       end
 
       ##
@@ -52,14 +77,10 @@ module SM
       # @return [String] the MHV S3 presigned URL for the attachment
       #
       def create_presigned_url_for_attachment(file)
-        attachment_name = File.basename(file.original_filename, File.extname(file.original_filename))
-        file_extension = File.extname(file.original_filename).delete_prefix('.')
-
         query_params = {
-          attachmentName: attachment_name,
-          fileExtension: file_extension
+          attachmentName: File.basename(file.original_filename, File.extname(file.original_filename)),
+          fileExtension: File.extname(file.original_filename).delete_prefix('.')
         }
-
         perform(:get, 'attachment/presigned-url', query_params, token_headers).body
       end
 
