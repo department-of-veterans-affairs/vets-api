@@ -5,6 +5,7 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'search/response'
 require 'search_gsa/configuration'
+require 'search/pii_redactor'
 
 module SearchGsa
   # This class builds a wrapper around api.gsa.gov web results API. Creating a new instance of class
@@ -53,7 +54,7 @@ module SearchGsa
       {
         affiliate:,
         access_key:,
-        query:,
+        query: redacted_query,
         offset:,
         limit:
       }
@@ -84,6 +85,10 @@ module SearchGsa
       Search::Pagination::ENTRIES_PER_PAGE
     end
 
+    def redacted_query
+      Search::PiiRedactor.redact(query)
+    end
+
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
@@ -104,7 +109,7 @@ module SearchGsa
 
     def save_error_details(error_message)
       Sentry.set_extras(
-        message: error_message,
+        message: Search::PiiRedactor.redact(error_message),
         url: config.base_path
       )
       Sentry.set_tags(search: 'general_search_query_error')
