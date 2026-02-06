@@ -1371,6 +1371,12 @@ travel_pay:
     resource: ~
     tenant_id: ~
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '757'
+  - '506'
+  - '515'
+  - '553'
+  - '655'
   processor_job:
     batch_size: 50
     max_iterations: 20
