@@ -5,7 +5,7 @@ http_interactions:
     uri: https://fake_url.com/suite/webapi/update-ch3-milestone-status
     body:
       encoding: UTF-8
-      string: '{"icn":"1008711076V809443","milestones":[{"milestoneType":"ORIENTATION_COMPLETION","isMilestoneCompleted":true,"milestoneCompletionDate":"2025-01-15","milestoneSubmissionUser":"john.smith"}]}'
+      string: '{"icn":"0000000000V000000","milestones":[{"milestoneType":"ORIENTATION_COMPLETION","isMilestoneCompleted":true,"milestoneCompletionDate":"2025-01-15","milestoneSubmissionUser":"test.user"}]}'
     headers:
       Accept:
       - application/json
