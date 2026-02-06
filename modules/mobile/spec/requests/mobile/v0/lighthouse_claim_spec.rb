@@ -26,6 +26,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
       end
 
       it 'matches our schema is successfully returned with the 200 status',
@@ -155,6 +156,138 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           end
           SchemaContract::ValidationJob.drain
           expect(SchemaContract::Validation.last.status).to eq('success')
+        end
+      end
+
+      context 'when using multi-provider' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+        end
+
+        it 'defaults to lighthouse when no type parameter (recommended usage)',
+           run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body.dig('data', 'attributes')).to have_key('eventsTimeline')
+          expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+        end
+
+        it 'still works with explicit type=lighthouse (not recommended but supported)',
+           run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255?type=lighthouse', headers: sis_headers
+          end
+
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body.dig('data', 'attributes')).to have_key('eventsTimeline')
+          expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+        end
+
+        context 'with override_rv1 enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(true)
+          end
+
+          it 'applies RV1 override transform',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255', headers: sis_headers
+            end
+
+            tracked_item = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+              event['trackedItemId'] == 360_057
+            end.first
+            expect(tracked_item['displayName']).to eq('RV1 - Reserve Records Request')
+            expect(tracked_item['type']).to eq('still_need_from_others_list')
+          end
+        end
+
+        context 'with suppress_evidence_requests enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(true)
+          end
+
+          it 'applies suppress transform',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255', headers: sis_headers
+            end
+
+            display_names = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').map do |event|
+              event['displayName']
+            end
+            expect(display_names.size).to eq(19)
+            expect(display_names & BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS).to be_empty
+          end
+        end
+      end
+
+      context 'with adapter routing' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+        end
+
+        it 'uses adapter for lighthouse provider (no type parameter)',
+           run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+
+          # Verify the response was parsed by the adapter (has eventsTimeline)
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body.dig('data', 'attributes')).to have_key('eventsTimeline')
+          expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+        end
+      end
+
+      context 'feature flag behavior' do
+        context 'when cst_multi_claim_provider_mobile is OFF' do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+          end
+
+          it 'uses legacy single-provider path (always Lighthouse)',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255', headers: sis_headers
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body.dig('data', 'attributes')).to have_key('eventsTimeline')
+            expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+          end
+        end
+
+        context 'when cst_multi_claim_provider_mobile is ON' do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+          end
+
+          it 'uses multi-provider path and defaults to Lighthouse (recommended - no type param)',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255', headers: sis_headers
+            end
+
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body.dig('data', 'attributes')).to have_key('eventsTimeline')
+            expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+          end
         end
       end
     end

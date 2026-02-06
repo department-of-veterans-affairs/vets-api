@@ -14664,6 +14664,12 @@
                 "description": "Base type of claim",
                 "example": "compensation claim",
                 "nullable": true
+              },
+              "provider": {
+                "type": "string",
+                "description": "The provider system that owns this claim (e.g., 'lighthouse', 'champva'). Used to route single claim requests when multiple providers are enabled.",
+                "example": "lighthouse",
+                "nullable": true
               }
             }
           }

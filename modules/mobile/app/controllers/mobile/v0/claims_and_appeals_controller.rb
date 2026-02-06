@@ -24,13 +24,9 @@ module Mobile
       end
 
       def get_claim
-        claim_response = if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
-                           get_claim_from_providers(params[:id])
-                         else
-                           lighthouse_claims_proxy.get_claim(params[:id])
-                         end
-
-        claim_detail = lighthouse_claims_adapter.parse(claim_response)
+        result = fetch_claim_and_provider
+        adapter = adapter_for_provider(result[:provider_type])
+        claim_detail = adapter ? adapter.parse(result[:claim_response]) : result[:claim_response]
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
@@ -68,6 +64,19 @@ module Mobile
       end
 
       private
+
+      def fetch_claim_and_provider
+        if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
+          # Multi-provider: use registry to fetch claim and detect provider type
+          get_claim_with_provider_type(params[:id], params[:type])
+        else
+          # Legacy single-provider path: always Lighthouse
+          {
+            provider_type: 'lighthouse',
+            claim_response: lighthouse_claims_proxy.get_claim(params[:id])
+          }
+        end
+      end
 
       def set_params
         params[:claim_id] = params[:id]
@@ -218,6 +227,16 @@ module Mobile
 
       def appeal_adapter
         Mobile::V0::Adapters::Appeal.new
+      end
+
+      # Routes to provider-specific adapter based on provider type
+      # Different providers have different response structures and status mappings
+      # Returns nil if no adapter is defined (response will be used as-is)
+      def adapter_for_provider(provider_type)
+        case provider_type.to_s.downcase
+        when 'lighthouse'
+          lighthouse_claims_adapter
+        end
       end
 
       def lighthouse_claims_proxy

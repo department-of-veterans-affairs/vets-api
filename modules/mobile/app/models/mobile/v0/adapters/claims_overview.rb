@@ -49,10 +49,10 @@ module Mobile
 
           titles = BenefitsClaims::TitleGenerator.generate_titles(claim_type, claim_type_code)
 
-          build_claim(entry['id'], attributes, claim_type_code, titles)
+          build_claim(entry['id'], attributes, claim_type_code, titles, entry['provider'])
         end
 
-        def build_claim(id, attributes, claim_type_code, titles)
+        def build_claim(id, attributes, claim_type_code, titles, provider = nil)
           use_generated_titles = Flipper.enabled?(FEATURE_USE_TITLE_GENERATOR_MOBILE)
           Mobile::V0::ClaimOverview.new(
             {
@@ -68,7 +68,8 @@ module Mobile
               documents_needed: documents_needed(attributes),
               development_letter_sent: attributes['developmentLetterSent'],
               claim_type_code:,
-              claim_type_base: titles[:claim_type_base]
+              claim_type_base: titles[:claim_type_base],
+              provider:
             }
           )
         end
