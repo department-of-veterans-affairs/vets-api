@@ -537,6 +537,95 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
   end
 
+  describe '#parse_single_record test_code_display mapping' do
+    let(:base_record) do
+      {
+        'resource' => {
+          'resourceType' => 'DiagnosticReport',
+          'id' => 'test-display-map',
+          'status' => 'final',
+          'code' => { 'text' => 'Test Report' },
+          'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+          'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
+        }
+      }
+    end
+
+    context 'with known test codes' do
+      it 'maps CH to "Chemistry and hematology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'CH' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+
+      it 'maps MI to "Microbiology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'MI' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MI')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'maps SP to "Surgical Pathology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'SP' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('SP')
+        expect(result.test_code_display).to eq('Surgical Pathology')
+      end
+
+      it 'maps CY to "Cytology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'CY' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CY')
+        expect(result.test_code_display).to eq('Cytology')
+      end
+
+      it 'maps EM to "Electron Microscopy"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'EM' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('EM')
+        expect(result.test_code_display).to eq('Electron Microscopy')
+      end
+    end
+
+    context 'with unknown test codes' do
+      it 'falls back to the raw code for unknown codes' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'UNKNOWN' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('UNKNOWN')
+        expect(result.test_code_display).to eq('UNKNOWN')
+      end
+
+      it 'falls back to the raw code for LP29708-2' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'LP29708-2' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('LP29708-2')
+        expect(result.test_code_display).to eq('LP29708-2')
+      end
+    end
+  end
+
   describe '#parse_single_record' do
     context 'when record is nil' do
       it 'returns nil' do
