@@ -802,21 +802,35 @@ describe MPI::Service do
     subject do
       mpi_service.find_profile_by_identifier(identifier:,
                                              identifier_type:,
-                                             search_type:)
+                                             search_type:,
+                                             view_type:)
     end
 
     let(:statsd_caller) { 'find_profile_by_identifier' }
     let(:identifier) { 'some-identifier' }
     let(:identifier_type) { MPI::Constants::QUERY_IDENTIFIERS.first }
     let(:search_type) { 'some-search-type' }
+    let(:view_type) { MPI::Constants::VIEW_TYPES.first }
 
     context 'malformed request' do
-      let(:identifier_type) { 'unsupported-identifier-type' }
       let(:expected_error) { MPI::Errors::ArgumentError }
-      let(:expected_error_message) { "Identifier type is not supported, identifier_type=#{identifier_type}" }
 
-      it 'raises a identifier type not supported error' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
+      context 'when identifier type is not supported' do
+        let(:identifier_type) { 'unsupported-identifier-type' }
+        let(:expected_error_message) { "Identifier type is not supported, identifier_type=#{identifier_type}" }
+
+        it 'raises a identifier type not supported error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when view type is not supported' do
+        let(:view_type) { 'unsupported-view-type' }
+        let(:expected_error_message) { "View type is not supported, view_type=#{view_type}" }
+
+        it 'raises a view type not supported error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
       end
     end
 

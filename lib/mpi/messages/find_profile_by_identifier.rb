@@ -7,12 +7,14 @@ require 'mpi/constants'
 module MPI
   module Messages
     class FindProfileByIdentifier
-      attr_reader :identifier, :identifier_type, :search_type
+      attr_reader :identifier, :identifier_type, :search_type, :view_type
 
-      def initialize(identifier:, identifier_type:, search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+      def initialize(identifier:, identifier_type:, search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA,
+                     view_type: Constants::PRIMARY_VIEW)
         @identifier = identifier
         @identifier_type = identifier_type
         @search_type = search_type
+        @view_type = view_type
       end
 
       def perform
@@ -28,6 +30,14 @@ module MPI
       def validate_types
         unless Constants::QUERY_IDENTIFIERS.include?(identifier_type)
           raise Errors::ArgumentError, "Identifier type is not supported, identifier_type=#{identifier_type}"
+        end
+
+        unless Constants::VIEW_TYPES.include?(view_type)
+          raise Errors::ArgumentError, "View type is not supported, view_type=#{view_type}"
+        end
+
+        if identifier_type == Constants::ICN && view_type == Constants::CORRELATION_VIEW
+          raise Errors::ArgumentError, "ICN searches only support the primary view, view=#{view_type}"
         end
       end
 
@@ -52,7 +62,7 @@ module MPI
       end
 
       def query_by_parameter
-        query_by_parameter = RequestHelper.build_query_by_parameter(search_type:)
+        query_by_parameter = RequestHelper.build_query_by_parameter(search_type:, view_type:)
         query_by_parameter << build_parameter_list
       end
 

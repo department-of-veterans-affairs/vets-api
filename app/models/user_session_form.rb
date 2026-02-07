@@ -17,10 +17,11 @@ class UserSessionForm
 
   attr_reader :user, :user_identity, :session, :saml_uuid
 
-  def initialize(saml_response)
+  def initialize(saml_response) # rubocop:disable Metrics/MethodLength
     @saml_uuid = saml_response.in_response_to
     saml_user = SAML::User.new(saml_response)
     saml_attributes = normalize_saml(saml_user)
+    user_attribute_mismatch_checks(saml_attributes)
     user_verification = create_user_verification(saml_attributes)
     uuid = user_verification.user_account.id
     existing_user = User.find(uuid)
@@ -99,6 +100,29 @@ class UserSessionForm
     errors.empty?
   end
 
+  def user_attribute_mismatch_checks(saml_attributes)
+    return unless saml_attributes[:loa][:current] == LOA::THREE
+
+    identifier_type = saml_attributes.dig(:sign_in, :service_name)
+
+    identifier = case identifier_type
+                 when SAML::User::IDME_CSID     then saml_attributes[:idme_uuid]
+                 when SAML::User::LOGINGOV_CSID then saml_attributes[:logingov_uuid]
+                 end
+
+    primary_view_ssn = saml_attributes[:ssn]
+
+    correlation_record = mpi_correlation_record(identifier:, identifier_type:)
+    return if correlation_record.ssn == primary_view_ssn
+
+    raise SAML::UserAttributeError.new(
+      message: SAML::UserAttributeError::ERRORS[:ssn_mismatch][:message],
+      code: SAML::UserAttributeError::SSN_MISMATCH_CODE,
+      tag: SAML::UserAttributeError::ERRORS[:ssn_mismatch][:tag],
+      context: { icn: saml_attributes[:mhv_icn], credential_uuid: identifier, type: identifier_type }
+    )
+  end
+
   def get_session_errors
     @session.errors.add(:uuid, "can't be blank") if @session.uuid.nil?
     @session.errors&.full_messages
@@ -163,6 +187,14 @@ class UserSessionForm
   end
 
   private
+
+  def mpi_correlation_record(identifier:, identifier_type:)
+    MPI::Service.new.find_profile_by_identifier(
+      identifier:,
+      identifier_type:,
+      view_type: MPI::Constants::CORRELATION_VIEW
+    ).profile
+  end
 
   def log_existing_user_warning(saml_uuid, saml_icn)
     message = "Couldn't locate existing user after MFA establishment"

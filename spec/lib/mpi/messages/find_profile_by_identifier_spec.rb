@@ -6,13 +6,14 @@ require 'mpi/messages/find_profile_by_identifier'
 describe MPI::Messages::FindProfileByIdentifier do
   describe '.perform' do
     subject do
-      described_class.new(identifier:, identifier_type:, search_type:).perform
+      described_class.new(identifier:, identifier_type:, search_type:, view_type:).perform
     end
 
     let(:identifier) { 'some-identifier' }
     let(:identifier_type) { MPI::Constants::QUERY_IDENTIFIERS.first }
     let(:expected_identifier) { identifier }
     let(:search_type) { MPI::Constants::SEARCH_TYPES.first }
+    let(:view_type) { MPI::Constants::VIEW_TYPES.first }
     let(:idm_path) { 'env:Envelope/env:Body/idm:PRPA_IN201305UV02' }
     let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
 
@@ -82,6 +83,21 @@ describe MPI::Messages::FindProfileByIdentifier do
     context 'when identifier type is an arbitrary value' do
       let(:identifier_type) { 'some-identifier-type' }
       let(:expected_error_message) { "Identifier type is not supported, identifier_type=#{identifier_type}" }
+
+      it_behaves_like 'validation error'
+    end
+
+    context 'when view type is an arbitrary value' do
+      let(:view_type) { 'some-view-type' }
+      let(:expected_error_message) { "View type is not supported, view_type=#{view_type}" }
+
+      it_behaves_like 'validation error'
+    end
+
+    context 'when identifier type is ICN and view type is correlation view' do
+      let(:identifier_type) { MPI::Constants::ICN }
+      let(:view_type) { MPI::Constants::CORRELATION_VIEW }
+      let(:expected_error_message) { "ICN searches only support the primary view, view=#{view_type}" }
 
       it_behaves_like 'validation error'
     end

@@ -14,7 +14,10 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:request_id) { SecureRandom.uuid }
 
   # User test set-up
-  let(:user) { build(:user, loa, :with_terms_of_use_agreement) }
+  let(:correlation_mpi_record) { build(:mpi_profile, ssn: correlation_mpi_ssn) }
+  let(:mpi_profile) { build(:mpi_profile) }
+
+  let(:user) { build(:user, loa, :with_terms_of_use_agreement, mpi_profile:) }
   let(:loa) { :loa3 }
   let(:token) { 'abracadabra-open-sesame' }
   let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
@@ -47,11 +50,16 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   let(:login_uuid) { '5678' }
   let(:authn_context) { LOA::IDME_LOA1_VETS }
+  let(:attributes) do
+    build(:ssoe_idme_loa1,
+          va_eauth_ial: 3,
+          va_eauth_uid: [saml_user_attributes[:idme_uuid] || saml_user_attributes[:logingov_uuid]])
+  end
   let(:valid_saml_response) do
     build_saml_response(
       authn_context:,
       level_of_assurance: ['3'],
-      attributes: build(:ssoe_idme_loa1, va_eauth_ial: 3),
+      attributes:,
       in_response_to: login_uuid,
       issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
     )
@@ -59,6 +67,12 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   # Helper variable
   let(:once) { { times: 1, value: 1 } }
+
+  let(:mpi_service) { instance_double(MPI::Service) }
+  let(:identifier_type) { saml_user_attributes[:sign_in][:service_name] }
+  let(:identifier) { saml_user_attributes[:idme_uuid] }
+  let(:find_profile_response) { create(:find_profile_response, profile: correlation_mpi_record) }
+  let(:correlation_mpi_ssn) { saml_user_attributes[:ssn] }
 
   shared_examples 'a successful UserAudit log' do
     let(:user_verification) { user.user_verification }
@@ -118,6 +132,10 @@ RSpec.describe V1::SessionsController, type: :controller do
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
+    allow(MPI::Service).to receive(:new).and_return(mpi_service)
+    allow(mpi_service).to receive(:find_profile_by_identifier).with(identifier:, identifier_type:,
+                                                                    view_type: 'COR')
+                                                              .and_return(find_profile_response)
   end
 
   after do
@@ -952,6 +970,37 @@ RSpec.describe V1::SessionsController, type: :controller do
             call_endpoint
 
             expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          end
+        end
+
+        context 'when the correlation mpi ssn does not match the saml response ssn' do
+          let(:correlation_mpi_ssn) { '123456789' }
+          let(:expected_log_message) { '[V1][Sessions Controller] error' }
+          let(:expected_log_payload) do
+            {
+              message: "Attribute mismatch: ssn in primary view doesn't match correlation record",
+              context: {
+                icn: saml_user_attributes[:mhv_icn],
+                credential_uuid: saml_user_attributes[:idme_uuid],
+                type: saml_user_attributes[:sign_in][:service_name]
+              }
+            }
+          end
+          let(:expected_redirect_params) { { auth: 'fail', code: '113', request_id: }.to_query }
+
+          before do
+            allow(Rails.logger).to receive(:error)
+            allow(SAML::User).to receive(:new).and_return(saml_user)
+            SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
+            call_endpoint
+          end
+
+          it 'logs the correlation error' do
+            expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
+          end
+
+          it 'responds with a correlation error message and code' do
+            expect(call_endpoint).to redirect_to(expected_redirect)
           end
         end
       end
