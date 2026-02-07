@@ -119,6 +119,19 @@ RSpec.describe BGS::Children do
         )
       end
     end
+
+    it 'returns nothing when there is no stepchild guardian present' do
+      VCR.use_cassette('bgs/children/create_all') do
+        all_flows_payload_v2['dependents_application']['step_children'][0].delete('who_does_the_stepchild_live_with')
+        children = BGS::Children.new(
+          proc_id:,
+          payload: all_flows_payload_v2,
+          user: user_object
+        ).create_all
+
+        expect(children[:step_children]).to be_blank
+      end
+    end
   end
 
   context 'report marriage of a child under 18' do
