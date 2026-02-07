@@ -45,7 +45,7 @@ RSpec.describe SSOe::Configuration do
 
   describe '#service_name' do
     it 'returns "SSOe"' do
-      expect(config.service_name).to eq('SSOe')
+      expect(config.service_name).to eq('SSOe Get Traits')
     end
   end
 end

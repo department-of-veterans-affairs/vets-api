@@ -5,17 +5,17 @@ require 'common/client/configuration/base'
 module SSOe
   class Configuration < Common::Client::Configuration::SOAP
     def service_name
-      'SSOe'
+      'SSOe Get Traits'
     end
 
     def connection
-      @connection ||= Faraday.new(base_path,
-                                  headers: base_request_headers,
-                                  request: request_options,
-                                  ssl: ssl_options) do |faraday|
-        faraday.request :soap_headers
-        faraday.response :soap_parser
-        faraday.adapter Faraday.default_adapter
+      @connection ||= Faraday.new(base_path, headers: base_request_headers, request: request_options,
+                                             ssl: ssl_options) do |conn|
+        conn.use(:breakers, service_name:)
+        conn.request :soap_headers
+        conn.response :soap_parser
+        conn.response :betamocks if IdentitySettings.ssoe_get_traits.mock
+        conn.adapter Faraday.default_adapter
       end
     end
 

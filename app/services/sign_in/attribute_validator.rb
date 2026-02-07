@@ -24,6 +24,7 @@ module SignIn
         validate_existing_mpi_attributes
       end
 
+      SignIn::GetTraitsCaller.new(user_attributes).perform_async if Flipper.enabled?(:ssoe_get_traits)
       verified_icn
     end
 

@@ -1964,6 +1964,10 @@ features:
     actor_type: user
     description: Enables the One VA Debt Letter feature
     enable_in_development: true
+  ssoe_get_traits:
+    actor_type: user
+    description: Enables SSOe Get Traits service
+    enable_in_development: true
   vha_show_payment_history:
     actor_type: user
     description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal

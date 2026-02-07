@@ -86,3 +86,4 @@ ssoe_get_traits:
   client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-prod-cert.pem
   client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
   url: https://services.eauth.va.gov:9303/psim_webservice/IdMSSOeWebService
+  mock: false
