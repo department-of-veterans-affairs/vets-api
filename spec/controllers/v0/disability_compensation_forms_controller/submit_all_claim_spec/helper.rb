@@ -2,10 +2,12 @@
 
 require_relative 'example_definition'
 require_relative 'vcr_endpoint_matchers'
+require 'support/disability_compensation/service_configuration_helper'
 
 module SubmitAllClaimSpec
   module Helper # rubocop:disable Metrics/ModuleLength
     extend ActiveSupport::Concern
+    include DisabilityCompensation::ServiceConfigurationHelper
 
     class_methods do
       def define_example(description, **metadata, &) # rubocop:disable Metrics/MethodLength
@@ -121,6 +123,11 @@ module SubmitAllClaimSpec
 
     included do
       before do
+        reset_service_configuration(
+          BenefitsClaims::Service,
+          BenefitsClaims::Configuration
+        )
+
         ##
         # TODO: Explain this.
         #

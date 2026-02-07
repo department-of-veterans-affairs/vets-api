@@ -2111,6 +2111,7 @@ spec/support/controller_spec_helper.rb @department-of-veterans-affairs/backend-r
 spec/support/database_cleaner.rb @department-of-veterans-affairs/backend-review-group
 spec/support/default_configuration_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/decision_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
+spec/support/disability_compensation @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/support/disability_compensation_form @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/support/error_details.rb @department-of-veterans-affairs/backend-review-group
 spec/support/excel_helpers.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group

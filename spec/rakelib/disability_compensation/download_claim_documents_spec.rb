@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/disability_compensation/service_configuration_helper'
+
 require Rails.root.join('rakelib', 'disability_compensation', 'download_claim_documents')
 
 module DisabilityCompensation
@@ -36,6 +38,19 @@ end
 
 describe DisabilityCompensation::DownloadClaimDocuments do
   include described_class::SpecHelpers
+  include DisabilityCompensation::ServiceConfigurationHelper
+
+  before do
+    reset_service_configuration(
+      BenefitsClaims::Service,
+      BenefitsClaims::Configuration
+    )
+
+    reset_service_configuration(
+      BenefitsDocuments::Service,
+      BenefitsDocuments::Configuration
+    )
+  end
 
   it 'writes files with network-derived data' do
     mock_file_io = described_class::SpecHelpers::MockFileIO.new
