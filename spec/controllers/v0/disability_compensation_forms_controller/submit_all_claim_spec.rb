@@ -11,7 +11,7 @@ RSpec.describe(
   include SubmitAllClaimSpec::Helper
   include ActiveSupport::Testing::TimeHelpers
 
-  define_example('bdd', skip: true) do |definition|
+  define_example('bdd') do |definition|
     definition.payload_fixture = 'bdd'
     definition.user_icn = '1012666073V986297'
 
