@@ -703,7 +703,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       let(:title10_activation_date) { 1.day.ago.to_date.iso8601 }
       let(:anticipated_separation_date) { Time.zone.today.iso8601 }
 
-      it 'raises an InvalidFieldValue error' do
+      it 'does not raise an error' do
         expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
       end
     end
@@ -742,6 +742,16 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
 
       it 'does not raise an error' do
         expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
+    context 'when anticipatedSeparationDate is in the past' do
+      let(:title10_activation_date) { 1.year.ago.to_date.iso8601 }
+      let(:anticipated_separation_date) { 6.months.ago.to_date.iso8601 }
+
+      it 'raises an error because anticipatedSeparationDate cannot be in the past' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
   end
