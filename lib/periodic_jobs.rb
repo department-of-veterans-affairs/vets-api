@@ -274,6 +274,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Delete old BenefitsIntake records 60 days or older
   mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob')
 
+  # Delete old IntentToFile records 60 days or older
+  mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldIntentToFileRecordsJob')
+
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
   mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')

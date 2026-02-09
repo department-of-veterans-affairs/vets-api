@@ -1252,6 +1252,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
       end
 
+      it 'returns 400 when station_number parameter is missing' do
+        get('/my_health/v2/prescriptions/12345', headers:)
+
+        expect(response).to have_http_status(:bad_request)
+        error = response.parsed_body['errors']&.first
+        expect(error['detail']).to include('station_number')
+      end
+
       it 'returns a successful response when prescription is found' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           get('/my_health/v2/prescriptions/20848812135', params: { station_number: '668' }, headers:)

@@ -155,7 +155,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
   end
 
   before do
-    allow(BenefitsClaims::Service).to receive(:new).with(current_user.icn).and_return(mock_service)
+    allow(BenefitsClaims::Service).to receive(:new).with(current_user).and_return(mock_service)
     allow(mock_service).to receive(:config).and_return(mock_config)
     allow(mock_config).to receive(:base_api_path)
       .and_return("https://sandbox-api.va.gov/#{BenefitsClaims::Configuration::CLAIMS_PATH}")
@@ -166,7 +166,7 @@ RSpec.describe BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsPr
 
   describe '#initialize' do
     it 'initializes with a user and creates a service' do
-      expect(BenefitsClaims::Service).to receive(:new).with(current_user.icn)
+      expect(BenefitsClaims::Service).to receive(:new).with(current_user)
       described_class.new(current_user)
     end
   end

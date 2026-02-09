@@ -11,7 +11,18 @@ module Vass
 
     class RedisError < BaseError; end
     class ValidationError < BaseError; end
-    class AuthenticationError < BaseError; end
+
+    class AuthenticationError < BaseError
+      # Safe message constants for authentication errors.
+      # These are the only messages that will be rendered to clients.
+      MISSING_TOKEN = 'Missing authentication token'
+      EXPIRED_TOKEN = 'Token has expired'
+      INVALID_TOKEN = 'Invalid or malformed token'
+      REVOKED_TOKEN = 'Token is invalid or already revoked'
+
+      SAFE_MESSAGES = [MISSING_TOKEN, EXPIRED_TOKEN, INVALID_TOKEN, REVOKED_TOKEN].freeze
+    end
+
     class ServiceError < BaseError; end
     class VassApiError < BaseError; end
     class NotFoundError < BaseError; end

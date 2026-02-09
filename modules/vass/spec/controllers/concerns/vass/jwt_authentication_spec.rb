@@ -7,6 +7,17 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
     include Vass::Logging
     include Vass::JwtAuthentication
 
+    # Mirror the rescue_from handler in Vass::ApplicationController
+    rescue_from Vass::Errors::AuthenticationError do |exception|
+      render json: {
+        errors: [{
+          title: 'Authentication Error',
+          detail: exception.message,
+          code: 'unauthorized'
+        }]
+      }, status: :unauthorized
+    end
+
     before_action :authenticate_jwt
 
     def index
@@ -363,6 +374,57 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
   describe '#jwt_secret' do
     it 'returns VASS jwt_secret from settings' do
       expect(controller.send(:jwt_secret)).to eq(Settings.vass.jwt_secret)
+    end
+  end
+
+  describe '#decode_jwt_for_revocation' do
+    let(:payload) do
+      {
+        sub: veteran_id,
+        exp: 1.hour.from_now.to_i,
+        iat: Time.current.to_i,
+        jti: SecureRandom.uuid
+      }
+    end
+    let(:token) { JWT.encode(payload, secret, 'HS256') }
+
+    it 'decodes valid token and returns payload' do
+      decoded = controller.send(:decode_jwt_for_revocation, token)
+      expect(decoded['sub']).to eq(veteran_id)
+    end
+
+    it 'decodes expired token without raising error' do
+      expired_payload = payload.merge(exp: 1.hour.ago.to_i)
+      expired_token = JWT.encode(expired_payload, secret, 'HS256')
+
+      decoded = controller.send(:decode_jwt_for_revocation, expired_token)
+      expect(decoded['sub']).to eq(veteran_id)
+    end
+
+    it 'returns nil for invalid token format' do
+      decoded = controller.send(:decode_jwt_for_revocation, 'invalid-token')
+      expect(decoded).to be_nil
+    end
+
+    it 'returns nil for token with wrong signature' do
+      wrong_secret_token = JWT.encode(payload, 'wrong-secret', 'HS256')
+      decoded = controller.send(:decode_jwt_for_revocation, wrong_secret_token)
+      expect(decoded).to be_nil
+    end
+
+    it 'logs decode error for invalid token' do
+      expect(Rails.logger).to receive(:warn)
+        .with(a_string_including('"action":"auth_failure"', '"reason":"revocation_decode_error"',
+                                 '"error_class":"JWT::DecodeError"'))
+      controller.send(:decode_jwt_for_revocation, 'invalid-token')
+    end
+
+    it 'logs decode error for wrong signature' do
+      wrong_secret_token = JWT.encode(payload, 'wrong-secret', 'HS256')
+      expect(Rails.logger).to receive(:warn)
+        .with(a_string_including('"action":"auth_failure"', '"reason":"revocation_decode_error"',
+                                 '"error_class":"JWT::VerificationError"'))
+      controller.send(:decode_jwt_for_revocation, wrong_secret_token)
     end
   end
 
