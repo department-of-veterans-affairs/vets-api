@@ -37,6 +37,7 @@ module FacilitiesApi
 
             conn.response :raise_custom_error, error_prefix: service_name
             conn.use FacilitiesApi::V2::PPMS::Middleware::PPMSParser
+            conn.response :betamocks if mock_enabled?
 
             conn.adapter Faraday.default_adapter
           end
