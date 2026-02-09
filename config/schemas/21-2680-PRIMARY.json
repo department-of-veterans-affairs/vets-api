@@ -205,9 +205,9 @@
             },
             "country": {
               "type": "string",
-              "description": "Country (two-letter code)",
-              "maxLength": 2,
-              "pattern": "^[A-Z]{2}$",
+              "description": "Country (two or three-letter code)",
+              "maxLength": 3,
+              "pattern": "^[A-Z]{2,3}$",
               "example": "US"
             }
           }
