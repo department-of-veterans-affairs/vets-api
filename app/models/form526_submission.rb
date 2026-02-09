@@ -25,7 +25,8 @@ class Form526Submission < ApplicationRecord
                     additional_class_logs: { action: 'Begin as anciliary 526 submission' },
                     additional_instance_logs: {
                       saved_claim_id: %i[saved_claim id],
-                      user_uuid: %i[user_uuid]
+                      user_uuid: %i[user_uuid],
+                      feature_toggles: %i[feature_toggle_context]
                     })
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
@@ -491,6 +492,24 @@ class Form526Submission < ApplicationRecord
     first_name = get_first_name
     params = personalization_parameters(first_name)
     Form526ConfirmationEmailJob.perform_async(params)
+  end
+
+  FEATURE_TOGGLE_CONTEXT_KEYS = %i[
+    disability_526_extra_bdd_pages_enabled
+  ].freeze
+
+  def feature_toggle_context
+    @feature_toggle_context ||=
+      {}.tap do |context|
+        next if user.blank?
+
+        FEATURE_TOGGLE_CONTEXT_KEYS.each do |key|
+          value = Flipper.enabled?(key, user)
+          context[key] = value
+        end
+      rescue
+        # No-op
+      end
   end
 
   private
