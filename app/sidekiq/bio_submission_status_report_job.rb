@@ -61,21 +61,23 @@ class BioSubmissionStatusReportJob
     uuids.each_slice(BATCH_SIZE) do |batch|
       response = cmp_service.status(batch)
       parsed = JSON.parse(response.body).flatten
-      parsed.each do |entry|
-        # Note: 'veteranId' is actually the CM Portal Packet ID (naming is confusing but that's the API design)
-        packet_id = entry['packets']&.first&.dig('veteranId')
-        statuses[entry['uuid']] = {
-          status: entry['status'],
-          last_updated: entry['lastUpdated'],
-          packet_id:
-        }
-      end
+      parsed.each { |entry| statuses[entry['uuid']] = parse_cmp_entry(entry) }
     end
 
     statuses
   rescue => e
     Rails.logger.warn("BioSubmissionStatusReportJob: CMP status fetch failed: #{e.message}")
     {}
+  end
+
+  def parse_cmp_entry(entry)
+    # NOTE: 'veteranId' is actually the CM Portal Packet ID (naming is confusing but that's the API design)
+    packet_id = entry['packets']&.first&.dig('veteranId')
+    {
+      status: entry['status'],
+      last_updated: entry['lastUpdated'],
+      packet_id:
+    }
   end
 
   def build_csv(form_type, attempts, cmp_statuses)
