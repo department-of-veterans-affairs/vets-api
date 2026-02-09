@@ -11,7 +11,19 @@ module Search
     STREET_ADDRESS_PATTERN = /
       \b\d+\s+
       [A-Z0-9\s.#]+
-      (?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Boulevard|Blvd\.?|Drive|Dr\.?|Lane|Ln\.?|Court|Ct\.?|Place|Pl\.?|Way|Circle|Cir\.?|Highway|Hwy\.?)
+      (?:
+        Street|St\.?
+        |Avenue|Ave\.?
+        |Road|Rd\.?
+        |Boulevard|Blvd\.?
+        |Drive|Dr\.?
+        |Lane|Ln\.?
+        |Court|Ct\.?
+        |Place|Pl\.?
+        |Way
+        |Circle|Cir\.?
+        |Highway|Hwy\.?
+      )
       \b
     /ix
 
