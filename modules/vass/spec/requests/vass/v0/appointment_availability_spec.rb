@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../support/vass_settings_helper'
 
 RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
@@ -25,24 +26,7 @@ RSpec.describe 'Vass::V0::Appointments - Appointment Availability', type: :reque
     Rails.cache.clear
 
     # Stub VASS settings
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(
-        auth_url: 'https://login.microsoftonline.us',
-        tenant_id: 'test-tenant-id',
-        client_id: 'test-client-id',
-        client_secret: 'test-client-secret',
-        jwt_secret:,
-        scope: 'https://api.va.gov/.default',
-        api_url: 'https://api.vass.va.gov',
-        subscription_key: 'test-subscription-key',
-        service_name: 'vass_api',
-        redis_otp_expiry: 600,
-        redis_session_expiry: 7200,
-        redis_token_expiry: 3540,
-        rate_limit_max_attempts: 5,
-        rate_limit_expiry: 900
-      )
-    )
+    stub_vass_settings(jwt_secret:)
 
     # Set up session in Redis keyed by UUID (veteran_id) with jti stored in session data
     redis_client = Vass::RedisClient.build
