@@ -91,8 +91,7 @@ module ClaimsApi
         if person[:phone]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-<<<<<<< HEAD
-              res = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              res = create_vnp_phone(person[:phone], vnp_ptcpnt_id)
               if res
                 @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id]
 
@@ -101,10 +100,6 @@ module ClaimsApi
                 phone_data['phoneNumber'] = phone_data['phoneNumber']&.gsub(/\s/, '')
                 @vnp_res_object['meta'][type.to_s]['phone_data'] = phone_data
               end
-=======
-              res = create_vnp_phone(person[:phone], vnp_ptcpnt_id)
-              @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id] if res
->>>>>>> 8ab853ba02 (Handles international phones in create_request)
             end
           end
         end
