@@ -38,30 +38,36 @@ module Vass
     # ------------ OAuth Token Management ------------
 
     ##
-    # Retrieves the cached OAuth access token.
+    # Retrieves the cached OAuth access token and decrypts it.
     #
-    # @return [String, nil] Cached OAuth token or nil if not present/expired
+    # @return [String, nil] Cached OAuth token (decrypted) or nil if not present/expired
     #
     def token
-      with_redis_error_handling do
+      encrypted_token = with_redis_error_handling do
         Rails.cache.read(
           'oauth_token',
           namespace: 'vass-auth-cache'
         )
       end
+
+      return nil if encrypted_token.nil?
+
+      token_encryptor.decrypt(encrypted_token)
     end
 
     ##
-    # Saves the OAuth access token to cache with expiration.
+    # Encrypts and saves the OAuth access token to cache with expiration.
     #
     # @param token [String, nil] OAuth token to cache (nil clears the cache)
     # @return [Boolean] true if write succeeds
     #
     def save_token(token:)
+      encrypted_token = token.nil? ? nil : token_encryptor.encrypt(token)
+
       with_redis_error_handling do
         Rails.cache.write(
           'oauth_token',
-          token,
+          encrypted_token,
           namespace: 'vass-auth-cache',
           expires_in: redis_token_expiry
         )
@@ -603,6 +609,15 @@ module Vass
       yield
     rescue Redis::BaseError => e
       raise Vass::Errors::RedisError, "Redis operation failed: #{e.message}"
+    end
+
+    ##
+    # Lazily initializes and returns the token encryptor for OAuth token encryption/decryption.
+    #
+    # @return [Vass::TokenEncryptor] Token encryptor instance
+    #
+    def token_encryptor
+      @token_encryptor ||= Vass::TokenEncryptor.build
     end
   end
 end
