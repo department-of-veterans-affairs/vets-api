@@ -26715,7 +26715,6 @@
         "additionalProperties": false,
         "required": [
           "type",
-          "veteranStatus",
           "attributes"
         ],
         "properties": {
@@ -26728,78 +26727,46 @@
             "description": "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility",
             "example": "veteran_status_card"
           },
-          "veteranStatus": {
-            "type": "string",
-            "enum": [
-              "confirmed",
-              "not confirmed"
-            ],
-            "description": "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card",
-            "example": "confirmed"
-          },
-          "serviceSummaryCode": {
-            "type": "string",
-            "description": "The veteran's Service Summary Code determined by VAProfile",
-            "example": "A5"
-          },
-          "notConfirmedReason": {
-            "type": "string",
-            "description": "Displays the reason the veteran is not eligible for a status card",
-            "example": "PERSON_NOT_FOUND"
-          },
           "attributes": {
             "type": "object",
             "additionalProperties": false,
+            "required": [
+              "veteranStatus",
+              "confirmationStatus",
+              "serviceSummaryCode"
+            ],
             "description": "Displays data specific to either 'confirmed' or 'not confirmed' veteran status card",
             "properties": {
               "fullName": {
                 "type": "string",
+                "nullable": true,
                 "description": "The concatenated full name of the veteran, displayed when eligible for a status card",
                 "example": "John T Doe Sr"
               },
               "disabilityRating": {
                 "type": "integer",
+                "nullable": true,
                 "description": "The disability rating for the veteran when eligible for a status card",
                 "example": 50
               },
-              "latestService": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The latest branch of service, begin date, and end date when the veteran is eligible for a status card",
-                "required": [
-                  "branch",
-                  "beginDate",
-                  "endDate"
-                ],
-                "properties": {
-                  "branch": {
-                    "type": "string",
-                    "description": "The veteran's latest branch of service"
-                  },
-                  "beginDate": {
-                    "type": "string",
-                    "description": "The start date of the veteran's latest service"
-                  },
-                  "endDate": {
-                    "type": "string",
-                    "description": "The end date of the veteran's latest service"
-                  }
-                }
-              },
               "edipi": {
                 "type": "string",
+                "nullable": true,
                 "description": "The user's EDIPI number when eligible for a veteran status card",
                 "example": "001001999"
               },
               "header": {
                 "type": "string",
+                "nullable": true,
                 "description": "Displays an error/warning title when the veteran is ineligible for a status card",
                 "example": "You're not eligible for a Veteran Status Card"
               },
               "body": {
                 "type": "array",
+                "nullable": true,
                 "description": "A list of message components to display when the veteran is ineligible for a status card",
                 "items": {
+                  "type": "object",
                   "required": [
                     "type",
                     "value"
@@ -26823,11 +26790,13 @@
                     },
                     "tty": {
                       "type": "boolean",
+                      "nullable": true,
                       "description": "An optional parameter when data type is 'phone' to signify TTY",
                       "example": true
                     },
                     "url": {
                       "type": "string",
+                      "nullable": true,
                       "description": "When data type is 'link', this field contains the hyperlink",
                       "example": "https://www.va.gov"
                     }
@@ -26836,8 +26805,60 @@
               },
               "alertType": {
                 "type": "string",
+                "enum": [
+                  "error",
+                  "warning"
+                ],
+                "nullable": true,
                 "description": "The type of alert - can either be 'error' or 'warning'",
                 "example": "warning"
+              },
+              "veteranStatus": {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "not confirmed"
+                ],
+                "description": "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card",
+                "example": "confirmed"
+              },
+              "notConfirmedReason": {
+                "type": "string",
+                "enum": [
+                  "ERROR",
+                  "MORE_RESEARCH_REQUIRED",
+                  "NOT_TITLE_38",
+                  "PERSON_NOT_FOUND"
+                ],
+                "nullable": true,
+                "description": "Displays the reason the veteran is not eligible for a status card",
+                "example": "PERSON_NOT_FOUND"
+              },
+              "confirmationStatus": {
+                "type": "string",
+                "enum": [
+                  "DISCHONORABLE_SSC",
+                  "INELIGIBLE_SSC",
+                  "UNKNOWN_SSC",
+                  "EDIPI_NO_PNL_SSC",
+                  "CURRENTLY_SERVING_SSC",
+                  "ERROR_SSC",
+                  "UNCAUGHT_SSC",
+                  "UNKNOWN_REASON",
+                  "NO_SSC_CHECK",
+                  "AD_DSCH_VAL_SSC",
+                  "AD_VAL_PREV_QUAL_SSC",
+                  "AD_VAL_PREV_RES_GRD_SSC",
+                  "AD_UNCHAR_DSCH_SSC",
+                  "VAL_PREV_QUAL_SSC"
+                ],
+                "description": "Displays the confirmation status of the veteran",
+                "example": "INELIGIBLE_SSC_CODE"
+              },
+              "serviceSummaryCode": {
+                "type": "string",
+                "description": "The veteran's Service Summary Code determined by VAProfile",
+                "example": "A5"
               }
             }
           }
