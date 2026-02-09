@@ -2,10 +2,11 @@
 
 require 'rails_helper'
 require 'unique_user_events/oracle_health'
+require 'unique_user_events/event_registry'
 
 RSpec.describe UniqueUserEvents::OracleHealth do
   let(:user) { double('User') }
-  let(:event_name) { 'mhv_sm_message_sent' }
+  let(:event_name) { UniqueUserEvents::EventRegistry::MEDICAL_RECORDS_ALLERGIES_ACCESSED }
   let(:non_tracked_event) { 'some_other_event' }
 
   before do
@@ -35,7 +36,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
         it 'generates OH events for matching facilities' do
           result = described_class.generate_events(user:, event_name:)
 
-          expect(result).to contain_exactly('mhv_sm_message_sent_oh_site_757')
+          expect(result).to contain_exactly("#{event_name}_oh_site_757")
         end
       end
 
@@ -47,7 +48,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
         it 'generates OH event for the matching facility' do
           result = described_class.generate_events(user:, event_name:)
 
-          expect(result).to contain_exactly('mhv_sm_message_sent_oh_site_757')
+          expect(result).to contain_exactly("#{event_name}_oh_site_757")
         end
       end
 

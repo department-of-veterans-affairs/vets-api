@@ -6,10 +6,10 @@ The VASS (Veterans Affairs Scheduling System) module enables non-authenticated, 
 
 ## Features
 
-- **One-Time Code (OTC) Authentication**: Secure verification for non-authenticated users
+- **One-Time Password (OTP) Authentication**: Secure verification for non-authenticated users
 - **VANotify Integration**: OTP delivery via email
 - **VASS API Integration**: External service integration for appointment scheduling
-- **Redis Storage**: Session and OTC management, OAuth token caching
+- **Redis Storage**: Session and OTP management, OAuth token caching
 - **RESTful API**: JSON API endpoints following vets-api patterns
 - **Service Layer**: Business logic abstraction over HTTP client
 - **Circuit Breaker**: Fault tolerance for external API calls
@@ -53,8 +53,9 @@ This module follows the Rails Engine pattern used throughout vets-api. It provid
 
 #### Session Management
 
-- `POST /vass/v0/sessions` - Create session and send OTP
-- `GET /vass/v0/sessions/:id` - Validate OTP
+- `POST /vass/v0/request-otp` - Create session and send OTP
+- `POST /vass/v0/authenticate-otp` - Validate OTP
+- `POST /vass/v0/revoke-token` - Revoke JWT token (logout)
 
 #### Appointment Management (existing endpoints)
 
@@ -146,7 +147,7 @@ bundle exec rspec spec/services/vass/appointments_service_spec.rb
 
 ## Dependencies
 
-- **Redis**: For OAuth token caching, OTC and session storage
+- **Redis**: For OAuth token caching, OTP and session storage
 - **VANotify**: For OTP delivery
 - **VASS API**: External appointment scheduling service (Microsoft Azure)
 - **Circuit Breaker**: Breakers gem for fault tolerance
