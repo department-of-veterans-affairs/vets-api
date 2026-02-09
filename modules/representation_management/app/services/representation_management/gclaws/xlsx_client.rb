@@ -230,9 +230,7 @@ module RepresentationManagement
                   'Action: Manual review recommended'
 
         log_to_slack_channel(message)
-      rescue => ecreate_curl_config_file,
-                           :escape_curl_config_value, :build_curl_command,
-                           :cleanup_config_file, :
+      rescue => e
         log_error("Failed to send Slack notification: #{e.message}")
       end
 
@@ -258,7 +256,9 @@ module RepresentationManagement
       end
 
       private_class_method :initialize_configuration, :perform_download_with_cleanup,
-                           :execute_curl_download, :process_curl_result,
+                           :execute_curl_download, :create_curl_config_file,
+                           :escape_curl_config_value, :build_curl_command,
+                           :cleanup_config_file, :process_curl_result,
                            :handle_curl_error, :handle_error, :notify_slack_error,
                            :log_to_slack_channel, :log_error
     end
