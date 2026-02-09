@@ -27,7 +27,12 @@ module Mobile
       def perform(uuid)
         user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless user
-
+        raise MissingUserError, uuid unless user
+        if user.icn.nil?
+          Rails.logger.warn('Mobile Vet360 account linking skipped - user has no ICN',
+                            { user_uuid: uuid })
+          return
+        end
         mobile_user = Mobile::User.find_or_create_by(icn: user.icn)
         mobile_user.increment_vet360_link_attempts
 
