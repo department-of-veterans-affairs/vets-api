@@ -507,8 +507,11 @@ class Form526Submission < ApplicationRecord
           value = Flipper.enabled?(key, user)
           context[key] = value
         end
-      rescue
-        # No-op
+      rescue => e
+        Rails.logger.warn(
+          '`Form526Submission#feature_toggle_context` error',
+          error_class: e.class.name, error_message: e.message
+        )
       end
   end
 
