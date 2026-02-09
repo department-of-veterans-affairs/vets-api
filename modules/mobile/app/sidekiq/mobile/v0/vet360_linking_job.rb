@@ -28,7 +28,7 @@ module Mobile
         user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless user
 
-        if user.icn.nil?
+        if user.icn.blank?
           Rails.logger.warn('Mobile Vet360 account linking skipped - user has no ICN',
                             { user_uuid: uuid })
           return
