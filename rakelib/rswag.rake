@@ -208,15 +208,15 @@ def sanitize_example_values!(data) # rubocop:disable Metrics/MethodLength
   date_regex = /^\d{4}-\d{2}-\d{2}$/
 
   # Counter to generate sequential UUIDs
-  @uuid_counter ||= 0
+  uuid_counter = 0
 
   transformer = lambda do |_k, v, _root|
     return v unless v.is_a?(String)
 
     # Sanitize UUIDs
     if v.match?(uuid_regex)
-      @uuid_counter += 1
-      format('00000000-0000-0000-0000-%012d', @uuid_counter)
+      uuid_counter += 1
+      format('00000000-0000-0000-0000-%012d', uuid_counter)
     # Sanitize ISO 8601 timestamps (e.g., "2026-02-06T17:04:14.037Z")
     elsif v.match?(iso_timestamp_regex)
       normalize_date_value(v, Date.parse(v.split('T').first)) { |d| "#{d}T00:00:00.000Z" }
