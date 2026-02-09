@@ -385,10 +385,11 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.22.0)
-      datadog-ruby_core_source (~> 3.4, >= 3.4.1)
-      libdatadog (~> 22.0.1.1.0)
-      libddwaf (~> 1.25.1.1.0)
+    datadog (2.27.0)
+      cgi
+      datadog-ruby_core_source (~> 3.5, >= 3.5.1)
+      libdatadog (~> 25.0.0.1.0)
+      libddwaf (~> 1.30.0.0.0)
       logger
       msgpack
     datadog-ruby_core_source (3.5.2)
@@ -713,14 +714,14 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.5)
-    libdatadog (22.0.1.1.0)
-    libdatadog (22.0.1.1.0-aarch64-linux)
-    libdatadog (22.0.1.1.0-x86_64-linux)
-    libddwaf (1.25.1.1.0)
+    libdatadog (25.0.0.1.0)
+    libdatadog (25.0.0.1.0-aarch64-linux)
+    libdatadog (25.0.0.1.0-x86_64-linux)
+    libddwaf (1.30.0.0.0)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-aarch64-linux)
+    libddwaf (1.30.0.0.0-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.25.1.1.0-x86_64-linux)
+    libddwaf (1.30.0.0.0-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.11.0)
@@ -1323,7 +1324,7 @@ DEPENDENCIES
   csv
   danger
   database_cleaner
-  datadog (~> 2.22.0)
+  datadog (~> 2.27.0)
   date_validator
   debts_api!
   debug
