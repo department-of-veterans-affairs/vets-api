@@ -563,5 +563,29 @@ describe Veteran::Service::Representative, type: :model do
       expect(assoc.options[:through]).to eq(:organization_representatives)
       expect(assoc.options[:source]).to eq(:organization)
     end
+
+    it 'returns organizations through organization_representatives (integration)' do
+      representative = create(
+        :representative,
+        representative_id: 'REP123',
+        poa_codes: ['ABC'],
+        user_types: ['attorney']
+      )
+
+      organization = create(
+        :organization,
+        poa: 'ABC',
+        name: 'Test Org'
+      )
+
+      create(
+        :veteran_organization_representative,
+        representative:,
+        organization:,
+        acceptance_mode: 'any_request'
+      )
+
+      expect(representative.represented_organizations).to contain_exactly(organization)
+    end
   end
 end
