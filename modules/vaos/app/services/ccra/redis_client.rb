@@ -138,7 +138,7 @@ module Ccra
     def decrypt_data(encrypted_data)
       lockbox.decrypt(encrypted_data)
     rescue Lockbox::DecryptionError => e
-      Rails.logger.warn("CCRA Redis: Failed to decrypt cached data (old unencrypted data?): #{e.message}")
+      Rails.logger.warn("Community Care Appointments: Failed to decrypt cached data (old unencrypted data?)")
       nil
     end
 
