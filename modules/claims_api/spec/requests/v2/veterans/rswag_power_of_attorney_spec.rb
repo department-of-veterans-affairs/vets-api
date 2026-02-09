@@ -221,7 +221,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '201', 'Valid request response' do
-          schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
+          schema JSON.load_file(File.expand_path('rswag/create/201.json', __dir__))
 
           before do |example|
             allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return false
@@ -657,7 +657,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 200 response' do
         response '200', 'Submit decision' do
-          schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
+          schema JSON.load_file(File.expand_path('rswag/decide/200.json', __dir__))
 
           let(:data) { body_schema[:example] }
           let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Decide) }
