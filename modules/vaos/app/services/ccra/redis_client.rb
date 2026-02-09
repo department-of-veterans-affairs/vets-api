@@ -90,9 +90,9 @@ module Ccra
       return nil unless decrypted_json
 
       ReferralDetail.new.from_json(decrypted_json)
-      rescue JSON::ParserError => e
-        Rails.logger.warn("Community Care Appointments: Corrupted JSON in cache: #{e.message}")
-        nil
+    rescue JSON::ParserError => e
+      Rails.logger.warn("Community Care Appointments: Corrupted JSON in cache: #{e.message}")
+      nil
     end
 
     # Clears referral data from the Redis cache for a specific referral.
@@ -137,8 +137,8 @@ module Ccra
     # @return [String, nil] The decrypted JSON string, or nil if decryption fails
     def decrypt_data(encrypted_data)
       lockbox.decrypt(encrypted_data)
-    rescue Lockbox::DecryptionError => e
-      Rails.logger.warn("Community Care Appointments: Failed to decrypt cached data (old unencrypted data?)")
+    rescue Lockbox::DecryptionError
+      Rails.logger.warn('Community Care Appointments: Failed to decrypt cached data (old unencrypted data?)')
       nil
     end
 
