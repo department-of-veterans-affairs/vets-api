@@ -558,7 +558,7 @@ describe Veteran::Service::Representative, type: :model do
     end
 
     it 'has many organizations through organization_representatives' do
-      assoc = described_class.reflect_on_association(:organizations)
+      assoc = described_class.reflect_on_association(:represented_organizations)
       expect(assoc.macro).to eq(:has_many)
       expect(assoc.options[:through]).to eq(:organization_representatives)
       expect(assoc.options[:source]).to eq(:organization)

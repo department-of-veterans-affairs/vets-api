@@ -20,7 +20,7 @@ module Veteran
         any_request: 'any_request',
         self_only: 'self_only',
         no_acceptance: 'no_acceptance'
-      }, default: 'no_acceptance'
+      }, default: 'no_acceptance', validate: true
 
       validates :organization_poa, presence: true
       validates :representative_id, uniqueness: { scope: :organization_poa }

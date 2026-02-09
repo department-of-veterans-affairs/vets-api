@@ -23,7 +23,7 @@ module Veteran
                inverse_of: :representative,
                dependent: :destroy
 
-      has_many :organizations,
+      has_many :represented_organizations,
                through: :organization_representatives,
                source: :organization
 
