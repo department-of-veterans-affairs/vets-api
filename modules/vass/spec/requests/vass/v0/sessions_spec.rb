@@ -74,6 +74,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               json_response = JSON.parse(response.body)
               expect(json_response['data']['message']).to eq('OTP sent to registered email address')
               expect(json_response['data']['expiresIn']).to be_a(Integer)
+              expect(json_response['data']['email']).to eq('v******@example.com')
             end
           end
         end
@@ -233,7 +234,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         # Store OTP and veteran metadata from create flow
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'validates OTP and returns JWT token' do
@@ -308,7 +309,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: '000000', last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'returns unauthorized status' do
@@ -370,7 +371,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
         # Exceed validation rate limit
         5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
       end
@@ -396,7 +397,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'returns 503 when Redis fails during reset_validation_rate_limit' do
