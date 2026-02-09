@@ -7,7 +7,9 @@ module DecisionReviews
         service_tag 'higher-level-review'
 
         def index
-          ci = get_appealable_issues.body
+          ci = decision_review_service
+               .get_higher_level_review_contestable_issues(user: current_user, benefit_type: params[:benefit_type])
+               .body
           render json: merge_legacy_appeals(ci)
         rescue => e
           log_exception_to_personal_information_log(
@@ -40,16 +42,6 @@ module DecisionReviews
             contestable_issues
           else
             ci_la
-          end
-        end
-
-        def get_appealable_issues
-          if use_new_appealable_issues_service?
-            appealable_issues_service
-              .get_higher_level_review_issues(user: current_user, benefit_type: params[:benefit_type])
-          else
-            decision_review_service
-              .get_higher_level_review_contestable_issues(user: current_user, benefit_type: params[:benefit_type])
           end
         end
       end
