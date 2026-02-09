@@ -1606,8 +1606,10 @@ vanotify:
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
       push_api_key: <%= ENV['vanotify__services__benefits_management_tools__push_api_key'] %>
+      sms_sender_id: <%= ENV['vanotify__services__benefits_management_tools__sms_sender_id'] %>
       template_id:
         decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
+        decision_letter_ready_sms: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_sms'] %>
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
     burials: *vanotify_services_burial
     check_in:
