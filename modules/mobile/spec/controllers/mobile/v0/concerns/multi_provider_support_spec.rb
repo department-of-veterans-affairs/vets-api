@@ -133,6 +133,23 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
     describe '#get_claim_from_providers' do
       let(:claim_id) { '123' }
 
+      context 'with no enabled providers' do
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([])
+        end
+
+        it 'raises ArgumentError with helpful message about enabling providers' do
+          expect do
+            controller.send(:get_claim_from_providers, claim_id, nil)
+          end.to raise_error(
+            ArgumentError,
+            /No claims providers are enabled.*benefits_claims_lighthouse_provider.*cst_multi_claim_provider_mobile/
+          )
+        end
+      end
+
       context 'with single provider' do
         context 'when single provider is Lighthouse' do
           before do

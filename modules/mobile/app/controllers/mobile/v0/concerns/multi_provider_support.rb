@@ -77,7 +77,18 @@ module Mobile
         #
         # Error handling: Delegates to base class helpers to ensure consistent logging and
         # StatsD metrics across web and mobile implementations.
+        #
+        # IMPORTANT: Requires at least one provider to be enabled in ProviderRegistry.
+        # Before enabling cst_multi_claim_provider_mobile, ensure benefits_claims_lighthouse_provider
+        # (or another provider) is enabled to avoid "no providers" errors.
         def get_claim_from_providers(claim_id, provider_type = nil)
+          # Defensive check: Ensure at least one provider is enabled
+          # This catches misconfigured feature flags during rollout
+          if configured_providers.empty?
+            raise ArgumentError,
+                  'No claims providers are enabled. Ensure at least one provider ' \
+                  '(e.g., benefits_claims_lighthouse_provider) is enabled before using multi-provider mode (cst_multi_claim_provider_mobile).'
+          end
           # If provider_type is specified, route based on type
           return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
 
