@@ -32,28 +32,29 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
   describe '.enqueue' do
     it 'creates an AttrPackage and calls perform_async with correct arguments' do
       expect(Sidekiq::AttrPackage).to receive(:create)
-      .with(attrs: { email:, personalisation:} )
-      .and_return(key)
+        .with(attrs: { email:, personalisation: })
+        .and_return(key)
 
       expect(described_class).to receive(:perform_async)
-      .with(template_id, key, api_key_path, callback_options)
+        .with(template_id, key, api_key_path, callback_options)
 
       described_class.enqueue(email, template_id, personalisation, api_key_path, callback_options)
     end
+
     it 'defaults callback_options to an empty hash' do
       expect(Sidekiq::AttrPackage).to receive(:create)
-      .with(attrs: {email:, personalisation: })
-      .and_return(key)
+        .with(attrs: { email:, personalisation: })
+        .and_return(key)
 
       expect(described_class).to receive(:perform_async)
-      .with(template_id, key, api_key_path, {})
+        .with(template_id, key, api_key_path, {})
 
       described_class.enqueue(email, template_id, personalisation, api_key_path)
     end
 
     it 'raises Redis::ConnectionError when Redis is unavailable' do
       allow(Sidekiq::AttrPackage).to receive(:create)
-      .and_raise(Sidekiq::AttrPackageError.new('create', 'Connection refused'))
+        .and_raise(Sidekiq::AttrPackageError.new('create', 'Connection refused'))
 
       expect do
         described_class.enqueue(email, template_id, personalisation, api_key_path, callback_options)
