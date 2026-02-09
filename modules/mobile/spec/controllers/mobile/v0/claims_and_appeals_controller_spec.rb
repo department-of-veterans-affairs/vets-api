@@ -82,18 +82,22 @@ RSpec.describe Mobile::V0::ClaimsAndAppealsController, type: :controller do
         }
       end
 
-      it 'uses the response as-is without adapter parsing' do
+      # All providers require an adapter because:
+      # - Providers return Hashes, but ClaimSerializer expects objects with .attributes method
+      # - Without an adapter, passing the raw Hash to the serializer would raise at runtime
+      # - Even if a provider returns data in the correct format, it must be transformed
+      #   from a Hash into a Mobile::V0::Claim object
+      it 'raises a clear error indicating adapter is required' do
         allow(controller).to receive(:fetch_claim_and_provider).and_return({
                                                                              provider_type: 'champva',
                                                                              claim_response: champva_response
                                                                            })
         allow(controller).to receive(:adapter_for_provider).with('champva').and_return(nil)
-        serializer = double('Serializer')
-        allow(Mobile::V0::ClaimSerializer).to receive(:new).with(champva_response).and_return(serializer)
 
-        controller.get_claim
-
-        expect(Mobile::V0::ClaimSerializer).to have_received(:new).with(champva_response)
+        expect { controller.get_claim }.to raise_error(
+          ArgumentError,
+          /No adapter configured for provider 'champva'/
+        )
       end
     end
   end

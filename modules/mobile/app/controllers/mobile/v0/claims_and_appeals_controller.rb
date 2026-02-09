@@ -26,7 +26,16 @@ module Mobile
       def get_claim
         result = fetch_claim_and_provider
         adapter = adapter_for_provider(result[:provider_type])
-        claim_detail = adapter ? adapter.parse(result[:claim_response]) : result[:claim_response]
+
+        unless adapter
+          raise ArgumentError,
+                "No adapter configured for provider '#{result[:provider_type]}'. " \
+                "All providers must have an adapter to transform provider responses (Hashes) " \
+                "into Mobile::V0::Claim objects for serialization. " \
+                "Add an adapter in adapter_for_provider method."
+        end
+
+        claim_detail = adapter.parse(result[:claim_response])
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
@@ -229,13 +238,17 @@ module Mobile
         Mobile::V0::Adapters::Appeal.new
       end
 
-      # Routes to provider-specific adapter based on provider type
-      # Different providers have different response structures and status mappings
-      # Returns nil if no adapter is defined (response will be used as-is)
+      # Routes to provider-specific adapter based on provider type.
+      # All providers MUST have an adapter.
+      #
+      # Returns nil if no adapter is configured (will raise error in get_claim).
       def adapter_for_provider(provider_type)
         case provider_type.to_s.downcase
         when 'lighthouse'
           lighthouse_claims_adapter
+        # When adding a new provider (e.g., CHAMPVA), add its adapter here:
+        # when 'champva'
+        #   champva_claims_adapter
         end
       end
 
