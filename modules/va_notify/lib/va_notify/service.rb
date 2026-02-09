@@ -33,50 +33,36 @@ module VaNotify
       handle_error(e)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def send_email(args)
       Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
         span.set_tag('template_id', args[:template_id])
 
         @template_id = args[:template_id]
-        if Flipper.enabled?(:va_notify_notification_creation)
-          response = with_monitoring do
-            if Flipper.enabled?(:va_notify_request_level_callbacks)
-              notify_client.send_email(append_callback_url(args))
-            else
-              notify_client.send_email(args)
-            end
-          end
-          create_notification(response)
-          response
-        else
-          with_monitoring do
-            notify_client.send_email(args)
-          end
-        end
-      rescue => e
-        handle_error(e)
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    def send_sms(args)
-      @template_id = args[:template_id]
-      if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
           if Flipper.enabled?(:va_notify_request_level_callbacks)
-            notify_client.send_sms(append_callback_url(args))
+            notify_client.send_email(append_callback_url(args))
           else
-            notify_client.send_sms(args)
+            notify_client.send_email(args)
           end
         end
         create_notification(response)
         response
-      else
-        with_monitoring do
+      rescue => e
+        handle_error(e)
+      end
+    end
+
+    def send_sms(args)
+      @template_id = args[:template_id]
+      response = with_monitoring do
+        if Flipper.enabled?(:va_notify_request_level_callbacks)
+          notify_client.send_sms(append_callback_url(args))
+        else
           notify_client.send_sms(args)
         end
       end
+      create_notification(response)
+      response
     rescue => e
       handle_error(e)
     end
@@ -124,7 +110,7 @@ module VaNotify
       case error
       when Common::Client::Errors::ClientError
         log_error_details(error)
-        if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
+        if error.status >= 400
           context = {
             template_id: callback_options[:template_id] || callback_options['template_id'],
             callback_metadata: sanitize_metadata(
@@ -132,8 +118,6 @@ module VaNotify
             )
           }
           raise VANotify::Error.from_generic_error(error, context)
-        elsif error.status >= 400
-          raise_backend_exception("VANOTIFY_#{error.status}", self.class, error)
         end
       else
         raise error
