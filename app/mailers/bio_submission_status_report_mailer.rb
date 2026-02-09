@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require 'reports/uploader'
-
 class BioSubmissionStatusReportMailer < ApplicationMailer
   REPORT_TEXT = 'BIO Submission Status Report'
 
   def build(s3_links)
     opt = {}
 
-    opt[:to] =
+    raw_emails =
       if FeatureFlipper.staging_email?
-        Settings.reports.bio_submission_status.staging_emails.dup
+        Settings.reports&.bio_submission_status&.staging_emails
       else
-        Settings.reports.bio_submission_status.emails.dup
+        Settings.reports&.bio_submission_status&.emails
       end
+
+    opt[:to] = Array(raw_emails).select { |email| email.is_a?(String) && !email.strip.empty? }
 
     links_html = s3_links.map do |form_type, url|
       "#{form_type}: #{url}"
