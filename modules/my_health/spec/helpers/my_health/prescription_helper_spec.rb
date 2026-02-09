@@ -24,25 +24,20 @@ RSpec.describe MyHealth::PrescriptionHelper::Filtering do
   # so we call them via send when testing through an included instance.
   describe '#renewable' do
     context 'when disp_status is Active: Parked with nil rx_rf_records' do
-      it 'does not raise NoMethodError' do
-        item = build_prescription(
+      let(:item) do
+        build_prescription(
           disp_status: 'Active: Parked',
           is_refillable: false,
           refill_remaining: 0,
           rx_rf_records: nil
         )
+      end
 
+      it 'does not raise NoMethodError' do
         expect { helper_instance.send(:renewable, item) }.not_to raise_error
       end
 
       it 'returns false' do
-        item = build_prescription(
-          disp_status: 'Active: Parked',
-          is_refillable: false,
-          refill_remaining: 0,
-          rx_rf_records: nil
-        )
-
         expect(helper_instance.send(:renewable, item)).to be false
       end
     end
