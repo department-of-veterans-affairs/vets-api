@@ -69,6 +69,33 @@ payload = {
 intake_service.perform_upload(**payload)
 ```
 
+To check the status of uploads by UUID:
+
+```ruby
+intake_service = BenefitsIntake::Service.new
+# Check status of a single upload
+response = intake_service.get_status(uuid: 'your-uuid-here')
+
+# Check status of multiple uploads (maximum 1000 UUIDs)
+response = intake_service.bulk_status(uuids: ['uuid1', 'uuid2', 'uuid3'])
+```
+
+**Note:** The `bulk_status` method has a limit of 1000 UUIDs per request. Requests with more than 1000 UUIDs will raise a `Common::Exceptions::MaxArraySizeExceeded` error.
+
+Example error response:
+```json
+{
+  "errors": [
+    {
+      "title": "Too many items submitted",
+      "detail": "\"ids\" cannot exceed 1000 items (submitted 1001)",
+      "code": 108,
+      "status": "400"
+    }
+  ]
+}
+```
+
 To register a handler with the submission status job:
 
 ```ruby
