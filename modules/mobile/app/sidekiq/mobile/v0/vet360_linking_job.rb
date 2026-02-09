@@ -24,7 +24,7 @@ module Mobile
 
       class MissingUserError < StandardError; end
 
-      def perform(uuid)
+      def perform(uuid) # rubocop:disable Metrics/MethodLength
         user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless user
 
