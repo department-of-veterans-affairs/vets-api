@@ -20,6 +20,7 @@ RSpec.describe AccreditedRepresentativePortal::OgcClient do
   before do
     stub_const('Settings', fake_settings)
     allow(Rails).to receive(:logger).and_return(logger)
+    allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_disable_ogc_client).and_return(false)
   end
 
   describe '#initialize' do
@@ -37,6 +38,22 @@ RSpec.describe AccreditedRepresentativePortal::OgcClient do
     let(:faraday) { instance_double(Faraday::Connection) }
 
     before { allow(Faraday).to receive(:new).and_return(faraday) }
+
+    context 'when the OGC client is disabled by feature flag' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_disable_ogc_client)
+          .and_return(true)
+      end
+
+      it 'short-circuits without making an HTTP request' do
+        expect(Faraday).not_to receive(:new)
+
+        result = described_class.new.find_registration_numbers_for_icn('123')
+
+        expect(result).to eq(nil)
+      end
+    end
 
     it 'returns nil when icn is blank' do
       expect(described_class.new.find_registration_numbers_for_icn(nil)).to be_nil
@@ -95,6 +112,22 @@ RSpec.describe AccreditedRepresentativePortal::OgcClient do
     let(:faraday) { instance_double(Faraday::Connection) }
 
     before { allow(Faraday).to receive(:new).and_return(faraday) }
+
+    context 'when the OGC client is disabled by feature flag' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_disable_ogc_client)
+          .and_return(true)
+      end
+
+      it 'short-circuits without making an HTTP request' do
+        expect(Faraday).not_to receive(:new)
+
+        result = described_class.new.post_icn_and_registration_combination('123', 'REG001')
+
+        expect(result).to be(nil)
+      end
+    end
 
     it 'returns nil when icn or registration_number is blank' do
       client = described_class.new

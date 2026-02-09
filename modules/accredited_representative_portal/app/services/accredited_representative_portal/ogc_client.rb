@@ -9,7 +9,7 @@ module AccreditedRepresentativePortal
     end
 
     def find_registration_numbers_for_icn(icn)
-      return nil if icn.blank?
+      return nil if icn.blank? || ogc_calls_disabled?
 
       begin
         response = make_reg_numbers_request(icn)
@@ -27,8 +27,7 @@ module AccreditedRepresentativePortal
     end
 
     def post_icn_and_registration_combination(icn, registration_number)
-      return nil if icn.blank? || registration_number.blank?
-
+      return nil if icn.blank? || registration_number.blank? || registration_number.blank?
       begin
         response = make_icn_reg_post_request(icn, registration_number)
 
@@ -97,6 +96,10 @@ module AccreditedRepresentativePortal
         icn_endpoint_url:,
         origin:
       }
+    end
+
+    def ogc_calls_disabled?
+      Flipper.enabled?(:accredited_representative_portal_disable_ogc_client)
     end
 
     def api_key
