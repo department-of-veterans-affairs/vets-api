@@ -21,26 +21,99 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
   end
 
   describe '#get_location' do
-    it 'returns the organization name if present' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Organization', 'name' => 'LabX' }] } }
-      expect(adapter.send(:get_location, record)).to eq('LabX')
+    it 'returns the Organization name matching the performer reference' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Organization/org-456' }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-123', 'name' => 'Wrong Lab' },
+          { 'resourceType' => 'Organization', 'id' => 'org-456', 'name' => 'Correct Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Correct Lab')
     end
 
-    it 'returns nil if no organization' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
+    it 'returns the Location name matching the performer reference' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Location/loc-789' }],
+        'contained' => [
+          { 'resourceType' => 'Location', 'id' => 'loc-789', 'name' => 'Primary Care Blue' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Primary Care Blue')
+    end
+
+    it 'skips non-location performer references and matches Organization' do
+      record = { 'resource' => {
+        'performer' => [
+          { 'reference' => 'Practitioner/prac-1' },
+          { 'reference' => 'Organization/org-2' }
+        ],
+        'contained' => [
+          { 'resourceType' => 'Practitioner', 'id' => 'prac-1', 'name' => [{ 'family' => 'Smith' }] },
+          { 'resourceType' => 'Organization', 'id' => 'org-2', 'name' => 'Test Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Test Lab')
+    end
+
+    it 'falls back to first Organization when no performer references exist' do
+      record = { 'resource' => {
+        'contained' => [{ 'resourceType' => 'Organization', 'name' => 'Fallback Lab' }]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
+    end
+
+    it 'returns nil if no Organization or Location matches and no fallback exists' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Practitioner/prac-1' }],
+        'contained' => [{ 'resourceType' => 'Practitioner', 'id' => 'prac-1' }]
+      } }
+      expect(adapter.send(:get_location, record)).to be_nil
+    end
+
+    it 'returns nil if contained is nil' do
+      record = { 'resource' => {} }
       expect(adapter.send(:get_location, record)).to be_nil
     end
   end
 
   describe '#get_ordered_by' do
-    it 'returns practitioner full name if present' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner',
-                                                   'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
+    it 'returns practitioner full name matching the service request requester' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest', 'requester' => { 'reference' => 'Practitioner/abc-123' } },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] },
+        { 'resourceType' => 'Practitioner', 'id' => 'other-456',
+          'name' => [{ 'given' => ['X'], 'family' => 'Y' }] }
+      ] } }
       expect(adapter.send(:get_ordered_by, record)).to eq('A B')
     end
 
-    it 'returns nil if no practitioner' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
+    it 'returns requester display when practitioner is not in contained' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => 'Practitioner/ext-999', 'display' => 'Smith, Jane' } }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to eq('Smith, Jane')
+    end
+
+    it 'returns nil when no service request requester exists' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest' },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns nil if no service request' do
+      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner', 'id' => 'abc',
+                                                   'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns nil if contained is nil' do
+      record = { 'resource' => { 'contained' => nil } }
       expect(adapter.send(:get_ordered_by, record)).to be_nil
     end
   end
@@ -111,10 +184,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     context 'when contained is nil' do
       it 'returns an empty string' do
         resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/123' }] }
-        contained = nil
-
-        result = adapter.send(:get_body_site, resource, contained)
-
+        result = adapter.send(:get_body_site, resource, nil)
         expect(result).to eq('')
       end
     end
@@ -123,10 +193,71 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       it 'returns an empty string' do
         resource = {}
         contained = [{ 'resourceType' => 'ServiceRequest', 'id' => '123' }]
-
         result = adapter.send(:get_body_site, resource, contained)
-
         expect(result).to eq('')
+      end
+    end
+
+    context 'when ServiceRequest has bodySite with coding display' do
+      it 'returns the coding display value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has text but no coding display' do
+      it 'falls back to the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'code' => '12345' }], 'text' => 'Left Arm' }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('Left Arm')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has text but no coding array' do
+      it 'returns the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'text' => 'Arm' }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('Arm')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has multiple entries' do
+      it 'joins them with commas' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [
+            { 'coding' => [{ 'display' => 'SERUM' }] },
+            { 'text' => 'Arm' }
+          ]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM, Arm')
+      end
+    end
+
+    context 'when ServiceRequest has no bodySite' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-1' }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn reference does not match any ServiceRequest' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-other' }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-missing' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
       end
     end
   end
