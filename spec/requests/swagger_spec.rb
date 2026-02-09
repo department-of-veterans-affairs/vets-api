@@ -1677,7 +1677,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'Direct Deposit' do
-      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+      let(:user) { create(:user, :loa3, icn: '1012666073V986297') }
 
       before do
         token = 'abcdefghijklmnop'
@@ -3433,18 +3433,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     it 'returns ok status code' do
       status_card_response = {
         type: 'veteran_status_card',
-        veteran_status: 'confirmed',
-        service_summary_code: 'A1',
-        not_confirmed_reason: 'MORE_RESEARCH_REQUIRED',
         attributes: {
           full_name: 'John Doe',
           disability_rating: 50,
-          latest_service: {
-            branch: 'Army',
-            begin_date: '2010-01-01',
-            end_date: '2015-12-31'
-          },
-          edipi: user.edipi
+          edipi: user.edipi,
+          veteran_status: 'confirmed',
+          service_summary_code: 'A1',
+          confirmation_status: 'DISCHONORABLE_SSC'
         }
       }
       allow_any_instance_of(VeteranStatusCard::Service).to receive(:status_card).and_return(status_card_response)
