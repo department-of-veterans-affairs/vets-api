@@ -111,7 +111,7 @@ module RepresentationManagement
       # @param value [String] Value to escape
       # @return [String] Escaped value
       def self.escape_curl_config_value(value)
-        value.to_s.gsub('\\', '\\\\').gsub('"', '\"')
+        value.to_s.gsub('\\') { '\\\\' }.gsub('"') { '\\"' }
       end
 
       # Builds the curl command array
