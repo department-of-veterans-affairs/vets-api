@@ -127,7 +127,7 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
           # Verify -w flag for HTTP code and content-type output
           w_index = command.index('-w')
           expect(w_index).not_to be_nil
-          expect(command[w_index + 1]).to eq('%<http_code>s\n%<content_type>s')
+          expect(command[w_index + 1]).to eq('%{http_code}\n%{content_type}')
 
           # Write mock XLSX content to output file
           output_index = command.index('-o')

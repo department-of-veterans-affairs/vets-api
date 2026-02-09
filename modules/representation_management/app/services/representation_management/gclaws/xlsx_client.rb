@@ -120,6 +120,7 @@ module RepresentationManagement
       # @param output_path [String] Path to output file
       # @param url [String] URL to download from
       # @return [Array<String>] Curl command array
+      # rubocop:disable Style/FormatStringToken
       def self.build_curl_command(config_path, output_path, url)
         [
           'curl', '-sS',
@@ -128,10 +129,11 @@ module RepresentationManagement
           '--max-time', '120',
           '--connect-timeout', '30',
           '-o', output_path,
-          '-w', '%<http_code>s\n%<content_type>s',
+          '-w', '%{http_code}\n%{content_type}',
           url
         ]
       end
+      # rubocop:enable Style/FormatStringToken
 
       # Cleans up the curl config file
       #
