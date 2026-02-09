@@ -770,8 +770,10 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
 
       before do
         allow(Settings.ppms).to receive(:mock).and_return(true)
-        allow(Settings.betamocks).to receive(:enabled).and_return(true)
-        allow(Settings.betamocks).to receive(:cache_dir).and_return(Rails.root.join('..', 'vets-api-mockdata').to_s)
+        allow(Settings.betamocks).to receive_messages(
+          enabled: true,
+          cache_dir: Rails.root.join('..', 'vets-api-mockdata').to_s
+        )
       end
 
       it 'returns mock data when betamocks is enabled' do
