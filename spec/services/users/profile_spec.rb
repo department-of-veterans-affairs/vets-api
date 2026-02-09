@@ -121,17 +121,6 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'dslogon user' do
-        let(:user) { create(:user, :dslogon) }
-        let!(:user_verification) { create(:dslogon_user_verification, dslogon_uuid: user.edipi) }
-
-        it 'includes sign_in' do
-          expect(profile[:sign_in]).to eq(service_name: SAML::User::DSLOGON_CSID,
-                                          auth_broker: SAML::URLService::BROKER_CODE,
-                                          client_id: SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.first)
-        end
-      end
-
       describe 'form 526 required identifiers' do
         context 'when the user has the form_526_required_identifiers_in_user_object feature flag on' do
           before do

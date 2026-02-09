@@ -468,51 +468,6 @@ describe SignIn::Idme::Service do
       end
     end
 
-    context 'when type is dslogon' do
-      let(:type) { SignIn::Constants::Auth::DSLOGON }
-      let(:authn_context) { SignIn::Constants::Auth::IDME_DSLOGON_LOA3 }
-      let(:service_name) { SignIn::Constants::Auth::DSLOGON }
-      let(:user_info) do
-        OpenStruct.new(
-          {
-            iss: idme_originating_url,
-            sub: user_uuid,
-            aud: idme_client_id,
-            exp: expiration_time,
-            iat: current_time,
-            credential_aal_highest: 2,
-            credential_ial_highest: 'classic_loa3',
-            dslogon_birth_date: birth_date,
-            email:,
-            dslogon_uuid: edipi,
-            dslogon_fname: first_name,
-            dslogon_idvalue: ssn,
-            dslogon_lname: last_name,
-            dslogon_mname: middle_name,
-            level_of_assurance: 3,
-            multifactor:,
-            credential_aal: 2,
-            credential_ial: 'classic_loa3',
-            uuid: user_uuid
-          }
-        )
-      end
-      let(:middle_name) { 'some-middle-name' }
-      let(:edipi) { 'some-edipi' }
-      let(:expected_attributes) do
-        expected_standard_attributes.merge({ ssn:,
-                                             birth_date:,
-                                             first_name:,
-                                             middle_name:,
-                                             last_name:,
-                                             edipi: })
-      end
-
-      it 'returns expected dslogon attributes' do
-        expect(subject.normalized_attributes(user_info, credential_level)).to eq(expected_attributes)
-      end
-    end
-
     context 'when type is mhv' do
       let(:type) { SignIn::Constants::Auth::MHV }
       let(:authn_context) { SignIn::Constants::Auth::IDME_MHV_LOA3 }

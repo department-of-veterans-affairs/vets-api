@@ -96,7 +96,6 @@ module SignIn
         credential_attribute_check(:icn, mhv_icn)
         credential_attribute_check(:mhv_uuid, mhv_credential_uuid)
       else
-        credential_attribute_check(:dslogon_uuid, edipi) if dslogon_auth?
         credential_attribute_check(:last_name, last_name) unless auto_uplevel
         credential_attribute_check(:birth_date, birth_date) unless auto_uplevel
       end
@@ -214,10 +213,6 @@ module SignIn
       service_name == Constants::Auth::MHV
     end
 
-    def dslogon_auth?
-      service_name == Constants::Auth::DSLOGON
-    end
-
     def verified_credential?
       current_ial == Constants::Auth::IAL_TWO
     end
@@ -246,7 +241,6 @@ module SignIn
       case service_name
       when Constants::Auth::MHV      then mhv_credential_uuid
       when Constants::Auth::IDME     then idme_uuid
-      when Constants::Auth::DSLOGON  then edipi
       when Constants::Auth::LOGINGOV then logingov_uuid
       end
     end

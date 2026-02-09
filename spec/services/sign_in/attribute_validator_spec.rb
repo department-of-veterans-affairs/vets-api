@@ -182,9 +182,6 @@ RSpec.describe SignIn::AttributeValidator do
               create(:logingov_user_verification, logingov_uuid:, credential_attributes_digest:)
             when SignIn::Constants::Auth::MHV
               create(:mhv_user_verification, mhv_uuid:, backing_idme_uuid: idme_uuid, credential_attributes_digest:)
-            when SignIn::Constants::Auth::DSLOGON
-              create(:dslogon_user_verification, dslogon_uuid: edipi, backing_idme_uuid: idme_uuid,
-                                                 credential_attributes_digest:)
             end
           end
 
@@ -705,60 +702,6 @@ RSpec.describe SignIn::AttributeValidator do
 
             it_behaves_like 'missing credential attribute'
           end
-        end
-
-        context 'and credential is not missing any required attributes' do
-          it_behaves_like 'credential mpi verification'
-        end
-      end
-
-      context 'and authentication is with dslogon' do
-        let(:service_name) { SignIn::Constants::Auth::DSLOGON }
-        let(:edipi) { 'some-edipi' }
-        let(:idme_uuid) { 'some-idme-uuid' }
-        let(:csp_id) { idme_uuid }
-        let(:address) { nil }
-        let(:first_name) { 'some-first-name' }
-        let(:last_name) { 'some-last-name' }
-        let(:ssn) { '444444758' }
-        let(:birth_date) { '1930-01-01' }
-        let(:email) { 'some-email' }
-        let(:identifier) { idme_uuid }
-        let(:identifier_type) { MPI::Constants::IDME_UUID }
-
-        context 'and credential is missing email' do
-          let(:email) { nil }
-          let(:attribute) { 'email' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
-        context 'and credential is missing idme uuid' do
-          let(:idme_uuid) { nil }
-          let(:attribute) { 'uuid' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
-        context 'and credential is missing edipi' do
-          let(:edipi) { nil }
-          let(:attribute) { 'dslogon_uuid' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
-        context 'and credential is missing last_name' do
-          let(:last_name) { nil }
-          let(:attribute) { 'last_name' }
-
-          it_behaves_like 'missing credential attribute'
-        end
-
-        context 'and credential is missing birth_date' do
-          let(:birth_date) { nil }
-          let(:attribute) { 'birth_date' }
-
-          it_behaves_like 'missing credential attribute'
         end
 
         context 'and credential is not missing any required attributes' do

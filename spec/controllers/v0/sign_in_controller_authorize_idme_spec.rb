@@ -188,12 +188,5 @@ RSpec.describe V0::SignInController, type: :controller do
 
       it_behaves_like 'an idme authentication service interface'
     end
-
-    context 'when type param is dslogon' do
-      let(:type_value) { SignIn::Constants::Auth::DSLOGON }
-      let(:expected_type_value) { SignIn::Constants::Auth::DSLOGON }
-
-      it_behaves_like 'an idme authentication service interface'
-    end
   end
 end

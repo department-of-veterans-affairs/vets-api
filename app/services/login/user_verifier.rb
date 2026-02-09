@@ -6,7 +6,6 @@ module Login
                    auth_broker:,
                    mhv_uuid:,
                    idme_uuid:,
-                   dslogon_uuid:,
                    logingov_uuid:,
                    icn:,
                    credential_attributes_digest: nil)
@@ -14,7 +13,6 @@ module Login
       @auth_broker = auth_broker
       @mhv_uuid = mhv_uuid
       @idme_uuid = idme_uuid
-      @dslogon_uuid = dslogon_uuid
       @logingov_uuid = logingov_uuid
       @icn = icn.presence
       @credential_attributes_digest = credential_attributes_digest
@@ -32,7 +30,6 @@ module Login
                 :auth_broker,
                 :mhv_uuid,
                 :idme_uuid,
-                :dslogon_uuid,
                 :logingov_uuid,
                 :icn,
                 :deprecated_log,
@@ -42,7 +39,6 @@ module Login
 
     MHV_TYPE = :mhv_uuid
     IDME_TYPE = :idme_uuid
-    DSLOGON_TYPE = :dslogon_uuid
     LOGINGOV_TYPE = :logingov_uuid
 
     # Queries for a UserVerification on the user, based off the credential identifier
@@ -181,7 +177,7 @@ module Login
     end
 
     def type_with_backing_idme_uuid
-      [MHV_TYPE, DSLOGON_TYPE].include?(type)
+      [MHV_TYPE].include?(type)
     end
 
     def type
@@ -190,8 +186,6 @@ module Login
                   MHV_TYPE
                 when SAML::User::IDME_CSID
                   IDME_TYPE
-                when SAML::User::DSLOGON_CSID
-                  DSLOGON_TYPE
                 when SAML::User::LOGINGOV_CSID
                   LOGINGOV_TYPE
                 end
@@ -203,8 +197,6 @@ module Login
                         mhv_uuid
                       when IDME_TYPE
                         idme_uuid
-                      when DSLOGON_TYPE
-                        dslogon_uuid
                       when LOGINGOV_TYPE
                         logingov_uuid
                       end

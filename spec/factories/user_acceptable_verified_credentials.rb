@@ -14,10 +14,6 @@ FactoryBot.define do
       user_account { create(:logingov_user_verification).user_account }
     end
 
-    trait :dslogon_verified_account do
-      user_account { create(:dslogon_user_verification).user_account }
-    end
-
     trait :mhv_verified_account do
       user_account { create(:mhv_user_verification).user_account }
     end

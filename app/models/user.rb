@@ -479,8 +479,6 @@ class User < Common::RedisStore
     case identity_sign_in&.dig(:service_name)
     when SAML::User::MHV_ORIGINAL_CSID
       return UserVerification.find_by(mhv_uuid: mhv_credential_uuid) if mhv_credential_uuid
-    when SAML::User::DSLOGON_CSID
-      return UserVerification.find_by(dslogon_uuid: identity.edipi) if identity.edipi
     when SAML::User::LOGINGOV_CSID
       return UserVerification.find_by(logingov_uuid:) if logingov_uuid
     end

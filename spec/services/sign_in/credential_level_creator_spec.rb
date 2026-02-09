@@ -18,7 +18,6 @@ RSpec.describe SignIn::CredentialLevelCreator do
     let(:credential_ial) { SignIn::Constants::Auth::IAL_ONE }
     let(:level_of_assurance) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
     let(:mhv_assurance) { 'some-mhv-assurance' }
-    let(:dslogon_assurance) { 'some-dslogon-assurance' }
     let(:sub) { 'some-sub-uuid' }
     let(:expected_auto_uplevel) { false }
     let(:user_info) do
@@ -26,7 +25,6 @@ RSpec.describe SignIn::CredentialLevelCreator do
                        credential_ial:,
                        level_of_assurance:,
                        mhv_assurance:,
-                       dslogon_assurance:,
                        sub: })
     end
 
@@ -212,96 +210,6 @@ RSpec.describe SignIn::CredentialLevelCreator do
         context 'and requested_acr is set to loa3' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
           let(:expected_error_code) { SignIn::Constants::ErrorCode::MHV_UNVERIFIED_BLOCKED }
-
-          it_behaves_like 'unverified credential blocked error'
-        end
-
-        context 'and requested_acr is set to min' do
-          let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and requested_acr is set to loa1' do
-          let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
-        end
-      end
-    end
-
-    context 'when type is dslogon' do
-      let(:type) { SignIn::Constants::Auth::DSLOGON }
-      let(:expected_rails_log) do
-        "[CredentialLevelCreator] DSLogon level of assurance: #{dslogon_assurance}, credential_uuid: #{sub}"
-      end
-
-      it 'logs the dslogon assurance from the user info' do
-        expect(Rails.logger).to receive(:info).with(expected_rails_log)
-        subject
-      end
-
-      context 'and dslogon assurance is set to dslogon assurance two' do
-        let(:dslogon_assurance) { SignIn::Constants::Auth::DSLOGON_ASSURANCE_TWO }
-        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-        context 'and requested_acr is set to loa3' do
-          let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and requested_acr is set to min' do
-          let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and requested_acr is set to loa1' do
-          let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
-        end
-      end
-
-      context 'and dslogon assurance is set to 3' do
-        let(:dslogon_assurance) { SignIn::Constants::Auth::DSLOGON_ASSURANCE_THREE }
-        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-        context 'and requested_acr is set to loa3' do
-          let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and requested_acr is set to min' do
-          let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
-
-          it_behaves_like 'a created credential level'
-        end
-
-        context 'and requested_acr is set to loa1' do
-          let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-          it_behaves_like 'a created credential level'
-        end
-      end
-
-      context 'and dslogon assurance is set to an arbitrary value' do
-        let(:dslogon_assurance) { 'some-dslogon-assurance' }
-        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
-
-        context 'and requested_acr is set to loa3' do
-          let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
-          let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
 
           it_behaves_like 'unverified credential blocked error'
         end

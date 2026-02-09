@@ -7,7 +7,6 @@ module SignIn
                 :logingov_acr,
                 :verified_at,
                 :mhv_assurance,
-                :dslogon_assurance,
                 :level_of_assurance,
                 :credential_ial,
                 :credential_uuid
@@ -18,7 +17,6 @@ module SignIn
       @logingov_acr = logingov_acr
       @verified_at = user_info.verified_at
       @mhv_assurance = user_info.mhv_assurance
-      @dslogon_assurance = user_info.dslogon_assurance
       @level_of_assurance = user_info.level_of_assurance
       @credential_ial = user_info.credential_ial
       @credential_uuid = user_info.sub
@@ -69,8 +67,6 @@ module SignIn
         logingov_max_ial
       when Constants::Auth::MHV
         mhv_max_ial
-      when Constants::Auth::DSLOGON
-        dslogon_max_ial
       else
         idme_max_ial
       end
@@ -82,8 +78,6 @@ module SignIn
         logingov_current_ial
       when Constants::Auth::MHV
         mhv_current_ial
-      when Constants::Auth::DSLOGON
-        dslogon_current_ial
       else
         idme_current_ial
       end
@@ -95,15 +89,6 @@ module SignIn
 
     def mhv_max_ial
       verified_ial_level(mhv_premium_verified?)
-    end
-
-    def dslogon_max_ial
-      Rails.logger.info(
-        "[CredentialLevelCreator] DSLogon level of assurance: #{dslogon_assurance}, " \
-        "credential_uuid: #{credential_uuid}"
-      )
-
-      verified_ial_level(dslogon_premium_verified?)
     end
 
     def idme_max_ial
@@ -118,20 +103,12 @@ module SignIn
       verified_ial_level(requested_verified_account? && mhv_premium_verified?)
     end
 
-    def dslogon_current_ial
-      verified_ial_level(requested_verified_account? && dslogon_premium_verified?)
-    end
-
     def idme_current_ial
       verified_ial_level(idme_classic_loa3_or_ial2?)
     end
 
     def mhv_premium_verified?
       Constants::Auth::MHV_PREMIUM_VERIFIED.include?(mhv_assurance)
-    end
-
-    def dslogon_premium_verified?
-      Constants::Auth::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance)
     end
 
     def logingov_ial2?
