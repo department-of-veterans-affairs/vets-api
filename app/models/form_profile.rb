@@ -127,6 +127,12 @@ class FormProfile
       21P-530a-UPLOAD
       21P-8049-UPLOAD
       21P-535-UPLOAD
+      21-4170-UPLOAD
+      21P-524-UPLOAD
+      21P-601-UPLOAD
+      21P-4706B-UPLOAD
+      21P-4171-UPLOAD
+      21P-8924-UPLOAD
     ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
@@ -210,7 +216,13 @@ class FormProfile
     '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload
+    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4170-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-524-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-601-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4171-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4706b-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-8924-UPLOAD' => ::FormProfiles::FormUpload,
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
