@@ -171,6 +171,30 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
     end
   end
 
+  describe '#form_schema' do
+    context 'when the schema file cannot be loaded' do
+      let(:monitor_double) { instance_double(DependentsBenefits::Monitor) }
+      let(:error_message) { 'No such file or directory' }
+      let(:form_id) { '21-686C' }
+
+      before do
+        allow(claim).to receive(:monitor).and_return(monitor_double)
+        allow(monitor_double).to receive(:track_error_event)
+        allow(File).to receive(:read).and_raise(Errno::ENOENT, error_message)
+      end
+
+      it 'returns nil and tracks the error' do
+        expect(claim.form_schema(form_id)).to be_nil
+        expect(monitor_double).to have_received(:track_error_event).with(
+          'Dependents Benefits form schema could not be loaded.',
+          'api.dependents_claim.schema_load_error',
+          form_id:,
+          error: "No such file or directory - #{error_message}"
+        )
+      end
+    end
+  end
+
   describe '#pension_related_submission?' do
     context 'when feature flag is disabled' do
       before do

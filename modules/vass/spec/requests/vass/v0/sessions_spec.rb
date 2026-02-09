@@ -28,7 +28,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         api_url: 'https://api.vass.va.gov',
         subscription_key: 'test-subscription-key',
         service_name: 'vass_api',
-        redis_otc_expiry: 600,
+        redis_otp_expiry: 600,
         redis_session_expiry: 7200,
         redis_token_expiry: 3540,
         rate_limit_max_attempts: 5,
@@ -47,7 +47,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     )
   end
 
-  describe 'POST /vass/v0/request-otc' do
+  describe 'POST /vass/v0/request-otp' do
     let(:params) do
       {
         uuid:,
@@ -57,23 +57,24 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     end
 
     context 'with valid parameters and successful VASS API response' do
-      it 'creates session and sends OTC' do
+      it 'creates session and sends OTP' do
         allow(StatsD).to receive(:increment).and_call_original
 
         expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.sessions.request_otc.success',
-          hash_including(tags: array_including('service:vass', 'endpoint:request_otc'))
+          'api.vass.controller.sessions.request_otp.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:request_otp'))
         ).and_call_original
 
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
-              post '/vass/v0/request-otc', params:, as: :json
+              post '/vass/v0/request-otp', params:, as: :json
 
               expect(response).to have_http_status(:ok)
               json_response = JSON.parse(response.body)
-              expect(json_response['data']['message']).to eq('OTC sent to registered email address')
+              expect(json_response['data']['message']).to eq('OTP sent to registered email address')
               expect(json_response['data']['expiresIn']).to be_a(Integer)
+              expect(json_response['data']['email']).to eq('v******@example.com')
             end
           end
         end
@@ -83,7 +84,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
-              post '/vass/v0/request-otc', params:, as: :json
+              post '/vass/v0/request-otp', params:, as: :json
 
               expect(response).to have_http_status(:ok)
             end
@@ -95,14 +96,14 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         allow(StatsD).to receive(:increment).and_call_original
 
         expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.sessions.request_otc.success',
-          hash_including(tags: array_including('service:vass', 'endpoint:request_otc'))
+          'api.vass.controller.sessions.request_otp.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:request_otp'))
         ).and_call_original
 
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
-              post '/vass/v0/request-otc', params:, as: :json
+              post '/vass/v0/request-otp', params:, as: :json
             end
           end
         end
@@ -112,12 +113,12 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
-              post '/vass/v0/request-otc', params:, as: :json
+              post '/vass/v0/request-otp', params:, as: :json
 
               expect(response).to have_http_status(:ok)
               # OTP should be stored in Redis
               redis_client = Vass::RedisClient.build
-              stored_otp = redis_client.otc_data(uuid:)&.dig(:code)
+              stored_otp = redis_client.otp_data(uuid:)&.dig(:code)
               expect(stored_otp).to be_present
               expect(stored_otp.length).to eq(6)
             end
@@ -129,7 +130,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
             VCR.use_cassette('vass/sessions/vanotify_send_otp', match_requests_on: %i[method uri]) do
-              post '/vass/v0/request-otc', params:, as: :json
+              post '/vass/v0/request-otp', params:, as: :json
 
               expect(response).to have_http_status(:ok)
               # Veteran metadata should be stored
@@ -150,7 +151,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns unauthorized status' do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_success', match_requests_on: %i[method uri]) do
-            post '/vass/v0/request-otc', params: {
+            post '/vass/v0/request-otp', params: {
               uuid:,
               last_name: invalid_last_name,
               dob: date_of_birth
@@ -169,7 +170,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns unprocessable entity status' do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_missing_contact', match_requests_on: %i[method uri]) do
-            post '/vass/v0/request-otc', params:, as: :json
+            post '/vass/v0/request-otp', params:, as: :json
 
             expect(response).to have_http_status(:unprocessable_entity)
             json_response = JSON.parse(response.body)
@@ -194,7 +195,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           .with(a_string_including('"service":"vass"', '"action":"rate_limit_exceeded"', "\"vass_uuid\":\"#{uuid}"))
           .and_call_original
 
-        post '/vass/v0/request-otc', params:, as: :json
+        post '/vass/v0/request-otp', params:, as: :json
 
         expect(response).to have_http_status(:too_many_requests)
         json_response = JSON.parse(response.body)
@@ -207,7 +208,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns bad gateway status' do
         VCR.use_cassette('vass/sessions/oauth_token', match_requests_on: %i[method uri]) do
           VCR.use_cassette('vass/sessions/get_veteran_api_error', match_requests_on: %i[method uri]) do
-            post '/vass/v0/request-otc', params:, as: :json
+            post '/vass/v0/request-otp', params:, as: :json
 
             expect(response).to have_http_status(:bad_gateway)
             json_response = JSON.parse(response.body)
@@ -218,33 +219,33 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     end
   end
 
-  describe 'POST /vass/v0/authenticate-otc' do
+  describe 'POST /vass/v0/authenticate-otp' do
     let(:params) do
       {
         uuid:,
         last_name:,
         dob: date_of_birth,
-        otc: otp_code
+        otp: otp_code
       }
     end
 
-    context 'with valid OTC' do
+    context 'with valid OTP' do
       before do
-        # Store OTC and veteran metadata from create flow
+        # Store OTP and veteran metadata from create flow
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
-      it 'validates OTC and returns JWT token' do
+      it 'validates OTP and returns JWT token' do
         allow(StatsD).to receive(:increment).and_call_original
 
         expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.sessions.authenticate_otc.success',
-          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+          'api.vass.controller.sessions.authenticate_otp.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otp'))
         ).and_call_original
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
@@ -257,24 +258,24 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         allow(StatsD).to receive(:increment).and_call_original
 
         expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.sessions.authenticate_otc.success',
-          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+          'api.vass.controller.sessions.authenticate_otp.success',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otp'))
         ).and_call_original
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
       end
 
-      it 'deletes OTC after validation' do
-        post '/vass/v0/authenticate-otc', params:, as: :json
+      it 'deletes OTP after validation' do
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:ok)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
-        expect(stored_otc).to be_nil
+        stored_otp = redis_client.otp_data(uuid:)&.dig(:code)
+        expect(stored_otp).to be_nil
       end
 
       it 'creates authenticated session keyed by uuid with jti' do
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
@@ -298,50 +299,50 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           a_string_including('"service":"vass"', '"action":"jwt_issued"', "\"vass_uuid\":\"#{uuid}\"", '"jti":')
         ).and_call_original
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:ok)
       end
     end
 
-    context 'with invalid OTC' do
+    context 'with invalid OTP' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: '000000', last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_otp(uuid:, code: '000000', last_name:, dob: date_of_birth)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'returns unauthorized status' do
         allow(Rails.logger).to receive(:warn).and_call_original
         expect(Rails.logger).to receive(:warn).with(
-          a_string_including('"service":"vass"', '"action":"invalid_otc"', %("vass_uuid":"#{uuid}"))
+          a_string_including('"service":"vass"', '"action":"invalid_otp"', %("vass_uuid":"#{uuid}"))
         ).and_call_original
 
-        invalid_params = params.deep_merge(session: { otc: '999999' })
-        post '/vass/v0/authenticate-otc', params: invalid_params, as: :json
+        invalid_params = params.deep_merge(session: { otp: '999999' })
+        post '/vass/v0/authenticate-otp', params: invalid_params, as: :json
 
         expect(response).to have_http_status(:unauthorized)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
-        expect(json_response['errors'][0]['code']).to eq('invalid_otc')
+        expect(json_response['errors'][0]['code']).to eq('invalid_otp')
         expect(json_response['errors'][0]['attemptsRemaining']).to be_a(Integer)
       end
 
-      it 'does not delete OTC on failure' do
-        invalid_params = params.deep_merge(session: { otc: '999999' })
-        post '/vass/v0/authenticate-otc', params: invalid_params, as: :json
+      it 'does not delete OTP on failure' do
+        invalid_params = params.deep_merge(session: { otp: '999999' })
+        post '/vass/v0/authenticate-otp', params: invalid_params, as: :json
 
         expect(response).to have_http_status(:unauthorized)
         redis_client = Vass::RedisClient.build
-        stored_otc = redis_client.otc_data(uuid:)&.dig(:code)
-        expect(stored_otc).to eq('000000')
+        stored_otp = redis_client.otp_data(uuid:)&.dig(:code)
+        expect(stored_otp).to eq('000000')
       end
     end
 
-    context 'with missing OTC' do
+    context 'with missing OTP' do
       it 'returns bad request status' do
-        missing_otc_params = { uuid:, last_name:, dob: date_of_birth }
-        post '/vass/v0/authenticate-otc', params: missing_otc_params, as: :json
+        missing_otp_params = { uuid:, last_name:, dob: date_of_birth }
+        post '/vass/v0/authenticate-otp', params: missing_otp_params, as: :json
 
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
@@ -351,26 +352,26 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       end
     end
 
-    context 'with expired OTC' do
+    context 'with expired OTP' do
       it 'returns unauthorized status' do
         allow(Rails.logger).to receive(:warn).and_call_original
-        expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"otc_expired"',
+        expect(Rails.logger).to receive(:warn).with(a_string_including('"service":"vass"', '"action":"otp_expired"',
                                                                        %("vass_uuid":"#{uuid}"))).and_call_original
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:unauthorized)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
-        expect(json_response['errors'][0]['code']).to eq('otc_expired')
+        expect(json_response['errors'][0]['code']).to eq('otp_expired')
       end
     end
 
     context 'when validation rate limit is exceeded' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
         # Exceed validation rate limit
         5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
       end
@@ -381,13 +382,13 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           .with(a_string_including('"service":"vass"', '"action":"validation_rate_limit_exceeded"'))
           .and_call_original
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:too_many_requests)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'][0]['code']).to eq('account_locked')
-        expect(json_response['errors'][0]['detail']).to eq('Too many failed attempts. Please request a new OTC.')
+        expect(json_response['errors'][0]['detail']).to eq('Too many failed attempts. Please request a new OTP.')
         expect(json_response['errors'][0]['retryAfter']).to be_a(Integer)
       end
     end
@@ -395,14 +396,14 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     context 'when an exception occurs during successful authentication flow' do
       before do
         redis_client = Vass::RedisClient.build
-        redis_client.save_otc(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'returns 503 when Redis fails during reset_validation_rate_limit' do
         allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:service_unavailable)
         json_response = JSON.parse(response.body)
@@ -412,7 +413,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns 503 when Redis fails during session creation' do
         allow(Rails.cache).to receive(:write).and_raise(Redis::BaseError, 'Connection refused')
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:service_unavailable)
         json_response = JSON.parse(response.body)
@@ -422,7 +423,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       it 'returns error response body when Redis exception occurs' do
         allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         json_response = JSON.parse(response.body)
 
@@ -437,7 +438,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           raise JSON::GeneratorError, 'Invalid encoding' if call_count == 1
         end
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:internal_server_error)
         json_response = JSON.parse(response.body)
@@ -451,7 +452,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
           raise Encoding::UndefinedConversionError, 'Invalid byte sequence' if call_count == 1
         end
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
 
         expect(response).to have_http_status(:internal_server_error)
         json_response = JSON.parse(response.body)
@@ -462,15 +463,15 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         allow(Rails.cache).to receive(:delete).and_raise(Redis::BaseError, 'Connection refused')
 
         expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.sessions.authenticate_otc.failure',
-          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+          'api.vass.controller.sessions.authenticate_otp.failure',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otp'))
         )
         expect(StatsD).not_to receive(:increment).with(
-          'api.vass.controller.sessions.authenticate_otc.success',
+          'api.vass.controller.sessions.authenticate_otp.success',
           anything
         )
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
       end
 
       it 'tracks failure and NOT success when audit log fails' do
@@ -481,15 +482,15 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         end
 
         expect(StatsD).to receive(:increment).with(
-          'api.vass.controller.sessions.authenticate_otc.failure',
-          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otc'))
+          'api.vass.controller.sessions.authenticate_otp.failure',
+          hash_including(tags: array_including('service:vass', 'endpoint:authenticate_otp'))
         )
         expect(StatsD).not_to receive(:increment).with(
-          'api.vass.controller.sessions.authenticate_otc.success',
+          'api.vass.controller.sessions.authenticate_otp.success',
           anything
         )
 
-        post '/vass/v0/authenticate-otc', params:, as: :json
+        post '/vass/v0/authenticate-otp', params:, as: :json
       end
     end
   end
