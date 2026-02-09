@@ -221,8 +221,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '201', 'Valid request response' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                            'power_of_attorney', 'request_representative', 'submit.json').read)
+          schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
 
           before do |example|
             allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return false

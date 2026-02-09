@@ -21,101 +21,124 @@
             "veteran": {
               "type": "object",
               "properties": {
-                "firstName": {
-                  "description": "First name for the veteran.",
+                "serviceNumber": {
                   "type": ["string", "null"]
                 },
-                "lastName": {
-                  "description": "Last name for the veteran.",
+                "serviceBranch": {
                   "type": ["string", "null"]
                 },
-                "middleName": {
-                  "description": "Middle name for the veteran.",
+                "phone": {
+                  "countryCode": {
+                    "type": ["string", "null"]
+                  },
+                  "areaCode": {
+                    "type": ["string", "null"]
+                  },
+                  "phoneNumber": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "address": {
+                  "addressLine1": {
+                    "type": "string"
+                  },
+                  "addressLine2": {
+                    "type": ["string", "null"]
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "stateCode": {
+                    "type": "string"
+                  },
+                  "countryCode": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "zipCodeSuffix": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "email":{
                   "type": ["string", "null"]
+                },
+                "insuranceNumber": {
+                  "type": ["string", "null"]  
                 }
               }
             },
             "claimant": {
               "type": "object",
               "properties": {
-                "firstName": {
-                  "description": "First name for the dependent claimant.",
+                "claimantId": {
                   "type": ["string", "null"]
                 },
-                "lastName": {
-                  "description": "Last name for the dependent claimant.",
+                "phone": {
+                  "countryCode": {
+                    "type": ["string", "null"]
+                  },
+                  "areaCode": {
+                    "type": ["string", "null"]
+                  },
+                  "phoneNumber": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "address": {
+                  "addressLine1": {
+                    "type": ["string", "null"]
+                  },
+                  "addressLine2": {
+                    "type": ["string", "null"]
+                  },
+                  "city": {
+                    "type": ["string", "null"]
+                  },
+                  "stateCode": {
+                    "type": ["string", "null"]
+                  },
+                  "countryCode": {
+                    "type": ["string", "null"]
+                  },
+                  "zipCode": {
+                    "type": ["string", "null"]
+                  },
+                  "zipCodeSuffix": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "email":{
                   "type": ["string", "null"]
                 },
-                "middleName": {
-                  "description": "Middle name for the dependent claimant.",
-                  "type": ["string", "null"]
+                "relationship": {
+                  "type": ["string", "null"]  
                 }
-              }
-            },
-            "address": {
-              "city": {
-                "type": ["string", "null"]
-              },
-              "country": {
-                "type": ["string", "null"]
-              },
-              "militaryPo": {
-                "type": ["string", "null"]
-              },
-              "militaryPostalCode": {
-                "type": ["string", "null"]
-              },
-              "state": {
-                "type": ["string", "null"]
-              },
-              "zip": {
-                "type": ["string", "null"]
               }
             },
             "representative": {
               "type": "object",
               "properties": {
                 "poaCode": {
-                  "type": ["string", "null"]
-                },
-                "vsoUserEmail": {
-                  "type": ["string", "null"]
-                },
-                "vsoUserFirstName": {
-                  "type": ["string", "null"]
-                },
-                "vsoUserLastName": {
-                  "type": ["string", "null"]
+                  "type": "string"
                 }
               }
             },
-            "receivedDate": {
-              "description": "Date the request for representation was established.",
-              "type": ["string", "null"],
-              "format": "date-time"
-            },
-            "actionedDate": {
-              "description": "Date the request for representation was accepted or declined by a representative.",
-              "type": ["string", "null"],
-              "format": "date-time"
-            },
-            "status": {
-              "description": "Status of the request for representation.",
-              "type": ["string", "null"]
-            },
-            "declinedReason": {
-              "description": "Reason for declining the request for representation.",
-              "type": ["string", "null"]
+            "consentLimits": {
+              "type": ["array", "null"],
+              "items": {
+                "type": "string",
+                "enum": ["DRUG_ABUSE", "ALCOHOLISM", "HIV", "SICKLE_CELL"]
+              }
             },
             "consentAddressChange": {
               "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
-              "type": ["boolean", "null"],
-              "enum": [true, false, null]
+              "type": ["boolean", "null"]
             },
             "recordConsent": {
               "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
-              "type": ["boolean", "null"],
-              "enum": [true, false, null]
+              "type": ["boolean", "null"]
             }
           }
         }

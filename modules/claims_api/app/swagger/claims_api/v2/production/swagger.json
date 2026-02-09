@@ -343,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "ee14df0e-7047-49b7-ad10-0e1aceab5952",
+                        "id": "e70d39e0-90b8-44c2-b2ad-2d8ad41e3d84",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -528,7 +528,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2026-01-29"
+                              "anticipatedSeparationDate": "2026-02-11"
                             },
                             "confinements": [
                               {
@@ -574,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "14fedca6-f5d3-43ab-bd42-f39e9a2f9ed2",
+                        "id": "767769cf-b902-411a-8577-9876f172c577",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -738,7 +738,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2026-01-29",
+                                "activeDutyEndDate": "2026-02-11",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -759,7 +759,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2026-01-29"
+                              "anticipatedSeparationDate": "2026-02-11"
                             },
                             "confinements": [
                               {
@@ -4086,7 +4086,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2026-01-29",
+                              "activeDutyEndDate": "2026-02-11",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4107,7 +4107,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2026-01-29"
+                            "anticipatedSeparationDate": "2026-02-11"
                           },
                           "confinements": [
                             {
@@ -9717,7 +9717,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e03a596e-97ec-4143-9e3e-8189a8f11896",
+                    "id": "ba67e7be-d4ab-436a-9671-a439dc82b10e",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -9733,6 +9733,7 @@
                           "zipCodeSuffix": "0200"
                         },
                         "phone": {
+                          "countryCode": null,
                           "areaCode": "555",
                           "phoneNumber": "5551234"
                         },
@@ -9751,6 +9752,7 @@
                           "zipCodeSuffix": null
                         },
                         "phone": {
+                          "countryCode": null,
                           "areaCode": null,
                           "phoneNumber": null
                         },
@@ -9772,7 +9774,6 @@
                   }
                 },
                 "schema": {
-                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
                   "required": [
                     "data"
@@ -9780,263 +9781,137 @@
                   "properties": {
                     "data": {
                       "type": "object",
-                      "additionalProperties": false,
                       "required": [
-                        "id",
                         "type",
                         "attributes"
                       ],
                       "properties": {
                         "id": {
                           "type": "string",
-                          "description": "The unique identifier for the power of attorney request"
+                          "format": "uuid"
                         },
                         "type": {
                           "type": "string",
                           "enum": [
                             "power-of-attorney-request"
-                          ],
-                          "description": "The type of the resource"
+                          ]
                         },
                         "attributes": {
                           "type": "object",
-                          "additionalProperties": false,
                           "required": [
                             "veteran",
-                            "representative",
-                            "recordConsent",
-                            "consentAddressChange"
+                            "claimant",
+                            "representative"
                           ],
                           "properties": {
                             "veteran": {
                               "type": "object",
-                              "additionalProperties": false,
-                              "required": [
-                                "address"
-                              ],
                               "properties": {
                                 "serviceNumber": {
-                                  "description": "The Veteran's Service Number",
-                                  "type": "string",
-                                  "maxLength": 9
+                                  "type": "string"
                                 },
                                 "serviceBranch": {
-                                  "description": "Service Branch for the veteran.",
-                                  "type": "string",
-                                  "enum": [
-                                    "AIR_FORCE",
-                                    "ARMY",
-                                    "COAST_GUARD",
-                                    "MARINE_CORPS",
-                                    "NAVY",
-                                    "SPACE_FORCE",
-                                    "OTHER"
-                                  ],
-                                  "example": "ARMY"
-                                },
-                                "address": {
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "addressLine1",
-                                    "city",
-                                    "stateCode",
-                                    "countryCode",
-                                    "zipCode"
-                                  ],
-                                  "properties": {
-                                    "addressLine1": {
-                                      "description": "Street address with number and name.",
-                                      "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                      "maxLength": 30
-                                    },
-                                    "addressLine2": {
-                                      "type": "string",
-                                      "maxLength": 5
-                                    },
-                                    "city": {
-                                      "description": "City for the address.",
-                                      "type": "string",
-                                      "example": "Portland",
-                                      "maxLength": 18
-                                    },
-                                    "stateCode": {
-                                      "description": "State for the address.",
-                                      "type": "string",
-                                      "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
-                                    },
-                                    "countryCode": {
-                                      "description": "Country code of the address.",
-                                      "type": "string",
-                                      "example": "US",
-                                      "pattern": "^[A-Za-z0-9-]{2,6}$"
-                                    },
-                                    "zipCode": {
-                                      "description": "Zipcode (First 5 digits) of the address.",
-                                      "type": "string",
-                                      "pattern": "^\\d{5}?$",
-                                      "example": "12345"
-                                    },
-                                    "zipCodeSuffix": {
-                                      "description": "Zipcode (Last 4 digits) of the address.",
-                                      "type": "string",
-                                      "pattern": "^\\d{4}?$",
-                                      "example": "6789"
-                                    }
-                                  }
+                                  "type": "string"
                                 },
                                 "phone": {
-                                  "$comment": "the phone fields must not exceed 20 chars, when concatenated",
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "areaCode",
-                                    "phoneNumber"
-                                  ],
-                                  "properties": {
-                                    "areaCode": {
-                                      "description": "Area code of the phone number.",
-                                      "type": "string",
-                                      "pattern": "^[2-9][0-9]{2}$",
-                                      "example": "555"
-                                    },
-                                    "phoneNumber": {
-                                      "description": "Phone number.",
-                                      "type": "string",
-                                      "pattern": "^[0-9]{1,14}$",
-                                      "example": "555-5555"
-                                    }
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "areaCode": {
+                                    "type": "string"
+                                  },
+                                  "phoneNumber": {
+                                    "type": "string"
+                                  }
+                                },
+                                "address": {
+                                  "addressLine1": {
+                                    "type": "string"
+                                  },
+                                  "addressLine2": {
+                                    "type": "string"
+                                  },
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "stateCode": {
+                                    "type": "string"
+                                  },
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCodeSuffix": {
+                                    "type": "string"
                                   }
                                 },
                                 "email": {
-                                  "description": "Email address of the veteran.",
-                                  "type": "string",
-                                  "pattern": ".@.",
-                                  "maxLength": 61,
-                                  "example": "veteran@example.com"
+                                  "type": "string"
                                 },
                                 "insuranceNumber": {
-                                  "type": "string",
-                                  "maxLength": 10,
-                                  "description": "Veteran's insurance number, if applicable. Include letter prefix."
+                                  "type": "string"
                                 }
                               }
                             },
                             "claimant": {
                               "type": "object",
-                              "additionalProperties": false,
                               "properties": {
                                 "claimantId": {
-                                  "type": "string",
-                                  "example": "123456789",
-                                  "description": "Id of the claimant."
-                                },
-                                "address": {
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "addressLine1": {
-                                      "description": "Street address with number and name. Required if claimant information provided.",
-                                      "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                      "maxLength": 30
-                                    },
-                                    "addressLine2": {
-                                      "type": "string",
-                                      "maxLength": 5
-                                    },
-                                    "city": {
-                                      "description": "City for the address. Required if claimant information provided.",
-                                      "type": "string",
-                                      "example": "Portland",
-                                      "maxLength": 18
-                                    },
-                                    "stateCode": {
-                                      "description": "State for the address. Required if claimant information provided.",
-                                      "type": "string",
-                                      "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
-                                    },
-                                    "countryCode": {
-                                      "description": "Country code of the address. Required if claimant information provided.",
-                                      "type": "string",
-                                      "example": "US",
-                                      "pattern": "^[A-Za-z0-9-]{2,6}$"
-                                    },
-                                    "zipCode": {
-                                      "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
-                                      "type": "string",
-                                      "pattern": "^\\d{5}?$",
-                                      "example": "12345"
-                                    },
-                                    "zipCodeSuffix": {
-                                      "description": "Zipcode (Last 4 digits) of the address.",
-                                      "type": "string",
-                                      "pattern": "^\\d{4}?$",
-                                      "example": "6789"
-                                    }
-                                  }
+                                  "type": "string"
                                 },
                                 "phone": {
-                                  "$comment": "the phone fields must not exceed 20 chars, when concatenated",
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "areaCode",
-                                    "phoneNumber"
-                                  ],
-                                  "properties": {
-                                    "areaCode": {
-                                      "description": "Area code of the phone number.",
-                                      "type": "string",
-                                      "pattern": "^[2-9][0-9]{2}$",
-                                      "example": "555"
-                                    },
-                                    "phoneNumber": {
-                                      "description": "Phone number.",
-                                      "type": "string",
-                                      "pattern": "^[0-9]{1,14}$",
-                                      "example": "555-5555"
-                                    }
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "areaCode": {
+                                    "type": "string"
+                                  },
+                                  "phoneNumber": {
+                                    "type": "string"
+                                  }
+                                },
+                                "address": {
+                                  "addressLine1": {
+                                    "type": "string"
+                                  },
+                                  "addressLine2": {
+                                    "type": "string"
+                                  },
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "stateCode": {
+                                    "type": "string"
+                                  },
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCodeSuffix": {
+                                    "type": "string"
                                   }
                                 },
                                 "email": {
-                                  "description": "Email address of the claimant.",
-                                  "type": "string",
-                                  "pattern": ".@.",
-                                  "maxLength": 61,
-                                  "example": "claimant@example.com"
+                                  "type": "string"
                                 },
                                 "relationship": {
-                                  "description": "Relationship of claimant to the veteran. Required if claimant information provided.",
-                                  "type": "string",
-                                  "example": "Spouse"
+                                  "type": "string"
                                 }
                               }
                             },
                             "representative": {
-                              "description": "Details of the requested Power of Attorney representing the veteran.",
                               "type": "object",
-                              "additionalProperties": false,
-                              "required": [
-                                "poaCode"
-                              ],
                               "properties": {
                                 "poaCode": {
-                                  "description": "The POA code of the accredited representative or organization.",
-                                  "type": "string",
-                                  "example": "A1Q"
+                                  "type": "string"
                                 }
                               }
                             },
-                            "recordConsent": {
-                              "description": "AUTHORIZATION FOR REPRESENTATIVE'S ACCESS TO RECORDS PROTECTED BY SECTION 7332, TITLE 38, U.S.C.",
-                              "type": "boolean"
-                            },
                             "consentLimits": {
-                              "description": "Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows. Will default to false if not specified.",
                               "type": "array",
                               "items": {
                                 "type": "string",
@@ -10046,11 +9921,14 @@
                                   "HIV",
                                   "SICKLE_CELL"
                                 ]
-                              },
-                              "example": "DRUG ABUSE"
+                              }
                             },
                             "consentAddressChange": {
-                              "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
+                              "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
+                              "type": "boolean"
+                            },
+                            "recordConsent": {
+                              "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
                               "type": "boolean"
                             }
                           }
@@ -10353,22 +10231,61 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
-                                  "areaCode": {
-                                    "description": "Area code for the veteran's phone number.",
+                                  "countryCode": {
+                                    "description": "Country code for the veteran's phone number. Required for international phone numbers.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the veteran.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 23
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -10447,22 +10364,61 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
-                                  "areaCode": {
-                                    "description": "Area code for the dependent claimant's phone number.",
+                                  "countryCode": {
+                                    "description": "Country code for the veteran's phone number. Required for international phone numbers.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[0-9]+$"
+                                  },
+                                  "areaCode": {
+                                    "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
+                                    "type": "string",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
-                                    "description": "Phone number for the dependent claimant.",
+                                    "description": "Phone number for the veteran.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 23
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -11495,16 +11451,50 @@
                             "veteran": {
                               "type": "object",
                               "properties": {
-                                "firstName": {
-                                  "description": "First name for the veteran.",
+                                "serviceNumber": {
                                   "type": "string"
                                 },
-                                "lastName": {
-                                  "description": "Last name for the veteran.",
+                                "serviceBranch": {
                                   "type": "string"
                                 },
-                                "middleName": {
-                                  "description": "Middle name for the veteran.",
+                                "phone": {
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "areaCode": {
+                                    "type": "string"
+                                  },
+                                  "phoneNumber": {
+                                    "type": "string"
+                                  }
+                                },
+                                "address": {
+                                  "addressLine1": {
+                                    "type": "string"
+                                  },
+                                  "addressLine2": {
+                                    "type": "string"
+                                  },
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "stateCode": {
+                                    "type": "string"
+                                  },
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCodeSuffix": {
+                                    "type": "string"
+                                  }
+                                },
+                                "email": {
+                                  "type": "string"
+                                },
+                                "insuranceNumber": {
                                   "type": "string"
                                 }
                               }
@@ -11512,38 +11502,49 @@
                             "claimant": {
                               "type": "object",
                               "properties": {
-                                "firstName": {
-                                  "description": "First name for the dependent claimant.",
+                                "claimantId": {
                                   "type": "string"
                                 },
-                                "lastName": {
-                                  "description": "Last name for the dependent claimant.",
+                                "phone": {
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "areaCode": {
+                                    "type": "string"
+                                  },
+                                  "phoneNumber": {
+                                    "type": "string"
+                                  }
+                                },
+                                "address": {
+                                  "addressLine1": {
+                                    "type": "string"
+                                  },
+                                  "addressLine2": {
+                                    "type": "string"
+                                  },
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "stateCode": {
+                                    "type": "string"
+                                  },
+                                  "countryCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCode": {
+                                    "type": "string"
+                                  },
+                                  "zipCodeSuffix": {
+                                    "type": "string"
+                                  }
+                                },
+                                "email": {
                                   "type": "string"
                                 },
-                                "middleName": {
-                                  "description": "Middle name for the dependent claimant.",
+                                "relationship": {
                                   "type": "string"
                                 }
-                              }
-                            },
-                            "address": {
-                              "city": {
-                                "type": "string"
-                              },
-                              "country": {
-                                "type": "string"
-                              },
-                              "militaryPo": {
-                                "type": "string"
-                              },
-                              "militaryPostalCode": {
-                                "type": "string"
-                              },
-                              "state": {
-                                "type": "string"
-                              },
-                              "zip": {
-                                "type": "string"
                               }
                             },
                             "representative": {
@@ -11551,51 +11552,28 @@
                               "properties": {
                                 "poaCode": {
                                   "type": "string"
-                                },
-                                "vsoUserEmail": {
-                                  "type": "string"
-                                },
-                                "vsoUserFirstName": {
-                                  "type": "string"
-                                },
-                                "vsoUserLastName": {
-                                  "type": "string"
                                 }
                               }
                             },
-                            "receivedDate": {
-                              "description": "Date the request for representation was established.",
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "actionedDate": {
-                              "description": "Date the request for representation was accepted or declined by a representative.",
-                              "type": "string",
-                              "format": "date-time"
-                            },
-                            "status": {
-                              "description": "Status of the request for representation.",
-                              "type": "string"
-                            },
-                            "declinedReason": {
-                              "description": "Reason for declining the request for representation.",
-                              "type": "string"
+                            "consentLimits": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "DRUG_ABUSE",
+                                  "ALCOHOLISM",
+                                  "HIV",
+                                  "SICKLE_CELL"
+                                ]
+                              }
                             },
                             "consentAddressChange": {
                               "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
-                              "type": "boolean",
-                              "enum": [
-                                true,
-                                false
-                              ]
+                              "type": "boolean"
                             },
                             "recordConsent": {
                               "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
-                              "type": "boolean",
-                              "enum": [
-                                true,
-                                false
-                              ]
+                              "type": "boolean"
                             }
                           }
                         }
@@ -12239,13 +12217,13 @@
                                   "areaCode": {
                                     "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the veteran.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -12381,13 +12359,13 @@
                                   "areaCode": {
                                     "description": "Area code for the dependent claimant's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the dependent claimant.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -12571,7 +12549,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f7033b38-df1b-43c7-9edf-1a8d19ea6113",
+                    "id": "abf450ef-dd01-4e44-ac73-b63729609c79",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12931,13 +12909,13 @@
                                   "areaCode": {
                                     "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the veteran.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -13073,13 +13051,13 @@
                                   "areaCode": {
                                     "description": "Area code for the dependent claimant's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the dependent claimant.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -13686,13 +13664,13 @@
                                   "areaCode": {
                                     "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the veteran.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -13814,13 +13792,13 @@
                                   "areaCode": {
                                     "description": "Area code for the dependent claimant's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the dependent claimant.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -14068,7 +14046,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0769ca0b-335f-4a7b-b104-b207c1b8335d",
+                    "id": "4127afef-59e7-47db-8922-d6766d2c7957",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14445,13 +14423,13 @@
                                   "areaCode": {
                                     "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the veteran.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -14573,13 +14551,13 @@
                                   "areaCode": {
                                     "description": "Area code for the dependent claimant's phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
-                                    "pattern": "^[2-9][0-9]{2}$",
+                                    "pattern": "^[2-9][0-9]*$",
                                     "example": "555"
                                   },
                                   "phoneNumber": {
                                     "description": "Phone number for the dependent claimant.",
                                     "type": "string",
-                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,23}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 23
@@ -14916,10 +14894,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "97244942-87a2-44ab-8b69-15fd912c9cee",
+                    "id": "ab9f993c-cc5c-4c4c-8212-d59d0a52049e",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2026-01-27 16:39:53 UTC",
+                      "createdAt": "2026-02-09 16:59:54 UTC",
                       "representative": {
                         "poaCode": "074"
                       },

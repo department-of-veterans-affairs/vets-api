@@ -128,7 +128,7 @@
                     },
                     "phoneNumber": {
                       "description": "Phone number for the veteran.",
-                      "type": ["string","null"], 
+                      "type": "string", 
                       "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                       "example": "555-5555",
                       "minLength": 1,
@@ -245,7 +245,7 @@
                     },
                     "phoneNumber": {
                       "description": "Phone number for the veteran.",
-                      "type": ["string","null"],
+                      "type": "string",
                       "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                       "example": "555-5555",
                       "minLength": 1,
