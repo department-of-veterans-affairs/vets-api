@@ -87,13 +87,14 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(session_model).to receive(:save_veteran_metadata_for_session)
       end
 
-      it 'returns success response' do
+      it 'returns success response with obfuscated email' do
         post :request_otp, params:, format: :json
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
         expect(json_response['data']['message']).to eq('OTP sent to registered email address')
         expect(json_response['data']['expiresIn']).to be_a(Integer)
+        expect(json_response['data']['email']).to eq('v******@example.com')
       end
 
       it 'validates and fetches veteran info from VASS' do
@@ -509,6 +510,21 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(permitted[:uuid]).to eq(uuid)
         expect(permitted[:last_name]).to eq(last_name)
         expect(permitted[:dob]).to eq(date_of_birth)
+      end
+    end
+
+    describe '#obfuscate_email' do
+      it 'obfuscates email showing first character and domain' do
+        expect(controller.send(:obfuscate_email, 'veteran@example.com')).to eq('v******@example.com')
+        expect(controller.send(:obfuscate_email, 'ab@domain.com')).to eq('a*@domain.com')
+        expect(controller.send(:obfuscate_email, 'a@domain.com')).to eq('a@domain.com')
+      end
+
+      it 'returns nil for invalid inputs' do
+        expect(controller.send(:obfuscate_email, nil)).to be_nil
+        expect(controller.send(:obfuscate_email, '')).to be_nil
+        expect(controller.send(:obfuscate_email, 'invalid')).to be_nil
+        expect(controller.send(:obfuscate_email, '@domain.com')).to be_nil
       end
     end
   end
