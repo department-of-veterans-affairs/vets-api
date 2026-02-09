@@ -52,9 +52,7 @@ module IncreaseCompensation
           form_data['signatureDate'].presence ||
           Date.current.in_time_zone('America/Chicago').strftime('%Y-%m-%d')
         )
-        form_data['statementOfTruthSignature'] = form_data['statementOfTruthSignature'] ||
-                                                 form_data['signature'] ||
-                                                 veteran_full_name(form_data)
+        form_data['signature'] = form_data['signature'] || veteran_full_name(form_data)
 
         if form_data['witnessSignature1'].present? && form_data['witnessSignature1']['address'].length > 1
           form_data['witnessSignature1'].merge!(

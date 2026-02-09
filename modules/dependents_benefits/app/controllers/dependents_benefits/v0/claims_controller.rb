@@ -24,7 +24,7 @@ module DependentsBenefits
       def show
         dependents = create_dependent_service.get_dependents
         dependents[:diaries] = dependency_verification_service.read_diaries
-        render json: DependentsSerializer.new(dependents)
+        render json: DependentsBenefits::DependentsSerializer.new(dependents)
       rescue => e
         monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error", error: e.message)
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)

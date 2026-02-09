@@ -375,6 +375,14 @@ module BenefitsClaims
 
       tracked_items.each do |item|
         display_name = item['displayName']
+        description = item['description']
+        # Track tracked items with blank descriptions
+        if description.blank?
+          StatsD.increment(
+            "#{STATSD_KEY_PREFIX}.tracked_item.missing_api_description",
+            tags: ["display_name:#{display_name}"]
+          )
+        end
 
         if use_content_overrides
           apply_content_overrides(item, display_name)
