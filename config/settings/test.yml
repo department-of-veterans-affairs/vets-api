@@ -1151,7 +1151,6 @@ reports:
     emails:
       - Cameron.Testerman@va.gov
       - Leah.Keeler@va.gov
-    enabled: true
     expected_annual_submissions:
       '21-0779': 0
       '21-2680': 0
