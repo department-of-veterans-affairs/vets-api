@@ -62,9 +62,12 @@ class BioSubmissionStatusReportJob
       response = cmp_service.status(batch)
       parsed = JSON.parse(response.body).flatten
       parsed.each do |entry|
+        # Note: 'veteranId' is actually the CM Portal Packet ID (naming is confusing but that's the API design)
+        packet_id = entry['packets']&.first&.dig('veteranId')
         statuses[entry['uuid']] = {
           status: entry['status'],
-          last_updated: entry['lastUpdated']
+          last_updated: entry['lastUpdated'],
+          packet_id:
         }
       end
     end
@@ -107,7 +110,7 @@ class BioSubmissionStatusReportJob
         attempt.lighthouse_updated_at.to_s,
         cmp[:status],
         cmp[:last_updated],
-        nil
+        cmp[:packet_id]
       ]
     end
   end

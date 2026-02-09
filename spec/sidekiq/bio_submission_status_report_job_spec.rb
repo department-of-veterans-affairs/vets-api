@@ -7,10 +7,23 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
   subject { described_class.new }
 
   let(:test_uuid) { 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' }
+  let(:test_packet_id) { '123456789' }
   let(:cmp_service) { instance_double(CentralMail::Service) }
   let(:cmp_response) do
     double('response', body: [
-      { 'uuid' => test_uuid, 'status' => 'Received', 'lastUpdated' => '2025-01-15 12:00:00' }
+      {
+        'uuid' => test_uuid,
+        'status' => 'Received',
+        'lastUpdated' => '2025-01-15 12:00:00',
+        'packets' => [
+          {
+            'veteranId' => test_packet_id,
+            'status' => 'Complete',
+            'completedReason' => 'DownloadConfirmed',
+            'transactionDate' => '2025-01-15'
+          }
+        ]
+      }
     ].to_json)
   end
 
@@ -86,6 +99,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           expect(data_row[0]).to eq(test_uuid)
           expect(data_row[1]).to eq('pending')
           expect(data_row[3]).to eq('Received')
+          expect(data_row[5]).to eq(test_packet_id)
         end
       end
     end
@@ -180,6 +194,49 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           data_row = csv_content[header_idx + 1]
           expect(data_row[3]).to be_nil
           expect(data_row[4]).to be_nil
+        end
+      end
+    end
+
+    context 'when packet ID is not yet available' do
+      let(:no_packet_uuid) { 'd4e5f6a7-b8c9-0123-def0-234567890123' }
+      let(:cmp_response_no_packet) do
+        double('response', body: [
+          {
+            'uuid' => no_packet_uuid,
+            'status' => 'Received',
+            'lastUpdated' => '2025-01-15 18:00:00',
+            'packets' => []
+          }
+        ].to_json)
+      end
+      let!(:form_submission) do
+        create(:form_submission, form_type: '21-4192')
+      end
+      let!(:attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: no_packet_uuid)
+      end
+
+      before do
+        allow(cmp_service).to receive(:status).and_return(cmp_response_no_packet)
+      end
+
+      it 'generates report with blank packet ID when packets array is empty' do
+        stub_reports_s3 do
+          csv_content = nil
+          allow(Reports::Uploader).to receive(:get_s3_link) do |path|
+            csv_content = CSV.read(path) if path.include?('21-4192')
+            'https://s3.example.com/report.csv'
+          end
+
+          subject.perform
+
+          header_idx = csv_content.index(described_class::HEADER_COLUMNS)
+          data_row = csv_content[header_idx + 1]
+          expect(data_row[0]).to eq(no_packet_uuid)
+          expect(data_row[3]).to eq('Received')
+          expect(data_row[4]).to eq('2025-01-15 18:00:00')
+          expect(data_row[5]).to be_nil
         end
       end
     end
