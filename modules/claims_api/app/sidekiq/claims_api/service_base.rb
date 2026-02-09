@@ -42,7 +42,7 @@ module ClaimsApi
 
     def form_logger_consent_detail(poa, poa_code)
       "Updating Access. recordConsent: #{poa.form_data['recordConsent'] || false}" \
-        "#{poa.form_data['consentLimits'] ? ', consentLimits included' : nil}" \
+        "#{poa.form_data['consentLimits']&.any? ? ', consentLimits included' : nil}" \
         " for representative #{poa_code}"
     end
 
