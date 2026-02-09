@@ -148,8 +148,9 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
               .and_return(double('person', status: 'ACTIVE', file_number: '123456789',
                                            participant_id: '123456', ssn_number: '123456789'))
+            # BGS::PaymentService returns a hash structure, not an object
             allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
-              .and_return(double('payment_history', payments: []))
+              .and_return({ payments: { payment: [] } })
           end
 
           it 'logs error and increments StatsD' do
@@ -186,8 +187,9 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
               .and_return(double('person', status: 'ACTIVE', file_number: '123456789',
                                            participant_id: '123456', ssn_number: '123456789'))
+            # BGS::PaymentService returns a hash structure, not an object
             allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
-              .and_return(double('payment_history', payments: []))
+              .and_return({ payments: { payment: [] } })
           end
 
           it 'logs error and increments StatsD' do
@@ -227,8 +229,9 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
               .and_return(double('person', status: 'ACTIVE', file_number: '123456789',
                                            participant_id: '123456', ssn_number: '123456789'))
+            # BGS::PaymentService returns a hash structure, not an object
             allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
-              .and_return(double('payment_history', payments: []))
+              .and_return({ payments: { payment: [] } })
           end
 
           it 'logs error with va_profile_email_present: true and increments StatsD' do
@@ -320,8 +323,9 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
           # Stub BGS to return nil person
           allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
             .and_return(nil)
+          # BGS::PaymentService returns a hash structure, not an object
           allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
-            .and_return(double('payment_history', payments: []))
+            .and_return({ payments: { payment: [] } })
         end
 
         it 'logs error and increments StatsD' do
@@ -353,8 +357,9 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
                           ssn_number: '123456789')
           allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
             .and_return(person)
+          # BGS::PaymentService returns a hash structure, not an object
           allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
-            .and_return(double('payment_history', payments: []))
+            .and_return({ payments: { payment: [] } })
         end
 
         it 'logs warning and increments StatsD' do
@@ -480,7 +485,8 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
                           file_number: '123456789',
                           participant_id: '123456',
                           ssn_number: '123456789')
-          payment_history = double('payment_history', payments: [])
+          # BGS::PaymentService returns a hash structure, not an object
+          payment_history = { payments: { payment: [] } }
           allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
             .and_return(person)
           allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
@@ -488,21 +494,21 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
         end
 
         it 'logs warning and increments StatsD' do
-          # Allow all other calls
+          # Allow all calls
           allow(StatsD).to receive(:increment).and_call_original
           allow(Rails.logger).to receive(:info).and_call_original
           allow(Rails.logger).to receive(:warn).and_call_original
           allow(Rails.logger).to receive(:error).and_call_original
 
-          # Set specific expectations
-          expect(Rails.logger).to receive(:warn).with(
+          get(:index)
+
+          # Verify specific calls happened
+          expect(Rails.logger).to have_received(:warn).with(
             'BGS payment history has no payments',
             hash_including(user_uuid: user.uuid)
-          ).and_call_original
-          expect(StatsD).to receive(:increment)
-            .with('api.payment_history.payments.empty').and_call_original
-
-          get(:index)
+          )
+          expect(StatsD).to have_received(:increment)
+            .with('api.payment_history.payments.empty')
         end
       end
 
@@ -1260,7 +1266,8 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
                         file_number: '123456789',
                         participant_id: '123456',
                         ssn_number: '123456789')
-        payment_history = double('payment_history', payments: [{ amount: '100.00' }])
+        # BGS::PaymentService returns a hash structure, not an object
+        payment_history = { payments: { payment: [{ amount: '100.00' }] } }
         allow_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id)
           .and_return(person)
         allow_any_instance_of(BGS::PaymentService).to receive(:payment_history)
