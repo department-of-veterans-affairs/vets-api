@@ -48,8 +48,12 @@ module IncreaseCompensation
         }
       }.freeze
       def expand(form_data = {})
-        form_data['signatureDate'] = split_date(form_data['signatureDate'])
-        form_data['statement_of_truth_signature'] = form_data['statement_of_truth_signature'] || form_data['signature']
+        form_data['signatureDate'] = split_date(
+          form_data['signatureDate'].presence ||
+          Date.current.in_time_zone('America/Chicago').strftime('%Y-%m-%d')
+        )
+        form_data['signature'] = form_data['signature'] || veteran_full_name(form_data)
+
         if form_data['witnessSignature1'].present? && form_data['witnessSignature1']['address'].length > 1
           form_data['witnessSignature1'].merge!(
             two_line_overflow(form_data['witnessSignature1']['address'], 'address', 17)
@@ -60,6 +64,10 @@ module IncreaseCompensation
             two_line_overflow(form_data['witnessSignature2']['address'], 'address', 17)
           )
         end
+      end
+
+      def veteran_full_name(form_data)
+        "#{form_data['veteranFullName']['first']} #{form_data['veteranFullName']['last']}"
       end
     end
   end
