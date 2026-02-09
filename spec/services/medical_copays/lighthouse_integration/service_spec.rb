@@ -113,6 +113,10 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
               city: 'Tampa',
               state: 'FL',
               postalCode: '33601'
+            },
+            fetch_patient_data: {
+              'resourceType' => 'Bundle',
+              'entry' => [{ 'resource' => { 'resourceType' => 'Patient' } }]
             }
           )
           allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)
@@ -137,12 +141,29 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       context 'when organization address is missing' do
         before do
           allow(service).to receive_messages(base_stubs)
-          allow(service).to receive(:fetch_organization_address).and_return(nil)
+          allow(service).to receive_messages(fetch_organization_address: nil, fetch_patient_data: nil)
         end
 
         it 'still builds a CopayDetail with nil facility_address' do
           expect(Lighthouse::HCC::CopayDetail).to receive(:new).with(
             hash_including(facility_address: nil)
+          ).and_return(mock_detail)
+          service.get_detail(id: 'invoice-1')
+        end
+      end
+
+      context 'when patient data is missing' do
+        before do
+          allow(service).to receive_messages(base_stubs)
+          allow(service).to receive_messages(
+            fetch_organization_address: { city: 'Tampa' },
+            fetch_patient_data: nil
+          )
+        end
+
+        it 'still builds a CopayDetail with nil patient_data' do
+          expect(Lighthouse::HCC::CopayDetail).to receive(:new).with(
+            hash_including(patient_data: nil)
           ).and_return(mock_detail)
           service.get_detail(id: 'invoice-1')
         end
