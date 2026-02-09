@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../../app/services/vass/va_notify_service'
+require_relative '../../../support/vass_settings_helper'
 
 RSpec.describe 'Vass::V0::Sessions', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
@@ -16,25 +17,8 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
 
-    # Stub VASS settings (same pattern as service specs)
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(
-        auth_url: 'https://login.microsoftonline.us',
-        tenant_id: 'test-tenant-id',
-        client_id: 'test-client-id',
-        client_secret: 'test-client-secret',
-        jwt_secret: 'test-jwt-secret',
-        scope: 'https://api.va.gov/.default',
-        api_url: 'https://api.vass.va.gov',
-        subscription_key: 'test-subscription-key',
-        service_name: 'vass_api',
-        redis_otp_expiry: 600,
-        redis_session_expiry: 7200,
-        redis_token_expiry: 3540,
-        rate_limit_max_attempts: 5,
-        rate_limit_expiry: 900
-      )
-    )
+    # Stub VASS settings
+    stub_vass_settings
 
     # Mock Settings for VANotify
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
@@ -74,6 +58,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
               json_response = JSON.parse(response.body)
               expect(json_response['data']['message']).to eq('OTP sent to registered email address')
               expect(json_response['data']['expiresIn']).to be_a(Integer)
+              expect(json_response['data']['email']).to eq('v******@example.com')
             end
           end
         end
@@ -233,7 +218,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
         # Store OTP and veteran metadata from create flow
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'validates OTP and returns JWT token' do
@@ -308,7 +293,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: '000000', last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'returns unauthorized status' do
@@ -371,7 +356,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
         # Exceed validation rate limit
         5.times { redis_client.increment_validation_rate_limit(identifier: uuid) }
       end
@@ -397,7 +382,7 @@ RSpec.describe 'Vass::V0::Sessions', type: :request do
       before do
         redis_client = Vass::RedisClient.build
         redis_client.save_otp(uuid:, code: otp_code, last_name:, dob: date_of_birth)
-        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid)
+        redis_client.save_veteran_metadata(uuid:, edipi:, veteran_id: uuid, email: valid_email)
       end
 
       it 'returns 503 when Redis fails during reset_validation_rate_limit' do

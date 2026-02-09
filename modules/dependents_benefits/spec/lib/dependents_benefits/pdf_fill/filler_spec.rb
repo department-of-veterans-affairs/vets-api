@@ -48,8 +48,13 @@ describe DependentsBenefits::PdfFill::Filler, type: :model do
                 end
               end
 
+              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
+              student = form_id == '21-674' ? form_data['dependents_application']['student_information'][0] : nil
+
+              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
+
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
-                                                              { extras_redesign:, show_jumplinks: })
+                                                              { extras_redesign:, student:, show_jumplinks: })
 
               fixture_pdf_base = "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}/#{type}"
 
