@@ -1671,6 +1671,14 @@ features:
     actor_type: user
     description: Use LGY service for retrieving COE letters in the mobile app
     enable_in_development: false
+  mobile_debts_enabled:
+    actor_type: user
+    description: Enable/disable debts feature in mobile app
+    enable_in_development: true
+  mobile_medical_copays_enabled:
+    actor_type: user
+    description: Enable/disable medical copays feature in mobile app
+    enable_in_development: true
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >

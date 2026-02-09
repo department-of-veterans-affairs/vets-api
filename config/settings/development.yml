@@ -1625,8 +1625,10 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       push_api_key: fake_secret
+      sms_sender_id: fake_secret
       template_id:
         decision_letter_ready_email: fake_template_id
+        decision_letter_ready_sms: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
