@@ -90,6 +90,9 @@ module Ccra
       return nil unless decrypted_json
 
       ReferralDetail.new.from_json(decrypted_json)
+      rescue JSON::ParserError => e
+        Rails.logger.warn("Community Care Appointments: Corrupted JSON in cache: #{e.message}")
+        nil
     end
 
     # Clears referral data from the Redis cache for a specific referral.
