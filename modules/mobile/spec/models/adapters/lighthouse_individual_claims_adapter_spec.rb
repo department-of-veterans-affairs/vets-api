@@ -265,46 +265,56 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
       subject.parse(claim_data[2])
     end
 
-    let(:real_content) do
-      BenefitsClaims::TrackedItemContent.find_by_display_name('21-4142') # rubocop:disable Rails/DynamicFindBy
+    let(:content_override_mock) do
+      {
+        friendlyName: 'Test Friendly Name',
+        shortDescription: 'Test short description',
+        activityDescription: 'Test activity description',
+        supportAliases: ['test-alias'],
+        canUploadFile: true,
+        noActionNeeded: false,
+        isDBQ: false,
+        isProperNoun: false,
+        isSensitive: false,
+        noProvidePrefix: false,
+        longDescription: { blocks: [{ type: 'paragraph', content: 'Test long description' }] },
+        nextSteps: { blocks: [{ type: 'paragraph', content: 'Test next steps' }] }
+      }
     end
 
     context "when the 'cst_evidence_requests_content_override_mobile' feature flag is enabled" do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE, anything)
           .and_return(true)
         allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
-          .and_return(real_content)
+          .and_return(content_override_mock)
       end
 
-      it 'includes content override fields in tracked item events' do
+      it 'maps content override fields to tracked item events' do
         tracked_item = test_claim[:events_timeline].find do |event|
           %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
         end
 
-        expect(tracked_item.friendly_name).to eq('Authorization to disclose information')
-        expect(tracked_item.short_description).to eq(
-          'We need your permission to request your personal information from a non-VA source, ' \
-          'like a private doctor or hospital.'
-        )
-        expect(tracked_item.activity_description).to be_nil
-        expect(tracked_item.support_aliases).to eq(['21-4142'])
-        expect(tracked_item.can_upload_file).to be(true)
-        expect(tracked_item.no_action_needed).to be(false)
-        expect(tracked_item.is_dbq).to be(false)
-        expect(tracked_item.is_proper_noun).to be(false)
-        expect(tracked_item.is_sensitive).to be(false)
-        expect(tracked_item.no_provide_prefix).to be(false)
-        expect(tracked_item.long_description).to be_a(Hash)
-        expect(tracked_item.next_steps).to be_a(Hash)
+        expect(tracked_item.friendly_name).to eq(content_override_mock[:friendlyName])
+        expect(tracked_item.short_description).to eq(content_override_mock[:shortDescription])
+        expect(tracked_item.activity_description).to eq(content_override_mock[:activityDescription])
+        expect(tracked_item.support_aliases).to eq(content_override_mock[:supportAliases])
+        expect(tracked_item.can_upload_file).to eq(content_override_mock[:canUploadFile])
+        expect(tracked_item.no_action_needed).to eq(content_override_mock[:noActionNeeded])
+        expect(tracked_item.is_dbq).to eq(content_override_mock[:isDBQ])
+        expect(tracked_item.is_proper_noun).to eq(content_override_mock[:isProperNoun])
+        expect(tracked_item.is_sensitive).to eq(content_override_mock[:isSensitive])
+        expect(tracked_item.no_provide_prefix).to eq(content_override_mock[:noProvidePrefix])
+        expect(tracked_item.long_description).to eq(content_override_mock[:longDescription])
+        expect(tracked_item.next_steps).to eq(content_override_mock[:nextSteps])
       end
     end
 
     context "when the 'cst_evidence_requests_content_override_mobile' feature flag is disabled" do
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE, anything)
           .and_return(false)
       end
 

@@ -44,6 +44,10 @@ module Mobile
 
         DEFAULT_DATE = Date.new
 
+        def initialize(user = nil)
+          @user = user
+        end
+
         # rubocop:disable Metrics/MethodLength
         def parse(claim)
           return nil unless claim
@@ -160,7 +164,7 @@ module Mobile
           event = build_tracked_item_event(tracked_item, tracked_item_documents, documents)
 
           # Add content overrides if feature is enabled
-          if Flipper.enabled?(FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+          if Flipper.enabled?(FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE, @user)
             merge_tracked_item_content_overrides!(event, tracked_item['displayName'])
           end
 

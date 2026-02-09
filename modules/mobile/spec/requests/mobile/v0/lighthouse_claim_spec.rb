@@ -125,7 +125,10 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?)
-            .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+            .with(
+              Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE,
+              anything
+            )
             .and_return(true)
           allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
             .and_return(mock_content)
@@ -160,7 +163,10 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?)
-            .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE)
+            .with(
+              Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE,
+              anything
+            )
             .and_return(false)
         end
 
