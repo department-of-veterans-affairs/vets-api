@@ -74,6 +74,9 @@ module Mobile
         #
         # This approach maintains backward compatibility with existing bookmarked URLs while
         # preventing ID collisions when multiple providers are enabled
+        #
+        # Error handling: Delegates to base class helpers to ensure consistent logging and
+        # StatsD metrics across web and mobile implementations.
         def get_claim_from_providers(claim_id, provider_type = nil)
           # If provider_type is specified, route based on type
           return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
@@ -82,15 +85,13 @@ module Mobile
           if configured_providers.length == 1
             # Single provider - use it (whatever it is)
             provider_class = configured_providers.first
-            if lighthouse_provider?(provider_class)
-              lighthouse_claims_proxy.get_claim(claim_id)
-            else
-              provider = provider_class.new(@current_user)
-              provider.get_claim(claim_id)
-            end
+            fetch_claim_with_error_handling(claim_id, provider_class)
           else
             # Multiple providers - default to Lighthouse
-            lighthouse_claims_proxy.get_claim(claim_id)
+            fetch_claim_with_error_handling(
+              claim_id,
+              BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+            )
           end
         end
 
@@ -112,14 +113,27 @@ module Mobile
         # Routes claim request to appropriate implementation based on provider type
         # Lighthouse uses Proxy (with mobile transforms), others use provider directly
         def get_claim_for_provider_type(claim_id, provider_type)
-          case provider_type.to_s.downcase
-          when 'lighthouse'
+          provider_class = provider_class_for_type(provider_type)
+          fetch_claim_with_error_handling(claim_id, provider_class)
+        end
+
+        # Fetches a claim from the specified provider with consistent error handling.
+        # Delegates to base class error handlers to ensure StatsD metrics and logging.
+        def fetch_claim_with_error_handling(claim_id, provider_class)
+          if lighthouse_provider?(provider_class)
             lighthouse_claims_proxy.get_claim(claim_id)
           else
-            provider_class = provider_class_for_type(provider_type)
             provider = provider_class.new(@current_user)
             provider.get_claim(claim_id)
           end
+        rescue Common::Exceptions::RecordNotFound
+          log_claim_not_found(provider_class)
+          raise
+        rescue Common::Exceptions::Unauthorized, Common::Exceptions::Forbidden => e
+          raise e
+        rescue => e
+          handle_get_claim_error(provider_class, e)
+          raise
         end
 
         # Checks if a provider class is the Lighthouse provider

@@ -30,9 +30,9 @@ module Mobile
         unless adapter
           raise ArgumentError,
                 "No adapter configured for provider '#{result[:provider_type]}'. " \
-                "All providers must have an adapter to transform provider responses (Hashes) " \
-                "into Mobile::V0::Claim objects for serialization. " \
-                "Add an adapter in adapter_for_provider method."
+                'All providers must have an adapter to transform provider responses (Hashes) ' \
+                'into Mobile::V0::Claim objects for serialization. ' \
+                'Add an adapter in adapter_for_provider method.'
         end
 
         claim_detail = adapter.parse(result[:claim_response])
@@ -246,9 +246,9 @@ module Mobile
         case provider_type.to_s.downcase
         when 'lighthouse'
           lighthouse_claims_adapter
-        # When adding a new provider (e.g., CHAMPVA), add its adapter here:
-        # when 'champva'
-        #   champva_claims_adapter
+          # When adding a new provider (e.g., CHAMPVA), add its adapter here:
+          # when 'champva'
+          #   champva_claims_adapter
         end
       end
 

@@ -312,5 +312,105 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         expect(result).to eq('champva')
       end
     end
+
+    describe '#fetch_claim_with_error_handling' do
+      let(:claim_id) { '123' }
+      let(:claim_response) { { 'data' => { 'id' => claim_id } } }
+
+      context 'when provider raises RecordNotFound' do
+        it 'logs the error and re-raises' do
+          allow(provider_instance).to receive(:get_claim).with(claim_id)
+                                                         .and_raise(Common::Exceptions::RecordNotFound)
+          expect(Rails.logger).to receive(:info)
+            .with("Provider #{provider_class.name} doesn't have claim", hash_including(:error_class))
+
+          expect do
+            controller.send(:fetch_claim_with_error_handling, claim_id, provider_class)
+          end.to raise_error(Common::Exceptions::RecordNotFound)
+        end
+      end
+
+      context 'when provider raises Unauthorized' do
+        it 're-raises without logging as provider error' do
+          error = Common::Exceptions::Unauthorized.new
+          allow(provider_instance).to receive(:get_claim).with(claim_id).and_raise(error)
+          expect(Rails.logger).not_to receive(:error)
+          expect(StatsD).not_to receive(:increment)
+
+          expect do
+            controller.send(:fetch_claim_with_error_handling, claim_id, provider_class)
+          end.to raise_error(Common::Exceptions::Unauthorized)
+        end
+      end
+
+      context 'when provider raises Forbidden' do
+        it 're-raises without logging as provider error' do
+          error = Common::Exceptions::Forbidden.new
+          allow(provider_instance).to receive(:get_claim).with(claim_id).and_raise(error)
+          expect(Rails.logger).not_to receive(:error)
+          expect(StatsD).not_to receive(:increment)
+
+          expect do
+            controller.send(:fetch_claim_with_error_handling, claim_id, provider_class)
+          end.to raise_error(Common::Exceptions::Forbidden)
+        end
+      end
+
+      context 'when provider raises general error' do
+        it 'logs error, increments StatsD, and re-raises' do
+          error = StandardError.new('Provider failed')
+          allow(provider_instance).to receive(:get_claim).with(claim_id).and_raise(error)
+          expect(Rails.logger).to receive(:error)
+            .with("Provider #{provider_class.name} error fetching claim",
+                  hash_including(:error_class, :backtrace))
+          expect(StatsD).to receive(:increment)
+            .with('mobile.claims_and_appeals.get_claim.provider_error',
+                  tags: ['provider:TestProvider'])
+
+          expect do
+            controller.send(:fetch_claim_with_error_handling, claim_id, provider_class)
+          end.to raise_error(StandardError, 'Provider failed')
+        end
+      end
+
+      context 'when provider succeeds' do
+        it 'returns the claim response without errors' do
+          allow(provider_instance).to receive(:get_claim).with(claim_id).and_return(claim_response)
+
+          result = controller.send(:fetch_claim_with_error_handling, claim_id, provider_class)
+
+          expect(result).to eq(claim_response)
+        end
+      end
+
+      context 'when provider is Lighthouse' do
+        let(:lighthouse_class) { BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider }
+        let(:proxy) { double('LighthouseProxy') }
+
+        before do
+          allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        end
+
+        it 'routes through proxy and applies error handling' do
+          allow(proxy).to receive(:get_claim).with(claim_id).and_return(claim_response)
+
+          result = controller.send(:fetch_claim_with_error_handling, claim_id, lighthouse_class)
+
+          expect(result).to eq(claim_response)
+          expect(Mobile::V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
+        end
+
+        it 'logs and increments metrics when proxy raises error' do
+          error = StandardError.new('Proxy failed')
+          allow(proxy).to receive(:get_claim).with(claim_id).and_raise(error)
+          expect(Rails.logger).to receive(:error)
+          expect(StatsD).to receive(:increment)
+
+          expect do
+            controller.send(:fetch_claim_with_error_handling, claim_id, lighthouse_class)
+          end.to raise_error(StandardError, 'Proxy failed')
+        end
+      end
+    end
   end
 end
