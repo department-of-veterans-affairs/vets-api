@@ -1855,6 +1855,7 @@ vass:
   auth_url: https://fake-auth-url.com
   client_id: fake_client_id
   client_secret: fake_client_secret
+  data_encryption_key: development-data-encryption-key-32-chars-minimum-not-for-production
   jwt_secret: development-jwt-secret-key-not-for-production
   mock: true
   rate_limit_expiry: 7

@@ -1836,6 +1836,7 @@ vass:
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
+  data_encryption_key: <%= ENV['vass__data_encryption_key'] %>
   jwt_secret: <%= ENV['vass__jwt_secret'] %>
   mock: false
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>

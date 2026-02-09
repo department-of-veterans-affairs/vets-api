@@ -17,7 +17,7 @@ describe Vass::AppointmentsService do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
 
-    # Stub Settings.vass
+    # Stub Settings.vass with encryption key
     allow(Settings).to receive(:vass).and_return(
       OpenStruct.new(
         auth_url: 'https://login.microsoftonline.us',
@@ -28,7 +28,13 @@ describe Vass::AppointmentsService do
         scope: 'https://api.va.gov/.default',
         api_url: 'https://api.vass.va.gov',
         subscription_key: 'test-subscription-key',
-        service_name: 'vass_api'
+        service_name: 'vass_api',
+        redis_otp_expiry: 600,
+        redis_session_expiry: 7200,
+        redis_token_expiry: 3540,
+        rate_limit_max_attempts: 5,
+        rate_limit_expiry: 900,
+        data_encryption_key: 'test-data-encryption-key-32chars-min-for-aes256-security-required'
       )
     )
   end

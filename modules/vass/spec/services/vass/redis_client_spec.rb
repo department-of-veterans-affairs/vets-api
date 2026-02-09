@@ -19,10 +19,17 @@ describe Vass::RedisClient do
   let(:jti) { SecureRandom.uuid }
   let(:edipi) { '1234567890' }
   let(:veteran_id) { 'vet-uuid-123' }
+  let(:data_encryptor) { instance_double(Vass::DataEncryptor) }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+
+    # Mock the data encryptor to simplify testing
+    # (Actual encryption behavior is tested in data_encryptor_spec.rb)
+    allow(Vass::DataEncryptor).to receive(:build).and_return(data_encryptor)
+    allow(data_encryptor).to receive(:encrypt) { |data| "encrypted_#{data}" }
+    allow(data_encryptor).to receive(:decrypt) { |data| data&.gsub(/^encrypted_/, '') }
   end
 
   describe 'attributes' do
@@ -58,29 +65,19 @@ describe Vass::RedisClient do
       end
     end
 
-    context 'when cache exists' do
+    context 'when cache exists with encrypted token' do
       before do
-        Rails.cache.write(
-          'oauth_token',
-          oauth_token,
-          namespace: 'vass-auth-cache',
-          expires_in: redis_token_expiry
-        )
+        redis_client.save_token(token: oauth_token)
       end
 
-      it 'returns the cached OAuth token' do
+      it 'decrypts and returns the cached OAuth token' do
         expect(redis_client.token).to eq(oauth_token)
       end
     end
 
     context 'when cache has expired' do
       before do
-        Rails.cache.write(
-          'oauth_token',
-          oauth_token,
-          namespace: 'vass-auth-cache',
-          expires_in: redis_token_expiry
-        )
+        redis_client.save_token(token: oauth_token)
       end
 
       it 'returns nil' do
@@ -92,14 +89,24 @@ describe Vass::RedisClient do
   end
 
   describe '#save_token' do
-    it 'saves the OAuth token in cache' do
+    it 'encrypts and saves the OAuth token in cache' do
       expect(redis_client.save_token(token: oauth_token)).to be(true)
 
-      val = Rails.cache.read(
+      # Verify encrypted value is stored (not plaintext)
+      encrypted_val = Rails.cache.read(
         'oauth_token',
         namespace: 'vass-auth-cache'
       )
-      expect(val).to eq(oauth_token)
+      expect(encrypted_val).to eq("encrypted_#{oauth_token}")
+      expect(encrypted_val).not_to eq(oauth_token)
+    end
+
+    it 'retrieves and decrypts the token correctly' do
+      redis_client.save_token(token: oauth_token)
+
+      # Use the public token method which should decrypt
+      retrieved_token = redis_client.token
+      expect(retrieved_token).to eq(oauth_token)
     end
 
     it 'clears the token when passed nil' do
@@ -111,6 +118,52 @@ describe Vass::RedisClient do
         namespace: 'vass-auth-cache'
       )
       expect(val).to be_nil
+    end
+  end
+
+  describe 'OAuth token encryption integration' do
+    it 'encrypts token on save and decrypts on retrieval' do
+      expect(data_encryptor).to receive(:encrypt).with(oauth_token)
+      expect(data_encryptor).to receive(:decrypt).with("encrypted_#{oauth_token}")
+
+      redis_client.save_token(token: oauth_token)
+      retrieved = redis_client.token
+
+      expect(retrieved).to eq(oauth_token)
+    end
+
+    it 'handles nil tokens without calling encryptor' do
+      expect(data_encryptor).not_to receive(:encrypt)
+
+      redis_client.save_token(token: nil)
+      expect(redis_client.token).to be_nil
+    end
+
+    context 'when encryption fails' do
+      before do
+        allow(data_encryptor).to receive(:encrypt)
+          .and_raise(Vass::Errors::EncryptionError.new('Encryption failed'))
+      end
+
+      it 'raises EncryptionError' do
+        expect do
+          redis_client.save_token(token: oauth_token)
+        end.to raise_error(Vass::Errors::EncryptionError)
+      end
+    end
+
+    context 'when decryption fails' do
+      before do
+        redis_client.save_token(token: oauth_token)
+        allow(data_encryptor).to receive(:decrypt)
+          .and_raise(Vass::Errors::DecryptionError.new('Decryption failed'))
+      end
+
+      it 'raises DecryptionError' do
+        expect do
+          redis_client.token
+        end.to raise_error(Vass::Errors::DecryptionError)
+      end
     end
   end
 
@@ -221,7 +274,7 @@ describe Vass::RedisClient do
   # ------------ Session Management Tests ------------
 
   describe '#save_session' do
-    it 'saves session data in cache' do
+    it 'encrypts and saves session data in cache' do
       expect(
         redis_client.save_session(
           uuid:,
@@ -231,14 +284,16 @@ describe Vass::RedisClient do
         )
       ).to be(true)
 
-      val = Rails.cache.read(
+      # Verify encrypted value is stored (not plaintext JSON)
+      encrypted_val = Rails.cache.read(
         "session_#{uuid}",
         namespace: 'vass-session-cache'
       )
-      expect(val).to be_present
+      expect(encrypted_val).to be_present
+      expect(encrypted_val).to start_with('encrypted_')
     end
 
-    it 'stores jti, EDIPI, and veteran_id' do
+    it 'stores and retrieves jti, EDIPI, and veteran_id' do
       redis_client.save_session(
         uuid:,
         jti:,
@@ -250,6 +305,17 @@ describe Vass::RedisClient do
       expect(session_data[:jti]).to eq(jti)
       expect(session_data[:edipi]).to eq(edipi)
       expect(session_data[:veteran_id]).to eq(veteran_id)
+    end
+
+    it 'calls encryptor to encrypt session data' do
+      expect(data_encryptor).to receive(:encrypt).with(kind_of(String)).and_return('encrypted_data')
+
+      redis_client.save_session(
+        uuid:,
+        jti:,
+        edipi:,
+        veteran_id:
+      )
     end
   end
 
@@ -298,10 +364,10 @@ describe Vass::RedisClient do
 
     context 'when session data is corrupted' do
       before do
-        # Write invalid JSON to cache
+        # Write encrypted invalid JSON to cache
         Rails.cache.write(
           "session_#{uuid}",
-          'invalid json {corrupt data',
+          'encrypted_invalid json {corrupt data',
           namespace: 'vass-session-cache'
         )
       end

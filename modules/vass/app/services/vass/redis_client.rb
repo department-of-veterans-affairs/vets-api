@@ -38,30 +38,36 @@ module Vass
     # ------------ OAuth Token Management ------------
 
     ##
-    # Retrieves the cached OAuth access token.
+    # Retrieves the cached OAuth access token and decrypts it.
     #
-    # @return [String, nil] Cached OAuth token or nil if not present/expired
+    # @return [String, nil] Cached OAuth token (decrypted) or nil if not present/expired
     #
     def token
-      with_redis_error_handling do
+      encrypted_token = with_redis_error_handling do
         Rails.cache.read(
           'oauth_token',
           namespace: 'vass-auth-cache'
         )
       end
+
+      return nil if encrypted_token.nil?
+
+      data_encryptor.decrypt(encrypted_token)
     end
 
     ##
-    # Saves the OAuth access token to cache with expiration.
+    # Encrypts and saves the OAuth access token to cache with expiration.
     #
     # @param token [String, nil] OAuth token to cache (nil clears the cache)
     # @return [Boolean] true if write succeeds
     #
     def save_token(token:)
+      encrypted_token = token.nil? ? nil : data_encryptor.encrypt(token)
+
       with_redis_error_handling do
         Rails.cache.write(
           'oauth_token',
-          token,
+          encrypted_token,
           namespace: 'vass-auth-cache',
           expires_in: redis_token_expiry
         )
@@ -73,6 +79,7 @@ module Vass
     ##
     # Saves an OTP for a veteran UUID with short expiration.
     # Stores the code along with identity data for validation during authentication.
+    # Data is encrypted before storage to protect PII (last_name, dob).
     #
     # @param uuid [String] Veteran UUID
     # @param code [String] One-time password
@@ -87,10 +94,13 @@ module Vass
         dob:
       }
 
+      json_data = Oj.dump(otp_data)
+      encrypted_data = data_encryptor.encrypt(json_data)
+
       with_redis_error_handling do
         Rails.cache.write(
           otp_key(uuid),
-          Oj.dump(otp_data),
+          encrypted_data,
           namespace: 'vass-otp-cache',
           expires_in: redis_otp_expiry
         )
@@ -99,22 +109,26 @@ module Vass
 
     ##
     # Retrieves stored OTP data (code and identity info) by UUID.
+    # Data is decrypted after retrieval.
     #
     # @param uuid [String] Veteran UUID from email link
     # @return [Hash, nil] Hash with :code, :last_name, :dob or nil if not found/expired
     #
     def otp_data(uuid:)
-      cached = with_redis_error_handling do
+      encrypted_data = with_redis_error_handling do
         Rails.cache.read(
           otp_key(uuid),
           namespace: 'vass-otp-cache'
         )
       end
 
-      return nil if cached.nil?
+      return nil if encrypted_data.nil?
+
+      decrypted_data = data_encryptor.decrypt(encrypted_data)
+      return nil if decrypted_data.nil?
 
       begin
-        Oj.load(cached, symbol_keys: true)
+        Oj.load(decrypted_data, symbol_keys: true)
       rescue Oj::ParseError
         log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'otp_data')
         nil
@@ -139,6 +153,7 @@ module Vass
     ##
     # Saves veteran metadata (edipi, veteran_id) keyed by UUID.
     # Used to avoid fetching veteran data again in the show flow.
+    # Data is encrypted before storage to protect PII.
     #
     # @param uuid [String] Veteran UUID
     # @param edipi [String] Veteran EDIPI
@@ -151,10 +166,13 @@ module Vass
         veteran_id:
       }
 
+      json_data = Oj.dump(metadata)
+      encrypted_data = data_encryptor.encrypt(json_data)
+
       with_redis_error_handling do
         Rails.cache.write(
           veteran_metadata_key(uuid),
-          Oj.dump(metadata),
+          encrypted_data,
           namespace: 'vass-otp-cache',
           expires_in: redis_otp_expiry
         )
@@ -163,22 +181,26 @@ module Vass
 
     ##
     # Retrieves veteran metadata by UUID.
+    # Data is decrypted after retrieval.
     #
     # @param uuid [String] Veteran UUID
     # @return [Hash, nil] Metadata hash with edipi and veteran_id, or nil if not found/expired
     #
     def veteran_metadata(uuid:)
-      cached = with_redis_error_handling do
+      encrypted_data = with_redis_error_handling do
         Rails.cache.read(
           veteran_metadata_key(uuid),
           namespace: 'vass-otp-cache'
         )
       end
 
-      return nil if cached.nil?
+      return nil if encrypted_data.nil?
+
+      decrypted_data = data_encryptor.decrypt(encrypted_data)
+      return nil if decrypted_data.nil?
 
       begin
-        Oj.load(cached).with_indifferent_access
+        Oj.load(decrypted_data).with_indifferent_access
       rescue Oj::ParseError
         log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'veteran_metadata')
         nil
@@ -190,6 +212,7 @@ module Vass
     ##
     # Stores appointment booking session data during multi-step booking flow.
     # Used to track appointmentId and selected slot across API calls.
+    # Data is encrypted before storage to protect appointment details.
     #
     # @param veteran_id [String] Veteran ID (UUID)
     # @param data [Hash] Booking session data
@@ -199,10 +222,13 @@ module Vass
     # @return [Boolean] true if write succeeds
     #
     def store_booking_session(veteran_id:, data:)
+      json_data = Oj.dump(data)
+      encrypted_data = data_encryptor.encrypt(json_data)
+
       with_redis_error_handling do
         Rails.cache.write(
           booking_session_key(veteran_id),
-          data,
+          encrypted_data,
           namespace: 'vass-booking-cache',
           expires_in: Settings.vass.booking_session_expiry || 3600
         )
@@ -211,17 +237,30 @@ module Vass
 
     ##
     # Retrieves appointment booking session data.
+    # Data is decrypted after retrieval.
     #
     # @param veteran_id [String] Veteran ID (UUID)
     # @return [Hash] Booking session data or empty hash if not found
     #
     def get_booking_session(veteran_id:)
-      with_redis_error_handling do
+      encrypted_data = with_redis_error_handling do
         Rails.cache.read(
           booking_session_key(veteran_id),
           namespace: 'vass-booking-cache'
         )
-      end || {}
+      end
+
+      return {} if encrypted_data.nil?
+
+      decrypted_data = data_encryptor.decrypt(encrypted_data)
+      return {} if decrypted_data.nil?
+
+      begin
+        Oj.load(decrypted_data).with_indifferent_access
+      rescue Oj::ParseError
+        log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'booking_session')
+        {}
+      end
     end
 
     ##
@@ -258,6 +297,7 @@ module Vass
     # Stores EDIPI, veteran_id, and active jti for use in subsequent VASS API calls.
     # Session is keyed by UUID (one session per veteran). Storing the jti ensures
     # only the most recently issued token is valid - previous tokens are invalidated.
+    # Data is encrypted before storage to protect PII.
     #
     # @param uuid [String] Veteran UUID from email link
     # @param jti [String] JWT ID of the currently valid token
@@ -272,10 +312,13 @@ module Vass
         veteran_id:
       }
 
+      json_data = Oj.dump(session_data)
+      encrypted_data = data_encryptor.encrypt(json_data)
+
       with_redis_error_handling do
         Rails.cache.write(
           session_key(uuid),
-          Oj.dump(session_data),
+          encrypted_data,
           namespace: 'vass-session-cache',
           expires_in: redis_session_expiry
         )
@@ -284,22 +327,26 @@ module Vass
 
     ##
     # Retrieves session data by UUID.
+    # Data is decrypted after retrieval.
     #
     # @param uuid [String] Veteran UUID
     # @return [Hash, nil] Session data hash or nil if not found/expired/revoked
     #
     def session(uuid:)
-      cached = with_redis_error_handling do
+      encrypted_data = with_redis_error_handling do
         Rails.cache.read(
           session_key(uuid),
           namespace: 'vass-session-cache'
         )
       end
 
-      return nil if cached.nil?
+      return nil if encrypted_data.nil?
+
+      decrypted_data = data_encryptor.decrypt(encrypted_data)
+      return nil if decrypted_data.nil?
 
       begin
-        Oj.load(cached).with_indifferent_access
+        Oj.load(decrypted_data).with_indifferent_access
       rescue Oj::ParseError
         log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'session_data')
         nil
@@ -601,6 +648,15 @@ module Vass
       yield
     rescue Redis::BaseError => e
       raise Vass::Errors::RedisError, "Redis operation failed: #{e.message}"
+    end
+
+    ##
+    # Lazily initializes and returns the data encryptor for PII encryption/decryption.
+    #
+    # @return [Vass::DataEncryptor] Data encryptor instance
+    #
+    def data_encryptor
+      @data_encryptor ||= Vass::DataEncryptor.build
     end
   end
 end
