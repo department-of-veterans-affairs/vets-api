@@ -95,8 +95,8 @@ module Eps
     def decrypt_data(encrypted_data)
       decrypted_json = lockbox.decrypt(encrypted_data)
       JSON.parse(decrypted_json, symbolize_names: true)
-    rescue Lockbox::DecryptionError => e
-      Rails.logger.warn("EPS Redis: Failed to decrypt cached data (old unencrypted data?): #{e.message}")
+   rescue Lockbox::DecryptionError, JSON::ParserError => e
+      Rails.logger.warn("Community Care Appointments: Failed to decrypt cached data (old unencrypted data?): #{e.message}")
       nil
     end
 
