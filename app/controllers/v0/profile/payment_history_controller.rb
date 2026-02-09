@@ -178,7 +178,7 @@ module V0
           return
         end
 
-        if payment_history&.payments.blank?
+        if payment_history&.dig(:payments, :payment).blank?
           Rails.logger.warn('BGS payment history has no payments', {
                               user_uuid: current_user&.uuid
                             })
