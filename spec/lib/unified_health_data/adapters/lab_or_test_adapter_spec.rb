@@ -614,43 +614,43 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'with VistA URN format codes' do
-      it 'extracts MI from VistA URN and maps to "Microbiology"' do
+      it 'preserves raw URN in test_code but maps to "Microbiology" in test_code_display' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:MI' }] }]
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.test_code).to eq('MI')
+        expect(result.test_code).to eq('urn:va:lab-category:MI')
         expect(result.test_code_display).to eq('Microbiology')
       end
 
-      it 'extracts CH from VistA URN and maps to "Chemistry and hematology"' do
+      it 'preserves raw URN in test_code but maps to "Chemistry and hematology" in test_code_display' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:CH' }] }]
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.test_code).to eq('CH')
+        expect(result.test_code).to eq('urn:va:lab-category:CH')
         expect(result.test_code_display).to eq('Chemistry and hematology')
       end
 
-      it 'extracts SP from VistA URN and maps to "Surgical Pathology"' do
+      it 'preserves raw URN in test_code but maps to "Surgical Pathology" in test_code_display' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:SP' }] }]
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.test_code).to eq('SP')
+        expect(result.test_code).to eq('urn:va:lab-category:SP')
         expect(result.test_code_display).to eq('Surgical Pathology')
       end
 
-      it 'falls back to extracted code for unknown VistA URN codes' do
+      it 'preserves raw URN in test_code and uses extracted code for unknown URNs in test_code_display' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:XX' }] }]
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.test_code).to eq('XX')
+        expect(result.test_code).to eq('urn:va:lab-category:XX')
         expect(result.test_code_display).to eq('XX')
       end
     end

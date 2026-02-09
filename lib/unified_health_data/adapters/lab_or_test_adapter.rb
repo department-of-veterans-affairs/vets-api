@@ -65,13 +65,14 @@ module UnifiedHealthData
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
         date_completed_value = get_date_completed(record['resource'])
+        normalized_code = normalize_code_for_display(code)
 
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          test_code_display: TEST_CODE_DISPLAY_MAP.fetch(code, code),
+          test_code_display: TEST_CODE_DISPLAY_MAP.fetch(normalized_code, normalized_code),
           date_completed: date_completed_value,
           sort_date: normalize_date_for_sorting(date_completed_value),
           sample_tested: get_sample_tested(record['resource'], contained),
@@ -166,11 +167,15 @@ module UnifiedHealthData
         coding = record['resource']['category'].find do |category|
           category['coding'].present? && category['coding'][0]['code'] != 'LAB'
         end
-        return nil unless coding
+        coding ? coding['coding'][0]['code'] : nil
+      end
 
-        code = coding['coding'][0]['code']
-        # Extract 2-letter code from VistA URN format: "urn:va:lab-category:MI" -> "MI"
-        code&.match(/urn:va:lab-category:(\w+)/)&.captures&.first || code
+      # Normalize code for display mapping only (preserves raw code in test_code field)
+      # Extracts 2-letter code from VistA URN format: "urn:va:lab-category:MI" -> "MI"
+      def normalize_code_for_display(code)
+        return code if code.nil?
+
+        code.match(/urn:va:lab-category:(\w+)/)&.captures&.first || code
       end
 
       def get_body_site(resource, contained)
