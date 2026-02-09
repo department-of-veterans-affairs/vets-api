@@ -889,6 +889,87 @@
       ]
     }
   },
+  "RADIATION - medical evid of disease needed": {
+    "friendlyName": "radiation exposure medical documentation",
+    "shortDescription": "To process your disability claim, we need medical information about your exposure to radiation.",
+    "supportAliases": [
+      "RADIATION - medical evid of disease needed"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "To process your disability claim, we need information about your radiation-related disease or disability:"
+        },
+        {
+          "type": "list",
+          "style": "numbered",
+          "items": [
+            "A medical report of your first diagnosis, or the date you were first diagnosed or treated",
+            "Names and addresses of all doctors who diagnosed or treated your condition",
+            "Complete medical records of all care you received for this condition during and after service",
+            "Reports about any tissue samples, slides, or pathology tests"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "We can help you get your medical records."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "bold",
+              "content": "If a VA facility did your biopsy or other exam"
+            },
+            ", upload a document that lists the date and where the exam took place.  We'll request your medical records for you. You can use Statement in Support of Claim (VA Form 21-4138) for this."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4138",
+              "href": "/forms/21-4138/",
+              "style": "default"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "bold",
+              "content": "If a non-VA provider did your exam"
+            },
+            ", you'll need to authorize us to request your records. Fill out a General Release for Medical Provider Information (VA Form 21-4142). Non-VA medical records are records from any private doctor, including a Veteran's Choice doctor."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4142",
+              "href": "/forms/21-4142/",
+              "style": "default"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Make sure your name and Social Security number are included on any document you upload or send."
+        }
+      ]
+    }
+  },
   "Radiation-tell us how you were exposed": {
     "friendlyName": "Radiation exposure information",
     "shortDescription": "To process your disability claim for radiation exposure, we need more information from you.",
