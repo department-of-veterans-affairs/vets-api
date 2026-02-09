@@ -1054,6 +1054,7 @@ lib/saml @department-of-veterans-affairs/octo-identity
 lib/scopes/form526_submission_state.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/search @department-of-veterans-affairs/backend-review-group
 lib/search/pii_redactor.rb @department-of-veterans-affairs/backend-review-group
+lib/search_click_tracking @department-of-veterans-affairs/backend-review-group
 lib/search_gsa @department-of-veterans-affairs/backend-review-group
 lib/sentry @department-of-veterans-affairs/backend-review-group
 lib/sftp_writer @department-of-veterans-affairs/backend-review-group
