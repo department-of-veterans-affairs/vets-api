@@ -83,20 +83,62 @@ module RepresentationManagement
       # @param output_file [Tempfile] Temporary output file for downloaded content
       # @return [Hash] Result hash with success/error information
       def self.execute_curl_download(config, output_file)
-        command = [
+        config_file = create_curl_config_file(config)
+        begin
+          command = build_curl_command(config_file.path, output_file.path, config.url)
+          stdout, stderr, status = Open3.capture3(*command)
+          process_curl_result(stdout, stderr, status, output_file.path)
+        ensure
+          cleanup_config_file(config_file)
+        end
+      end
+
+      # Creates a temporary curl config file with credentials
+      #
+      # @param config [XlsxConfiguration] Configuration with credentials
+      # @return [Tempfile] Temporary config file
+      def self.create_curl_config_file(config)
+        config_file = Tempfile.new('curl_config')
+        escaped_username = escape_curl_config_value(config.username)
+        escaped_password = escape_curl_config_value(config.password)
+        config_file.write("user = \"#{escaped_username}:#{escaped_password}\"\n")
+        config_file.close
+        config_file
+      end
+
+      # Escapes special characters for curl config file format
+      #
+      # @param value [String] Value to escape
+      # @return [String] Escaped value
+      def self.escape_curl_config_value(value)
+        value.to_s.gsub('\\', '\\\\\\\\').gsub('"', '\\"')
+      end
+
+      # Builds the curl command array
+      #
+      # @param config_path [String] Path to curl config file
+      # @param output_path [String] Path to output file
+      # @param url [String] URL to download from
+      # @return [Array<String>] Curl command array
+      def self.build_curl_command(config_path, output_path, url)
+        [
           'curl', '-sS',
           '--ntlm',
-          '-u', "#{config.username}:#{config.password}",
+          '-K', config_path,
           '--max-time', '120',
           '--connect-timeout', '30',
-          '-o', output_file.path,
+          '-o', output_path,
           '-w', '%<http_code>s\n%<content_type>s',
-          config.url
+          url
         ]
+      end
 
-        stdout, stderr, status = Open3.capture3(*command)
-
-        process_curl_result(stdout, stderr, status, output_file.path)
+      # Cleans up the curl config file
+      #
+      # @param config_file [Tempfile] Config file to clean up
+      def self.cleanup_config_file(config_file)
+        config_file.close unless config_file.closed?
+        config_file.unlink
       end
 
       # Processes curl command result and returns success or error hash
@@ -188,7 +230,9 @@ module RepresentationManagement
                   'Action: Manual review recommended'
 
         log_to_slack_channel(message)
-      rescue => e
+      rescue => ecreate_curl_config_file,
+                           :escape_curl_config_value, :build_curl_command,
+                           :cleanup_config_file, :
         log_error("Failed to send Slack notification: #{e.message}")
       end
 
