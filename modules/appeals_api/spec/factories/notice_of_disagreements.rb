@@ -112,11 +112,6 @@ FactoryBot.define do
     form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_10182_min_extension_request.json' }
   end
 
-  
-
-
-
-
   # Notice of Disagreements API v0 NODs
   factory :notice_of_disagreement_v0,
           class: 'AppealsApi::NoticeOfDisagreement', parent: :notice_of_disagreement_v2 do
