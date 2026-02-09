@@ -107,18 +107,25 @@ module Mobile
         end
 
         def provider_class_for_type(type)
-          case type.to_s.downcase
-          when 'lighthouse'
-            BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
-          # TODO: Add ID collision test when multiple providers are available
-          else
-            raise Common::Exceptions::ParameterMissing.new('type', detail: "Unknown provider type: #{type}")
+          normalized_type = type.to_s.downcase
+
+          provider_class = configured_providers.find do |klass|
+            detect_provider_type(klass) == normalized_type
           end
+
+          unless provider_class
+            raise Common::Exceptions::ParameterMissing.new(
+              'type',
+              detail: "Unknown or disabled provider type: '#{type}'. " \
+                      "Valid types: #{supported_provider_types.join(', ')}"
+            )
+          end
+
+          provider_class
         end
 
         def supported_provider_types
-          # Returns list of valid provider type strings that can be used in the type parameter
-          ['lighthouse']
+          configured_providers.map { |klass| detect_provider_type(klass) }
         end
 
         # Routes claim request to appropriate implementation based on provider type

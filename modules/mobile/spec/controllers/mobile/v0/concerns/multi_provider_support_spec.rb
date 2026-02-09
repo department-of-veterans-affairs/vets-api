@@ -330,6 +330,115 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
       end
     end
 
+    describe '#provider_class_for_type' do
+      context 'when provider is enabled' do
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([provider_class])
+          allow(controller).to receive(:detect_provider_type).with(provider_class).and_return('test_provider')
+        end
+
+        it 'returns the provider class' do
+          result = controller.send(:provider_class_for_type, 'test_provider')
+
+          expect(result).to eq(provider_class)
+        end
+
+        it 'handles case-insensitive type matching' do
+          result = controller.send(:provider_class_for_type, 'TEST_PROVIDER')
+
+          expect(result).to eq(provider_class)
+        end
+      end
+
+      context 'when provider is not enabled' do
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([])
+        end
+
+        it 'raises ParameterMissing error with helpful message' do
+          expect do
+            controller.send(:provider_class_for_type, 'lighthouse')
+          end.to raise_error(
+            Common::Exceptions::ParameterMissing,
+            /Unknown or disabled provider type: 'lighthouse'.*Valid types:/
+          )
+        end
+      end
+
+      context 'with multiple enabled providers' do
+        let(:provider_class2) { double('ProviderClass2', name: 'Provider2') }
+
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([provider_class, provider_class2])
+          allow(controller).to receive(:detect_provider_type).with(provider_class).and_return('lighthouse')
+          allow(controller).to receive(:detect_provider_type).with(provider_class2).and_return('champva')
+        end
+
+        it 'returns the correct provider for each type' do
+          result1 = controller.send(:provider_class_for_type, 'lighthouse')
+          result2 = controller.send(:provider_class_for_type, 'champva')
+
+          expect(result1).to eq(provider_class)
+          expect(result2).to eq(provider_class2)
+        end
+      end
+    end
+
+    describe '#supported_provider_types' do
+      context 'with single provider' do
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([provider_class])
+          allow(controller).to receive(:detect_provider_type).with(provider_class).and_return('lighthouse')
+        end
+
+        it 'returns array with that provider type' do
+          result = controller.send(:supported_provider_types)
+
+          expect(result).to eq(['lighthouse'])
+        end
+      end
+
+      context 'with multiple providers' do
+        let(:provider_class2) { double('ProviderClass2', name: 'Provider2') }
+
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([provider_class, provider_class2])
+          allow(controller).to receive(:detect_provider_type).with(provider_class).and_return('lighthouse')
+          allow(controller).to receive(:detect_provider_type).with(provider_class2).and_return('champva')
+        end
+
+        it 'returns all enabled provider types' do
+          result = controller.send(:supported_provider_types)
+
+          expect(result).to eq(['lighthouse', 'champva'])
+        end
+      end
+
+      context 'with no enabled providers' do
+        before do
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([])
+        end
+
+        it 'returns empty array' do
+          result = controller.send(:supported_provider_types)
+
+          expect(result).to eq([])
+        end
+      end
+    end
+
     describe '#fetch_claim_with_error_handling' do
       let(:claim_id) { '123' }
       let(:claim_response) { { 'data' => { 'id' => claim_id } } }
