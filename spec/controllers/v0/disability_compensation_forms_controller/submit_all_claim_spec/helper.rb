@@ -122,12 +122,12 @@ module SubmitAllClaimSpec
     }.freeze
 
     included do
-      before do
-        reset_service_configuration(
-          BenefitsClaims::Service,
-          BenefitsClaims::Configuration
-        )
+      purge_service_configuration(
+        BenefitsClaims::Service,
+        BenefitsClaims::Configuration
+      )
 
+      before do
         ##
         # TODO: Explain this.
         #
