@@ -11,14 +11,15 @@ module UnifiedHealthData
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
 
-      # HL7 v2-0074 diagnostic service section codes to user-friendly display names
+      # HL7 v2-0074 diagnostic service section codes and LOINC codes to user-friendly display names
       TEST_CODE_DISPLAY_MAP = {
         'CH' => 'Chemistry and hematology',
         'MI' => 'Microbiology',
         'MB' => 'Microbiology',
         'SP' => 'Surgical Pathology',
         'CY' => 'Cytology',
-        'EM' => 'Electron Microscopy'
+        'EM' => 'Electron Microscopy',
+        'LP29684-5' => 'Radiology'
       }.freeze
 
       def parse_labs(records)
@@ -65,14 +66,13 @@ module UnifiedHealthData
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
         date_completed_value = get_date_completed(record['resource'])
-        normalized_code = normalize_code_for_display(code)
 
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
           display: format_display(record),
           test_code: code,
-          test_code_display: TEST_CODE_DISPLAY_MAP.fetch(normalized_code, normalized_code),
+          test_code_display: get_test_code_display(record, code),
           date_completed: date_completed_value,
           sort_date: normalize_date_for_sorting(date_completed_value),
           sample_tested: get_sample_tested(record['resource'], contained),
@@ -176,6 +176,38 @@ module UnifiedHealthData
         return code if code.nil?
 
         code.match(/urn:va:lab-category:(\w+)/)&.captures&.first || code
+      end
+
+      # Get the display name for a test code with fallback chain:
+      # 1. Check TEST_CODE_DISPLAY_MAP (using normalized code)
+      # 2. Fall back to category.coding.display from the FHIR data
+      # 3. Fall back to category.text from the FHIR data
+      # 4. Final fallback: the normalized code itself
+      def get_test_code_display(record, code)
+        normalized_code = normalize_code_for_display(code)
+
+        # First, check our explicit mapping
+        return TEST_CODE_DISPLAY_MAP[normalized_code] if TEST_CODE_DISPLAY_MAP.key?(normalized_code)
+
+        # Fall back to display/text from the category coding in FHIR data
+        category_display = get_category_display(record)
+        return category_display if category_display.present?
+
+        # Final fallback: use the normalized code
+        normalized_code
+      end
+
+      # Extract display or text from the category that has the test code
+      def get_category_display(record)
+        return nil if record['resource']['category'].blank?
+
+        category = record['resource']['category'].find do |cat|
+          cat['coding'].present? && cat['coding'][0]['code'] != 'LAB'
+        end
+        return nil unless category
+
+        # Try coding.display first, then category.text
+        category.dig('coding', 0, 'display') || category['text']
       end
 
       def get_body_site(resource, contained)

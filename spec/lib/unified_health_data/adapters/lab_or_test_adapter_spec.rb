@@ -611,6 +611,16 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.test_code).to eq('MB')
         expect(result.test_code_display).to eq('Microbiology')
       end
+
+      it 'maps LP29684-5 to "Radiology" (LOINC code)' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'LP29684-5' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('LP29684-5')
+        expect(result.test_code_display).to eq('Radiology')
+      end
     end
 
     context 'with VistA URN format codes' do
@@ -644,7 +654,19 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.test_code_display).to eq('Surgical Pathology')
       end
 
-      it 'preserves raw URN in test_code and uses extracted code for unknown URNs in test_code_display' do
+      it 'falls back to category.coding.display for unknown VistA URN codes' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'urn:va:lab-category:XX', 'display' => 'Unknown Lab Type' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:XX')
+        expect(result.test_code_display).to eq('Unknown Lab Type')
+      end
+
+      it 'falls back to extracted code for unknown VistA URN when no display available' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:XX' }] }]
 
@@ -656,7 +678,32 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'with unknown test codes' do
-      it 'falls back to the raw code for unknown codes' do
+      it 'falls back to category.coding.display when code is not in map' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'NEWCODE', 'display' => 'New Test Category' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('NEWCODE')
+        expect(result.test_code_display).to eq('New Test Category')
+      end
+
+      it 'falls back to category.text when code is not in map and no display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'NEWCODE' }],
+          'text' => 'Category Text Fallback'
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('NEWCODE')
+        expect(result.test_code_display).to eq('Category Text Fallback')
+      end
+
+      it 'falls back to normalized code when no display or text available' do
         record = base_record.deep_dup
         record['resource']['category'] = [{ 'coding' => [{ 'code' => 'UNKNOWN' }] }]
 
@@ -666,14 +713,16 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.test_code_display).to eq('UNKNOWN')
       end
 
-      it 'falls back to the raw code for LP29708-2' do
+      it 'prefers explicit map over category.coding.display' do
         record = base_record.deep_dup
-        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'LP29708-2' }] }]
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'CH', 'display' => 'Chemistry' }]
+        }]
 
         result = adapter.send(:parse_single_record, record)
 
-        expect(result.test_code).to eq('LP29708-2')
-        expect(result.test_code_display).to eq('LP29708-2')
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
       end
     end
   end
