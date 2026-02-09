@@ -343,7 +343,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "ec53c270-52e6-42de-8320-40713de24bc7",
+                        "id": "3a48d9e4-233e-4431-bae9-8d9a36378870",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -574,7 +574,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "c5e9f01d-1952-4209-a2a4-4ba21d309cd8",
+                        "id": "245ad6d5-b14c-49e1-a196-3d6d92abb6f8",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9717,7 +9717,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3a8e7d9b-9a93-48a1-a3ae-e3f6563830e3",
+                    "id": "981b63a2-a98f-49b1-a491-1e1f97c87edc",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -9814,37 +9814,43 @@
                                   "type": "string"
                                 },
                                 "phone": {
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "areaCode": {
-                                    "type": "string"
-                                  },
-                                  "phoneNumber": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "areaCode": {
+                                      "type": "string"
+                                    },
+                                    "phoneNumber": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "address": {
-                                  "addressLine1": {
-                                    "type": "string"
-                                  },
-                                  "addressLine2": {
-                                    "type": "string"
-                                  },
-                                  "city": {
-                                    "type": "string"
-                                  },
-                                  "stateCode": {
-                                    "type": "string"
-                                  },
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCodeSuffix": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "addressLine1": {
+                                      "type": "string"
+                                    },
+                                    "addressLine2": {
+                                      "type": "string"
+                                    },
+                                    "city": {
+                                      "type": "string"
+                                    },
+                                    "stateCode": {
+                                      "type": "string"
+                                    },
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCodeSuffix": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "email": {
@@ -9862,37 +9868,43 @@
                                   "type": "string"
                                 },
                                 "phone": {
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "areaCode": {
-                                    "type": "string"
-                                  },
-                                  "phoneNumber": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "areaCode": {
+                                      "type": "string"
+                                    },
+                                    "phoneNumber": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "address": {
-                                  "addressLine1": {
-                                    "type": "string"
-                                  },
-                                  "addressLine2": {
-                                    "type": "string"
-                                  },
-                                  "city": {
-                                    "type": "string"
-                                  },
-                                  "stateCode": {
-                                    "type": "string"
-                                  },
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCodeSuffix": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "addressLine1": {
+                                      "type": "string"
+                                    },
+                                    "addressLine2": {
+                                      "type": "string"
+                                    },
+                                    "city": {
+                                      "type": "string"
+                                    },
+                                    "stateCode": {
+                                      "type": "string"
+                                    },
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCodeSuffix": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "email": {
@@ -11458,37 +11470,43 @@
                                   "type": "string"
                                 },
                                 "phone": {
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "areaCode": {
-                                    "type": "string"
-                                  },
-                                  "phoneNumber": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "areaCode": {
+                                      "type": "string"
+                                    },
+                                    "phoneNumber": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "address": {
-                                  "addressLine1": {
-                                    "type": "string"
-                                  },
-                                  "addressLine2": {
-                                    "type": "string"
-                                  },
-                                  "city": {
-                                    "type": "string"
-                                  },
-                                  "stateCode": {
-                                    "type": "string"
-                                  },
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCodeSuffix": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "addressLine1": {
+                                      "type": "string"
+                                    },
+                                    "addressLine2": {
+                                      "type": "string"
+                                    },
+                                    "city": {
+                                      "type": "string"
+                                    },
+                                    "stateCode": {
+                                      "type": "string"
+                                    },
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCodeSuffix": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "email": {
@@ -11506,37 +11524,43 @@
                                   "type": "string"
                                 },
                                 "phone": {
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "areaCode": {
-                                    "type": "string"
-                                  },
-                                  "phoneNumber": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "areaCode": {
+                                      "type": "string"
+                                    },
+                                    "phoneNumber": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "address": {
-                                  "addressLine1": {
-                                    "type": "string"
-                                  },
-                                  "addressLine2": {
-                                    "type": "string"
-                                  },
-                                  "city": {
-                                    "type": "string"
-                                  },
-                                  "stateCode": {
-                                    "type": "string"
-                                  },
-                                  "countryCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCode": {
-                                    "type": "string"
-                                  },
-                                  "zipCodeSuffix": {
-                                    "type": "string"
+                                  "type": "object",
+                                  "properties": {
+                                    "addressLine1": {
+                                      "type": "string"
+                                    },
+                                    "addressLine2": {
+                                      "type": "string"
+                                    },
+                                    "city": {
+                                      "type": "string"
+                                    },
+                                    "stateCode": {
+                                      "type": "string"
+                                    },
+                                    "countryCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCode": {
+                                      "type": "string"
+                                    },
+                                    "zipCodeSuffix": {
+                                      "type": "string"
+                                    }
                                   }
                                 },
                                 "email": {
@@ -12549,7 +12573,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e7e2168f-8a63-4763-9bb9-45016e0e9b6f",
+                    "id": "59204090-60df-4cd9-b13d-1d8e8688b1a0",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14046,7 +14070,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "09db224a-1562-43b7-b6b6-bd0ce103d2a5",
+                    "id": "73f3d848-c9ef-411b-bcff-f08e40246853",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14894,10 +14918,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "96624697-ac2f-49c2-aa61-54f3e188034c",
+                    "id": "6430b912-7824-40d3-b1d3-c0a52d61b5a5",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2026-02-09 16:58:31 UTC",
+                      "createdAt": "2026-02-09 21:46:46 UTC",
                       "representative": {
                         "poaCode": "074"
                       },

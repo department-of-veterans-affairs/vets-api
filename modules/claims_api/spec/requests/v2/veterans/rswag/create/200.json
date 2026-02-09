@@ -28,37 +28,43 @@
                   "type": ["string", "null"]
                 },
                 "phone": {
-                  "countryCode": {
-                    "type": ["string", "null"]
-                  },
-                  "areaCode": {
-                    "type": ["string", "null"]
-                  },
-                  "phoneNumber": {
-                    "type": ["string", "null"]
+                  "type": "object",
+                  "properties": {
+                    "countryCode": {
+                      "type": ["string", "null"]
+                    },
+                    "areaCode": {
+                      "type": ["string", "null"]
+                    },
+                    "phoneNumber": {
+                      "type": ["string", "null"]
+                    }
                   }
                 },
                 "address": {
-                  "addressLine1": {
-                    "type": "string"
-                  },
-                  "addressLine2": {
-                    "type": ["string", "null"]
-                  },
-                  "city": {
-                    "type": "string"
-                  },
-                  "stateCode": {
-                    "type": "string"
-                  },
-                  "countryCode": {
-                    "type": "string"
-                  },
-                  "zipCode": {
-                    "type": "string"
-                  },
-                  "zipCodeSuffix": {
-                    "type": ["string", "null"]
+                  "type": "object",
+                  "properties": {
+                    "addressLine1": {
+                      "type": "string"
+                    },
+                    "addressLine2": {
+                      "type": ["string", "null"]
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "stateCode": {
+                      "type": "string"
+                    },
+                    "countryCode": {
+                      "type": "string"
+                    },
+                    "zipCode": {
+                      "type": "string"
+                    },
+                    "zipCodeSuffix": {
+                      "type": ["string", "null"]
+                    }
                   }
                 },
                 "email":{
@@ -76,37 +82,43 @@
                   "type": ["string", "null"]
                 },
                 "phone": {
-                  "countryCode": {
-                    "type": ["string", "null"]
-                  },
-                  "areaCode": {
-                    "type": ["string", "null"]
-                  },
-                  "phoneNumber": {
-                    "type": ["string", "null"]
+                  "type": "object",
+                  "properties": {
+                    "countryCode": {
+                      "type": ["string", "null"]
+                    },
+                    "areaCode": {
+                      "type": ["string", "null"]
+                    },
+                    "phoneNumber": {
+                      "type": ["string", "null"]
+                    }
                   }
                 },
                 "address": {
-                  "addressLine1": {
-                    "type": ["string", "null"]
-                  },
-                  "addressLine2": {
-                    "type": ["string", "null"]
-                  },
-                  "city": {
-                    "type": ["string", "null"]
-                  },
-                  "stateCode": {
-                    "type": ["string", "null"]
-                  },
-                  "countryCode": {
-                    "type": ["string", "null"]
-                  },
-                  "zipCode": {
-                    "type": ["string", "null"]
-                  },
-                  "zipCodeSuffix": {
-                    "type": ["string", "null"]
+                  "type": "object",
+                  "properties": {
+                    "addressLine1": {
+                      "type": ["string", "null"]
+                    },
+                    "addressLine2": {
+                      "type": ["string", "null"]
+                    },
+                    "city": {
+                      "type": ["string", "null"]
+                    },
+                    "stateCode": {
+                      "type": ["string", "null"]
+                    },
+                    "countryCode": {
+                      "type": ["string", "null"]
+                    },
+                    "zipCode": {
+                      "type": ["string", "null"]
+                    },
+                    "zipCodeSuffix": {
+                      "type": ["string", "null"]
+                    }
                   }
                 },
                 "email":{
