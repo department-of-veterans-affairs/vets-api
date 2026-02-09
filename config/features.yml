@@ -1166,6 +1166,14 @@ features:
   form214140:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4140
+  form214140_validate_dob:
+    actor_type: user
+    description: If enabled enforces validation to ensure the date of birth precedes the employment start date for Form 21-4140.
+    enable_in_development: true
+  form214140_validate_email_presence:
+    actor_type: user
+    description: If enabled enforces validation to ensure an email address is provided for Form 21-4140.
+    enable_in_development: true
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
