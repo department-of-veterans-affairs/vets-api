@@ -1101,6 +1101,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: <%= ENV['ppms__api_keys__ocp-apim-subscription-key'] %>
   apim_url: <%= ENV['ppms__apim_url'] %>
+  mock: false
   open_timeout: 15
   read_timeout: 55
   url: <%= ENV['ppms__url'] %>

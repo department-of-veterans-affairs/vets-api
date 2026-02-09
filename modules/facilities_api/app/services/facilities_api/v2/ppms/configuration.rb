@@ -18,6 +18,10 @@ module FacilitiesApi
           'PPMS'
         end
 
+        def mock_enabled?
+          ActiveModel::Type::Boolean.new.cast(Settings.ppms.mock)
+        end
+
         def base_request_headers
           super.merge(Settings.ppms.api_keys.to_h.stringify_keys)
         end
