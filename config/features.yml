@@ -2084,15 +2084,9 @@ features:
     actor_type: user
     description: Utilizes the Enrollment System's eeSummary REST API
     enable_in_development: true
-  va_notify_custom_errors:
-    actor_type: user
-    description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_notify_enhanced_uuid_validation:
     actor_type: user
     description: Enables enhanced UUID validation for VA Notify that supports standard UUIDs and longer format tokens
-  va_notify_custom_bearer_tokens:
-    actor_type: user
-    description: Iterates through Settings.vanotify.service_callback_tokens for token matching
   va_notify_push_notifications:
     actor_type: user
     description: Enables initialization of push notification client in VA Notify
@@ -2680,12 +2674,6 @@ features:
   gi_comparison_tool_lce_toggle_flag:
     actor_type: user
     description: Used to show lce page in comparison tool
-  va_notify_in_progress_metadata:
-    actor_type: user
-    description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
-  va_notify_notification_creation:
-    actor_type: user
-    description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
