@@ -34,12 +34,14 @@ module DebtsApi
 
       class DisputeDebtValidator < BaseValidator
         class << self
-          def validate_form_schema(metadata, user)
+          def validate!(metadata, user)
             parsed = JSON.parse(metadata)
             disputes = parsed['disputes']
+
             BaseValidator.validate_form_schema(disputes, 'dispute_debts.json')
             validate_debt_exist_for_user(disputes, user)
-            parsed
+
+            true
           end
 
           private
