@@ -49,7 +49,7 @@ module Mobile
 
           titles = BenefitsClaims::TitleGenerator.generate_titles(claim_type, claim_type_code)
 
-          build_claim(entry['id'], attributes, claim_type_code, titles, entry['provider'])
+          build_claim(entry['id'], attributes, claim_type_code, titles, attributes['provider'])
         end
 
         def build_claim(id, attributes, claim_type_code, titles, provider = nil)

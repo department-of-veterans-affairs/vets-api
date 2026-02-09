@@ -57,6 +57,43 @@ describe Mobile::V0::Adapters::ClaimsOverview, :aggregate_failures do
     end
   end
 
+  context 'provider field extraction' do
+    let(:claim_with_provider) do
+      [{ 'id' => '600383363',
+         'type' => 'claim',
+         'attributes' =>
+           { 'provider' => 'lighthouse',
+             'baseEndProductCode' => '400',
+             'claimDate' => '2022-09-27',
+             'claimPhaseDates' => { 'phaseChangeDate' => '2022-09-30', 'phaseType' => 'REVIEW_OF_EVIDENCE' },
+             'claimType' => 'Compensation',
+             'claimTypeCode' => '400PREDSCHRG',
+             'closeDate' => nil,
+             'decisionLetterSent' => false,
+             'developmentLetterSent' => true,
+             'documentsNeeded' => true,
+             'endProductCode' => '020',
+             'evidenceWaiverSubmitted5103' => false,
+             'lighthouseId' => nil,
+             'status' => 'EVIDENCE_GATHERING_REVIEW_DECISION' } }]
+    end
+
+    it 'correctly extracts provider from attributes hash' do
+      output = Mobile::V0::Adapters::ClaimsOverview.new.parse(claim_with_provider)
+
+      expect(output.first.provider).to eq('lighthouse')
+    end
+
+    it 'handles missing provider field gracefully' do
+      claim_without_provider = claim_with_provider.deep_dup
+      claim_without_provider.first['attributes'].delete('provider')
+
+      output = Mobile::V0::Adapters::ClaimsOverview.new.parse(claim_without_provider)
+
+      expect(output.first.provider).to be_nil
+    end
+  end
+
   context 'using claim title generator' do
     let(:claim) do
       [{ 'id' => '600383363',
