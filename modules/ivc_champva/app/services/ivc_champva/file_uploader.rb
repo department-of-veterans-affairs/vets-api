@@ -51,8 +51,9 @@ module IvcChampva
       end
 
       if all_success
-        unless Flipper.enabled?(:champva_bypass_metadata_json_file_for_1010d, @current_user) &&
-               @form_id == 'vha_10_10d'
+        if Flipper.enabled?(:champva_bypass_metadata_json_file_for_1010d, @current_user) && @form_id == 'vha_10_10d'
+          [200, nil] # Return success for metadata upload without actually uploading
+        else
           generate_and_upload_meta_json
         end
       else

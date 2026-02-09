@@ -73,7 +73,11 @@ describe IvcChampva::FileUploader do
 
       it 'skips generating and uploading meta JSON' do
         expect(uploader).not_to receive(:generate_and_upload_meta_json)
-        uploader.handle_uploads
+        result = uploader.handle_uploads
+
+        # Be sure to still return a successful result even if we skip the meta JSON upload because
+        # calling code expects it.
+        expect(result).to eq([200, nil])
       end
     end
 
