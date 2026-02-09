@@ -1,0 +1,14 @@
+{
+  "validMarriage": true,
+  "marriageValidityExplanation": "4A marriageValidityExplanation with longer text to test field size handling in the PDF generation process",
+  "marriedToVeteranAtTimeOfDeath": false,
+  "howMarriageEnded": "other",
+  "howMarriageEndedExplanation": "4C HhowMarriageEndedExplanation with longer text to test field size handling in the PDF generation process",
+  "marriageType": "other",
+  "marriageTypeExplanation": "4G marriageTypeExplanation with longer text to test field size handling in the PDF generation process",
+  "separationDueToAssignedReasons": true,
+  "separationExplanation": "4K separationExplanation with longer text to test field size handling in the PDF generation process",
+  "remarriedAfterVeteralDeath": true,
+  "remarriageEndCause": "other",
+  "remarriageEndCauseExplanation": "4N remarriageEndCauseExplanation"
+}

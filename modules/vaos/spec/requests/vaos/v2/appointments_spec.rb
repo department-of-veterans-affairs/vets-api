@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'unified_health_data/service'
+require 'unique_user_events'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
@@ -362,8 +363,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'name' => 'Ambulatory Visit Summary',
               'loincCodes' => %w[4189669 96345-4],
               'noteType' => 'ambulatory_patient_summary',
-              'contentType' => 'application/pdf',
-              'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+              'contentType' => 'application/pdf'
             }
           ]
         end
@@ -517,10 +517,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
 
-              # Verify event logging was called
+              # Verify event logging was called with facility IDs extracted from visible appointments
+              # Cassette has 16 appointments: 14 cancelled + 1 proposed (983) + 1 null status (983)
+              # Only non-cancelled appointments are tracked, so we expect ['983']
               expect(UniqueUserEvents).to have_received(:log_event).with(
                 user: anything,
-                event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+                event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED,
+                event_facility_ids: ['983']
               )
             end
           end
@@ -779,9 +782,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'GET appointment' do
       context 'when the VAOS service returns a single appointment' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -797,8 +802,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'name' => 'Ambulatory Visit Summary',
               'loincCodes' => %w[4189669 96345-4],
               'noteType' => 'ambulatory_patient_summary',
-              'contentType' => 'application/pdf',
-              'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+              'contentType' => 'application/pdf'
             }
           ]
         end
@@ -811,7 +815,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               .and_return(avs_path)
             get '/vaos/v2/appointments/70060', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment',
+                                                                      { strict: false })
             data = JSON.parse(response.body)['data']
 
             expect(data['id']).to eq('70060')
@@ -857,7 +862,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_appt_avs).and_return(avs_pdf)
             get '/vaos/v2/appointments/70060?_include=avs', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment',
+                                                                      { strict: false })
             data = JSON.parse(response.body)['data']
 
             expect(data['id']).to eq('70060')
@@ -882,7 +888,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               allow(Rails.logger).to receive(:info).at_least(:once)
               get '/vaos/v2/appointments/192308', headers: inflection_header
               expect(response).to have_http_status(:ok)
-              expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment',
+                                                                        { strict: false })
               data = JSON.parse(response.body)['data']
 
               expect(data['id']).to eq('192308')
@@ -903,7 +910,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v2/appointments/81063', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment',
+                                                                      { strict: false })
             data = JSON.parse(response.body)['data']
 
             expect(data['id']).to eq('81063')
@@ -923,7 +931,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v2/appointments/72106', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment',
+                                                                      { strict: false })
             data = JSON.parse(response.body)['data']
 
             expect(data['id']).to eq('72106')
@@ -940,8 +949,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
-          VCR.use_cassette('vaos/v2/appointments/get_appointment_200',
-                           match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200', match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
 
             get '/vaos/v2/appointments/70060', headers: inflection_header
@@ -1047,7 +1055,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the VAOS service errors on retrieving an appointment' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
         end
 
@@ -1067,7 +1076,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the EPS service errors on retrieving an appointment' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
         end
 
@@ -1090,7 +1100,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'PUT appointments' do
       context 'when the appointment is successfully cancelled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
@@ -1138,11 +1149,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the backend service cannot handle the request' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns a 502 status code' do
-          VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/v2/appointments/cancel_appointment_500',
+                           match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/35952', params: { status: 'cancelled' }
             expect(response).to have_http_status(:bad_gateway)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
@@ -1371,6 +1384,51 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(error['meta']['originalError']).to include('VAOS_502')
             end
           end
+        end
+      end
+    end
+
+    describe 'GET avs_binaries' do
+      context 'with appointment having AVS documents' do
+        let(:avs_binary) do
+          UnifiedHealthData::BinaryData.new(
+            content_type: 'application/pdf',
+            binary: 'binaryString'
+          )
+        end
+
+        it 'has access and returns appointment with OH avs' do
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+            .with(doc_id: 'doc0', appt_id: 'appt123').and_return(avs_binary)
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+            .with(doc_id: 'doc1', appt_id: 'appt123')
+            .and_raise(Common::Exceptions::BackendServiceException)
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+            .with(doc_id: 'doc2', appt_id: 'appt123').and_return(nil)
+          get '/vaos/v2/appointments/avs_binaries/appt123?doc_ids=doc0,doc1,doc2', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          # expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+          data = JSON.parse(response.body)['data']
+          expect(data.length).to eq(3)
+
+          doc0 = data[0]
+          expect(doc0['id']).to eq('doc0')
+          expect(doc0['type']).to eq('avs_binary')
+
+          doc0_attributes = doc0['attributes']
+          expect(doc0_attributes['docId']).to eq('doc0')
+          expect(doc0_attributes['binary']).to eq('binaryString')
+          expect(doc0_attributes['error']).to be_nil
+
+          doc1_attributes = data[1]['attributes']
+          expect(doc1_attributes['docId']).to eq('doc1')
+          expect(doc1_attributes['binary']).to be_nil
+          expect(doc1_attributes['error']).to eq('Error retrieving AVS binary')
+
+          doc2_attributes = data[2]['attributes']
+          expect(doc2_attributes['docId']).to eq('doc2')
+          expect(doc2_attributes['binary']).to be_nil
+          expect(doc2_attributes['error']).to eq('Retrieved empty AVS binary')
         end
       end
     end
@@ -1904,7 +1962,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                 state: 'FL',
                                 zip: '12345'
                               },
-                              appointments: { system: 'EPS', data: [] })
+                              appointments: { system: 'EPS', data: [] },
+                              selected_npi_for_eps: npi,
+                              selected_npi_source: :treating_nested)
             )
 
           expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'

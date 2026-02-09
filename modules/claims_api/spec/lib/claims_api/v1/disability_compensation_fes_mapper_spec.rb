@@ -155,7 +155,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
             let(:auto_claim) do
               attrs = form_data['data']['attributes'].deep_dup
               attrs['veteran']['changeOfAddress'] = {
-                'typeOfAddressChange' => 'TEMPORARY',
+                'addressChangeType' => 'TEMPORARY',
                 'numberAndStreet' => '10 Peach St',
                 'apartmentOrUnitNumber' => 'Unit 4',
                 'city' => 'Schenectady',
@@ -182,7 +182,7 @@ describe ClaimsApi::V1::DisabilityCompensationFesMapper do
             let(:auto_claim) do
               attrs = form_data['data']['attributes'].deep_dup
               attrs['veteran']['changeOfAddress'] = {
-                'typeOfAddressChange' => 'TEMPORARY',
+                'addressChangeType' => 'TEMPORARY',
                 'numberAndStreet' => '10 Peach St',
                 'apartmentOrUnitNumber' => 'Unit 4',
                 'city' => 'Schenectady',
