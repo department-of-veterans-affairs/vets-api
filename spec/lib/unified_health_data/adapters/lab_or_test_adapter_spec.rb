@@ -601,6 +601,58 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.test_code).to eq('EM')
         expect(result.test_code_display).to eq('Electron Microscopy')
       end
+
+      it 'maps MB to "Microbiology" (Oracle Health format)' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'MB' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MB')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+    end
+
+    context 'with VistA URN format codes' do
+      it 'extracts MI from VistA URN and maps to "Microbiology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:MI' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MI')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'extracts CH from VistA URN and maps to "Chemistry and hematology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:CH' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+
+      it 'extracts SP from VistA URN and maps to "Surgical Pathology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:SP' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('SP')
+        expect(result.test_code_display).to eq('Surgical Pathology')
+      end
+
+      it 'falls back to extracted code for unknown VistA URN codes' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:XX' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('XX')
+        expect(result.test_code_display).to eq('XX')
+      end
     end
 
     context 'with unknown test codes' do

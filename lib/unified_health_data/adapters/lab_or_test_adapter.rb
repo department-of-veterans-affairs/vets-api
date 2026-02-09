@@ -15,6 +15,7 @@ module UnifiedHealthData
       TEST_CODE_DISPLAY_MAP = {
         'CH' => 'Chemistry and hematology',
         'MI' => 'Microbiology',
+        'MB' => 'Microbiology',
         'SP' => 'Surgical Pathology',
         'CY' => 'Cytology',
         'EM' => 'Electron Microscopy'
@@ -165,7 +166,11 @@ module UnifiedHealthData
         coding = record['resource']['category'].find do |category|
           category['coding'].present? && category['coding'][0]['code'] != 'LAB'
         end
-        coding ? coding['coding'][0]['code'] : nil
+        return nil unless coding
+
+        code = coding['coding'][0]['code']
+        # Extract 2-letter code from VistA URN format: "urn:va:lab-category:MI" -> "MI"
+        code&.match(/urn:va:lab-category:(\w+)/)&.captures&.first || code
       end
 
       def get_body_site(resource, contained)
