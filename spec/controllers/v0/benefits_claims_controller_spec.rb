@@ -2591,21 +2591,30 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         allow(mock_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
       end
 
-      it 'returns claim from the provider' do
+      it 'returns claim from the provider via lighthouse proxy' do
+        proxy = double('LighthouseProxy')
+        allow(V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return(claim_response)
+
         result = controller.send(:get_claim_from_providers, claim_id)
 
         expect(result).to eq(claim_response)
-        expect(mock_provider).to have_received(:get_claim).with(claim_id)
+        expect(V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
       end
     end
 
     context 'with multiple providers' do
       let(:providers) { [mock_provider_class, second_provider_class] }
 
-      it 'requires provider_type to avoid ID collisions' do
-        expect do
-          controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+      it 'defaults to lighthouse when no provider_type specified (preserves bookmarks)' do
+        proxy = double('LighthouseProxy')
+        allow(V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+
+        result = controller.send(:get_claim_from_providers, claim_id)
+
+        expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        expect(V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
       end
 
       it 'returns list of supported provider types' do
