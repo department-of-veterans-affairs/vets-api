@@ -58,5 +58,32 @@ RSpec.describe BioSubmissionStatusReportMailer, type: %i[mailer aws_helpers] do
         )
       end
     end
+
+    context 'when email list is filtered to empty' do
+      let(:custom_mailer_class) do
+        Class.new(ApplicationMailer) do
+          def build_with_empty_emails(s3_links)
+            opt = {}
+            opt[:to] = []
+
+            return unless opt[:to].present?
+
+            links_html = s3_links.map { |form_type, url| "#{form_type}: #{url}" }.join('<br>')
+            mail(
+              opt.merge(
+                subject: 'BIO Submission Status Report',
+                body: "BIO Submission Status Report (links expire in one week)<br><br>#{links_html}"
+              )
+            )
+          end
+        end
+      end
+
+      it 'returns nil without attempting to send' do
+        mailer = custom_mailer_class.new
+        result = mailer.build_with_empty_emails(s3_links)
+        expect(result).to be_nil
+      end
+    end
   end
 end

@@ -15,6 +15,8 @@ class BioSubmissionStatusReportMailer < ApplicationMailer
 
     opt[:to] = Array(raw_emails).select { |email| email.is_a?(String) && !email.strip.empty? }
 
+    return unless opt[:to].present?
+
     links_html = s3_links.map do |form_type, url|
       "#{form_type}: #{url}"
     end.join('<br>')
