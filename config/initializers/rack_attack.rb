@@ -124,9 +124,7 @@ class Rack::Attack
   # Applies to all Primary Party (Veteran) and Secondary Party (Physician) endpoints
   # Throttles by user UUID to provide per-user fair use limits
   throttle('multi_party_forms/authenticated', limit: 60, period: 1.minute) do |req|
-    if req.path.starts_with?('/v0/multi_party_forms') && req.env['warden']&.user
-      req.env['warden'].user.uuid
-    end
+    req.env['warden'].user.uuid if req.path.starts_with?('/v0/multi_party_forms') && req.env['warden']&.user
   end
 
   # Always allow requests from below IP addresses for load testing
