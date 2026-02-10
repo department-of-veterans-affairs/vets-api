@@ -76,9 +76,10 @@ module DebtsApi
 
     # Temporary fallback, after all pre-migration jobs have processed we will remove
     def fetch_pii(cache_key, args)
-      if cache_key
         attributes = Sidekiq::AttrPackage.find(cache_key)
-        return { email: attributes[:email], first_name: attributes[:first_name] } if attributes
+        attributes ?
+        { email: attributes[:email], first_name: attributes[:first_name] }:
+        args['user_pii']
       end
 
       { email: args['email'], first_name: args['first_name'] }
