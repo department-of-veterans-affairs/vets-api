@@ -479,7 +479,8 @@ RSpec.describe Vass::V0::Session, type: :model do
       expect(redis_client).to receive(:save_veteran_metadata).with(
         uuid:,
         edipi: '1234567890',
-        veteran_id: uuid
+        veteran_id: uuid,
+        email: valid_email
       )
       session.set_contact_from_veteran_data(veteran_data)
     end
@@ -494,12 +495,13 @@ RSpec.describe Vass::V0::Session, type: :model do
   end
 
   describe '#save_veteran_metadata_for_session' do
-    it 'saves veteran metadata to Redis' do
-      session = described_class.new(uuid:, edipi: '1234567890', redis_client:)
+    it 'saves veteran metadata to Redis including email' do
+      session = described_class.new(uuid:, edipi: '1234567890', contact_value: valid_email, redis_client:)
       expect(redis_client).to receive(:save_veteran_metadata).with(
         uuid:,
         edipi: '1234567890',
-        veteran_id: uuid
+        veteran_id: uuid,
+        email: valid_email
       )
       session.save_veteran_metadata_for_session
     end

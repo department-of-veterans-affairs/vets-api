@@ -489,4 +489,237 @@ RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_opti
       )
     end
   end
+
+  describe '#fetch_lat_long_and_radius' do
+    describe 'Valid values' do
+      it 'returns latitude, longitude, and radius as expected' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 200 }
+        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(latitude).to eq(40.415217)
+        expect(longitude).to eq(-74.057114)
+        expect(radius).to eq(200)
+      end
+
+      it 'accepts latitude and longitude as string representations of floats' do
+        test_params = { lat: '40.415217', long: '-74.057114', radius: '200' }
+        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(latitude).to eq(40.415217)
+        expect(longitude).to eq(-74.057114)
+        expect(radius).to eq(200)
+      end
+
+      it 'rounds latitude and longitude to 6 decimal places' do
+        test_params = { lat: 40.4152171234567, long: -74.0571141234567, radius: 200 }
+        latitude, longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(latitude).to eq(40.415217)
+        expect(longitude).to eq(-74.057114)
+      end
+
+      it 'clamps radius to minimum of 1' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 0.5 }
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(radius).to eq(1)
+      end
+
+      it 'clamps radius to maximum of 500' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 600 }
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(radius).to eq(500)
+      end
+
+      it 'handles positive and negative coordinates' do
+        test_params = { lat: -33.8688, long: 151.2093, radius: 50 }
+        latitude, longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(latitude).to eq(-33.8688)
+        expect(longitude).to eq(151.2093)
+        expect(radius).to eq(50)
+      end
+
+      it 'accepts latitude parameter as alternative to lat' do
+        test_params = { latitude: 40.415217, long: -74.057114, radius: 200 }
+        latitude, _longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(latitude).to eq(40.415217)
+      end
+
+      it 'accepts longitude parameter as alternative to long' do
+        test_params = { lat: 40.415217, longitude: -74.057114, radius: 200 }
+        _latitude, longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(longitude).to eq(-74.057114)
+      end
+
+      it 'prefers lat over latitude when both are provided' do
+        test_params = { lat: 40.415217, latitude: 50.0, long: -74.057114, radius: 200 }
+        latitude, _longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(latitude).to eq(40.415217)
+      end
+
+      it 'prefers long over longitude when both are provided' do
+        test_params = { lat: 40.415217, long: -74.057114, longitude: 100.0, radius: 200 }
+        _latitude, longitude, _radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(longitude).to eq(-74.057114)
+      end
+
+      it 'handles integer radius values' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 150 }
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(radius).to eq(150)
+      end
+
+      it 'handles float radius values that convert to minimum after clamping' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 0 }
+        _latitude, _longitude, radius = client.send(:fetch_lat_long_and_radius, test_params)
+
+        expect(radius).to eq(1)
+      end
+    end
+
+    describe 'Invalid values' do
+      it 'raises InvalidFieldValue for non-float radius' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 'invalid' }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('radius')
+        }
+      end
+
+      it 'raises InvalidFieldValue for non-float latitude' do
+        test_params = { lat: 'not_a_number', long: -74.057114, radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('lat')
+        }
+      end
+
+      it 'raises InvalidFieldValue for non-float longitude' do
+        test_params = { lat: 40.415217, long: 'not_a_number', radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('long')
+        }
+      end
+
+      it 'raises InvalidFieldValue when radius is nil' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: nil }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('radius')
+        }
+      end
+
+      it 'raises InvalidFieldValue when latitude is nil' do
+        test_params = { lat: nil, long: -74.057114, radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('lat')
+        }
+      end
+
+      it 'raises InvalidFieldValue when longitude is nil' do
+        test_params = { lat: 40.415217, long: nil, radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('long')
+        }
+      end
+
+      it 'raises InvalidFieldValue for radius with special characters' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: '100$' }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('radius')
+        }
+      end
+
+      it 'raises InvalidFieldValue for latitude with special characters' do
+        test_params = { lat: '40.415217@', long: -74.057114, radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('lat')
+        }
+      end
+
+      it 'raises InvalidFieldValue for longitude with special characters' do
+        test_params = { lat: 40.415217, long: '-74.057114!', radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('long')
+        }
+      end
+
+      it 'raises InvalidFieldValue for empty string radius' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: '' }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('radius')
+        }
+      end
+
+      it 'raises InvalidFieldValue for empty string latitude' do
+        test_params = { lat: '', long: -74.057114, radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('lat')
+        }
+      end
+
+      it 'raises InvalidFieldValue for empty string longitude' do
+        test_params = { lat: 40.415217, long: '', radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(Common::Exceptions::InvalidFieldValue) { |error|
+          expect(error.field).to eq('long')
+        }
+      end
+
+      it 'raises error when radius parameter is missing' do
+        test_params = { lat: 40.415217, long: -74.057114 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.to raise_error(KeyError)
+      end
+
+      it 'does not raise error when latitude is missing but lat is present' do
+        test_params = { lat: 40.415217, long: -74.057114, radius: 200 }
+
+        expect do
+          client.send(:fetch_lat_long_and_radius, test_params)
+        end.not_to raise_error
+      end
+    end
+  end
 end
