@@ -346,8 +346,8 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
         )
 
         expect(result[:success]).to be false
-        expect(result[:error]).to eq('GCLAWS XLSX request failed with status 500')
-        expect(result[:status]).to eq(:bad_gateway)
+        expect(result[:error]).to eq('GCLAWS XLSX server error: 500')
+        expect(result[:status]).to eq(:service_unavailable)
       end
 
       it 'returns a bad gateway error for 503 status' do
@@ -369,8 +369,8 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
         )
 
         expect(result[:success]).to be false
-        expect(result[:error]).to eq('GCLAWS XLSX request failed with status 503')
-        expect(result[:status]).to eq(:bad_gateway)
+        expect(result[:error]).to eq('GCLAWS XLSX server error: 503')
+        expect(result[:status]).to eq(:service_unavailable)
       end
     end
 
@@ -503,7 +503,7 @@ RSpec.describe RepresentationManagement::GCLAWS::XlsxClient do
 
         expect(result[:success]).to be false
         expect(result[:error]).to match(/GCLAWS XLSX HTTP error/)
-        expect(result[:status]).to eq(:bad_gateway)
+        expect(result[:status]).to eq(:service_unavailable)
       end
     end
 
