@@ -26,7 +26,7 @@ module DependentsBenefits
         dependents[:diaries] = dependency_verification_service.read_diaries
         render json: DependentsBenefits::DependentsSerializer.new(dependents)
       rescue => e
-        monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error", error: e.message)
+        monitor.track_show_error(nil, current_user, e)
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
 
@@ -58,9 +58,7 @@ module DependentsBenefits
           end
         end
 
-        monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
-                                 parent_claim_id: claim.id, claim_id: claim.id,
-                                 user_account_uuid: current_user&.user_account_uuid)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         # Enqueue all submission jobs for the created claim.
         DependentsBenefits::ClaimProcessor.enqueue_submissions(claim.id)
@@ -101,11 +99,6 @@ module DependentsBenefits
         claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
 
         DependentsBenefits::PrimaryDependencyClaim.new(**claim_attributes)
-      end
-
-      # Returns the stats key for dependents application events
-      def stats_key
-        'api.dependents_application'
       end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.

@@ -58,22 +58,13 @@ module BGS
         step_child = BGSDependents::StepChild.new(stepchild_info)
         formatted_info = step_child.format_info
         participant = bgs_service.create_participant(@proc_id)
-        guardian_participant = bgs_service.create_participant(@proc_id)
-
-        step_child_guardian_person(guardian_participant, stepchild_info)
         bgs_service.create_person(person_params(step_child, participant, formatted_info))
-        send_address(step_child, participant, stepchild_info['address'])
-
-        @step_children << step_child.serialize_dependent_result(
-          participant,
-          'Guardian',
-          'Other',
-          {
-            living_expenses_paid: formatted_info['living_expenses_paid'],
-            guardian_particpant_id: guardian_participant[:vnp_ptcpnt_id],
-            type: 'stepchild'
-          }
-        )
+        if stepchild_info['who_does_the_stepchild_live_with'].present?
+          guardian_participant = bgs_service.create_participant(@proc_id)
+          step_child_guardian_person(guardian_participant, stepchild_info)
+          send_address(step_child, participant, stepchild_info['address'])
+          add_to_step_children(step_child, participant, formatted_info, guardian_participant)
+        end
       end
     end
 
@@ -116,6 +107,19 @@ module BGS
       address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address)
 
       bgs_service.create_address(address_params)
+    end
+
+    def add_to_step_children(step_child, participant, formatted_info, guardian_participant)
+      @step_children << step_child.serialize_dependent_result(
+        participant,
+        'Guardian',
+        'Other',
+        {
+          living_expenses_paid: formatted_info['living_expenses_paid'],
+          guardian_particpant_id: guardian_participant[:vnp_ptcpnt_id],
+          type: 'stepchild'
+        }
+      )
     end
 
     def report_child_event(event_type)

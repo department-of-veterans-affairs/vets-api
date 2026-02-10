@@ -114,8 +114,8 @@ module DependentsBenefits
       end
       @va_file_number
     rescue => e
-      monitor.track_prefill_warning('Failed to retrieve VA file number', 'file_number_error',
-                                    error: e&.message)
+      monitor.track_warning_event('Failed to retrieve VA file number',
+                                  action: 'file_number_error', component:, error: e&.message)
       user.ssn.presence
     end
 
@@ -138,8 +138,8 @@ module DependentsBenefits
         @dependents_information
       end
     rescue => e
-      monitor.track_prefill_warning('Failed to retrieve dependents information', 'dependents_error',
-                                    error: e&.message)
+      monitor.track_warning_event('Failed to retrieve dependents information',
+                                  action: 'dependents_error', component:, error: e&.message)
       @dependents_information = Flipper.enabled?(:va_dependents_v3, user) ? { success: 'false', dependents: [] } : []
     end
 
@@ -205,10 +205,10 @@ module DependentsBenefits
     #
     # @param error [Exception] The error that occurred during pension award retrieval
     def track_pension_award_error(error)
-      monitor.track_prefill_warning('Failed to retrieve awards pension data', 'awards_pension_error',
-                                    user_account_uuid: user&.user_account_uuid,
-                                    error: error.message,
-                                    form_id:)
+      monitor.track_warning_event('Failed to retrieve awards pension data',
+                                  action: 'awards_pension_error', component:,
+                                  user_account_uuid: user&.user_account_uuid,
+                                  error: error.message, form_id:)
     end
 
     ##
@@ -224,5 +224,13 @@ module DependentsBenefits
     rescue ArgumentError, TypeError
       nil
     end
+
+    # Returns the component name for monitoring/logging
+    #
+    # Used as the default component tag value in monitor event tracking.
+    # Returns the fully qualified class name for better log filtering and debugging.
+    #
+    # @return [String] The fully qualified class name
+    def component = self.class.name
   end
 end

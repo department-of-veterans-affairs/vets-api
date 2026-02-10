@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'debts_api/v0/digital_dispute_dmc_service'
+require 'debt_management_center/debts_service'
 
 RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
   let(:user) { build(:user, :loa3) }
@@ -25,12 +26,15 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
   describe 'POST #create' do
     let(:mock_service) { instance_double(DebtsApi::V0::DigitalDisputeDmcService) }
+    let(:mock_debts_service) { instance_double(DebtManagementCenter::DebtsService) }
 
     before do
       sign_in_as(user)
       allow(StatsD).to receive(:increment)
       allow(Flipper).to receive(:enabled?).with(:digital_dmc_dispute_service, anything).and_return(true)
       allow(DebtsApi::V0::DigitalDisputeDmcService).to receive(:new).and_return(mock_service)
+      allow(DebtManagementCenter::DebtsService).to receive(:new).with(anything).and_return(mock_debts_service)
+      allow(mock_debts_service).to receive(:get_debts_by_ids).and_return([{ 'compositeDebtId' => '71166' }])
     end
 
     describe 'authorization' do
