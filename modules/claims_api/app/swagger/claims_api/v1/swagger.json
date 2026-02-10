@@ -1786,10 +1786,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8c9a9dbe-facc-4010-8d25-8679a91d1f74",
+                    "id": "e4e3f9f5-56e2-4ebf-8cb7-7dddc5642f00",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2026-02-10",
                       "previous_poa": null,
                       "representative": {
                         "service_organization": {
@@ -2665,10 +2665,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "627ef87f-266a-4999-8334-5e6bdbe4d8b7",
+                    "id": "9c4c7cda-03f8-4c65-9aa9-978bb3eddee8",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2026-02-10",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
@@ -3181,17 +3181,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "075dacba-32db-42be-9676-05a69af9a547",
+                    "id": "181c8bb8-3fc9-453c-abb3-fbd73f8c4587",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
-                      "date_request_accepted": "2025-11-06",
+                      "date_request_accepted": "2026-02-10",
                       "previous_poa": "074",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "errored"
                     }
                   }
                 },
@@ -5079,8 +5079,7 @@
                               "additionalProperties": false,
                               "required": [
                                 "obligationTermOfServiceFromDate",
-                                "obligationTermOfServiceToDate",
-                                "unitName"
+                                "obligationTermOfServiceToDate"
                               ],
                               "properties": {
                                 "title10Activation": {
@@ -6039,7 +6038,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
+                    "id": "16aa32ac-9f69-4b9d-82b2-5c7a6431365b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6047,7 +6046,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:17.152Z",
+                      "updated_at": "2026-02-10T18:38:50.620Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -6061,7 +6060,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "7a55c837-7f3a-42b9-b9d8-45ddceb0db1f",
+                      "token": "16aa32ac-9f69-4b9d-82b2-5c7a6431365b",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -6941,8 +6940,7 @@
                                 "additionalProperties": false,
                                 "required": [
                                   "obligationTermOfServiceFromDate",
-                                  "obligationTermOfServiceToDate",
-                                  "unitName"
+                                  "obligationTermOfServiceToDate"
                                 ],
                                 "properties": {
                                   "title10Activation": {
@@ -7914,7 +7912,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
+                    "id": "08745451-db6f-4efb-934d-8f9a7f499a1a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -7922,7 +7920,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:17.941Z",
+                      "updated_at": "2026-02-10T18:38:50.955Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -7936,7 +7934,7 @@
                       "phase_change_date": null,
                       "ever_phase_back": null,
                       "current_phase_back": null,
-                      "token": "2495c8b6-8cda-4ece-8bf8-2707c528d9bb",
+                      "token": "08745451-db6f-4efb-934d-8f9a7f499a1a",
                       "status": "pending",
                       "flashes": []
                     }
@@ -9192,8 +9190,7 @@
                                 "additionalProperties": false,
                                 "required": [
                                   "obligationTermOfServiceFromDate",
-                                  "obligationTermOfServiceToDate",
-                                  "unitName"
+                                  "obligationTermOfServiceToDate"
                                 ],
                                 "properties": {
                                   "title10Activation": {
@@ -10165,7 +10162,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1bfdb989-b173-4a11-8ba2-35d1fa04e110",
+                    "id": "43d90d51-73b7-4ccf-bbb9-d55f25979486",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -10173,7 +10170,7 @@
                       "waiver_submitted": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2025-11-06T15:47:19.595Z",
+                      "updated_at": "2026-02-10T18:38:51.720Z",
                       "date_filed": null,
                       "min_est_date": null,
                       "max_est_date": null,
@@ -10186,7 +10183,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "8e59dcdf-1b70-44e5-bb07-f0cea4db226d",
+                          "id": "e6b2dd20-5143-4231-9db3-d3f2f39384ae",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "header_hash": null,
@@ -11019,7 +11016,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e00b3ab5-5822-4d1f-8832-011872882c73",
+                    "id": "a0e89f86-0da7-40ad-90e1-81787b0ebdcd",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -11052,12 +11049,12 @@
                       "status": "Complete",
                       "supporting_documents": [
                         {
-                          "id": "c649f762-e097-4bec-8ea8-fb25aa549fe1",
+                          "id": "b9f4a265-3fd3-4346-aa25-b719bc738f44",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "header_hash": "bf4ac599b081869634566fdc561a0f8db17dd2e09b199a8c674ed08a6b6e113f",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2025-11-06T15:47:20.751Z"
+                          "uploaded_at": "2026-02-10T18:38:52.156Z"
                         }
                       ]
                     }
