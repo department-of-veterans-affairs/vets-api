@@ -24,7 +24,7 @@ module UnifiedHealthData
     end
 
     def token_path
-      "#{settings.security_host}/mhvapi/security/v1/login"
+      "#{Settings.mhv.api_gateway.security}/v1/security/login"
     end
 
     def connection

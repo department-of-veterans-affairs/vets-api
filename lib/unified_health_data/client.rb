@@ -118,6 +118,7 @@ module UnifiedHealthData
       with_monitoring do
         response = connection.post(config.token_path) do |req|
           req.headers['Content-Type'] = 'application/json'
+          req.headers['x-api-key'] = config.x_api_key
           req.body = {
             appId: config.app_id,
             appToken: config.app_token,
@@ -125,7 +126,7 @@ module UnifiedHealthData
             userType: config.user_type
           }.to_json
         end
-        response.headers['authorization']
+        response.headers['x-amzn-remapped-authorization']
       end
     end
 
