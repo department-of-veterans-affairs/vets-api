@@ -155,17 +155,17 @@ module UnifiedHealthData
         return nil if contained.nil?
 
         performers = record.dig('resource', 'performer') || []
+        performer_ref_ids = performers.map { |p| get_reference_id(p['reference']) }.compact
 
-        # Match performer reference to an Organization or Location in contained
-        performers.each do |performer|
-          ref_id = get_reference_id(performer['reference'])
-          match = contained.find do |r|
-            %w[Organization Location].include?(r['resourceType']) && r['id'] == ref_id
-          end
-          return match['name'] if match&.dig('name')
+        # Find matching Organization or Location
+        match = contained.find do |r|
+          %w[Organization Location].include?(r['resourceType']) &&
+            performer_ref_ids.include?(r['id'])
         end
 
-        # Fallback: first Organization in contained (for records without performer references)
+        return match['name'] if match&.dig('name')
+
+        # Fallback: first Organization
         contained.find { |r| r['resourceType'] == 'Organization' }&.dig('name')
       end
 
