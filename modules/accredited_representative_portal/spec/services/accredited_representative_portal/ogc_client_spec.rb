@@ -51,7 +51,7 @@ RSpec.describe AccreditedRepresentativePortal::OgcClient do
 
         result = described_class.new.find_registration_numbers_for_icn('123')
 
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
     end
 
@@ -125,7 +125,7 @@ RSpec.describe AccreditedRepresentativePortal::OgcClient do
 
         result = described_class.new.post_icn_and_registration_combination('123', 'REG001')
 
-        expect(result).to be(nil)
+        expect(result).to be_nil
       end
     end
 
