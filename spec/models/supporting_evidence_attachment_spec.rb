@@ -118,4 +118,51 @@ RSpec.describe SupportingEvidenceAttachment, type: :model do
       end
     end
   end
+
+  describe '#get_file' do
+    context 'when original upload had a long filename' do
+      let(:long_filename) { "#{'a' * 200}.pdf" }
+
+      it 'retrieves the file without ENAMETOOLONG error' do
+        file = Rack::Test::UploadedFile.new(
+          Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf'),
+          'application/pdf'
+        )
+        allow(file).to receive(:original_filename).and_return(long_filename)
+
+        attachment = described_class.new(guid: SecureRandom.uuid)
+        attachment.set_file_data!(file)
+        attachment.save!
+
+        expect { attachment.get_file }.not_to raise_error
+        expect(attachment.get_file).to be_present
+        expect(attachment.parsed_file_data['filename'].length).to be <= SupportingEvidenceAttachmentUploader::MAX_FILENAME_LENGTH
+      end
+    end
+
+    context 'with a filename at the maximum allowed length' do
+      # Test with exactly MAX_FILENAME_LENGTH to verify edge case
+      let(:max_length_filename) do
+        extension = '.pdf'
+        basename_length = SupportingEvidenceAttachmentUploader::MAX_FILENAME_LENGTH - extension.length
+        "#{'x' * basename_length}#{extension}"
+      end
+
+      it 'stores and retrieves the file correctly' do
+        file = Rack::Test::UploadedFile.new(
+          Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf'),
+          'application/pdf'
+        )
+        allow(file).to receive(:original_filename).and_return(max_length_filename)
+
+        attachment = described_class.new(guid: SecureRandom.uuid)
+        attachment.set_file_data!(file)
+        attachment.save!
+
+        stored_filename = attachment.parsed_file_data['filename']
+        expect(stored_filename.length).to eq(SupportingEvidenceAttachmentUploader::MAX_FILENAME_LENGTH)
+        expect { attachment.get_file }.not_to raise_error
+      end
+    end
+  end
 end

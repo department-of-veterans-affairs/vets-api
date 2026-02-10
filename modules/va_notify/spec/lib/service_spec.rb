@@ -193,133 +193,120 @@ describe VaNotify::Service do
       end
     end
 
-    context 'when :notification_creation flag is on' do
-      it 'returns a response object' do
-        VCR.use_cassette('va_notify/success_email') do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+    it 'returns a response object' do
+      VCR.use_cassette('va_notify/success_email') do
+        response = subject.send_email(send_email_parameters)
+        expect(response).to an_instance_of(Notifications::Client::ResponseNotification)
+      end
+    end
 
-          response = subject.send_email(send_email_parameters)
-          expect(response).to an_instance_of(Notifications::Client::ResponseNotification)
+    context 'creates a notification record' do
+      before do
+        allow(Settings.vanotify).to receive(:services).and_return(
+          { test_service: double('ServiceConfig', api_key: test_api_key) }
+        )
+        allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
+      end
+
+      it 'without callback data' do
+        VCR.use_cassette('va_notify/success_email') do
+          subject.send_email(send_email_parameters)
+          expect(VANotify::Notification.count).to eq(1)
+          notification = VANotify::Notification.first
+          expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
+          expect(notification.callback_klass).to be_nil
+          expect(notification.callback_metadata).to be_nil
         end
       end
 
-      context 'creates a notification record' do
-        before do
-          allow(Settings.vanotify).to receive(:services).and_return(
-            { test_service: double('ServiceConfig', api_key: test_api_key) }
-          )
-          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
-        end
+      it 'without nil passed in as callback data' do
+        subject = VaNotify::Service.new(test_api_key, nil)
 
-        it 'without callback data' do
-          VCR.use_cassette('va_notify/success_email') do
-            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
-
-            subject.send_email(send_email_parameters)
-            expect(VANotify::Notification.count).to eq(1)
-            notification = VANotify::Notification.first
-            expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback_klass).to be_nil
-            expect(notification.callback_metadata).to be_nil
-          end
-        end
-
-        it 'without nil passed in as callback data' do
-          subject = VaNotify::Service.new(test_api_key, nil)
-
-          VCR.use_cassette('va_notify/success_email') do
-            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
-
-            subject.send_email(send_email_parameters)
-            expect(VANotify::Notification.count).to eq(1)
-            notification = VANotify::Notification.first
-            expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback_klass).to be_nil
-            expect(notification.callback_metadata).to be_nil
-          end
-        end
-
-        it 'with string callback data' do
-          VCR.use_cassette('va_notify/success_email') do
-            subject = described_class.new(test_api_key,
-                                          { 'callback_klass' => 'TestCallback',
-                                            'callback_metadata' => 'optional_metadata' })
-            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
-            allow(Rails.logger).to receive(:info)
-
-            subject.send_email(send_email_parameters)
-            expect(VANotify::Notification.count).to eq(1)
-            notification = VANotify::Notification.first
-
-            expect(Rails.logger).to have_received(:info).with(
-              "VANotify notification: #{notification.id} saved",
-              {
-                callback_klass: 'TestCallback',
-                callback_metadata: 'optional_metadata',
-                source_location: anything,
-                template_id: '1234'
-              }
-            )
-            expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback_klass).to eq('TestCallback')
-            expect(notification.callback_metadata).to eq('optional_metadata')
-          end
-        end
-
-        it 'with callback data' do
-          VCR.use_cassette('va_notify/success_email') do
-            subject = described_class.new(test_api_key,
-                                          { callback_klass: 'TestCallback', callback_metadata: 'optional_metadata' })
-            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
-            allow(Rails.logger).to receive(:info)
-
-            subject.send_email(send_email_parameters)
-            expect(VANotify::Notification.count).to eq(1)
-            notification = VANotify::Notification.first
-
-            expect(Rails.logger).to have_received(:info).with(
-              "VANotify notification: #{notification.id} saved",
-              {
-                callback_klass: 'TestCallback',
-                callback_metadata: 'optional_metadata',
-                source_location: anything,
-                template_id: '1234'
-              }
-            )
-            expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback_klass).to eq('TestCallback')
-            expect(notification.callback_metadata).to eq('optional_metadata')
-          end
+        VCR.use_cassette('va_notify/success_email') do
+          subject.send_email(send_email_parameters)
+          expect(VANotify::Notification.count).to eq(1)
+          notification = VANotify::Notification.first
+          expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
+          expect(notification.callback_klass).to be_nil
+          expect(notification.callback_metadata).to be_nil
         end
       end
 
-      it 'logs an error if the notification cannot be saved' do
+      it 'with string callback data' do
         VCR.use_cassette('va_notify/success_email') do
-          allow(Settings.vanotify).to receive(:services).and_return(
-            { test_service: double('ServiceConfig', api_key: test_api_key) }
-          )
-          allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
-          notification = VANotify::Notification.new
-          notification.errors.add(:base, 'Some error occurred')
-          allow(notification).to receive(:save).and_return(false)
-          allow(VANotify::Notification).to receive(:new).and_return(notification)
-
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
-
-          expect(Rails.logger).to receive(:error).with(
-            'VANotify notification record failed to save',
-            { error_messages: notification.errors.full_messages, template_id: '1234' }
-          )
+          subject = described_class.new(test_api_key,
+                                        { 'callback_klass' => 'TestCallback',
+                                          'callback_metadata' => 'optional_metadata' })
+          allow(Rails.logger).to receive(:info)
 
           subject.send_email(send_email_parameters)
+          expect(VANotify::Notification.count).to eq(1)
+          notification = VANotify::Notification.first
+
+          expect(Rails.logger).to have_received(:info).with(
+            "VANotify notification: #{notification.id} saved",
+            {
+              callback_klass: 'TestCallback',
+              callback_metadata: 'optional_metadata',
+              source_location: anything,
+              template_id: '1234'
+            }
+          )
+          expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
+          expect(notification.callback_klass).to eq('TestCallback')
+          expect(notification.callback_metadata).to eq('optional_metadata')
         end
+      end
+
+      it 'with callback data' do
+        VCR.use_cassette('va_notify/success_email') do
+          subject = described_class.new(test_api_key,
+                                        { callback_klass: 'TestCallback', callback_metadata: 'optional_metadata' })
+          allow(Rails.logger).to receive(:info)
+
+          subject.send_email(send_email_parameters)
+          expect(VANotify::Notification.count).to eq(1)
+          notification = VANotify::Notification.first
+
+          expect(Rails.logger).to have_received(:info).with(
+            "VANotify notification: #{notification.id} saved",
+            {
+              callback_klass: 'TestCallback',
+              callback_metadata: 'optional_metadata',
+              source_location: anything,
+              template_id: '1234'
+            }
+          )
+          expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
+          expect(notification.callback_klass).to eq('TestCallback')
+          expect(notification.callback_metadata).to eq('optional_metadata')
+        end
+      end
+    end
+
+    it 'logs an error if the notification cannot be saved' do
+      VCR.use_cassette('va_notify/success_email') do
+        allow(Settings.vanotify).to receive(:services).and_return(
+          { test_service: double('ServiceConfig', api_key: test_api_key) }
+        )
+        allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
+        notification = VANotify::Notification.new
+        notification.errors.add(:base, 'Some error occurred')
+        allow(notification).to receive(:save).and_return(false)
+        allow(VANotify::Notification).to receive(:new).and_return(notification)
+
+        expect(Rails.logger).to receive(:error).with(
+          'VANotify notification record failed to save',
+          { error_messages: notification.errors.full_messages, template_id: '1234' }
+        )
+
+        subject.send_email(send_email_parameters)
       end
     end
 
     context 'when :va_notify_request_level_callbacks flag is enabled' do
       it 'store service_id when flag is enabled' do
         VCR.use_cassette('va_notify/success_email') do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
 
           subject.send_email(send_email_parameters)
@@ -331,7 +318,6 @@ describe VaNotify::Service do
 
       it 'does not store service_id when flag is disabled' do
         VCR.use_cassette('va_notify/success_email') do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
 
           subject.send_email(send_email_parameters)
@@ -349,7 +335,6 @@ describe VaNotify::Service do
             { test_service: double('ServiceConfig', api_key: test_api_key) }
           )
           allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
           allow(Rails.logger).to receive(:info)
           allow(StatsD).to receive(:increment)
@@ -426,8 +411,6 @@ describe VaNotify::Service do
     context 'when :notification_creation flag is on' do
       it 'returns a response object' do
         VCR.use_cassette('va_notify/success_sms') do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
-
           response = subject.send_sms(send_sms_parameters)
           expect(response).to an_instance_of(Notifications::Client::ResponseNotification)
         end
@@ -435,7 +418,6 @@ describe VaNotify::Service do
 
       it 'creates a notification record' do
         VCR.use_cassette('va_notify/success_sms') do
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
           allow(Settings.vanotify).to receive(:services).and_return(
             { test_service: double('ServiceConfig', api_key: test_api_key) }
           )
@@ -457,7 +439,6 @@ describe VaNotify::Service do
             { test_service: double('ServiceConfig', api_key: test_api_key) }
           )
           allow_any_instance_of(Notifications::Client).to receive(:secret_token).and_return(test_api_key_secret_token)
-          allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
 
           expect(Rails.logger).to receive(:error).with(
             'VANotify notification record failed to save',
@@ -478,7 +459,6 @@ describe VaNotify::Service do
 
         it 'stores service_id when flag is enabled' do
           VCR.use_cassette('va_notify/success_sms') do
-            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(true)
 
             subject.send_sms(send_sms_parameters)
@@ -490,7 +470,6 @@ describe VaNotify::Service do
 
         it 'does not store service_id when flag is disabled' do
           VCR.use_cassette('va_notify/success_sms') do
-            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:va_notify_request_level_callbacks).and_return(false)
 
             subject.send_sms(send_sms_parameters)
