@@ -173,7 +173,7 @@ module RepresentationManagement
 
         unless http_code == '200'
           return handle_error('http_error', StandardError.new("HTTP #{http_code}"),
-                              :bad_gateway, "GCLAWS XLSX request failed with status #{http_code}")
+                              :service_unavailable, "GCLAWS XLSX request failed with status #{http_code}")
         end
 
         # Validate content type
@@ -203,7 +203,7 @@ module RepresentationManagement
           if stderr.include?('401')
             handle_error('unauthorized', StandardError.new(stderr), :unauthorized, 'GCLAWS XLSX unauthorized')
           else
-            handle_error('http_error', StandardError.new(stderr), :bad_gateway,
+            handle_error('http_error', StandardError.new(stderr), :service_unavailable,
                          "GCLAWS XLSX HTTP error: #{stderr}")
           end
         else
