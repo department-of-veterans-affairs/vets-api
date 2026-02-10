@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
-
   let(:user) { create(:user, :loa3) }
   let(:user2) { create(:user, :loa3) }
 
