@@ -121,10 +121,9 @@ class Rack::Attack
 
   # Multi-Party Forms throttling for authenticated users
   # Rate limit: 60 requests per minute per user
-  # Applies to all Primary Party (Veteran) and Secondary Party (Physician) endpoints
-  # Throttles by user UUID to provide per-user fair use limits
+  # Applies to all Primary Party and Secondary Party endpoints
   throttle('multi_party_forms/authenticated', limit: 60, period: 1.minute) do |req|
-    req.env['warden'].user.uuid if req.path.starts_with?('/v0/multi_party_forms') && req.env['warden']&.user
+    req.remote_ip if req.path.starts_with?('/v0/multi_party_forms')
   end
 
   # Always allow requests from below IP addresses for load testing
