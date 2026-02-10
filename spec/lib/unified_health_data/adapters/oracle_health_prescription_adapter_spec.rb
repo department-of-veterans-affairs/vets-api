@@ -24,6 +24,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
+        expect(result.source_ehr).to eq('OH')
       end
 
       it 'returns nil for nil resource' do
