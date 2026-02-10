@@ -668,6 +668,196 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
   end
 
+  describe '#parse_single_record test_code_display mapping' do
+    let(:base_record) do
+      {
+        'resource' => {
+          'resourceType' => 'DiagnosticReport',
+          'id' => 'test-display-map',
+          'status' => 'final',
+          'code' => { 'text' => 'Test Report' },
+          'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+          'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
+        }
+      }
+    end
+
+    context 'with known test codes' do
+      it 'maps CH to "Chemistry and hematology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'CH' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+
+      it 'maps MI to "Microbiology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'MI' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MI')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'maps SP to "Surgical Pathology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'SP' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('SP')
+        expect(result.test_code_display).to eq('Surgical Pathology')
+      end
+
+      it 'maps CY to "Cytology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'CY' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CY')
+        expect(result.test_code_display).to eq('Cytology')
+      end
+
+      it 'maps EM to "Electron Microscopy"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'EM' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('EM')
+        expect(result.test_code_display).to eq('Electron Microscopy')
+      end
+
+      it 'maps MB to "Microbiology" (Oracle Health format)' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'MB' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MB')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'maps LP29684-5 to "Radiology" (LOINC code)' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'LP29684-5' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('LP29684-5')
+        expect(result.test_code_display).to eq('Radiology')
+      end
+    end
+
+    context 'with VistA URN format codes' do
+      it 'preserves raw URN in test_code but maps to "Microbiology" in test_code_display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:MI' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:MI')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'preserves raw URN in test_code but maps to "Chemistry and hematology" in test_code_display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:CH' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+
+      it 'preserves raw URN in test_code but maps to "Surgical Pathology" in test_code_display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:SP' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:SP')
+        expect(result.test_code_display).to eq('Surgical Pathology')
+      end
+
+      it 'falls back to category.coding.display for unknown VistA URN codes' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'urn:va:lab-category:XX', 'display' => 'Unknown Lab Type' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:XX')
+        expect(result.test_code_display).to eq('Unknown Lab Type')
+      end
+
+      it 'falls back to extracted code for unknown VistA URN when no display available' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:XX' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:XX')
+        expect(result.test_code_display).to eq('XX')
+      end
+    end
+
+    context 'with unknown test codes' do
+      it 'falls back to category.coding.display when code is not in map' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'NEWCODE', 'display' => 'New Test Category' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('NEWCODE')
+        expect(result.test_code_display).to eq('New Test Category')
+      end
+
+      it 'falls back to category.text when code is not in map and no display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'NEWCODE' }],
+          'text' => 'Category Text Fallback'
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('NEWCODE')
+        expect(result.test_code_display).to eq('Category Text Fallback')
+      end
+
+      it 'falls back to normalized code when no display or text available' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'UNKNOWN' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('UNKNOWN')
+        expect(result.test_code_display).to eq('UNKNOWN')
+      end
+
+      it 'prefers explicit map over category.coding.display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'CH', 'display' => 'Chemistry' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+    end
+  end
+
   describe '#parse_single_record' do
     context 'when record is nil' do
       it 'returns nil' do

@@ -301,6 +301,7 @@ database_url: <%= ENV['database_url'] %>
 decision_review:
   api_key: <%= ENV['decision_review__api_key'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
+  delete_saved_claim_records_job_enabled: <%= ENV['decision_review__delete_saved_claim_records_job_enabled'] %>
   email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>
   mock: <%= ENV['decision_review__mock'] %>
   pdf_validation:
@@ -776,6 +777,7 @@ lighthouse:
       - system/Account.read
       - system/Medication.read
       - system/Organization.read
+      - system/Patient.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1350,6 +1352,12 @@ travel_pay:
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '757'
+  - '506'
+  - '515'
+  - '553'
+  - '655'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
@@ -1604,8 +1612,10 @@ vanotify:
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
       push_api_key: <%= ENV['vanotify__services__benefits_management_tools__push_api_key'] %>
+      sms_sender_id: <%= ENV['vanotify__services__benefits_management_tools__sms_sender_id'] %>
       template_id:
         decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
+        decision_letter_ready_sms: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_sms'] %>
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
     burials: *vanotify_services_burial
     check_in:
@@ -1838,13 +1848,14 @@ vass:
   mock: false
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
-  redis_otc_expiry: 600
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: <%= ENV['vass__scope'] %>
   service_name: VASS-API
   subscription_key: <%= ENV['vass__subscription_key'] %>
   tenant_id: <%= ENV['vass__tenant_id'] %>
+  token_encryption_key: <%= ENV['vass__token_encryption_key'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   enable_download_endpoint: <%= ENV['vba_documents__enable_download_endpoint'] %>

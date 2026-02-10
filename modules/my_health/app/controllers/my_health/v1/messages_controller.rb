@@ -28,10 +28,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = create_client_response(message, message_params_h, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = build_response_options(client_response)
@@ -67,10 +68,11 @@ module MyHealth
         create_message_params = { message: message_params_h }.merge(upload_params)
         client_response = reply_client_response(message, message_params_h, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = build_response_options(client_response)
@@ -144,7 +146,7 @@ module MyHealth
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number)
         end
       end
 
@@ -177,6 +179,15 @@ module MyHealth
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      # Retrieves the facility ID from the station_number parameter provided by the frontend.
+      # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
+      # The station_number is optional - if not provided, facility tracking is skipped.
+      #
+      # @return [String, nil] The station number if provided, or nil if not provided.
+      def recipient_facility_id
+        message_params[:station_number]&.to_s&.presence
       end
     end
   end
