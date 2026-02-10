@@ -27,6 +27,15 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.source_ehr).to eq('OH')
       end
 
+      it 'sets source_ehr to OH even when station_number is nil' do
+        resource = fhir_resource(source: 'VA')
+        resource['contained'] = [] # No dispenses means no station_number
+        result = subject.parse(resource)
+
+        expect(result.station_number).to be_nil
+        expect(result.source_ehr).to eq('OH')
+      end
+
       it 'returns nil for nil resource' do
         expect(subject.parse(nil)).to be_nil
       end

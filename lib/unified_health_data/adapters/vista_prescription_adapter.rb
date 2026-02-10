@@ -26,7 +26,7 @@ module UnifiedHealthData
           .merge(build_tracking_attributes(tracking_data, medication))
           .merge(build_contact_and_source_attributes(medication))
           .merge(dispenses: dispenses_data)
-          .merge(source_ehr: 'vista')
+          .merge(source_ehr: UnifiedHealthData::Prescription::SOURCE_EHR_VISTA)
       end
 
       def build_core_attributes(medication)

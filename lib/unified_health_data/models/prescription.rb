@@ -6,6 +6,9 @@ module UnifiedHealthData
   class Prescription
     include Vets::Model
 
+    SOURCE_EHR_ORACLE_HEALTH = 'OH'
+    SOURCE_EHR_VISTA = 'vista'
+
     attribute :id, String
     attribute :type, String
     attribute :refill_status, String
