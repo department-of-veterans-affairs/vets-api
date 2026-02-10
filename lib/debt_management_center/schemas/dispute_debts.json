@@ -43,7 +43,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 255,
-        "pattern": "^[A-Za-z0-9 _,/\\-]+$"
+        "pattern": "^[^\\x00-\\x1F\\x7F]+$"
       },
       "dispute_reason": {
         "type": "string",
