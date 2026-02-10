@@ -17,7 +17,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
     Rack::Attack.enabled = false
   end
 
-  describe 'multi_party_forms/authenticated throttle' do
+  describe 'multi_party_forms/ip throttle' do
     context 'when requests are made from an IP address' do
       before { sign_in_as(user) }
 
@@ -133,7 +133,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
           'api.rack_attack.throttled',
           tags: [
             'path:/v0/multi_party_forms/primary',
-            'throttle_name:multi_party_forms/authenticated'
+            'throttle_name:multi_party_forms/ip'
           ]
         )
       end
