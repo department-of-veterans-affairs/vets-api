@@ -27,6 +27,7 @@ jobs:
           ls -1 modules
           ls -1 modules | jq -R -s -c 'split("\n")[:-1]'
           ls -1 modules | jq -R -s -c 'split("\n")[:-1] | map({name:.})'
+          ls -1 modules | jq -R -s -c 'split("\n")[:-1] | map({name:., path:"modules/"+.})'
           exit 1
           ls -1 modules | jq -R -s -c 'split("\n")[:-1] | map({name:., path:"modules/"+.})'
 
