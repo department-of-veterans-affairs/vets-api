@@ -1866,6 +1866,7 @@ module DependentsBenefits
       # Merges and transforms stepchildren data
       #
       # @return [void]
+      # rubocop:disable Metrics/MethodLength
       def merge_stepchildren_helpers
         step_children = @form_data['dependents_application']['step_children']
         return if step_children.blank?
@@ -1901,6 +1902,7 @@ module DependentsBenefits
         # @todo we ask this on our form for each child, the pdf only has this in one place
         # expand_supporting_stepchild
       end
+      # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
       def merge_death_helpers
