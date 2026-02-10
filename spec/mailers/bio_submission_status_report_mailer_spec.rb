@@ -71,7 +71,7 @@ RSpec.describe BioSubmissionStatusReportMailer, type: %i[mailer aws_helpers] do
             links_html = s3_links.map { |form_type, url| "#{form_type}: #{url}" }.join('<br>')
             mail(
               opt.merge(
-                subject: 'BIO Submission Status Report',
+                subject: 'BIO Submission Status Report', # rubocop:disable Rails/I18nLocaleTexts
                 body: "BIO Submission Status Report (links expire in one week)<br><br>#{links_html}"
               )
             )
