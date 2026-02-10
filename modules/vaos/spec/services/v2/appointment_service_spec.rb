@@ -889,8 +889,13 @@ describe VAOS::V2::AppointmentsService do
                                                                             meta: { failures: ['test error'] } })
       end
 
-      it 'returns nil when fetch_clinic_appointments returns empty array' do
-        expect(subject).to be_nil
+      it 'returns nil when fetch_clinic_appointments gets non-Array data' do
+        allow(Rails.logger).to receive(:warn)
+        result = subject
+        warn_string = 'VAOS fetch_clinic_appointments - appointments response data is not an array'
+
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:warn).at_least(:once).with(warn_string)
       end
     end
   end
@@ -933,8 +938,13 @@ describe VAOS::V2::AppointmentsService do
                                                                             meta: { failures: ['test error'] } })
       end
 
-      it 'returns an empty array with non-Array data' do
-        expect(subject).to eq([])
+      it 'returns an empty array with non-Array data and logs warning' do
+        allow(Rails.logger).to receive(:warn)
+        result = subject
+        warn_string = 'VAOS get_sorted_recent_appointments - appointments response data is not an array'
+
+        expect(result).to eq([])
+        expect(Rails.logger).to have_received(:warn).with(warn_string)
       end
     end
   end
@@ -1718,11 +1728,12 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when VAOS returns non-array data' do
-      it 'returns empty array for VAOS data without crashing' do
+      it 'returns empty array for VAOS data without crashing and logs warning' do
         appointments_service = VAOS::V2::AppointmentsService.new(user)
         allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
         allow(appointments_service).to receive(:get_all_appointments)
           .and_return({ data: {}, meta: {} })
+        allow(Rails.logger).to receive(:warn)
 
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path],
@@ -1731,8 +1742,9 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path],
                            allow_playback_repeats: true, tag: :force_utf8) do
             result = appointments_service.get_active_appointments_for_referral('test-referral-1234')
-
+            warn_msg = 'VAOS process_vaos_appointments - appointments_data is not an array'
             expect(result[:VAOS][:data]).to eq([])
+            expect(Rails.logger).to have_received(:warn).with(warn_msg)
           end
         end
       end
@@ -1841,6 +1853,28 @@ describe VAOS::V2::AppointmentsService do
               .with(expected_message)
             expect(check[:failures]).to eq('Missing ICN message')
           end
+        end
+      end
+
+      context 'when get_all_appointments returns non-array data' do
+        it 'logs error and returns failure with VAOS_RESPONSE_FORMAT_ERROR' do
+          appointments_service = described_class.new(user)
+          mock_response = double(body: { data: {} })
+          allow(mock_response).to receive(:dig).with(:meta, :failures).and_return(nil)
+          allow(appointments_service).to receive(:send_appointments_request).and_return(mock_response)
+          allow(Rails.logger).to receive(:error)
+          result = appointments_service.referral_appointment_already_exists?('ref-150')
+
+          expect(result[:error]).to be(true)
+          expect(result[:failures]).to be_an(Array)
+          failure_codes = result[:failures]
+                          .select { |f| f.is_a?(Hash) }
+                          .map { |f| f[:code] }
+          expect(failure_codes).to include('VAOS_RESPONSE_FORMAT_ERROR')
+          expect(Rails.logger).to have_received(:error).with(
+            'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
+            'Unexpected VAOS response format: data is Hash, expected Array'
+          )
         end
       end
     end
