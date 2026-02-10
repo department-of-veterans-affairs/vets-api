@@ -420,7 +420,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         it 'returns all enabled provider types' do
           result = controller.send(:supported_provider_types)
 
-          expect(result).to eq(['lighthouse', 'champva'])
+          expect(result).to eq(%w[lighthouse champva])
         end
       end
 

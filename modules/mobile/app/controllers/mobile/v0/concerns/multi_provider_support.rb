@@ -87,7 +87,8 @@ module Mobile
           if configured_providers.empty?
             raise ArgumentError,
                   'No claims providers are enabled. Ensure at least one provider ' \
-                  '(e.g., benefits_claims_lighthouse_provider) is enabled before using multi-provider mode (cst_multi_claim_provider_mobile).'
+                  '(e.g., benefits_claims_lighthouse_provider) is enabled before using ' \
+                  'multi-provider mode (cst_multi_claim_provider_mobile).'
           end
           # If provider_type is specified, route based on type
           return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
