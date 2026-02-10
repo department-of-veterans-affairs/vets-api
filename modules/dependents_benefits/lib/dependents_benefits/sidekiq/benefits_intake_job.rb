@@ -15,7 +15,7 @@ module DependentsBenefits::Sidekiq
   # Unlike primary submissions, does not fail the parent group if this fails,
   # and marks parent as PROCESSING rather than SUCCESS to indicate VBMS pending.
   #
-  class DependentBackupJob < DependentSubmissionJob
+  class BenefitsIntakeJob < DependentSubmissionJob
     # Submit a claim to Lighthouse Benefits Intake as backup
     # @return [ServiceResponse]
     def submit_claims_to_service

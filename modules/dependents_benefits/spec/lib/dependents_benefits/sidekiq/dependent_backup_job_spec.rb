@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dependents_benefits/sidekiq/dependent_backup_job'
+require 'dependents_benefits/sidekiq/benefits_intake_job'
 
-RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
   before do
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(pdf_stamper_instance).at_least(:once)
