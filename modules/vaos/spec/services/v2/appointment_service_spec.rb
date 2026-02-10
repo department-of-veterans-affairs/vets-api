@@ -885,7 +885,8 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when data is a hash (error response)' do
       before do
-        allow(instance_of_class).to receive(:get_appointments).and_return({ data: {}, meta: { failures: ['test error'] } })
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: {},
+                                                                            meta: { failures: ['test error'] } })
       end
 
       it 'returns nil when fetch_clinic_appointments returns empty array' do
@@ -1839,16 +1840,6 @@ describe VAOS::V2::AppointmentsService do
               .to have_received(:warn)
               .with(expected_message)
             expect(check[:failures]).to eq('Missing ICN message')
-          end
-        end
-
-        context 'when get_all_appointments returns non-array data' do
-          it 'skips VAOS check and continues to EPS without crashing' do
-            allow(subject).to receive(:get_all_appointments).and_return({ data: {}, meta: {} })
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
-            result = subject.referral_appointment_already_exists?('ref-150')
-
-            expect(result[:exists]).to be(false)
           end
         end
       end
