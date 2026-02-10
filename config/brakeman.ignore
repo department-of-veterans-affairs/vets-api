@@ -1,29 +1,6 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "2350df5038610f4c2513cdaa6cfea3c92954f5befe4f4863e68b896ec70ac3e0",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "modules/representation_management/app/services/representation_management/gclaws/xlsx_client.rb",
-      "line": 78,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "Open3.capture3(\"curl\", \"-sS\", \"--ntlm\", \"-u\", \"#{config.username}:#{config.password}\", \"--max-time\", \"120\", \"--connect-timeout\", \"30\", \"-o\", output_file.path, \"-w\", \"%<http_code>s\\\\n%<content_type>s\", config.url)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "RepresentationManagement::GCLAWS::XlsxClient",
-        "method": "self.execute_curl_download"
-      },
-      "user_input": "config.username",
-      "confidence": "Medium",
-      "cwe_id": [
-        77
-      ],
-      "note": "Variables are set from Settings backed by the AWS Parameter Store, not user input"
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "658320536241b097eb56fffee9aaf4fffc804447cb6111f0e8ae8e44de5ab8c7",
