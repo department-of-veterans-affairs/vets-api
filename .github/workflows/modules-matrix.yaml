@@ -23,6 +23,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          jq --help
+          exit 1
           ls -1 modules | jq -R -s -c 'split("\n")[:-1] | map({name:., path:"modules/"+.})'
 
   run-per-module:
