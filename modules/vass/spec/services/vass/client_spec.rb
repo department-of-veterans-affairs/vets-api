@@ -64,7 +64,7 @@ describe Vass::Client do
     it 'makes request to get agent skills' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
         double('response',
-               env: double('env', body: { 'success' => true, 'data' => { 'agentSkills' => [] } }, status: 200))
+               env: double('env', body: { 'success' => true, 'data' => { 'topics' => [] } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 

@@ -1166,6 +1166,14 @@ features:
   form214140:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4140
+  form214140_validate_dob:
+    actor_type: user
+    description: If enabled enforces validation to ensure the date of birth precedes the employment start date for Form 21-4140.
+    enable_in_development: true
+  form214140_validate_email_presence:
+    actor_type: user
+    description: If enabled enforces validation to ensure an email address is provided for Form 21-4140.
+    enable_in_development: true
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -1963,6 +1971,10 @@ features:
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
+    enable_in_development: true
+  ssoe_get_traits:
+    actor_type: user
+    description: Enables SSOe Get Traits service
     enable_in_development: true
   vha_show_payment_history:
     actor_type: user
@@ -2860,6 +2872,9 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  form1095b_multiple_years:
+    actor_type: user
+    description: Enables access to multiple years of form 1095b
   meb_1995_instruction_page_update_v3:
     actor_type: user
     description: Updated verbiage for instruction page for 5490
