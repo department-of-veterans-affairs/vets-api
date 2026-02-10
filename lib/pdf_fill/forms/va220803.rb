@@ -81,6 +81,7 @@ module PdfFill
         format_previously_applied(form_data)
         format_organization_info(form_data)
         format_signature(form_data)
+        format_test_cost(form_data)
 
         form_data
       end
@@ -131,6 +132,10 @@ module PdfFill
           form_data['dateSigned']
         end
         form_data['dateSigned'] = date_signed
+      end
+
+      def format_test_cost(form_data)
+        form_data['testCost'] = "$#{form_data['testCost']}"
       end
     end
   end
