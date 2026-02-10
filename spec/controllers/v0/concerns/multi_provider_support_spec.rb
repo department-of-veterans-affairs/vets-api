@@ -113,27 +113,34 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
       let(:claim_id) { '123' }
 
       it 'returns claim when response has data' do
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
-                                                                                    'data' => { 'id' => claim_id }
-                                                                                  })
+        lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+        lighthouse_instance = double('LighthouseProvider')
+        allow(lighthouse_class).to receive(:new).with(user).and_return(lighthouse_instance)
+        allow(lighthouse_instance).to receive(:get_claim).with(claim_id).and_return({
+                                                                                      'data' => { 'id' => claim_id }
+                                                                                    })
 
         result = controller.send(:get_claim_from_providers, claim_id)
 
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end
 
-      it 'requires type parameter when multiple providers exist' do
+      it 'defaults to lighthouse when no type parameter specified (even with multiple providers)' do
         provider_class2 = double('ProviderClass2', name: 'TestProvider2')
         provider_instance2 = double('Provider2')
         allow(provider_class2).to receive(:new).with(user).and_return(provider_instance2)
         allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
           .with(user)
           .and_return([provider_class, provider_class2])
-        allow(controller).to receive(:supported_provider_types).and_return(%w[lighthouse test])
 
-        expect do
-          controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+        lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+        lighthouse_instance = double('LighthouseProvider')
+        allow(lighthouse_class).to receive(:new).with(user).and_return(lighthouse_instance)
+        allow(lighthouse_instance).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+
+        result = controller.send(:get_claim_from_providers, claim_id)
+
+        expect(result).to eq({ 'data' => { 'id' => claim_id } })
       end
 
       it 'routes to correct provider when type parameter specified' do

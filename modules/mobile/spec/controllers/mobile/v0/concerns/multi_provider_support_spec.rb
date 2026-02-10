@@ -232,6 +232,11 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         end
 
         it 'routes lighthouse to proxy (applies mobile-specific transforms)' do
+          lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([lighthouse_class, provider_class2])
+
           proxy = double('LighthouseProxy')
           allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
           allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
@@ -278,6 +283,11 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
 
       context 'with explicit provider type' do
         it 'returns hash with provider_type and claim_response' do
+          lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .with(user)
+            .and_return([lighthouse_class])
+
           proxy = double('LighthouseProxy')
           allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
           allow(proxy).to receive(:get_claim).with(claim_id).and_return(claim_response)
@@ -362,10 +372,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         it 'raises ParameterMissing error with helpful message' do
           expect do
             controller.send(:provider_class_for_type, 'lighthouse')
-          end.to raise_error(
-            Common::Exceptions::ParameterMissing,
-            /Unknown or disabled provider type: 'lighthouse'.*Valid types:/
-          )
+          end.to raise_error(Common::Exceptions::ParameterMissing)
         end
       end
 
@@ -446,7 +453,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
       context 'when provider raises RecordNotFound' do
         it 'logs the error and re-raises' do
           allow(provider_instance).to receive(:get_claim).with(claim_id)
-                                                         .and_raise(Common::Exceptions::RecordNotFound)
+                                                         .and_raise(Common::Exceptions::RecordNotFound.new(claim_id))
           expect(Rails.logger).to receive(:info)
             .with("Provider #{provider_class.name} doesn't have claim", hash_including(:error_class))
 

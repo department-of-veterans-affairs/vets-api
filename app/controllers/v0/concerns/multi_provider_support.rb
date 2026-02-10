@@ -38,9 +38,10 @@ module V0
       #
       # Retrieves a claim from the appropriate provider based on provider_type parameter.
       #
-      # When multiple providers exist, the type parameter is REQUIRED to prevent ID collision
-      # (same claim ID could exist in multiple systems). With a single provider, type is optional
-      # for backward compatibility.
+      # The type parameter is optional and defaults to lighthouse for backward compatibility
+      # with existing bookmarks/URLs. This means lighthouse claims can be accessed without
+      # specifying type, even when multiple providers exist. Other providers require the
+      # type parameter to be explicitly specified.
       #
       # Rollout strategy: Frontend will deploy first to send type parameter, then we enable
       # the second provider. This ensures type is always present before it becomes required.
@@ -52,15 +53,8 @@ module V0
           return provider.get_claim(claim_id)
         end
 
-        # No provider_type specified - check if multiple providers exist
-        if configured_providers.length > 1
-          valid_types = supported_provider_types.join(', ')
-          detail_message = "Provider type is required. Valid types: #{valid_types}"
-          raise Common::Exceptions::ParameterMissing.new('type', detail: detail_message)
-        end
-
-        # Single provider - no id collision possible
-        provider_class = configured_providers.first
+        # No provider_type specified - default to lighthouse for backward compatibility
+        provider_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
         provider = provider_class.new(@current_user)
         provider.get_claim(claim_id)
       end
