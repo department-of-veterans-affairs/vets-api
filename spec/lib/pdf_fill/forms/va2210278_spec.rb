@@ -145,12 +145,12 @@ describe PdfFill::Forms::Va2210278 do
 
     context 'Security Info' do
       it 'maps standard question' do
-        expect(merged_fields.dig('securityQuestion', 'question'))
+        expect(merged_fields['securityQuestion'])
           .to eq('The city and state your mother was born in')
       end
 
       it 'maps location answer' do
-        expect(merged_fields.dig('securityAnswer', 'answer')).to eq('Smallville, KS')
+        expect(merged_fields['securityAnswer']).to eq('Smallville, KS')
       end
 
       it 'maps create question and answer' do
@@ -162,16 +162,16 @@ describe PdfFill::Forms::Va2210278 do
           }
         }
 
-        expect(merged_fields.dig('securityQuestion', 'question')).to eq('Custom Q')
-        expect(merged_fields.dig('securityAnswer', 'answer')).to eq('Custom A')
+        expect(merged_fields['securityQuestion']).to eq('Custom Q')
+        expect(merged_fields['securityAnswer']).to eq('Custom A')
       end
 
       it 'maps text answer' do
         form_data['securityQuestion'] = { 'question' => 'pin' }
         form_data['securityAnswer'] = { 'securityAnswerText' => '1234' }
 
-        expect(merged_fields.dig('securityQuestion', 'question')).to eq('I would like to use a pin or password')
-        expect(merged_fields.dig('securityAnswer', 'answer')).to eq('1234')
+        expect(merged_fields['securityQuestion']).to eq('I would like to use a pin or password')
+        expect(merged_fields['securityAnswer']).to eq('1234')
       end
 
       it 'handles missing security question' do
