@@ -134,6 +134,9 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
+  bio_submission_status_report_enabled:
+    actor_type: user
+    description: Enables periodic job that generates CSV reports tracking BIO form submission status through Lighthouse Benefits Intake and Central Mail Processing
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
