@@ -119,10 +119,10 @@ class Rack::Attack
                      Settings.vsp_environment.eql?('production')
   end
 
-  # Multi-Party Forms throttling for authenticated users
-  # Rate limit: 60 requests per minute per user
+  # Multi-Party Forms throttling by IP address
+  # Rate limit: 60 requests per minute per IP
   # Applies to all Primary Party and Secondary Party endpoints
-  throttle('multi_party_forms/authenticated', limit: 60, period: 1.minute) do |req|
+  throttle('multi_party_forms/ip', limit: 60, period: 1.minute) do |req|
     req.remote_ip if req.path.starts_with?('/v0/multi_party_forms')
   end
 
