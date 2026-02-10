@@ -186,6 +186,25 @@ RSpec.describe 'ClinicalNotesAdapter' do
 
         adapter.parse(note)
       end
+
+      it 'logs filtered clinical notes with missing docStatus' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource'].delete('docStatus')
+
+        expected_msg = 'Filtered DocumentReference: ' \
+                       'id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, ' \
+                       'docStatus=, reason=missing_doc_status'
+        expect(Rails.logger).to receive(:info).with(
+          expected_msg,
+          { service: 'unified_health_data', filtering: true }
+        )
+        expect(StatsD).to receive(:increment).with(
+          'unified_health_data.clinical_note.filtered_document_reference',
+          tags: ['reason:missing_doc_status']
+        )
+
+        adapter.parse(note)
+      end
     end
   end
 

@@ -43,7 +43,8 @@ module UnifiedHealthData
         return nil unless record
 
         unless allowed_doc_status?(record['docStatus'])
-          log_filtered_clinical_note(record, 'disallowed_doc_status')
+          reason = record['docStatus'].blank? ? 'missing_doc_status' : 'disallowed_doc_status'
+          log_filtered_clinical_note(record, reason)
           return nil
         end
 
