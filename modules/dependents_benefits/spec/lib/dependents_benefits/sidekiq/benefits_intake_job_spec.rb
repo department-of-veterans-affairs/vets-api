@@ -47,6 +47,22 @@ RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
 
         expect { job.perform(parent_claim.id) }.not_to raise_error
       end
+
+      it 'creates a pending submission attempt linked to the parent claim' do
+        allow(lh_submission).to receive_messages({ initialize_service: 'uuid-1', upload_to_lh: successful_response })
+        allow(lh_submission).to receive(:prepare_submission)
+        allow(lh_submission).to receive(:cleanup_file_paths)
+
+        expect { job.perform(parent_claim.id) }
+          .to change(Lighthouse::SubmissionAttempt, :count).by(1)
+
+        submission = Lighthouse::Submission.find_by(saved_claim_id: parent_claim.id)
+        attempt = submission.submission_attempts.order(created_at: :desc).first
+
+        expect(submission.form_id).to eq(parent_claim.form_id)
+        expect(attempt.submission.saved_claim_id).to eq(parent_claim.id)
+        expect(attempt.status).to eq('pending')
+      end
     end
 
     context 'when job fails' do
