@@ -10,14 +10,16 @@ RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
     allow(pdf_stamper_instance).to receive(:run).and_return('/tmp/stamped_1.pdf', '/tmp/stamped_2.pdf',
                                                             '/tmp/final_stamped.pdf')
 
-    allow(BenefitsIntakeService::Service).to receive(:new).and_return(lighthouse_mock)
+    allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_mock)
     allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
     allow(claim_processor).to receive(:collect_child_claims).and_return([claim686c, claim674])
   end
 
   let(:pdf_stamper_instance) { instance_double(PDFUtilities::DatestampPdf) }
   let(:lighthouse_mock) do
-    double(:lighthouse_service, uuid: 'uuid', upload_form: OpenStruct.new(success?: true, data: {}))
+    double(:lighthouse_service, uuid: 'uuid', location: 'https://mock.va.gov/upload',
+                                request_upload: ['https://mock.va.gov/upload', 'uuid'],
+                                perform_upload: OpenStruct.new(success?: true, data: {}))
   end
   let(:parent_claim) { create(:dependents_claim) }
   let(:job) { described_class.new }
@@ -115,7 +117,6 @@ RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
 
       it 'performs all success operations within transaction' do
         expect(job).to receive(:mark_parent_group_processing)
-        expect(job).to receive(:mark_submission_attempt_succeeded)
         expect(ActiveRecord::Base).to receive(:transaction).and_yield
         expect(failed_parent_group).to receive(:with_lock).and_yield
         job.handle_job_success
@@ -127,7 +128,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
 
       before do
         allow(job).to receive(:monitor).and_return(monitor_instance)
-        allow(job).to receive(:mark_submission_attempt_succeeded).and_raise(test_error)
+        allow(job).to receive(:mark_parent_group_processing).and_raise(test_error)
         job.instance_variable_set(:@claim_id, parent_claim.id)
       end
 

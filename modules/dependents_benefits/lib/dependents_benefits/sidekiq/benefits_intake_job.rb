@@ -87,8 +87,6 @@ module DependentsBenefits::Sidekiq
     def handle_job_success
       ActiveRecord::Base.transaction do
         parent_group.with_lock do
-          mark_submission_attempt_succeeded # update attempt record
-
           # update parent claim group status - overwrite failure since we're in backup job
           # the parent group is marked as processing to indicate it hasn't reached VBMS yet
           mark_parent_group_processing
@@ -141,13 +139,6 @@ module DependentsBenefits::Sidekiq
     def update_submission_attempt_uuid
       submission_attempt&.update(benefits_intake_uuid: @uuid)
     end
-
-    # Marks the submission attempt as succeeded
-    #
-    # Service-specific success logic - updates submission attempt record to success status.
-    #
-    # @return [Boolean, nil] Result of status update, or nil if attempt doesn't exist
-    def mark_submission_attempt_succeeded = submission_attempt&.success!
 
     # Marks the submission attempt as failed
     #
