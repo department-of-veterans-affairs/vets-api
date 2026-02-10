@@ -18,19 +18,11 @@ module VANotify
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
 
-        if Flipper.enabled?(:va_notify_in_progress_metadata)
-          send_with_callback_metadata_single(in_progress_form, template_id)
-        else
-          UserAccountJob.perform_async(in_progress_form.user_account_id, template_id, personalisation_details_single)
-        end
+        send_with_callback_metadata_single(in_progress_form, template_id)
       elsif oldest_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
 
-        if Flipper.enabled?(:va_notify_in_progress_metadata)
-          send_with_callback_metadata_multiple(in_progress_form, template_id)
-        else
-          UserAccountJob.perform_async(in_progress_form.user_account_id, template_id, personalisation_details_multiple)
-        end
+        send_with_callback_metadata_multiple(in_progress_form, template_id)
       end
     rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
       nil

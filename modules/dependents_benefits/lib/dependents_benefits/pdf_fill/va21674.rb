@@ -3,6 +3,7 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/formatters/va21674v2'
 
 # rubocop:disable Metrics/ClassLength
 module DependentsBenefits
@@ -19,6 +20,9 @@ module DependentsBenefits
 
       # Iterator constant from PdfFill::HashConverter
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      # Formatter class for VA Form 21-674
+      FORMATTER = ::PdfFill::Forms::Formatters::Va21674v2
 
       # Path to the 21-674 PDF template
       TEMPLATE = DependentsBenefits::PDF_PATH_21_674
@@ -364,21 +368,21 @@ module DependentsBenefits
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > EARNINGS FROM ALL EMPLOYMENT'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > EARNINGS FROM ALL EMPLOYMENT'
                 },
                 'second' => {
                   key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment_MiddleThree[0]',
                   limit: 3,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > EARNINGS FROM ALL EMPLOYMENT'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > EARNINGS FROM ALL EMPLOYMENT'
                 },
                 'third' => {
                   key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment_LastTwo[0]',
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > EARNINGS FROM ALL EMPLOYMENT'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > EARNINGS FROM ALL EMPLOYMENT'
                 }
               },
               'annual_social_security_payments' => {
@@ -387,21 +391,21 @@ module DependentsBenefits
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > ANNUAL SOCIAL SECURITY'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > ANNUAL SOCIAL SECURITY'
                 },
                 'second' => {
                   key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity_MiddleThree[0]',
                   limit: 3,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > ANNUAL SOCIAL SECURITY'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > ANNUAL SOCIAL SECURITY'
                 },
                 'third' => {
                   key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity_LastTwo[0]',
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > ANNUAL SOCIAL SECURITY'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > ANNUAL SOCIAL SECURITY'
                 }
               },
               'other_annuities_income' => {
@@ -410,21 +414,21 @@ module DependentsBenefits
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > OTHER ANNUITIES'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > OTHER ANNUITIES'
                 },
                 'second' => {
                   key: 'form1[0].#subform[0].ReceivedOtherAnnuities_MiddleThree[0]',
                   limit: 3,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > OTHER ANNUITIES'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > OTHER ANNUITIES'
                 },
                 'third' => {
                   key: 'form1[0].#subform[0].ReceivedOtherAnnuities_LastTwo[0]',
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > OTHER ANNUITIES'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > OTHER ANNUITIES'
                 }
               },
               'all_other_income' => {
@@ -433,21 +437,21 @@ module DependentsBenefits
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > ALL OTHER INCOME'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > ALL OTHER INCOME'
                 },
                 'second' => {
                   key: 'form1[0].#subform[0].ReceivedAllOtherIncome_MiddleThree[0]',
                   limit: 3,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > ALL OTHER INCOME'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > ALL OTHER INCOME'
                 },
                 'third' => {
                   key: 'form1[0].#subform[0].ReceivedAllOtherIncome_LastTwo[0]',
                   limit: 2,
                   question_num: 13,
                   question_suffix: 'B',
-                  question_text: 'STUDENT\'S INFORMATION > RECIEVED > ALL OTHER INCOME'
+                  question_text: 'STUDENT\'S INFORMATION > RECEIVED > ALL OTHER INCOME'
                 }
               }
             },
@@ -822,7 +826,118 @@ module DependentsBenefits
             question_suffix: 'B',
             question_text: 'DATE SIGNED (MM-DD-YYYY)'
           }
-        }
+        },
+        # start overflow
+        'student_expected_earnings_next_year_overflow' => {
+          'earnings_from_all_employment' => {
+            key: 'form1[0].#subform[0].ExpectedEarningsFromAllEmployment',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'EARNINGS FROM ALL EMPLOYMENT',
+            overflow_only: true
+          },
+          'annual_social_security_payments' => {
+            key: 'form1[0].#subform[0].ExpectedAnnualSocialSecurity',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'ANNUAL SOCIAL SECURITY',
+            overflow_only: true
+          },
+          'other_annuities_income' => {
+            key: 'form1[0].#subform[0].ExpectedOtherAnnuities',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'OTHER ANNUITIES',
+            overflow_only: true
+          },
+          'all_other_income' => {
+            key: 'form1[0].#subform[0].ExpectedAllOtherIncome',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'ALL OTHER INCOME',
+            overflow_only: true
+          }
+        },
+        'student_earnings_from_school_year_overflow' => {
+          'earnings_from_all_employment' => {
+            key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'EARNINGS FROM ALL EMPLOYMENT',
+            overflow_only: true
+          },
+          'annual_social_security_payments' => {
+            key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'ANNUAL SOCIAL SECURITY',
+            overflow_only: true
+          },
+          'other_annuities_income' => {
+            key: 'form1[0].#subform[0].ReceivedOtherAnnuities',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'OTHER ANNUITIES',
+            overflow_only: true
+          },
+          'all_other_income' => {
+            key: 'form1[0].#subform[0].ReceivedAllOtherIncome',
+            limit: 0,
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: 'ALL OTHER INCOME',
+            overflow_only: true
+          }
+        },
+        'student_networth_information_overflow' => {
+          'savings' => {
+            key: 'form1[0].#subform[0].StudentSavings',
+            limit: 0,
+            question_num: 14,
+            question_suffix: 'A',
+            question_text: 'SAVINGS',
+            overflow_only: true
+          },
+          'securities' => {
+            key: 'form1[0].#subform[0].StudentSecurities',
+            limit: 0,
+            question_num: 14,
+            question_suffix: 'B',
+            question_text: 'SECURITIES',
+            overflow_only: true
+          },
+          'real_estate' => {
+            key: 'form1[0].#subform[0].StudentRealEstate',
+            limit: 0,
+            question_num: 14,
+            question_suffix: 'C',
+            question_text: 'REAL ESTATE',
+            overflow_only: true
+          },
+          'other_assets' => {
+            key: 'form1[0].#subform[0].StudentOtherAssets',
+            limit: 0,
+            question_num: 14,
+            question_suffix: 'D',
+            question_text: 'OTHER ASSETS',
+            overflow_only: true
+          },
+          'total_value' => {
+            key: 'form1[0].#subform[0].StudentTotalValues',
+            limit: 0,
+            question_num: 14,
+            question_suffix: 'E',
+            question_text: 'TOTAL VALUE',
+            overflow_only: true
+          }
+        } # end overflow
       }.freeze
 
       def merge_fields(options = {})
@@ -838,10 +953,12 @@ module DependentsBenefits
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
-        veteran_contact_information['phone_number'] = expand_phone_number(veteran_contact_information['phone_number'])
+        veteran_contact_information['phone_number'] =
+          FORMATTER.expand_phone_number(veteran_contact_information['phone_number'])
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
+        FORMATTER.handle_overflows(@form_data)
 
         @form_data
       end
@@ -886,16 +1003,6 @@ module DependentsBenefits
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
-
-      def expand_phone_number(phone_number)
-        phone_number = phone_number.delete('^0-9')
-        {
-          'phone_area_code' => phone_number[0..2],
-          'phone_first_three_numbers' => phone_number[3..5],
-          'phone_last_four_numbers' => phone_number[6..9]
-        }
-      end
 
       ##
       # Merges and transforms student-related data for PDF form fields
@@ -918,148 +1025,16 @@ module DependentsBenefits
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
             type_of_program_or_benefit = student_information['type_of_program_or_benefit']
-            program_information = get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            if type_of_program_or_benefit.present?
+              program_information = FORMATTER.get_program(type_of_program_or_benefit)
+            end
             student_information['type_of_program_or_benefit'] = program_information if program_information.present?
-            split_earnings(student_expected_earnings) if student_expected_earnings.present?
-            split_earnings(student_earnings) if student_earnings.present?
-            split_networth_information(student_networth) if student_networth.present?
+            FORMATTER.split_earnings(student_expected_earnings) if student_expected_earnings.present?
+            FORMATTER.split_earnings(student_earnings) if student_earnings.present?
+            FORMATTER.split_networth_information(student_networth) if student_networth.present?
           end
         end
-        format_checkboxes(dependents_application)
-      end
-
-      ##
-      # Converts program type codes to human-readable program names
-      #
-      # @param parent_object [Hash] Hash with program type keys (ch35, fry, feca, other)
-      # @return [String, nil] Comma-separated list of program names, or nil if no programs selected
-      #
-      # @example
-      #   get_program({ 'ch35' => true, 'fry' => true })
-      #   # => "Chapter 35, Fry Scholarship"
-      #
-      def get_program(parent_object)
-        type_mapping = {
-          'ch35' => 'Chapter 35',
-          'fry' => 'Fry Scholarship',
-          'feca' => 'FECA',
-          'other' => 'Other Benefit'
-        }
-        # sanitize object of false values
-        parent_object.compact_blank!
-        return nil if parent_object.blank?
-
-        parent_object.map { |key, _value| type_mapping[key] }.join(', ')
-      end
-
-      # override from form_helper
-      def select_checkbox(value)
-        value ? 'On' : nil
-      end
-
-      ##
-      # Converts boolean value to PDF radio button format
-      #
-      # @param value [Boolean] The boolean value to convert
-      # @return [Integer, nil] 0 if true, nil if false (PDF radio button selected state)
-      def select_radio_button(value)
-        value ? 0 : nil
-      end
-
-      ##
-      # Splits earnings values into PDF field format segments
-      #
-      # Converts numeric earnings values into the format required by the PDF form,
-      # splitting each value into first (2 digits), second (3 digits), and third (2 digits) segments.
-      #
-      # @param parent_object [Hash] Hash containing earnings keys to process
-      # @return [Hash, nil] Modified parent object with split values, or nil if blank
-      def split_earnings(parent_object)
-        return if parent_object.blank?
-
-        keys_to_process = %w[
-          earnings_from_all_employment annual_social_security_payments
-          other_annuities_income all_other_income
-        ]
-        keys_to_process.each do |key|
-          value = parent_object[key]
-          next if value.blank?
-
-          cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-          parent_object[key] = {
-            'first' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(2, '0')[-3..] || '00',
-            'second' => (cleaned_value % 1000).to_s.rjust(3, '0') || '000',
-            'third' => '00'
-          }
-        end
-        parent_object
-      end
-
-      ##
-      # Splits net worth values into PDF field format segments
-      #
-      # Converts numeric net worth values (savings, securities, real estate, etc.) into
-      # the format required by the PDF form, splitting each into 4 segments for different
-      # magnitude ranges.
-      #
-      # @param parent_object [Hash] Hash containing net worth keys to process
-      # @return [Hash, nil] Modified parent object with split values, or nil if blank
-      def split_networth_information(parent_object)
-        return if parent_object.blank?
-
-        keys_to_process = %w[savings securities real_estate other_assets total_value]
-        keys_to_process.each do |key|
-          value = parent_object[key]
-          next if value.blank?
-
-          cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-
-          parent_object[key] = {
-            'first' => (cleaned_value / 1_000_000).to_s[-2..],
-            'second' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..],
-            'third' => (cleaned_value % 1000).to_s.rjust(3, '0'),
-            'last' => '00'
-          }
-        end
-        parent_object
-      end
-
-      # rubocop:disable Metrics/MethodLength
-      def format_checkboxes(dependents_application)
-        students_information = dependents_application['student_information']
-        if students_information.present?
-          students_information.each do |student_information|
-            was_married = student_information['was_married']
-            student_information['was_married'] = {
-              'was_married_yes' => select_checkbox(was_married),
-              'was_married_no' => select_checkbox(!was_married)
-            }
-
-            is_paid = student_information['tuition_is_paid_by_gov_agency']
-            student_information['tuition_is_paid_by_gov_agency'] = {
-              'is_paid_yes' => select_checkbox(is_paid),
-              'is_paid_no' => select_checkbox(!is_paid)
-            }
-
-            is_full_time = student_information['school_information']['student_is_enrolled_full_time']
-            student_information['school_information']['student_is_enrolled_full_time'] = {
-              'full_time_yes' => select_checkbox(is_full_time),
-              'full_time_no' => select_checkbox(!is_full_time)
-            }
-
-            did_attend = student_information['school_information']['student_did_attend_school_last_term']
-            student_information['school_information']['student_did_attend_school_last_term'] = {
-              'did_attend_yes' => select_checkbox(did_attend),
-              'did_attend_no' => select_checkbox(!did_attend)
-            }
-
-            is_school_accredited = student_information['school_information']['is_school_accredited']
-            student_information['school_information']['is_school_accredited'] = {
-              'is_school_accredited_yes' => select_radio_button(is_school_accredited),
-              'is_school_accredited_no' => select_radio_button(!is_school_accredited)
-            }
-          end
-        end
+        FORMATTER.format_checkboxes(dependents_application)
       end
       # rubocop:enable Metrics/MethodLength
     end
