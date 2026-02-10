@@ -326,7 +326,14 @@ module VAOS
 
       def get_sorted_recent_appointments
         appointments = get_appointments(1.year.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
-        sort_recent_appointments(appointments[:data])
+        appt_data = appointments[:data]
+        unless appt_data.is_a?(Array)
+          Rails.logger.warn('VAOS get_sorted_recent_appointments received non-Array data',
+                            { data_class: appt_data.class, data: appt_data })
+          return []
+        end
+
+        sort_recent_appointments(appt_data)
       end
 
       def sort_recent_appointments(appointments)
