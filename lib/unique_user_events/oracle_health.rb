@@ -9,7 +9,27 @@ module UniqueUserEvents
   # based on user facility registrations and tracked events.
   module OracleHealth
     # Tracked facility IDs that should generate OH events
-    TRACKED_FACILITY_IDS = %w[757].freeze
+    # Loaded from Settings.unique_user_metrics.oracle_health_tracked_facility_ids
+    # Validates that all IDs are 3-digit numbers (VA facility ID format)
+    # Returns empty array if validation fails to avoid crashing metrics code
+    # Uses Array() to safely handle scalar values from environment variable overrides
+    TRACKED_FACILITY_IDS = begin
+      raw_value = Settings.unique_user_metrics&.oracle_health_tracked_facility_ids
+      ids = Array(raw_value)
+
+      # Validate facility IDs are 3-digit numbers
+      invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+      if invalid_ids.any?
+        Rails.logger.error(
+          'UniqueUserEvents::OracleHealth: Invalid facility IDs in ' \
+          "Settings.unique_user_metrics.oracle_health_tracked_facility_ids: #{invalid_ids.join(', ')}. " \
+          'VA facility IDs must be 3-digit numbers. Using empty array.'
+        )
+        [].freeze
+      else
+        ids.map(&:to_s).freeze
+      end
+    end
 
     # Event suffix for Oracle Health facility-specific events (explicit facility context)
     OH_EVENT_SUFFIX = '_oh_'
@@ -38,7 +58,7 @@ module UniqueUserEvents
     # 2. Without event_facility_ids (user-based):
     #    - Generates `#{event_name}_oh_site_#{facility_id}` for matching facilities
     #    - Only generates events for event names in TRACKED_EVENTS
-    #    - Uses the user's VHA facility registrations
+    #    - Uses the user's Cerner facilities filtered by tracked facilities
     #
     # @param user [User] the authenticated User object
     # @param event_name [String] Name of the original event
@@ -69,26 +89,18 @@ module UniqueUserEvents
     def self.filter_tracked_oh_facilities(facility_ids, user)
       return [] if facility_ids.blank?
 
-      # Normalize to strings for comparison
       normalized_ids = facility_ids.map(&:to_s)
-
-      # Get user's Cerner facility IDs (actual OH facilities for this user)
-      cerner_ids = (user.cerner_facility_ids || []).map(&:to_s)
-
-      # Facility must be:
-      # 1. In the provided facility_ids
-      # 2. In the tracked facility list (controlled rollout)
-      # 3. An actual OH facility for this user (cerner_facility_ids)
-      normalized_ids & TRACKED_FACILITY_IDS & cerner_ids
+      tracked_user_facilities = get_user_tracked_facilities(user)
+      normalized_ids & tracked_user_facilities
     end
 
-    # Get user's facilities that match tracked OH facilities
+    # Get user's OH facilities that match tracked facilities
     #
     # @param user [User] the authenticated User object
     # @return [Array<String>] Array of matching facility IDs
     def self.get_user_tracked_facilities(user)
-      user_facilities = user.vha_facility_ids || []
-      user_facilities & TRACKED_FACILITY_IDS
+      cerner_ids = (user.cerner_facility_ids || []).map(&:to_s)
+      cerner_ids & TRACKED_FACILITY_IDS
     end
 
     private_class_method :get_user_tracked_facilities, :filter_tracked_oh_facilities

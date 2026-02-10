@@ -50,7 +50,7 @@ module DependentsBenefits::Sidekiq
     # @raise [::Sidekiq::JobRetry::Skip] for permanent failures to skip retries
     # @raise [DependentSubmissionError] for transient failures to trigger retries
     def handle_job_failure(error)
-      monitor.track_submission_error("Error submitting #{self.class}", 'error', error:, claim_id:)
+      monitor.track_error_event("Error submitting #{self.class}", action: 'error', component:, error:, claim_id:)
       mark_submission_attempt_failed(error)
 
       # raise other errors to trigger Sidekiq retry mechanism
@@ -95,8 +95,8 @@ module DependentsBenefits::Sidekiq
         end
       end
     rescue => e
-      monitor.track_submission_error('Error handling job success', 'success_failure',
-                                     error: e, parent_claim_id: claim_id)
+      monitor.track_error_event('Error handling job success',
+                                action: 'success_failure', component:, error: e, parent_claim_id: claim_id)
     end
 
     private

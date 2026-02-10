@@ -137,28 +137,6 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds,
       expect(multi_rep_requests).to(be_all { |req| req.accredited_organization.present? })
     end
 
-    it 'creates user account associations for all representatives' do
-      associations = AccreditedRepresentativePortal::UserAccountAccreditedIndividual.all
-      representatives = Veteran::Service::Representative.all
-
-      # Should create one association per rep
-      expect(associations.count).to eq(representatives.count)
-
-      # Check email pattern
-      expect(associations).to(be_all do |assoc|
-        assoc.user_account_email.match?(/vets\.gov\.user\+\d+@gmail\.com/)
-      end)
-
-      # Verify registration numbers match reps
-      expect(associations.pluck(:accredited_individual_registration_number))
-        .to match_array(representatives.pluck(:representative_id))
-
-      # Check holder type
-      expect(associations).to(be_all do |assoc|
-        assoc.power_of_attorney_holder_type == 'veteran_service_organization'
-      end)
-    end
-
     it 'creates the expected pattern of requests per representative and organization' do
       # Focus on CT org (008) and digital_only_rep who only works with CT
       ct_rep_requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest

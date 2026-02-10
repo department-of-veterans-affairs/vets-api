@@ -70,6 +70,23 @@ RSpec.describe 'Vass::V0::Appointments - Get Appointment', type: :request do
         end
       end
 
+      it 'returns topics with topicId and topicName' do
+        VCR.use_cassette('vass/oauth_token_success', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vass/appointments/get_appointment_success', match_requests_on: %i[method uri]) do
+            get("/vass/v0/appointment/#{appointment_id}", headers:)
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+
+            topics = json_response['data']['topics']
+            expect(topics).to be_an(Array)
+            expect(topics.length).to eq(2)
+            expect(topics.first['topicId']).to eq('d7374595-5e53-f011-bec2-001dd806389e')
+            expect(topics.first['topicName']).to eq('Benefits')
+          end
+        end
+      end
+
       context 'when appointment ID is missing' do
         it 'returns bad request' do
           get('/vass/v0/appointment/', headers:)
