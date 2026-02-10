@@ -1,14 +1,12 @@
 name: Modules Matrix
 
 on:
-  # push:
-  #   paths:
-  #     - "modules/**"
-  #     - ".github/workflows/modules-matrix.yml"
-  # pull_request:
-  #   paths:
-  #     - "modules/**"
-  #     - ".github/workflows/modules-matrix.yml"
+  push:
+    paths:
+      - ".github/workflows/modules-matrix.yaml"
+  pull_request:
+    paths:
+      - ".github/workflows/modules-matrix.yaml"
   workflow_dispatch: {}
 
 jobs:
@@ -20,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@latest
 
-      - name: Build matrix from modules/
+      - name: Build matrix from modules
         id: set-matrix
         shell: bash
         run: |
@@ -47,4 +45,6 @@ jobs:
 
       - name: No modules found
         if: ${{ matrix.name == '__none__' }}
-        run: echo "No module folders found under modules/; skipping."
+        run: |
+          set -euo pipefail
+          echo "No module folders found under modules/; skipping."
