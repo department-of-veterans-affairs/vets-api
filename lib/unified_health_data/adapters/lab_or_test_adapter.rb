@@ -349,6 +349,9 @@ module UnifiedHealthData
           resource['effectiveDateTime']
         elsif resource['effectivePeriod']&.dig('start')
           resource['effectivePeriod']['start']
+        # Fallback to report's creation date if no other dates available
+        elsif resource['presentedForm']
+          resource['presentedForm'].find { |form| form['contentType'] == 'text/plain' }&.dig('creation')
         end
       end
     end

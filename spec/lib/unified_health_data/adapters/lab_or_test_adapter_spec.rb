@@ -974,7 +974,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'when resource has neither effectiveDateTime nor effectivePeriod' do
-      it 'returns nil' do
+      it 'returns nil when no presentedForm exists' do
         resource = {}
 
         result = adapter.send(:get_date_completed, resource)
@@ -984,12 +984,78 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'when effectivePeriod exists but has no start' do
-      it 'returns nil' do
+      it 'returns nil when no presentedForm exists' do
         resource = { 'effectivePeriod' => { 'end' => '2025-06-24T15:21:00.000Z' } }
 
         result = adapter.send(:get_date_completed, resource)
 
         expect(result).to be_nil
+      end
+    end
+
+    context 'when falling back to presentedForm creation date' do
+      it 'returns the creation date from text/plain presentedForm' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'creation' => '2024-12-05T12:50:00+00:00', 'data' => 'encoded' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2024-12-05T12:50:00+00:00')
+      end
+
+      it 'returns nil when presentedForm has no text/plain entry' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'creation' => '2024-12-05T12:50:00+00:00' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when text/plain entry has no creation date' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'data' => 'encoded' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+
+      it 'prefers effectiveDateTime over presentedForm creation' do
+        resource = {
+          'effectiveDateTime' => '2025-01-01T00:00:00Z',
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'creation' => '2024-12-05T12:50:00+00:00' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2025-01-01T00:00:00Z')
+      end
+    end
+
+    context 'with fixture data' do
+      it 'falls back to presentedForm creation for radiology records without effectiveDateTime' do
+        # vista[1] has no effectiveDateTime or effectivePeriod but has presentedForm with creation
+        radiology_record = labs_response['vista']['entry'][1]
+        resource = radiology_record['resource']
+
+        expect(resource['effectiveDateTime']).to be_nil
+        expect(resource['effectivePeriod']).to be_nil
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2024-12-05T12:50:00+00:00')
       end
     end
   end
