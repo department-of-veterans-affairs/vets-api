@@ -91,6 +91,9 @@ module RepresentationManagement
         ensure
           cleanup_config_file(config_file)
         end
+      rescue ArgumentError => e
+        handle_error('invalid_credentials', e, :internal_server_error,
+                     'GCLAWS XLSX credentials contain invalid characters')
       end
 
       # Creates a temporary curl config file with credentials
@@ -110,7 +113,10 @@ module RepresentationManagement
       #
       # @param value [String] Value to escape
       # @return [String] Escaped value
+      # @raise [ArgumentError] if value contains CRLF or null bytes
       def self.escape_curl_config_value(value)
+        raise ArgumentError, 'Config contains invalid characters' if value.to_s.match?(/[\n\r\0]/)
+
         value.to_s.gsub('\\') { '\\\\' }.gsub('"') { '\\"' }
       end
 
