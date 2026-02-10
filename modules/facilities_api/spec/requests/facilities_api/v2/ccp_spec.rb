@@ -756,4 +756,124 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
       end
     end
   end
+
+  describe 'fetch_lat_long_and_radius parameter validation' do
+    context 'Invalid latitude parameter' do
+      it 'returns 400 error when latitude is not a valid float' do
+        invalid_params = params.merge(lat: 'not_a_number')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+        response_json = JSON.parse(response.body)
+        expect(response_json['errors'].first['title']).to include('Invalid field value')
+      end
+
+      it 'returns 400 error when latitude is empty string' do
+        invalid_params = params.merge(lat: '')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when latitude has special characters' do
+        invalid_params = params.merge(lat: '40.415217@')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when latitude is nil' do
+        invalid_params = params.merge(lat: nil)
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'Invalid longitude parameter' do
+      it 'returns 400 error when longitude is not a valid float' do
+        invalid_params = params.merge(long: 'invalid_long')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+        response_json = JSON.parse(response.body)
+        expect(response_json['errors'].first['title']).to include('Invalid field value')
+      end
+
+      it 'returns 400 error when longitude is empty string' do
+        invalid_params = params.merge(long: '')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when longitude has special characters' do
+        invalid_params = params.merge(long: '-74.057114!')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when longitude is nil' do
+        invalid_params = params.merge(long: nil)
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'Invalid radius parameter' do
+      it 'returns 400 error when radius is not a valid float' do
+        invalid_params = params.merge(radius: 'huge')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+        response_json = JSON.parse(response.body)
+        expect(response_json['errors'].first['title']).to include('Invalid field value')
+      end
+
+      it 'returns 400 error when radius is empty string' do
+        invalid_params = params.merge(radius: '')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when radius has special characters' do
+        invalid_params = params.merge(radius: '200$')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when radius is nil' do
+        invalid_params = params.merge(radius: nil)
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'Valid latitude/longitude/radius parameters', vcr: vcr_options do
+      it 'accepts latitude and longitude as string floats' do
+        valid_params = params.merge(lat: '40.415217', long: '-74.057114', radius: '200')
+
+        get('/facilities_api/v2/ccp', params: valid_params)
+
+        expect(response).to be_successful
+      end
+    end
+  end
 end
