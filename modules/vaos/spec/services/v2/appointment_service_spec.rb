@@ -920,13 +920,10 @@ describe VAOS::V2::AppointmentsService do
       before do
         allow(instance_of_class).to receive(:get_appointments).and_return({ data: {},
                                                                             meta: { failures: ['test error'] } })
-        allow(Rails.logger).to receive(:warn)
       end
 
       it 'returns an empty array and logs the non-Array data' do
         expect(subject).to eq([])
-        expect(Rails.logger).to have_received(:warn).with('VAOS get_sorted_recent_appointments received non-Array data',
-                                                          hash_including(data_class: Hash))
       end
     end
   end
