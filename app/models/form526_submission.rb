@@ -529,31 +529,6 @@ class Form526Submission < ApplicationRecord
     @lighthouse_validation_response = mock_response
   end
 
-  def queue_central_mail_backup_submission_for_non_retryable_error!(e: nil)
-    # Entry-point for backup 526 CMP submission
-    #
-    # Required criteria to send a backup 526 submission from here:
-    # Enabled in settings and flipper
-    # Does not have a valid claim ID (through RRD process or otherwise) (protect against dup submissions)
-    # Does not have a backup submission ID (protect against dup submissions)
-    backup_job_jid = nil
-    flipper_sym = :form526_backup_submission_temp_killswitch
-    send_backup_submission = Settings.form526_backup.enabled &&
-                             Flipper.enabled?(flipper_sym) &&
-                             submitted_claim_id.nil? &&
-                             backup_submitted_claim_id.nil?
-
-    backup_job_jid = enqueue_backup_submission(id) if send_backup_submission
-
-    log_message = {
-      submission_id: id
-    }
-    log_message['error_class']   = e.class unless e.nil?
-    log_message['error_message'] = e.message unless e.nil?
-    log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
-    ::Rails.logger.error('Form526 Exhausted or Errored (non-retryable-error-path)', log_message)
-  end
-
   def enqueue_backup_submission(id)
     Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
