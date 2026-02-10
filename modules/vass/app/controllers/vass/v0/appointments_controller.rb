@@ -143,7 +143,7 @@ module Vass
           success_data: { appointmentId: appointment_id },
           error_code: 'cancellation_failed',
           error_message: 'Failed to cancel appointment',
-          error_status: :unprocessable_entity
+          error_status: :unprocessable_content
         )
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
@@ -186,7 +186,7 @@ module Vass
           success_data: ->(r) { { appointment_id: r.dig('data', 'appointment_id') } },
           error_code: 'appointment_save_failed',
           error_message: 'Failed to save appointment',
-          error_status: :unprocessable_entity
+          error_status: :unprocessable_content
         )
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
@@ -333,7 +333,7 @@ module Vass
         when :no_cohorts, :no_slots_available
           message = data[:message]
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
-          render_error(error_code, message, :unprocessable_entity)
+          render_error(error_code, message, :unprocessable_content)
         else
           log_vass_event(action: 'unexpected_availability_status', level: :error, status: status.to_s, **audit_metadata)
           render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
