@@ -94,6 +94,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
           %w[
             externalId
             facility
+            patient
             billNumber
             status
             statusDescription
@@ -112,6 +113,28 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
           ]
         )
         expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
+
+        facility = data['attributes']['facility']
+        expect(facility).to be_a(Hash)
+        expect(facility['name']).to be_present
+        expect(facility['address']).to be_a(Hash)
+
+        address = facility['address']
+        expect(address['address_line1']).to eq('3000 CORAL HILLS DR')
+        expect(address['city']).to eq('CORAL SPRINGS')
+        expect(address['state']).to eq('FL')
+        expect(address['postalCode']).to eq('330654108')
+
+        patient = data['attributes']['patient']
+        expect(patient).to be_a(Hash)
+        expect(patient['first_name']).to eq('Ivory697')
+        expect(patient['middle_name']).to be_nil
+        expect(patient['last_name']).to eq('Kirlin939')
+        expect(patient['address']).to be_a(Hash)
+        expect(patient['address']['address_line1']).to eq('197 Ullrich Well')
+        expect(patient['address']['city']).to eq('Broadview Park')
+        expect(patient['address']['state']).to eq('FL')
+        expect(patient['address']['postalCode']).to eq('00000')
       end
     end
 

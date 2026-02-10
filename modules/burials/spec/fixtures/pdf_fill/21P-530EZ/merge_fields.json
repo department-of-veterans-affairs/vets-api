@@ -21,11 +21,14 @@
     "previousNames": "John Jacob Schmitt Jr. ",
     "powPeriods": [{"powDateRange": {"from": "1971-02-26", "to": "1973-03-02"}}],
     "militaryServiceNumber":"123123",
+    "homeHospiceCare":true,
+    "homeHospiceCareAfterDischarge":true,
     "serviceBranch": "airForce",
     "serviceDateRange": {
         "from": "2020-03-15",
         "to": "2021-02-15"
     },
+    "bankAccount": {"accountType": "checking", "routingNumber": "123123123","accountNumber": "001122334455"},
     "placeOfSeparation": "location",
     "toursOfDuty":[
         {

@@ -19,6 +19,18 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
     subject.parse(claim_data[2])
   end
 
+  let(:claim_without_download_eligible_documents) do
+    subject.parse(claim_data[0])
+  end
+
+  let(:claim_with_tracked_documents) do
+    subject.parse(claim_data[2])
+  end
+
+  let(:claim_with_untracked_documents) do
+    subject.parse(claim_data[1])
+  end
+
   it 'returns nil when provided nil' do
     expect(subject.parse(nil)).to be_nil
   end
@@ -77,6 +89,49 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                      document_type: nil,
                                      filename: nil,
                                      document_id: nil })
+  end
+
+  describe 'download_eligible_documents' do
+    it 'does not have download_eligible_documents' do
+      download_eligible_documents = claim_without_download_eligible_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents).to be_empty
+
+      events_timeline = claim_without_download_eligible_documents[:events_timeline]
+      expect(events_timeline).to include(an_object_having_attributes(
+                                           document_id: '{798F828C-3B4A-4EB5-8883-F7C49205BD98}',
+                                           filename: nil,
+                                           documents: nil,
+                                           type: :other_documents_list
+                                         ))
+    end
+
+    it 'has download_eligible_documents with tracked documents' do
+      download_eligible_documents = claim_with_tracked_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents.size).to eq(5)
+      expect(download_eligible_documents[0][:document_id]).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')
+      expect(download_eligible_documents[0][:filename]).to eq('7B434B58-477C-4379-816F-05E6D3A10487.pdf')
+
+      events_timeline = claim_with_tracked_documents[:events_timeline]
+      expect(events_timeline[3][:documents]).not_to be_empty
+      expect(events_timeline[3][:document_id]).to be_nil
+      expect(events_timeline[3][:type]).not_to eq(:other_documents_list)
+    end
+
+    it 'has download_eligible_documents with only untracked documents' do
+      download_eligible_documents = claim_with_untracked_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents.size).to eq(5)
+      expect(download_eligible_documents[0][:document_id]).to eq('{0C994A8F-F2FE-4963-B013-870E420EFFD1}')
+      expect(download_eligible_documents[0][:filename]).to eq('ClaimDecisionRequest.pdf')
+      events_timeline = claim_with_untracked_documents[:events_timeline]
+      expect(events_timeline).to include(an_object_having_attributes(
+                                           document_id: '{0C994A8F-F2FE-4963-B013-870E420EFFD1}',
+                                           documents: nil,
+                                           type: :other_documents_list
+                                         ))
+    end
   end
 
   context 'with claim in phase CLAIM_RECEIVED' do

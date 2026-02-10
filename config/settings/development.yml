@@ -301,6 +301,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
@@ -636,6 +637,12 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
+ibm:
+  breakers_error_threshold: 80
+  host: ~
+  path: "/api/validated-forms"
+  use_mocks: false
+  version: v1
 intent_to_file:
   prefill: true
 ivc_champva:
@@ -769,6 +776,7 @@ lighthouse:
       - system/Account.read
       - system/Medication.read
       - system/Organization.read
+      - system/Patient.read
       - launch
     timeout: 30
     use_mocks: false
@@ -1247,6 +1255,9 @@ representation_management:
   geocoder:
     mapbox:
       api_key: ~
+  ogc_attorney_excel_list_uri: ~
+  ogc_claims_agent_excel_list_uri: ~
+  ogc_organizations_excel_list_uri: ~
 res:
   api_key: ~
   base_url: https://fake_url.com
@@ -1614,8 +1625,10 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       push_api_key: fake_secret
+      sms_sender_id: fake_secret
       template_id:
         decision_letter_ready_email: fake_template_id
+        decision_letter_ready_sms: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
@@ -1848,13 +1861,14 @@ vass:
   mock: true
   rate_limit_expiry: 7
   rate_limit_max_attempts: 3
-  redis_otc_expiry: 600
+  redis_otp_expiry: 600
   redis_session_expiry: 7200
   redis_token_expiry: 3540
   scope: 1
   service_name: VASS-API
   subscription_key: fake_subscription_key
   tenant_id: fake_tenant_id
+  token_encryption_key: development-encryption-key-32chars-min-for-aes256-testing
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: ~

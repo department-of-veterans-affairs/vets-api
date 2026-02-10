@@ -41,9 +41,10 @@ RSpec.describe 'Mobile::V1::AllergyIntolerances', :skip_json_api_validation, typ
         expect(json_response).to match_json_schema('v1/allergy_v1')
 
         # default params are page[number]=1 and page[size]=10
+        # Only 10 allergies are returned after filtering by clinicalStatus: active
         expect(json_response['meta']['pagination']).to eq({
-                                                            'totalPages' => 2,
-                                                            'totalEntries' => 13,
+                                                            'totalPages' => 1,
+                                                            'totalEntries' => 10,
                                                             'currentPage' => 1,
                                                             'perPage' => 10
                                                           })
@@ -60,13 +61,14 @@ RSpec.describe 'Mobile::V1::AllergyIntolerances', :skip_json_api_validation, typ
         json_response = JSON.parse(response.body)
         expect(json_response).to match_json_schema('v1/allergy_v1')
 
+        # Only 10 allergies are returned after filtering by clinicalStatus: active
         expect(json_response['meta']['pagination']).to eq({
                                                             'totalPages' => 1,
-                                                            'totalEntries' => 13,
+                                                            'totalEntries' => 10,
                                                             'currentPage' => 1,
                                                             'perPage' => 100
                                                           })
-        expect(json_response['data'].count).to eq(13)
+        expect(json_response['data'].count).to eq(10)
         expect(json_response['data'].first['type']).to eq('allergy')
       end
 

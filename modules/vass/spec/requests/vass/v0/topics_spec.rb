@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../support/vass_settings_helper'
 
 RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
@@ -8,13 +9,14 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
   let(:veteran_id) { 'vet-uuid-123' }
   let(:edipi) { '1234567890' }
   let(:jwt_secret) { 'test-jwt-secret' }
+  let(:jti) { SecureRandom.uuid }
   let(:jwt_token) do
     # Generate a valid JWT token for testing
     payload = {
       sub: veteran_id,
       exp: 1.hour.from_now.to_i,
       iat: Time.current.to_i,
-      jti: SecureRandom.uuid
+      jti:
     }
     JWT.encode(payload, jwt_secret, 'HS256')
   end
@@ -24,29 +26,11 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
     Rails.cache.clear
 
     # Stub VASS settings
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(
-        auth_url: 'https://login.microsoftonline.us',
-        tenant_id: 'test-tenant-id',
-        client_id: 'test-client-id',
-        client_secret: 'test-client-secret',
-        jwt_secret:,
-        scope: 'https://api.va.gov/.default',
-        api_url: 'https://api.vass.va.gov',
-        subscription_key: 'test-subscription-key',
-        service_name: 'vass_api',
-        redis_otc_expiry: 600,
-        redis_session_expiry: 7200,
-        redis_token_expiry: 3540,
-        rate_limit_max_attempts: 5,
-        rate_limit_expiry: 900
-      )
-    )
+    stub_vass_settings(jwt_secret:)
 
-    # Set up veteran metadata in Redis using veteran_id as the identifier
-    # (this is what the JWT sub claim will contain)
+    # Set up session in Redis keyed by UUID (veteran_id) with jti stored in session data
     redis_client = Vass::RedisClient.build
-    redis_client.save_veteran_metadata(uuid: veteran_id, edipi:, veteran_id:)
+    redis_client.save_session(uuid: veteran_id, jti:, edipi:, veteran_id:)
   end
 
   describe 'GET /vass/v0/topics' do
@@ -113,21 +97,19 @@ RSpec.describe 'Vass::V0::Appointments - Topics', type: :request do
         end
       end
 
-      context 'when veteran metadata is missing from Redis' do
+      context 'when session is missing from Redis (token revoked)' do
         before do
-          Rails.cache.delete(
-            "veteran_metadata_#{veteran_id}",
-            namespace: 'vass-otc-cache'
-          )
+          redis_client = Vass::RedisClient.build
+          redis_client.delete_session(uuid: veteran_id)
         end
 
-        it 'returns unauthorized status' do
+        it 'returns unauthorized status with revoked token error' do
           get('/vass/v0/topics', headers:)
 
           expect(response).to have_http_status(:unauthorized)
           json_response = JSON.parse(response.body)
           expect(json_response['errors']).to be_present
-          expect(json_response['errors'].first['detail']).to include('EDIPI not found')
+          expect(json_response['errors'].first['detail']).to eq('Token is invalid or already revoked')
         end
       end
 

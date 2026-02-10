@@ -136,7 +136,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads - submit_champva_app_merged', typ
         expect(form[0]).to be_a(IvcChampva::VHA107959cRev2025)
         expect(form[0].data['first_name']).to eq('John')
         expect(form[0].data['last_name']).to eq('Doe')
-        expect(form[0].data['form_number']).to eq('10-7959C-REV2025')
+        expect(form[0].data['form_number']).to eq('10-7959C')
 
         # Verify the form contains other data from the original form_data
         expect(form[0].data['veteran']).to eq(form_data['veteran'])

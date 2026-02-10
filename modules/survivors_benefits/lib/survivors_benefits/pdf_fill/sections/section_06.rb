@@ -9,6 +9,9 @@ module SurvivorsBenefits
     # Section 6: Children of the Veteran Information
     class Section6 < Section
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
+      CHILD_ROW_INDEX = ->(iterator) { 2 - iterator }
+      CHILD_SSN_INDEX = ->(iterator) { (iterator + 1) % 3 }
+      CHILD_DOB_INDEX = ->(iterator) { 8 + ((iterator + 1) % 3) }
 
       KEY = {
         'p13HeaderVeteranSocialSecurityNumber' => {
@@ -35,14 +38,14 @@ module SurvivorsBenefits
               question_suffix: 'A',
               question_label: "Child's First Name",
               question_text: 'CHILD\'S FIRST NAME',
-              iterator_offset: ->(iterator) { 2 - iterator },
+              iterator_offset: CHILD_ROW_INDEX,
               key: "form1[0].#subform[210].Childs_FirstName[#{ITERATOR}]"
             },
             'middle' => {
               limit: 1,
               question_num: 1,
               question_suffix: 'A',
-              iterator_offset: ->(iterator) { 2 - iterator },
+              iterator_offset: CHILD_ROW_INDEX,
               key: "form1[0].#subform[210].Childs_MiddleInitial1[#{ITERATOR}]"
             },
             'last' => {
@@ -51,61 +54,68 @@ module SurvivorsBenefits
               question_suffix: 'A',
               question_label: "Child's Last Name",
               question_text: 'CHILD\'S LAST NAME',
-              iterator_offset: ->(iterator) { 2 - iterator },
+              iterator_offset: CHILD_ROW_INDEX,
               key: "form1[0].#subform[210].Childs_LastName[#{ITERATOR}]"
             }
           },
           'childDateOfBirth' => {
             'month' => {
-              iterator_offset: ->(iterator) { 8 + ((iterator + 1) % 3) },
+              iterator_offset: CHILD_DOB_INDEX,
               key: "form1[0].#subform[210].Date_Month[#{ITERATOR}]"
             },
             'day' => {
-              iterator_offset: ->(iterator) { 8 + ((iterator + 1) % 3) },
+              iterator_offset: CHILD_DOB_INDEX,
               key: "form1[0].#subform[210].Date_Day[#{ITERATOR}]"
             },
             'year' => {
-              iterator_offset: ->(iterator) { 8 + ((iterator + 1) % 3) },
+              iterator_offset: CHILD_DOB_INDEX,
               key: "form1[0].#subform[210].Date_Year[#{ITERATOR}]"
             }
           },
           'childSocialSecurityNumber' => {
             'first' => {
-              iterator_offset: ->(iterator) { (iterator + 1) % 3 },
+              iterator_offset: CHILD_SSN_INDEX,
               key: "form1[0].#subform[210].Childs_SocialSecurityNumber_FirstThreeNumbers[#{ITERATOR}]"
             },
             'second' => {
-              iterator_offset: ->(iterator) { (iterator + 1) % 3 },
+              iterator_offset: CHILD_SSN_INDEX,
               key: "form1[0].#subform[210].Childs_SocialSecurityNumber_SecondTwoNumbers[#{ITERATOR}]"
             },
             'third' => {
-              iterator_offset: ->(iterator) { (iterator + 1) % 3 },
+              iterator_offset: CHILD_SSN_INDEX,
               key: "form1[0].#subform[210].Childs_SocialSecurityNumber_LastFourNumbers[#{ITERATOR}]"
             }
           },
           'childPlaceOfBirth' => {
-            iterator_offset: ->(iterator) { 2 - iterator },
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].Place_Of_Birth_City_State_Or_Country[#{ITERATOR}]"
           },
           'childStatusBiological' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF06[#{ITERATOR}]"
           },
           'childStatusAdopted' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF14[#{ITERATOR}]"
           },
           'childStatusStepchild' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF08[#{ITERATOR}]"
           },
           'childStatusMinor' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF12[#{ITERATOR}]"
           },
           'childStatusDisabled' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF10[#{ITERATOR}]"
           },
           'childStatusMarried' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF18[#{ITERATOR}]"
           },
           'childStatusSupported' => {
+            iterator_offset: CHILD_ROW_INDEX,
             key: "form1[0].#subform[210].JF16[#{ITERATOR}]"
           },
           'childSupport' => {

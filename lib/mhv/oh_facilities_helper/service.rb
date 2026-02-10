@@ -89,6 +89,8 @@ module MHV
         user_migrations = filter_and_merge_user_facilities(parsed_migrations)
         return [] if user_migrations.empty?
 
+        user_migrations.sort_by! { |migration| Date.parse(migration[:migration_date]) }
+
         user_migrations.map do |migration|
           migration_date = Date.parse(migration[:migration_date])
           {
@@ -136,8 +138,8 @@ module MHV
           next if parts.length < 2 || parts[0].blank?
 
           {
-            id: parts[0].strip,
-            name: parts[1]&.strip || ''
+            facility_id: parts[0].strip,
+            facility_name: parts[1]&.strip || ''
           }
         end
       end
@@ -148,7 +150,7 @@ module MHV
         # Group by migration date and collect matching facilities
         grouped = migrations.each_with_object({}) do |migration, acc|
           matching_facilities = migration[:facilities].select do |facility|
-            user_facility_ids.include?(facility[:id].to_s)
+            user_facility_ids.include?(facility[:facility_id].to_s)
           end
 
           next if matching_facilities.empty?
@@ -173,14 +175,14 @@ module MHV
       # @return [Hash] Phase keys with formatted date strings
       def calculate_phase_dates(migration_date)
         PHASES.transform_values do |day_offset|
-          format_phase_date(migration_date + day_offset)
+          "#{format_phase_date(migration_date + day_offset)} at 12:00AM ET"
         end
       end
 
       # Determines the current phase based on today's date (inclusive boundaries)
       # @return [String, nil] Phase identifier (e.g., "p1") or nil if outside active window
       def determine_current_phase(migration_date)
-        today = Time.zone.today
+        today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
         # After the last phase is complete, return nil
@@ -202,7 +204,7 @@ module MHV
       # Determines migration status based on today's date relative to migration
       # @return [String] NOT_STARTED, ACTIVE, or COMPLETE
       def determine_migration_status(migration_date)
-        today = Time.zone.today
+        today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
         p0_offset = PHASES[:p0] # -60

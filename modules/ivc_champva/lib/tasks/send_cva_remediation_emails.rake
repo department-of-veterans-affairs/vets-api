@@ -67,12 +67,6 @@ namespace :ivc_champva do
     skipped_count = 0
 
     forms.each_with_index do |form, index|
-      if form.email_sent
-        puts "Skipping #{form.form_uuid} - email already sent"
-        skipped_count += 1
-        next
-      end
-
       # Rate limiting: sleep every 15 emails to avoid overwhelming VANotify
       # From gist: https://gist.github.com/michaelclement/9d775dea28be443d62f9267b53999abe
       if !dry_run && index.positive? && (index % 15).zero?

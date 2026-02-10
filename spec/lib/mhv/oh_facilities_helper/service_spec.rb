@@ -232,7 +232,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         it 'only includes facilities matching user va_treatment_facility_ids' do
           result = service.get_migration_schedules
           expect(result.length).to eq(1)
-          facility_ids = result.first[:facilities].map { |f| f[:id] }
+          facility_ids = result.first[:facilities].map { |f| f[:facility_id] }
           expect(facility_ids).to contain_exactly('516', '517')
         end
       end
@@ -271,11 +271,12 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when facilities have different migration dates' do
         let(:user_facility_ids) { %w[516 517] }
-        let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA];2026-04-01:[517,Toledo VA]' }
+        let(:oh_migrations_list) { '2026-04-01:[517,Toledo VA];2026-03-03:[516,Columbus VA]' }
 
-        it 'returns separate entries' do
+        it 'returns separate entries in chronological order' do
           result = service.get_migration_schedules
           expect(result.length).to eq(2)
+          expect(result.map { |r| r[:migration_date] }).to eq(['March 3, 2026', 'April 1, 2026'])
         end
       end
     end
@@ -297,7 +298,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         phases = result.first[:phases]
 
         phases_constant.each do |phase_name, day_offset|
-          expected_date = (migration_date + day_offset).strftime('%B %-d, %Y')
+          expected_date = "#{(migration_date + day_offset).strftime('%B %-d, %Y')} at 12:00AM ET"
           expect(phases[phase_name]).to eq(expected_date),
                                         "Expected #{phase_name} to be #{expected_date}, got #{phases[phase_name]}"
         end
@@ -327,7 +328,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       it 'formats phase dates as human-readable strings' do
         result = service.get_migration_schedules
         # Check p5 (the migration date itself)
-        expect(result.first[:phases][:p5]).to eq('March 3, 2026')
+        expect(result.first[:phases][:p5]).to eq('March 3, 2026 at 12:00AM ET')
       end
 
       context 'with single-digit day' do
@@ -349,7 +350,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when today is exactly at phase boundary' do
         it 'returns correct phase when today equals each phase start date' do
           phases.each do |phase_key, day_offset|
-            allow(Time.zone).to receive(:today).and_return(migration_date + day_offset)
+            allow(Date).to receive(:current).and_return(migration_date + day_offset)
             result = service.get_migration_schedules
             current_phase = result.first[:phases][:current]
             expect(current_phase).to eq(phase_key.to_s),
@@ -361,7 +362,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when today is one day before first phase boundary' do
         it 'current phase is nil (not yet started)' do
           first_phase_offset = phases.values.min
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -373,7 +374,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
           first_offset = sorted_offsets[0]
           second_offset = sorted_offsets[1]
           midpoint = first_offset + ((second_offset - first_offset) / 2)
-          allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+          allow(Date).to receive(:current).and_return(migration_date + midpoint)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(phases.key(first_offset).to_s)
         end
@@ -399,7 +400,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
             midpoint = offset + ((next_offset - offset) / 2)
 
-            allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+            allow(Date).to receive(:current).and_return(migration_date + midpoint)
             result = service.get_migration_schedules
             current_phase = result.first[:phases][:current]
             expect(current_phase).to eq(phase_key.to_s),
@@ -419,7 +420,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when before first phase' do
         it 'returns NOT_STARTED' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:not_started])
         end
@@ -427,7 +428,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when at first phase' do
         it 'returns ACTIVE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -436,7 +437,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when in middle of active window' do
         it 'returns ACTIVE' do
           midpoint = (first_phase_offset + last_phase_offset) / 2
-          allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+          allow(Date).to receive(:current).and_return(migration_date + midpoint)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -444,7 +445,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when at last phase' do
         it 'returns ACTIVE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -452,7 +453,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when after last phase' do
         it 'returns COMPLETE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 1)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 1)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
         end
@@ -470,7 +471,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when migration_status is NOT_STARTED' do
         it 'current phase is nil' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -479,7 +480,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when migration_status is COMPLETE' do
         it 'current phase is nil' do
           # After last phase is complete, current phase should be nil
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 3)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 3)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -487,7 +488,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when exactly at the last phase boundary' do
         it 'current phase is the last phase' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(last_phase_key)
         end
@@ -495,7 +496,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when one day after the last phase boundary' do
         it 'current phase is nil (migration complete)' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 1)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -503,7 +504,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when well after the last phase' do
         it 'current phase is nil' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 30)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 30)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -531,7 +532,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
 
       before do
-        allow(Time.zone).to receive(:today).and_return(today)
+        allow(Date).to receive(:current).and_return(today)
       end
 
       it 'returns all migrations regardless of status' do
@@ -597,7 +598,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         it 'handles whitespace correctly' do
           result = service.get_migration_schedules
           expect(result.length).to eq(1)
-          expect(result.first[:facilities].first[:id]).to eq('516')
+          expect(result.first[:facilities].first[:facility_id]).to eq('516')
         end
       end
     end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/s3_helpers'
+
 module Reports
   module Uploader
     module_function
@@ -20,24 +22,14 @@ module Reports
       s3_resource = new_s3_resource
       key = "#{SecureRandom.uuid}.csv"
 
-      if Aws::S3.const_defined?(:TransferManager)
-        # Use TransferManager for efficient multipart uploads
-        options = {
-          content_type: 'text/csv',
-          multipart_threshold: CarrierWave::Storage::AWSOptions::MULTIPART_TRESHOLD
-        }
-        Aws::S3::TransferManager.new(client: s3_resource.client).upload_file(
-          report_file,
-          bucket: s3_bucket,
-          key:,
-          **options
-        )
-        obj = s3_resource.bucket(s3_bucket).object(key)
-      else
-        # Fall back to basic upload
-        obj = s3_resource.bucket(s3_bucket).object(key)
-        obj.upload_file(report_file, content_type: 'text/csv')
-      end
+      obj = Common::S3Helpers.upload_file(
+        s3_resource:,
+        bucket: s3_bucket,
+        key:,
+        file_path: report_file,
+        content_type: 'text/csv',
+        return_object: true
+      )
 
       obj.presigned_url(:get, expires_in: 1.week.to_i)
     end

@@ -17,7 +17,7 @@ RSpec.describe Vass::MetricsTracking, type: :controller do
     end
 
     def test_infrastructure
-      track_infrastructure_metric(Vass::MetricsConstants::SESSION_OTC_EXPIRED)
+      track_infrastructure_metric(Vass::MetricsConstants::SESSION_OTP_EXPIRED)
       render json: { status: 'ok' }, status: :ok
     end
 
@@ -96,7 +96,7 @@ RSpec.describe Vass::MetricsTracking, type: :controller do
   describe '#track_infrastructure_metric' do
     it 'increments infrastructure metric with service tag' do
       expect(StatsD).to receive(:increment).with(
-        'api.vass.infrastructure.session.otc.expired',
+        'api.vass.infrastructure.session.otp.expired',
         hash_including(
           tags: array_including('service:vass')
         )

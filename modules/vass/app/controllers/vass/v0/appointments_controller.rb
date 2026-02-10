@@ -5,7 +5,7 @@ module Vass
     ##
     # AppointmentsController handles appointment availability operations for authenticated veterans.
     #
-    # All endpoints require JWT authentication from the OTC authentication flow.
+    # All endpoints require JWT authentication from the OTP authentication flow.
     # The JWT contains the veteran_id which is used to fetch veteran-specific data.
     #
     class AppointmentsController < Vass::ApplicationController
@@ -159,7 +159,7 @@ module Vass
       # Creates/books an appointment for the authenticated veteran.
       # Requires JWT authentication and valid appointment_id from Redis session.
       #
-      # @example Request Body
+      # @example Request Body (camelCase transformed to snake_case by middleware)
       #   {
       #     "topics": ["67e0bd9f-5e53-f011-bec2-001dd806389e", "78f1ce0a-6f64-g122-cfd3-112ee917462f"],
       #     "dtStartUtc": "2026-01-10T10:00:00Z",
@@ -174,7 +174,7 @@ module Vass
       #   }
       #
       def create
-        validate_required_params!(:topics, :dtStartUtc, :dtEndUtc)
+        validate_required_params!(:topics, :dt_start_utc, :dt_end_utc)
 
         appointment_id = retrieve_appointment_id_from_session
         return handle_missing_appointment_id unless appointment_id
@@ -272,12 +272,12 @@ module Vass
       ##
       # Sets up the appointments service with veteran EDIPI.
       #
-      # For appointments endpoints, we need the EDIPI which should be
-      # stored in Redis during OTC authentication flow.
+      # Retrieves EDIPI from session data which is stored when JWT is issued.
+      # Session is keyed by UUID (one session per veteran).
       #
       def set_appointments_service
-        veteran_metadata = redis_client.veteran_metadata(uuid: @current_veteran_id)
-        edipi = veteran_metadata&.fetch(:edipi, nil)
+        session_data = redis_client.session(uuid: @current_veteran_id)
+        edipi = session_data&.fetch(:edipi, nil)
 
         unless edipi
           log_vass_event(action: 'missing_edipi', vass_uuid: @current_veteran_id, level: :error, **audit_metadata)
@@ -296,7 +296,7 @@ module Vass
       # @return [ActionController::Parameters] Permitted parameters
       #
       def permitted_params
-        params.permit(:correlation_id, :appointment_id, :dtStartUtc, :dtEndUtc, topics: [])
+        params.permit(:correlation_id, :appointment_id, :dt_start_utc, :dt_end_utc, topics: [])
       end
 
       ##
@@ -417,8 +417,8 @@ module Vass
         @appointments_service.save_appointment(
           appointment_params: {
             veteran_id: @current_veteran_id,
-            time_start_utc: permitted_params[:dtStartUtc],
-            time_end_utc: permitted_params[:dtEndUtc],
+            time_start_utc: permitted_params[:dt_start_utc],
+            time_end_utc: permitted_params[:dt_end_utc],
             appointment_id:,
             selected_agent_skills: permitted_params[:topics]
           }
