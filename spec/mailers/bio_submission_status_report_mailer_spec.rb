@@ -66,7 +66,7 @@ RSpec.describe BioSubmissionStatusReportMailer, type: %i[mailer aws_helpers] do
             opt = {}
             opt[:to] = []
 
-            return unless opt[:to].present?
+            return if opt[:to].blank?
 
             links_html = s3_links.map { |form_type, url| "#{form_type}: #{url}" }.join('<br>')
             mail(
