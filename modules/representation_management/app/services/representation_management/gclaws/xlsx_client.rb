@@ -157,42 +157,53 @@ module RepresentationManagement
       # @param file_path [String] Path to the downloaded file
       # @return [Hash] Result hash with success/error information
       def self.process_curl_result(stdout, stderr, status, file_path)
-        # Handle curl exit codes
         return handle_curl_error(status.exitstatus, stderr) unless status.success?
 
-        # Parse curl -w output: "200\napplication/vnd.openxmlformats..."
         lines = stdout.strip.split("\n")
         http_code = lines[0]&.strip
         content_type = lines[1]&.strip&.split(';')&.first&.strip || ''
 
-        # Validate HTTP status
+        http_error = validate_http_status(http_code)
+        return http_error if http_error
+
+        content_error = validate_content_type(content_type)
+        return content_error if content_error
+
+        { success: true, file_path: }
+      end
+
+      # Validates HTTP status code and returns error if not successful
+      #
+      # @param http_code [String] The HTTP status code
+      # @return [Hash, nil] Error hash if validation fails, nil if successful
+      def self.validate_http_status(http_code)
         if http_code == '401'
           return handle_error('unauthorized', StandardError.new('Unauthorized'), :unauthorized,
                               'GCLAWS XLSX unauthorized')
         end
 
-        unless http_code == '200'
-          if http_code.to_i >= 500
-            error_message = "GCLAWS XLSX server error: #{http_code}"
-            status = :service_unavailable
-          elsif http_code.to_i >= 400
-            error_message = "GCLAWS XLSX client error: #{http_code}"
-            status = :unprocessable_entity
-          else
-            error_message = "GCLAWS XLSX request failed with status #{http_code}"
-            status = :service_unavailable
-          end
-          return handle_error('http_error', StandardError.new("HTTP #{http_code}"),
-                              status, error_message)
-        end
+        return nil if http_code == '200'
 
-        # Validate content type
-        unless content_type == XLSX_CONTENT_TYPE
-          return handle_error('invalid_content_type', StandardError.new(content_type), :unprocessable_entity,
-                              "Invalid content type: #{content_type}")
-        end
+        error_message, status = if http_code.to_i >= 500
+                                  ["GCLAWS XLSX server error: #{http_code}", :service_unavailable]
+                                elsif http_code.to_i >= 400
+                                  ["GCLAWS XLSX client error: #{http_code}", :unprocessable_entity]
+                                else
+                                  ["GCLAWS XLSX request failed with status #{http_code}", :service_unavailable]
+                                end
 
-        { success: true, file_path: }
+        handle_error('http_error', StandardError.new("HTTP #{http_code}"), status, error_message)
+      end
+
+      # Validates content type and returns error if not XLSX
+      #
+      # @param content_type [String] The content-type header value
+      # @return [Hash, nil] Error hash if validation fails, nil if successful
+      def self.validate_content_type(content_type)
+        return nil if content_type == XLSX_CONTENT_TYPE
+
+        handle_error('invalid_content_type', StandardError.new(content_type), :unprocessable_entity,
+                     "Invalid content type: #{content_type}")
       end
 
       # Handles curl-specific errors based on exit code
@@ -277,6 +288,7 @@ module RepresentationManagement
                            :execute_curl_download, :create_curl_config_file,
                            :escape_curl_config_value, :build_curl_command,
                            :cleanup_config_file, :process_curl_result,
+                           :validate_http_status, :validate_content_type,
                            :handle_curl_error, :handle_error, :notify_slack_error,
                            :log_to_slack_channel, :log_error
     end
