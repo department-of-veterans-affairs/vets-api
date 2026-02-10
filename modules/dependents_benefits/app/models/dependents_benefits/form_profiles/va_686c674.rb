@@ -11,6 +11,7 @@ module DependentsBenefits
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA686c674 < FormProfile
     include PensionAwardHelper
+    include DependentsBenefits::DependentsHelper
     ##
     # Model representing dependent information for the 686c-674 form
     # Contains personal details and relationship data for each dependent
@@ -224,13 +225,5 @@ module DependentsBenefits
     rescue ArgumentError, TypeError
       nil
     end
-
-    # Returns the component name for monitoring/logging
-    #
-    # Used as the default component tag value in monitor event tracking.
-    # Returns the fully qualified class name for better log filtering and debugging.
-    #
-    # @return [String] The fully qualified class name
-    def component = self.class.name
   end
 end
