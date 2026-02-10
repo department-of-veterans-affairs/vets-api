@@ -5,7 +5,7 @@ FactoryBot.define do
     form_type { '21-2680' }
     primary_user_uuid { SecureRandom.uuid }
 
-    association :primary_in_progress_form, factory: :in_progress_form, form_id: '21-2680'
+    primary_in_progress_form { association :in_progress_form, form_id: form_type }
 
     trait :with_secondary do
       secondary_email { 'test@example.com' }

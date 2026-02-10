@@ -59,6 +59,8 @@ class MultiPartyFormSubmission < ApplicationRecord
 
   # Scopes
   scope :pending_for_secondary, lambda { |email|
+    return none if email.blank?
+
     where(
       secondary_email: email,
       status: %w[awaiting_secondary_start secondary_in_progress]
@@ -86,17 +88,26 @@ class MultiPartyFormSubmission < ApplicationRecord
   end
 
   def verify_secondary_token(token)
+    return false if token.blank?
     return false if secondary_access_token_expires_at.nil?
     return false if secondary_access_token_expires_at < Time.current
+    return false if secondary_access_token_digest.blank?
 
-    Digest::SHA256.hexdigest(token) == secondary_access_token_digest
+    ActiveSupport::SecurityUtils.secure_compare(
+      Digest::SHA256.hexdigest(token),
+      secondary_access_token_digest
+    )
   end
 
   private
 
   def notify_secondary_party
-    MultiPartyForms::NotifySecondaryPartyJob.perform_async(id)
-    update!(secondary_notified_at: Time.current)
+    # TODO: add this back in once job has been created
+    # MultiPartyForms::NotifySecondaryPartyJob.perform_async(id)
+    update!(
+      primary_completed_at: Time.current,
+      secondary_notified_at: Time.current
+    )
   end
 
   # def notify_primary_of_completion
@@ -104,7 +115,11 @@ class MultiPartyFormSubmission < ApplicationRecord
   # end
 
   def process_final_submission
-    MultiPartyForms::SubmitFormJob.perform_async(id)
-    update!(submitted_at: Time.current)
+    # TODO: add this back in once job has been created
+    # MultiPartyForms::SubmitFormJob.perform_async(id)
+    update!(
+      secondary_completed_at: Time.current,
+      submitted_at: Time.current
+    )
   end
 end

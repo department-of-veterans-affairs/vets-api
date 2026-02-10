@@ -141,5 +141,13 @@ RSpec.describe MultiPartyFormSubmission, type: :model do
       submission.update!(secondary_access_token_expires_at: 1.minute.ago)
       expect(submission.verify_secondary_token(raw_token)).to be false
     end
+
+    it 'returns false when token is nil' do
+      expect(subject.verify_secondary_token(nil)).to be false
+    end
+
+    it 'returns false when token is blank' do
+      expect(subject.verify_secondary_token('')).to be false
+    end
   end
 end
