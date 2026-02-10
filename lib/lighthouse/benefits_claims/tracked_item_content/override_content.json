@@ -889,36 +889,6 @@
       ]
     }
   },
-  "RV1 - Reserve Records Request": {
-    "friendlyName": "Reserve records",
-    "activityDescription": "We’ve requested your reserve records on your behalf. No action is needed.",
-    "shortDescription": "We’ve requested your service records or treatment records from your reserve unit.",
-    "supportAliases": [
-      "RV1 - Reserve Records Request"
-    ],
-    "canUploadFile": true,
-    "longDescription": {
-      "blocks": [
-        {
-          "type": "paragraph",
-          "content": "For your benefits claim, we’ve requested your service records or treatment records from your reserve unit."
-        },
-        {
-          "type": "paragraph",
-          "content": "Your records may be used to verify:"
-        },
-        {
-          "type": "list",
-          "style": "bullet",
-          "items": [
-            "Your service",
-            "An event in your service",
-            "Treatment received during your service"
-          ]
-        }
-      ]
-    }
-  },
   "Radiation-tell us how you were exposed": {
     "friendlyName": "Radiation exposure information",
     "shortDescription": "To process your disability claim for radiation exposure, we need more information from you.",
@@ -979,11 +949,11 @@
         },
         {
           "type": "paragraph",
-          "content": "After completing and signing the form, you can upload or mail it."
-        },
-        {
-          "type": "paragraph",
           "content": [
+            "After completing and signing the form, you can upload or mail it.",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "link",
               "text": "Get VA Form 21-4138",
@@ -1027,6 +997,36 @@
         {
           "type": "paragraph",
           "content": "If you don’t have certified copies of your service treatment records, no action is needed. We are requesting them for you."
+        }
+      ]
+    }
+  },
+  "RV1 - Reserve Records Request": {
+    "friendlyName": "Reserve records",
+    "activityDescription": "We’ve requested your reserve records on your behalf. No action is needed.",
+    "shortDescription": "We’ve requested your service records or treatment records from your reserve unit.",
+    "supportAliases": [
+      "RV1 - Reserve Records Request"
+    ],
+    "canUploadFile": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "For your benefits claim, we’ve requested your service records or treatment records from your reserve unit."
+        },
+        {
+          "type": "paragraph",
+          "content": "Your records may be used to verify:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "Your service",
+            "An event in your service",
+            "Treatment received during your service"
+          ]
         }
       ]
     }
