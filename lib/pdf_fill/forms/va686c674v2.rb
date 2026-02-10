@@ -1061,13 +1061,13 @@ module PdfFill
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_middle[%iterator%]',
                 question_num: 21,
                 question_suffix: 'A',
-                question_text: 'NAMES OF STEPCHILDREN > MIDDLE INITIAL'
+                question_text: 'NAMES OF STEPCHILD(REN) > MIDDLE INITIAL'
               },
               'last' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].biological_stepchild_last[%iterator%]',
                 question_num: 21,
                 question_suffix: 'A',
-                question_text: 'NAMES OF STEPCHILDREN > LAST NAME'
+                question_text: 'NAMES OF STEPCHILD(REN) > LAST NAME'
               }
             },
             'full_name' => {
@@ -1075,15 +1075,15 @@ module PdfFill
                 key: 'step_children.full_name.first[%iterator%]',
                 limit: 12,
                 question_num: 21,
-                question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > FIRST NAME'
+                question_suffix: 'C',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > FIRST NAME'
               }, # end of first name of the stepchild you are supporting
               'middleInitial' => {
                 key: 'step_children.full_name.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: 21,
-                question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > MIDDLE INITIAL'
+                question_suffix: 'C',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > MIDDLE INITIAL'
               }, # end of middle initial of the stepchild you are supporting
               'last' => {
                 key: 'step_children.full_name.last[%iterator%]',
@@ -1098,22 +1098,22 @@ module PdfFill
                 key: 'step_children.who_does_the_stepchild_live_with.first[%iterator%]',
                 limit: 12,
                 question_num: 21,
-                question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WITH WHO > FIRST NAME'
+                question_suffix: 'D',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WITH WHO > FIRST NAME'
               }, # end of first
               'middleInitial' => {
                 key: 'step_children.who_does_the_stepchild_live_with.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: 21,
-                question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WITH WHO > MIDDLE INITIAL'
+                question_suffix: 'D',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WITH WHO > MIDDLE INITIAL'
               }, # end of middle
               'last' => {
                 key: 'step_children.who_does_the_stepchild_live_with.last[%iterator%]',
                 limit: 18,
                 question_num: 21,
-                question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WITH WHO > LAST NAME'
+                question_suffix: 'D',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WITH WHO > LAST NAME'
               } # end of last
             }, # end of who_does_the_stepchild_live_with
             'address' => {
@@ -1121,59 +1121,59 @@ module PdfFill
                 key: 'step_children.address.address_line1[%iterator%]',
                 limit: 27,
                 question_num: 21,
-                question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STREET'
+                question_suffix: 'E',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > STREET'
               },
               'street2' => {
                 key: 'step_children.address.address_line2[%iterator%]',
                 limit: 5,
                 question_num: 21,
-                question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STREET'
+                question_suffix: 'E',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > STREET'
               },
               'city' => {
                 key: 'step_children.address.city[%iterator%]',
                 limit: 18,
                 question_num: 21,
-                question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > CITY'
+                question_suffix: 'E',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > CITY'
               },
               'state' => {
                 key: 'step_children.address.state_code[%iterator%]',
                 limit: 2,
                 question_num: 21,
-                question_suffix: 'D',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STATE'
+                question_suffix: 'E',
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > STATE'
               },
               'country' => {
                 key: 'step_children.address.country_name[%iterator%]',
                 limit: 2,
                 question_num: 21,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > COUNTRY'
+                question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > COUNTRY'
               },
               'postal_code' => {
                 'firstFive' => {
                   key: 'step_children.address.zip_code.firstFive[%iterator%]',
                   limit: 5,
                   question_num: 21,
-                  question_suffix: 'F',
-                  question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > ZIPCODE FIRST FIVE'
+                  question_suffix: 'E',
+                  question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > ZIPCODE FIRST FIVE'
                 },
                 'lastFour' => {
                   key: 'step_children.address.zip_code.lastFour[%iterator%]',
                   limit: 4,
                   question_num: 21,
-                  question_suffix: 'G',
-                  question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > ZIPCODE LAST FOUR'
+                  question_suffix: 'E',
+                  question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > ZIPCODE LAST FOUR'
                 }
               } # end of zip_code
             }, # end of address
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
             'living_expenses_paid' => {
-              'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
-              'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]' },
-              'less_than_half' => { key: 'step_children.living_expenses_paid.less_than_half[%iterator%]' }
+              'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]', question_num: 21, question_text: 'INFORMATION NEEDED FOR STEPCHILD > EXPENSES PAID > MORE THAN HALF' },
+              'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]',  question_num: 21, question_text: 'INFORMATION NEEDED FOR STEPCHILD > EXPENSES PAID > HALF' },
+              'less_than_half' => { key: 'step_children.living_expenses_paid.less_than_half[%iterator%]',  question_num: 21, question_text: 'INFORMATION NEEDED FOR STEPCHILD > EXPENSES PAID > LESS THAN HALF' }
             } # end of living_expenses_paid
           }, # end of step_children
           # -----------------  SECTION VI: VETERAN/CLAIMANT REPORTING DEATH OF A DEPENDENT  ----------------- #
