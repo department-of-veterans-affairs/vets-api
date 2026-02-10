@@ -49,23 +49,7 @@ module UnifiedHealthData
 
         return nil unless get_note(record)
 
-        date_value = record['date']
-
-        UnifiedHealthData::ClinicalNotes.new({
-                                               id: record['id'],
-                                               name: get_title(record),
-                                               note_type: get_record_type(record),
-                                               loinc_codes: get_loinc_codes(record),
-                                               date: date_value,
-                                               sort_date: normalize_date_for_sorting(date_value),
-                                               date_signed: get_date_signed(record),
-                                               written_by: extract_author(record),
-                                               signed_by: extract_authenticator(record),
-                                               location: extract_location(record),
-                                               admission_date: record['context']&.dig('period', 'start') || nil,
-                                               discharge_date: record['context']&.dig('period', 'end') || nil,
-                                               note: get_note(record)
-                                             })
+        UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record))
       end
 
       # The AVS is a DocumentReference FHIR type and specific type of note
@@ -126,6 +110,26 @@ module UnifiedHealthData
       end
 
       private
+
+      def build_clinical_note_attributes(record)
+        date_value = record['date']
+
+        {
+          id: record['id'],
+          name: get_title(record),
+          note_type: get_record_type(record),
+          loinc_codes: get_loinc_codes(record),
+          date: date_value,
+          sort_date: normalize_date_for_sorting(date_value),
+          date_signed: get_date_signed(record),
+          written_by: extract_author(record),
+          signed_by: extract_authenticator(record),
+          location: extract_location(record),
+          admission_date: record['context']&.dig('period', 'start') || nil,
+          discharge_date: record['context']&.dig('period', 'end') || nil,
+          note: get_note(record)
+        }
+      end
 
       def allowed_doc_status?(doc_status)
         ALLOWED_DOC_STATUSES.include?(doc_status&.downcase)

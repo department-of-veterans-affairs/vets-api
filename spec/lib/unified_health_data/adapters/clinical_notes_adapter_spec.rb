@@ -172,8 +172,11 @@ RSpec.describe 'ClinicalNotesAdapter' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource']['docStatus'] = 'preliminary'
 
+        expected_msg = 'Filtered DocumentReference: ' \
+                       'id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, ' \
+                       'docStatus=preliminary, reason=disallowed_doc_status'
         expect(Rails.logger).to receive(:info).with(
-          'Filtered DocumentReference: id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, docStatus=preliminary, reason=disallowed_doc_status',
+          expected_msg,
           { service: 'unified_health_data', filtering: true }
         )
         expect(StatsD).to receive(:increment).with(
