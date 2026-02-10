@@ -1,0 +1,71 @@
+name: Modules Matrix
+
+on:
+  # push:
+  #   paths:
+  #     - "modules/**"
+  #     - ".github/workflows/modules-matrix.yml"
+  # pull_request:
+  #   paths:
+  #     - "modules/**"
+  #     - ".github/workflows/modules-matrix.yml"
+  workflow_dispatch: {}
+
+jobs:
+  discover-modules:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@latest
+
+      - name: Build matrix from modules/
+        id: set-matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import glob, json, os
+
+          # Immediate child directories: modules/<name>/
+          dirs = glob.glob("modules/*/")
+
+          modules = []
+          for d in sorted(dirs):
+            name = os.path.basename(os.path.dirname(d))
+            if name and not name.startswith("."):
+              modules.append({"name": name, "path": f"modules/{name}"})
+
+          # Guarantee matrix is never empty (avoids "Matrix must define at least one combination")
+          if not modules:
+            modules = [{"name": "__none__", "path": "__none__"}]
+
+          matrix = {"include": modules}
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write(f"matrix={json.dumps(matrix)}\n")
+          PY
+
+  run-per-module:
+    needs: discover-modules
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover-modules.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@latest
+
+      - name: Run module job
+        if: ${{ matrix.name != '__none__' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Running for module: ${{ matrix.name }} at ${{ matrix.path }}"
+
+      - name: No modules found
+        if: ${{ matrix.name == '__none__' }}
+        run: echo "No module folders found under modules/; skipping."
