@@ -11,6 +11,7 @@ module SignIn
       MULTIPLE_CORP_ID = '106'
       MPI_LOCKED_ACCOUNT = '107'
       MHV_UNVERIFIED_BLOCKED = '108'
+      SSN_ATTRIBUTE_MISMATCH = '113'
       INVALID_REQUEST = '400'
     end
   end

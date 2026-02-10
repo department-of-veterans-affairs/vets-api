@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'debt_management_center/sidekiq/va_notify_email_job'
-require 'debts_api/v0/digital_dispute_submission_service'
 
 RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   let(:form_submission) { create(:debts_api_digital_dispute_submission) }
@@ -247,83 +246,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     it 'stores composite debt IDs' do
       form_submission.store_debt_identifiers(disputes)
       expect(form_submission.debt_identifiers).to eq(%w[ABC123 DEF456])
-    end
-  end
-
-  describe 'Flipper flag interactions' do
-    let(:user) { create(:user, :loa3, email: 'test@example.com') }
-    let(:form_submission) { create(:debts_api_digital_dispute_submission, user_uuid: user.uuid) }
-
-    describe 'email notifications behavior' do
-      context 'when digital_dispute_email_notifications is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true)
-        end
-
-        it 'allows email sending when user has email' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:email_notifications_enabled?)).to be(true)
-        end
-
-        it 'prevents email sending when user has no email' do
-          user_without_email = create(:user, :loa3, email: nil)
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user_without_email, [])
-          expect(service.send(:email_notifications_enabled?)).to be(false)
-        end
-      end
-
-      context 'when digital_dispute_email_notifications is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
-        end
-
-        it 'prevents email sending even when user has email' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:email_notifications_enabled?)).to be(false)
-        end
-      end
-    end
-
-    describe 'duplicate prevention behavior' do
-      let(:existing_submission) do
-        create(:debts_api_digital_dispute_submission,
-               user_uuid: user.uuid,
-               user_account: user.user_account,
-               debt_identifiers: ['ABC123'],
-               state: :submitted)
-      end
-
-      let(:new_submission) do
-        create(:debts_api_digital_dispute_submission,
-               user_uuid: user.uuid,
-               user_account: user.user_account,
-               debt_identifiers: ['ABC123'],
-               state: :pending)
-      end
-
-      before { existing_submission }
-
-      context 'when digital_dispute_duplicate_prevention is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(true)
-        end
-
-        it 'detects duplicate submissions' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:duplicate_submission_exists?, new_submission)).to be(true)
-        end
-      end
-
-      context 'when digital_dispute_duplicate_prevention is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(false)
-        end
-
-        it 'does not check for duplicates' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:duplicate_submission_exists?, new_submission)).to be(false)
-        end
-      end
     end
   end
 end

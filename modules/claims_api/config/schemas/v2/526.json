@@ -740,12 +740,10 @@
           "description": "List any other names under which the Veteran served, if applicable.",
           "type": ["array", "null"],
           "nullable": true,
-          "minItems": 1,
           "maxItems": 100,
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "pattern": "^([-a-zA-Z0-9/']+( ?))+$",
             "additionalProperties": false,
             "examples": ["jane", "janey lee", "jane lee MacDonald"]
           }

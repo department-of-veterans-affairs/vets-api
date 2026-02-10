@@ -45,25 +45,6 @@ module EducationForm
     def perform
       return unless Flipper.enabled?(:form_10282_sftp_upload)
 
-      if Flipper.enabled?(:form_10282_sftp_debug)
-        begin
-          log_info('Form10282SFTPDebug: Begin')
-
-          filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_test.txt"
-          options = Settings.form_10282.sftp
-          writer = SFTPWriter::Factory.get_writer(options).new(options, logger:)
-          bytes_sent = writer.write('This is only a test', filename)
-
-          log_info("Form10282SFTPDebug: wrote #{bytes_sent} to remote server")
-          log_info('Form10282SFTPDebug: Success')
-        rescue => e
-          log_info('Form10282SFTPDebug: ERROR')
-          log_info("Form10282SFTPDebug: #{e.class.name}, #{e.message}")
-        end
-
-        return
-      end
-
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
       excel_file_event = ExcelFileEvent.build_event(filename)
@@ -79,10 +60,10 @@ module EducationForm
         return false if federal_holiday?
 
         if records.count.zero?
-          log_info('No records to process.')
+          log_info('CreateDailyExcelFiles: No records to process.')
           return true
         elsif retry_count.zero?
-          log_info("Processing #{records.count} application(s)")
+          log_info("CreateDailyExcelFiles: Processing #{records.count} application(s)")
         end
 
         # Format the records and write to CSV file
@@ -121,7 +102,7 @@ module EducationForm
 
           # Add data rows
           records.each_with_index do |record, index|
-            log_info("Processing record #{index + 1}: #{record.inspect}")
+            log_info("CreateDailyExcelFiles: Processing record #{index + 1}: #{record.inspect}")
 
             begin
               row_data = EXCEL_FIELDS.map do |field|
@@ -140,7 +121,7 @@ module EducationForm
 
         # Write to file for backup/audit purposes
         File.write("tmp/#{filename}", csv_contents)
-        log_info('Successfully created CSV file')
+        log_info('CreateDailyExcelFiles: Successfully created CSV file')
 
         # Return the CSV contents
         csv_contents
@@ -192,7 +173,7 @@ module EducationForm
       if holiday.empty?
         false
       else
-        log_info("Skipping on a Holiday: #{holiday.first[:name]}")
+        log_info("CreateDailyExcelFiles: Skipping on a Holiday: #{holiday.first[:name]}")
         true
       end
     end

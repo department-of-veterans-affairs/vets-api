@@ -29,8 +29,9 @@ RSpec.describe VAProfile::PersonSettings::Service do
         expect(response).to be_ok
       end
 
-      it 'contains an array of person options' do
+      it 'returns a PersonOptionsResponse with an array of person options' do
         response = subject.get_person_options
+        expect(response).to be_a(VAProfile::PersonSettings::PersonOptionsResponse)
         expect(response.person_options).to be_an(Array)
       end
     end
@@ -76,7 +77,18 @@ RSpec.describe VAProfile::PersonSettings::Service do
       let(:mock_response) do
         double('response',
                status: 200,
-               body: { bio: { personOptions: [] } })
+               body: {
+                 'tx_audit_id' => 'test-transaction-123',
+                 'status' => 'COMPLETED_SUCCESS',
+                 'tx_status' => 'COMPLETED_SUCCESS',
+                 'tx_type' => 'PUSH',
+                 'tx_interaction_type' => 'ATTENDED',
+                 'tx_push_input' => {
+                   'person_options' => []
+                 },
+                 'tx_output' =>
+                 [{ 'person_options' => [] }]
+               })
       end
 
       before do
@@ -88,6 +100,13 @@ RSpec.describe VAProfile::PersonSettings::Service do
       it 'returns a status of 200' do
         response = subject.update_person_options(person_options_data)
         expect(response).to be_ok
+      end
+
+      it 'returns a PersonOptionsTransactionResponse' do
+        response = subject.update_person_options(person_options_data)
+        expect(response).to be_a(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse)
+        expect(response.transaction).to be_a(VAProfile::Models::Transaction)
+        expect(response.transaction.id).to be_present
       end
     end
 

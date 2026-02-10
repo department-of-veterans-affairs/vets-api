@@ -1,19 +1,23 @@
 # frozen_string_literal: true
 
-require 'debts_api/v0/digital_dispute_submission_service'
 require 'sidekiq/attr_package'
 
 module DebtsApi
   module V0
     class DigitalDisputesController < ApplicationController
       service_tag 'debt-resolution'
+      before_action :authorize_icn
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
-        Flipper.enabled?(:digital_dmc_dispute_service, current_user) ? create_via_dmc! : create_legacy!
+        create_via_dmc!
       end
 
       private
+
+      def authorize_icn
+        raise Common::Exceptions::Forbidden, detail: 'User ICN is required' if current_user.icn.blank?
+      end
 
       def create_via_dmc!
         submission = initialize_submission
@@ -41,16 +45,6 @@ module DebtsApi
         end
       end
 
-      def create_legacy!
-        result = process_submission
-        if result[:success]
-          render json: { message: result[:message], submission_id: result[:submission_id] }, status: :ok
-        else
-          StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
-          render json: { errors: result[:errors] }, status: :unprocessable_entity
-        end
-      end
-
       def initialize_submission
         DebtsApi::V0::DigitalDisputeSubmission.new(
           user_uuid: current_user.uuid,
@@ -58,26 +52,6 @@ module DebtsApi
           state: :pending,
           metadata: submission_params[:metadata]
         ).tap { |s| s.files.attach(submission_params[:files]) }
-      end
-
-      def render_validation_error(record)
-        render json: { success: false, error_type: 'validation_error', errors: record.errors.to_hash(true) },
-               status: :unprocessable_entity
-      end
-
-      def process_submission
-        metadata = parse_metadata
-
-        service = DebtsApi::V0::DigitalDisputeSubmissionService.new(
-          current_user,
-          submission_params[:files],
-          metadata
-        )
-        service.call
-      end
-
-      def parse_metadata
-        JSON.parse(submission_params[:metadata], symbolize_names: true)
       end
 
       def submission_params

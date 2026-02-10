@@ -12,7 +12,7 @@ module EmailVerificationErrorHandler
     render_email_service_unavailable_error
   rescue Common::Exceptions::TooManyRequests => e
     log_verification_rate_limit_error(verification_operation, e)
-    render_verification_rate_limit_error(e)
+    render_verification_rate_limit_error
   rescue => e
     log_unexpected_verification_error(verification_operation, e)
     render_verification_internal_error
@@ -42,9 +42,7 @@ module EmailVerificationErrorHandler
     )
 
     begin
-      if respond_to?(:get_email_verification_rate_limit_info)
-        log_data[:rate_limit_info] = get_email_verification_rate_limit_info
-      end
+      log_data[:rate_limit_info] = get_email_verification_rate_limit_info
     rescue => e
       log_data[:rate_limit_info_error] = e.message
     end
@@ -72,19 +70,26 @@ module EmailVerificationErrorHandler
     }, status: :service_unavailable
   end
 
-  def render_verification_rate_limit_error(exception = nil)
-    retry_after = if exception.respond_to?(:retry_after) && exception.retry_after
-                    exception.retry_after
-                  else
-                    DEFAULT_RETRY_AFTER_SECONDS
-                  end
+  def render_verification_rate_limit_error
+    retry_after = response.headers['Retry-After'].to_i
 
+    if retry_after <= 0
+      retry_after = begin
+        time_until_next_verification_allowed.to_i
+      rescue
+        0
+      end
+    end
+
+    retry_after = DEFAULT_RETRY_AFTER_SECONDS if retry_after <= 0
     response.headers['Retry-After'] = retry_after.to_s
+
+    detail_message = build_verification_rate_limit_message
 
     render json: {
       errors: [{
         title: 'Email Verification Rate Limit Exceeded',
-        detail: 'Too many verification emails sent. Please wait before requesting another verification email.',
+        detail: detail_message,
         code: 'EMAIL_VERIFICATION_RATE_LIMIT_EXCEEDED',
         status: '429',
         meta: { retry_after_seconds: retry_after }
@@ -104,13 +109,11 @@ module EmailVerificationErrorHandler
   end
 
   def email_verification_log_data
-    data = {}
+    return {} unless current_user
 
-    if respond_to?(:current_user) && current_user
-      data[:user_uuid] = current_user.uuid
-      data[:verification_needed] = needs_verification? if respond_to?(:needs_verification?)
-    end
-
-    data
+    {
+      user_uuid: current_user.uuid,
+      verification_needed: needs_verification?
+    }
   end
 end

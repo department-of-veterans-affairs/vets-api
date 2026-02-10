@@ -8,7 +8,8 @@ module Lighthouse
       PAYMENT_DUE_DAYS = 30
 
       attribute :external_id, String
-      attribute :facility, String
+      attribute :facility, Hash
+      attribute :patient, Hash
       attribute :bill_number, String
       attribute :status, String
       attribute :status_description, String
@@ -35,6 +36,8 @@ module Lighthouse
         @medication_dispenses = attrs[:medication_dispenses] || {}
         @medications = attrs[:medications] || {}
         @payments_data = attrs[:payments] || []
+        @facility_address = attrs[:facility_address]
+        @patient_data = attrs[:patient_data]
         assign_attributes
       end
 
@@ -42,7 +45,6 @@ module Lighthouse
 
       def assign_attributes
         @external_id = @invoice_data['id']
-        @facility = @invoice_data.dig('issuer', 'display')
         @bill_number = @invoice_data.dig('identifier', 0, 'value')
         @status = @invoice_data['status']
         @status_description = @invoice_data.dig('_status', 'valueCodeableConcept', 'text')
@@ -53,6 +55,8 @@ module Lighthouse
         assign_balances
         assign_line_items
         assign_payments
+        assign_facility
+        assign_patient
       end
 
       def assign_balances
@@ -70,6 +74,55 @@ module Lighthouse
       def assign_line_items
         invoice_line_items = @invoice_data['lineItem'] || []
         @line_items = invoice_line_items.map { |li| build_line_item(li) }
+      end
+
+      def assign_facility
+        @facility = {
+          'name' => @invoice_data.dig('issuer', 'display'),
+          'address' => build_facility_address
+        }
+      end
+
+      def build_facility_address
+        return nil unless @facility_address
+
+        {
+          'address_line1' => @facility_address[:address_line1],
+          'address_line2' => @facility_address[:address_line2],
+          'address_line3' => @facility_address[:address_line3],
+          'city' => @facility_address[:city],
+          'state' => @facility_address[:state],
+          'postalCode' => @facility_address[:postalCode]
+        }
+      end
+
+      def assign_patient
+        @patient = build_patient_info
+      end
+
+      def build_patient_info
+        return nil unless @patient_data
+
+        patient_resource = @patient_data.dig('entry', 0, 'resource')
+        return nil unless patient_resource
+
+        address = patient_resource.dig('address', 0) || {}
+        name = patient_resource.dig('name', 0) || {}
+        given_names = name['given'] || []
+
+        {
+          'first_name' => given_names[0],
+          'middle_name' => given_names[1],
+          'last_name' => name['family'],
+          'address' => {
+            'address_line1' => address.dig('line', 0),
+            'address_line2' => address.dig('line', 1),
+            'address_line3' => address.dig('line', 2),
+            'city' => address['city'],
+            'state' => address['state'],
+            'postalCode' => address['postalCode']
+          }
+        }
       end
 
       def build_line_item(invoice_line_item)

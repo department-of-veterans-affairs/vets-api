@@ -7,6 +7,7 @@ module Mobile
     class MessagesController < MessagingController
       include Filterable
 
+      before_action :validate_message_id, only: %i[show destroy thread reply move]
       before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def index
@@ -58,10 +59,11 @@ module Mobile
 
         client_response = build_create_client_response(message, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = { meta: {} }
@@ -93,10 +95,11 @@ module Mobile
 
         client_response = build_reply_client_response(message, create_message_params)
 
-        # Log unique user event for message sent
+        # Log unique user event for message sent (with facility tracking if recipient has a station number)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+          event_facility_ids: Array(recipient_facility_id)
         )
 
         options = {}
@@ -130,8 +133,11 @@ module Mobile
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :is_oh_triage_group,
+                                          :station_number)
         end
+      rescue JSON::ParserError
+        raise Common::Exceptions::InvalidFieldValue.new('message', params[:message])
       end
 
       def upload_params
@@ -148,12 +154,9 @@ module Mobile
       end
 
       def build_create_client_response(message, create_message_params)
-        if message.uploads.blank?
-          return client.post_create_message(message_params.to_h,
-                                            poll_for_status: oh_triage_group?)
-        end
+        return client.post_create_message(message_params.to_h, is_oh: oh_triage_group?) if message.uploads.blank?
 
-        client.post_create_message_with_attachment(create_message_params, poll_for_status: oh_triage_group?)
+        client.post_create_message_with_attachment(create_message_params, is_oh: oh_triage_group?)
       rescue Common::Client::Errors::Serialization => e
         Rails.logger.info('Mobile SM create with attachment error', status: e&.status,
                                                                     error_body: e&.body,
@@ -163,12 +166,15 @@ module Mobile
 
       def build_reply_client_response(message, create_message_params)
         if message.uploads.blank?
-          return client.post_create_message_reply(params[:id], message_params.to_h,
-                                                  poll_for_status: oh_triage_group?)
+          return client.post_create_message_reply(params[:id], message_params.to_h, is_oh: oh_triage_group?)
         end
 
-        client.post_create_message_reply_with_attachment(params[:id], create_message_params,
-                                                         poll_for_status: oh_triage_group?)
+        client.post_create_message_reply_with_attachment(params[:id], create_message_params, is_oh: oh_triage_group?)
+      rescue Common::Client::Errors::Serialization => e
+        Rails.logger.info('Mobile SM reply with attachment error', status: e&.status,
+                                                                   error_body: e&.body,
+                                                                   message: e&.message)
+        raise e
       end
 
       def message_counts(resource)
@@ -193,6 +199,19 @@ module Mobile
 
       def extend_timeout
         request.env['rack-timeout.timeout'] = Settings.mhv.sm.timeout
+      end
+
+      # Retrieves the facility ID from the station_number parameter provided by the frontend.
+      # Used for tracking unique user metrics (UUM) for Oracle Health facility messages.
+      # The station_number is optional - if not provided, facility tracking is skipped.
+      #
+      # @return [String, nil] The station number if provided, or nil if not provided.
+      def recipient_facility_id
+        message_params[:station_number]&.to_s&.presence
+      end
+
+      def validate_message_id
+        raise Common::Exceptions::ParameterMissing, 'id' if params[:id].blank?
       end
     end
   end

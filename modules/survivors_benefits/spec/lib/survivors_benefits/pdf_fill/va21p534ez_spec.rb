@@ -17,17 +17,17 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
         files = %w[
           empty
           section-1 section-1_2
-          section-2 section-2_1 section-2_2 section-2_3
+          section-2 section-2_1 section-2_2 section-2_3 section-2_4
           section-3 section-3_1 section-3_2 section-3_3 section-3_4 section-3_5 section-3_6 section-3_7
-          section-3_8 section-3_9
-          section-4 section-4_1 section-4_2 section-4_3
+          section-3_8 section-3_9 section-3_10
+          section-4 section-4_1 section-4_2 section-4_3 section-4_4
           section-5 section-5_1 section-5_2
           section-6 section-6_1
           section-7 section-7_1 section-7_2
           section-8 section-8_1
           section-9 section-9_1 section-9_2 section-9_3 section-9_4
-          section-10 section-10_1 section-10_2
-          section-11 section-11_1 section-11_2
+          section-10 section-10_1 section-10_2 section-10_3
+          section-11 section-11_1 section-11_2 section-11_3
         ]
         files.map do |file|
           f1 = File.read File.join(__dir__, 'input', "21P-534EZ_#{file}.json")

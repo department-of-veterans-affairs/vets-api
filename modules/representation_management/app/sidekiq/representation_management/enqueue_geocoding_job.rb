@@ -13,7 +13,7 @@ module RepresentationManagement
       total_count = 0
 
       # Process Veteran::Service::Representative records
-      # total_count += enqueue_for_model(Veteran::Service::Representative, :representative_id, total_count)
+      total_count += enqueue_for_model(Veteran::Service::Representative, :representative_id, total_count)
 
       # Process AccreditedIndividual records
       enqueue_for_model(AccreditedIndividual, :id, total_count)
