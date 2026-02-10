@@ -10,6 +10,9 @@ RSpec.describe UserSessionForm, type: :model do
     build(:user, :loa3, uuid: saml_attributes[:uuid],
                         idme_uuid: saml_attributes[:uuid])
   end
+  let(:correlation_mpi_record) { build(:mpi_profile, ssn: correlation_mpi_ssn) }
+  let(:find_profile_response) { create(:find_profile_response, profile: correlation_mpi_record) }
+
   let(:authn_context) { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
   let(:saml_response) do
     build_saml_response(
@@ -21,9 +24,49 @@ RSpec.describe UserSessionForm, type: :model do
     )
   end
 
+  let(:mpi_service) { instance_double(MPI::Service) }
+  let(:correlation_mpi_ssn) { saml_attributes[:va_eauth_pnid] }
+  let(:va_eauth_pnid) { '123456789' }
+
+  before do
+    allow(MPI::Service).to receive(:new).and_return(mpi_service)
+    allow(mpi_service).to receive(:find_profile_by_identifier).with(anything).and_return(find_profile_response)
+  end
+
+  shared_examples 'a skipped correlation ssn mismatch check' do
+    it 'does not call MPI to find the correlation record' do
+      expect(mpi_service).not_to receive(:find_profile_by_identifier)
+      UserSessionForm.new(saml_response)
+    end
+
+    it 'return nil when calling user_attribute_mismatch_checks' do
+      expect_any_instance_of(UserSessionForm).to receive(:user_attribute_mismatch_checks).and_return(nil)
+      UserSessionForm.new(saml_response)
+    end
+  end
+
+  shared_examples 'a correlation ssn mismatch error' do
+    let(:expected_error_message) do
+      "Attribute mismatch: ssn in primary view doesn't match correlation record"
+    end
+
+    let(:identifier) { saml_attributes[:va_eauth_uid] }
+    let(:identifier_type) { saml_attributes['va_eauth_csid'].downcase }
+    let(:view_type) { MPI::Constants::CORRELATION_VIEW }
+
+    it 'looks up correlation record in MPI and raises' do
+      expect(mpi_service).to receive(:find_profile_by_identifier)
+        .with(identifier:, identifier_type:, view_type:)
+        .and_return(find_profile_response)
+
+      expect { UserSessionForm.new(saml_response) }
+        .to raise_error(SAML::UserAttributeError, expected_error_message)
+    end
+  end
+
   context 'with ID.me UUID in SAML' do
     let(:saml_attributes) do
-      build(:ssoe_idme_mhv_premium, va_eauth_gcIds: va_eauth_gc_ids)
+      build(:ssoe_idme_mhv_premium, va_eauth_gcIds: va_eauth_gc_ids, va_eauth_pnid:)
     end
     let(:va_eauth_gc_ids) do
       ['1012853550V207686^NI^200M^USVHA^P|' \
@@ -55,6 +98,24 @@ RSpec.describe UserSessionForm, type: :model do
         .to eq(saml_attributes['va_eauth_uid'])
     end
 
+    context 'when the saml_ssn is blank' do
+      let(:va_eauth_pnid) { '' }
+
+      it_behaves_like 'a skipped correlation ssn mismatch check'
+    end
+
+    context 'when the saml_ssn does not match the correlation record ssn' do
+      let(:correlation_mpi_ssn) { '987654321' }
+
+      it_behaves_like 'a correlation ssn mismatch error'
+    end
+
+    context 'when the correlation_record is not found in MPI' do
+      let(:find_profile_response) { create(:find_profile_response, profile: nil) }
+
+      it_behaves_like 'a correlation ssn mismatch error'
+    end
+
     context 'and ID.me UUID not in SAML GCids' do
       let(:va_eauth_gc_ids) do
         ['1012853550V207686^NI^200M^USVHA^P|' \
@@ -74,12 +135,12 @@ RSpec.describe UserSessionForm, type: :model do
       let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
 
       before do
-        allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
+        allow(mpi_service).to receive(:add_person_implicit_search).and_return(add_person_response)
       end
 
       it 'adds the ID.me UUID to the existing mpi record' do
-        expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
         UserSessionForm.new(saml_response)
+        expect(mpi_service).to have_received(:add_person_implicit_search)
       end
     end
   end
@@ -114,7 +175,7 @@ RSpec.describe UserSessionForm, type: :model do
         let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
 
         before do
-          allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
+          allow(mpi_service).to receive(:add_person_implicit_search).and_return(add_person_response)
         end
 
         it 'uses the user account uuid as the user key' do
@@ -125,8 +186,8 @@ RSpec.describe UserSessionForm, type: :model do
         end
 
         it 'adds the identifier to an existing mpi record' do
-          expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search)
           UserSessionForm.new(saml_response)
+          expect(mpi_service).to have_received(:add_person_implicit_search)
         end
 
         context 'when failure occurs during adding identifier to existing mpi record' do
@@ -146,7 +207,7 @@ RSpec.describe UserSessionForm, type: :model do
     context 'and Login.gov UUID is present in SAML' do
       let(:authn_context) { 'http://idmanagement.gov/ns/assurance/ial/2/mfa' }
       let(:saml_attributes) do
-        build(:ssoe_logingov_ial2)
+        build(:ssoe_logingov_ial2, va_eauth_pnid:)
       end
 
       it 'instantiates cleanly' do
@@ -164,6 +225,34 @@ RSpec.describe UserSessionForm, type: :model do
         expect(form.user_identity.logingov_uuid)
           .to eq(saml_attributes['va_eauth_uid'])
       end
+
+      context 'when the saml_ssn is blank' do
+        let(:va_eauth_pnid) { '' }
+
+        it_behaves_like 'a skipped correlation ssn mismatch check'
+      end
+
+      context 'when the saml_ssn does not match the correlation record ssn' do
+        let(:correlation_mpi_ssn) { '987654321' }
+
+        it_behaves_like 'a correlation ssn mismatch error'
+      end
+
+      context 'when the correlation_record is not found in MPI' do
+        let(:find_profile_response) { create(:find_profile_response, profile: nil) }
+
+        it_behaves_like 'a correlation ssn mismatch error'
+      end
+    end
+
+    context 'and service_type is MHV' do
+      let(:authn_context) { SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT }
+      let(:saml_attributes) do
+        build(:ssoe_inbound_mhv_premium,
+              va_eauth_multifactor: ['True'])
+      end
+
+      it_behaves_like 'a skipped correlation ssn mismatch check'
     end
   end
 end

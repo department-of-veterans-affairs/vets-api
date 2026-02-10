@@ -13,6 +13,12 @@ module FacilitiesApi
     private
 
     def render_json(serializer, page_params, obj, options = {})
+      # Raise exception for empty arrays that would be paginated (e.g., empty PPMS results)
+      if obj.is_a?(Array) && !obj.is_a?(WillPaginate::Collection) && obj.blank?
+        raise Common::Exceptions::RecordNotFound.new('empty_response',
+                                                     detail: 'No records found matching the search criteria')
+      end
+
       if PAGINATED_CLASSES.any? { |array_class| obj.is_a?(array_class) }
         render_collection(serializer, page_params, obj, options)
       else
