@@ -1396,6 +1396,8 @@ sidekiq:
   github_organization: organization
   github_team: 0
 sidekiq_admin_panel: false
+survivors_benefits:
+  prefill: true
 test_database_url: postgis:///vets-api-test
 test_user_dashboard:
   env: staging
