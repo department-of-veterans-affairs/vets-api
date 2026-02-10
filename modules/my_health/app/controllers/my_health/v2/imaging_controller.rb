@@ -23,7 +23,7 @@ module MyHealth
           ),
           params[:sort]
         )
-        serialized_studies = UnifiedHealthData::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
+        serialized_studies = UnifiedHealthData::Serializers::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
 
         render json: serialized_studies,
                status: :ok
