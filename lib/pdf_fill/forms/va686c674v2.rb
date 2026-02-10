@@ -1171,9 +1171,9 @@ module PdfFill
             }, # end of address
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
             'living_expenses_paid' => {
-              'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]', question_num: 21, question_text: 'INFORMATION NEEDED FOR STEPCHILD > EXPENSES PAID > MORE THAN HALF' },
-              'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]',  question_num: 21, question_text: 'INFORMATION NEEDED FOR STEPCHILD > EXPENSES PAID > HALF' },
-              'less_than_half' => { key: 'step_children.living_expenses_paid.less_than_half[%iterator%]',  question_num: 21, question_text: 'INFORMATION NEEDED FOR STEPCHILD > EXPENSES PAID > LESS THAN HALF' }
+              'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
+              'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]' },
+              'less_than_half' => { key: 'step_children.living_expenses_paid.less_than_half[%iterator%]' }
             } # end of living_expenses_paid
           }, # end of step_children
           # -----------------  SECTION VI: VETERAN/CLAIMANT REPORTING DEATH OF A DEPENDENT  ----------------- #
@@ -1811,6 +1811,7 @@ module PdfFill
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def merge_stepchildren_helpers
         step_children = @form_data['dependents_application']['step_children']
         return if step_children.blank?
@@ -1842,6 +1843,7 @@ module PdfFill
             'biological_adopted_stepchild_no' => 'Off'
           }
         end
+        # rubocop:enable Metrics/MethodLength
 
         # @TODO we ask this on our form for each child, the pdf only has this in one place
         # expand_supporting_stepchild
