@@ -65,6 +65,18 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
         expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
       end
+
+      it 'saves user_account_id on the form submission' do
+        user_account = UserAccount.create!(id: SecureRandom.uuid)
+        claim.update!(user_account_id: user_account.id)
+
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive(:success?).and_return(true)
+
+        job.perform(claim.id)
+
+        expect(claim.form_submissions.last.user_account_id).to eq(user_account.id)
+      end
     end
 
     context 'With SavedClaim::Form210779' do

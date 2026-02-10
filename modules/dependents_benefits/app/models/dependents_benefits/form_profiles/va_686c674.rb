@@ -11,6 +11,7 @@ module DependentsBenefits
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA686c674 < FormProfile
     include PensionAwardHelper
+    include DependentsBenefits::DependentsHelper
     ##
     # Model representing dependent information for the 686c-674 form
     # Contains personal details and relationship data for each dependent
@@ -114,8 +115,8 @@ module DependentsBenefits
       end
       @va_file_number
     rescue => e
-      monitor.track_prefill_warning('Failed to retrieve VA file number', 'file_number_error',
-                                    error: e&.message)
+      monitor.track_warning_event('Failed to retrieve VA file number',
+                                  action: 'file_number_error', component:, error: e&.message)
       user.ssn.presence
     end
 
@@ -138,8 +139,8 @@ module DependentsBenefits
         @dependents_information
       end
     rescue => e
-      monitor.track_prefill_warning('Failed to retrieve dependents information', 'dependents_error',
-                                    error: e&.message)
+      monitor.track_warning_event('Failed to retrieve dependents information',
+                                  action: 'dependents_error', component:, error: e&.message)
       @dependents_information = Flipper.enabled?(:va_dependents_v3, user) ? { success: 'false', dependents: [] } : []
     end
 
@@ -205,10 +206,10 @@ module DependentsBenefits
     #
     # @param error [Exception] The error that occurred during pension award retrieval
     def track_pension_award_error(error)
-      monitor.track_prefill_warning('Failed to retrieve awards pension data', 'awards_pension_error',
-                                    user_account_uuid: user&.user_account_uuid,
-                                    error: error.message,
-                                    form_id:)
+      monitor.track_warning_event('Failed to retrieve awards pension data',
+                                  action: 'awards_pension_error', component:,
+                                  user_account_uuid: user&.user_account_uuid,
+                                  error: error.message, form_id:)
     end
 
     ##

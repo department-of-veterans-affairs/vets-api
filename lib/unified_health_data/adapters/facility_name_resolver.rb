@@ -28,7 +28,12 @@ module UnifiedHealthData
         valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
         if facility_identifier.present? && facility_identifier != three_digit_station &&
            facility_identifier.match?(valid_station_regex)
-          return lookup(facility_identifier)
+          facility_identifier_lookup = lookup(facility_identifier)
+          if facility_identifier_lookup.nil?
+            Rails.logger.info("No facility name found for facility identifier: #{facility_identifier}
+            or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display")
+          end
+          return facility_identifier_lookup
         end
 
         Rails.logger.error("Unable to extract valid station number from: #{location_display}")
@@ -46,6 +51,12 @@ module UnifiedHealthData
         cache_key = "uhd:facility_names:#{station_identifier}"
         cached_name = Rails.cache.read(cache_key)
         return cached_name if Rails.cache.exist?(cache_key)
+
+        db_facility = HealthFacility.find_by(station_number: station_identifier)
+        if db_facility
+          Rails.cache.write(cache_key, db_facility.name, expires_in: 4.hours)
+          return db_facility.name
+        end
 
         fetch_from_api(station_identifier)
       end

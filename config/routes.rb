@@ -77,6 +77,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :multi_party_forms do
+      resources :primary, only: %i[create show]
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
@@ -209,6 +213,7 @@ Rails.application.routes.draw do
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+    get 'header_status', to: 'admin#header_status'
     get 'healthcheck', to: 'example#healthcheck', as: :healthcheck
     get 'startup_healthcheck', to: 'example#startup_healthcheck', as: :startup_healthcheck
     get 'openapi', to: 'open_api#index'
@@ -310,6 +315,14 @@ Rails.application.routes.draw do
 
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
+
+      # "Email Verification" internally; "Email Confirmation" externally
+      resource :email_verification, only: %i[create], controller: 'email_verification' do
+        member do
+          get :status
+          get :verify
+        end
+      end
     end
 
     resources :search, only: :index
@@ -401,7 +414,11 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-    resources :medical_copays, only: %i[index show]
+    resources :medical_copays, only: %i[index show] do
+      collection do
+        get :summary
+      end
+    end
   end
 
   root 'v0/example#index', module: 'v0'
