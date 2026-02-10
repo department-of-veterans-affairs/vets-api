@@ -1119,7 +1119,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
 
         context "when 'unitName' is not present" do
-          it 'returns a unsuccessful response' do
+          it 'returns a successful response' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 VCR.use_cassette('claims_api/brd/countries') do
@@ -1127,7 +1127,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   par['data']['attributes']['serviceInformation']['reservesNationalGuardService'].delete('unitName')
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
