@@ -25,28 +25,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          python - <<'PY'
-          import glob, json, os
-
-          # Immediate child directories: modules/<name>/
-          dirs = glob.glob("modules/*/")
-
-          modules = []
-          for d in sorted(dirs):
-            name = os.path.basename(os.path.dirname(d))
-            if name and not name.startswith("."):
-              modules.append({"name": name, "path": f"modules/{name}"})
-
-          # Guarantee matrix is never empty (avoids "Matrix must define at least one combination")
-          if not modules:
-            modules = [{"name": "__none__", "path": "__none__"}]
-
-          matrix = {"include": modules}
-
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-            f.write(f"matrix={json.dumps(matrix)}\n")
-          PY
+          ls -1 modules | jq -R -s -c 'split("\n")[:-1] | map({name:., path:"modules/"+.})'
 
   run-per-module:
     needs: discover-modules
