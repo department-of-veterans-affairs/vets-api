@@ -207,7 +207,8 @@ module DependentsBenefits
                   else
                     monitor.track_error_event(
                       "Diaries is not a hash! Diaries type: #{diaries.class.name}",
-                      'dependents_benefits.dependency_decisions.invalid_diaries_type'
+                      action: 'invalid_diaries_type',
+                      component: 'DependentsBenefits::DependentsHelper'
                     )
                     nil
                   end
