@@ -119,6 +119,16 @@ class Rack::Attack
                      Settings.vsp_environment.eql?('production')
   end
 
+  # Multi-Party Forms throttling for authenticated users
+  # Rate limit: 60 requests per minute per user
+  # Applies to all Primary Party (Veteran) and Secondary Party (Physician) endpoints
+  # Throttles by user UUID to provide per-user fair use limits
+  throttle('multi_party_forms/authenticated', limit: 60, period: 1.minute) do |req|
+    if req.path.starts_with?('/v0/multi_party_forms') && req.env['warden']&.user
+      req.env['warden'].user.uuid
+    end
+  end
+
   # Always allow requests from below IP addresses for load testing
   # `100.103.248.0 - 100.103.248.255`
   # `100.103.251.128 - 100.103.251.255`
@@ -139,9 +149,19 @@ class Rack::Attack
     headers = {
       'X-RateLimit-Limit' => rate_limit[:limit].to_s,
       'X-RateLimit-Remaining' => '0',
-      'X-RateLimit-Reset' => (now + (rate_limit[:period] - (now.to_i % rate_limit[:period]))).to_i
+      'X-RateLimit-Reset' => (now + (rate_limit[:period] - (now.to_i % rate_limit[:period]))).to_i,
+      'Retry-After' => (rate_limit[:period] - (now.to_i % rate_limit[:period])).to_s
     }
 
     [429, headers, ['throttled']]
+  end
+
+  # Track throttling events for monitoring and alerting
+  ActiveSupport::Notifications.subscribe('throttle.rack_attack') do |_name, _start, _finish, _id, payload|
+    req = payload[:request]
+    if req.path.starts_with?('/v0/multi_party_forms')
+      StatsD.increment('api.rack_attack.throttled',
+                       tags: ["path:#{req.path}", "throttle_name:#{payload[:matched]}"])
+    end
   end
 end
