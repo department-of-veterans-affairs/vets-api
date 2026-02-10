@@ -163,7 +163,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         expect(claim.form_matches_schema).to be false
         expect(monitor_double).to have_received(:track_error_event).with(
           'Dependents Benefits schema failed validation.',
-          'api.dependents_claim.schema_error',
+          action: 'schema_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
           form_id: claim.form_id,
           errors: [{ fragment: '#/veteran_information', message: 'is missing' }]
         ).at_least(:once)
@@ -187,7 +188,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         expect(claim.form_schema(form_id)).to be_nil
         expect(monitor_double).to have_received(:track_error_event).with(
           'Dependents Benefits form schema could not be loaded.',
-          'api.dependents_claim.schema_load_error',
+          action: 'schema_load_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
           form_id:,
           error: "No such file or directory - #{error_message}"
         )
@@ -292,12 +294,12 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       before do
         allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor_double)
         allow(claim).to receive(:submittable_686?).and_raise(StandardError.new('Unknown form type'))
-        allow(monitor_double).to receive(:track_unknown_claim_type)
+        allow(monitor_double).to receive(:track_warning_event)
       end
 
       it 'returns nil and tracks the unknown claim type' do
         expect(claim.claim_form_type).to be_nil
-        expect(monitor_double).to have_received(:track_unknown_claim_type)
+        expect(monitor_double).to have_received(:track_warning_event)
       end
     end
   end
