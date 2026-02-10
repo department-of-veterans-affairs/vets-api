@@ -2872,6 +2872,9 @@ features:
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  form1095b_multiple_years:
+    actor_type: user
+    description: Enables access to multiple years of form 1095b
   meb_1995_instruction_page_update_v3:
     actor_type: user
     description: Updated verbiage for instruction page for 5490
