@@ -157,7 +157,9 @@ module VAOS
           vaos_request_failures = vaos_response[:meta][:failures]
 
           return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-          return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+          return { exists: true } if vaos_response[:data].is_a?(Array) && vaos_response[:data].any? do |appt|
+            appt[:referral_id] == referral_id
+          end
         end
 
         eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
@@ -326,14 +328,9 @@ module VAOS
 
       def get_sorted_recent_appointments
         appointments = get_appointments(1.year.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
-        appt_data = appointments[:data]
-        unless appt_data.is_a?(Array)
-          Rails.logger.warn('VAOS get_sorted_recent_appointments received non-Array data',
-                            { data_class: appt_data.class, data: appt_data })
-          return []
-        end
+        return [] unless appointments[:data].is_a?(Array)
 
-        sort_recent_appointments(appt_data)
+        sort_recent_appointments(appointments[:data])
       end
 
       def sort_recent_appointments(appointments)
@@ -472,6 +469,8 @@ module VAOS
       end
 
       def process_vaos_appointments(appointments_data, referral_number)
+        return [] unless appointments_data.is_a?(Array)
+
         filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
         normalized = filtered.map do |appt|
           {
