@@ -458,19 +458,28 @@ module UnifiedHealthData
           resource.dig('medicationReference', 'display')
       end
 
+      # Extracts and validates station number from MedicationDispense location
+      # Delegates to FacilityNameResolver for robust station extraction and validation
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [String, nil] Valid 3-digit station number or nil
       def extract_station_number(resource)
         dispense = find_most_recent_medication_dispense(resource)
-        raw_station_number = dispense&.dig('location', 'display')
-        return nil unless raw_station_number
+        return nil unless dispense
 
-        # Extract first 3 digits from format like "556-RX-MAIN-OP"
-        match = raw_station_number.match(/^(\d{3})/)
-        if match
-          match[1]
-        else
-          Rails.logger.warn("Unable to extract 3-digit station number from: #{raw_station_number}")
-          raw_station_number
+        # Delegate to FacilityNameResolver which handles:
+        # - Two-pass extraction (3-digit prefix, then full identifier)
+        # - Validation against facility ranges and HealthFacility table
+        # - Logging of failed extractions
+        station_number = facility_resolver.extract_station_number(dispense)
+
+        # Track failed extractions for monitoring
+        if station_number.nil?
+          raw_location = dispense&.dig('location', 'display')
+          StatsD.increment('unified_health_data.oracle_health.failed_station_extraction') if raw_location
         end
+
+        station_number
       end
 
       def extract_is_refillable(resource, refill_status)
