@@ -1103,7 +1103,6 @@ lib/veteran_status_card @department-of-veterans-affairs/mobile-api-team
 lib/vetext @department-of-veterans-affairs/mobile-api-team
 lib/vets @department-of-veterans-affairs/backend-review-group
 lib/vic @department-of-veterans-affairs/octo-identity
-lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 lib/zero_silent_failures/manual_remediation/saved_claim.rb @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
@@ -1691,7 +1690,6 @@ spec/lib/veteran_facing_services @department-of-veterans-affairs/benefits-lifest
 spec/lib/veteran_status_card @department-of-veterans-affairs/mobile-api-team
 spec/lib/vetext @department-of-veterans-affairs/mobile-api-team
 spec/lib/vets @department-of-veterans-affairs/backend-review-group
-spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/backend-review-group
 spec/lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 spec/lib/zero_silent_failures/manual_remediation/saved_claim_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/logging/semantic_logger_exceptions_spec.rb @department-of-veterans-affairs/backend-review-group
