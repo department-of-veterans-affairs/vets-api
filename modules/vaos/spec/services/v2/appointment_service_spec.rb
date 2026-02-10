@@ -882,6 +882,16 @@ describe VAOS::V2::AppointmentsService do
         expect(subject).to eq(mock_appointment_three)
       end
     end
+
+    context 'when data is a hash (error response)' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: {}, meta: { failures: ['test error'] } })
+      end
+
+      it 'returns nil when fetch_clinic_appointments returns empty array' do
+        expect(subject).to be_nil
+      end
+    end
   end
 
   describe '#get_sorted_recent_appointments' do
@@ -922,7 +932,7 @@ describe VAOS::V2::AppointmentsService do
                                                                             meta: { failures: ['test error'] } })
       end
 
-      it 'returns an empty array and logs the non-Array data' do
+      it 'returns an empty array with non-Array data' do
         expect(subject).to eq([])
       end
     end
@@ -1705,6 +1715,27 @@ describe VAOS::V2::AppointmentsService do
         end
       end
     end
+
+    context 'when VAOS returns non-array data' do
+      it 'returns empty array for VAOS data without crashing' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+        allow(appointments_service).to receive(:get_all_appointments)
+          .and_return({ data: {}, meta: {} })
+
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            result = appointments_service.get_active_appointments_for_referral('test-referral-1234')
+
+            expect(result[:VAOS][:data]).to eq([])
+          end
+        end
+      end
+    end
   end
 
   describe '#referral_appointment_already_exists?' do
@@ -1808,6 +1839,16 @@ describe VAOS::V2::AppointmentsService do
               .to have_received(:warn)
               .with(expected_message)
             expect(check[:failures]).to eq('Missing ICN message')
+          end
+        end
+
+        context 'when get_all_appointments returns non-array data' do
+          it 'skips VAOS check and continues to EPS without crashing' do
+            allow(subject).to receive(:get_all_appointments).and_return({ data: {}, meta: {} })
+            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+            result = subject.referral_appointment_already_exists?('ref-150')
+
+            expect(result[:exists]).to be(false)
           end
         end
       end
