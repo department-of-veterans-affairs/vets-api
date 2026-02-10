@@ -41,7 +41,7 @@ module BioHeartApi
 
           # Form Type (must be prefixed with StructuredData: to be ingested)
           'FORM_TYPE' => "StructuredData:#{FORM_TYPE}"
-        }.compact
+        }
       end
 
       private
@@ -49,33 +49,33 @@ module BioHeartApi
       # Determine if remarried YES checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [String, nil] true if remarried, nil otherwise
+      # @return [Boolean] true if remarried, false otherwise
       def remarried_yes?(form)
-        form['has_remarried'] == true ? true : nil
+        form['has_remarried'] == true
       end
 
       # Determine if remarried NO checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [String, nil] true if not remarried, nil otherwise
+      # @return [Boolean] true if not remarried, false otherwise
       def remarried_no?(form)
-        form['has_remarried'] == false ? true : nil
+        form['has_remarried'] == false
       end
 
       # Determine if spouse veteran YES checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [String, nil] true if spouse is veteran, nil otherwise
+      # @return [Boolean] true if spouse is veteran, false otherwise
       def spouse_veteran_yes?(form)
-        form.dig('remarriage', 'spouse_is_veteran') == true ? true : nil
+        form.dig('remarriage', 'spouse_is_veteran') == true
       end
 
       # Determine if spouse veteran NO checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [String, nil] true if spouse is not veteran, nil otherwise
+      # @return [Boolean] true if spouse is not veteran, false otherwise
       def spouse_veteran_no?(form)
-        form.dig('remarriage', 'spouse_is_veteran') == false ? true : nil
+        form.dig('remarriage', 'spouse_is_veteran') == false
       end
 
       # Build spouse full name from name hash
