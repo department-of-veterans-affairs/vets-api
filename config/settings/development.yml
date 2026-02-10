@@ -1117,6 +1117,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: ~
   apim_url: ~
+  mock: true
   open_timeout: 15
   read_timeout: 55
   url: https://some.fakesite.com
