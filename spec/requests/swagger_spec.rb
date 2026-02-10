@@ -14,6 +14,7 @@ require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
+require 'debt_management_center/debts_service'
 require 'debts_api/v0/digital_dispute_dmc_service'
 require 'veteran_status_card/service'
 
@@ -631,6 +632,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'validates the route' do
+          mock_debts_service = instance_double(DebtManagementCenter::DebtsService)
+          allow(DebtManagementCenter::DebtsService).to receive(:new).with(anything).and_return(mock_debts_service)
+          allow(mock_debts_service).to receive(:get_debts_by_ids).and_return([{ 'compositeDebtId' => '71166' }])
           allow_any_instance_of(DebtsApi::V0::DigitalDisputeDmcService).to receive(:call!)
           expect(subject).to validate(
             :post,
@@ -638,6 +642,20 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             200,
             headers.merge(
               '_data' => { metadata: metadata_json, files: [pdf_file] }
+            )
+          )
+        end
+
+        it 'validates the route for 422 when no files are provided' do
+          mock_debts_service = instance_double(DebtManagementCenter::DebtsService)
+          allow(DebtManagementCenter::DebtsService).to receive(:new).with(anything).and_return(mock_debts_service)
+          allow(mock_debts_service).to receive(:get_debts_by_ids).and_return([{ 'compositeDebtId' => '71166' }])
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            422,
+            headers.merge(
+              '_data' => { metadata: metadata_json }
             )
           )
         end
@@ -1257,8 +1275,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       it 'supports submitting the v2 form' do
-        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
-          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
+        job_id = '57ca1a62c75e551fd2051ae9'
+        stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)
+        batch = instance_double(Sidekiq::Batch)
+        allow(Sidekiq::Batch).to receive(:new).and_return(batch)
+        allow(batch).to receive(:on).and_return(true)
+        allow(batch).to receive(:jobs).and_yield.and_return([job_id])
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).and_return(job_id)
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 401)
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 422,
                                     headers.update('_data' => '{ "form526": "foo"}'))

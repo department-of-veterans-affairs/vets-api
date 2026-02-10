@@ -1105,6 +1105,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: <%= ENV['ppms__api_keys__ocp-apim-subscription-key'] %>
   apim_url: <%= ENV['ppms__apim_url'] %>
+  mock: false
   open_timeout: 15
   read_timeout: 55
   url: <%= ENV['ppms__url'] %>
@@ -1356,6 +1357,12 @@ travel_pay:
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '757'
+  - '506'
+  - '515'
+  - '553'
+  - '655'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
