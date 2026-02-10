@@ -1102,6 +1102,10 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
+  form22_10278_benefits_intake_submission:
+    actor_type: user
+    description: Enables Benefits Intake API submission for form 22-10278
+    enable_in_development: true
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
