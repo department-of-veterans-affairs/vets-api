@@ -23,18 +23,18 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
 
       it 'allows requests up to the rate limit (60 per minute)' do
         59.times do
-          post '/v0/multi_party_forms/primary', headers:
+          post('/v0/multi_party_forms/primary', headers:)
           expect(response).not_to have_http_status(:too_many_requests)
         end
 
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         expect(response).not_to have_http_status(:too_many_requests)
       end
 
       it 'throttles requests exceeding the rate limit' do
         60.times { post '/v0/multi_party_forms/primary', headers: }
 
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         expect(response).to have_http_status(:too_many_requests)
       end
 
@@ -53,7 +53,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         20.times { put '/v0/multi_party_forms/primary/123', headers: }
 
         # 61st request should be throttled
-        post '/v0/multi_party_forms/primary/123/complete', headers:
+        post('/v0/multi_party_forms/primary/123/complete', headers:)
         expect(response).to have_http_status(:too_many_requests)
       end
 
@@ -62,7 +62,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         30.times { put '/v0/multi_party_forms/secondary/123', headers: }
 
         # 61st request should be throttled
-        post '/v0/multi_party_forms/secondary/123/submit', headers:
+        post('/v0/multi_party_forms/secondary/123/submit', headers:)
         expect(response).to have_http_status(:too_many_requests)
       end
 
@@ -71,7 +71,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         30.times { get '/v0/multi_party_forms/secondary/123', headers: }
 
         # 61st request should be throttled regardless of endpoint
-        put '/v0/multi_party_forms/primary/123', headers:
+        put('/v0/multi_party_forms/primary/123', headers:)
         expect(response).to have_http_status(:too_many_requests)
       end
 
@@ -79,12 +79,12 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         60.times { post '/v0/multi_party_forms/primary', headers: }
 
         # Should be throttled
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         expect(response).to have_http_status(:too_many_requests)
 
         # Travel forward 61 seconds to reset the rate limit
         travel 61.seconds do
-          post '/v0/multi_party_forms/primary', headers:
+          post('/v0/multi_party_forms/primary', headers:)
           expect(response).not_to have_http_status(:too_many_requests)
         end
       end
@@ -100,12 +100,12 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         60.times { post '/v0/multi_party_forms/primary', headers: }
 
         # IP 1 should be throttled
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         expect(response).to have_http_status(:too_many_requests)
 
         # IP 2 should have its own rate limit
         headers = { 'REMOTE_ADDR' => '5.6.7.8' }
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         expect(response).not_to have_http_status(:too_many_requests)
       end
     end
@@ -115,7 +115,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         # Throttle applies to all requests from the same IP, regardless of authentication
         60.times { post '/v0/multi_party_forms/primary', headers: }
 
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         # Should be throttled even without authentication
         expect(response).to have_http_status(:too_many_requests)
       end
@@ -150,7 +150,7 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         end
 
         # Should not be throttled even after exceeding limit
-        post '/v0/multi_party_forms/primary', headers:
+        post('/v0/multi_party_forms/primary', headers:)
         expect(response).not_to have_http_status(:too_many_requests)
       end
     end
