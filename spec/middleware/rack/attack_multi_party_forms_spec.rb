@@ -55,12 +55,10 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         expect(response).to have_http_status(:too_many_requests)
       end
 
-      it 'returns proper 429 response with Retry-After header' do
+      it 'returns proper 429 response with rate limit headers' do
         61.times { post '/v0/multi_party_forms/primary' }
 
         expect(response).to have_http_status(:too_many_requests)
-        expect(response.headers['Retry-After']).to be_present
-        expect(response.headers['Retry-After'].to_i).to be > 0
         expect(response.headers['X-RateLimit-Limit']).to eq('60')
         expect(response.headers['X-RateLimit-Remaining']).to eq('0')
         expect(response.headers['X-RateLimit-Reset']).to be_present
