@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://dsva-vetsgov-staging-reports.s3.us-gov-west-1.amazonaws.com/disability_compensation/report_submission_statuses/bdd_filter-1770705829.json
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"user_uuid":"71aa1aa6-02c3-4044-a32b-c4a15343b355","saved_claim_id":125,"submitted_claim_id":null,"workflow_complete":false,"created_at":"2026-02-10T05:43:49.000Z","updated_at":"2026-02-10T05:43:49.000Z","user_account_id":"71aa1aa6-02c3-4044-a32b-c4a15343b355","backup_submitted_claim_id":null,"aasm_state":"unprocessed","submit_endpoint":null,"backup_submitted_claim_status":null,"job_statuses":[{"job_id":"12176262f1ca9e91e406c4f3","job_class":"SubmitForm526AllClaim","status":"success","error_class":null,"error_message":null,"updated_at":"2026-02-10T05:43:49.000Z","bgjob_errors":{}}]}]'
+    headers:
+      Accept-Encoding:
+      - ''
+      Amz-Sdk-Invocation-Id:
+      - 8d035e84-e3e6-4f50-a516-87f2e079bbde
+      Content-Type:
+      - application/json
+      Expect:
+      - 100-continue
+      X-Amz-Sdk-Checksum-Algorithm:
+      - CRC32
+      X-Amz-Checksum-Crc32:
+      - Ok2iIQ==
+      Host:
+      - dsva-vetsgov-staging-reports.s3.us-gov-west-1.amazonaws.com
+      X-Amz-Date:
+      - 20260210T064349Z
+      X-Amz-Content-Sha256:
+      - f5044cc3c247ce92436473ceacf9d7d65dd255efe55fd53f2f92473b24220d4b
+      Authorization: Bearer <TOKEN>
+      User-Agent:
+      - aws-sdk-ruby3/3.241.4 ua/2.1 api/s3#1.209.0 os/macos#23 md/arm64 lang/ruby#3.3.6
+        md/3.3.6 m/G,Z,b,U,D,n
+      Content-Length:
+      - '592'
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 403
+      message: Forbidden
+    headers:
+      X-Amz-Request-Id:
+      - T37DA8S839YM2CDZ
+      X-Amz-Id-2:
+      - CRufe7NS34N8HtZoyGJoV2REI67se6PIsBMQtRRfokmY+fPxBZM96ynnqhtlrco0TTx2KIqrsQIANyaY5aDr0EOt6uBayCpbFW1GWn1Db9w=
+      Content-Type:
+      - application/xml
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Tue, 10 Feb 2026 06:43:49 GMT
+      Connection:
+      - close
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Error>
+          <Code>AccessDenied</Code>
+          <Message>User: arn:aws-us-gov:iam::000000000000:user/Oren.Mittman is not authorized to perform: s3:PutObject on resource: "arn:aws-us-gov:s3:::dsva-vetsgov-staging-reports/disability_compensation/report_submission_statuses/bdd_filter-1770705829.json" with an explicit deny in an identity-based policy</Message>
+          <RequestId>REDACTED</RequestId>
+          <HostId>REDACTED</HostId>
+        </Error>
+  recorded_at: Tue, 10 Feb 2026 06:43:49 GMT
+recorded_with: VCR 6.4.0

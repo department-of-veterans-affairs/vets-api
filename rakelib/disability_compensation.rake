@@ -36,4 +36,29 @@ namespace :disability_compensation do
     mod = DisabilityCompensation::DownloadClaimDocuments
     mod.perform(mod::FileIO, **args)
   end
+
+  namespace :report_submission_statuses do
+    require_relative 'disability_compensation/report_submission_statuses'
+
+    mod = DisabilityCompensation::ReportSubmissionStatuses
+    mod.filters.each do |filter|
+      desc <<~DESC
+        Generate a disability compensation submission status report for
+        `#{filter}`. Can additionally target specific submission IDs.
+
+        EXAMPLES
+          bundle exec rails disability_compensation:report_submission_statuses:#{filter}
+          bundle exec rails disability_compensation:report_submission_statuses:#{filter}[123,456]
+      DESC
+
+      task filter.to_sym => :environment do |_, args|
+        mod.perform_async(
+          "#{mod}::S3Consumer",
+          "#{mod}::#{filter.classify}",
+          Time.current.to_i,
+          args.extras.presence
+        )
+      end
+    end
+  end
 end
