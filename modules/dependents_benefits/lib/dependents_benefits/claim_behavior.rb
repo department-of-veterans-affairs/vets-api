@@ -34,12 +34,5 @@ module DependentsBenefits
     def monitor
       @monitor ||= DependentsBenefits::Monitor.new
     end
-
-    # Returns the StatsD key prefix for tracking claim metrics
-    #
-    # @return [String] The stats key prefix 'api.dependents_claim'
-    def stats_key
-      'api.dependents_claim'
-    end
   end
 end
