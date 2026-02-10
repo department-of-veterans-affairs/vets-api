@@ -11,7 +11,7 @@ module DisabilityCompensation
   #
   module DownloadClaimDocuments
     class << self
-      def perform(claim_id:, icn:) # rubocop:disable Metrics/MethodLength
+      def perform(file_io, claim_id:, icn:) # rubocop:disable Metrics/MethodLength
         profile_service = MPI::Service.new
         profile = fetch_profile(profile_service, icn)
 
@@ -126,18 +126,13 @@ module DisabilityCompensation
         message = "#{self}.#{caller_locations(1, 1).first.base_label}"
         Rails.logger.info message
       end
+    end
 
-      ##
-      # For stubbing file IO during testing.
-      #
-      def file_io = FileIO
-
-      module FileIO
-        class << self
-          def write(...) = File.write(...)
-          def binwrite(...) = File.binwrite(...)
-          def mkdir_p(...) = FileUtils.mkdir_p(...)
-        end
+    module FileIO
+      class << self
+        def write(...) = File.write(...)
+        def binwrite(...) = File.binwrite(...)
+        def mkdir_p(...) = FileUtils.mkdir_p(...)
       end
     end
   end

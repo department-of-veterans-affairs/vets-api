@@ -33,6 +33,7 @@ namespace :disability_compensation do
   task :download_claim_documents, %i[claim_id icn] => :environment do |_, args|
     require_relative 'disability_compensation/download_claim_documents'
 
-    DisabilityCompensation::DownloadClaimDocuments.perform(**args)
+    mod = DisabilityCompensation::DownloadClaimDocuments
+    mod.perform(mod::FileIO, **args)
   end
 end

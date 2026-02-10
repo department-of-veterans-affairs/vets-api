@@ -51,8 +51,7 @@ describe DisabilityCompensation::DownloadClaimDocuments do
   )
 
   it 'writes files with network-derived data' do
-    mock_file_io = described_class::SpecHelpers::MockFileIO.new
-    allow(described_class).to(receive(:file_io).and_return(mock_file_io))
+    file_io = described_class::SpecHelpers::MockFileIO.new
 
     vcr_name = 'disability_compensation/download_claim_documents'
     vcr_options = {
@@ -63,6 +62,7 @@ describe DisabilityCompensation::DownloadClaimDocuments do
     VCR.use_cassette(vcr_name, vcr_options) do |cassette|
       with_lighthouse_token_signing_key(cassette.recording?) do
         described_class.perform(
+          file_io,
           claim_id: '600878948',
           icn: '1012667122V019349'
         )
@@ -71,7 +71,7 @@ describe DisabilityCompensation::DownloadClaimDocuments do
 
     directory = 'tmp/disability_compensation/download_claim_documents/600878948'
 
-    expect(mock_file_io.calls).to match(
+    expect(file_io.calls).to match(
       [
         {
           subject: a_string_ending_with(directory),
