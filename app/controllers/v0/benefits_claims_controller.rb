@@ -275,14 +275,27 @@ module V0
     end
 
     def log_claim_details(claim_info)
+      claim_phase_dates =
+        if champva_provider_enabled?
+          claim_info['claimPhaseDates'] || {}
+        else
+          claim_info['claimPhaseDates']
+        end
+      contentions =
+        if champva_provider_enabled?
+          claim_info['contentions'] || []
+        else
+          claim_info['contentions']
+        end
+
       ::Rails.logger.info('Claim Type Details',
                           { message_type: 'lh.cst.claim_types',
                             claim_type: claim_info['claimType'],
                             claim_type_code: claim_info['claimTypeCode'],
-                            num_contentions: claim_info['contentions'].count,
+                            num_contentions: contentions.count,
                             ep_code: claim_info['endProductCode'],
-                            current_phase_back: claim_info['claimPhaseDates']['currentPhaseBack'],
-                            latest_phase_type: claim_info['claimPhaseDates']['latestPhaseType'],
+                            current_phase_back: claim_phase_dates['currentPhaseBack'],
+                            latest_phase_type: claim_phase_dates['latestPhaseType'],
                             decision_letter_sent: claim_info['decisionLetterSent'],
                             development_letter_sent: claim_info['developmentLetterSent'],
                             claim_id: params[:id] })
@@ -290,7 +303,12 @@ module V0
     end
 
     def log_evidence_requests(claim_id, claim_info)
-      tracked_items = claim_info['trackedItems']
+      tracked_items =
+        if champva_provider_enabled?
+          claim_info['trackedItems'] || []
+        else
+          claim_info['trackedItems']
+        end
 
       tracked_items.each do |ti|
         ::Rails.logger.info('Evidence Request Types',
@@ -316,6 +334,10 @@ module V0
 
       tracked_items.reject! { |i| BenefitsClaims::Constants::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
+    end
+
+    def champva_provider_enabled?
+      Flipper.enabled?(:benefits_claims_ivc_champva_provider, @current_user)
     end
 
     def report_evidence_submission_metrics(endpoint, evidence_submissions)

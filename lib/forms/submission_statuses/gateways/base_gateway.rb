@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require_relative '../dataset'
+require_relative '../error_handler'
 
 module Forms
   module SubmissionStatuses
