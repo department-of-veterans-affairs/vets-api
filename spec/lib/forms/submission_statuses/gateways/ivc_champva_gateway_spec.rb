@@ -43,7 +43,7 @@ RSpec.describe Forms::SubmissionStatuses::Gateways::IvcChampvaGateway do
     it 'filters out forms not in allowed_forms' do
       create(
         :ivc_champva_form,
-        email: email,
+        email:,
         form_uuid: SecureRandom.uuid,
         form_number: '10-7959A',
         pega_status: 'Processed'

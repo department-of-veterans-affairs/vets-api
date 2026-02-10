@@ -62,11 +62,11 @@ module Forms
           grouped_records.values.filter_map do |records|
             representative = records.max_by(&:updated_at)
             form_type = normalize_form_type(representative&.form_number)
-            next if allowed_forms.present? && !allowed_forms.include?(form_type)
+            next if allowed_forms.present? && allowed_forms.exclude?(form_type)
 
             SubmissionAdapter.new(
               id: representative&.form_uuid,
-              form_type: form_type,
+              form_type:,
               created_at: records.min_by(&:created_at)&.created_at,
               updated_at: representative&.updated_at,
               pega_status: representative&.pega_status
@@ -81,9 +81,8 @@ module Forms
         end
 
         def user_emails
-          @user_emails ||= user_account.user_verifications
-                                      .includes(:user_credential_email)
-                                      .filter_map do |verification|
+          verifications = user_account.user_verifications.includes(:user_credential_email)
+          @user_emails ||= verifications.filter_map do |verification|
             verification.user_credential_email&.credential_email&.strip&.downcase
           end.uniq
         end

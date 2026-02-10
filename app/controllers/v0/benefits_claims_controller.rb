@@ -275,40 +275,18 @@ module V0
     end
 
     def log_claim_details(claim_info)
-      claim_phase_dates =
-        if champva_provider_enabled?
-          claim_info['claimPhaseDates'] || {}
-        else
-          claim_info['claimPhaseDates']
-        end
-      contentions =
-        if champva_provider_enabled?
-          claim_info['contentions'] || []
-        else
-          claim_info['contentions']
-        end
+      claim_phase_dates = claim_info_value(claim_info, 'claimPhaseDates', {})
+      contentions = claim_info_value(claim_info, 'contentions', [])
 
-      ::Rails.logger.info('Claim Type Details',
-                          { message_type: 'lh.cst.claim_types',
-                            claim_type: claim_info['claimType'],
-                            claim_type_code: claim_info['claimTypeCode'],
-                            num_contentions: contentions.count,
-                            ep_code: claim_info['endProductCode'],
-                            current_phase_back: claim_phase_dates['currentPhaseBack'],
-                            latest_phase_type: claim_phase_dates['latestPhaseType'],
-                            decision_letter_sent: claim_info['decisionLetterSent'],
-                            development_letter_sent: claim_info['developmentLetterSent'],
-                            claim_id: params[:id] })
+      ::Rails.logger.info(
+        'Claim Type Details',
+        claim_details_payload(claim_info, claim_phase_dates, contentions)
+      )
       log_evidence_requests(params[:id], claim_info)
     end
 
     def log_evidence_requests(claim_id, claim_info)
-      tracked_items =
-        if champva_provider_enabled?
-          claim_info['trackedItems'] || []
-        else
-          claim_info['trackedItems']
-        end
+      tracked_items = claim_info_value(claim_info, 'trackedItems', [])
 
       tracked_items.each do |ti|
         ::Rails.logger.info('Evidence Request Types',
@@ -338,6 +316,28 @@ module V0
 
     def champva_provider_enabled?
       Flipper.enabled?(:benefits_claims_ivc_champva_provider, @current_user)
+    end
+
+    def claim_info_value(claim_info, key, fallback)
+      value = claim_info[key]
+      return value unless champva_provider_enabled?
+
+      value || fallback
+    end
+
+    def claim_details_payload(claim_info, claim_phase_dates, contentions)
+      {
+        message_type: 'lh.cst.claim_types',
+        claim_type: claim_info['claimType'],
+        claim_type_code: claim_info['claimTypeCode'],
+        num_contentions: contentions.count,
+        ep_code: claim_info['endProductCode'],
+        current_phase_back: claim_phase_dates['currentPhaseBack'],
+        latest_phase_type: claim_phase_dates['latestPhaseType'],
+        decision_letter_sent: claim_info['decisionLetterSent'],
+        development_letter_sent: claim_info['developmentLetterSent'],
+        claim_id: params[:id]
+      }
     end
 
     def report_evidence_submission_metrics(endpoint, evidence_submissions)

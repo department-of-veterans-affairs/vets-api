@@ -2,6 +2,4 @@
 
 # Enable AWS SDK stubbing in development when explicitly requested.
 # This avoids hitting real AWS endpoints during local uploads.
-if Rails.env.development? && ENV['AWS_STUB'] == 'true'
-  Aws.config.update(stub_responses: true)
-end
+Aws.config.update(stub_responses: true) if Rails.env.development? && ENV['AWS_STUB'] == 'true'

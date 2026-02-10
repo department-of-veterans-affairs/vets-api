@@ -8,11 +8,11 @@ RSpec.describe BenefitsClaims::Providers::IvcChampva::IvcChampvaBenefitsClaimsPr
 
   let(:user) { create(:user) }
 
-  it_behaves_like 'benefits claims provider'
-
   after do
     RequestStore.clear!
   end
+
+  it_behaves_like 'benefits claims provider'
 
   describe '#get_claims' do
     it 'returns empty data when no form_uuids are provided' do

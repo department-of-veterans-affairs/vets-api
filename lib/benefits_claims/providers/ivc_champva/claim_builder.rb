@@ -30,7 +30,7 @@ module BenefitsClaims
             id: representative&.form_uuid,
             claim_date: format_date(records.min_by(&:created_at)&.created_at),
             close_date: close_date_for(representative),
-            claim_type: claim_type,
+            claim_type:,
             display_title: titles[:display_title],
             claim_type_base: titles[:claim_type_base],
             status: status_for(records),
