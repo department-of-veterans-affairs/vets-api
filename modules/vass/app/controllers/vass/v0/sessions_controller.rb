@@ -39,11 +39,7 @@ module Vass
         check_all_rate_limits(session.uuid)
         process_otp_creation(session)
         complete_otp_creation(session)
-        otp_expiry_seconds = redis_client.redis_otp_expiry.to_i
-        response_data = camelize_keys({ data: { message: 'OTP sent to registered email address',
-                                                expires_in: otp_expiry_seconds } })
-        track_success(SESSIONS_REQUEST_OTP)
-        render json: response_data, status: :ok
+        render_request_otp_success(session)
       rescue Vass::Errors::RateLimitError => e
         handle_request_otp_error(e, session, :rate_limit)
       rescue Vass::Errors::IdentityValidationError => e
@@ -224,6 +220,24 @@ module Vass
       end
 
       ##
+      # Renders successful OTP request response with obfuscated email.
+      #
+      # @param session [Vass::V0::Session] Session instance
+      #
+      def render_request_otp_success(session)
+        otp_expiry_seconds = redis_client.redis_otp_expiry.to_i
+        response_data = camelize_keys({
+                                        data: {
+                                          message: 'OTP sent to registered email address',
+                                          expires_in: otp_expiry_seconds,
+                                          email: obfuscate_email(session.contact_value)
+                                        }
+                                      })
+        track_success(SESSIONS_REQUEST_OTP)
+        render json: response_data, status: :ok
+      end
+
+      ##
       # Handles identity validation errors.
       #
       # @param session [Vass::V0::Session] Session instance
@@ -280,7 +294,13 @@ module Vass
         reset_validation_rate_limit(session.uuid)
         log_vass_event(action: 'jwt_issued', vass_uuid: session.uuid, jti:)
         expires_in = redis_client.redis_session_expiry.to_i
-        response_data = camelize_keys({ data: { token: jwt_token, expires_in:, token_type: 'Bearer' } })
+        response_data = camelize_keys({
+                                        data: {
+                                          token: jwt_token,
+                                          expires_in:,
+                                          token_type: 'Bearer'
+                                        }
+                                      })
         track_success(SESSIONS_AUTHENTICATE_OTP)
         render json: response_data, status: :ok
       end
@@ -606,6 +626,35 @@ module Vass
       #
       def log_validation_rate_limit_exceeded(identifier)
         log_vass_event(action: 'validation_rate_limit_exceeded', vass_uuid: identifier, level: :warn)
+      end
+
+      ##
+      # Obfuscates an email address for display.
+      # Shows the first character and domain, masks the rest.
+      #
+      # @example
+      #   obfuscate_email('charles@agile6.com') #=> 'c******@agile6.com'
+      #   obfuscate_email('ab@example.com') #=> 'a*@example.com'
+      #
+      # @param email [String, nil] Email address to obfuscate
+      # @return [String, nil] Obfuscated email or nil if input is nil/invalid
+      #
+      def obfuscate_email(email)
+        return nil if email.blank?
+
+        parts = email.split('@')
+        return nil if parts.length != 2
+
+        local_part = parts[0]
+        domain = parts[1]
+
+        return nil if local_part.empty? || domain.empty?
+
+        if local_part.length <= 1
+          "#{local_part}@#{domain}"
+        else
+          "#{local_part[0]}#{'*' * (local_part.length - 1)}@#{domain}"
+        end
       end
     end
   end

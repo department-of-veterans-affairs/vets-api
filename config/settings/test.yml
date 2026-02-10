@@ -300,6 +300,7 @@ database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   benchmark_performance: true
+  delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
   mock: false
   pdf_validation:
@@ -1627,8 +1628,10 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       push_api_key: fake_secret
+      sms_sender_id: fake_secret
       template_id:
         decision_letter_ready_email: fake_template_id
+        decision_letter_ready_sms: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
@@ -1868,6 +1871,7 @@ vass:
   service_name: VASS-API
   subscription_key: fake_subscription_key
   tenant_id: fake_tenant_id
+  token_encryption_key: test-encryption-key-32chars-min-for-aes256-security-required
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: true

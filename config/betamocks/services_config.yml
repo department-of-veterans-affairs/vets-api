@@ -240,6 +240,13 @@
     :path: '/v1/usermgmt/account-service/account'
     :file_path: 'mhv/account_creation/create_account/default'
 
+- :name: 'SSOe Get Traits'
+  :base_uri: <%= "#{URI(IdentitySettings.ssoe_get_traits.url).host}:#{URI(IdentitySettings.ssoe_get_traits.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: '/psim_webservice/dev/IdMSSOeWebService'
+      :file_path: 'ssoe/get_traits/default'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -985,7 +992,10 @@
       :file_path: "/lighthouse/health_care_costs_and_coverage/organization/default"
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/Patient"
-      :file_path: "/lighthouse/health_care_costs_and_coverage/patient/default"
+      :file_path: "/lighthouse/health_care_costs_and_coverage/patient"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: _id
     - :method: :get
       :path: "/services/health-care-costs-coverage/v0/r4/PaymentReconciliation"
       :file_path: "/lighthouse/health_care_costs_and_coverage/payment_reconciliation"
