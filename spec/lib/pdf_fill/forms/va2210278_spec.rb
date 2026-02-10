@@ -5,73 +5,7 @@ require 'pdf_fill/forms/va2210278'
 
 describe PdfFill::Forms::Va2210278 do
   let(:form_data) do
-    {
-      'claimantPersonalInformation' => {
-        'fullName' => {
-          'first' => 'John',
-          'middle' => 'Quincy',
-          'last' => 'Doe'
-        },
-        'ssn' => '123-45-6789',
-        'vaFileNumber' => '987654321',
-        'dateOfBirth' => '1980-01-01'
-      },
-      'claimantAddress' => {
-        'street' => '123 Main St',
-        'city' => 'Anytown',
-        'state' => 'NY',
-        'postalCode' => '12345',
-        'country' => 'USA'
-      },
-      'claimantContactInformation' => {
-        'phoneNumber' => '5551234567',
-        'emailAddress' => 'john.doe@example.com'
-      },
-      'thirdPartyPersonName' => {
-        'first' => 'Jane',
-        'last' => 'Smith'
-      },
-      'thirdPartyPersonAddress' => {
-        'street' => '456 Elm St',
-        'city' => 'Othertown',
-        'state' => 'CA',
-        'postalCode' => '90210',
-        'country' => 'USA'
-      },
-      'thirdPartyOrganizationInformation' => {
-        'organizationName' => 'Veterans Aid Org',
-        'organizationAddress' => {
-          'street' => '789 Oak Ave',
-          'city' => 'Big City',
-          'state' => 'TX',
-          'postalCode' => '75001',
-          'country' => 'USA'
-        }
-      },
-      'organizationRepresentatives' => [
-        { 'fullName' => { 'first' => 'Rep', 'last' => 'One' } },
-        { 'fullName' => { 'first' => 'Rep', 'last' => 'Two' } }
-      ],
-      'claimInformation' => {
-        'statusOfClaim' => true,
-        'paymentHistory' => true
-      },
-      'lengthOfRelease' => {
-        'lengthOfRelease' => 'date',
-        'date' => '2025-12-31'
-      },
-      'securityQuestion' => {
-        'question' => 'motherBornLocation'
-      },
-      'securityAnswer' => {
-        'securityAnswerLocation' => {
-          'city' => 'Smallville',
-          'state' => 'KS'
-        }
-      },
-      'statementOfTruthSignature' => 'John Q Doe',
-      'dateSigned' => '2023-10-27'
-    }
+    JSON.parse(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '10278', 'minimal.json').read)
   end
 
   let(:form_class) { described_class.new(form_data) }
@@ -260,6 +194,32 @@ describe PdfFill::Forms::Va2210278 do
         form_data.delete('dateSigned')
         expect(merged_fields['dateSigned']).to be_nil
       end
+    end
+  end
+
+  describe 'filling out pdf' do
+    # let(:file_path) { 'tmp/pdfs/10278_test' }
+    let(:claim) { create(:va10278) }
+
+    after do
+      FileUtils.rm_rf('tmp/pdfs')
+    end
+
+    def get_field_value(fields, name)
+      fields.find { |f| f.name == name }&.value
+    end
+
+    it 'fills in the correct field values' do
+      file_path = claim.to_pdf
+      fields = PdfForms.new(Settings.binaries.pdftk).get_fields(file_path)
+
+      expect(get_field_value(fields, 'fullName')).to eq 'John Quincy Doe'
+      expect(get_field_value(fields, 'ssn')).to eq '123456789'
+      expect(get_field_value(fields, 'dateOfBirth')).to eq '01/01/1980'
+      expect(get_field_value(fields, 'emailAddress')).to eq 'john.doe@example.com'
+      expect(get_field_value(fields, 'question')).to eq 'The city and state your mother was born in'
+      expect(get_field_value(fields, 'answer')).to eq 'Smallville, KS'
+      expect(get_field_value(fields, 'statementOfTruthSignature')).to eq 'John Q Doe'
     end
   end
 end
