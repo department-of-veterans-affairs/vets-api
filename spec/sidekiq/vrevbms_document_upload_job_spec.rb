@@ -43,8 +43,19 @@ RSpec.describe VREVBMSDocumentUploadJob, type: :job do
     end
 
     it 'logs success when processing completes' do
+      new_document_id = 'new-doc-id-123'
+      allow(claim).to receive(:upload_to_vbms) do
+        claim.parsed_form['documentId'] = new_document_id
+        claim.save!
+      end
+
       expect(Rails.logger).to receive(:info)
-        .with("VRE_VBMS_BACKFILL_SUCCESS: Claim ID #{claim.id} processed successfully")
+        .with('VRE_VBMS_BACKFILL_SUCCESS',
+              hash_including(
+                claim_id: claim.id,
+                old_vbms_document_id: anything,
+                new_vbms_document_id: new_document_id
+              ))
 
       job.perform(claim.id)
     end
@@ -54,7 +65,13 @@ RSpec.describe VREVBMSDocumentUploadJob, type: :job do
         allow(claim).to receive(:upload_to_vbms).and_raise(StandardError, 'boom')
 
         expect(Rails.logger).to receive(:error)
-          .with("VRE_VBMS_BACKFILL_FAILURE: Claim ID #{claim.id} - StandardError: VBMS upload error occurred")
+          .with('VRE_VBMS_BACKFILL_FAILURE',
+                hash_including(
+                  claim_id: claim.id,
+                  old_vbms_document_id: anything,
+                  exception_class: 'StandardError',
+                  exception_message: 'boom'
+                ))
 
         expect { job.perform(claim.id) }.to raise_error(StandardError, 'boom')
       end

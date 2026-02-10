@@ -18,7 +18,7 @@ module Identity
       CernerProvisioner.new(icn:, source:).perform
     rescue Errors::CernerProvisionerError => e
       Rails.logger.error('[Identity] [CernerProvisionerJob] error', { icn:, error_message: e.message, source: })
-      raise if source == :tou
+      raise if source.to_s == 'tou'
     end
   end
 end
