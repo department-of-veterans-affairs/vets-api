@@ -36,9 +36,18 @@ module UnifiedHealthData
 
       AVS_CONTENT_TYPES = ['application/pdf', 'text/plain'].freeze
 
+      ALLOWED_DOC_STATUSES = %w[final amended].freeze
+
       def parse(note)
         record = note['resource']
-        return nil unless record && get_note(record)
+        return nil unless record
+
+        unless allowed_doc_status?(record['docStatus'])
+          log_filtered_clinical_note(record, 'disallowed_doc_status')
+          return nil
+        end
+
+        return nil unless get_note(record)
 
         date_value = record['date']
 
@@ -117,6 +126,20 @@ module UnifiedHealthData
       end
 
       private
+
+      def allowed_doc_status?(doc_status)
+        ALLOWED_DOC_STATUSES.include?(doc_status&.downcase)
+      end
+
+      def log_filtered_clinical_note(record, reason)
+        Rails.logger.info(
+          "Filtered DocumentReference: id=#{record['id']}, docStatus=#{record['docStatus']}, reason=#{reason}",
+          { service: 'unified_health_data', filtering: true }
+        )
+
+        StatsD.increment('unified_health_data.clinical_note.filtered_document_reference',
+                         tags: ["reason:#{reason}"])
+      end
 
       def get_record_type(record)
         LOINC_CODES.each do |key, value|

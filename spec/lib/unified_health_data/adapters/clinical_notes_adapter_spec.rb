@@ -115,6 +115,75 @@ RSpec.describe 'ClinicalNotesAdapter' do
 
       expect(parsed_note).to be_nil
     end
+
+    context 'docStatus filtering' do
+      it 'returns a parsed note when docStatus is final' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'final'
+        parsed_note = adapter.parse(note)
+
+        expect(parsed_note).not_to be_nil
+        expect(parsed_note.id).to eq('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
+      end
+
+      it 'returns a parsed note when docStatus is amended' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'amended'
+        parsed_note = adapter.parse(note)
+
+        expect(parsed_note).not_to be_nil
+        expect(parsed_note.id).to eq('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
+      end
+
+      it 'is case insensitive for docStatus' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'Final'
+        parsed_note = adapter.parse(note)
+
+        expect(parsed_note).not_to be_nil
+        expect(parsed_note.id).to eq('76ad925b-0c2c-4401-ac0a-13542d6b6ef5')
+      end
+
+      it 'returns nil when docStatus is preliminary' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'preliminary'
+        parsed_note = adapter.parse(note)
+
+        expect(parsed_note).to be_nil
+      end
+
+      it 'returns nil when docStatus is entered-in-error' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'entered-in-error'
+        parsed_note = adapter.parse(note)
+
+        expect(parsed_note).to be_nil
+      end
+
+      it 'returns nil when docStatus is nil' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource'].delete('docStatus')
+        parsed_note = adapter.parse(note)
+
+        expect(parsed_note).to be_nil
+      end
+
+      it 'logs filtered clinical notes with disallowed docStatus' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'preliminary'
+
+        expect(Rails.logger).to receive(:info).with(
+          'Filtered DocumentReference: id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, docStatus=preliminary, reason=disallowed_doc_status',
+          { service: 'unified_health_data', filtering: true }
+        )
+        expect(StatsD).to receive(:increment).with(
+          'unified_health_data.clinical_note.filtered_document_reference',
+          tags: ['reason:disallowed_doc_status']
+        )
+
+        adapter.parse(note)
+      end
+    end
   end
 
   describe '#parse_avs_with_metadata' do
