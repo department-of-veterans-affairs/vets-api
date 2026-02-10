@@ -125,7 +125,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['treatments'] = treatments
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -271,7 +271,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params['data']['attributes']['treatments'][0][:center][:country] = ''
 
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -290,7 +290,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   'Here\'s a country that has a very very very long name'
 
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -894,7 +894,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     '2007-08-01'
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                 end
               end
             end
@@ -1111,7 +1111,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     unit_name
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                 end
               end
             end
@@ -1144,7 +1144,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   par['data']['attributes'].delete('serviceInformation')
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                 end
               end
             end
@@ -1164,7 +1164,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
             post path, params: params.to_json, headers: headers.merge(auth_header)
 
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(JSON.parse(response.body)['errors'].size).to eq(2)
             expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
               'The property /serviceInformation/someBadField is not defined on the schema. Additional properties are not allowed'
@@ -1181,7 +1181,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['veteran']['currentMailingAddress'] = {}
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(JSON.parse(response.body)['errors'].size).to eq(5)
           end
         end
@@ -1217,7 +1217,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               }
             }
             post path, params: par.to_json, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(JSON.parse(response.body)['errors'].size).to eq(1)
           end
         end
@@ -1240,7 +1240,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
               }
               post path, params: par.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
               expect(JSON.parse(response.body)['errors'].size).to eq(1)
             end
           end
@@ -1251,7 +1251,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params = json_data
             params['data']['attributes']['disabilities'] = [{}]
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(JSON.parse(response.body)['errors'].size).to eq(4)
           end
         end
@@ -1263,7 +1263,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['specialIssues'] = ['invalidType']
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
                 expect(JSON.parse(response.body)['errors'].size).to eq(1)
               end
             end
@@ -1292,7 +1292,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 params = json_data
                 params['data']['attributes']['veteran']['flashes'] = ['invalidType']
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
                 expect(JSON.parse(response.body)['errors'].size).to eq(1)
               end
             end
@@ -1322,7 +1322,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params['data']['attributes']['veteran']['currentMailingAddress'] = mailing_address
 
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(JSON.parse(response.body)['errors'].size).to eq(1)
           end
         end
@@ -1340,7 +1340,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response).to have_http_status :unprocessable_entity
+              expect(response).to have_http_status :unprocessable_content
               expect(JSON.parse(response.body)['errors']).to be_an Array
             end
           end
@@ -1360,7 +1360,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   body = JSON.parse(response.body)
-                  expect(response).to have_http_status :unprocessable_entity
+                  expect(response).to have_http_status :unprocessable_content
                   expect(body['errors']).to be_an Array
                   expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
                 end
@@ -1376,7 +1376,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   post path, params: data, headers: headers.merge(auth_header)
                   body = JSON.parse(response.body)
-                  expect(response).to have_http_status :unprocessable_entity
+                  expect(response).to have_http_status :unprocessable_content
                   expect(body['errors']).to be_an Array
                   expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
                 end
@@ -1457,7 +1457,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     # it fails because specialIssues included in our submission fail with the new FES service
                     post path, params: data, headers: headers.merge(auth_header)
 
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:unprocessable_content)
                   end
                 end
               end
@@ -1481,7 +1481,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params['data']['attributes']['veteran']['currentMailingAddress'] = {}
             post path, params: params.to_json, headers: headers.merge(auth_header)
             parsed = JSON.parse(response.body)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(parsed['errors'].size).to eq(5)
           end
         end
@@ -1534,7 +1534,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             allow_any_instance_of(ClaimsApi::V1::Forms::DisabilityCompensationController)
               .to receive(:target_veteran).and_return(no_edipi_target_veteran)
             post path, params: data, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             expect(response.parsed_body['errors'][0]['detail']).to eq(
               "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -1554,7 +1554,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
             end
           end
         end
@@ -1591,7 +1591,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                     post path, params: data, headers: auth_header
 
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:unprocessable_content)
                   end
                 end
               end
@@ -1640,7 +1640,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                 json_response = JSON.parse(response.body)
 
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
                 expect(json_response['errors'][0]['detail']).to eq(
                   "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                   'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -1662,7 +1662,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
             end
           end
         end
@@ -1687,7 +1687,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
               post path, params: data, headers: headers.merge(auth_header)
               data = JSON.parse(response.body)
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
               expect(data['errors'][0]['detail']).to eq(
                 'Veteran has multiple active Participant IDs in Master Person Index (MPI). ' \
                 'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -1842,7 +1842,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -1855,7 +1855,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -1868,7 +1868,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -1881,7 +1881,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -1894,7 +1894,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
                 post path, params: data, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
               end
             end
           end
@@ -2009,7 +2009,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] =
               111
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             response_error_details = JSON.parse(response.body)['errors'].first['detail']
             expect(response_error_details).to include('Code must match the values returned by the /intake-sites' \
                                                       ' endpoint on the [Benefits reference Data API]')
@@ -2077,7 +2077,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               otherLivingSituation: 'community help center'
             }
             post path, params: params.to_json, headers: headers.merge(auth_header)
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:unprocessable_content)
             response_body = JSON.parse(response.body)
             expect(response_body['errors'].length).to eq(1)
             expect(response_body['errors'][0]['detail']).to eq(
@@ -2105,7 +2105,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     }
                   }
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'].length).to eq(1)
                   expect(response_body['errors'][0]['detail']).to eq(
@@ -2133,7 +2133,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
                 params['data']['attributes']['veteran']['homelessness'].delete('pointOfContact')
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:unprocessable_content)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'].length).to eq(1)
                 expect(response_body['errors'][0]['detail']).to eq(
@@ -2266,7 +2266,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                 end
               end
             end
@@ -2283,7 +2283,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:unprocessable_content)
                   end
                 end
               end
@@ -2333,7 +2333,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:unprocessable_content)
                   end
                 end
               end
@@ -2396,7 +2396,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                 end
               end
             end
@@ -2413,7 +2413,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:unprocessable_content)
                   end
                 end
               end
@@ -2533,7 +2533,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
             end
           end
         end
@@ -2872,7 +2872,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     ]
                     params['data']['attributes']['disabilities'] = disabilities
                     post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:unprocessable_content)
                   end
                 end
               end
@@ -2918,7 +2918,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   ]
                   params['data']['attributes']['disabilities'] = disabilities
                   post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:unprocessable_content)
                 end
               end
             end
@@ -2950,7 +2950,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                       ]
                       params['data']['attributes']['disabilities'] = disabilities
                       post path, params: params.to_json, headers: headers.merge(auth_header)
-                      expect(response).to have_http_status(:unprocessable_entity)
+                      expect(response).to have_http_status(:unprocessable_content)
                     end
                   end
                 end
@@ -3433,7 +3433,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{non_auto_claim.id}",
             params: binary_params, headers: headers.merge(auth_header))
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
