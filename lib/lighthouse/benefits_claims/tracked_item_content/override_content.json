@@ -928,17 +928,15 @@
               "type": "bold",
               "content": "If a VA facility did your biopsy or other exam"
             },
-            ", upload a document that lists the date and where the exam took place.  We’ll request your medical records for you. You can use Statement in Support of Claim (VA Form 21-4138) for this."
-          ]
-        },
-        {
-          "type": "paragraph",
-          "content": [
+            ", upload a document that lists the date and where the exam took place. We'll request your medical records for you. You can use Statement in Support of Claim (VA Form 21-4138) for this.",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "link",
               "text": "Get VA Form 21-4138",
-              "href": "/forms/21-4138/",
-              "style": "default"
+              "href": "/find-forms/about-form-21-4138/",
+              "testId": "Get VA Form 21-4138"
             }
           ]
         },
@@ -949,17 +947,15 @@
               "type": "bold",
               "content": "If a non-VA provider did your exam"
             },
-            ", you’ll need to authorize us to request your records. Fill out a General Release for Medical Provider Information (VA Form 21-4142). Non-VA medical records are records from any private doctor, including a Veteran’s Choice doctor."
-          ]
-        },
-        {
-          "type": "paragraph",
-          "content": [
+            ", you'll need to authorize us to request your records. Fill out a General Release for Medical Provider Information (VA Form 21-4142). Non-VA medical records are records from any private doctor, including a Veteran's Choice doctor.",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "link",
               "text": "Get VA Form 21-4142",
-              "href": "/forms/21-4142/",
-              "style": "default"
+              "href": "/find-forms/about-form-21-4142/",
+              "testId": "Get VA Form 21-4142"
             }
           ]
         },
