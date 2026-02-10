@@ -144,7 +144,7 @@ class FormProfile
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
     vre_readiness: %w[28-1900],
-    survivors_benefits: ['21P-534ez']
+    survivors_benefits: ['21P-534EZ']
   }.freeze
 
   FORM_ID_TO_CLASS = {
