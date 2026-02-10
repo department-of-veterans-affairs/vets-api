@@ -151,6 +151,8 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         expect(response).to have_http_status(:success)
         expect(response.parsed_body.deep_symbolize_keys).to eq(
           { available_forms: [
+            { year: 2022,
+              last_updated: nil },
             { year: 2024,
               last_updated: nil }
           ] }
@@ -171,8 +173,8 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       context 'when user was not enrolled during allowed date range' do
-        # per the vcr cassette, user was not enrolled in 2023
-        before { Timecop.freeze(Time.zone.parse('2024-03-05T08:00:00Z')) }
+        # the cassette doesn't have any coverage in the years 2016-2018
+        before { Timecop.freeze(Time.zone.parse('2019-03-05T08:00:00Z')) }
         after { Timecop.return }
 
         it 'returns an empty array' do
