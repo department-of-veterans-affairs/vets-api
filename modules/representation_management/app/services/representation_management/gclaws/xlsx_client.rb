@@ -172,8 +172,18 @@ module RepresentationManagement
         end
 
         unless http_code == '200'
+          if http_code.to_i >= 500
+            error_message = "GCLAWS XLSX server error: #{http_code}"
+            status = :service_unavailable
+          elsif http_code.to_i >= 400
+            error_message = "GCLAWS XLSX client error: #{http_code}"
+            status = :unprocessable_entity
+          else
+            error_message = "GCLAWS XLSX request failed with status #{http_code}"
+            status = :service_unavailable
+          end
           return handle_error('http_error', StandardError.new("HTTP #{http_code}"),
-                              :service_unavailable, "GCLAWS XLSX request failed with status #{http_code}")
+                              status, error_message)
         end
 
         # Validate content type
