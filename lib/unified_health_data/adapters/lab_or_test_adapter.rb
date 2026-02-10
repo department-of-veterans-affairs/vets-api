@@ -367,6 +367,7 @@ module UnifiedHealthData
       end
 
       def get_reference_id(reference)
+        return nil if reference.blank?
         # Some of the VistA data doesn't use the full reference format, and instead just has the ID,
         # so we need to handle both cases
         return reference if reference&.exclude?('/')

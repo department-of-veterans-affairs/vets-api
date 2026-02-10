@@ -75,6 +75,26 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       record = { 'resource' => {} }
       expect(adapter.send(:get_location, record)).to be_nil
     end
+
+    it 'handles performer entries with nil reference gracefully' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => nil }, { 'reference' => 'Organization/org-1' }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Good Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Good Lab')
+    end
+
+    it 'falls back to first Organization when all performer references are nil' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => nil }, { 'reference' => nil }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Fallback Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
+    end
   end
 
   describe '#get_ordered_by' do
@@ -114,6 +134,24 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
     it 'returns nil if contained is nil' do
       record = { 'resource' => { 'contained' => nil } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns requester display when requester reference is nil' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => nil, 'display' => 'Doe, John' } }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to eq('Doe, John')
+    end
+
+    it 'returns nil when requester reference is nil and no display exists' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => nil } },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] }
+      ] } }
       expect(adapter.send(:get_ordered_by, record)).to be_nil
     end
   end
@@ -260,6 +298,28 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(adapter.send(:get_body_site, resource, contained)).to eq('')
       end
     end
+
+    context 'when basedOn entry has nil reference' do
+      it 'returns an empty string' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => nil }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn has mix of nil and valid references' do
+      it 'returns body site from the valid reference only' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => nil }, { 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
+      end
+    end
   end
 
   describe '#get_sample_tested' do
@@ -352,6 +412,53 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:get_sample_tested, record, contained)
 
         expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when specimen hash has nil reference' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => nil } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen array has entries with nil references' do
+      it 'returns only specimens with valid references' do
+        record = {
+          'specimen' => [
+            { 'reference' => nil },
+            { 'reference' => 'Specimen/123' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when all specimen references in array are nil' do
+      it 'returns an empty string' do
+        record = {
+          'specimen' => [
+            { 'reference' => nil },
+            { 'reference' => nil }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
       end
     end
   end
@@ -643,6 +750,24 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
+    end
+  end
+
+  describe '#get_reference_id' do
+    it 'extracts the ID from a full reference format' do
+      expect(adapter.send(:get_reference_id, 'Organization/abc-123')).to eq('abc-123')
+    end
+
+    it 'returns the reference as-is when it has no slash (bare ID)' do
+      expect(adapter.send(:get_reference_id, 'abc-123')).to eq('abc-123')
+    end
+
+    it 'returns nil when reference is nil' do
+      expect(adapter.send(:get_reference_id, nil)).to be_nil
+    end
+
+    it 'returns nil when reference is an empty string' do
+      expect(adapter.send(:get_reference_id, '')).to be_nil
     end
   end
 
