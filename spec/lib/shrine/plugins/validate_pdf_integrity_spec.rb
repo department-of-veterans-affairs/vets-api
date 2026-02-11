@@ -99,7 +99,8 @@ describe Shrine::Plugins::ValidatePdfIntegrity do
 
       it 'includes a readable error message' do
         instance.validate_pdf_integrity
-        expect(instance.errors).to include(match(/no readable pages|corrupt or unreadable/))
+        expect(instance.errors
+        .first).to eq('We couldn’t open your PDF. Please save it and try uploading it again.')
       end
     end
 
@@ -130,7 +131,7 @@ describe Shrine::Plugins::ValidatePdfIntegrity do
 
       it 'includes a readable error message' do
         instance.validate_pdf_integrity
-        expect(instance.errors).to include('The uploaded PDF is corrupt or unreadable')
+        expect(instance.errors).to include('We couldn’t upload your PDF because the file is corrupted')
       end
 
       it 'logs a warning' do
@@ -166,7 +167,7 @@ describe Shrine::Plugins::ValidatePdfIntegrity do
 
       it 'includes a readable error message' do
         instance.validate_pdf_integrity
-        expect(instance.errors).to include('The uploaded PDF is corrupt or unreadable')
+        expect(instance.errors).to include('We couldn’t upload your PDF because the file is corrupted')
       end
     end
   end

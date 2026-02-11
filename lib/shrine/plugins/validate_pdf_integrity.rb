@@ -10,10 +10,10 @@ class Shrine
           file = get.download
           reader = PDF::Reader.new(file)
 
-          errors << 'PDF contains no readable pages' if reader.page_count < 1
+          errors << I18n.t('errors.messages.uploads.pdf.invalid') if reader.page_count < 1
         rescue PDF::Reader::MalformedPDFError, PDF::Reader::UnsupportedFeatureError => e
           Rails.logger.warn("validate_pdf_integrity: #{e.message}")
-          errors << 'The uploaded PDF is corrupt or unreadable'
+          errors << I18n.t('errors.messages.uploads.malformed_pdf')
         end
       end
     end

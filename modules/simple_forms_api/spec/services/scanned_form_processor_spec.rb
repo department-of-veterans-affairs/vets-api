@@ -440,9 +440,9 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       expect { processor.process! }
         .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
           expect(error.errors.first[:title]).to eq('File validation error')
-          expect(error.errors.first[:detail]).to match(/corrupt|unreadable|no readable pages/)
+          expect(error.errors
+            .first[:detail]).to eq('We couldn’t open your PDF. Please save it and try uploading it again.')
         end
-
       zero_page_pdf.unlink
     end
 
