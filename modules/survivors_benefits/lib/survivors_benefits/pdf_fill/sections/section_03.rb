@@ -10,9 +10,6 @@ module SurvivorsBenefits
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include Helpers
 
-      # The Index Iterator Key
-      ITERATOR = ::PdfFill::HashConverter::ITERATOR
-
       SERVICE_BRANCH_MAPPING = {
         'army' => 'ARMY',
         'navy' => 'NAVY',
@@ -40,8 +37,7 @@ module SurvivorsBenefits
         'veteranHasPreviousNames' => {
           key: 'form1[0].#subform[207].RadioButtonList[4]'
         },
-        'veteranPreviousNames' => {
-          limit: 2,
+        'veteranPreviousNameOne' => {
           first_key: 'first',
           'first' => {
             limit: 12,
@@ -49,7 +45,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s First Name (additional)',
             question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
-            key: "form1[0].#subform[207].First_Name[#{ITERATOR}]"
+            key: "form1[0].#subform[207].First_Name[1]"
           },
           'middle' => {
             limit: 1,
@@ -57,7 +53,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Middle Initial (additional)',
             question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
-            key: "form1[0].#subform[207].Middle_Initial[#{ITERATOR}]"
+            key: "form1[0].#subform[207].Middle_Initial[1]"
           },
           'last' => {
             limit: 18,
@@ -65,7 +61,34 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Last Name (additional)',
             question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
-            key: "form1[0].#subform[207].Last_Name[#{ITERATOR}]"
+            key: "form1[0].#subform[207].Last_Name[1]"
+          }
+        },
+        'veteranPreviousNameTwo' => {
+          first_key: 'first',
+          'first' => {
+            limit: 12,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s First Name (additional)',
+            question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
+            key: "form1[0].#subform[207].First_Name[0]"
+          },
+          'middle' => {
+            limit: 1,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s Middle Initial (additional)',
+            question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
+            key: "form1[0].#subform[207].Middle_Initial[0]"
+          },
+          'last' => {
+            limit: 18,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s Last Name (additional)',
+            question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
+            key: "form1[0].#subform[207].Last_Name[0]"
           }
         },
         'activeServiceDateRange' => {
@@ -119,7 +142,7 @@ module SurvivorsBenefits
         },
         'unitNameAndAddress' => {
           'line_one' => {
-            limit: 20,
+            limit: 60,
             question_num: 3,
             question_suffix: 'H',
             question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
@@ -127,19 +150,9 @@ module SurvivorsBenefits
             key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[0]'
           },
           'line_two' => {
-            limit: 20,
-            question_num: 3,
-            question_suffix: 'H',
-            question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 2)',
-            question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 2)',
             key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[1]'
           },
           'line_three' => {
-            limit: 20,
-            question_num: 3,
-            question_suffix: 'H',
-            question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 3)',
-            question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 3)',
             key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[2]'
           }
         },
@@ -185,7 +198,8 @@ module SurvivorsBenefits
 
       def expand(form_data = {})
         form_data['p11HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
-        form_data['veteranPreviousNames'] ||= []
+        form_data['veteranPreviousNameOne'] = form_data['veteranPreviousNames']&.first || ''
+        form_data['veteranPreviousNameTwo'] = form_data['veteranPreviousNames']&.second || ''
         form_data['veteranHasPreviousNames'] = to_radio_yes_no(form_data['veteranPreviousNames'].length.positive?)
         form_data['activeServiceDateRange'] = {
           'from' => split_date(form_data.dig('activeServiceDateRange', 'from')),
@@ -194,7 +208,13 @@ module SurvivorsBenefits
         form_data['serviceBranch'] = service_to_radio(form_data['serviceBranch'])
         form_data['nationalGuardActivated'] = to_radio_yes_no(form_data['nationalGuardActivated'])
         form_data['nationalGuardActivationDate'] = split_date(form_data['nationalGuardActivationDate'])
-        form_data['unitNameAndAddress'] = split_unit_into_lines(form_data['unitNameAndAddress'])
+
+        unit_name_and_address = expand_unit_info_lines(form_data['unitNameAndAddress'])
+
+        form_data['unitNameAndAddressLineOne'] = split_unit_into_lines(form_data['unitNameAndAddress'])
+        form_data['unitNameAndAddressLineOne'] = split_unit_into_lines(form_data['unitNameAndAddress'])
+        form_data['unitNameAndAddressLineOne'] = split_unit_into_lines(form_data['unitNameAndAddress'])
+
         unit_phone = form_data['unitPhone']
         unit_phone = unit_phone['contact'] if unit_phone.is_a?(Hash)
         form_data['unitPhone'] = expand_phone_number(unit_phone.to_s)
@@ -222,15 +242,32 @@ module SurvivorsBenefits
         end
       end
 
+      def expand_unit_info_lines(unit_name_and_address)
+        
+        if unit_name_and_address&.length.to_i <= 60
+          unit_name_and_address ||= ''
+          parts = unit_name_and_address.scan(/.{1,20}/)
+          {
+            'line_one' => parts[0] || '',
+            'line_two' => parts[1] || '',
+            'line_three' => parts[2] || ''
+          }
+        else
+          {
+            'line_one' => unit_name_and_address,
+            'line_two' => '',
+            'line_three' => ''
+          }
+        end
+      end
+
       def split_unit_into_lines(unit_name_and_address)
         unit_name_and_address ||= ''
         parts = unit_name_and_address.scan(/.{1,20}/)
         {
           'line_one' => parts[0],
           'line_two' => parts[1],
-          # to ensure overflow gets triggered, line_three should be the rest of
-          # the string even if longer than 20 chars.
-          'line_three' => unit_name_and_address[40..] || ''
+          'line_three' => parts[2]
         }
       end
     end

@@ -43,7 +43,7 @@ module SurvivorsBenefits
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: false,
+        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true,
                                                                  omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
