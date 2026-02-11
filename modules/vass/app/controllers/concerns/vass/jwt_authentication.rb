@@ -25,6 +25,7 @@ module Vass
   #
   module JwtAuthentication
     extend ActiveSupport::Concern
+    include Vass::MetricsConstants
 
     included do
       attr_reader :current_veteran_id, :current_jti
@@ -85,7 +86,21 @@ module Vass
 
     def handle_expired_token
       log_auth_failure('expired_token')
+      track_session_timeout
       raise Vass::Errors::AuthenticationError, Vass::Errors::AuthenticationError::EXPIRED_TOKEN
+    end
+
+    ##
+    # Tracks session timeout event with StatsD metric and detailed logging.
+    #
+    def track_session_timeout
+      StatsD.increment(SESSION_JWT_EXPIRED, tags: [SERVICE_TAG])
+      log_vass_event(
+        action: 'session_timeout',
+        level: :warn,
+        component: 'jwt_authentication',
+        failure_type: 'jwt_expired'
+      )
     end
 
     def handle_invalid_token(exception)
