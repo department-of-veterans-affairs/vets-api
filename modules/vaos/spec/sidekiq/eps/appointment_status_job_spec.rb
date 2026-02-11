@@ -29,11 +29,12 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
     allow(Eps::AppointmentStatusEmailJob).to receive(:perform_async)
-    allow(PersonalInformationLog).to receive(:create)
+    RequestStore.store['eps_trace_id'] = 'test-trace-id'
   end
 
   after do
     Rails.cache.clear
+    RequestStore.store['eps_trace_id'] = nil
   end
 
   describe '.perform_async' do
@@ -50,7 +51,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
       worker.perform(user.uuid, appointment_id_last4)
     end
 
-    it 'logs the appointment status response' do
+    it 'logs the appointment status response with eps_trace_id' do
       allow(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true)
                                                  .and_return(response)
       expect(Rails.logger).to receive(:info).with(
@@ -59,7 +60,8 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
           appointment_id_last4:,
           state: 'completed',
           appointment_details_status: 'booked',
-          retry_count: 0
+          retry_count: 0,
+          eps_trace_id: 'test-trace-id'
         }
       )
       worker.perform(user.uuid, appointment_id_last4)
@@ -90,14 +92,13 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
         worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
 
-      it 'logs PII on max retry failure' do
-        expect(PersonalInformationLog).to receive(:create).with(
-          error_class: 'eps_appointment_status_confirmation_failed',
-          data: {
-            appointment_id:,
+      it 'logs error with eps_trace_id on max retry failure' do
+        expect(Rails.logger).to receive(:error).with(
+          'Community Care Appointments: Eps::AppointmentStatusJob could not confirm appointment booking',
+          {
             user_uuid: user.uuid,
-            last_state: 'pending',
-            last_status: 'pending'
+            appointment_id_last4:,
+            eps_trace_id: 'test-trace-id'
           }
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)

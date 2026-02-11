@@ -48,10 +48,10 @@ module Eps
       appointment_data = fetch_and_validate_appointment_data
       return unless appointment_data
 
-      @appointment_id = appointment_data[:appointment_id]
+      appointment_id = appointment_data[:appointment_id]
       user = User.find(user_uuid)
 
-      process_appointment_status(user, @appointment_id, retry_count)
+      process_appointment_status(user, appointment_id, retry_count)
     end
 
     private
@@ -110,7 +110,8 @@ module Eps
           appointment_id_last4: @appointment_id_last4,
           state: response&.state,
           appointment_details_status: response&.appointment_details&.status,
-          retry_count:
+          retry_count:,
+          eps_trace_id:
         }
       )
     end
@@ -159,9 +160,14 @@ module Eps
         self.class.perform_in(1.minute, @user_uuid, @appointment_id_last4, retry_count + 1)
       else
         StatsD.increment(STATSD_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
-        Rails.logger.error("#{CC_APPOINTMENTS}: #{self.class} could not confirm appointment booking",
-                           { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4 })
-        log_appt_no_on_failure(response)
+        Rails.logger.error(
+          "#{CC_APPOINTMENTS}: #{self.class} could not confirm appointment booking",
+          {
+            user_uuid: @user_uuid,
+            appointment_id_last4: @appointment_id_last4,
+            eps_trace_id:
+          }
+        )
         send_vanotify_message(error: ERROR_MESSAGE)
       end
     end
@@ -185,25 +191,15 @@ module Eps
     end
 
     ##
-    # Logs PII data when appointment status confirmation fails after max retries.
+    # Retrieves the EPS trace ID from RequestStore.
     #
-    # Creates an encrypted log entry containing the full appointment ID for
-    # debugging purposes. This allows support to investigate failed appointments
-    # while keeping sensitive data secure.
+    # The trace ID is set by the EPS middleware and can be used to correlate
+    # requests across services for debugging purposes.
     #
-    # @param response [Object] The last response from the EPS appointment service
-    # @return [void]
+    # @return [String, nil] The trace ID or nil if not set
     #
-    def log_appt_no_on_failure(response)
-      PersonalInformationLog.create(
-        error_class: 'eps_appointment_status_confirmation_failed',
-        data: {
-          appointment_id: @appointment_id,
-          user_uuid: @user_uuid,
-          last_state: response&.state,
-          last_status: response&.appointment_details&.status
-        }
-      )
+    def eps_trace_id
+      RequestStore.store['eps_trace_id']
     end
 
     ##
