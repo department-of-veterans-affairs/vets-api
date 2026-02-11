@@ -1,4 +1,5 @@
 # Vets API
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/department-of-veterans-affairs/vets-api)
 
 This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
 
