@@ -42,7 +42,7 @@ This file contains all 69 detection patterns (regex signatures, confidence level
 2. Map structure: controllers, services, models, jobs, lib, serializers
 3. Identify external service integrations (Faraday clients, Common::Client subclasses, BGS, Lighthouse, etc.)
 4. Count files per category
-5. Use `rkt` commands for code navigation when needed (via `execute`)
+5. Use `search` and `read` for code navigation as needed
 
 ### Phase 2-N: Play-by-Play Scanning
 
@@ -61,16 +61,22 @@ When writing recommendations for findings, read the relevant play guidance file:
 read .github/agents/sre/plays/{play-filename}.md
 ```
 
-Each play file contains:
-- **Context** — why this matters
-- **Investigation steps** — checklist to verify before flagging
-- **Severity assessment** — context-dependent severity criteria
-- **Golden patterns** — correct code examples
-- **Anti-patterns** — bad code with explanations
-- **Finding template** — what to include in the report
-- **Verify commands** — post-fix checks
+Each play file has three sections:
 
-Use the golden patterns and anti-patterns from these files to write specific, actionable remediation guidance.
+1. **YAML frontmatter** — metadata: `id`, `title`, `version`, `severity`, `category`, `tags`
+2. **`<agent_play>` XML block** (inside an HTML comment `<!-- -->`) — structured agent data:
+   - `<context>` — why this play matters
+   - `<applies_to>` — file globs this play targets
+   - `<detection>` — patterns, heuristics, and false positives (also summarized in detection-patterns.md)
+   - `<rules>` — enforcement rules (must/must_not/should/verify)
+   - `<investigate_before_answering>` — checklist steps before flagging a violation
+   - `<severity_assessment>` — context-dependent severity (critical/high/medium)
+   - `<pr_comment_template>` — structured finding template with placeholders
+   - `<verify>` — post-fix verification commands
+   - `<related_plays>` — cross-references to complementary plays
+3. **Human-readable markdown** — Why It Matters, Guidance, Do/Don't code examples, Anti-Patterns with corrected code, References
+
+Use the XML `<pr_comment_template>` for finding structure, the `<investigate_before_answering>` steps to verify before flagging, and the markdown Do/Don't and Anti-Patterns sections for specific, actionable remediation guidance.
 
 ### Final Phase: Report Generation
 
