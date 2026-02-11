@@ -38,6 +38,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do

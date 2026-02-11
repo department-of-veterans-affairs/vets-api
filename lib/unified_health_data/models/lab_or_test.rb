@@ -29,6 +29,7 @@ module UnifiedHealthData
     attribute :type, String
     attribute :display, String
     attribute :test_code, String
+    attribute :test_code_display, String
     attribute :date_completed, String
     attribute :sort_date, String # Normalized date for sorting (internal use only)
     attribute :sample_tested, String

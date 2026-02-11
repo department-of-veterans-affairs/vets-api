@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../app/services/vass/client'
+require_relative '../../support/vass_settings_helper'
 
 describe Vass::Client do
   subject { described_class.new }
@@ -15,6 +16,9 @@ describe Vass::Client do
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+
+    # Stub Settings.vass for token encryption
+    stub_vass_settings
   end
 
   describe '.new' do

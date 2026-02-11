@@ -309,10 +309,13 @@ module Vass
     private
 
     ##
-    # Maps topics from VASS API format to frontend format.
-    # Transforms skill_id/skill_name to topic_id/topic_name.
+    # Maps topics from the VASS client format to the frontend format.
+    # Upstream VASS responses use camelCase fields (skillId/skillName), which are
+    # converted to snake_case (skill_id/skill_name) by Faraday's snakecase middleware.
+    # This method expects the already-snake_cased hashes and maps skill_id/skill_name
+    # to topic_id/topic_name for consumption by the frontend.
     #
-    # @param raw_topics [Array<Hash>] Topics from VASS with skill_id/skill_name
+    # @param raw_topics [Array<Hash>] Topics after middleware, with skill_id/skill_name
     # @return [Array<Hash>] Topics with topic_id/topic_name for frontend
     #
     def map_topics_for_frontend(raw_topics)
