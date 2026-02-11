@@ -33,10 +33,10 @@ module MyHealth
       # Accept either a service (lazy fetch) or pre-loaded prescription list (efficient)
       user_prescriptions = if prescription_service_or_list.respond_to?(:get_prescriptions)
                              # It's a service - fetch prescriptions
-                             prescription_service_or_list.get_prescriptions(current_only: false).compact
+                             prescription_service_or_list.get_prescriptions(current_only: false)
                            else
                              # It's already a prescription list - use it directly
-                             prescription_service_or_list.compact
+                             prescription_service_or_list
                            end
 
       orders.each_with_index do |order, index|
