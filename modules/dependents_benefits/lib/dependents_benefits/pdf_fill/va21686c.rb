@@ -1554,6 +1554,7 @@ module DependentsBenefits
 
         expand_remarks
         expand_veteran_ssn
+        expand_no_ssn_cases if Flipper.enabled?(:va_dependents_no_ssn)
 
         @form_data
       end
@@ -1988,6 +1989,67 @@ module DependentsBenefits
           'spouse_does_live_with_veteran_yes' => select_radio_button(does_live_with_spouse),
           'spouse_does_live_with_veteran_no' => select_radio_button(!does_live_with_spouse)
         }
+      end
+
+      def expand_no_ssn_cases
+        # need to account for children not in exact order
+        no_ssn_mappings = {
+          spouse: @form_data.dig('dependents_application', 'spouse_information', 'no_ssn'),
+          children: @form_data.dig('dependents_application', 'children_to_add')&.map { |child| child['no_ssn'] }.present?
+        }
+        no_ssn_reasons = {
+          spouse: @form_data.dig('dependents_application', 'spouse_information', 'no_ssn_reason'),
+          children: @form_data.dig('dependents_application', 'children_to_add')&.map { |child| child['no_ssn_reason'] }
+        }
+
+        # 11c -> spouse
+        # 16B -> children (increment by 1 for each child)
+
+        all_no_ssn_remarks = []
+
+        if no_ssn_mappings[:spouse]
+          reason = no_ssn_reasons[:spouse]
+          @form_data['dependents_application']['spouse_information']['ssn'] = {
+            'first' => 'See',
+            'second' => 'ad',
+            'third' => "d'l "
+          }
+          all_no_ssn_remarks << "11C. Spouse no SSN reason: #{reason}"
+          # @form_data['remarks']['remarks_line1'] = text[0..34]
+          # @form_data['remarks']['remarks_line2'] = text[35..]
+        end
+
+        if no_ssn_mappings[:children]
+          no_ssn_reasons[:children].each_with_index do |reason, index|
+            next unless reason
+
+            @form_data['dependents_application']['children_to_add'][index]['ssn'] = {
+              'first' => 'See',
+              'second' => 'ad',
+              'third' => "d'l "
+            }
+            # 16B -> children
+            # (increment question number by 1 for each additional child until 4 children, then start at 1B)
+            question_num = index < 4 ? 16 + index : index - 3
+            all_no_ssn_remarks << "#{question_num}B. Child no SSN reason: #{reason}"
+          end
+        end
+
+        # Combine all no SSN reasons into remarks
+        full_text_with_commas = all_no_ssn_remarks.join(', ')
+        count = 1
+        remark_line = 1
+        full_text_with_commas.each_char do |char|
+          if count <= 35
+            @form_data['remarks']["remarks_line#{remark_line}"] ||= ''
+            @form_data['remarks']["remarks_line#{remark_line}"] += char
+            count += 1
+          else
+            # start a new line every 35 characters
+            remark_line += 1
+            count = 1
+          end
+        end
       end
 
       ##
