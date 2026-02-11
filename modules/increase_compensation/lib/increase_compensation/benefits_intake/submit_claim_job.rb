@@ -23,7 +23,7 @@ module IncreaseCompensation
         ia_monitor = IncreaseCompensation::Monitor.new
         begin
           claim = IncreaseCompensation::SavedClaim.find(msg['args'].first)
-        rescue Errors::StandardError
+        rescue
           claim = nil
         end
         ia_monitor.track_submission_exhaustion(msg, claim)
@@ -45,7 +45,8 @@ module IncreaseCompensation
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.guid, { extras_redesign: true, omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
-        @metadata = generate_metadata
+        form = @claim.parsed_form
+        @metadata = generate_metadata(form)
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -109,8 +110,7 @@ module IncreaseCompensation
       # @see BenefitsIntake::Metadata
       #
       # @return [Hash]
-      def generate_metadata
-        form = @claim.parsed_form
+      def generate_metadata(form)
         address = form['claimantAddress'] || form['veteranAddress']
 
         # also validates/manipulates the metadata
@@ -119,8 +119,8 @@ module IncreaseCompensation
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           address['postalCode'],
-          self.class.to_s,
-          @claim.form_id,
+          'va_gov_benefits_intake_pingwind',
+          @claim.form_id, # TODO: cahnge to 21-8940
           @claim.business_line
         )
       end
