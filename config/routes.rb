@@ -77,6 +77,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :multi_party_forms do
+      resources :primary, only: %i[create show]
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
@@ -410,7 +414,11 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-    resources :medical_copays, only: %i[index show]
+    resources :medical_copays, only: %i[index show] do
+      collection do
+        get :summary
+      end
+    end
   end
 
   root 'v0/example#index', module: 'v0'
