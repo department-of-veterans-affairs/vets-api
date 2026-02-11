@@ -96,16 +96,45 @@ module EventBusGateway
     end
 
     def send_email_notification(participant_id, template_id, first_name, icn)
+      # Select template based on feature flag for decision letter emails
+      final_template_id = select_email_template(template_id, icn)
+
       response = notify_client.send_email(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
-        template_id:,
+        template_id: final_template_id,
         personalisation: {
           host: hostname_for_template,
           first_name: first_name&.capitalize
         }
       )
 
-      create_notification_record(template_id, icn, response&.id)
+      create_notification_record(final_template_id, icn, response&.id)
+    end
+
+    def select_email_template(default_template_id, icn)
+      # Check if this is a decision letter email and if universal link flag is enabled
+      decision_letter_template_id = Settings.vanotify.services.benefits_management_tools.template_id
+                                            .decision_letter_ready_email
+
+      if default_template_id == decision_letter_template_id &&
+         Flipper.enabled?(:event_bus_gateway_letter_ready_email_universal_link, Flipper::Actor.new(icn))
+        # Use universal link template
+        universal_link_template_id = Settings.vanotify.services.benefits_management_tools.template_id
+                                             .decision_letter_ready_email_universal_link
+
+        if universal_link_template_id.present?
+          ::Rails.logger.info(
+            'LetterReadyEmailJob using universal link template',
+            {
+              original_template: default_template_id,
+              universal_link_template: universal_link_template_id
+            }
+          )
+          return universal_link_template_id
+        end
+      end
+
+      default_template_id
     end
 
     def create_notification_record(template_id, icn, va_notify_id)
