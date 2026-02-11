@@ -38,13 +38,13 @@ module UnifiedHealthData
 
       ALLOWED_DOC_STATUSES = %w[final amended].freeze
 
-      def parse(note)
+      def parse(note, logging_enabled: true)
         record = note['resource']
         return nil unless record
 
         unless allowed_doc_status?(record['docStatus'])
           reason = record['docStatus'].blank? ? 'missing_doc_status' : 'disallowed_doc_status'
-          log_filtered_clinical_note(record, reason)
+          log_filtered_clinical_note(record, reason, logging_enabled:)
           return nil
         end
 
@@ -137,11 +137,13 @@ module UnifiedHealthData
         ALLOWED_DOC_STATUSES.include?(doc_status&.downcase)
       end
 
-      def log_filtered_clinical_note(record, reason)
-        Rails.logger.info(
-          "Filtered DocumentReference: id=#{record['id']}, docStatus=#{record['docStatus']}, reason=#{reason}",
-          { service: 'unified_health_data', filtering: true }
-        )
+      def log_filtered_clinical_note(record, reason, logging_enabled: true)
+        if logging_enabled
+          Rails.logger.info(
+            "Filtered DocumentReference: id=#{record['id']}, docStatus=#{record['docStatus']}, reason=#{reason}",
+            { service: 'unified_health_data', filtering: true }
+          )
+        end
 
         StatsD.increment('unified_health_data.clinical_note.filtered_document_reference',
                          tags: ["reason:#{reason}"])

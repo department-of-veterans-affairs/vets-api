@@ -205,6 +205,20 @@ RSpec.describe 'ClinicalNotesAdapter' do
 
         adapter.parse(note)
       end
+
+      it 'does not log but still increments StatsD when logging_enabled is false' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['docStatus'] = 'preliminary'
+
+        expect(Rails.logger).not_to receive(:info)
+        expect(StatsD).to receive(:increment).with(
+          'unified_health_data.clinical_note.filtered_document_reference',
+          tags: ['reason:disallowed_doc_status']
+        )
+
+        result = adapter.parse(note, logging_enabled: false)
+        expect(result).to be_nil
+      end
     end
   end
 
