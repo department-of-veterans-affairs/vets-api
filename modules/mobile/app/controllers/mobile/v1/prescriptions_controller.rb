@@ -9,6 +9,8 @@ require 'unique_user_events'
 module Mobile
   module V1
     class PrescriptionsController < Mobile::ApplicationController
+      include MyHealth::PrescriptionRefillValidation
+
       before_action { authorize :mhv_prescriptions, :access? }
       before_action :validate_feature_flag
 
@@ -34,7 +36,7 @@ module Mobile
         parsed_orders = orders
 
         # Validate that requested prescriptions exist and have valid station numbers
-        validate_refill_orders!(parsed_orders)
+        validate_refill_orders!(parsed_orders, unified_health_service)
 
         result = unified_health_service.refill_prescription(parsed_orders)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
@@ -113,44 +115,6 @@ module Mobile
 
       def non_va_meds?(prescriptions)
         prescriptions.any? { |rx| rx.prescription_source == 'NV' }
-      end
-
-      # Validates that refill orders match actual prescriptions with valid station numbers
-      # Raises InvalidFieldValue if any order references a prescription that doesn't exist
-      # or has an invalid/missing station number
-      #
-      # @param orders [Array<Hash>] Array of order hashes with 'id' and 'stationNumber'
-      # @raise [Common::Exceptions::InvalidFieldValue] if validation fails
-      def validate_refill_orders!(orders)
-        # NOTE: Using current_only: false to match the prescription list used for validation
-        # current_only: true only includes active prescriptions, but refills might reference
-        # prescriptions in other states
-        user_prescriptions = unified_health_service.get_prescriptions(current_only: false).compact
-
-        orders.each_with_index do |order, index|
-          prescription = user_prescriptions.find do |p|
-            p.prescription_id.to_s == order['id'].to_s &&
-              p.station_number.to_s == order['stationNumber'].to_s
-          end
-
-          unless prescription
-            # Either prescription doesn't exist or station number doesn't match
-            # This catches both non-existent prescriptions and invalid station numbers
-            raise Common::Exceptions::InvalidFieldValue.new(
-              "orders[#{index}]",
-              "Prescription #{order['id']} with station #{order['stationNumber']}
-              not found or has invalid station number"
-            )
-          end
-
-          # Additional validation: station number must not be nil
-          if prescription.station_number.blank?
-            raise Common::Exceptions::InvalidFieldValue.new(
-              "orders[#{index}]",
-              "Prescription #{order['id']} has no valid station number"
-            )
-          end
-        end
       end
 
       def orders

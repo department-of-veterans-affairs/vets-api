@@ -470,16 +470,8 @@ module UnifiedHealthData
         # Delegate to FacilityNameResolver which handles:
         # - Two-pass extraction (3-digit prefix, then full identifier)
         # - Validation against facility ranges and HealthFacility table
-        # - Logging of failed extractions
-        station_number = facility_resolver.extract_station_number(dispense)
-
-        # Track failed extractions for monitoring
-        if station_number.nil?
-          raw_location = dispense&.dig('location', 'display')
-          StatsD.increment('unified_health_data.oracle_health.failed_station_extraction') if raw_location
-        end
-
-        station_number
+        # - Logging and StatsD tracking of failed extractions
+        facility_resolver.extract_station_number(dispense)
       end
 
       def extract_is_refillable(resource, refill_status)

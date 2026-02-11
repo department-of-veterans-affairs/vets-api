@@ -78,11 +78,14 @@ module UnifiedHealthData
         # Check against MHV facility range configuration (e.g., 358-758)
         facility_range = Settings.mhv&.facility_range
         if facility_range.present?
-          min_station = facility_range['min']
-          max_station = facility_range['max']
+          min_station = facility_range['min'].to_i
+          max_station = facility_range['max'].to_i
 
-          # Station must be within configured range
-          return false unless numeric_prefix >= min_station && numeric_prefix <= max_station
+          # Guard against misconfiguration (both min and max being zero/nil)
+          if min_station.positive? && max_station.positive? && !(numeric_prefix >= min_station && numeric_prefix <= max_station)
+            # Fast fail: Station must be within configured range
+            return false
+          end
         end
 
         # Additional validation: Check HealthFacility table
