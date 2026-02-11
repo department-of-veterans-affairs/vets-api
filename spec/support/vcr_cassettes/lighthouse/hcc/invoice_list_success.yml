@@ -64,7 +64,7 @@ http_interactions:
   recorded_at: Wed, 05 Nov 2025 00:28:17 GMT
 - request:
     method: get
-    uri: "https://test-api.va.gov/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&page=1&patient=123"
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&page=1&patient=123"
     body:
       encoding: US-ASCII
       string: ''
@@ -325,4 +325,759 @@ http_interactions:
         Paid"},"amount":{"value":3.03}},{"type":"surcharge","code":{"text":"Administrative
         Cost Paid"},"amount":{"value":0.63}}]},"search":{"mode":"match"}}]}'
   recorded_at: Wed, 05 Nov 2025 00:28:17 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-O3d8XK44ejMS"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:50:58 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1461'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '2'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="272836796", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '64'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoOA7WB3XwX&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoOA7WB3XwX&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoOA7WB3XwX&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XK44ejMS","resource":{"resourceType":"Organization","id":"4-O3d8XK44ejMS","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"1657365136"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_509"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"2645
+        SW 37TH AVE CORAL GABLES FL 331332744","line":["2645 SW 37TH AVE"],"city":"CORAL
+        GABLES","state":"FL","postalCode":"331332744"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5AKcS3F"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:00 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1466'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '60'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="2039094454", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '88'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFdJrSGoYk&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFdJrSGoYk&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFdJrSGoYk&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5AKcS3F","resource":{"resourceType":"Organization","id":"4-5pFm5AKcS3F","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"3638716354"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_387"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"1840
+        ELDRON BLVD SE STE 2 PALM BAY FL 329096871","line":["1840 ELDRON BLVD SE STE
+        2"],"city":"PALM BAY","state":"FL","postalCode":"329096871"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-O3d8XK3dOgmC"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:03 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1469'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '57'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1880726859", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '74'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoO2cmoTK01&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoO2cmoTK01&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoO2cmoTK01&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XK3dOgmC","resource":{"resourceType":"Organization","id":"4-O3d8XK3dOgmC","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"0415064585"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_248"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"10000
+        W COLONIAL DR WINTER GARDEN FL 347878915","line":["10000 W COLONIAL DR"],"city":"WINTER
+        GARDEN","state":"FL","postalCode":"347878915"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5AlwLJx"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:06 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1484'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '57'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '54'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1015521319", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '82'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFkpeSATEA&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFkpeSATEA&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFkpeSATEA&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5AlwLJx","resource":{"resourceType":"Organization","id":"4-5pFm5AlwLJx","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"9598673575"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_530"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"575
+        N CLYDE MORRIS BLVD STE A DAYTONA BEACH FL 321142323","line":["575 N CLYDE
+        MORRIS BLVD STE A"],"city":"DAYTONA BEACH","state":"FL","postalCode":"321142323"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5B42GrZ"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:08 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1464'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '56'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '52'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="459864045", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '87'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFpoA6MN9O&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFpoA6MN9O&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFpoA6MN9O&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5B42GrZ","resource":{"resourceType":"Organization","id":"4-5pFm5B42GrZ","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"3461621396"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_229"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"1324
+        LAKELAND HILLS BLVD LAKELAND FL 338051965","line":["1324 LAKELAND HILLS BLVD"],"city":"LAKELAND","state":"FL","postalCode":"338051965"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5BMI6AL"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:10 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1450'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '55'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '55'
+      Ratelimit-Reset:
+      - '50'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-31588809", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '65'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFupOWV64w&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFupOWV64w&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFupOWV64w&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5BMI6AL","resource":{"resourceType":"Organization","id":"4-5pFm5BMI6AL","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"5434793730"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_375"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"835
+        EXECUTIVE LN ROCKLEDGE FL 329553623","line":["835 EXECUTIVE LN"],"city":"ROCKLEDGE","state":"FL","postalCode":"329553623"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5B46fe5"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:14 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1452'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '54'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '54'
+      Ratelimit-Reset:
+      - '47'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1747033432", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '71'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFppN70IGQ&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFppN70IGQ&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFppN70IGQ&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5B46fe5","resource":{"resourceType":"Organization","id":"4-5pFm5B46fe5","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"2632427528"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_600"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"10
+        DOGWOOD TRL STE B DEBARY FL 327132443","line":["10 DOGWOOD TRL STE B"],"city":"DEBARY","state":"FL","postalCode":"327132443"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-O3d8XKf8jCQm"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:16 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1457'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '53'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '53'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '45'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="386586041", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '73'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYM38UnB3B&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYM38UnB3B&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYM38UnB3B&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XKf8jCQm","resource":{"resourceType":"Organization","id":"4-O3d8XKf8jCQm","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"4908686648"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_776"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"1055
+        SAXON BLVD ORANGE CITY FL 327638468","line":["1055 SAXON BLVD"],"city":"ORANGE
+        CITY","state":"FL","postalCode":"327638468"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-O3d8XKfZzF12"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:18 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1463'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '52'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '52'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '43'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-479880555", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '63'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYTXrrNOzh&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYTXrrNOzh&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYTXrrNOzh&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XKfZzF12","resource":{"resourceType":"Organization","id":"4-O3d8XKfZzF12","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"6476916083"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_869"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"1404
+        S RIDGEWOOD AVE EDGEWATER FL 321322720","line":["1404 S RIDGEWOOD AVE"],"city":"EDGEWATER","state":"FL","postalCode":"321322720"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-O3d8XKfMN2s0"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 27 Dec 2025 04:51:20 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1456'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '51'
+      Ratelimit-Reset:
+      - '41'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '51'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1649643902", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '70'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - <CORRELATION_ID>
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYPnjF51bd&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYPnjF51bd&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-6cAgLoYPnjF51bd&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XKfMN2s0","resource":{"resourceType":"Organization","id":"4-O3d8XKfMN2s0","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"9774821497"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_72"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"8060
+        SPYGLASS HILL RD VIERA FL 329407983","line":["8060 SPYGLASS HILL RD"],"city":"VIERA","state":"FL","postalCode":"329407983"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 05 Nov 2025 00:28:18 GMT
 recorded_with: VCR 6.3.1
