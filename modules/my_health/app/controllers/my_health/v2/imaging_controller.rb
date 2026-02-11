@@ -13,7 +13,7 @@ module MyHealth
       def index
         start_date = params[:start_date]
         end_date = params[:end_date]
-        imaging_study_type = params[:imaging_study_type] || 'ALL'
+        imaging_study_type = params[:imaging_study_type].presence || 'ALL'
 
         imaging_studies = sort_records(
           service.get_imaging_studies(
