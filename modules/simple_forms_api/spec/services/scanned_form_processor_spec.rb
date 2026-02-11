@@ -399,4 +399,92 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       processor.process!
     end
   end
+
+  context 'with malformed and corrupt PDFs' do
+    before do
+      allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+        double(validate: double(valid_pdf?: true, errors: []))
+      )
+    end
+
+    it 'rejects a zero-page PDF with a ValidationError' do
+      zero_page_pdf = Tempfile.new(['zero_pages', '.pdf'])
+      zero_page_pdf.binmode
+      zero_page_pdf.write(<<~PDF)
+        %PDF-1.4
+        1 0 obj
+        << /Type /Catalog /Pages 2 0 R >>
+        endobj
+        2 0 obj
+        << /Type /Pages /Kids [] /Count 0 >>
+        endobj
+        xref
+        0 3
+        0000000000 65535 f#{' '}
+        0000000009 00000 n#{' '}
+        0000000058 00000 n#{' '}
+        trailer
+        << /Size 3 /Root 1 0 R >>
+        startxref
+        109
+        %%EOF
+      PDF
+      zero_page_pdf.close
+
+      attachment = PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file_attacher.attach(File.open(zero_page_pdf.path, 'rb'), validate: false)
+      end
+      processor = described_class.new(attachment)
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
+          expect(error.errors.first[:title]).to eq('File validation error')
+          expect(error.errors.first[:detail]).to match(/corrupt|unreadable|no readable pages/)
+        end
+
+      zero_page_pdf.unlink
+    end
+
+    it 'rejects a PDF with invalid structure' do
+      malformed_pdf = Tempfile.new(['malformed', '.pdf'])
+      malformed_pdf.binmode
+      malformed_pdf.write('%PDF-1.4 this is not valid pdf content but has the header')
+      malformed_pdf.close
+
+      attachment = PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file_attacher.attach(File.open(malformed_pdf.path, 'rb'), validate: false)
+      end
+      processor = described_class.new(attachment)
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
+          expect(error.errors.first[:title]).to eq('File validation error')
+          expect(error.errors.first[:detail]).to match(/corrupt|unreadable/)
+        end
+
+      malformed_pdf.unlink
+    end
+
+    it 'rejects a file with no valid PDF content' do
+      not_a_pdf = Tempfile.new(['not_a_pdf', '.pdf'])
+      not_a_pdf.binmode
+      not_a_pdf.write('Just some random text that is definitely not a PDF file at all')
+      not_a_pdf.close
+
+      attachment = PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file_attacher.attach(File.open(not_a_pdf.path, 'rb'), validate: false)
+      end
+      processor = described_class.new(attachment)
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError) do |error|
+          expect(error.errors.first[:title]).to eq('File conversion error')
+      end
+
+      not_a_pdf.unlink
+    end
+  end
 end
