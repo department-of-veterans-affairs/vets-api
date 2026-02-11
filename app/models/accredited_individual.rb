@@ -94,14 +94,31 @@ class AccreditedIndividual < ApplicationRecord
   end
 
   def self.address_quality_counts
+    no_location_relation = without_location
+    with_location_relation = with_location
+    full_relation = with_location_relation.with_full_address
+    partial_zip_only_relation = with_location_relation.with_zip_only
+    partial_city_state_only_relation = with_location_relation.with_city_state_only
+
+    sql = <<~SQL
+      SELECT
+        (SELECT COUNT(*) FROM (#{no_location_relation.select('1').to_sql}) AS no_location) AS no_location,
+        (SELECT COUNT(*) FROM (#{full_relation.select('1').to_sql}) AS full,
+        (SELECT COUNT(*) FROM (#{partial_zip_only_relation.select('1').to_sql}) AS partial_zip_only,
+        (SELECT COUNT(*) FROM (#{partial_city_state_only_relation.select('1').to_sql}) AS partial_city_state_only,
+        (SELECT COUNT(*) FROM (#{with_location_relation.select('1').to_sql}) AS with_location
+    SQL
+
+    row = connection.exec_query(sql).first.symbolize_keys
+
     {
-      no_location: without_location.count,
-      full: with_location.with_full_address.count,
-      partial_zip_only: with_location.with_zip_only.count,
-      partial_city_state_only: with_location.with_city_state_only.count
+      no_location: row[:no_location],
+      full: row[:full],
+      partial_zip_only: row[:partial_zip_only],
+      partial_city_state_only: row[:partial_city_state_only]
     }.tap do |h|
       h[:partial] = h[:partial_zip_only] + h[:partial_city_state_only]
-      h[:other] = with_location.count - h[:full] - h[:partial]
+      h[:other] = row[:with_location] - h[:full] - h[:partial]
     end
   end
 
