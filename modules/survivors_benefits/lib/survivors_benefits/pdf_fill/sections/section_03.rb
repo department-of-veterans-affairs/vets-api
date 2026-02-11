@@ -46,7 +46,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s First Name (1st additional)',
             question_text: 'VETERAN\'S FIRST NAME (1ST ADDITIONAL)',
-            key: 'form1[0].#subform[207].First_Name[1]'
+            key: 'form1[0].#subform[207].First_Name[0]'
           },
           'middle' => {
             limit: 1,
@@ -54,7 +54,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Middle Initial (1st additional)',
             question_text: 'VETERAN\'S MIDDLE INITIAL (1ST ADDITIONAL)',
-            key: 'form1[0].#subform[207].Middle_Initial[1]'
+            key: 'form1[0].#subform[207].Middle_Initial[0]'
           },
           'last' => {
             limit: 18,
@@ -62,7 +62,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Last Name (1st additional)',
             question_text: 'VETERAN\'S LAST NAME (1ST ADDITIONAL)',
-            key: 'form1[0].#subform[207].Last_Name[1]'
+            key: 'form1[0].#subform[207].Last_Name[0]'
           }
         },
         'veteranPreviousNameTwo' => {
@@ -73,7 +73,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s First Name (2nd additional)',
             question_text: 'VETERAN\'S FIRST NAME (2ND ADDITIONAL)',
-            key: 'form1[0].#subform[207].First_Name[0]'
+            key: 'form1[0].#subform[207].First_Name[1]'
           },
           'middle' => {
             limit: 1,
@@ -81,7 +81,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Middle Initial (2nd additional)',
             question_text: 'VETERAN\'S MIDDLE INITIAL (2ND ADDITIONAL)',
-            key: 'form1[0].#subform[207].Middle_Initial[0]'
+            key: 'form1[0].#subform[207].Middle_Initial[1]'
           },
           'last' => {
             limit: 18,
@@ -89,7 +89,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Last Name (2nd additional)',
             question_text: 'VETERAN\'S LAST NAME (2ND ADDITIONAL)',
-            key: 'form1[0].#subform[207].Last_Name[0]'
+            key: 'form1[0].#subform[207].Last_Name[1]'
           }
         },
         'activeServiceDateRange' => {
@@ -207,8 +207,7 @@ module SurvivorsBenefits
 
       def expand(form_data = {})
         form_data['p11HeaderVeteranSocialSecurityNumber'] = split_ssn(form_data['veteranSocialSecurityNumber'])
-        form_data['veteranPreviousNameOne'] = form_data['veteranPreviousNames']&.first || ''
-        form_data['veteranPreviousNameTwo'] = form_data['veteranPreviousNames']&.second || ''
+        form_data['veteranPreviousNames'] ||= []
         form_data['veteranHasPreviousNames'] = to_radio_yes_no(form_data['veteranPreviousNames'].length.positive?)
         form_data['activeServiceDateRange'] = {
           'from' => split_date(form_data.dig('activeServiceDateRange', 'from')),
@@ -225,6 +224,7 @@ module SurvivorsBenefits
           'from' => split_date(form_data.dig('powDateRange', 'from')),
           'to' => split_date(form_data.dig('powDateRange', 'to'))
         }
+        form_data.merge!(expand_previous_names(form_data))
         form_data.merge!(expand_unit_info_lines(form_data['unitNameAndAddress']))
       end
 
@@ -242,6 +242,13 @@ module SurvivorsBenefits
         else
           'Off'
         end
+      end
+
+      def expand_previous_names(form_data)
+        {
+          'veteranPreviousNameOne' => form_data['veteranPreviousNames']&.first || '',
+          'veteranPreviousNameTwo' => form_data['veteranPreviousNames']&.second || ''
+        }
       end
 
       def expand_unit_info_lines(unit_name_and_address)
