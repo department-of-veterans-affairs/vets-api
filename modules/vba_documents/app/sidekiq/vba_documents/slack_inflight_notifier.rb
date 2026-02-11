@@ -39,25 +39,40 @@ module VBADocuments
 
     def summary_notification
       results = ''
-      statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded'] - ['success']
-      statuses.each do |status|
-        uploads = if status == 'uploaded' && delay_appeals_evidence_enabled?
-                    UploadSubmission.not_from_appeals_api
-                  else
-                    UploadSubmission.all
-                  end
+      thresholds = {
+        'uploaded' => { time: 26, unit: :hours },
+        'received' => { time: 4, unit: :days },
+        'processing' => { time: 8, unit: :days }
+      }
 
-        upload = uploads.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
+      thresholds.each do |status, config|
+        uploads = filter_uploads_for_status(status)
+        # only look at submissions from the last 9 days, to cover the longest threshold (8 days) plus a buffer day
+        aged_uploads = uploads.aged_processing(config[:time], config[:unit], status)
+                              .where('created_at > ?', 9.days.ago)
 
-        next unless upload
-
-        start_time = upload.metadata['status'][status]['start']
-        duration = distance_of_time_in_words(Time.now.to_i - start_time)
-        results += "\n\tStatus '#{status}' for #{duration} (GUID: #{upload.guid})"
+        aged_uploads.each { |upload| results += format_violation(upload, status) }
       end
 
-      notify_slack('Status Report (worst offenders over past week)', results)
-      true
+      if results.present?
+        notify_slack('Submissions Exceeding Thresholds', results)
+        true
+      else
+        Rails.logger.info('VBADocuments::SlackInflightNotifier: No submissions exceed thresholds')
+        false
+      end
+    end
+
+    def filter_uploads_for_status(status)
+      return UploadSubmission.not_from_appeals_api if status == 'uploaded' && delay_appeals_evidence_enabled?
+
+      UploadSubmission.all
+    end
+
+    def format_violation(upload, status)
+      start_time = upload.metadata['status'][status]['start']
+      duration = distance_of_time_in_words(Time.now.to_i - start_time)
+      "\n\tGUID: #{upload.guid} | Status: #{status} | Duration: #{duration}"
     end
 
     def upload_stalled_alert
