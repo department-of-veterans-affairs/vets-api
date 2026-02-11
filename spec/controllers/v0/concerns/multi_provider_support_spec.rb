@@ -93,7 +93,7 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
 
         expect(result).to have_key('data')
         expect(result).to have_key('meta')
-        expect(result['data']).to eq([{ 'id' => '1' }])
+        expect(result['data']).to eq([{ 'id' => '1', 'attributes' => { 'provider' => 'testprovider' } }])
       end
 
       it 'includes provider errors in meta' do
