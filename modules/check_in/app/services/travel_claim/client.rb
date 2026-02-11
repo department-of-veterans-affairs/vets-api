@@ -16,7 +16,7 @@ module TravelClaim
 
     attr_reader :settings, :check_in, :client_number
 
-    def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :claims_url, :claims_base_path,
+    def_delegators :settings, :tenant_id, :client_id, :client_secret, :claims_base_path,
                    :subscription_key, :e_subscription_key, :s_subscription_key, :scope, :service_name
 
     ##
