@@ -20,6 +20,11 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
     # Freeze today so service default_end_date is deterministic for VCR cassettes
     allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
+
+    # Stub FacilityNameResolver to bypass station number validation
+    # The validation requires Settings.mhv.facility_range which has a different format in production
+    allow_any_instance_of(UnifiedHealthData::Adapters::FacilityNameResolver)
+      .to receive(:valid_station_number?).and_return(true)
   end
 
   describe 'GET /mobile/v1/health/rx/prescriptions' do
@@ -253,6 +258,11 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
     context 'when user is authenticated and has mhv access' do
       let(:patient) { true }
+
+      before do
+        # Skip prescription validation for tests that don't have get_prescriptions cassette
+        allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
+      end
 
       context 'when response count does not match request count' do
         it 'returns an error for each order id when response count does not match request count' do

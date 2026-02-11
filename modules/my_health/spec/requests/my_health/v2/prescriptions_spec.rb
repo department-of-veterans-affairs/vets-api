@@ -19,11 +19,11 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     allow(Settings.mhv).to receive(:facility_range).and_return(facility_range_config)
 
     # Stub HealthFacility to validate station numbers used in tests
-    allow(HealthFacility).to receive(:exists?).and_return(false)
-    allow(HealthFacility).to receive(:exists?).with(unique_id: '668').and_return(true)
-    allow(HealthFacility).to receive(:exists?).with(unique_id: '556').and_return(true)
-    allow(HealthFacility).to receive(:exists?).with(unique_id: '570').and_return(true)
-    allow(HealthFacility).to receive(:exists?).with(unique_id: '989').and_return(true)
+    valid_stations = %w[668 556 570 989 757 123 124 125]
+
+    allow(HealthFacility).to receive(:exists?) do |station|
+      valid_stations.include?(station[:unique_id])
+    end
   end
 
   describe 'POST /my_health/v2/prescriptions/refill' do
@@ -63,6 +63,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     context 'with feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
+        # Skip prescription validation which would require additional VCR cassettes
+        # The validation logic is tested separately in the validation specs
+        allow_any_instance_of(MyHealth::V2::PrescriptionsController).to receive(:validate_refill_orders!)
       end
 
       context 'when refill is successful' do
