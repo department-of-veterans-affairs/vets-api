@@ -88,6 +88,25 @@ module V0
         handle_create_error(e)
       end
 
+      # POST /v0/multi_party_forms/primary/:id/complete
+      # Completes the Primary Party's sections and triggers notification to Secondary Party
+      def complete
+        @submission = find_submission_for_current_user
+        complete_params = params.require(:primary_form).permit!
+
+        validate_submission_state!
+        complete_primary_submission(complete_params)
+        track_completion_metrics
+        render_submission_response
+      rescue AASM::InvalidTransition => e
+        handle_state_transition_error(e)
+      rescue ActiveRecord::RecordInvalid => e
+        handle_validation_error(e)
+      rescue => e
+        handle_complete_error(e, :unknown_error)
+        raise
+      end
+
       private
 
       def check_feature_enabled
@@ -95,14 +114,10 @@ module V0
       end
 
       def find_submission_for_current_user
-        # TODO: Uncomment once MultiPartyFormSubmission model is available
-        # MultiPartyFormSubmission.find_by!(
-        #   id: params[:id],
-        #   primary_user_uuid: current_user.uuid
-        # )
-
-        # Stubbed for now - will raise RecordNotFound if implemented
-        raise ActiveRecord::RecordNotFound if params[:id] == 'not-found'
+        MultiPartyFormSubmission.find_by!(
+          id: params[:id],
+          primary_user_uuid: current_user.uuid
+        )
       end
 
       def handle_create_error(error)
@@ -135,6 +150,85 @@ module V0
 
         StatsD.increment('multi_party_form.show.failure')
         raise
+      end
+
+      def handle_state_transition_error(error)
+        handle_complete_error(error, :invalid_transition)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'Invalid state transition',
+          source: 'MultiPartyFormSubmission.primary_complete!'
+        )
+      end
+
+      def handle_validation_error(error)
+        handle_complete_error(error, :validation_error)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: error.message,
+          source: 'MultiPartyFormSubmission.complete'
+        )
+      end
+
+      def handle_complete_error(error, error_type)
+        Rails.logger.error(
+          'MultiPartyForms::PrimaryController: Error completing submission',
+          {
+            submission_id: params[:id],
+            user_id: current_user&.uuid,
+            error_type:,
+            error: error.message,
+            backtrace: error.backtrace&.first(5)
+          }
+        )
+
+        StatsD.increment('multi_party_form.complete.failure', tags: ["error_type:#{error_type}"])
+      end
+
+      def validate_submission_state!
+        return if @submission.may_primary_complete?
+
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'Submission is not in a valid state to be completed',
+          source: 'MultiPartyFormSubmission.complete'
+        )
+      end
+
+      def complete_primary_submission(complete_params)
+        ActiveRecord::Base.transaction do
+          update_secondary_email(complete_params[:secondaryEmail]) if complete_params[:secondaryEmail].present?
+          @submission.update!(primary_completed_at: Time.current)
+          @submission.primary_complete!
+          update_primary_form_data(complete_params)
+        end
+      end
+
+      def update_secondary_email(email)
+        @submission.update!(secondary_email: email)
+      end
+
+      def update_primary_form_data(complete_params)
+        @submission.primary_in_progress_form&.update!(form_data: complete_params.to_json)
+      end
+
+      def track_completion_metrics
+        StatsD.increment('multi_party_form.primary_completed', tags: ["form_type:#{@submission.form_type}"])
+      end
+
+      def render_submission_response
+        render json: {
+          data: {
+            id: @submission.id,
+            type: 'multi_party_form_submission',
+            attributes: {
+              form_type: @submission.form_type,
+              status: @submission.status,
+              primary_completed_at: @submission.primary_completed_at&.iso8601,
+              secondary_email: @submission.secondary_email,
+              secondary_notified_at: @submission.secondary_notified_at&.iso8601,
+              created_at: @submission.created_at.iso8601,
+              updated_at: @submission.updated_at.iso8601
+            }
+          }
+        }
       end
     end
   end

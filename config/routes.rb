@@ -78,7 +78,11 @@ Rails.application.routes.draw do
     end
 
     namespace :multi_party_forms do
-      resources :primary, only: %i[create show]
+      resources :primary, only: %i[create show] do
+        member do
+          post :complete
+        end
+      end
     end
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
