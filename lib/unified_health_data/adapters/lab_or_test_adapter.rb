@@ -2,6 +2,7 @@
 
 require_relative '../models/lab_or_test'
 require_relative '../reference_range_formatter'
+require_relative '../facility_service'
 require_relative 'date_normalizer'
 
 module UnifiedHealthData
@@ -21,6 +22,10 @@ module UnifiedHealthData
         'EM' => 'Electron Microscopy',
         'LP29684-5' => 'Radiology'
       }.freeze
+
+      def initialize(user = nil)
+        @user = user
+      end
 
       def parse_labs(records)
         return [] if records.blank?
@@ -65,7 +70,7 @@ module UnifiedHealthData
       end
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
-        date_completed_value = get_date_completed(record['resource'])
+        date_completed_value, facility_timezone = resolve_date_and_timezone(record['resource'], contained)
 
         UnifiedHealthData::LabOrTest.new(
           id: record['resource']['id'],
@@ -82,8 +87,19 @@ module UnifiedHealthData
           observations:,
           body_site: get_body_site(record['resource'], contained),
           status: record['resource']['status'],
-          source: record['source']
+          source: record['source'],
+          facility_timezone:
         )
+      end
+
+      # Resolves date_completed and facility_timezone by extracting station number
+      # and converting UTC to facility local time when possible
+      def resolve_date_and_timezone(resource, contained)
+        raw_date = get_date_completed(resource)
+        station_number = extract_station_number(contained)
+        facility_timezone = get_facility_timezone(station_number)
+        date_completed = convert_to_facility_time(raw_date, facility_timezone)
+        [date_completed, facility_timezone]
       end
 
       def log_warnings(record, encoded_data, observations)
@@ -405,6 +421,108 @@ module UnifiedHealthData
         # Fallback to report's creation date if no other dates available
         elsif resource['presentedForm']
           resource['presentedForm'].find { |form| form['contentType'] == 'text/plain' }&.dig('creation')
+        end
+      end
+
+      # Extracts station number from contained resources using multiple fallback strategies
+      # Fallback chain:
+      #   1. Practitioner SN=XXX format (most explicit, Oracle Health)
+      #   2. Practitioner plain 3-digit number with "OTHER" type (Oracle Health)
+      #   3. Organization with VA OID system (VistA data via UHD)
+      #
+      # @param contained [Array<Hash>] Array of contained FHIR resources
+      # @return [String, nil] Station number (e.g., '668') or nil if not found
+      def extract_station_number(contained)
+        return nil if contained.blank?
+
+        # Try Practitioner identifiers first (Oracle Health data)
+        station_number = extract_station_from_practitioner(contained)
+        return station_number if station_number.present?
+
+        # Fallback: Try Organization identifiers (VistA data via UHD)
+        extract_station_from_organization(contained)
+      end
+
+      # Extracts station number from Practitioner identifiers
+      # Used primarily for Oracle Health data
+      # Priority: SN=XXX format > plain 3-digit with OTHER type
+      #
+      # @param contained [Array<Hash>] Array of contained FHIR resources
+      # @return [String, nil] Station number or nil if not found
+      def extract_station_from_practitioner(contained)
+        practitioner = contained.find { |r| r['resourceType'] == 'Practitioner' }
+        return nil unless practitioner&.dig('identifier')
+
+        identifiers = practitioner['identifier']
+
+        # Priority 1: SN=XXX format (most explicit)
+        sn_identifier = identifiers.find { |i| i['value'].present? && i['value'].start_with?('SN=') }
+        return sn_identifier['value'].sub('SN=', '') if sn_identifier
+
+        # Priority 2: Plain 3-digit number with "OTHER" type
+        plain_identifier = identifiers.find do |i|
+          i['value'].present? && i.dig('type', 'text') == 'OTHER' && i['value'].match?(/^\d{3}$/)
+        end
+        plain_identifier&.dig('value')
+      end
+
+      # Extracts station number from Organization identifiers
+      # Used primarily for VistA data coming through UHD
+      # Looks for identifiers with the VA OID system (urn:oid:2.16.840.1.113883.4.349)
+      #
+      # @param contained [Array<Hash>] Array of contained FHIR resources
+      # @return [String, nil] Station number or nil if not found
+      def extract_station_from_organization(contained)
+        organization = contained.find { |r| r['resourceType'] == 'Organization' }
+        return nil unless organization&.dig('identifier')
+
+        organization['identifier'].each do |identifier|
+          system = identifier['system']
+          value = identifier['value']
+
+          # VA OID system identifier contains station number
+          # Example: {"system": "urn:oid:2.16.840.1.113883.4.349", "value": "989"}
+          next unless system.to_s.include?('2.16.840.1.113883.4.349') && value.present?
+
+          return value
+        end
+
+        nil
+      end
+
+      # Gets the facility timezone using the UHD FacilityService
+      #
+      # @param station_number [String] The station number (e.g., '668')
+      # @return [String, nil] IANA timezone ID (e.g., 'America/Los_Angeles') or nil if not found
+      def get_facility_timezone(station_number)
+        return nil if station_number.blank?
+
+        facility_service.get_facility_timezone(station_number)
+      end
+
+      def facility_service
+        @facility_service ||= UnifiedHealthData::FacilityService.new
+      end
+
+      # Converts a UTC datetime string to facility local time
+      #
+      # @param date_string [String] ISO 8601 datetime string (e.g., '2023-11-06T18:32:00+00:00')
+      # @param timezone [String] IANA timezone ID (e.g., 'America/Los_Angeles')
+      # @return [String] ISO 8601 datetime string in facility local time, or original if conversion fails
+      def convert_to_facility_time(date_string, timezone)
+        return date_string if date_string.blank? || timezone.blank?
+
+        begin
+          # Parse the datetime and convert to the facility timezone
+          parsed_time = DateTime.parse(date_string).to_time.utc
+          local_time = parsed_time.in_time_zone(timezone)
+          local_time.iso8601
+        rescue ArgumentError, TypeError => e
+          Rails.logger.warn(
+            "Failed to convert time to facility timezone: #{e.message}",
+            { service: 'unified_health_data', date_string:, timezone: }
+          )
+          date_string
         end
       end
     end

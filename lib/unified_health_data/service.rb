@@ -473,7 +473,7 @@ module UnifiedHealthData
     end
 
     def lab_or_test_adapter
-      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
+      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new(@user)
     end
 
     def clinical_notes_adapter
