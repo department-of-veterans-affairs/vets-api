@@ -31,7 +31,8 @@ module UnifiedHealthData
                  :cmop_division_phone,
                  :cmop_ndc_number,
                  :remarks,
-                 :disp_status
+                 :disp_status,
+                 :source_ehr
     end
   end
 end

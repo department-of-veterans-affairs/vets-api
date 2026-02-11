@@ -48,7 +48,7 @@ module Vass
       ##
       # GET /vass/v0/topics
       #
-      # Returns available appointment topics (agent skills from VASS).
+      # Returns available appointment topics from VASS.
       # Requires JWT authentication.
       #
       # @example Response
@@ -64,9 +64,7 @@ module Vass
       #   }
       #
       def topics
-        response = @appointments_service.get_agent_skills
-        agent_skills = response.dig('data', 'agent_skills') || []
-        topics = map_agent_skills_to_topics(agent_skills)
+        topics = @appointments_service.get_topics
         track_success(APPOINTMENTS_TOPICS)
         render_camelized_json({ data: { topics: } })
       rescue Vass::Errors::VassApiError,
@@ -94,7 +92,13 @@ module Vass
       #       "appointmentStatusCode": 1,
       #       "appointmentStatus": "Confirmed",
       #       "cohortStartUtc": "2025-12-02T09:00:00Z",
-      #       "cohortEndUtc": "2025-12-02T17:00:00Z"
+      #       "cohortEndUtc": "2025-12-02T17:00:00Z",
+      #       "topics": [
+      #         {
+      #           "topicId": "67e0bd9f-5e53-f011-bec2-001dd806389e",
+      #           "topicName": "Benefits"
+      #         }
+      #       ]
       #     }
       #   }
       #
@@ -143,7 +147,7 @@ module Vass
           success_data: { appointmentId: appointment_id },
           error_code: 'cancellation_failed',
           error_message: 'Failed to cancel appointment',
-          error_status: :unprocessable_entity
+          error_status: :unprocessable_content
         )
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
@@ -186,7 +190,7 @@ module Vass
           success_data: ->(r) { { appointment_id: r.dig('data', 'appointment_id') } },
           error_code: 'appointment_save_failed',
           error_message: 'Failed to save appointment',
-          error_status: :unprocessable_entity
+          error_status: :unprocessable_content
         )
       rescue Vass::Errors::VassApiError,
              Vass::Errors::ServiceError,
@@ -333,7 +337,7 @@ module Vass
         when :no_cohorts, :no_slots_available
           message = data[:message]
           error_code = status == :no_cohorts ? 'not_within_cohort' : 'no_slots_available'
-          render_error(error_code, message, :unprocessable_entity)
+          render_error(error_code, message, :unprocessable_content)
         else
           log_vass_event(action: 'unexpected_availability_status', level: :error, status: status.to_s, **audit_metadata)
           render_error('internal_error', 'An unexpected error occurred', :internal_server_error)
@@ -390,21 +394,6 @@ module Vass
                                   }
                                 }
                               })
-      end
-
-      ##
-      # Maps agent skills from VASS API to topic format expected by frontend.
-      #
-      # @param agent_skills [Array<Hash>] Agent skills from VASS
-      # @return [Array<Hash>] Topics with topic_id and topic_name
-      #
-      def map_agent_skills_to_topics(agent_skills)
-        agent_skills.map do |skill|
-          {
-            'topic_id' => skill['skill_id'],
-            'topic_name' => skill['skill_name']
-          }
-        end
       end
 
       ##

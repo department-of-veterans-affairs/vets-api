@@ -864,7 +864,7 @@ module DependentsBenefits
         },
         'student_earnings_from_school_year_overflow' => {
           'earnings_from_all_employment' => {
-            key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment',
+            key: 'form1[0].#subform[0].ReceivedEarnings',
             limit: 0,
             question_num: 13,
             question_suffix: 'B',
@@ -872,7 +872,7 @@ module DependentsBenefits
             overflow_only: true
           },
           'annual_social_security_payments' => {
-            key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity',
+            key: 'form1[0].#subform[0].ReceivedSocialSecurity',
             limit: 0,
             question_num: 13,
             question_suffix: 'B',
