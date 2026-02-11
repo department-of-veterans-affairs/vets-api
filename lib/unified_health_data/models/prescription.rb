@@ -6,6 +6,9 @@ module UnifiedHealthData
   class Prescription
     include Vets::Model
 
+    SOURCE_EHR_ORACLE_HEALTH = 'OH'
+    SOURCE_EHR_VISTA = 'vista'
+
     attribute :id, String
     attribute :type, String
     attribute :refill_status, String
@@ -21,6 +24,7 @@ module UnifiedHealthData
     attribute :dispensed_date, String
     attribute :station_number, String
     attribute :is_refillable, Bool
+    attribute :is_renewable, Bool
     attribute :is_trackable, Bool
     attribute :tracking, Array, default: []
     attribute :instructions, String
@@ -37,6 +41,7 @@ module UnifiedHealthData
     attribute :cmop_ndc_number, String
     attribute :grouped_medications, Array, default: nil
     attribute :disp_status, String
+    attribute :source_ehr, String
 
     # Method aliases to match serializer expectations
     def prescription_id

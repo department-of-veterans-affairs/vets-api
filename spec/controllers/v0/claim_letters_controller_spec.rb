@@ -473,12 +473,12 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
       filtered_data = ClaimLetterTestData::TEST_DATA
                       .select { |doc| allowed_doctypes.include?(doc.doc_type) }
                       .select do |doc|
-        # Apply BOA filtering
-        if doc.doc_type == '27' && doc.received_at
-          doc.received_at < 2.days.ago
-        else
-          true
-        end
+                        # Apply BOA filtering
+                        if doc.doc_type == '27' && doc.received_at
+                          doc.received_at < 2.days.ago
+                        else
+                          true
+                        end
       end
 
       transformed_data = filtered_data.map do |doc|

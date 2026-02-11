@@ -3,6 +3,14 @@
 require 'rails_helper'
 require 'vass/response_middleware'
 
+# Define ServiceException for specs (normally loaded via Client)
+module Vass
+  class ServiceException < Common::Exceptions::BackendServiceException; end unless defined?(Vass::ServiceException)
+end
+
+# NOTE: This middleware runs AFTER the snakecase middleware in the Faraday stack.
+# Test data uses snake_case keys (correlation_id, time_stamp) to reflect what
+# the middleware receives after snakecase transformation.
 describe Vass::ResponseMiddleware do
   let(:middleware) { described_class.new(->(env) { env }) }
 
@@ -21,9 +29,9 @@ describe Vass::ResponseMiddleware do
           body: {
             'success' => true,
             'message' => nil,
-            'data' => { 'appointmentId' => 'test-123' },
-            'correlationId' => 'req123',
-            'timeStamp' => '2025-12-02T12:00:00Z'
+            'data' => { 'appointment_id' => 'test-123' },
+            'correlation_id' => 'req123',
+            'time_stamp' => '2025-12-02T12:00:00Z'
           }
         )
 
@@ -39,8 +47,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'Missing Parameters',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -60,8 +68,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'Provided veteranId does not have a valid GUID format',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -80,8 +88,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'Appointment not found',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -100,8 +108,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'The end date must be later than the start date. Please select a valid date range.',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -120,8 +128,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'The selected time-slot is not available',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -140,8 +148,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'GetVeteranAppointmentProcessor Error.',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -160,8 +168,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => 'Unknown error occurred',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -180,8 +188,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => '',
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -199,8 +207,8 @@ describe Vass::ResponseMiddleware do
             'success' => false,
             'message' => 'Test error',
             'data' => nil,
-            'correlationId' => 'req123',
-            'timeStamp' => '2025-12-02T12:00:00Z'
+            'correlation_id' => 'req123',
+            'time_stamp' => '2025-12-02T12:00:00Z'
           }
         )
 
@@ -222,8 +230,8 @@ describe Vass::ResponseMiddleware do
             'success' => false,
             'message' => 'Missing Parameters',
             'data' => nil,
-            'correlationId' => 'req123',
-            'timeStamp' => '2025-12-02T12:00:00Z'
+            'correlation_id' => 'req123',
+            'time_stamp' => '2025-12-02T12:00:00Z'
           }
         )
 
@@ -251,8 +259,8 @@ describe Vass::ResponseMiddleware do
               'success' => false,
               'message' => test_case[:message],
               'data' => nil,
-              'correlationId' => 'req123',
-              'timeStamp' => '2025-12-02T12:00:00Z'
+              'correlation_id' => 'req123',
+              'time_stamp' => '2025-12-02T12:00:00Z'
             }
           )
 
@@ -369,8 +377,8 @@ describe Vass::ResponseMiddleware do
             'success' => false,
             'message' => message,
             'data' => nil,
-            'correlationId' => 'req123',
-            'timeStamp' => '2025-12-02T12:00:00Z'
+            'correlation_id' => 'req123',
+            'time_stamp' => '2025-12-02T12:00:00Z'
           }
         )
 

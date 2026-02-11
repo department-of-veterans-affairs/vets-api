@@ -56,6 +56,12 @@ module VetsApi
         puts 'Setting up database...Done'
       end
 
+      def setup_features
+        puts 'Setting up Flipper features...'
+        ShellCommand.run_quiet('bundle exec rake features:setup')
+        puts 'Setting up Flipper features...Done'
+      end
+
       def setup_parallel_spec
         puts 'Setting up parallel_test...'
         ShellCommand.run_quiet('RAILS_ENV=test bundle exec rake parallel:setup')

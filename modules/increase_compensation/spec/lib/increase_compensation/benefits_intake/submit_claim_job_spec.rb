@@ -25,7 +25,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     before do
       job.instance_variable_set(:@claim, claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
-      allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      allow(claim).to receive(:to_pdf).with(claim.guid, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
       allow(claim).to receive(:persistent_attachments).and_return([])
 
       job.instance_variable_set(:@intake_service, service)
@@ -71,7 +71,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
 
-      expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      expect(claim).to receive(:to_pdf).with(claim.guid, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
       expect(Lighthouse::Submission).to receive(:create)
       expect(Lighthouse::SubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
@@ -201,35 +201,35 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
       it 'logs a distrinct error when only claim_id provided' do
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
-          expect(IncreaseCompensation::SavedClaim).to receive(:find).with(claim.id)
+            allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
+            expect(IncreaseCompensation::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
-          expect(IncreaseCompensation::SavedClaim).to receive(:find).with(claim.id)
+            allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
+            expect(IncreaseCompensation::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim is not found' do
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(IncreaseCompensation::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(IncreaseCompensation::SavedClaim).to receive(:find).with(claim.id - 1)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

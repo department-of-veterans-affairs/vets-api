@@ -76,9 +76,13 @@ RSpec.describe SurvivorsBenefits::V0::ClaimsController, type: :request do
     it 'returns a serialized claim' do
       claim = build(:survivors_benefits_claim)
       allow(SurvivorsBenefits::SavedClaim).to receive(:find_by!).and_return(claim)
-      allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_URL)
+      mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
+      allow_any_instance_of(SurvivorsBenefits::V0::ClaimsController)
+        .to receive(:last_form_submission_attempt).and_return(mock_attempt)
+      allow_any_instance_of(SurvivorsBenefits::V0::ClaimsController)
+        .to receive(:s3_signed_url).and_return(MOCK_URL)
 
-      get '/survivors_benefits/v0/form534ez/:id', params: { id: 'survivors_benefits_claim' }
+      get '/survivors_benefits/v0/claims/:id', params: { id: 'survivors_benefits_claim' }
 
       attributes = JSON.parse(response.body)['data']['attributes']
 

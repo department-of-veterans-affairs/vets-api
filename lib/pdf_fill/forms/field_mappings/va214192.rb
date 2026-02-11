@@ -15,10 +15,14 @@ module PdfFill
               },
               'middle' => {
                 key: 'F[0].Page_1[0].Middle_Initial1[0]',
-                limit: 1
+                limit: 1,
+                question_num: 3,
+                question_text: 'VETERAN/BENEFICIARY\'S MIDDLE INITIAL'
               },
               'last' => {
                 key: 'F[0].Page_1[0].Last_Name[0]',
+                question_num: 3,
+                question_text: 'VETERAN/BENEFICIARY\'S LAST NAME',
                 limit: 18
               }
             },

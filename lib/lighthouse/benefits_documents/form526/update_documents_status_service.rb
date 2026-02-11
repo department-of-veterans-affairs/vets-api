@@ -58,7 +58,21 @@ module BenefitsDocuments
       private
 
       def update_documents_status
-        @lighthouse_status_response.dig('data', 'statuses').each do |status|
+        statuses = @lighthouse_status_response.dig('data', 'statuses')
+
+        if statuses.blank?
+          request_ids_not_found = @lighthouse_status_response.dig('data', 'requestIdsNotFound')
+          Rails.logger.warn(
+            'Lighthouse::UpdateDocumentsStatusService found no statuses in response',
+            {
+              request_ids_not_found_count: request_ids_not_found&.size,
+              has_request_ids_not_found: request_ids_not_found.present?
+            }
+          )
+          return
+        end
+
+        statuses.each do |status|
           update_document_status(status)
         end
       end

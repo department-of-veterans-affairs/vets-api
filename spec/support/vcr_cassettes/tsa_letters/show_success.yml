@@ -1,0 +1,143 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<CLAIMS_EVIDENCE_API_URL>folders/files:search"
+    body:
+      encoding: US-ASCII
+      string: '{"pageRequest":{"resultsPerPage":10,"page":1},"filters":{"providerData.subject":{"evaluationType":"CONTAINS","value":"[\"VETS Safe Travel Outreach Letter\"]"}},"sort":[]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 06 Oct 2025 17:03:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '43'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-188950051"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "page": {
+            "totalPages": 1,
+            "requestedResultsPerPage": 10,
+            "currentPage": 1,
+            "totalResults": 1
+          },
+          "files": [
+            {
+              "owner": {
+                "type": "VETERAN",
+                "id": "796378881"
+              },
+              "uuid": "c75438b4-47f8-44d3-9e35-798158591456",
+              "currentVersionUuid": "920debba-cc65-479c-ab47-db9b2a5cd95f",
+              "currentVersion": {
+                "systemData": {
+                  "uploadedDateTime": "2025-09-09T14:18:53",
+                  "contentSize": 177200,
+                  "contentName": "VETS Safe Travel - Outreach Letter_TSA edits_08.29.25 DRAFT.pdf",
+                  "mimeType": "application/pdf",
+                  "uploadSource": "ClaimEvidenceUI"
+                },
+                "providerData": {
+                  "subject": "VETS Safe Travel Outreach Letter",
+                  "documentTypeId": 34,
+                  "ocrStatus": "Not Searchable",
+                  "newMail": false,
+                  "userSARL": "7",
+                  "bookmarks": {
+                    "VBA": {
+                      "isDefaultRealm": true
+                    }
+                  },
+                  "systemSource": "ClaimEvidenceUI",
+                  "isAnnotated": false,
+                  "modifiedDateTime": "2025-09-09T14:18:53",
+                  "numberOfContentions": 0,
+                  "readByCurrentUser": true,
+                  "dateVaReceivedDocument": "2025-09-09",
+                  "hasContentionAnnotations": false,
+                  "contentSource": "VA.gov",
+                  "actionable": false,
+                  "lastOpenedDocument": true
+                }
+              }
+            },
+            {
+              "owner": {
+                "type": "VETERAN",
+                "id": "796378881"
+              },
+              "uuid": "c75438b4-47f8-44d3-9e35-798158591456",
+              "currentVersionUuid": "cbb29e79-a10d-4757-b266-3db336fcffbe",
+              "currentVersion": {
+                "systemData": {
+                  "uploadedDateTime": "2025-09-09T14:18:53",
+                  "contentSize": 177200,
+                  "contentName": "VETS Safe Travel - Outreach Letter_TSA edits_08.29.25 DRAFT.pdf",
+                  "mimeType": "application/pdf",
+                  "uploadSource": "ClaimEvidenceUI"
+                },
+                "providerData": {
+                  "subject": "VETS Safe Travel Outreach Letter",
+                  "documentTypeId": 34,
+                  "ocrStatus": "Not Searchable",
+                  "newMail": false,
+                  "userSARL": "7",
+                  "bookmarks": {
+                    "VBA": {
+                      "isDefaultRealm": true
+                    }
+                  },
+                  "systemSource": "ClaimEvidenceUI",
+                  "isAnnotated": false,
+                  "modifiedDateTime": "2025-08-09T14:18:53",
+                  "numberOfContentions": 0,
+                  "readByCurrentUser": true,
+                  "dateVaReceivedDocument": "2025-09-09",
+                  "hasContentionAnnotations": false,
+                  "contentSource": "VA.gov",
+                  "actionable": false,
+                  "lastOpenedDocument": true
+                }
+              }
+            }
+          ]
+        }
+  recorded_at: Mon, 06 Oct 2025 17:03:17 GMT
+recorded_with: VCR 6.3.1

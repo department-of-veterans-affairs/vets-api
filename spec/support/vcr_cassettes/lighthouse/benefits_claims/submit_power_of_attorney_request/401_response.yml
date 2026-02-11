@@ -1,0 +1,76 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012667145V762142/power-of-attorney-request"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719
+        Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"representative":{"poaCode":"067"},"recordConsent":true,"consentAddressChange":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"]}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Wed, 24 Dec 2025 19:50:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '8'
+      Ratelimit-Limit:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 63a671e5bc92eeeaa5cd66407343cfec30d6c17a
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - bb09f0b3-110c-42e2-b99e-34ac9ab6a816
+      X-Runtime:
+      - '0.079939'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - cde2d494-1737-402a-9a53-0572d5492356#2738211
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Not authorized","status":"401","detail":"Not authorized"}]}'
+  recorded_at: Wed, 24 Dec 2025 19:50:53 GMT
+recorded_with: VCR 6.3.1

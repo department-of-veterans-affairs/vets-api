@@ -113,11 +113,11 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-            error_details = e.errors.first
-            expect(error_details.status).to eq('400')
-            expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
-            expect(error_details.code).to eq('SHAREPOINT_PDF_400')
-            expect(error_details.source).to eq('SharepointRequest')
+              error_details = e.errors.first
+              expect(error_details.status).to eq('400')
+              expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
+              expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+              expect(error_details.source).to eq('SharepointRequest')
           end
         end
       end
@@ -127,11 +127,11 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
                                                                        allow_playback_repeats: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-            error_details = e.errors.first
-            expect(error_details.status).to eq('400')
-            expect(error_details.detail).to eq('Malformed request to SharePoint')
-            expect(error_details.code).to eq('SHAREPOINT_400')
-            expect(error_details.source).to eq('SharepointRequest')
+              error_details = e.errors.first
+              expect(error_details.status).to eq('400')
+              expect(error_details.detail).to eq('Malformed request to SharePoint')
+              expect(error_details.code).to eq('SHAREPOINT_400')
+              expect(error_details.source).to eq('SharepointRequest')
           end
         end
       end
@@ -146,11 +146,11 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-            error_details = e.errors.first
-            expect(error_details.status).to eq('400')
-            expect(error_details.detail).to eq('Operation failed')
-            expect(error_details.code).to eq('VA900')
-            expect(error_details.source).to be_nil
+              error_details = e.errors.first
+              expect(error_details.status).to eq('400')
+              expect(error_details.detail).to eq('Operation failed')
+              expect(error_details.code).to eq('VA900')
+              expect(error_details.source).to be_nil
           end
         end
       end
@@ -160,11 +160,11 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
                                                                        preserve_exact_body_bytes: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-            error_details = e.errors.first
-            expect(error_details.status).to eq('400')
-            expect(error_details.detail).to eq('Operation failed')
-            expect(error_details.code).to eq('VA900')
-            expect(error_details.source).to be_nil
+              error_details = e.errors.first
+              expect(error_details.status).to eq('400')
+              expect(error_details.detail).to eq('Operation failed')
+              expect(error_details.code).to eq('VA900')
+              expect(error_details.source).to be_nil
           end
         end
       end

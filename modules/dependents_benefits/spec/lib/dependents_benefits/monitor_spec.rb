@@ -36,12 +36,6 @@ RSpec.describe DependentsBenefits::Monitor do
     }.merge(extras))
   end
 
-  describe '#service_name' do
-    it 'returns expected name' do
-      expect(monitor.send(:service_name)).to eq('dependents-benefits-application')
-    end
-  end
-
   describe '#track_show404' do
     it 'logs a not found error' do
       log = "#{message_prefix} submission not found"
@@ -178,16 +172,33 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#track_submission_exhaustion' do
     context 'without a claim parameter' do
       it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+        msg = { 'args' => [claim.id, current_user.uuid], 'error_message' => 'Final error message' }
         log = "#{message_prefix} submission to LH exhausted!"
 
-        payload = base_payload({ confirmation_number: nil, form_id: nil, error: msg })
-
-        expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
         expect(monitor).to receive(:track_request).with(
-          :error, log, "#{submission_stats_key}.exhausted", call_location: anything, **payload, error: { 'args' => [
-            anything, current_user.uuid
-          ] }
+          :error,
+          'Silent failure!',
+          'silent_failure',
+          hash_including(
+            call_location: anything,
+            claim_id: claim.id,
+            user_account_uuid: current_user.user_account_uuid,
+            error: msg,
+            tags: monitor.tags
+          )
+        )
+
+        expect(monitor).to receive(:track_request).with(
+          :error, log, "#{submission_stats_key}.exhausted",
+          hash_including(
+            call_location: anything,
+            claim_id: claim.id,
+            user_account_uuid: current_user.user_account_uuid,
+            confirmation_number: nil,
+            form_id: nil,
+            error: msg['error_message'],
+            tags: monitor.tags
+          )
         )
         monitor.track_submission_exhaustion(msg, nil)
       end
@@ -220,15 +231,66 @@ RSpec.describe DependentsBenefits::Monitor do
     end
   end
 
-  describe '#track_pension_related_submission' do
-    it 'logs pension-related submission with parent_claim_id' do
-      log = 'Submitted pension-related claim'
-      payload = { parent_claim_id: claim.id, tags: [] }
+  describe '#track_error_event' do
+    it 'calls submit_event with error level using action' do
+      message = 'Test error message'
+      action = 'test_action'
+      context = { test: 'context' }
+      expected_context = { test: 'context', tags: ["action:#{action}"] }
 
-      expect(monitor).to receive(:track_info_event).with(
-        log, described_class::PENSION_SUBMISSION_STATS_KEY, **payload
-      )
-      monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id: claim.id)
+      expect(monitor).to receive(:submit_event).with(:error, message, described_class::MODULE_STATS_KEY,
+                                                     **expected_context)
+      monitor.track_error_event(message, action:, **context)
+    end
+  end
+
+  describe '#track_info_event' do
+    it 'calls submit_event with info level using action' do
+      message = 'Test info message'
+      action = 'test_action'
+      context = { test: 'context' }
+      expected_context = { test: 'context', tags: ["action:#{action}"] }
+
+      expect(monitor).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
+                                                     **expected_context)
+      monitor.track_info_event(message, action:, **context)
+    end
+  end
+
+  describe '#track_warning_event' do
+    it 'calls submit_event with warn level using action' do
+      message = 'Test warning message'
+      action = 'test_action'
+      context = { test: 'context' }
+      expected_context = { test: 'context', tags: ["action:#{action}"] }
+
+      expect(monitor).to receive(:submit_event).with(:warn, message, described_class::MODULE_STATS_KEY,
+                                                     **expected_context)
+      monitor.track_warning_event(message, action:, **context)
+    end
+  end
+
+  describe '#claim_stats_key' do
+    it 'returns expected claim stats key' do
+      expect(monitor.send(:claim_stats_key)).to eq(described_class::CLAIM_STATS_KEY)
+    end
+  end
+
+  describe '#submission_stats_key' do
+    it 'returns expected submission stats key' do
+      expect(monitor.send(:submission_stats_key)).to eq(described_class::SUBMISSION_STATS_KEY)
+    end
+  end
+
+  describe '#name' do
+    it 'returns class name' do
+      expect(monitor.send(:name)).to eq('DependentsBenefits::Monitor')
+    end
+  end
+
+  describe '#form_id' do
+    it 'returns expected form id' do
+      expect(monitor.send(:form_id)).to eq(DependentsBenefits::FORM_ID)
     end
   end
 end

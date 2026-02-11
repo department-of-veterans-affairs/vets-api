@@ -510,14 +510,14 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
                                                           'Invalid PDF content, part attachment1'],
         'sets error status for locked pdf' => [:valid_parts_but_locked, 'Invalid PDF content, part content'] }
         .each_pair do |k, v|
-        it k do
-          allow(VBADocuments::MultipartParser).to receive(:parse) { send v.first }
-          described_class.new.perform(upload.guid, test_caller)
-          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-          expect(updated.status).to eq('error')
-          expect(updated.code).to eq('DOC103')
-          expect(updated.detail).to eq(v.last)
-        end
+          it k do
+            allow(VBADocuments::MultipartParser).to receive(:parse) { send v.first }
+            described_class.new.perform(upload.guid, test_caller)
+            updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+            expect(updated.status).to eq('error')
+            expect(updated.code).to eq('DOC103')
+            expect(updated.detail).to eq(v.last)
+          end
       end
     end
 

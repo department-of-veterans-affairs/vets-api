@@ -14,7 +14,7 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   let(:service) { instance_double(BGS::DependentService) }
-  let(:service_v2) { instance_double(BGS::DependentV2Service) }
+  let(:service_v2) { instance_double(BGS::DependentService) }
 
   describe '#show' do
     context 'with a valid bgs response' do
@@ -51,7 +51,7 @@ RSpec.describe V0::DependentsApplicationsController do
       end
 
       it 'validates successfully' do
-        expect(BGS::DependentV2Service).to receive(:new)
+        expect(BGS::DependentService).to receive(:new)
           .with(instance_of(User))
           .and_return(service_v2)
 
@@ -63,6 +63,14 @@ RSpec.describe V0::DependentsApplicationsController do
         end
 
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'sets the user account on the claim' do
+        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+          post(:create, params: test_form_v2, as: :json)
+        end
+        claim = SavedClaim::DependencyClaim.last
+        expect(claim.user_account).to eq(user.user_account)
       end
 
       context 'when claim is pension related' do

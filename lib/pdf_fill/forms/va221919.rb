@@ -11,6 +11,13 @@ module PdfFill
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
+        'isAuthenticated' => {
+          key: 'isAuthenticated',
+          limit: 1,
+          question_num: 23,
+          question_suffix: 'A',
+          question_text: 'IS AUTHENTICATED'
+        },
         'institutionDetails' => {
           'institutionName' => {
             key: 'institutionName',
@@ -192,6 +199,7 @@ module PdfFill
         FORMATTER.convert_boolean_fields(form_data)
         FORMATTER.process_proprietary_conflicts(form_data)
         FORMATTER.process_all_proprietary_conflicts(form_data)
+        FORMATTER.process_is_authenticated(form_data)
 
         form_data
       end

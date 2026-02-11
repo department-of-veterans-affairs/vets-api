@@ -62,4 +62,53 @@ RSpec.describe SimpleFormsApi::VBA21p601 do
       expect(described_class.new({}).send(:get_attachments)).to eq []
     end
   end
+
+  describe 'private #get_form_identity' do
+    it 'returns "executor" when relationship is executor' do
+      data = {
+        'claimant' => {
+          'relationship_to_deceased' => 'executor'
+        }
+      }
+      expect(described_class.new(data).send(:get_form_identity)).to eq 'executor'
+    end
+
+    it 'returns "creditor" when relationship is creditor' do
+      data = {
+        'claimant' => {
+          'relationship_to_deceased' => 'creditor'
+        }
+      }
+      expect(described_class.new(data).send(:get_form_identity)).to eq 'creditor'
+    end
+
+    it 'returns "other" when relationship is freeform text' do
+      data = {
+        'claimant' => {
+          'relationship_to_deceased' => 'family member'
+        }
+      }
+      expect(described_class.new(data).send(:get_form_identity)).to eq 'other'
+    end
+
+    it 'returns "unknown" when relationship is explicitly nil' do
+      data = {
+        'claimant' => {
+          'relationship_to_deceased' => nil
+        }
+      }
+      expect(described_class.new(data).send(:get_form_identity)).to eq 'unknown'
+    end
+
+    it 'returns "unknown" when relationship is missing' do
+      data = {
+        'claimant' => {}
+      }
+      expect(described_class.new(data).send(:get_form_identity)).to eq 'unknown'
+    end
+
+    it 'returns "unknown" when claimant data is missing' do
+      expect(described_class.new({}).send(:get_form_identity)).to eq 'unknown'
+    end
+  end
 end

@@ -553,9 +553,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
             .to receive(:validate_poa_code_for_current_user!).and_return(nil)
           allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
-            .to receive(:check_file_number_exists!).and_return(nil)
-          allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
             .to receive(:validate_dependent_claimant!).and_return(nil)
+
+          mock_file_number_check
         end
       end
 

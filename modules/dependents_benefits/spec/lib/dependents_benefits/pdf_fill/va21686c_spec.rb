@@ -167,4 +167,73 @@ RSpec.describe DependentsBenefits::PdfFill::Va21686c do
       end
     end
   end
+
+  describe '#merge_divorce_helpers' do
+    context 'when divorce information is present' do
+      before do
+        form_data['dependents_application']['report_divorce'] = {
+          'date' => '2010-05-15',
+          'full_name' => {
+            'first' => 'Jane',
+            'middle' => 'A',
+            'last' => 'Doe'
+          },
+          'divorce_location' => {
+            'city' => 'Fictional City',
+            'state' => 'NY',
+            'country' => 'USA'
+          }
+        }
+      end
+
+      it 'processes divorces without error' do
+        expect { va21686c.send(:merge_divorce_helpers) }.not_to raise_error
+      end
+
+      it 'processes divorce data correctly' do
+        va21686c.send(:merge_divorce_helpers)
+        divorce_data = va21686c.form_data['dependents_application']['report_divorce']
+
+        expect(divorce_data['date']).to be_a(Hash)
+        expect(divorce_data['date']['month']).to eq('05')
+        expect(divorce_data['date']['day']).to eq('15')
+        expect(divorce_data['date']['year']).to eq('2010')
+        expect(divorce_data['full_name']['first']).to eq('Jane')
+        expect(divorce_data['full_name']['middleInitial']).to eq('A')
+        expect(divorce_data['full_name']['last']).to eq('Doe')
+        expect(divorce_data['divorce_location']['country']).to eq('US')
+      end
+    end
+
+    context 'when divorce information is absent' do
+      before do
+        form_data['dependents_application']['report_divorce'] = nil
+      end
+
+      it 'returns early without error' do
+        expect { va21686c.send(:merge_divorce_helpers) }.not_to raise_error
+        expect(va21686c.form_data['dependents_application']['report_divorce']).to be_nil
+      end
+    end
+
+    context 'when divorce location country is not present' do
+      before do
+        form_data['dependents_application']['report_divorce'] = {
+          'date' => '2010-05-15',
+          'full_name' => {
+            'first' => 'Jane',
+            'last' => 'Doe'
+          },
+          'divorce_location' => {
+            'city' => 'Fictional City',
+            'state' => 'NY'
+          }
+        }
+      end
+
+      it 'processes without error when country is missing' do
+        expect { va21686c.send(:merge_divorce_helpers) }.not_to raise_error
+      end
+    end
+  end
 end

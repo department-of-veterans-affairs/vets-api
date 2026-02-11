@@ -24,6 +24,7 @@ module VetsApi
         end
         install_gems
         setup_db
+        setup_features
         setup_parallel_spec
         puts "\nNative Setup Complete!"
       end

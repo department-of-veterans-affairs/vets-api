@@ -32,6 +32,8 @@ module SignIn
     attribute :aal, :string
     attribute :csp_uuid, :string
     attribute :email, :string
+    attribute :first_name, :string
+    attribute :last_name, :string
     attribute :full_name, :string
     attribute :birth_date, :string
     attribute :ssn, :string

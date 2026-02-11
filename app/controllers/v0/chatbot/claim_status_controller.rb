@@ -37,6 +37,12 @@ module V0
 
       def icn
         @icn ||= @service_account_access_token.user_attributes['icn']
+        if @icn.blank?
+          render json: { error: 'Unauthorized: ICN not found' }, status: :unauthorized
+          return
+        end
+
+        @icn
       end
 
       def poll_claims_from_lighthouse
@@ -113,8 +119,8 @@ module V0
       def order_claims_lighthouse(claims)
         Array(claims)
           .sort_by do |claim|
-          Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
-                        '%Y-%m-%d').to_time.to_i
+            Date.strptime(claim['attributes']['claimPhaseDates']['phaseChangeDate'],
+                          '%Y-%m-%d').to_time.to_i
         end
           .reverse
       end

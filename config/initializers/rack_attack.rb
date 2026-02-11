@@ -56,6 +56,69 @@ class Rack::Attack
     req.remote_ip if req.path.starts_with?('/v0/education_benefits_claims') && req.post?
   end
 
+  throttle('form214192/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form214192') && req.post?
+  end
+
+  throttle('form21p530a/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form21p530a') && req.post?
+  end
+
+  throttle('form210779/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form210779') && req.post?
+  end
+
+  throttle('form212680/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form212680') && req.post?
+  end
+
+  # VAOS Request Limits
+  throttle('appointments/post', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/appointments') && req.post?
+  end
+
+  throttle('appointments/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/appointments') && req.get?
+  end
+
+  throttle('appointments/put', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/appointments') && req.put?
+  end
+
+  throttle('providers/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/providers') && req.get?
+  end
+
+  throttle('clinics/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/locations') && req.get?
+  end
+
+  throttle('cc_eligibility/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/community_care/eligibility') && req.get?
+  end
+
+  throttle('patients/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/eligibility') && req.get?
+  end
+
+  throttle('scheduling_configurations/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/scheduling/configurations') && req.get?
+  end
+
+  throttle('facilities/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/facilities') && req.get?
+  end
+
+  throttle('relationships/get', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/vaos/v2/relationships') && req.get?
+  end
+
+  throttle('ask_va_api/zip_state_validation', limit: 60, period: 1.minute) do |req|
+    req.remote_ip if req.path == '/ask_va_api/v0/zip_state_validation' &&
+                     req.post? &&
+                     Settings.vsp_environment.eql?('production')
+  end
+
   # Always allow requests from below IP addresses for load testing
   # `100.103.248.0 - 100.103.248.255`
   # `100.103.251.128 - 100.103.251.255`

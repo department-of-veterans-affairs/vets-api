@@ -29,20 +29,16 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
           allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(false)
         end
 
-        it 'returns 200 OK with disabled status for all events' do
+        it 'returns 200 OK with empty buffered_events array' do
           post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
 
-          expect(json['results']).to be_an(Array)
-          expect(json['results'].length).to eq(1)
-          expect(json['results'].first['event_name']).to eq(valid_event_name)
-          expect(json['results'].first['status']).to eq('disabled')
-          expect(json['results'].first['new_event']).to be(false)
+          expect(json['buffered_events']).to eq([])
         end
 
-        it 'returns 200 OK with disabled status for multiple events' do
+        it 'returns 200 OK with empty array for multiple events' do
           event1 = UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
           event2 = UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
           event3 = UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
@@ -53,27 +49,14 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
 
-          expect(json['results']).to be_an(Array)
-          expect(json['results'].length).to eq(3)
-
-          # Check all events have disabled status
-          expect(json['results'][0]['event_name']).to eq(event1)
-          expect(json['results'][0]['status']).to eq('disabled')
-          expect(json['results'][0]['new_event']).to be(false)
-
-          expect(json['results'][1]['event_name']).to eq(event2)
-          expect(json['results'][1]['status']).to eq('disabled')
-          expect(json['results'][1]['new_event']).to be(false)
-
-          expect(json['results'][2]['event_name']).to eq(event3)
-          expect(json['results'][2]['status']).to eq('disabled')
-          expect(json['results'][2]['new_event']).to be(false)
+          expect(json['buffered_events']).to eq([])
         end
       end
 
       context 'when feature flag is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
+          allow(UniqueUserEvents::Buffer).to receive(:push_batch)
         end
 
         context 'with invalid parameters' do
@@ -128,180 +111,110 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
         end
 
         context 'with valid parameters' do
-          it 'logs a single new event and returns 201 Created' do
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: valid_event_name)
-              .and_return([{ event_name: valid_event_name, status: 'created', new_event: true }])
+          it 'buffers a single event and returns 202 Accepted' do
+            allow(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [valid_event_name])
+              .and_return([valid_event_name])
 
             post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
-            expect(response).to have_http_status(:created)
+            expect(response).to have_http_status(:accepted)
             json = JSON.parse(response.body)
 
-            expect(json['results']).to be_an(Array)
-            expect(json['results'].length).to eq(1)
-            expect(json['results'].first['event_name']).to eq(valid_event_name)
-            expect(json['results'].first['status']).to eq('created')
-            expect(json['results'].first['new_event']).to be(true)
+            expect(json['buffered_events']).to eq([valid_event_name])
           end
 
-          it 'logs a duplicate event and returns 200 OK' do
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: valid_event_name)
-              .and_return([{ event_name: valid_event_name, status: 'exists', new_event: false }])
-
-            post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
-
-            expect(response).to have_http_status(:ok)
-            json = JSON.parse(response.body)
-
-            expect(json['results'].first['event_name']).to eq(valid_event_name)
-            expect(json['results'].first['status']).to eq('exists')
-            expect(json['results'].first['new_event']).to be(false)
-          end
-
-          it 'processes multiple events successfully and returns 201 when any are new' do
+          it 'buffers multiple events and returns 202 Accepted' do
             event1 = UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
             event2 = UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
             event3 = UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
             params = { event_names: [event1, event2, event3] }
 
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event1)
-              .and_return([{ event_name: event1, status: 'created', new_event: true }])
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event2)
-              .and_return([{ event_name: event2, status: 'exists', new_event: false }])
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event3)
-              .and_return([{ event_name: event3, status: 'created', new_event: true }])
+            allow(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [event1, event2, event3])
+              .and_return([event1, event2, event3])
 
             post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
 
-            expect(response).to have_http_status(:created)
+            expect(response).to have_http_status(:accepted)
             json = JSON.parse(response.body)
 
-            expect(json['results']).to be_an(Array)
-            expect(json['results'].length).to eq(3)
-
-            # Check first event (new)
-            expect(json['results'][0]['event_name']).to eq(event1)
-            expect(json['results'][0]['status']).to eq('created')
-            expect(json['results'][0]['new_event']).to be(true)
-
-            # Check second event (existing)
-            expect(json['results'][1]['event_name']).to eq(event2)
-            expect(json['results'][1]['status']).to eq('exists')
-            expect(json['results'][1]['new_event']).to be(false)
-
-            # Check third event (new)
-            expect(json['results'][2]['event_name']).to eq(event3)
-            expect(json['results'][2]['status']).to eq('created')
-            expect(json['results'][2]['new_event']).to be(true)
+            expect(json['buffered_events']).to eq([event1, event2, event3])
           end
 
-          it 'processes multiple duplicate events and returns 200 OK' do
-            event1 = UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-            event2 = UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
-            params = { event_names: [event1, event2] }
-
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event1)
-              .and_return([{ event_name: event1, status: 'exists', new_event: false }])
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event2)
-              .and_return([{ event_name: event2, status: 'exists', new_event: false }])
-
-            post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
-
-            expect(response).to have_http_status(:ok)
-            json = JSON.parse(response.body)
-
-            expect(json['results']).to be_an(Array)
-            expect(json['results'].length).to eq(2)
-            expect(json['results'].all? { |result| result['status'] == 'exists' }).to be(true)
-            expect(json['results'].all? { |result| result['new_event'] == false }).to be(true)
-          end
-        end
-
-        context 'when service layer raises an error' do
-          before do
-            allow(Rails.logger).to receive(:error)
-          end
-
-          it 'handles service errors gracefully and returns error status for affected events' do
-            event1 = UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-            event2 = UniqueUserEvents::EventRegistry::SECURE_MESSAGING_INBOX_ACCESSED
-            params = { event_names: [event1, event2] }
-
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event1)
-              .and_return([{ event_name: event1, status: 'error', new_event: false,
-                             error: 'Failed to process event' }])
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: event2)
-              .and_return([{ event_name: event2, status: 'error', new_event: false,
-                             error: 'Failed to process event' }])
-
-            post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
-
-            expect(response).to have_http_status(:ok)
-            json = JSON.parse(response.body)
-
-            expect(json['results']).to be_an(Array)
-            expect(json['results'].length).to eq(2)
-
-            json['results'].each do |result|
-              expect(result['status']).to eq('error')
-              expect(result['new_event']).to be(false)
-              expect(result['error']).to eq('Failed to process event')
-            end
-
-            # Error logging is handled internally by the service layer
-          end
-
-          it 'processes mixed success and error events' do
-            success_event = UniqueUserEvents::EventRegistry::PRESCRIPTIONS_ACCESSED
-            error_event = UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
-            params = { event_names: [success_event, error_event] }
-
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: success_event)
-              .and_return([{ event_name: success_event, status: 'created', new_event: true }])
-            allow(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: error_event)
-              .and_return([{ event_name: error_event, status: 'error', new_event: false,
-                             error: 'Failed to process event' }])
-
-            post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
-
-            expect(response).to have_http_status(:created)
-            json = JSON.parse(response.body)
-
-            expect(json['results'].length).to eq(2)
-
-            # Success event
-            expect(json['results'][0]['event_name']).to eq(success_event)
-            expect(json['results'][0]['status']).to eq('created')
-            expect(json['results'][0]['new_event']).to be(true)
-
-            # Error event
-            expect(json['results'][1]['event_name']).to eq(error_event)
-            expect(json['results'][1]['status']).to eq('error')
-            expect(json['results'][1]['new_event']).to be(false)
-            expect(json['results'][1]['error']).to eq('Failed to process event')
-          end
-        end
-
-        context 'when current_user.uuid is called' do
-          it 'uses the correct user object in service calls' do
-            expect(UniqueUserEvents).to receive(:log_event)
-              .with(user: anything, event_name: valid_event_name)
-              .and_return([{ event_name: valid_event_name, status: 'created', new_event: true }])
+          it 'includes Oracle Health events in response when applicable' do
+            oh_event = 'oh_757_prescriptions_accessed'
+            allow(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [valid_event_name])
+              .and_return([valid_event_name, oh_event])
 
             post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
 
-            expect(response).to have_http_status(:created)
+            expect(response).to have_http_status(:accepted)
+            json = JSON.parse(response.body)
+
+            expect(json['buffered_events']).to include(valid_event_name, oh_event)
+          end
+        end
+
+        context 'with invalid event names in registry' do
+          it 'filters out invalid events and only processes valid ones' do
+            invalid_event = 'not_a_registered_event'
+            params = { event_names: [valid_event_name, invalid_event] }
+
+            allow(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [valid_event_name])
+              .and_return([valid_event_name])
+
+            post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
+
+            expect(response).to have_http_status(:accepted)
+            json = JSON.parse(response.body)
+
+            # Only the valid event should be in the response
+            expect(json['buffered_events']).to eq([valid_event_name])
+          end
+
+          it 'returns 200 OK with empty array when all events are invalid' do
+            params = { event_names: %w[invalid_event_1 invalid_event_2] }
+
+            allow(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [])
+              .and_return([])
+
+            post('/my_health/v1/unique_user_metrics', params: params.to_json, headers:)
+
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+
+            expect(json['buffered_events']).to eq([])
+          end
+        end
+
+        context 'when service returns empty array' do
+          it 'returns 200 OK when no events are buffered' do
+            allow(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [valid_event_name])
+              .and_return([])
+
+            post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
+
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+
+            expect(json['buffered_events']).to eq([])
+          end
+        end
+
+        context 'when current_user is passed to service' do
+          it 'uses the correct user object in service calls' do
+            expect(UniqueUserEvents).to receive(:log_events)
+              .with(user: anything, event_names: [valid_event_name])
+              .and_return([valid_event_name])
+
+            post('/my_health/v1/unique_user_metrics', params: valid_params.to_json, headers:)
+
+            expect(response).to have_http_status(:accepted)
           end
         end
       end
@@ -314,14 +227,13 @@ RSpec.describe 'MyHealth::V1::UniqueUserMetricsController', type: :request do
       end
 
       it 'handles form-encoded parameters correctly' do
-        allow(UniqueUserEvents).to receive(:log_event).and_return([{ event_name: valid_event_name,
-                                                                     status: 'created', new_event: true }])
+        allow(UniqueUserEvents).to receive(:log_events).and_return([valid_event_name])
 
         post '/my_health/v1/unique_user_metrics', params: { event_names: [valid_event_name] }
 
-        expect(response).to have_http_status(:created)
+        expect(response).to have_http_status(:accepted)
         json = JSON.parse(response.body)
-        expect(json['results'].first['event_name']).to eq(valid_event_name)
+        expect(json['buffered_events']).to eq([valid_event_name])
       end
     end
   end

@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :veteran_readiness_employment_claim, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
-    form_id { '28-1900-V2' }
+    form_id { '28-1900' }
 
     transient do
       main_phone { '2222222222' }
@@ -57,7 +57,7 @@ FactoryBot.define do
   end
 
   factory :veteran_readiness_employment_claim_minimal, class: 'SavedClaim::VeteranReadinessEmploymentClaim' do
-    form_id { '28-1900-V2' }
+    form_id { '28-1900' }
 
     form {
       {

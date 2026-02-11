@@ -8,6 +8,7 @@ RSpec.describe SOB::DGI::Response do
   let(:claimant) { File.read('modules/sob/spec/fixtures/claimant.json') }
   let(:body) { JSON.parse(claimant).deep_transform_keys!(&:underscore) }
   let(:raw_response) { instance_double(Faraday::Env, status: 200, body:) }
+  let(:enrollments) { nil }
   let(:attributes) do
     {
       'first_name' => 'Jane',
@@ -35,7 +36,8 @@ RSpec.describe SOB::DGI::Response do
       'entitlement_transferred_out' => {
         'months' => 14,
         'days' => 10
-      }
+      },
+      'enrollments' => enrollments
     }
   end
 
@@ -62,6 +64,15 @@ RSpec.describe SOB::DGI::Response do
       it 'throws Ch33DataMissing error' do
         body['claimant']['benefits'] = []
         expect { response }.to raise_error(described_class::Ch33DataMissing)
+      end
+    end
+
+    context 'when enrollments present' do
+      let(:claimant) { File.read('modules/sob/spec/fixtures/claimant_with_enrollments.json') }
+      let(:enrollments) { [{ 'facility_code' => '123456789', 'begin_date' => '2025-01-01 00:00:00 UTC' }] }
+
+      it 'sets enrollment attribute at top level' do
+        expect(response.attributes).to eq(attributes)
       end
     end
   end

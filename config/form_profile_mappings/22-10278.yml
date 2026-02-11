@@ -1,0 +1,3 @@
+applicantName: [identity_information, full_name]
+dateOfBirth: [identity_information, date_of_birth]
+ssn: [identity_information, ssn]

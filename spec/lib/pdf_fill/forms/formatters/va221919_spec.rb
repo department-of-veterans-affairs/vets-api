@@ -137,4 +137,33 @@ RSpec.describe PdfFill::Forms::Formatters::Va221919 do
       expect(form_data['allProprietaryProfitConflicts0']['enrollmentDateRangeEnd']).to eq('12/31/2023')
     end
   end
+
+  describe '#process_is_authenticated' do
+    context 'when isAuthenticated is true' do
+      let(:form_data) { { 'isAuthenticated' => true } }
+
+      it 'converts to X' do
+        described_class.process_is_authenticated(form_data)
+        expect(form_data['isAuthenticated']).to eq('X')
+      end
+    end
+
+    context 'when isAuthenticated is false' do
+      let(:form_data) { { 'isAuthenticated' => false } }
+
+      it 'converts to blank' do
+        described_class.process_is_authenticated(form_data)
+        expect(form_data['isAuthenticated']).to be_nil
+      end
+    end
+
+    context 'when isAuthenticated is nil' do
+      let(:form_data) { { 'isAuthenticated' => nil } }
+
+      it 'remains nil' do
+        described_class.process_is_authenticated(form_data)
+        expect(form_data['isAuthenticated']).to be_nil
+      end
+    end
+  end
 end

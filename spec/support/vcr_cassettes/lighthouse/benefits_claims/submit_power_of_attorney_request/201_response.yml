@@ -1,0 +1,82 @@
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012667145V762142/power-of-attorney-request"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719 Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"representative":{"poaCode":"067"},"recordConsent":true,"consentAddressChange":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"]}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Date:
+      - Wed, 24 Dec 2025 19:23:55 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '834'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Reset:
+      - '5'
+      Etag:
+      - W/"869d7146fbc4e350497c328302b2265f"
+      Location:
+      - "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/1012667145V762142/power-of-attorney/c5ab49ca-0bd3-4529-8c48-5e277083f9eb"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 63a671e5bc92eeeaa5cd66407343cfec30d6c17a
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - c956a229-abd9-406b-afb1-3963b811ff87
+      X-Runtime:
+      - '0.149038'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 3e0564e5-949d-4674-9b1a-888378211583#2696945
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"c5ab49ca-0bd3-4529-8c48-5e277083f9eb","type":"power-of-attorney-request","attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719 Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"claimant":{"claimantId":null,"address":{"addressLine1":null,"addressLine2":null,"city":null,"stateCode":null,"countryCode":null,"zipCode":null,"zipCodeSuffix":null},"phone":{"areaCode":null,"phoneNumber":null},"email":null,"relationship":null},"representative":{"poaCode":"067"},"recordConsent":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"],"consentAddressChange":true}}}'
+  recorded_at: Wed, 24 Dec 2025 19:23:55 GMT
+recorded_with: VCR 6.3.1

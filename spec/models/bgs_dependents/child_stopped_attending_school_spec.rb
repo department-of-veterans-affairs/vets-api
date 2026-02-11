@@ -9,7 +9,7 @@ RSpec.describe BGSDependents::ChildStoppedAttendingSchool do
       'ssn' => '213648794',
       'birth_date' => '2003-03-03',
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
-      'dependent_income' => true
+      'dependent_income' => 'Y'
     }
   end
   let(:formatted_params_result) do

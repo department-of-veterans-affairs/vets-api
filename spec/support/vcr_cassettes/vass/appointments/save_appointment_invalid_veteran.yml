@@ -1,0 +1,38 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: <VASS_API_URL>/api/SaveAppointment
+      body:
+        encoding: UTF-8
+        string: '{"correlationId":"test-correlation-id","veteranId":"invalid-veteran","timeStartUTC":"2026-01-10T10:00:00Z","timeEndUTC":"2026-01-10T10:30:00Z","appointmentId":"cohort-current-123","selectedAgentSkills":["67e0bd9f-5e53-f011-bec2-001dd806389e"]}'
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-token
+        Edipi:
+          - "1234567890"
+        Correlationid:
+          - test-correlation-id
+        Ocp-Apim-Subscription-Key:
+          - test-subscription-key
+    response:
+      status:
+        code: 400
+        message: Bad Request
+      headers:
+        Content-Type:
+          - application/json; charset=utf-8
+      body:
+        encoding: UTF-8
+        string: |
+          {
+            "success": false,
+            "message": "Invalid veteran ID",
+            "correlationId": "test-correlation-id",
+            "timeStamp": "2026-01-09T12:00:00Z",
+            "data": null
+          }
+    recorded_at: Thu, 09 Jan 2026 12:00:00 GMT
+recorded_with: VCR 6.0.0

@@ -232,11 +232,11 @@ module DebtsApi
                          employment_records
                            .select { |emp| emp['is_current'] }
                            .map do |emp|
-                           if emp['deductions'].nil?
-                             0
-                           else
-                             emp['deductions']
-                           end
+                             if emp['deductions'].nil?
+                               0
+                             else
+                               emp['deductions']
+                             end
                          end
                          .flatten
                        else
@@ -319,11 +319,11 @@ module DebtsApi
                          employment_records
                            .select { |emp| emp['is_current'] }
                            .map do |emp|
-                           if emp['deductions'].nil?
-                             0
-                           else
-                             emp['deductions']
-                           end
+                             if emp['deductions'].nil?
+                               0
+                             else
+                               emp['deductions']
+                             end
                          end
                          .flatten
                        else

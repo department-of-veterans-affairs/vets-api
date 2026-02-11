@@ -1,0 +1,562 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'open3'
+require 'rexml/document'
+require 'tmpdir'
+
+# Reproduces flaky specs locally by downloading CI artifacts and running rspec --bisect
+# See: https://depo-platform-documentation.scrollhelp.site/developer-docs/handling-flaky-unit-tests
+
+module Colors
+  CODES = { red: 31, green: 32, yellow: 33, cyan: 36, bold: 1 }.freeze
+
+  CODES.each do |name, code|
+    define_singleton_method(name) { |text| $stdout.tty? ? "\e[#{code}m#{text}\e[0m" : text }
+  end
+end
+
+class FlakySpecBisect
+  REPO = 'department-of-veterans-affairs/vets-api'
+
+  def initialize(url_or_run_id, options = {})
+    @run_id = extract_run_id(url_or_run_id)
+    @group = options[:group]
+    @dry_run = options[:dry_run]
+    @verbose = options[:verbose]
+    @skip_verify = options[:skip_verify]
+    @original_ref = nil
+    @restore_hook_registered = false
+  end
+
+  def run
+    puts "Analyzing GitHub Actions run: #{Colors.cyan(@run_id)}"
+
+    check_commit_mismatch
+
+    failed_groups = find_failed_test_groups
+    if failed_groups.empty?
+      puts Colors.yellow('No failed test groups found in this run.')
+      puts 'Tip: This tool works best with runs that have test failures.'
+      exit 1
+    end
+
+    puts "Found #{Colors.bold(failed_groups.length)} failed test group(s): #{Colors.cyan(failed_groups.join(', '))}"
+    filter_groups(failed_groups).each { |group| process_group(group) }
+  end
+
+  def filter_groups(failed_groups)
+    return failed_groups unless @group
+
+    matching = failed_groups.select { |g| g.include?(@group) }
+    if matching.empty?
+      puts Colors.red("Error: Group '#{@group}' not found in failed groups")
+      exit 1
+    end
+    matching
+  end
+
+  private
+
+  def check_commit_mismatch
+    ci_commit = fetch_ci_commit
+    return unless ci_commit
+
+    local_ref = current_git_ref
+    local_commit = local_head_commit
+    return unless local_commit
+    return if local_commit.start_with?(ci_commit) || ci_commit.start_with?(local_commit)
+
+    commits_ahead = count_commits_ahead(ci_commit, local_commit)
+    ahead_text = commits_ahead ? " (#{commits_ahead} commits ahead)" : ''
+    puts "\n#{Colors.yellow('Warning:')} CI ran on commit #{Colors.cyan(ci_commit[0, 7])} " \
+         "but you're on #{Colors.cyan(local_commit[0, 7])}#{ahead_text}"
+    unless prompt_user("Check out commit #{Colors.cyan(ci_commit[0, 7])} now?", default_yes: true)
+      puts Colors.yellow('Skipping commit checkout. Running bisect against current code.')
+      return
+    end
+
+    @original_ref = local_ref
+    register_restore_hook
+    checkout_commit(ci_commit)
+    puts "Checked out commit #{Colors.cyan(ci_commit[0, 7])}"
+  end
+
+  def local_head_commit
+    output, status = Open3.capture2('git', 'rev-parse', 'HEAD')
+    unless status.success?
+      puts Colors.yellow('Warning: Could not determine current git commit. Skipping commit check.')
+      return nil
+    end
+    output.strip
+  end
+
+  def count_commits_ahead(base_commit, head_commit)
+    output, status = Open3.capture2('git', 'rev-list', '--count', "#{base_commit}..#{head_commit}")
+    return nil unless status.success?
+
+    count = output.strip.to_i
+    count.positive? ? count : nil
+  end
+
+  def checkout_commit(commit)
+    unless system('git', 'checkout', commit)
+      puts Colors.red("Error: Failed to checkout commit #{commit[0, 7]}")
+      puts 'You may have uncommitted changes. Stash or commit them first.'
+      exit 1
+    end
+    puts
+  end
+
+  def register_restore_hook
+    return if @restore_hook_registered
+
+    @restore_hook_registered = true
+    original = @original_ref
+    at_exit do
+      next unless original
+
+      puts "\n#{Colors.bold('Done.')}"
+      should_restore = if $stdin.tty?
+                         print "Check out #{Colors.cyan(original)} now? #{Colors.bold('[Y/n]')} "
+                         response = $stdin.gets
+                         response.nil? || response.strip.downcase != 'n'
+                       else
+                         puts "Run #{Colors.cyan("git checkout #{original}")} to restore your original branch."
+                         false
+                       end
+      if should_restore && !system('git', 'checkout', original)
+        puts Colors.yellow("Warning: Failed to restore #{original}. Run 'git checkout #{original}' manually.")
+      end
+    end
+  end
+
+  def current_git_ref
+    # Try to get branch name first, fall back to commit SHA
+    branch, status = Open3.capture2('git', 'symbolic-ref', '--short', 'HEAD', err: File::NULL)
+    return branch.strip if status.success? && !branch.strip.empty?
+
+    commit, status = Open3.capture2('git', 'rev-parse', 'HEAD')
+    unless status.success?
+      puts Colors.red('Error: Unable to determine current git ref. Are you in a git repository?')
+      exit 1
+    end
+    commit.strip
+  end
+
+  def fetch_ci_commit
+    output, status = Open3.capture2(
+      'gh', 'run', 'view', @run_id,
+      '--repo', REPO,
+      '--json', 'headSha',
+      '--jq', '.headSha'
+    )
+    unless status.success?
+      puts Colors.yellow('Warning: Could not fetch CI commit SHA. Skipping commit mismatch check.')
+      return nil
+    end
+
+    output.strip.empty? ? nil : output.strip
+  rescue Errno::ENOENT
+    puts Colors.red('Error: GitHub CLI (gh) not found. Install from https://cli.github.com/')
+    exit 1
+  end
+
+  def extract_run_id(url_or_id)
+    return url_or_id if url_or_id.match?(/^\d+$/)
+
+    match = url_or_id.match(%r{/actions/runs/(\d+)})
+    if match
+      match[1]
+    else
+      puts Colors.red("Error: Could not extract run ID from: #{url_or_id}")
+      puts "Expected format: https://github.com/#{REPO}/actions/runs/12345678 or just 12345678"
+      exit 1
+    end
+  end
+
+  def find_failed_test_groups
+    output, status = Open3.capture2(
+      'gh', 'run', 'view', @run_id,
+      '--repo', REPO,
+      '--json', 'jobs',
+      '--jq', '.jobs[] | select(.conclusion == "failure") | .name'
+    )
+
+    unless status.success?
+      puts Colors.red("Error: Failed to fetch run info. Make sure you're authenticated with 'gh auth login'")
+      exit 1
+    end
+
+    output.lines.map(&:strip).select { |name| name.start_with?('Test (Group') }
+  rescue Errno::ENOENT
+    puts Colors.red('Error: GitHub CLI (gh) not found. Install from https://cli.github.com/')
+    exit 1
+  end
+
+  def process_group(group_name)
+    puts "\n#{Colors.cyan('=' * 60)}"
+    puts Colors.bold("Processing: #{group_name}")
+    puts Colors.cyan('=' * 60)
+
+    artifact_name = artifact_name_for_group(group_name)
+    xml_content = download_artifact(artifact_name)
+    seed, spec_files, failures, runtime = parse_xml(xml_content)
+
+    puts "Seed: #{Colors.cyan(seed)}"
+    puts "Spec files: #{Colors.bold(spec_files.length)}"
+    print_bisect_estimate(spec_files.length, runtime)
+    puts "Files: #{spec_files.first(3).join(', ')}#{spec_files.length > 3 ? '...' : ''}" if @verbose
+    print_failures(failures)
+
+    failed_files = failures.map { |f| f[:file] }.compact.uniq
+    run_bisect(seed, spec_files, failed_files)
+  end
+
+  def print_bisect_estimate(spec_count, runtime)
+    return unless runtime&.positive? && spec_count > 1
+
+    iterations = Math.log2(spec_count).ceil
+    # Each iteration runs half the specs of the previous, so total time is:
+    # runtime × (1 + 0.5 + 0.25 + ...) ≈ runtime × 2
+    estimated_seconds = runtime * 2
+    puts "Estimated bisect time: #{Colors.cyan(format_duration(estimated_seconds))} (~#{iterations} iterations)"
+  end
+
+  def format_duration(seconds)
+    if seconds < 60
+      "#{seconds.round}s"
+    elsif seconds < 3600
+      "#{(seconds / 60).round}m"
+    else
+      hours = seconds / 3600
+      minutes = (seconds % 3600) / 60
+      "#{hours.round}h #{minutes.round}m"
+    end
+  end
+
+  def artifact_name_for_group(group_name)
+    match = group_name.match(/Group\s*(\d+)/)
+    unless match
+      puts Colors.red("Error: Could not extract group number from '#{group_name}'")
+      exit 1
+    end
+    "Test Results Group #{match[1]}"
+  end
+
+  def print_failures(failures)
+    if failures.empty?
+      puts Colors.yellow('Note: No failures in XML (job may have crashed, timed out, or failed in setup).')
+      return
+    end
+
+    puts "\n#{Colors.red("Failed specs (#{failures.length}):")}"
+    failures.each do |failure|
+      puts "  #{Colors.red('-')} #{failure[:file]}"
+      puts "    #{failure[:name]}"
+      puts "    #{Colors.yellow(failure[:message])}" if @verbose && failure[:message]
+    end
+  end
+
+  def download_artifact(artifact_name)
+    Dir.mktmpdir('flaky-spec-bisect') do |dir|
+      puts "Downloading artifact: #{Colors.cyan(artifact_name)}"
+      fetch_artifact(artifact_name, dir)
+      read_xml_file(dir)
+    end
+  end
+
+  def fetch_artifact(artifact_name, dir)
+    _, stderr, status = Open3.capture3(
+      'gh', 'run', 'download', @run_id,
+      '--repo', REPO,
+      '--name', artifact_name,
+      '--dir', dir
+    )
+    return if status.success?
+
+    puts Colors.red("Error: Failed to download artifact '#{artifact_name}'")
+    puts "  #{stderr.strip}" unless stderr.strip.empty?
+    exit 1
+  end
+
+  def read_xml_file(dir)
+    xml_file = File.join(dir, 'rspec.xml')
+    unless File.exist?(xml_file)
+      puts Colors.red('Error: rspec.xml not found in artifact')
+      exit 1
+    end
+    File.read(xml_file)
+  end
+
+  def parse_xml(xml_content)
+    doc = parse_xml_document(xml_content)
+    seed = extract_seed(doc)
+    runtime = extract_runtime(doc)
+    spec_files, failures = extract_testcases(doc)
+    if spec_files.empty?
+      puts Colors.red('Error: No spec files found in rspec.xml')
+      exit 1
+    end
+    [seed, spec_files, failures, runtime]
+  end
+
+  def extract_runtime(doc)
+    testsuite = doc.elements['testsuite']
+    return nil unless testsuite
+
+    time_attr = testsuite.attributes['time']
+    return nil unless time_attr
+
+    time_attr.to_f
+  end
+
+  def parse_xml_document(xml_content)
+    REXML::Document.new(xml_content)
+  rescue REXML::ParseException => e
+    puts Colors.red("Error: Failed to parse rspec.xml - #{e.message.lines.first.strip}")
+    exit 1
+  end
+
+  def extract_seed(doc)
+    seed = nil
+    doc.elements.each('testsuite/properties/property') do |prop|
+      seed = prop.attributes['value'] if prop.attributes['name'] == 'seed'
+    end
+    if seed.nil? || seed.strip.empty?
+      puts Colors.red('Error: Could not find valid seed in rspec.xml')
+      exit 1
+    end
+    seed
+  end
+
+  def extract_testcases(doc)
+    spec_files = Set.new
+    failures = []
+    doc.elements.each('testsuite/testcase') do |testcase|
+      file = testcase.attributes['file']
+      spec_files.add(file.sub(%r{^\./}, '')) if file
+      extract_failure(testcase, file, failures)
+    end
+    [spec_files.to_a.sort, failures]
+  end
+
+  def extract_failure(testcase, file, failures)
+    testcase.elements.each('failure') do |failure|
+      failures << {
+        name: testcase.attributes['name'],
+        file: file&.sub(%r{^\./}, ''),
+        message: failure.attributes['message']&.slice(0, 200)
+      }
+    end
+  end
+
+  def run_bisect(seed, spec_files, failed_files)
+    needs_bundle_install = !bundle_ready?
+
+    if @dry_run
+      print_dry_run(seed, spec_files, needs_bundle_install)
+      return
+    end
+
+    ensure_bundle_ready(needs_bundle_install)
+    return unless should_run_bisect?(seed, failed_files)
+
+    execute_bisect(seed, spec_files)
+  end
+
+  def should_run_bisect?(seed, failed_files)
+    if failed_files.empty?
+      puts Colors.yellow('Skipping bisect (no failed specs to isolate).')
+      return false
+    elsif @skip_verify
+      puts Colors.yellow('Skipping verification (--skip-verify flag).')
+    elsif !verify_failure_reproduces(seed, failed_files)
+      puts Colors.yellow('Skipping bisect for this group.')
+      return false
+    end
+    true
+  end
+
+  def execute_bisect(seed, spec_files)
+    bisect_flag = @verbose ? '--bisect=verbose' : '--bisect'
+    puts "\n#{Colors.bold('Running bisect command...')}"
+    puts "Command: bundle exec rspec --seed #{seed} #{bisect_flag} <#{spec_files.length} files>" if @verbose
+    puts
+    success = system('bundle', 'exec', 'rspec', '--seed', seed, bisect_flag, *spec_files)
+    unless success
+      puts Colors.red('Error: RSpec bisect failed. See output above for details.')
+      puts "Command was: bundle exec rspec --seed #{seed} #{bisect_flag} ..." unless @verbose
+      exit 1
+    end
+  end
+
+  def verify_failure_reproduces(seed, failed_files)
+    puts "\n#{Colors.bold('Checking if failing spec passes in isolation')} (3 attempts)..."
+    failures = count_failures(seed, failed_files, 3)
+
+    case failures
+    when 0
+      puts "\n#{Colors.green('Test passes in isolation - this is ideal for bisect.')}"
+      puts 'The failure is likely caused by test pollution from another spec.'
+      true
+    when 3
+      prompt_continue_with_consistent_failure
+    else
+      prompt_continue_with_intermittent_failure(failures)
+    end
+  end
+
+  def count_failures(seed, files, attempts)
+    failures = 0
+    passed_early = false
+    attempts.times do |i|
+      print "  Attempt #{i + 1}/#{attempts}: "
+      if passed_early
+        puts Colors.cyan('skipped')
+        next
+      end
+      success = system('bundle', 'exec', 'rspec', '--seed', seed, *files, %i[out err] => File::NULL)
+      puts success ? Colors.green('passed') : Colors.red('FAILED')
+      failures += 1 unless success
+      # If an attempt passes, we know it passes in isolation - no need to continue
+      passed_early = true if success
+    end
+    failures
+  end
+
+  def prompt_continue_with_intermittent_failure(failures)
+    puts "\n#{Colors.yellow("Warning: Failure only reproduced #{failures}/3 times.")}"
+    puts 'The test may have timing issues or external dependencies.'
+    puts 'Bisect may take longer due to inconsistent reproduction.'
+    prompt_user('Continue with bisect?', default_yes: true)
+  end
+
+  def prompt_continue_with_consistent_failure
+    puts "\n#{Colors.yellow('Warning: Failure reproduced 3/3 times - this may not be flaky.')}"
+    puts 'If it fails consistently, bisect may run for a very long time.'
+    puts 'Consider running the failing spec directly to debug.'
+    prompt_user('Continue with bisect anyway?', default_yes: false)
+  end
+
+  def prompt_user(message, default_yes:)
+    unless $stdin.tty?
+      puts "Non-interactive mode: using default (#{default_yes ? 'yes' : 'no'})"
+      return default_yes
+    end
+
+    suffix = default_yes ? '[Y/n]' : '[y/N]'
+    print "#{message} #{Colors.bold(suffix)} "
+    response = $stdin.gets
+    return default_yes if response.nil?
+
+    response = response.strip.downcase
+    default_yes ? response != 'n' : response == 'y'
+  end
+
+  def bundle_ready?
+    _, status = Open3.capture2('bundle', 'check', err: File::NULL)
+    status.success?
+  rescue Errno::ENOENT
+    puts Colors.red('Error: Bundler not found. Install with: gem install bundler')
+    exit 1
+  end
+
+  def print_dry_run(seed, spec_files, needs_bundle_install)
+    bisect_flag = @verbose ? '--bisect=verbose' : '--bisect'
+    puts "\n#{Colors.cyan('[DRY RUN]')} Would execute:"
+    puts '  bundle install' if needs_bundle_install
+    puts "  bundle exec rspec --seed #{seed} #{bisect_flag} \\"
+    spec_files.each_slice(3) { |files| puts "    #{files.join(' ')} \\" }
+  end
+
+  def ensure_bundle_ready(needs_install)
+    return unless needs_install
+
+    puts "\n#{Colors.yellow('Bundle is not ready.')} Running 'bundle install'..."
+    return if system('bundle', 'install')
+
+    puts Colors.red('Error: bundle install failed. Run "bundle install" manually to see details.')
+    exit 1
+  end
+end
+
+HELP_TEXT = <<~HELP
+  Usage: bin/flaky-spec-bisect [options] <github-actions-url-or-run-id>
+
+  Downloads test artifacts from a failed GitHub Actions run and uses
+  rspec --bisect to identify the minimal set of specs that reproduce
+  the flaky failure.
+
+  Arguments:
+    <url-or-run-id>   GitHub Actions run URL or run ID
+                      Examples:
+                        https://github.com/department-of-veterans-affairs/vets-api/actions/runs/12345678
+                        12345678
+
+  Options:
+    --group, -g NAME  Only process the specified test group (e.g., "Group 3")
+    --dry-run, -n     Print the bisect command without executing
+    --skip-verify     Skip the reproduction check before bisecting
+    --verbose, -v     Show more detailed output
+    --help, -h        Show this help message
+
+  Prerequisites:
+    - GitHub CLI (gh) must be installed and authenticated
+    - Run from the vets-api root directory
+
+  Examples:
+    bin/flaky-spec-bisect https://github.com/department-of-veterans-affairs/vets-api/actions/runs/12345678
+    bin/flaky-spec-bisect --group "Group 3" 12345678
+    bin/flaky-spec-bisect --dry-run 12345678
+
+  Documentation:
+    https://depo-platform-documentation.scrollhelp.site/developer-docs/handling-flaky-unit-tests
+HELP
+
+# Parse arguments
+options = {}
+args = []
+
+ARGV.each do |arg|
+  case arg
+  when '--help', '-h'
+    puts HELP_TEXT
+    exit 0
+  when '--dry-run', '-n'
+    options[:dry_run] = true
+  when '--skip-verify'
+    options[:skip_verify] = true
+  when '--verbose', '-v'
+    options[:verbose] = true
+  when /^--group=(.+)$/, /^-g=(.+)$/
+    options[:group] = Regexp.last_match(1)
+  when '--group', '-g'
+    options[:next_is_group] = true
+  else
+    if options[:next_is_group]
+      options[:group] = arg
+      options.delete(:next_is_group)
+    else
+      args << arg
+    end
+  end
+end
+
+if options[:next_is_group]
+  puts Colors.red('Error: --group requires a value')
+  exit 1
+end
+
+if args.empty?
+  puts Colors.red('Error: Missing GitHub Actions URL or run ID')
+  puts "Run 'bin/flaky-spec-bisect --help' for usage"
+  exit 1
+end
+
+Signal.trap('INT') do
+  puts "\n#{Colors.yellow('Interrupted.')}"
+  exit 130
+end
+
+FlakySpecBisect.new(args.first, options).run

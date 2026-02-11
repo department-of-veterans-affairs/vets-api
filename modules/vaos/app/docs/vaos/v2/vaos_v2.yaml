@@ -278,6 +278,72 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/appointments/avs_binaries/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve appointment AVS binary by id
+      operationId: fetchAvsBinaries
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "appointment-id"
+          schema:
+            type: string
+            example: "38eb82d7451c9036df43fa75318a5453d1a66e3055ce09ebcec16821949e44ce"
+        - in: query
+          name: doc_ids
+          required: true
+          schema:
+            type: string
+          description: A comma-separated list of document IDs.
+          example: '20875041789,20875041790'
+      responses:
+        "200":
+          description: AVS binary retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - type
+                        - attributes
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: avs_binary
+                        attributes:
+                          $ref: "#/components/schemas/AvsBinary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
     put:
       tags:
         - appointments
@@ -1904,65 +1970,28 @@ components:
           properties:
             facilityId:
               type: string
-            services:
+            vaServices:
               type: array
               items:
                 type: object
                 properties:
-                  id:
+                  clinicalServiceId:
                     type: string
-                  name:
+                  bookedAppointments:
+                    type: boolean
+                  apptRequests:
+                    type: boolean
+            ccServices:
+              type: array
+              items:
+                type: object
+                properties:
+                  clinicalServiceId:
                     type: string
-                  stopCodes:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        primary:
-                          type: string
-                        secondary:
-                          type: string
-                  char4:
-                    type: string
-                  direct:
-                    type: object
-                    properties:
-                      patientHistoryRequired:
-                        type: boolean
-                      patientHistoryDuration:
-                        type: integer
-                      canCancel:
-                        type: boolean
-                      enabled:
-                        type: boolean
-                  request:
-                    type: object
-                    properties:
-                      patientHistoryRequired:
-                        type: boolean
-                      patientHistoryDuration:
-                        type: integer
-                      canCancel:
-                        type: boolean
-                      submittedRequestLimit:
-                        type: integer
-                      enterpriseSubmittedRequestLimit:
-                        type: integer
-                      supported:
-                        type: boolean
-                      schedulingDays:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            day:
-                              type: string
-                            canSchedule:
-                              type: boolean
-                            startTime:
-                              type: string
-                            endTime:
-                              type: string
+                  bookedAppointments:
+                    type: boolean
+                  apptRequests:
+                    type: boolean
             communityCare:
               type: boolean
     TasAddress:
@@ -2027,6 +2056,21 @@ components:
           type: string
           description: The timezone ID abbreviation.
           example: EDT
+    AvsBinary:
+      type: object
+      required:
+        - docId
+      properties:
+        docId:
+          description: The document ID of the After Visit Summary PDF.
+          type: string
+          example: 20875041789
+        binary:
+          type: string
+          description: The base64 encoded PDF binary data.
+        error:
+          type: string
+          description: Error message if the AVS could not be retrieved.
   responses:
     "BadGateway":
       description: "The server was acting as a gateway or proxy and received an invalid response from the upstream server."

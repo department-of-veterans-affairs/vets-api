@@ -73,7 +73,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
   end
 
   describe '#create' do
-    let(:dependency_claim) { build(:dependency_claim) }
+    let(:dependency_claim) { build(:dependency_claim_v2) }
     let(:test_form) { dependency_claim.parsed_form }
 
     context 'with valid input' do
@@ -90,7 +90,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         end
 
         assert_schema_conform(202)
-        submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
+        submit_form_job_id = BGS::SubmitForm686cV2Job.jobs.first['jid']
         expect(response.parsed_body['data'].to_h).to match(
           {
             'id' => UUID_REGEX,
@@ -110,7 +110,9 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
       end
 
       it 'submits to central service' do
-        expect_any_instance_of(BGS::DependentService).to receive(:submit_to_central_service)
+        expect_any_instance_of(BGS::DependentService).to receive(:submit_to_central_service).with(
+          claim: instance_of(SavedClaim::DependencyClaim), encrypted_vet_info: instance_of(String)
+        )
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end

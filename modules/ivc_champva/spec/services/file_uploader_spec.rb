@@ -6,9 +6,15 @@ describe IvcChampva::FileUploader do
   let(:form_id) { '123' }
   let(:metadata) do
     { 'uuid' => '4171e61a-03b5-49f3-8717-dbf340310473',
-      'attachment_ids' => ['Social Security card', 'Birth certificate'] }
+      'attachment_ids' => ['Social Security card', 'Birth certificate', 'VES JSON'] }
   end
-  let(:file_paths) { ['tmp/file1.pdf', 'tmp/file2.png'] }
+  let(:file_paths) do
+    [
+      'tmp/file1.pdf',
+      'tmp/file2.png',
+      'tmp/4171e61a-03b5-49f3-8717-dbf340310473_vha_10_10d_ves.json'
+    ]
+  end
   let(:insert_db_row) { false }
   let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row) }
 
@@ -235,6 +241,50 @@ describe IvcChampva::FileUploader do
                              'file_name',
                              'file_path',
                              attachment_ids: 'attachment_ids')).to eq([500, 'Unexpected response from S3 upload'])
+      end
+    end
+  end
+
+  describe '#handle_iterative_uploads' do
+    let(:insert_db_row) { true }
+
+    context 'when champva_bypass_persisting_ves_json_to_database is enabled' do
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_persisting_ves_json_to_database,
+                                                  @current_user).and_return(true)
+      end
+
+      it 'uploads the _ves.json file but does not insert it into the database' do
+        expect(uploader).to receive(:upload).exactly(3).times
+        expect(uploader).to receive(:insert_form).with('file1.pdf', '[200]')
+        expect(uploader).to receive(:insert_form).with('file2.png', '[200]')
+        expect(uploader).not_to receive(:insert_form).with(
+          '4171e61a-03b5-49f3-8717-dbf340310473_vha_10_10d_ves.json',
+          '[200]'
+        )
+
+        uploader.send(:handle_iterative_uploads)
+      end
+    end
+
+    context 'when champva_bypass_persisting_ves_json_to_database is disabled' do
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_persisting_ves_json_to_database,
+                                                  @current_user).and_return(false)
+      end
+
+      it 'uploads the _ves.json file and inserts it into the database' do
+        expect(uploader).to receive(:upload).exactly(3).times
+        expect(uploader).to receive(:insert_form).with('file1.pdf', '[200]')
+        expect(uploader).to receive(:insert_form).with('file2.png', '[200]')
+        expect(uploader).to receive(:insert_form).with(
+          '4171e61a-03b5-49f3-8717-dbf340310473_vha_10_10d_ves.json',
+          '[200]'
+        )
+
+        uploader.send(:handle_iterative_uploads)
       end
     end
   end

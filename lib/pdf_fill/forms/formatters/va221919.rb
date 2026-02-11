@@ -78,6 +78,12 @@ module PdfFill
             end
           end
 
+          def process_is_authenticated(form_data)
+            return unless form_data.key?('isAuthenticated')
+
+            form_data['isAuthenticated'] = ('X' if form_data['isAuthenticated'])
+          end
+
           def convert_boolean_to_yes_no(value)
             return 'N/A' if value.nil?
 

@@ -73,10 +73,10 @@ module TravelPay
       log_to_statsd('claims', 'get_by_date') do
         connection(server_url: btsss_url)
           .get('api/v2/claims/search-by-appointment-date', url_params) do |req|
-          req.headers['Authorization'] = "Bearer #{veis_token}"
-          req.headers['BTSSS-Access-Token'] = btsss_token
-          req.headers['X-Correlation-ID'] = correlation_id
-          req.headers.merge!(claim_headers)
+            req.headers['Authorization'] = "Bearer #{veis_token}"
+            req.headers['BTSSS-Access-Token'] = btsss_token
+            req.headers['X-Correlation-ID'] = correlation_id
+            req.headers.merge!(claim_headers)
         end
       end
     end

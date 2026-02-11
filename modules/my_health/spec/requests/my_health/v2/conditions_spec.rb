@@ -41,6 +41,14 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
           'comments'
         )
 
+        # There are 4 conditions in the cassette, but 1 is filtered out:
+        # - 1 with status 'entered-in-error'
+        expect(json_response['data'].size).to eq(3)
+        # status of entered-in-error should be excluded from results
+        expect(json_response['data'].find { |c| c['id'] == 'p1534246681' }).to be_nil
+        # condition with no date should be included in results
+        expect(json_response['data'].find { |c| c['id'] == '2b4de3e7-0ced-43c6-9a8a-336b9171f4df' }).to be_present
+
         # Verify event logging was called
         expect(UniqueUserEvents).to have_received(:log_events).with(
           user: anything,
@@ -85,7 +93,7 @@ RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, 
   end
 
   describe 'GET /my_health/v2/medical_records/conditions/:id' do
-    let(:show_path) { "#{path}/condition-12345" }
+    let(:show_path) { "#{path}/2afda724-55ca-4a78-b815-3e6d9c35cd15" }
 
     context 'happy path' do
       it 'returns a successful response for a single condition' do

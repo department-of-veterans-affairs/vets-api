@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/form686c'
+require 'bgs/form686c'
 require 'dependents/monitor'
 require 'vets/shared_logging'
 
@@ -27,7 +27,10 @@ module BGS
       monitor.track_event('error',
                           "BGS::SubmitForm686cV2Job failed, retries exhausted! Last error: #{msg['error_message']}",
                           'worker.submit_686c_bgs.exhaustion')
-
+      # in some instances, bgs will throw an error with language containing `FABusnsTranRule`
+      # this has been researched and documented here: https://github.com/department-of-veterans-affairs/va.gov-team/issues/128972
+      # there is nothing at the moment the user can do to prevent this error as it is an rbps related trigger
+      # the backup path is the correct path for this bug so that the application can be reviewed manually
       BGS::SubmitForm686cV2Job.send_backup_submission(vet_info, saved_claim_id, user_uuid)
     rescue => e
       monitor = ::Dependents::Monitor.new
@@ -133,7 +136,7 @@ module BGS
 
       claim_data = normalize_names_and_addresses!(claim.formatted_686_data(vet_info))
 
-      BGSV2::Form686c.new(user, claim).submit(claim_data)
+      BGS::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
       if claim.submittable_674?
@@ -154,7 +157,7 @@ module BGS
 
       claim_data = normalize_names_and_addresses!(claim.formatted_686_data(vet_info))
 
-      BGSV2::Form686c.new(user, claim).submit(claim_data)
+      BGS::Form686c.new(user, claim).submit(claim_data)
     end
 
     def enqueue_674_job(encrypted_vet_info)

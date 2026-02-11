@@ -43,7 +43,7 @@ module IncreaseCompensation
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true }))
+        @form_path = process_document(@claim.to_pdf(@claim.guid, { extras_redesign: true, omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
@@ -111,13 +111,14 @@ module IncreaseCompensation
       # @return [Hash]
       def generate_metadata
         form = @claim.parsed_form
+        address = form['claimantAddress'] || form['veteranAddress']
 
         # also validates/manipulates the metadata
         ::BenefitsIntake::Metadata.generate(
           form['veteranFullName']['first'],
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-          form['veteranAddress']['postalCode'],
+          address['postalCode'],
           self.class.to_s,
           @claim.form_id,
           @claim.business_line

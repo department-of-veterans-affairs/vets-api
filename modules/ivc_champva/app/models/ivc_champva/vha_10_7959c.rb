@@ -5,6 +5,7 @@ require 'vets/model'
 module IvcChampva
   class VHA107959c
     STATS_KEY = 'api.ivc_champva_form.10_7959c'
+    FORM_VERSION = 'vha_10_7959c'
 
     include Vets::Model
     include Attachments
@@ -59,9 +60,31 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959C Email Used', email_used:)
     end
 
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.submission", tags: [
+                         "identity:#{identity}",
+                         "current_user_loa:#{current_user_loa}",
+                         "email_used:#{email_used}",
+                         "form_version:#{FORM_VERSION}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-7959C Submission', identity:,
+                                                                   current_user_loa:,
+                                                                   email_used:,
+                                                                   form_version: FORM_VERSION)
+    end
+
     def track_delegate_form(parent_form_id)
       StatsD.increment("#{STATS_KEY}.delegate_form.#{parent_form_id}")
       Rails.logger.info('IVC ChampVA Forms - 10-7959C Delegate Form', parent_form_id:)
+    end
+
+    # The old 7959c form was never stamped - return empty array for compatibility
+    # with FORM_REQUIRES_STAMP now including "10-7959C" for the rev2025 model
+    def desired_stamps
+      []
     end
 
     # rubocop:disable Naming/BlockForwarding

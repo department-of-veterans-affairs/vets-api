@@ -244,35 +244,35 @@ RSpec.describe DependentsVerification::BenefitsIntake::SubmitClaimJob, :uploader
       it 'logs a distinct error when only claim_id provided' do
         DependentsVerification::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(DependentsVerification::SavedClaim).to receive(:find).and_return(claim)
-          expect(DependentsVerification::SavedClaim).to receive(:find).with(claim.id)
+            allow(DependentsVerification::SavedClaim).to receive(:find).and_return(claim)
+            expect(DependentsVerification::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
         DependentsVerification::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(DependentsVerification::SavedClaim).to receive(:find).and_return(claim)
-          expect(DependentsVerification::SavedClaim).to receive(:find).with(claim.id)
+            allow(DependentsVerification::SavedClaim).to receive(:find).and_return(claim)
+            expect(DependentsVerification::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim is not found' do
         DependentsVerification::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(DependentsVerification::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(DependentsVerification::SavedClaim).to receive(:find).with(claim.id - 1)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

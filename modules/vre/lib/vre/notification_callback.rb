@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vre/vre_monitor'
+
 module VRE
   class NotificationCallback < ::VeteranFacingServices::NotificationCallback::SavedClaim
     private

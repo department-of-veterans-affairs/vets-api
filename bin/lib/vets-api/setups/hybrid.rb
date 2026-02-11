@@ -13,6 +13,7 @@ module VetsApi
         install_bundler
         install_gems
         setup_db
+        setup_features
         setup_parallel_spec
         configuring_clamav_antivirus
         dockerized_dependencies_settings

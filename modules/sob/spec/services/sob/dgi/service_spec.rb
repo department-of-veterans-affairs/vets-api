@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'timecop'
 
 RSpec.describe SOB::DGI::Service do
-  let(:service) { described_class.new(ssn) }
+  let(:service) { described_class.new(ssn:) }
 
   describe '#initialize' do
     let(:ssn) { '374374377' }
@@ -14,7 +14,7 @@ RSpec.describe SOB::DGI::Service do
     end
 
     it 'raises error if ssn missing' do
-      expect { described_class.new(nil) }.to raise_error(Common::Exceptions::ParameterMissing)
+      expect { described_class.new(ssn: nil) }.to raise_error(Common::Exceptions::ParameterMissing)
     end
   end
 
@@ -28,7 +28,7 @@ RSpec.describe SOB::DGI::Service do
     let(:payload) do
       { ssn:,
         benefitType: described_class::BENEFIT_TYPE,
-        enrollment: described_class::ENROLLMENT_PARAM }
+        enrollment: 'NO' }
     end
     let(:request_params) { [:post, 'claimants', payload.to_json, headers] }
 

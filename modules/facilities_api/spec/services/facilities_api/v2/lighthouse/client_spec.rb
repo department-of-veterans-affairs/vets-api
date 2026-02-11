@@ -119,10 +119,10 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
     it 'returns a 401 error' do
       expect { facilities_client.get_by_id('vha_358') }
         .to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::BackendServiceException)
-        expect(e.status_code).to eq(401)
-        expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
-        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(401)
+          expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
       end
     end
   end
@@ -196,10 +196,10 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
     it 'returns a 404 error' do
       expect { facilities_client.get_by_id('bha_358') }
         .to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::BackendServiceException)
-        expect(e.status_code).to eq(404)
-        expect(e.errors.first[:detail]).to eq('Record not found')
-        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(404)
+          expect(e.errors.first[:detail]).to eq('Record not found')
+          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
       end
     end
   end

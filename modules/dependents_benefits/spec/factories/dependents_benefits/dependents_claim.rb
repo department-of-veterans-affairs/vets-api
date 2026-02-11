@@ -31,7 +31,8 @@ FactoryBot.define do
             divorce_location: {
               location: {
                 city: 'louisville',
-                state: 'KY'
+                state: 'KY',
+                country: 'US'
               }
             },
             reason_marriage_ended: 'Divorce',
@@ -59,7 +60,7 @@ FactoryBot.define do
             current_spouse_reason_for_separation: 'Other',
             other: 'other reasons',
             address: {
-              country: 'USA',
+              country: 'US',
               street: '456 fake street',
               street2: 'This is a very long apartment name and number',
               city: 'portland',
@@ -189,8 +190,8 @@ FactoryBot.define do
             {
               income_in_last_year: true,
               marriage_end_date: '2023-07-03',
-              marriage_end_reason: 'Other',
-              marriage_end_description: 'other reason',
+              marriage_end_reason: 'Divorce',
+              marriage_end_description: 'short',
               does_child_live_with_you: false,
               has_child_ever_been_married: true,
               is_biological_child_of_spouse: false,
@@ -225,7 +226,7 @@ FactoryBot.define do
             {
               income_in_last_year: false,
               marriage_end_reason: 'annulment',
-              marriage_end_description: 'description of annulment',
+              marriage_end_description: 'description of annulment really long text here over length 16',
               does_child_live_with_you: true,
               has_child_ever_been_married: false,
               is_biological_child_of_spouse: true,
@@ -340,6 +341,7 @@ FactoryBot.define do
             claims_or_receives_pension: true,
             school_information: {
               last_term_school_information: { term_begin: '2024-01-01', date_term_ended: '2024-03-05' },
+              date_full_time_ended: '2024-05-05',
               student_did_attend_school_last_term: true,
               current_term_dates: {
                 official_school_start_date: '2025-01-01',
@@ -421,12 +423,22 @@ FactoryBot.define do
           deaths: [
             {
               deceased_dependent_income: true,
-              dependent_death_location: { location: { city: 'new orleans', state: 'LA' } },
+              dependent_death_location: { location: { city: 'new orleans', state: 'LA', country: 'USA' } },
               dependent_death_date: '2024-03-02',
               dependent_type: 'DEPENDENT_PARENT',
               full_name: { first: 'deceased', middle: 'middle', last: 'dependent' },
               ssn: '987654321',
               birth_date: '1960-01-01'
+            },
+            {
+              deceased_dependent_income: true,
+              dependent_death_location: { location: { city: 'new orleans', state: 'LA', country: 'USA' } },
+              dependent_death_date: '2024-03-02',
+              dependent_type: 'CHILD',
+              child_status: { child_under18: true, step_child: true },
+              full_name: { first: 'deceased', middle: 'middle', last: 'dependent' },
+              ssn: '987654321',
+              birth_date: '1990-01-01'
             },
             {
               deceased_dependent_income: false,
@@ -560,6 +572,7 @@ FactoryBot.define do
                   'term_begin' => '2024-01-01',
                   'date_term_ended' => '2024-03-05'
                 },
+                'date_full_time_ended' => '2024-05-05',
                 'student_did_attend_school_last_term' => true,
                 'current_term_dates' => {
                   'official_school_start_date' => '2025-01-01',
@@ -649,7 +662,7 @@ FactoryBot.define do
             'current_spouse_reason_for_separation' => 'Other',
             'other' => 'other reasons',
             'address' => {
-              'country' => 'USA',
+              'country' => 'US',
               'street' => '456 fake street',
               'street2' => 'This is a very long apartment name and number',
               'city' => 'portland',
@@ -733,8 +746,8 @@ FactoryBot.define do
             {
               'income_in_last_year' => true,
               'marriage_end_date' => '2023-07-03',
-              'marriage_end_reason' => 'Other',
-              'marriage_end_description' => 'other reason',
+              'marriage_end_reason' => 'Divorce',
+              'marriage_end_description' => 'short',
               'does_child_live_with_you' => false,
               'has_child_ever_been_married' => true,
               'is_biological_child_of_spouse' => false,
@@ -764,7 +777,7 @@ FactoryBot.define do
             {
               'income_in_last_year' => false,
               'marriage_end_reason' => 'annulment',
-              'marriage_end_description' => 'description of annulment',
+              'marriage_end_description' => 'description of annulment really long text here over length 16',
               'does_child_live_with_you' => true,
               'has_child_ever_been_married' => false,
               'is_biological_child_of_spouse' => true,
@@ -843,7 +856,7 @@ FactoryBot.define do
           'report_divorce' => {
             'spouse_income' => true,
             'date' => '2023-11-03',
-            'divorce_location' => { 'location' => { 'city' => 'louisville', 'state' => 'KY' } },
+            'divorce_location' => { 'location' => { 'city' => 'louisville', 'state' => 'KY', 'country' => 'US' } },
             'reason_marriage_ended' => 'Divorce',
             'full_name' => { 'first' => 'removing', 'middle' => 'former', 'last' => 'spouse' },
             'birth_date' => '1980-02-03'
@@ -887,12 +900,24 @@ FactoryBot.define do
           'deaths' => [
             {
               'deceased_dependent_income' => true,
-              'dependent_death_location' => { 'location' => { 'city' => 'new orleans', 'state' => 'LA' } },
+              'dependent_death_location' => { 'location' => { 'city' => 'new orleans', 'state' => 'LA',
+                                                              'country' => 'USA' } },
               'dependent_death_date' => '2024-03-02',
               'dependent_type' => 'DEPENDENT_PARENT',
               'full_name' => { 'first' => 'deceased', 'middle' => 'middle', 'last' => 'dependent' },
               'ssn' => '987654321',
               'birth_date' => '1960-01-01'
+            },
+            {
+              'deceased_dependent_income' => true,
+              'dependent_death_location' => { 'location' => { 'city' => 'new orleans', 'state' => 'LA',
+                                                              'country' => 'USA' } },
+              'dependent_death_date' => '2024-03-02',
+              'dependent_type' => 'CHILD',
+              'child_status' => { 'child_under18' => true, 'step_child' => true },
+              'full_name' => { 'first' => 'deceased', 'middle' => 'middle', 'last' => 'dependent' },
+              'ssn' => '987654321',
+              'birth_date' => '1990-01-01'
             },
             {
               'deceased_dependent_income' => false,

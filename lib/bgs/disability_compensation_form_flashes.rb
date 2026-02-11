@@ -55,6 +55,14 @@ module BGS
       @form_content['confinements'].present?
     end
 
+    # Determines if the claim should be flagged with "Amyotrophic Lateral Sclerosis" flash.
+    # Flashes are used by VA to properly route and prioritize claims.
+    #
+    # Uses ClaimFastTracking::FlashPicker to detect ALS-related conditions in the claimed
+    # disabilities through exact and fuzzy string matching. Requires the
+    # disability_526_ee_process_als_flash feature flag to be enabled for the user.
+    #
+    # @return [Boolean] true if both the feature is enabled and ALS is detected in claimed disabilities
     def als?
       feature_enabled = Flipper.enabled?(:disability_526_ee_process_als_flash, @user)
       add_als = ClaimFastTracking::FlashPicker.als?(@claimed_disabilities)
@@ -65,6 +73,10 @@ module BGS
       false
     end
 
+    # Returns a BGS monitor instance for logging.
+    #
+    # @return [BGS::Monitor] configured monitor with allowlist for safe logging
+    # @note Allowlist prevents PII leakage while capturing feature flags and debug info
     def monitor
       @monitor ||= BGS::Monitor.new(allowlist: %w[feature_enabled backtrace])
     end

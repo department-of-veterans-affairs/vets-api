@@ -14,6 +14,7 @@ require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
 require 'simple_forms_api_submission/metadata_validator'
 require 'disability_compensation/factories/api_provider_factory'
+require 'common/s3_helpers'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
@@ -121,7 +122,8 @@ module Sidekiq
         end
         metadata = get_meta_data(FORM_526_DOC_TYPE)
         zipname = "#{submission.id}.zip"
-        generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
+        generate_zip_and_upload(params_docs, zipname, metadata,
+                                return_url, url_life_length)
       end
 
       def instantiate_upload_info_from_lighthouse
@@ -138,7 +140,7 @@ module Sidekiq
         [is_526_or_evidence[true], is_526_or_evidence[false]]
       end
 
-      def generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length)
+      def generate_zip_and_upload(params_docs, zipname, metadata, return_url, url_life_length) # rubocop:disable Metrics/MethodLength
         zip_path_and_name = "tmp/#{zipname}"
         Zip::File.open(zip_path_and_name, create: true) do |zipfile|
           zipfile.get_output_stream('metadata.json') { |f| f.puts metadata.to_json }
@@ -149,9 +151,19 @@ module Sidekiq
           end
           params_docs.each { |doc| zipfile.add(doc[:file_name], doc[:file_path]) }
         end
+
         s3_resource = new_s3_resource
-        obj = s3_resource.bucket(s3_bucket).object(zipname)
-        obj_ret = obj.upload_file(zip_path_and_name, content_type: 'application/zip')
+
+        obj = Common::S3Helpers.upload_file(
+          s3_resource:,
+          bucket: s3_bucket,
+          key: zipname,
+          file_path: zip_path_and_name,
+          content_type: 'application/zip',
+          return_object: true
+        )
+        obj_ret = true
+
         if return_url
           obj.presigned_url(:get, expires_in: url_life_length)
         else

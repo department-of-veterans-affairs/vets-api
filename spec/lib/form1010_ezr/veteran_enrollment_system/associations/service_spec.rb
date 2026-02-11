@@ -282,8 +282,8 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
 
             expect { described_class.new(user).reconcile_and_update_associations(associations_with_missing_fields) }
               .to raise_error do |e|
-              expect(e).to be_a(Common::Exceptions::BadRequest)
-              expect(e.errors.first.detail).to eq(failure_message)
+                expect(e).to be_a(Common::Exceptions::BadRequest)
+                expect(e.errors.first.detail).to eq(failure_message)
             end
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
@@ -305,8 +305,8 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         it 'increments StatsD, logs a failure message, and raises an exception' do
           expect { described_class.new(user).reconcile_and_update_associations(updated_associations) }
             .to raise_error do |e|
-            expect(e).to be_a(Common::Client::Errors::ClientError)
-            expect(e.message).to eq('some error')
+              expect(e).to be_a(Common::Client::Errors::ClientError)
+              expect(e.message).to eq('some error')
           end
           expect(StatsD).to have_received(:increment).with(
             'api.1010ezr.veteran_enrollment_system.associations.reconcile_and_update_associations.failed'

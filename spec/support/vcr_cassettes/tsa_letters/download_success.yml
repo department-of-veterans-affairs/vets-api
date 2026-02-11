@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <CLAIMS_EVIDENCE_API_URL>files/93631483-E9F9-44AA-BB55-3552376400D8/920debba-cc65-479c-ab47-db9b2a5cd95f/content
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/pdf
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Authorization:
+      - Bearer <TOKEN>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 19 Jan 2026 17:03:17 GMT
+      Content-Type:
+      - application/pdf
+      Content-Disposition:
+      - attachment; filename="VETS Safe Travel Outreach Letter.pdf"
+      Content-Length:
+      - '177200'
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Envoy-Upstream-Service-Time:
+      - '43'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '%PDF-1.4 fake pdf content for testing purposes'
+  recorded_at: Mon, 06 Oct 2025 17:03:17 GMT
+recorded_with: VCR 6.3.1

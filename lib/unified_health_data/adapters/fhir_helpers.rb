@@ -54,29 +54,30 @@ module UnifiedHealthData
         ndc_coding&.dig('code')
       end
 
-      # Finds the most recent MedicationDispense from contained resources
-      # Sorted by whenHandedOver date
+      # Extracts MedicationDispense resources from a MedicationRequest resource
       #
-      # @param contained_resources [Array<Hash>] Array of FHIR contained resources
-      # @return [Hash, nil] Most recent MedicationDispense or nil if none found
-      def find_most_recent_medication_dispense(contained_resources)
-        return nil unless contained_resources.is_a?(Array)
+      # @param medication_request [Hash] FHIR MedicationRequest resource
+      # @return [Array<Hash>] Array of MedicationDispense resources
+      def medication_dispenses(medication_request)
+        return [] if medication_request.nil?
 
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
+        (medication_request['contained'] || []).select do |contained_resource|
+          contained_resource['resourceType'] == 'MedicationDispense'
+        end
+      end
+
+      # Finds the most recent MedicationDispense from contained resources
+      # Sorted by whenHandedOver or whenPrepared date
+      #
+      # @param medication_request [Hash] FHIR MedicationRequest resource
+      # @return [Hash, nil] Most recent MedicationDispense or nil if none found
+      def find_most_recent_medication_dispense(medication_request)
+        dispenses = medication_dispenses(medication_request)
         return nil if dispenses.empty?
 
-        # Sort by whenHandedOver date, most recent first
         dispenses.max_by do |dispense|
-          when_handed_over = dispense['whenHandedOver']
-          if when_handed_over
-            begin
-              Time.zone.parse(when_handed_over) || Time.zone.at(0)
-            rescue ArgumentError, TypeError
-              Time.zone.at(0)
-            end
-          else
-            Time.zone.at(0)
-          end
+          date = dispense['whenHandedOver'] || dispense['whenPrepared']
+          date ? parse_date_or_epoch(date) : Time.zone.at(0)
         end
       end
 
@@ -105,6 +106,38 @@ module UnifiedHealthData
       # @param expiration_date [String] Invalid expiration date string
       def log_invalid_expiration_date(resource, expiration_date)
         Rails.logger.warn("Invalid expiration date for prescription #{resource['id']}: #{expiration_date}")
+      end
+
+      # Parses expiration date from FHIR MedicationRequest to UTC Time
+      # Oracle Health dates are in Zulu time (UTC)
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Time, nil] Parsed UTC time or nil if not available/invalid
+      def parse_expiration_date_utc(resource)
+        expiration_string = resource.dig('dispenseRequest', 'validityPeriod', 'end')
+        return nil if expiration_string.blank?
+
+        parsed_time = Time.zone.parse(expiration_string)
+        if parsed_time.nil?
+          log_invalid_expiration_date(resource, expiration_string)
+          return nil
+        end
+
+        parsed_time.utc
+      rescue ArgumentError => e
+        Rails.logger.warn("Failed to parse expiration date '#{expiration_string}': #{e.message}")
+        nil
+      end
+
+      # Checks if prescription validity period has ended
+      #
+      # @param resource [Hash] FHIR MedicationRequest resource
+      # @return [Boolean] true if expired (validity period end is in the past)
+      def prescription_expired?(resource)
+        expiration_date = parse_expiration_date_utc(resource)
+        return false if expiration_date.nil?
+
+        expiration_date < Time.current.utc
       end
 
       # Extracts SIG (dosage instructions) from FHIR MedicationDispense

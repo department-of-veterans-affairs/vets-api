@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/shared_logging'
+require 'vre/notification_email'
 
 module VRE
   class VREVeteranReadinessEmploymentClaim < ::SavedClaim
@@ -9,12 +10,10 @@ module VRE
     FORM = Constants::FORM
     VBMS_CONFIRMATION = :confirmation_vbms
     LIGHTHOUSE_CONFIRMATION = :confirmation_lighthouse
-    CONFIRMATION_EMAIL_TEMPLATES = {
-      VBMS_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
-                                   .email.confirmation_vbms.template_id,
-      LIGHTHOUSE_CONFIRMATION => Settings.vanotify.services.veteran_readiness_and_employment
-                                         .email.confirmation_lighthouse.template_id
-    }.freeze
+    CONFIRMATION_EMAIL_TEMPLATES = [
+      VBMS_CONFIRMATION,
+      LIGHTHOUSE_CONFIRMATION
+    ].freeze
 
     def initialize(args)
       @sent_to_lighthouse = false
@@ -51,8 +50,8 @@ module VRE
     # Common method for VRE form submission:
     # * Adds information from user to payload
     # * Submits to VBMS if participant ID is there, to Lighthouse if not.
-    # * Sends email if user is present
     # * Sends to RES service
+    # * Sends confirmation email
     # @param user [User] user account of submitting user
     # @return [Hash] Response payload of service that was used (RES)
     def send_to_vre(user)
@@ -72,10 +71,12 @@ module VRE
                                                   @sent_to_lighthouse).deliver_later
 
       send_to_res(user)
+
+      send_email(@sent_to_lighthouse ? LIGHTHOUSE_CONFIRMATION : VBMS_CONFIRMATION)
     end
 
     # Submit claim into VBMS service, uploading document directly to VBMS,
-    # adds document ID from VBMS to form info, and sends confirmation email to user
+    # adds document ID from VBMS to form info.
     # Submits to Lighthouse on failure
     # @param user [User] user account of submitting user
     # @return None
@@ -98,9 +99,6 @@ module VRE
           update!(form: updated_form.to_json)
         end
       end
-
-      !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-        send_vbms_lighthouse_confirmation_email('VBMS', CONFIRMATION_EMAIL_TEMPLATES[VBMS_CONFIRMATION], user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user&.uuid, message: e.message })
       send_to_lighthouse!(user)
@@ -110,8 +108,7 @@ module VRE
       PdfFill::Filler.fill_form(self, file_name, { created_at: })
     end
 
-    # Submit claim into lighthouse service, adds veteran info to top level of form,
-    # and sends confirmation email to user
+    # Submit claim into lighthouse service, adds veteran info to top level of form
     # @param user [User] user account of submitting user
     # @return None
     def send_to_lighthouse!(user)
@@ -133,10 +130,6 @@ module VRE
 
       process_attachments!
       @sent_to_lighthouse = true
-
-      !Flipper.enabled?(:vre_use_new_vfs_notification_library) &&
-        send_vbms_lighthouse_confirmation_email('Lighthouse', CONFIRMATION_EMAIL_TEMPLATES[LIGHTHOUSE_CONFIRMATION],
-                                                user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
       raise
@@ -147,24 +140,14 @@ module VRE
       []
     end
 
-    # Lighthouse::SubmitBenefitsIntakeClaim will call the function `send_confirmation_email` (if it exists).
-    # Do not name a function `send_confirmation_email`, unless it accepts 0 arguments.
-    def send_vbms_lighthouse_confirmation_email(service, email_template, user)
-      if email.blank?
-        Rails.logger.warn("#{service} confirmation email not sent: parsed form missing email.",
-                          { user_uuid: user&.uuid })
-        return
+    # Sends notification email via VeteranFacingServices::NotificationEmail library
+    def send_email(email_type)
+      VRE::NotificationEmail.new(id).deliver(email_type)
+      if CONFIRMATION_EMAIL_TEMPLATES.include?(email_type)
+        Rails.logger.info("VRE Submit1900Job successful. #{email_type} confirmation email sent.")
+      else
+        Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
       end
-
-      VANotify::EmailJob.perform_async(
-        email,
-        email_template,
-        {
-          'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
-      Rails.logger.info("VRE #{service} upload successful. #{service} confirmation email sent.")
     end
 
     def process_attachments!
@@ -182,26 +165,6 @@ module VRE
 
     def email
       @email ||= parsed_form['email']
-    end
-
-    # this failure email is not the ideal way to handle the Notification Emails as
-    # part of the ZSF work, but with the initial timeline it handles the email as intended.
-    # Future work will be integrating into the Va Notify common lib:
-    # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
-    def send_failure_email(email)
-      if email.present?
-        ::VANotify::EmailJob.perform_async(
-          email,
-          Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-          {
-            'first_name' => parsed_form.dig('veteranInformation', 'fullName', 'first'),
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
-          }
-        )
-      else
-        Rails.logger.warn('VRE claim failure email not sent: email not present.')
-      end
     end
 
     private

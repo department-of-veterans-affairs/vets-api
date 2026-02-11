@@ -45,7 +45,6 @@ module BGSDependents
     def initialize(dependents_application)
       @dependents_application = dependents_application
       @spouse_information = @dependents_application['spouse_information']
-      @is_v2 = v2?
 
       assign_attributes
     end
@@ -67,7 +66,7 @@ module BGSDependents
       @martl_status_type_cd = marital_status
       @vet_ind = spouse_is_veteran
       @address = spouse_address
-      @spouse_income = formatted_boolean(@dependents_application['does_live_with_spouse']['spouse_income'])
+      @spouse_income = spouse_income
       @first = @spouse_information['full_name']['first']
       @middle = @spouse_information['full_name']['middle']
       @last = @spouse_information['full_name']['last']
@@ -87,12 +86,25 @@ module BGSDependents
       lives_with_vet ? 'Married' : 'Separated'
     end
 
+    def spouse_income
+      if @dependents_application['does_live_with_spouse']['spouse_income'] == 'NA'
+        nil
+      else
+        @dependents_application['does_live_with_spouse']['spouse_income']
+      end
+    end
+
     def spouse_address
       dependent_address(
         dependents_application: @dependents_application,
         lives_with_vet: @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'],
         alt_address: @dependents_application.dig('does_live_with_spouse', 'address')
       )
+    end
+
+    # temporarily not used until rbps can handle it in the payload
+    def marriage_method_name
+      @dependents_application.dig('current_marriage_information', 'type_of_marriage')
     end
   end
 end

@@ -45,9 +45,10 @@ module VANotify
       ]
 
       StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted", tags:)
+      Sidekiq::AttrPackage.delete(attr_package_params_cache_key) if attr_package_params_cache_key
     end
 
-    def perform(notification_id, attr_package_params_cache_key)
+    def perform(notification_id, attr_package_params_cache_key) # rubocop:disable Metrics/MethodLength
       notification_params_hash = Sidekiq::AttrPackage.find(attr_package_params_cache_key)
 
       unless notification_params_hash
@@ -60,20 +61,21 @@ module VANotify
       end
 
       notification = VANotify::Notification.find_by(notification_id:)
-
       if notification
         notification.update(notification_params_hash)
-
         log_successful_update(notification)
 
         VANotify::DefaultCallback.new(notification).call
         VANotify::CustomCallback.new(notification_params_hash.merge(id: notification_id)).call
-
         Sidekiq::AttrPackage.delete(attr_package_params_cache_key)
         StatsD.increment('sidekiq.jobs.va_notify_delivery_status_update_job.success')
       else
         raise NotificationNotFound, "Notification #{notification_id} not found; retrying until exhaustion"
       end
+    rescue Sidekiq::AttrPackageError => e
+      # Log AttrPackage errors as application logic errors (no retries)
+      Rails.logger.error('DeliveryStatusUpdateJob AttrPackage error', { error: e.message })
+      raise ArgumentError, e.message
     end
 
     def log_successful_update(notification)

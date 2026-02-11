@@ -5,7 +5,12 @@ module SignIn
     module Auth
       ACCESS_TOKEN_COOKIE_NAME = 'vagov_access_token'
       ACCESS_DENIED = 'access_denied'
-      ACR_VALUES = [LOA1 = 'loa1', LOA3 = 'loa3', IAL1 = 'ial1', IAL2 = 'ial2',
+      ACR_VALUES = [LOA1 = 'loa1',
+                    LOA3 = 'loa3',
+                    IAL1 = 'ial1',
+                    IAL2 = 'ial2',
+                    IAL2_REQUIRED  = 'urn:acr.va.gov:verified-facial-match-required',
+                    IAL2_PREFERRED = 'urn:acr.va.gov:verified-facial-match-preferred',
                     MIN = 'min'].freeze
       ACR_TRANSLATIONS = [IDME_LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                           IDME_LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3',
@@ -22,7 +27,9 @@ module SignIn
                                                       DSLOGON_ASSURANCE_THREE = '3'].freeze,
                           LOGIN_GOV_IAL0 = 'http://idmanagement.gov/ns/assurance/ial/0',
                           LOGIN_GOV_IAL1 = 'http://idmanagement.gov/ns/assurance/ial/1',
-                          LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2'].freeze
+                          LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2',
+                          LOGIN_GOV_IAL2_REQUIRED = 'urn:acr.login.gov:verified-facial-match-required',
+                          LOGIN_GOV_IAL2_PREFERRED = 'urn:acr.login.gov:verified-facial-match-preferred'].freeze
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'
       AUTHENTICATION_TYPES = [COOKIE = 'cookie', API = 'api', MOCK = 'mock'].freeze
       BROKER_CODE = 'sis'
@@ -31,6 +38,7 @@ module SignIn
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       OPERATION_TYPES = [SIGN_UP = 'sign_up',
                          AUTHORIZE = 'authorize',
+                         AUTHORIZE_SSO = 'authorize_sso',
                          INTERSTITIAL_VERIFY = 'interstitial_verify',
                          INTERSTITIAL_SIGNUP = 'interstitial_signup',
                          VERIFY_CTA_AUTHENTICATED = 'verify_cta_authenticated',

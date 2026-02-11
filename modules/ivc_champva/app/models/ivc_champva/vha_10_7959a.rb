@@ -7,6 +7,7 @@ module IvcChampva
     ADDITIONAL_PDF_KEY = 'claims'
     ADDITIONAL_PDF_COUNT = 1
     STATS_KEY = 'api.ivc_champva_form.10_7959a'
+    FORM_VERSION = 'vha_10_7959a'
 
     include Vets::Model
     include Attachments
@@ -56,15 +57,13 @@ module IvcChampva
 
     ##
     # Informs pdf stamper that we want to stamp some arbitrary values on a blank page
-    # in the main form PDF file. See IvcChampva::PdfStamper.add_blank_page_and_stamp
+    # in the main form PDF file. See UploadsController::PdfStamper.add_blank_page_and_stamp
     # @return [Hash] hash of metadata we want to stamp and an attachment ID to associate with the stamped page
     def stamp_metadata
       # Only generate a stamped metadata page for PDI resubmissions when feature flag is enabled
-      if Flipper.enabled?(:champva_resubmission_attachment_ids) &&
-         @data['claim_status'] == 'resubmission' &&
-         @data['pdi_or_claim_number'] == 'PDI number'
-        { metadata: add_resubmission_properties,
-          attachment_id: 'CVA Bene Response' }
+      if Flipper.enabled?(:champva_claims_duty_to_assist)
+        # placeholder for future DTA work
+        { metadata: add_resubmission_properties }
       end
     end
 
@@ -107,6 +106,26 @@ module IvcChampva
       email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
       StatsD.increment("#{STATS_KEY}.#{email_used}")
       Rails.logger.info('IVC ChampVA Forms - 10-7959A Email Used', email_used:)
+    end
+
+    def track_submission(current_user)
+      identity = data['certifier_role']
+      current_user_loa = current_user&.loa&.[](:current) || 0
+      email_used = metadata&.dig('primaryContactInfo', 'email') ? 'yes' : 'no'
+      StatsD.increment("#{STATS_KEY}.submission", tags: [
+                         "identity:#{identity}",
+                         "current_user_loa:#{current_user_loa}",
+                         "email_used:#{email_used}",
+                         "form_version:#{FORM_VERSION}",
+                         "claim_status:#{@data['claim_status']}",
+                         "pdi_or_claim_number:#{@data['pdi_or_claim_number']}"
+                       ])
+      Rails.logger.info('IVC ChampVA Forms - 10-7959A Submission', identity:,
+                                                                   current_user_loa:,
+                                                                   email_used:,
+                                                                   form_version: FORM_VERSION,
+                                                                   claim_status: @data['claim_status'],
+                                                                   pdi_or_claim_number: @data['pdi_or_claim_number'])
     end
 
     # rubocop:disable Naming/BlockForwarding

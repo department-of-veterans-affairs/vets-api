@@ -61,6 +61,12 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
         expect(response).to have_http_status(:ok)
       end
 
+      it 'sets the user account on the claim' do
+        post(:create, params: test_form, as: :json)
+        claim = DependentsBenefits::PrimaryDependencyClaim.last
+        expect(claim.user_account).to eq(user.user_account)
+      end
+
       it 'creates saved claims' do
         expect do
           post(:create, params: test_form, as: :json)

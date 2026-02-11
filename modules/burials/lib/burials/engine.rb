@@ -43,8 +43,19 @@ module Burials
         require 'pdf_utilities/pdf_stamper'
         require 'burials/pdf_stamper'
 
-        Burials::PDFStamper::STAMP_SETS.each do |identifier, stamps|
-          ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
+        # Only register stamps if database exists and is connected
+        # This is happening because stamp_sets calls Burials.pdf_path which checks a Flipper flag
+        # During the CI creation of the vets_api_test database
+        begin
+          ActiveRecord::Base.connection.verify!
+
+          stamp_sets = Burials::PDFStamper.stamp_sets
+          stamp_sets.each do |identifier, stamps|
+            ::PDFUtilities::PDFStamper.register_stamps(identifier, stamps)
+          end
+        rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished
+          # Skip registration when database is not available (e.g., during db:create)
+          Rails.logger.debug('Skipping Burials PDF stamper registration - database not available')
         end
       end
     end

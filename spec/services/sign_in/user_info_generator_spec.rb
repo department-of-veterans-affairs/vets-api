@@ -62,6 +62,8 @@ RSpec.describe SignIn::UserInfoGenerator do
         expect(user_info.csp_type).to eq(MPI::Constants::IDME_IDENTIFIER)
         expect(user_info.csp_uuid).to eq(credential_uuid)
         expect(user_info.email).to eq(credential_email)
+        expect(user_info.first_name).to eq(user.first_name)
+        expect(user_info.last_name).to eq(user.last_name)
         expect(user_info.full_name).to eq(user.full_name_normalized.values.compact.join(' '))
         expect(user_info.birth_date).to eq(user.birth_date)
         expect(user_info.ssn).to eq(user.ssn)

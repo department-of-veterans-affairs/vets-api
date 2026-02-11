@@ -158,6 +158,8 @@ RSpec.shared_examples 'engine status updater job with base forms' do |subclass|
 
   context 'Retrieving SavedClaim records fails' do
     before do
+      # Stub both .includes and .where to handle jobs with and without eager loading
+      allow(subclass).to receive(:includes).and_raise(ActiveRecord::ConnectionTimeoutError)
       allow(subclass).to receive(:where).and_raise(ActiveRecord::ConnectionTimeoutError)
       allow(Rails.logger).to receive(:error)
     end

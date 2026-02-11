@@ -46,6 +46,38 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
+        context 'when response is invalid' do
+          let(:config) { instance_double(BenefitsClaims::Configuration) }
+          let(:response) { instance_double(Faraday::Response, status: 200, headers: { 'content-type' => 'text/html' }) }
+
+          before do
+            allow(service).to receive(:config).and_return(config)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'raises 502 and logs error when response is not a Hash' do
+            allow(response).to receive(:body).and_return('<html>Error</html>')
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claims received non-Hash response',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claims }.to raise_error(Common::Exceptions::BadGateway)
+          end
+
+          it 'raises 502 and logs error when data is not an Array' do
+            allow(response).to receive(:body).and_return({ 'data' => 'not an array' })
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claims received invalid data structure',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claims }.to raise_error(Common::Exceptions::BadGateway)
+          end
+        end
+
         # rubocop:disable Naming/VariableNumber
         context 'EP code filtering' do
           # Test with both flags enabled
@@ -216,6 +248,146 @@ RSpec.describe BenefitsClaims::Service do
             expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
             expect(response.dig('data', 'attributes', 'trackedItems', 2,
                                 'displayName')).to eq('NG1 - National Guard Records Request')
+          end
+        end
+
+        context 'missing API description metric tracking' do
+          before do
+            allow(StatsD).to receive(:increment)
+          end
+
+          let(:claim_with_blank_description) do
+            {
+              'attributes' => {
+                'trackedItems' => [
+                  { 'displayName' => 'Test Item', 'description' => '' },
+                  { 'displayName' => 'Test Item 2', 'description' => nil },
+                  { 'displayName' => 'Another Item', 'description' => 'Some description' }
+                ]
+              }
+            }
+          end
+
+          it 'increments StatsD metric when a tracked item has a blank description' do
+            service.send(:apply_friendlier_language, claim_with_blank_description)
+
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item']
+            ).once
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item 2']
+            ).once
+          end
+        end
+
+        describe 'tracked item content overrides' do
+          context 'when cst_evidence_requests_content_override is disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                        anything).and_return(false)
+            end
+
+            it 'uses legacy constants for tracked item content' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                response = service.get_claim('600383363')
+                tracked_items = response.dig('data', 'attributes', 'trackedItems')
+                # Find the 21-4142/21-4142a item
+                form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+                # Legacy fields should be populated from Constants
+                expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+                expect(form_item['canUploadFile']).to be true
+                expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+                # New fields should NOT be present
+                expect(form_item).not_to have_key('longDescription')
+                expect(form_item).not_to have_key('nextSteps')
+                expect(form_item).not_to have_key('noActionNeeded')
+                expect(form_item).not_to have_key('isDBQ')
+                expect(form_item).not_to have_key('isProperNoun')
+                expect(form_item).not_to have_key('isSensitive')
+                expect(form_item).not_to have_key('noProvidePrefix')
+              end
+            end
+          end
+
+          context 'when cst_evidence_requests_content_override is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
+                                                        anything).and_return(true)
+            end
+
+            it 'uses TrackedItemContent for known tracked items' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                response = service.get_claim('600383363')
+                tracked_items = response.dig('data', 'attributes', 'trackedItems')
+                # Find the 21-4142/21-4142a item
+                form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+                # Existing fields should be populated from TrackedItemContent::CONTENT
+                expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+                expect(form_item['canUploadFile']).to be true
+                expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+                # New structured content fields should be present
+                expect(form_item['longDescription']).to be_a(Hash)
+                expect(form_item['longDescription']).to have_key(:blocks)
+                expect(form_item['nextSteps']).to be_a(Hash)
+                expect(form_item['nextSteps']).to have_key(:blocks)
+                # New boolean flags should be present
+                expect(form_item['noActionNeeded']).to be false
+                expect(form_item['isDBQ']).to be false
+                expect(form_item['isProperNoun']).to be false
+                expect(form_item['isSensitive']).to be false
+                expect(form_item['noProvidePrefix']).to be false
+              end
+            end
+
+            it 'falls back to legacy content for display names with no content overrides' do
+              VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+                response = service.get_claim('600383363')
+                tracked_items = response.dig('data', 'attributes', 'trackedItems')
+                # Find an item not in TrackedItemContent::CONTENT (Attorney Fee is suppressed, not in content)
+                tracked_item_without_content_overrides = tracked_items.find { |i| i['displayName'] == 'Attorney Fee' }
+                # Should fall back to legacy behavior
+                expect(tracked_item_without_content_overrides['friendlyName']).to be_nil
+                expect(tracked_item_without_content_overrides['canUploadFile']).to be true
+                expect(tracked_item_without_content_overrides['supportAliases']).to eq([])
+                # New fields should NOT be present for display names with no content overrides
+                expect(tracked_item_without_content_overrides).not_to have_key('longDescription')
+                expect(tracked_item_without_content_overrides).not_to have_key('nextSteps')
+              end
+            end
+          end
+        end
+
+        context 'when response is invalid' do
+          let(:config) { instance_double(BenefitsClaims::Configuration) }
+          let(:response) { instance_double(Faraday::Response, status: 200, headers: { 'content-type' => 'text/html' }) }
+
+          before do
+            allow(service).to receive(:config).and_return(config)
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it 'raises 502 and logs error when response is not a Hash' do
+            allow(response).to receive(:body).and_return('<html>Error</html>')
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claim received non-Hash response',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claim('123') }.to raise_error(Common::Exceptions::BadGateway)
+          end
+
+          it 'raises 502 and logs error when data is not a Hash' do
+            allow(response).to receive(:body).and_return({ 'data' => %w[not a hash] })
+            allow(config).to receive(:get).and_return(response)
+
+            expect(Rails.logger).to receive(:error).with(
+              'BenefitsClaims::Service#get_claim received invalid data structure',
+              hash_including(:response_class, :response_body_truncated, :response_status, :content_type)
+            )
+            expect { service.get_claim('123') }.to raise_error(Common::Exceptions::BadGateway)
           end
         end
       end
@@ -454,6 +626,170 @@ RSpec.describe BenefitsClaims::Service do
                 service.submit2122(attributes, 'lh_client_id', 'key_path')
               end.to raise_error(Common::Exceptions::ResourceNotFound)
             end
+          end
+        end
+      end
+
+      describe '#submit_power_of_attorney_request' do
+        let(:attributes) do
+          {
+            'data' => {
+              'attributes' => {
+                'veteran' => {
+                  'serviceNumber' => '123678453',
+                  'serviceBranch' => 'ARMY',
+                  'address' => {
+                    'addressLine1' => '2719 Hyperion Ave',
+                    'addressLine2' => 'Apt 2',
+                    'city' => 'Los Angeles',
+                    'stateCode' => 'CA',
+                    'countryCode' => 'US',
+                    'zipCode' => '92264',
+                    'zipCodeSuffix' => '0200'
+                  },
+                  'phone' => { 'areaCode' => '555', 'phoneNumber' => '5551234' },
+                  'email' => 'test@test.com',
+                  'insuranceNumber' => '1234567890'
+                },
+                'representative' => { 'poaCode' => '067' },
+                'recordConsent' => true,
+                'consentAddressChange' => true,
+                'consentLimits' => %w[DRUG_ABUSE SICKLE_CELL HIV ALCOHOLISM]
+              }
+            }
+          }
+        end
+
+        # Add 'claimant' to expected response to match Lighthouse actual response
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => 'f89cb63d-126e-439a-99ff-c0aca8db6736',
+              'type' => 'power-of-attorney-request',
+              'attributes' => attributes['data']['attributes'].merge(
+                'claimant' => {
+                  'claimantId' => nil,
+                  'address' => {
+                    'addressLine1' => nil,
+                    'addressLine2' => nil,
+                    'city' => nil,
+                    'stateCode' => nil,
+                    'countryCode' => nil,
+                    'zipCode' => nil,
+                    'zipCodeSuffix' => nil
+                  },
+                  'phone' => { 'areaCode' => nil, 'phoneNumber' => nil },
+                  'email' => nil,
+                  'relationship' => nil
+                }
+              )
+            }
+          }
+        end
+
+        let(:service) { BenefitsClaims::Service.new('1012667145V762142') }
+
+        it 'submits a valid power of attorney request to Lighthouse and returns the expected response' do
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/201_response',
+            match_requests_on: %i[method uri]
+          ) do
+            response = service.submit_power_of_attorney_request(
+              attributes,
+              'lh_client_id',
+              'key_path'
+            )
+
+            body = response.body
+            # ---- STRUCTURE ----
+            expect(body['data']['type']).to eq('power-of-attorney-request')
+            expect(body['data']['id']).to be_present
+
+            # ---- ATTRIBUTES ----
+            expect(body['data']['attributes']).to include(
+              attributes['data']['attributes']
+            )
+            # ---- CLAIMANT (Lighthouse-added) ----
+            expect(body['data']['attributes']['claimant']).to eq(
+              {
+                'claimantId' => nil,
+                'address' => {
+                  'addressLine1' => nil,
+                  'addressLine2' => nil,
+                  'city' => nil,
+                  'stateCode' => nil,
+                  'countryCode' => nil,
+                  'zipCode' => nil,
+                  'zipCodeSuffix' => nil
+                },
+                'phone' => {
+                  'areaCode' => nil,
+                  'phoneNumber' => nil
+                },
+                'email' => nil,
+                'relationship' => nil
+              }
+            )
+          end
+        end
+
+        it 'raises Unauthorized when Lighthouse returns 401' do
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/401_response',
+            match_requests_on: %i[method uri]
+          ) do
+            expect do
+              service.submit_power_of_attorney_request(
+                attributes,
+                'any_client_id',   # placeholder, not used
+                'any_rsa_key'      # placeholder, not used
+              )
+            end.to raise_error(Common::Exceptions::Unauthorized)
+          end
+        end
+
+        it 'returns a not_found response when Lighthouse returns 404' do
+          service = BenefitsClaims::Service.new('10126222')
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/404_response',
+            match_requests_on: %i[method uri]
+          ) do
+            expect do
+              service.submit_power_of_attorney_request(attributes, 'lh_client_id', 'key_path')
+            end.to raise_error(Common::Exceptions::ResourceNotFound)
+          end
+        end
+
+        it 'returns a payload_too_large response when Lighthouse returns 413' do
+          oversized_attributes = attributes.deep_dup
+          oversized_attributes['data']['attributes']['veteran']['address']['addressLine1'] = 'x' * 50_000_000
+
+          VCR.use_cassette(
+            'lighthouse/benefits_claims/submit_power_of_attorney_request/413_response',
+            match_requests_on: %i[method uri]
+          ) do
+            expect do
+              service.submit_power_of_attorney_request(
+                oversized_attributes,
+                'lh_client_id',
+                'key_path'
+              )
+            end.to raise_error(Common::Exceptions::PayloadTooLarge)
+          end
+        end
+
+        it 'raises UnprocessableEntity when Lighthouse returns 422' do
+          invalid_attributes = attributes.deep_dup
+          invalid_attributes['data']['attributes']['veteran']['serviceNumber'] = nil
+
+          VCR.use_cassette('lighthouse/benefits_claims/submit_power_of_attorney_request/422_response') do
+            expect do
+              service.submit_power_of_attorney_request(
+                invalid_attributes,
+                'lh_client_id',
+                'key_path'
+              )
+            end.to raise_error(Common::Exceptions::UnprocessableEntity)
           end
         end
       end

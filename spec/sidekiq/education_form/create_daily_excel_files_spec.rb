@@ -60,7 +60,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
       allow(instance).to receive(:log_info)
 
       expect(instance.perform).to be false
-      expect(instance).to have_received(:log_info).with("Skipping on a Holiday: New Year's Day")
+      expect(instance).to have_received(:log_info).with("CreateDailyExcelFiles: Skipping on a Holiday: New Year's Day")
     end
   end
 
@@ -109,7 +109,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
         allow(instance).to receive(:log_info)
 
         expect(instance.perform).to be(true)
-        expect(instance).to have_received(:log_info).with('No records to process.')
+        expect(instance).to have_received(:log_info).with('CreateDailyExcelFiles: No records to process.')
       end
     end
   end

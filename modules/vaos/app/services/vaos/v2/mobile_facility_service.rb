@@ -203,10 +203,7 @@ module VAOS
       #   - :meta: A hash containing pagination information.
       #
       def get_scheduling_configurations(facility_ids, cc_enabled = nil, pagination_params = {})
-        params = {
-          facilityIds: facility_ids,
-          ccEnabled: cc_enabled
-        }.merge(page_params(pagination_params)).compact
+        params = scheduling_params(facility_ids, cc_enabled, pagination_params)
 
         with_monitoring do
           response = perform(:get, scheduling_url, params, headers)
@@ -252,7 +249,18 @@ module VAOS
       def deserialized_configurations(configuration_list)
         return [] unless configuration_list
 
-        configuration_list.map { |configuration| OpenStruct.new(configuration) }
+        if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
+          configuration_list.map do |configuration|
+            OpenStruct.new({
+                             facility_id: configuration[:facility_id],
+                             va_services: configuration[:va_clinical_services],
+                             cc_services: configuration[:cc_clinical_services],
+                             community_care: configuration[:community_care]
+                           })
+          end
+        else
+          configuration_list.map { |configuration| OpenStruct.new(configuration) }
+        end
       end
 
       def deserialized_facilities(facility_list)
@@ -284,12 +292,25 @@ module VAOS
         end
       end
 
+      def scheduling_params(facility_ids, cc_enabled = nil, pagination_params = {})
+        if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
+          { communityCare: cc_enabled, locations: facility_ids }.compact
+        else
+          {
+            facilityIds: facility_ids,
+            ccEnabled: cc_enabled
+          }.merge(page_params(pagination_params)).compact
+        end
+      end
+
       def clinic_url(station_id)
         "/#{base_vaos_route}/locations/#{station_id}/clinics"
       end
 
       def scheduling_url
-        if Flipper.enabled?(:va_online_scheduling_cscs_migration, user)
+        if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
+          '/vpg/v1/scheduling/configurations'
+        elsif Flipper.enabled?(:va_online_scheduling_cscs_migration, user)
           '/cscs/v1/configurations'
         else
           '/facilities/v2/scheduling/configurations'

@@ -97,9 +97,9 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
         sign_in_as user
         allow_any_instance_of(VAProfile::Profile::V3::Service)
           .to receive(:get_health_benefit_bio).and_wrap_original do |orig|
-          response = orig.call
-          allow(response).to receive(:contacts).and_return([])
-          response
+            response = orig.call
+            allow(response).to receive(:contacts).and_return([])
+            response
         end
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:increment)

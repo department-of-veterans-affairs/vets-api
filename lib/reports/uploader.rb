@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/s3_helpers'
+
 module Reports
   module Uploader
     module_function
@@ -18,8 +20,17 @@ module Reports
 
     def get_s3_link(report_file)
       s3_resource = new_s3_resource
-      obj = s3_resource.bucket(s3_bucket).object("#{SecureRandom.uuid}.csv")
-      obj.upload_file(report_file, content_type: 'text/csv')
+      key = "#{SecureRandom.uuid}.csv"
+
+      obj = Common::S3Helpers.upload_file(
+        s3_resource:,
+        bucket: s3_bucket,
+        key:,
+        file_path: report_file,
+        content_type: 'text/csv',
+        return_object: true
+      )
+
       obj.presigned_url(:get, expires_in: 1.week.to_i)
     end
   end

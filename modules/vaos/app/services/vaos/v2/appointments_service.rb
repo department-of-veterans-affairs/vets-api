@@ -13,12 +13,12 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
+      AVS_BINARY_ERROR_MESSAGE = 'Error retrieving AVS binary'
+      AVS_BINARY_EMPTY_MESSAGE = 'Retrieved empty AVS binary'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
-      ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
-      APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
-      APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
+      APPOINTMENTS_FETCH_OH_AVS = :va_online_scheduling_add_OH_avs
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -198,7 +198,12 @@ module VAOS
       def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         params = {}
         with_monitoring do
-          response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
+          response =  if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+                        perform_get_appointment_request_vpg(appointment_id, params)
+                      else
+                        perform_get_appointment_request_vaos(appointment_id, params)
+                      end
+
           appointment = response.body[:data]
           # We always fetch facility and clinic information when getting a single appointment
           include[:facilities] = true
@@ -252,27 +257,25 @@ module VAOS
       end
 
       def create_direct_scheduling_appointment(params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
-          perform(:post, appointments_base_path_vpg, params, headers)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+          perform_post_appointment_request_vpg(params)
         else
-          perform(:post, appointments_base_path_vaos, params, headers)
+          perform_post_appointment_request_vaos(params)
         end
       end
 
       def create_appointment_request(params)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
-          perform(:post, appointments_base_path_vpg, params, headers)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+          perform_post_appointment_request_vpg(params)
         else
-          perform(:post, appointments_base_path_vaos, params, headers)
+          perform_post_appointment_request_vaos(params)
         end
       end
 
       # rubocop:enable Metrics/MethodLength
       def update_appointment(appt_id, status)
         with_monitoring do
-          if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+          if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
@@ -398,6 +401,28 @@ module VAOS
             location_id ? "facility #{location_id}" : 'unknown facility'
           end
         end
+      end
+
+      def fetch_avs_binaries(appt_id, doc_ids)
+        return nil if appt_id.nil? || doc_ids.nil? || doc_ids.empty?
+
+        responses = []
+
+        doc_ids.each do |doc_id|
+          response = get_avs_pdf_binary(doc_id, appt_id)
+          if response.nil?
+            responses.push({ doc_id:, error: AVS_BINARY_EMPTY_MESSAGE })
+          else
+            responses.push({ doc_id:, binary: response.binary })
+          end
+        rescue => e
+          err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
+          error_log = "VAOS: Error retrieving AVS binary for appt #{appt_id} doc #{doc_id}:" \
+                      "#{e.class}, #{e.message} \n   #{err_stack}"
+          Rails.logger.error(error_log)
+          responses.push({ doc_id:, error: AVS_BINARY_ERROR_MESSAGE })
+        end
+        responses
       end
 
       private
@@ -905,9 +930,19 @@ module VAOS
 
         return nil if cerner_system_id.nil?
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id)
 
         return nil if avs_resp.empty? || avs_resp.nil?
+
+        avs_resp
+      end
+
+      def get_avs_pdf_binary(doc_id, appt_id)
+        return nil if doc_id.nil? || appt_id.nil?
+
+        avs_resp = unified_health_data_service.get_avs_binary_data(doc_id:, appt_id:)
+
+        return nil if avs_resp.nil?
 
         avs_resp
       end
@@ -923,8 +958,10 @@ module VAOS
         if appt[:id].nil?
           appt[:avs_path] = nil
         elsif VAOS::AppointmentsHelper.cerner?(appt)
-          avs_pdf = get_avs_pdf(appt)
-          appt[:avs_pdf] = avs_pdf
+          if Flipper.enabled?(APPOINTMENTS_FETCH_OH_AVS, user)
+            avs_pdf = get_avs_pdf(appt)
+            appt[:avs_pdf] = avs_pdf
+          end
         else
           avs_link = get_avs_link(appt)
           appt[:avs_path] = avs_link
@@ -1433,12 +1470,12 @@ module VAOS
         "/my-health/medical-records/summaries-and-notes/visit-summary/#{sid}"
       end
 
-      def get_appointment_base_path(appointment_id)
-        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-          "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
-        else
-          "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
-        end
+      def get_appointment_base_path_vpg(appointment_id)
+        "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+      end
+
+      def get_appointment_base_path_vaos(appointment_id)
+        "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 
       def date_params(start_date, end_date)
@@ -1464,13 +1501,17 @@ module VAOS
       def update_appointment_vpg(appt_id, status)
         url_path = "/vpg/v1/patients/#{user.icn}/appointments/#{appt_id}"
         body = [VAOS::V2::UpdateAppointmentForm.new(status:).json_patch_op]
-        perform(:patch, url_path, body, headers)
+        with_monitoring do
+          perform(:patch, url_path, body, headers)
+        end
       end
 
       def update_appointment_vaos(appt_id, status)
         url_path = "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
-        perform(:put, url_path, params, headers)
+        with_monitoring do
+          perform(:put, url_path, params, headers)
+        end
       end
 
       def validate_response_schema(response, contract_name)
@@ -1628,10 +1669,47 @@ module VAOS
       def perform_appointment_request(req_params)
         with_monitoring do
           if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-            perform(:get, appointments_base_path_vpg, req_params, headers)
+            perform_get_appointments_request_vpg(req_params)
           else
-            perform(:get, appointments_base_path_vaos, req_params, headers)
+            perform_get_appointments_request_vaos(req_params)
           end
+        end
+      end
+
+      # Splitting `perform` requests into separate vpg/vaos methods for monitoring purposes
+      def perform_get_appointments_request_vpg(req_params)
+        with_monitoring do
+          perform(:get, appointments_base_path_vpg, req_params, headers)
+        end
+      end
+
+      def perform_get_appointments_request_vaos(req_params)
+        with_monitoring do
+          perform(:get, appointments_base_path_vaos, req_params, headers)
+        end
+      end
+
+      def perform_get_appointment_request_vpg(appointment_id, params)
+        with_monitoring do
+          perform(:get, get_appointment_base_path_vpg(appointment_id), params, headers)
+        end
+      end
+
+      def perform_get_appointment_request_vaos(appointment_id, params)
+        with_monitoring do
+          perform(:get, get_appointment_base_path_vaos(appointment_id), params, headers)
+        end
+      end
+
+      def perform_post_appointment_request_vpg(req_params)
+        with_monitoring do
+          perform(:post, appointments_base_path_vpg, req_params, headers)
+        end
+      end
+
+      def perform_post_appointment_request_vaos(req_params)
+        with_monitoring do
+          perform(:post, appointments_base_path_vaos, req_params, headers)
         end
       end
 

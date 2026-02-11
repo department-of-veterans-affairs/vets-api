@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'feature_flipper'
 
 RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
   subject do
@@ -38,17 +39,19 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
 
     describe '#perform' do
       before do
+        # Fix: stub the FeatureFlipper constant and its method
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
       end
 
       after do
-        File.delete(filename)
+        # Fix: check if file exists before deleting
+        FileUtils.rm_f(filename)
       end
 
       let(:filename) { "tmp/spool_reports/#{time.to_date}.csv" }
 
       def perform
-        stub_reports_s3(filename) do
+        stub_reports_s3 do
           subject.perform
         end
       end

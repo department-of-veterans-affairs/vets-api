@@ -77,7 +77,7 @@ module VAProfile
           raise error unless error.is_a?(Common::Client::Errors::ClientError)
 
           save_error_details(error)
-          raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
+          raise_invalid_body(error, self.class) unless error&.body.present? && error.body.is_a?(Hash)
 
           raise Common::Exceptions::BackendServiceException.new(
             'VET360_AV_ERROR',

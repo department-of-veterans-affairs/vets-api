@@ -10,14 +10,14 @@ module SOB
       configuration SOB::DGI::Configuration
 
       BENEFIT_TYPE = 'CH33'
-      ENROLLMENT_PARAM = 'NO'
       STATSD_KEY_PREFIX = 'api.sob.dgi'
 
-      def initialize(ssn)
+      def initialize(ssn:, include_enrollments: false)
         super()
         raise Common::Exceptions::ParameterMissing, 'SSN' if ssn.blank?
 
         @ssn = ssn
+        @include_enrollments = include_enrollments
       end
 
       def get_ch33_status
@@ -48,7 +48,7 @@ module SOB
         {
           ssn: @ssn,
           benefitType: BENEFIT_TYPE,
-          enrollment: ENROLLMENT_PARAM
+          enrollment: @include_enrollments ? 'YES' : 'NO'
         }
       end
 

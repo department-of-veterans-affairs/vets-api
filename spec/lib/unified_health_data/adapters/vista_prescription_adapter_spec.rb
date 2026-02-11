@@ -83,6 +83,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
         expect(result.prescription_name).to eq('Test Medication')
+        expect(result.source_ehr).to eq('vista')
       end
 
       it 'maps cmopDivisionPhone to cmop_division_phone' do
@@ -187,6 +188,38 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         result = subject.parse(base_vista_medication)
 
         expect(result.disp_status).to be_nil
+      end
+    end
+
+    context 'with isRenewable field' do
+      let(:vista_medication_with_renewable) do
+        base_vista_medication.merge('isRenewable' => true)
+      end
+
+      it 'passes through the isRenewable field' do
+        result = subject.parse(vista_medication_with_renewable)
+
+        expect(result.is_renewable).to be true
+      end
+    end
+
+    context 'with isRenewable false' do
+      let(:vista_medication_not_renewable) do
+        base_vista_medication.merge('isRenewable' => false)
+      end
+
+      it 'passes through false value for isRenewable' do
+        result = subject.parse(vista_medication_not_renewable)
+
+        expect(result.is_renewable).to be false
+      end
+    end
+
+    context 'without isRenewable field' do
+      it 'sets is_renewable to nil when not provided' do
+        result = subject.parse(base_vista_medication)
+
+        expect(result.is_renewable).to be_nil
       end
     end
 

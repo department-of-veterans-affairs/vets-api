@@ -9,23 +9,16 @@ module V0
     before_action :check_feature_enabled
 
     def create
-      claim = saved_claim_class.new(form: filtered_params)
-      Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{current_user&.uuid}"
-      if claim.save
-        claim.process_attachments!
+      claim = nil
+      claim = build_and_save_claim!
+      handle_successful_claim(claim)
 
-        StatsD.increment("#{stats_key}.success")
-        Rails.logger.info "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} " \
-                          "UserID=#{current_user&.uuid}"
-
-        clear_saved_form(claim.form_id)
-        render json: SavedClaimSerializer.new(claim)
-      else
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
-      end
-    rescue JSON::ParserError
-      raise Common::Exceptions::ParameterMissing, 'form'
+      clear_saved_form(claim.form_id)
+      render json: SavedClaimSerializer.new(claim)
+    rescue JSON::ParserError => e
+      handle_json_parse_error(e)
+    rescue => e
+      handle_general_error(e, claim)
     end
 
     def download_pdf
@@ -33,7 +26,11 @@ module V0
       source_file_path = with_retries('Generate 21-0779 PDF') do
         claim.to_pdf
       end
-      raise Common::Exceptions::InternalServerError, 'Failed to generate PDF' unless source_file_path
+
+      unless source_file_path
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new('Failed to generate PDF')
+      end
 
       send_data File.read(source_file_path),
                 filename: download_file_name(claim),
@@ -41,6 +38,8 @@ module V0
                 disposition: 'attachment'
     rescue ActiveRecord::RecordNotFound
       raise Common::Exceptions::RecordNotFound, params[:guid]
+    rescue => e
+      handle_pdf_generation_error(e)
     ensure
       File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
@@ -65,6 +64,86 @@ module V0
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_0779_enabled, current_user)
+    end
+
+    def handle_pdf_generation_error(error)
+      Rails.logger.error(
+        'Form210779: Error generating PDF',
+        {
+          form: '21-0779',
+          guid: params[:guid],
+          user_id: current_user&.uuid,
+          error: error.message,
+          backtrace: error.backtrace
+        }
+      )
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
+    end
+
+    def build_and_save_claim!
+      claim = saved_claim_class.new(form: filtered_params)
+      Rails.logger.info(
+        'Begin claim submission',
+        {
+          claim_guid: claim.guid,
+          form: claim.class::FORM,
+          user_id: current_user&.uuid
+        }
+      )
+
+      if claim.save
+        claim.process_attachments!
+        claim
+      else
+        StatsD.increment("#{stats_key}.failure", tags: ["form:#{claim.class::FORM}"])
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+    end
+
+    def handle_successful_claim(claim)
+      StatsD.increment("#{stats_key}.success", tags: ["form:#{claim.class::FORM}"])
+      Rails.logger.info(
+        'Claim submission successful',
+        {
+          confirmation_number: claim.confirmation_number,
+          claim_guid: claim.guid,
+          form: claim.class::FORM,
+          user_id: current_user&.uuid
+        }
+      )
+    end
+
+    def handle_json_parse_error(error)
+      Rails.logger.error(
+        'Form210779: JSON parse error in form data',
+        {
+          form: '21-0779',
+          error: error.message,
+          user_id: current_user&.uuid
+        }
+      )
+      raise Common::Exceptions::ParameterMissing, 'form'
+    end
+
+    def handle_general_error(error, claim)
+      Rails.logger.error(
+        'Form210779: error submitting claim',
+        {
+          form: '21-0779',
+          claim_guid: claim&.guid,
+          user_id: current_user&.uuid,
+          error: error.message,
+          backtrace: error.backtrace,
+          claim_errors: defined?(claim) && claim&.errors&.full_messages
+        }
+      )
+      raise
     end
   end
 end

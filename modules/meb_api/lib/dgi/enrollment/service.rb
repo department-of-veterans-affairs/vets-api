@@ -56,7 +56,7 @@ module MebApi
 
           updated_certify_requests = camelized_keys['enrollmentVerifications']['enrollmentCertifyRequests']
                                      .each do |request|
-            request['claimantId'] = claimant_id
+                                       request['claimantId'] = claimant_id
           end
 
           new_params_hash = {}

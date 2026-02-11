@@ -13,11 +13,6 @@ describe UnifiedHealthData::Adapters::OracleHealthRefillHelper do
       include UnifiedHealthData::Adapters::OracleHealthRefillHelper
       include UnifiedHealthData::Adapters::OracleHealthCategorizer
       include UnifiedHealthData::Adapters::FhirHelpers
-
-      # Stub extract_expiration_date since it's defined in the adapter
-      def extract_expiration_date(resource)
-        resource.dig('dispenseRequest', 'validityPeriod', 'end')
-      end
     end
   end
 

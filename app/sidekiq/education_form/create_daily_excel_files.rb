@@ -60,10 +60,10 @@ module EducationForm
         return false if federal_holiday?
 
         if records.count.zero?
-          log_info('No records to process.')
+          log_info('CreateDailyExcelFiles: No records to process.')
           return true
         elsif retry_count.zero?
-          log_info("Processing #{records.count} application(s)")
+          log_info("CreateDailyExcelFiles: Processing #{records.count} application(s)")
         end
 
         # Format the records and write to CSV file
@@ -102,7 +102,7 @@ module EducationForm
 
           # Add data rows
           records.each_with_index do |record, index|
-            log_info("Processing record #{index + 1}: #{record.inspect}")
+            log_info("CreateDailyExcelFiles: Processing record #{index + 1}: #{record.inspect}")
 
             begin
               row_data = EXCEL_FIELDS.map do |field|
@@ -121,7 +121,7 @@ module EducationForm
 
         # Write to file for backup/audit purposes
         File.write("tmp/#{filename}", csv_contents)
-        log_info('Successfully created CSV file')
+        log_info('CreateDailyExcelFiles: Successfully created CSV file')
 
         # Return the CSV contents
         csv_contents
@@ -173,7 +173,7 @@ module EducationForm
       if holiday.empty?
         false
       else
-        log_info("Skipping on a Holiday: #{holiday.first[:name]}")
+        log_info("CreateDailyExcelFiles: Skipping on a Holiday: #{holiday.first[:name]}")
         true
       end
     end

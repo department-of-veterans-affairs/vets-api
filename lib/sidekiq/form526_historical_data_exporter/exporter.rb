@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/s3_helpers'
+
 module Sidekiq
   module Form526HistoricalDataExporter
     class Exporter
@@ -18,8 +20,14 @@ module Sidekiq
 
       def upload_to_s3!
         s3_resource = new_s3_resource
-        obj = s3_resource.bucket(s3_bucket).object(@file_name)
-        obj.upload_file(@file_path_and_name, content_type: 'application/json')
+
+        Common::S3Helpers.upload_file(
+          s3_resource:,
+          bucket: s3_bucket,
+          key: @file_name,
+          file_path: @file_path_and_name,
+          content_type: 'application/json'
+        )
       end
 
       def s3_bucket

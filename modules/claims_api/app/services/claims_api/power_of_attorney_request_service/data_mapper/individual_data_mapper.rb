@@ -43,9 +43,9 @@ module ClaimsApi
                 'zipCodeSuffix' => @data['zip_first_suffix_nbr']
               },
               'phone' => {
-                'countryCode' => parse_phone_number(@data['phone_nbr'])[0],
-                'areaCode' => parse_phone_number(@data['phone_nbr'])[1],
-                'phoneNumber' => parse_phone_number(@data['phone_nbr'])[2]
+                'countryCode' => @data['country_code'],
+                'areaCode' => @data['area_code'],
+                'phoneNumber' => @data['phone_number']
               },
               'email' => @data['email_addrs_txt'],
               'serviceNumber' => @data['registration_number'],

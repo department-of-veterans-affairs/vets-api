@@ -39,7 +39,8 @@ module BenefitsClaims
       'DBQ PSYCH PTSD Review' => 'PTSD claim follow-up exam',
       'Clarification of Claimed Issue' => 'Clarify claimed condition',
       'DBQ GU Male Reproductive Organ' => 'Reproductive health exam',
-      'ASB-medical evid of disease (biopsy) needed' => 'Asbestos exposure medical documentation'
+      'ASB-medical evid of disease (biopsy) needed' => 'Asbestos exposure medical documentation',
+      'ASB-tell us specific disability fm asbestos exposure' => 'Disease or disability related to the asbestos exposure'
     }.freeze
 
     ACTIVITY_DESCRIPTION_MAPPING = {
@@ -139,7 +140,8 @@ module BenefitsClaims
       'Clarification of Claimed Issue' => ['Clarification of Claimed Issue'],
       'DBQ GU Male Reproductive Organ' => ['DBQ GU Male Reproductive Organ'],
       'ASB-medical evid of disease (biopsy) needed' => ['ASB-medical evid of disease (biopsy) needed'],
-      'NG1 - National Guard Records Request' => ['NG1 - National Guard Records Request']
+      'NG1 - National Guard Records Request' => ['NG1 - National Guard Records Request'],
+      'ASB-tell us specific disability fm asbestos exposure' => ['ASB-tell us specific disability fm asbestos exposure']
     }.freeze
 
     UPLOADER_MAPPING = {
@@ -174,7 +176,8 @@ module BenefitsClaims
       'Clarification of Claimed Issue' => true,
       'DBQ GU Male Reproductive Organ' => false,
       'ASB-medical evid of disease (biopsy) needed' => true,
-      'NG1 - National Guard Records Request' => false
+      'NG1 - National Guard Records Request' => false,
+      'ASB-tell us specific disability fm asbestos exposure' => true
     }.freeze
 
     # These are evidence requests that should not be displayed to the user when:

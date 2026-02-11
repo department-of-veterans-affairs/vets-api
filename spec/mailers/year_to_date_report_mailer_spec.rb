@@ -4,14 +4,19 @@ require 'rails_helper'
 
 RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
   describe '#year_to_date_report_email' do
-    subject do
-      stub_reports_s3(filename) do
+    subject(:send_mail) do
+      stub_reports_s3 do
         mail
       end
     end
 
     let(:filename) { 'foo' }
     let(:mail) { described_class.build(filename).deliver_now }
+    let(:url) { 'https://s3.amazonaws.com/bucket/test-file.pdf?presigned=true' }
+
+    before do
+      allow(Reports::Uploader).to receive(:get_s3_link).and_return(url)
+    end
 
     context 'when sending staging emails' do
       before do
@@ -19,14 +24,14 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
       end
 
       it 'sends the right email' do
-        subject
+        send_mail
         text = described_class::REPORT_TEXT
-        expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
+        expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{url}")
         expect(mail.subject).to eq(text)
       end
 
       it 'emails the the right staging recipients' do
-        subject
+        send_mail
 
         expect(mail.to).to eq(
           %w[
@@ -62,7 +67,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
       end
 
       it 'emails the va stakeholders' do
-        subject
+        send_mail
         expect(mail.to).to eq(
           %w[
             222A.VBAVACO@va.gov

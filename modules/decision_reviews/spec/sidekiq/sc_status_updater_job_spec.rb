@@ -16,8 +16,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
         allow(Flipper).to receive(:enabled?)
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_track_4142_submissions).and_return(true)
-        allow(Flipper).to receive(:enabled?)
           .with(:decision_review_stuck_records_monitoring).and_return(false)
       end
 
@@ -75,8 +73,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
           .with(:decision_review_final_status_polling).and_return(false)
         allow(Flipper).to receive(:enabled?)
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_stuck_records_monitoring).and_return(false)
 
@@ -199,8 +195,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       let(:frozen_time) { DateTime.new(2024, 1, 1).utc }
 
       before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?)
           .with(:decision_review_final_status_polling).and_return(true)
         allow(Flipper).to receive(:enabled?)
@@ -1118,8 +1112,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
       before do
         allow(Flipper).to receive(:enabled?)
-          .with(:decision_review_track_4142_submissions).and_return(true)
-        allow(Flipper).to receive(:enabled?)
           .with(:decision_review_final_status_polling).and_return(false)
         allow(Flipper).to receive(:enabled?)
           .with(:saved_claim_pdf_overflow_tracking).and_call_original
@@ -1319,7 +1311,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
       allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
       allow(StatsD).to receive(:increment)
@@ -1440,7 +1431,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
       context 'when monitoring is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         end
 
@@ -1617,7 +1607,6 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
         context 'when monitoring is disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:decision_review_stuck_records_monitoring).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
             allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
           end
 

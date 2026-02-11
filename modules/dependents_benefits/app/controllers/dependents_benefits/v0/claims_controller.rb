@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgsv2/service'
+require 'bgs/service'
 require 'dependents_benefits/claim_processor'
 require 'dependents_benefits/generators/claim674_generator'
 require 'dependents_benefits/generators/claim686c_generator'
@@ -24,14 +24,14 @@ module DependentsBenefits
       def show
         dependents = create_dependent_service.get_dependents
         dependents[:diaries] = dependency_verification_service.read_diaries
-        render json: DependentsSerializer.new(dependents)
+        render json: DependentsBenefits::DependentsSerializer.new(dependents)
       rescue => e
-        monitor.track_error_event('Failure fetching dependents data', "#{stats_key}.show_error", error: e.message)
+        monitor.track_show_error(nil, current_user, e)
         raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
       end
 
       def create
-        claim = DependentsBenefits::PrimaryDependencyClaim.new(form: dependent_params.to_json)
+        claim = create_parent_claim(dependent_params.to_json)
 
         # Populate the form_start_date from the IPF if available
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -58,9 +58,7 @@ module DependentsBenefits
           end
         end
 
-        monitor.track_info_event('Successfully created claim', "#{stats_key}.create_success",
-                                 parent_claim_id: claim.id, claim_id: claim.id,
-                                 user_account_uuid: current_user&.user_account_uuid)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         # Enqueue all submission jobs for the created claim.
         DependentsBenefits::ClaimProcessor.enqueue_submissions(claim.id)
@@ -91,9 +89,16 @@ module DependentsBenefits
         )
       end
 
-      # Returns the stats key for dependents application events
-      def stats_key
-        'api.dependents_application'
+      # Creates a new claim instance with the provided form parameters.
+      #
+      # @param form_params [String] The JSON string for the claim form.
+      # @return [Claim] A new instance of the claim class initialized with the given attributes.
+      #   If the current user has an associated user account, it is included in the claim attributes.
+      def create_parent_claim(form_params)
+        claim_attributes = { form: form_params }
+        claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+        DependentsBenefits::PrimaryDependencyClaim.new(**claim_attributes)
       end
 
       # Raises an exception if the dependents verification flipper flag isn't enabled.
@@ -103,7 +108,7 @@ module DependentsBenefits
 
       # Creates the BGS dependent service for the current user
       def create_dependent_service
-        @dependent_service ||= BGS::DependentV2Service.new(current_user)
+        @dependent_service ||= BGS::DependentService.new(current_user)
       end
 
       # Creates the BGS dependency verification service for the current user

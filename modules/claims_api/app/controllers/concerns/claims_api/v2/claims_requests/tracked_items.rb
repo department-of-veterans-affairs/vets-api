@@ -83,7 +83,7 @@ module ClaimsApi
 
           (build_wwsnfy_items | build_wwd_items | build_wwr_items | build_no_longer_needed_items)
             .sort_by do |list_item|
-            list_item[:id]
+              list_item[:id]
           end
         end
 

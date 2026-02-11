@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'bgs/power_of_attorney_verifier'
-require 'bgs_service/local_bgs'
-require 'bgs_service/person_web_service'
 require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
@@ -32,7 +30,9 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          file_number = check_file_number_exists!
+          file_number = ClaimsApi::VeteranFileNumberLookupService.new(
+            target_veteran.ssn, veteran_participant_id
+          ).check_file_number_exists!
           claimant_information = validate_dependent_claimant!(poa_code:)
 
           primary_identifier = {}
@@ -63,7 +63,7 @@ module ClaimsApi
               )
             end
 
-            power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
+            power_of_attorney.auth_headers['participant_id'] = veteran_participant_id
             power_of_attorney.auth_headers['file_number'] = file_number
             power_of_attorney.save!
           end
@@ -89,11 +89,12 @@ module ClaimsApi
           validate_documents_content_type
           validate_documents_page_size
           find_poa_by_id
-          check_file_number_exists!
+          ClaimsApi::VeteranFileNumberLookupService.new(target_veteran.ssn,
+                                                        veteran_participant_id).check_file_number_exists!
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
-          @power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
+          @power_of_attorney.auth_headers['participant_id'] = veteran_participant_id
           @power_of_attorney.save!
           @power_of_attorney.reload
 
@@ -282,20 +283,8 @@ module ClaimsApi
           end
         end
 
-        def find_by_ssn(ssn)
-          if Flipper.enabled? :claims_api_use_person_web_service
-            # rubocop:disable Rails/DynamicFindBy
-            ClaimsApi::PersonWebService.new(
-              external_uid: target_veteran.participant_id,
-              external_key: target_veteran.participant_id
-            ).find_by_ssn(ssn)
-          else
-            ClaimsApi::LocalBGS.new(
-              external_uid: target_veteran.participant_id,
-              external_key: target_veteran.participant_id
-            ).find_by_ssn(ssn)
-            # rubocop:enable Rails/DynamicFindBy
-          end
+        def veteran_participant_id
+          target_veteran.participant_id
         end
 
         def check_request_ssn_matches_mpi(req_headers)
@@ -308,26 +297,6 @@ module ClaimsApi
             claims_v1_logging('poa_check_request_ssn_matches_mpi',
                               message: 'Request SSN did not match the one found in MPI.')
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
-          end
-        end
-
-        def check_file_number_exists!
-          ssn = target_veteran.ssn
-
-          begin
-            response = find_by_ssn(ssn)
-            unless response && response[:file_nbr].present?
-              error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
-                              'Please submit an issue at ask.va.gov ' \
-                              'or call 1-800-MyVA411 (800-698-2411) for assistance.'
-              raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
-            end
-
-            response[:file_nbr]
-          rescue BGS::ShareError
-            error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
-            claims_v1_logging('poa_find_by_ssn', message: error_message)
-            raise ::Common::Exceptions::FailedDependency
           end
         end
       end

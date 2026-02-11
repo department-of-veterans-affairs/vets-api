@@ -63,9 +63,8 @@ class SavedClaim::Form21p530a < SavedClaim
   # This ensures the signature is included in both the download_pdf endpoint
   # and the Lighthouse Benefits Intake submission
   def to_pdf(file_name = nil, fill_options = {})
-    PdfFill::Filler.fill_form(self, file_name, fill_options)
-    # TODO: Add signature stamping when PdfFill::Forms::Va21p530a is implemented
-    # PdfFill::Forms::Va21p530a.stamp_signature(pdf_path, parsed_form)
+    pdf_path = PdfFill::Filler.fill_form(self, file_name, fill_options)
+    PdfFill::Forms::Va21p530a.stamp_signature(pdf_path, parsed_form)
   end
 
   # Required metadata format for Lighthouse Benefits Intake API submission

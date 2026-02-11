@@ -201,35 +201,35 @@ RSpec.describe SurvivorsBenefits::BenefitsIntake::SubmitClaimJob, :uploader_help
       it 'logs a distrinct error when only claim_id provided' do
         SurvivorsBenefits::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          allow(SurvivorsBenefits::SavedClaim).to receive(:find).and_return(claim)
-          expect(SurvivorsBenefits::SavedClaim).to receive(:find).with(claim.id)
+            allow(SurvivorsBenefits::SavedClaim).to receive(:find).and_return(claim)
+            expect(SurvivorsBenefits::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id]
+            exhaustion_msg['args'] = [claim.id]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
         SurvivorsBenefits::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          allow(SurvivorsBenefits::SavedClaim).to receive(:find).and_return(claim)
-          expect(SurvivorsBenefits::SavedClaim).to receive(:find).with(claim.id)
+            allow(SurvivorsBenefits::SavedClaim).to receive(:find).and_return(claim)
+            expect(SurvivorsBenefits::SavedClaim).to receive(:find).with(claim.id)
 
-          exhaustion_msg['args'] = [claim.id, 2]
+            exhaustion_msg['args'] = [claim.id, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim is not found' do
         SurvivorsBenefits::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(SurvivorsBenefits::SavedClaim).to receive(:find).with(claim.id - 1)
+            expect(SurvivorsBenefits::SavedClaim).to receive(:find).with(claim.id - 1)
 
-          exhaustion_msg['args'] = [claim.id - 1, 2]
+            exhaustion_msg['args'] = [claim.id - 1, 2]
 
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

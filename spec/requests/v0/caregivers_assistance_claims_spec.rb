@@ -301,12 +301,10 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         state: 'CA',
         lat: 34.0522,
         long: -118.2437,
-        radius: 50,
         visn: '1',
         type: '1',
         mobile: true,
         page: 1,
-        per_page: 10,
         services: ['1'],
         bbox: [2]
       }
@@ -339,13 +337,49 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       expect(response.body).to eq(mock_facility_response.to_json)
     end
 
-    it 'calls the Lighthouse facilities service with the permitted params' do
+    it 'calls the Lighthouse facilities service with the permitted and hardcoded params' do
       subject
 
-      expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
+      expected_params = unmodified_params.merge(
+        facilityIds: 'vha_123,vha_456',
+        radius: V0::CaregiversAssistanceClaimsController::SEARCH_RADIUS,
+        per_page: V0::CaregiversAssistanceClaimsController::RESULTS_PER_PAGE
+      )
 
       expect(lighthouse_service).to have_received(:get_paginated_facilities)
         .with(expected_params)
+    end
+
+    it 'omits radius when latitude param is missing' do
+      params_without_lat = params.except(:lat)
+
+      post('/v0/caregivers_assistance_claims/facilities', params: params_without_lat.to_json, headers:)
+
+      expected_params = unmodified_params.except(:lat).merge(
+        facilityIds: 'vha_123,vha_456',
+        per_page: V0::CaregiversAssistanceClaimsController::RESULTS_PER_PAGE
+      )
+      expect(lighthouse_service).to have_received(:get_paginated_facilities).with(expected_params)
+    end
+
+    it 'omits radius when longitude param is missing' do
+      params_without_long = params.except(:long)
+
+      post('/v0/caregivers_assistance_claims/facilities', params: params_without_long.to_json, headers:)
+
+      expected_params = unmodified_params.except(:long).merge(
+        facilityIds: 'vha_123,vha_456',
+        per_page: V0::CaregiversAssistanceClaimsController::RESULTS_PER_PAGE
+      )
+      expect(lighthouse_service).to have_received(:get_paginated_facilities).with(expected_params)
+    end
+
+    it 'logs an error when the facilities request fails' do
+      text = 'Lighthouse error message text'
+      expect(lighthouse_service).to receive(:get_paginated_facilities).and_raise(StandardError.new(text))
+      expect(Rails.logger).to receive(:error).with("10-10CG - Error retrieving facilities: #{text}", 'vha_123,vha_456')
+
+      post('/v0/caregivers_assistance_claims/facilities', params: params.to_json, headers:)
     end
   end
 end

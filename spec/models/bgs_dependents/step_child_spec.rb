@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::StepChild do
-  let(:stepchild_info) do
+  let(:stepchild_info_v2) do
     {
       'supporting_stepchild' => true,
       'living_expenses_paid' => 'Half',
@@ -11,11 +11,11 @@ RSpec.describe BGSDependents::StepChild do
       'birth_date' => '2010-03-03',
       'who_does_the_stepchild_live_with' => { 'first' => 'Adam', 'middle' => 'Steven', 'last' => 'Huberws' },
       'address' => {
-        'country_name' => 'USA',
-        'address_line1' => '412 Crooks Road',
+        'country' => 'USA',
+        'street' => '412 Crooks Road',
         'city' => 'Clawson',
-        'state_code' => 'AL',
-        'zip_code' => '48017'
+        'state' => 'AL',
+        'postal_code' => '48017'
       },
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' }
     }
@@ -35,7 +35,7 @@ RSpec.describe BGSDependents::StepChild do
 
   describe '#format_info' do
     it 'formats stepchild params for submission' do
-      formatted_info = described_class.new(stepchild_info).format_info
+      formatted_info = described_class.new(stepchild_info_v2).format_info
 
       expect(formatted_info).to eq(formatted_params_result)
     end

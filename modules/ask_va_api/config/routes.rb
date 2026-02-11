@@ -27,6 +27,9 @@ AskVAApi::Engine.routes.draw do
     # address_validation
     post '/address_validation', to: 'address_validation#create'
 
+    # zip_state_validation
+    post '/zip_state_validation', to: 'zip_state_validation#create'
+
     # health_facilities
     post '/health_facilities', to: 'health_facilities#search'
     get '/health_facilities/:id', to: 'health_facilities#show'

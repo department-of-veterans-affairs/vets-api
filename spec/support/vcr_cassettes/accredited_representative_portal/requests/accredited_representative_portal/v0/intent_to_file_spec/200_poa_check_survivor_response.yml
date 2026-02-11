@@ -1,0 +1,78 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <LIGHTHOUSE_CLAIMS_API_HOST><ARP_BENEFITS_CLAIMS_PATH>/123498767V112233/power-of-attorney
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 02 Apr 2024 14:30:58 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Reset:
+      - '10'
+      Etag:
+      - W/"f674f2056c77718a448e94dc8a1ed556"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 11de6c4d9dc0e22795b79e94395598e9c7e0fc3c
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - f7395f08-c7c7-4726-85e4-602c6ecf40fe
+      X-Runtime:
+      - '8.308072'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"type":"individual","attributes":{"code":"067","name":"Tamara
+        Ellis","phoneNumber":null}}}'
+  recorded_at: Tue, 02 Apr 2024 14:30:58 GMT
+recorded_with: VCR 6.2.0

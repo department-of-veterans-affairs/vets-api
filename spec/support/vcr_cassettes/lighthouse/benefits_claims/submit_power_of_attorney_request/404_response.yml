@@ -1,0 +1,74 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST><BENEFITS_CLAIMS_PATH>/10126222/power-of-attorney-request"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"serviceNumber":"123678453","serviceBranch":"ARMY","address":{"addressLine1":"2719 Hyperion Ave","addressLine2":"Apt 2","city":"Los Angeles","stateCode":"CA","countryCode":"US","zipCode":"92264","zipCodeSuffix":"0200"},"phone":{"areaCode":"555","phoneNumber":"5551234"},"email":"test@test.com","insuranceNumber":"1234567890"},"representative":{"poaCode":"067"},"recordConsent":true,"consentAddressChange":true,"consentLimits":["DRUG_ABUSE","SICKLE_CELL","HIV","ALCOHOLISM"]}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Wed, 24 Dec 2025 20:11:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '8'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 63a671e5bc92eeeaa5cd66407343cfec30d6c17a
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - ad4009be-c470-42f1-98c8-6af7b19c8632
+      X-Runtime:
+      - '0.082292'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 70bb3cf1-c073-4648-8e1f-d9c74b604ef1#2701837
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"status":"404","title":"Resource not found","detail":"Unable to locate Veteran''s ID/ICN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."}]}'
+  recorded_at: Wed, 24 Dec 2025 20:11:52 GMT
+recorded_with: VCR 6.3.1

@@ -4,5 +4,5 @@ class TsaLetterSerializer
   include JSONAPI::Serializer
 
   set_id { '' }
-  attribute :document_id, :doc_type, :type_description, :received_at
+  attribute :document_id, :document_version, :modified_datetime
 end

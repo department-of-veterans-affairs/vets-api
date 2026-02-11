@@ -134,16 +134,6 @@ RSpec.describe VANotify::DeliveryStatusUpdateJob, type: :worker do
           # Expected
         end
       end
-
-      it 'does not delete the cache key' do
-        expect(Sidekiq::AttrPackage).not_to receive(:delete)
-
-        begin
-          described_class.new.perform(notification_id, attr_package_params_cache_key)
-        rescue VANotify::DeliveryStatusUpdateJob::NotificationNotFound
-          # Expected
-        end
-      end
     end
   end
 

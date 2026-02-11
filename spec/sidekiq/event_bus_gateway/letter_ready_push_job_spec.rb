@@ -322,7 +322,8 @@ RSpec.describe EventBusGateway::LetterReadyPushJob, type: :job do
       {
         'jid' => '12345',
         'error_class' => 'StandardError',
-        'error_message' => 'Test error'
+        'error_message' => 'Test error',
+        'args' => [participant_id, template_id, 'test_cache_key']
       }
     end
     let(:exception) { StandardError.new('Test error') }

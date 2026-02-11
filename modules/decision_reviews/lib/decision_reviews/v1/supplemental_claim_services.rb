@@ -73,9 +73,7 @@ module DecisionReviews
           end
           form4142_response, uuid = response_container
 
-          if Flipper.enabled?(:decision_review_track_4142_submissions)
-            save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid: uuid)
-          end
+          save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid: uuid)
 
           form4142_submission_info_message = parse_form412_response_to_log_msg(
             appeal_submission_id:, data: form4142_response, uuid:, bm:
