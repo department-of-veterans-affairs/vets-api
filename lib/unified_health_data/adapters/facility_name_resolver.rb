@@ -27,7 +27,6 @@ module UnifiedHealthData
       def extract_station_number(dispense)
         return nil unless dispense
 
-        # Get .location.display from dispense
         location_display = dispense.dig('location', 'display')
         return nil unless location_display
 
@@ -37,7 +36,6 @@ module UnifiedHealthData
 
         # Second pass: Try the full facility identifier before the first hyphen (e.g., 648A4)
         facility_identifier = location_display.split('-').first
-        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
         valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
         if facility_identifier.present? && facility_identifier != three_digit_station &&
            facility_identifier.match?(valid_station_regex) &&
@@ -45,19 +43,8 @@ module UnifiedHealthData
           return facility_identifier
         end
 
-        # Log failure with raw location for debugging
-        Rails.logger.warn(
-          message: 'Unable to extract valid station number from Oracle Health location',
-          location_display:,
-          three_digit_candidate: three_digit_station,
-          full_identifier_candidate: facility_identifier,
-          service: 'unified_health_data'
-        )
-
-        # Track invalid station extractions
-        StatsD.increment('unified_health_data.oracle_health.invalid_station_number',
-                         tags: ["candidate:#{three_digit_station || 'none'}"])
-
+        # Both extraction attempts failed
+        log_failed_station_extraction(location_display, three_digit_station, facility_identifier)
         nil
       end
 
@@ -105,6 +92,24 @@ module UnifiedHealthData
       rescue => e
         Rails.logger.error("Error validating station number #{station_number}: #{e.message}")
         false
+      end
+
+      # Logs failed station number extraction attempts for monitoring
+      #
+      # @param location_display [String] Original location.display value
+      # @param three_digit_candidate [String, nil] Extracted 3-digit candidate
+      # @param full_identifier_candidate [String, nil] Extracted full identifier candidate
+      def log_failed_station_extraction(location_display, three_digit_candidate, full_identifier_candidate)
+        Rails.logger.warn(
+          message: 'Unable to extract valid station number from Oracle Health location',
+          location_display:,
+          three_digit_candidate:,
+          full_identifier_candidate:,
+          service: 'unified_health_data'
+        )
+
+        StatsD.increment('unified_health_data.oracle_health.invalid_station_number',
+                         tags: ["candidate:#{three_digit_candidate || 'none'}"])
       end
 
       # Fetches facility name from Lighthouse API
