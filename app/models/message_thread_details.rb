@@ -10,4 +10,5 @@ class MessageThreadDetails < Message
   attribute :has_attachments, Bool, default: false
   attribute :reply_disabled, Bool, default: false
   attribute :attachments, Array
+  attribute :oh_migration_phase, String
 end

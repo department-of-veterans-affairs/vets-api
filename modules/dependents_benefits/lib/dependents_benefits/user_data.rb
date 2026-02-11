@@ -11,6 +11,7 @@ module DependentsBenefits
   # and handles VA Profile email lookup with fallback to form email.
   #
   class UserData
+    include DependentsBenefits::DependentsHelper
     attr_reader :first_name,
                 :middle_name,
                 :last_name,
@@ -48,8 +49,8 @@ module DependentsBenefits
       @notification_email = get_user_email(user) || @email
       @va_file_number = get_file_number || ssn
     rescue => e
-      monitor.track_user_data_error('DependentsBenefits::UserData#initialize error',
-                                    'user_hash.failure', error: e)
+      monitor.track_error_event('DependentsBenefits::UserData#initialize error',
+                                action: 'user_hash.failure', component:, error: e)
       raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not initialize user data')
     end
 
@@ -78,8 +79,8 @@ module DependentsBenefits
 
       { 'veteran_information' => veteran_information }.to_json
     rescue => e
-      monitor.track_user_data_error('DependentsBenefits::UserData#get_user_hash error',
-                                    'user_hash.failure', error: e)
+      monitor.track_error_event('DependentsBenefits::UserData#get_user_hash error',
+                                action: 'user_hash.failure', component:, error: e)
       raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not generate user hash')
     end
 
@@ -105,9 +106,9 @@ module DependentsBenefits
 
       va_file_number
     rescue
-      monitor.track_user_data_warning('DependentsBenefits::UserData#get_file_number error',
-                                      'file_number_lookup.failure',
-                                      error: 'Could not retrieve file number from BGS')
+      monitor.track_warning_event('DependentsBenefits::UserData#get_file_number error',
+                                  action: 'file_number_lookup.failure', component:,
+                                  error: 'Could not retrieve file number from BGS')
       nil
     end
 
@@ -150,8 +151,8 @@ module DependentsBenefits
       # Originates here: lib/va_profile/contact_information/v2/service.rb
       user.va_profile_email.presence
     rescue => e
-      monitor.track_user_data_warning('DependentsBenefits::UserData#get_user_email failed to get va_profile_email',
-                                      'get_va_profile_email.failure', error: e.message)
+      monitor.track_warning_event('DependentsBenefits::UserData#get_user_email failed to get va_profile_email',
+                                  action: 'get_va_profile_email.failure', component:, error: e.message)
       nil
     end
 

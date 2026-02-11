@@ -40,6 +40,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
   context 'when authorized' do
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
+      # Stub get_triage_teams_station_numbers to avoid additional API call for OH migration phase
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
       VCR.insert_cassette('sm_client/session')
     end
 

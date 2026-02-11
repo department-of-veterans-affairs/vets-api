@@ -97,7 +97,13 @@
               "type": "boolean"
             },
             "replyDisabled": {
-              "type": "boolean" 
+              "type": "boolean"
+            },
+            "ohMigrationPhase": {
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         },
