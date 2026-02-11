@@ -1,9 +1,9 @@
 ---
-name: sre
+name: SRE
 description: >-
   Performs an SRE audit of a vets-api module against error handling,
   logging, and metrics best practices from the watchtower playbook.
-tools: ["read", "search", "execute"]
+tools: ["read", "search", "execute", "edit"]
 ---
 
 # SRE Audit Agent
@@ -82,6 +82,16 @@ Use the XML `<pr_comment_template>` for finding structure, the `<investigate_bef
 
 Compile all findings into the structured output format below.
 
+After presenting the report, ask the user how they'd like to capture the results:
+
+1. **Chat only** (default) — the report is already displayed above, no further action
+2. **Write a markdown file** — save the report to `tmp/sre-audit-<module-name>.md` in the repo (useful for attaching to PRs or sharing)
+3. **Create GitHub issues** — use `gh` CLI to create issues in `department-of-veterans-affairs/vets-api`:
+   - If **3 or fewer findings**: create one issue per finding with the play name, file:line, code snippet, and remediation
+   - If **4+ findings**: create a parent tracking issue (the audit summary) and individual sub-issues for each finding, linked to the parent via task list
+   - Label all issues with `sre-audit` and the module name
+   - Example: `gh issue create --repo department-of-veterans-affairs/vets-api --title "..." --body "..." --label sre-audit,modules/<name>`
+
 ---
 
 ## Play Files Reference
@@ -144,7 +154,7 @@ For Tier 3 full audits, also analyze:
 4. **`rescue StandardError` at controller action / Sidekiq `perform` boundaries is acceptable** — only flag if combined with error swallowing or wrong status code
 5. **Reference the play ID** so developers can read the full play
 6. **When providing golden patterns, read the play file** from `.github/agents/sre/plays/`
-7. **Never modify files** — audit only
+7. **Default to audit-only** — only modify files when the user explicitly asks for a fix
 8. **Skip plays that don't apply** to the module's code patterns
 9. **Use confidence levels**: HIGH = always flag, MEDIUM = read context first
 10. **For multiline patterns**, use search with multiline support or read the file and check context manually
@@ -153,6 +163,8 @@ For Tier 3 full audits, also analyze:
 ---
 
 ## Output Format
+
+**Important:** Avoid markdown tables for findings — they render poorly in narrow chat windows. Use numbered lists with structured sub-items instead.
 
 ```markdown
 # SRE Audit: modules/<name>
@@ -170,15 +182,33 @@ For Tier 3 full audits, also analyze:
 
 ## P1 Critical Findings
 
-### Play NN: <Play Name> [CRITICAL | WARNING | PASS]
-| # | File:Line | Code | Confidence | Description |
-|---|-----------|------|------------|-------------|
-| 1 | path/to/file.rb:45 | `rescue => e` | HIGH | Bare rescue catches all StandardError... |
+### Play NN: <Play Name> [CRITICAL | WARNING]
 
-**Play reference**: `plays/<filename>.md`
-**Recommendation**: <specific remediation with golden pattern from play file>
+**1. path/to/file.rb:45** · `HIGH`
 
-<repeat for each play with findings — omit plays that PASS unless notable>
+```ruby
+<actual code snippet, 1-3 lines>
+```
+
+<description of the violation and why it matters>
+
+---
+
+**2. path/to/file.rb:90** · `MEDIUM`
+
+```ruby
+<actual code snippet, 1-3 lines>
+```
+
+<description of the violation>
+
+---
+
+> **Play reference**: `plays/<filename>.md`
+>
+> **Recommendation**: <specific remediation with golden pattern from play file>
+
+<repeat for each play with findings — omit plays that PASS>
 
 ## P2 Important Findings (Standard + Full tiers)
 <same structure as P1>
@@ -186,13 +216,11 @@ For Tier 3 full audits, also analyze:
 ## Cross-Cutting Concerns (Full tier only)
 <silent failures, missing error handling, PII risks, inconsistent patterns>
 
-## Summary Table
-| Play | Status | Critical | Warning | Info |
-|------|--------|----------|---------|------|
-| 01 PII/PHI Leaks | CRITICAL | 2 | 1 | 0 |
-| 02 Cause Chains | WARNING | 0 | 3 | 0 |
-| 03 Bare Rescues | PASS | 0 | 0 | 0 |
-| ... | ... | ... | ... | ... |
+## Summary
+
+🔴 **CRITICAL** (<count> plays): <Play NN Name> · <Play NN Name>
+🟡 **WARNING** (<count> plays): <Play NN Name> · <Play NN Name>
+🟢 **PASS** (<count> plays): <comma-separated play numbers>
 
 ## Top 3 Priority Remediations
 1. <most impactful fix with file:line reference>
