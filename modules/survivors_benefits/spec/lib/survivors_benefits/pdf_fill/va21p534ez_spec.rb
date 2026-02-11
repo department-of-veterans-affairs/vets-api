@@ -22,7 +22,7 @@ describe SurvivorsBenefits::PdfFill::Va21p534ez do
           section-3_8 section-3_9 section-3_10
           section-4 section-4_1 section-4_2 section-4_3 section-4_4
           section-5 section-5_1 section-5_2
-          section-6 section-6_1
+          section-6 section-6_1 section-6_2
           section-7 section-7_1 section-7_2
           section-8 section-8_1
           section-9 section-9_1 section-9_2 section-9_3 section-9_4
