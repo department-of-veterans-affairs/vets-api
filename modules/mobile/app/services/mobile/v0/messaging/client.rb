@@ -46,6 +46,52 @@ module Mobile
         end
 
         ##
+        # Override parent get_message_history to add schema contract validation
+        #
+        # @param id [Integer] message id
+        # @return [Common::Collection[Message]]
+        #
+        def get_message_history(id)
+          response = super
+          validate_response_schema(session.user_uuid, response, 'message_history')
+          response
+        end
+
+        ##
+        # Override parent get_messages_for_thread to add schema contract validation
+        #
+        # @param id [Integer] message id
+        # @return [Common::Collection[MessageThreadDetails]]
+        #
+        def get_messages_for_thread(id)
+          response = super
+          validate_response_schema(session.user_uuid, response, 'messages_for_thread')
+          response
+        end
+
+        ##
+        # Override parent get_categories to add schema contract validation
+        #
+        # @return [Category]
+        #
+        def get_categories
+          response = super
+          validate_response_schema(session.user_uuid, response, 'categories')
+          response
+        end
+
+        ##
+        # Override parent get_signature to add schema contract validation
+        #
+        # @return [Hash] signature data
+        #
+        def get_signature
+          response = super
+          validate_response_schema(session.user_uuid, response, 'signature')
+          response
+        end
+
+        ##
         # Override parent get_all_triage_teams to add schema contract validation
         #
         # @param user_uuid [String] user's uuid
@@ -72,15 +118,16 @@ module Mobile
           return if response.blank?
 
           user = ::User.find(user_uuid)
+          if user.nil?
+            Rails.logger.warn('Mobile messaging schema validation skipped - user not found',
+                              { contract_name:, user_uuid: })
+            return
+          end
 
           body = response_to_hash(response)
           return if body.blank?
 
           SchemaContract::ValidationInitiator.call_with_body(user:, body:, contract_name:)
-        rescue ActiveRecord::RecordNotFound
-          # Missing user likely indicates a data consistency issue; log distinctly and skip validation
-          Rails.logger.warn('Mobile messaging schema validation skipped - user not found',
-                            { contract_name:, user_uuid: })
         rescue => e
           # Log but don't block - schema validation should never break user requests
           Rails.logger.error('Mobile messaging schema validation error',
@@ -90,7 +137,7 @@ module Mobile
         ##
         # Converts response object to hash for schema validation
         #
-        # @param response [Object] Vets::Collection or model object
+        # @param response [Object] Vets::Collection, model object, or hash
         # @return [Hash] hash representation of the response
         #
         def response_to_hash(response)
@@ -98,8 +145,11 @@ module Mobile
             # Vets::Collection - convert to array of hashes
             { data: response.data.map { |item| item.attributes.to_h } }
           elsif response.respond_to?(:attributes)
-            # Single model object
+            # Single model object (e.g., Category)
             response.attributes.to_h
+          elsif response.is_a?(Hash)
+            # Raw hash response (e.g., get_signature)
+            response
           else
             response.to_h
           end

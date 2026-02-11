@@ -460,6 +460,74 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         end
       end
 
+      describe 'schema contract validation' do
+        let(:user_account) { create(:user_account) }
+
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        describe 'categories endpoint' do
+          context 'when :schema_contract_categories is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('schema_contract_categories').and_return(true)
+            end
+
+            it 'validates schema for get_categories' do
+              VCR.use_cassette('sm_client/messages/gets_message_categories') do
+                get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
+              end
+              expect(response).to be_successful
+              SchemaContract::ValidationJob.drain
+              validation = SchemaContract::Validation.find_by(contract_name: 'categories')
+              expect(validation).to be_present
+              expect(validation.status).to eq('success')
+            end
+          end
+        end
+
+        describe 'signature endpoint' do
+          context 'when :schema_contract_signature is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('schema_contract_signature').and_return(true)
+            end
+
+            it 'validates schema for get_signature' do
+              VCR.use_cassette('sm_client/messages/gets_message_signature') do
+                get '/mobile/v0/messaging/health/messages/signature', headers: sis_headers
+              end
+              expect(response).to be_successful
+              SchemaContract::ValidationJob.drain
+              validation = SchemaContract::Validation.find_by(contract_name: 'signature')
+              expect(validation).to be_present
+              expect(validation.status).to eq('success')
+            end
+          end
+        end
+
+        describe 'thread endpoint' do
+          let(:thread_id) { 573_059 }
+
+          context 'when :schema_contract_message_history is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with('schema_contract_message_history').and_return(true)
+            end
+
+            it 'validates schema for get_message_history' do
+              VCR.use_cassette('mobile/messages/v0_gets_a_message_thread') do
+                get "/mobile/v0/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
+              end
+              expect(response).to be_successful
+              SchemaContract::ValidationJob.drain
+              validation = SchemaContract::Validation.find_by(contract_name: 'message_history')
+              expect(validation).to be_present
+              expect(validation.status).to eq('success')
+            end
+          end
+        end
+      end
+
       describe '#thread' do
         let(:thread_id) { 573_059 }
 

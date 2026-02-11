@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Schema for SM get_signature response - user message signature",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "type": ["object", "null"],
+      "properties": {
+        "signature_name": { "type": ["string", "null"] },
+        "signature_title": { "type": ["string", "null"] },
+        "include_signature": { "type": "boolean" }
+      }
+    },
+    "errors": { "type": ["object", "null"], "additionalProperties": true },
+    "metadata": { "type": ["object", "null"], "additionalProperties": true }
+  }
+}
