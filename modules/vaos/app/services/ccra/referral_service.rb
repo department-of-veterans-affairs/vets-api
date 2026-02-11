@@ -8,6 +8,10 @@ module Ccra
   # This service handles both API interactions and caching of referral data.
   class ReferralService < BaseService
     include Logging::Helper::DataScrubber
+
+    # Number of characters to log from PII fields for safety
+    SAFE_LOG_LENGTH = 3
+
     # Fetches the VAOS Referral List.
     #
     # @param icn [String] The Internal Control Number (ICN) of the patient
@@ -155,24 +159,83 @@ module Ccra
       )
     end
 
-    # Logs both top-level and nested providerNpi fields from CCRA response
+    # Logs all NPI fields from CCRA response (root-level and nested)
+    # Safely logs field names and only last 3 characters of NPI values
     #
     # @param response_body [Hash] The raw CCRA API response body
     # @param referral_id [String] The referral ID for context
     # @return [void]
     def log_ccra_npi_fields(response_body, referral_id)
-      top_level_npi = response_body[:provider_npi]
-      nested_npi = response_body.dig(:treating_provider_info, :provider_npi)
+      log_data = { referral_id_last3: referral_id.to_s.last(SAFE_LOG_LENGTH) }
 
-      log_data = {
-        referral_id_last3: referral_id.to_s.last(3),
-        top_level_npi_present: top_level_npi.present?,
-        top_level_npi_last3: top_level_npi.present? ? top_level_npi.to_s.last(3) : nil,
-        nested_npi_present: nested_npi.present?,
-        nested_npi_last3: nested_npi.present? ? nested_npi.to_s.last(3) : nil
-      }.compact
+      log_root_npi_fields(response_body, log_data)
+      log_nested_npi_fields(response_body, log_data)
+      log_additional_npi_fields(response_body, log_data)
 
-      Rails.logger.info("#{CC_APPOINTMENTS}: CCRA referral NPI fields", log_data)
+      Rails.logger.info("#{CC_APPOINTMENTS}: CCRA referral NPI fields", log_data.compact)
+    end
+
+    def log_root_npi_fields(response_body, log_data)
+      root_npi_fields = {
+        primary_care_provider_npi: response_body[:primary_care_provider_npi],
+        referring_provider_npi: response_body[:referring_provider_npi],
+        treating_provider_npi: response_body[:treating_provider_npi]
+      }
+
+      add_npi_field_to_log(root_npi_fields, log_data)
+    end
+
+    def log_nested_npi_fields(response_body, log_data)
+      nested_npi_fields = {
+        referring_provider_info_npi: response_body.dig(:referring_provider_info, :provider_npi),
+        treating_provider_info_npi: response_body.dig(:treating_provider_info, :provider_npi)
+      }
+
+      add_npi_field_to_log(nested_npi_fields, log_data)
+    end
+
+    def log_additional_npi_fields(response_body, log_data)
+      known_paths = ['primary_care_provider_npi', 'referring_provider_npi', 'treating_provider_npi',
+                     'referring_provider_info.provider_npi', 'treating_provider_info.provider_npi']
+      additional_npi_fields = find_npi_fields_recursive(response_body, '', known_paths)
+      return if additional_npi_fields.empty?
+
+      log_data[:additional_npi_fields] = additional_npi_fields.map do |field_path, value|
+        { field: field_path, present: value.present?, last3: value.present? ? value.to_s.last(SAFE_LOG_LENGTH) : nil }
+      end
+    end
+
+    def add_npi_field_to_log(npi_fields, log_data)
+      npi_fields.each do |field_name, value|
+        log_data[:"#{field_name}_present"] = value.present?
+        log_data[:"#{field_name}_last3"] = value.present? ? value.to_s.last(SAFE_LOG_LENGTH) : nil
+      end
+    end
+
+    # Recursively finds all fields containing "npi" in their name
+    #
+    # @param obj [Hash, Array, Object] The object to search
+    # @param path [String] The current path in the object tree
+    # @param known_paths [Array<String>] Paths we've already logged to avoid duplicates
+    # @return [Array<Array>] Array of [field_path, value] pairs
+    def find_npi_fields_recursive(obj, path, known_paths)
+      results = []
+
+      case obj
+      when Hash
+        obj.each do |key, value|
+          current_path = path.empty? ? key.to_s : "#{path}.#{key}"
+          results << [current_path, value] if key.to_s.downcase.include?('npi') && known_paths.exclude?(current_path)
+          results.concat(find_npi_fields_recursive(value, current_path, known_paths))
+        end
+      when Array
+        obj.each_with_index do |item, index|
+          current_path = "#{path}[#{index}]"
+          results.concat(find_npi_fields_recursive(item, current_path, known_paths))
+        end
+      end
+
+      results
     end
   end
 end

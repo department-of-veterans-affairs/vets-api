@@ -20,6 +20,108 @@ RSpec.describe SupportingEvidenceAttachmentUploader do
     expect { blank_uploader.store_dir }.to raise_error(RuntimeError, 'missing guid')
   end
 
+  describe '#filename' do
+    context 'when no file has been stored' do
+      it 'returns nil' do
+        expect(subject.filename).to be_nil
+      end
+    end
+
+    context 'when filename is within MAX_FILENAME_LENGTH' do
+      let(:short_filename) { 'short_file.pdf' }
+
+      before do
+        # CarrierWave's filename method uses @filename internally after sanitization
+        subject.instance_variable_set(:@filename, short_filename)
+      end
+
+      it 'returns the filename unchanged' do
+        expect(subject.filename).to eq(short_filename)
+      end
+    end
+
+    context 'when filename exceeds MAX_FILENAME_LENGTH' do
+      let(:long_filename) { "#{'a' * 150}.pdf" }
+
+      before do
+        subject.instance_variable_set(:@filename, long_filename)
+      end
+
+      it 'returns a shortened filename' do
+        result = subject.filename
+        expect(result.length).to be <= described_class::MAX_FILENAME_LENGTH
+      end
+
+      it 'preserves the file extension' do
+        result = subject.filename
+        expect(result).to end_with('.pdf')
+      end
+    end
+
+    context 'when filename has a long extension' do
+      let(:long_ext_filename) { "#{'a' * 150}.jpeg" }
+
+      before do
+        subject.instance_variable_set(:@filename, long_ext_filename)
+      end
+
+      it 'accounts for extension length in the shortened result' do
+        result = subject.filename
+        expect(result.length).to be <= described_class::MAX_FILENAME_LENGTH
+        expect(result).to end_with('.jpeg')
+      end
+    end
+  end
+
+  describe '#shorten_filename' do
+    context 'when filename is within MAX_FILENAME_LENGTH' do
+      it 'returns the filename unchanged' do
+        expect(subject.send(:shorten_filename, 'short.pdf')).to eq('short.pdf')
+      end
+    end
+
+    context 'when filename is exactly MAX_FILENAME_LENGTH' do
+      let(:exact_filename) { "#{'a' * 96}.pdf" } # 96 + 4 (.pdf) = 100
+
+      it 'returns the filename unchanged' do
+        expect(subject.send(:shorten_filename, exact_filename)).to eq(exact_filename)
+      end
+    end
+
+    context 'when filename exceeds MAX_FILENAME_LENGTH' do
+      let(:long_filename) { "#{'a' * 150}.pdf" }
+
+      it 'returns a shortened filename within limit' do
+        result = subject.send(:shorten_filename, long_filename)
+        expect(result.length).to be <= described_class::MAX_FILENAME_LENGTH
+      end
+
+      it 'preserves the file extension' do
+        result = subject.send(:shorten_filename, long_filename)
+        expect(result).to end_with('.pdf')
+      end
+    end
+
+    context 'when filename has no extension' do
+      let(:long_filename_no_ext) { 'a' * 150 }
+
+      it 'shortens to MAX_FILENAME_LENGTH' do
+        result = subject.send(:shorten_filename, long_filename_no_ext)
+        expect(result.length).to eq(described_class::MAX_FILENAME_LENGTH)
+      end
+    end
+
+    context 'when filename has multiple dots' do
+      let(:multi_dot_filename) { "#{'a' * 150}.document.v2.pdf" }
+
+      it 'preserves only the last extension' do
+        result = subject.send(:shorten_filename, multi_dot_filename)
+        expect(result).to end_with('.pdf')
+        expect(result.length).to be <= described_class::MAX_FILENAME_LENGTH
+      end
+    end
+  end
+
   describe 'logging methods' do
     let(:mock_file) do
       double('uploaded_file', size: 1024, headers: {

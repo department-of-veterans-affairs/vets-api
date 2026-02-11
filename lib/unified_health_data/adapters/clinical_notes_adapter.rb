@@ -36,27 +36,22 @@ module UnifiedHealthData
 
       AVS_CONTENT_TYPES = ['application/pdf', 'text/plain'].freeze
 
-      def parse(note)
+      ALLOWED_DOC_STATUSES = %w[final amended].freeze
+
+      def parse(note, logging_enabled: true)
         record = note['resource']
-        return nil unless record && get_note(record)
+        return nil unless record
 
-        date_value = record['date']
+        unless allowed_doc_status?(record['docStatus'])
+          reason = record['docStatus'].blank? ? 'missing_doc_status' : 'disallowed_doc_status'
+          log_filtered_clinical_note(record, reason, logging_enabled:)
+          return nil
+        end
 
-        UnifiedHealthData::ClinicalNotes.new({
-                                               id: record['id'],
-                                               name: get_title(record),
-                                               note_type: get_record_type(record),
-                                               loinc_codes: get_loinc_codes(record),
-                                               date: date_value,
-                                               sort_date: normalize_date_for_sorting(date_value),
-                                               date_signed: get_date_signed(record),
-                                               written_by: extract_author(record),
-                                               signed_by: extract_authenticator(record),
-                                               location: extract_location(record),
-                                               admission_date: record['context']&.dig('period', 'start') || nil,
-                                               discharge_date: record['context']&.dig('period', 'end') || nil,
-                                               note: get_note(record)
-                                             })
+        note_content = get_note(record)
+        return nil unless note_content
+
+        UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record, note_content))
       end
 
       # The AVS is a DocumentReference FHIR type and specific type of note
@@ -117,6 +112,42 @@ module UnifiedHealthData
       end
 
       private
+
+      def build_clinical_note_attributes(record, note_content)
+        date_value = record['date']
+
+        {
+          id: record['id'],
+          name: get_title(record),
+          note_type: get_record_type(record),
+          loinc_codes: get_loinc_codes(record),
+          date: date_value,
+          sort_date: normalize_date_for_sorting(date_value),
+          date_signed: get_date_signed(record),
+          written_by: extract_author(record),
+          signed_by: extract_authenticator(record),
+          location: extract_location(record),
+          admission_date: record['context']&.dig('period', 'start') || nil,
+          discharge_date: record['context']&.dig('period', 'end') || nil,
+          note: note_content
+        }
+      end
+
+      def allowed_doc_status?(doc_status)
+        ALLOWED_DOC_STATUSES.include?(doc_status&.downcase)
+      end
+
+      def log_filtered_clinical_note(record, reason, logging_enabled: true)
+        if logging_enabled
+          Rails.logger.info(
+            "Filtered DocumentReference: id=#{record['id']}, docStatus=#{record['docStatus']}, reason=#{reason}",
+            { service: 'unified_health_data', filtering: true }
+          )
+        end
+
+        StatsD.increment('unified_health_data.clinical_note.filtered_document_reference',
+                         tags: ["reason:#{reason}"])
+      end
 
       def get_record_type(record)
         LOINC_CODES.each do |key, value|

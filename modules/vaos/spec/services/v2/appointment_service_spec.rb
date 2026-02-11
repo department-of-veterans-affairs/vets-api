@@ -2293,8 +2293,7 @@ describe VAOS::V2::AppointmentsService do
           'name' => 'Ambulatory Visit Summary',
           'loinc_codes' => %w[4189669 96345-4],
           'note_type' => 'ambulatory_patient_summary',
-          'content_type' => 'application/pdf',
-          'binary' => 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e'
+          'content_type' => 'application/pdf'
         }
       ]
     end
@@ -2383,6 +2382,107 @@ describe VAOS::V2::AppointmentsService do
           subject.send(:fetch_avs_and_update_appt_body, appt_no_avs)
           expect(appt_no_avs[:avs_path]).to be_nil
         end
+      end
+    end
+  end
+
+  describe '#fetch_avs_binaries' do
+    let(:avs_pdf) do
+      UnifiedHealthData::BinaryData.new(
+        content_type: 'application/pdf',
+        binary: 'binaryString'
+      )
+    end
+
+    context 'invalid arguments' do
+      it 'sets the error field when doc_id is nil' do
+        result = subject.send(:fetch_avs_binaries, 'appt', [nil])
+        expect(result).to eq([{
+                               doc_id: nil,
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+
+      it 'returns nil when appt_id is nil' do
+        result = subject.send(:fetch_avs_binaries, nil, ['doc1'])
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when doc_ids is nil' do
+        result = subject.send(:fetch_avs_binaries, 'appt', nil)
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when doc_ids is empty' do
+        result = subject.send(:fetch_avs_binaries, 'appt', [])
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when UHD Service successfully retrieved the binaries' do
+      it 'returns the fetched PDF binaries' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               binary: 'binaryString'
+                             }])
+      end
+    end
+
+    context 'when an error occurs' do
+      it 'logs the error and sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Error retrieving AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there is no available binary' do
+      it 'sets the error field' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(nil)
+        result = subject.send(:fetch_avs_binaries, 'appt', ['doc1'])
+        expect(result).to eq([{
+                               doc_id: 'doc1',
+                               error: 'Retrieved empty AVS binary'
+                             }])
+      end
+    end
+
+    context 'when there are mixed results' do
+      it 'returns both successful binaries and error fields' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt').and_return(avs_pdf)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc2', appt_id: 'appt')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc3', appt_id: 'appt').and_return(nil)
+
+        expect(Rails.logger).to receive(:error)
+        result = subject.send(:fetch_avs_binaries, 'appt', %w[doc1 doc2 doc3])
+        expect(result).to eq([
+                               {
+                                 doc_id: 'doc1',
+                                 binary: 'binaryString'
+                               },
+                               {
+                                 doc_id: 'doc2',
+                                 error: 'Error retrieving AVS binary'
+                               },
+                               {
+                                 doc_id: 'doc3',
+                                 error: 'Retrieved empty AVS binary'
+                               }
+                             ])
       end
     end
   end
@@ -2694,7 +2794,19 @@ describe VAOS::V2::AppointmentsService do
 
     it 'is claimExamAppointment for comp & pen service_category' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
-      appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
+      appt[:service_category] =
+        [
+          {
+            coding: [
+              {
+                system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
+                code: 'COMPENSATION & PENSION',
+                display: 'COMPENSATION & PENSION'
+              }
+            ],
+            text: 'COMPENSATION & PENSION'
+          }
+        ]
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('claimExamAppointment')
     end
@@ -2997,6 +3109,86 @@ describe VAOS::V2::AppointmentsService do
           expect(subject.send(:schedulable?, appt)).to be(false)
         end
       end
+    end
+  end
+
+  describe '#set_type_of_care' do
+    it 'sets type_of_care for claims exams' do
+      allow(Rails.logger).to receive(:warn)
+      appt = build(:appointment_form_v2, :va_booked).attributes
+      appt[:service_category] =
+        [
+          {
+            coding: [
+              {
+                system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
+                code: 'COMPENSATION & PENSION',
+                display: 'COMPENSATION & PENSION'
+              }
+            ],
+            text: 'COMPENSATION & PENSION'
+          }
+        ]
+      subject.send(:set_type_of_care, appt)
+      expect(appt[:type_of_care]).to eq('Claim exam')
+      expect(Rails.logger).not_to receive(:warn)
+    end
+
+    context 'sets type_of_care based on service_type' do
+      [
+
+        ['CCOPT', 'Optometry'],
+        ['CCAUDHEAR', 'Hearing aid support'],
+        ['CCAUDRTNE', 'Routine hearing exam'],
+        ['CCNUTRN', 'Nutrition and Food'],
+        ['CCPRMYRTNE', 'Primary Care'],
+        ['amputation', 'Amputation care'],
+        ['audiology', 'Audiology and speech (including hearing aid support)'],
+        ['clinicalPharmacyPrimaryCare', 'Pharmacy'],
+        ['covid', 'COVID-19 vaccine'],
+        ['cpap', 'Continuous Positive Airway Pressure (CPAP)'],
+        ['foodAndNutrition', 'Nutrition and Food'],
+        ['homeSleepTesting', 'Sleep medicine and home sleep testing'],
+        ['individualSubstanceUseDisorder', 'Substance use problem services'],
+        ['moveProgram', 'MOVE! weight management program'],
+        ['ophthalmology', 'Ophthalmology'],
+        ['optometry', 'Optometry'],
+        ['outpatientMentalHealth', 'Mental health care with a specialist'],
+        ['primaryCare', 'Primary Care'],
+        ['primaryCareMentalHealth', 'Mental health care in a primary care setting'],
+        ['socialWork', 'Social Work']
+      ].each do |service_type, type_of_care|
+        it "#{service_type} resolves to #{type_of_care}" do
+          allow(Rails.logger).to receive(:warn)
+          appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+          appt[:service_type] = service_type
+          subject.send(:set_type_of_care, appt)
+          expect(appt[:type_of_care]).to eq(type_of_care)
+          expect(Rails.logger).not_to receive(:warn)
+        end
+      end
+    end
+
+    it 'sets type_of_care to description for cerner appointments with unknown service_type' do
+      allow(Rails.logger).to receive(:warn)
+      appt = build(:appointment_form_v2, :va_booked).attributes
+      appt[:identifier] = [{ system: 'urn:va.gov:masv2:cerner:appointment', value: 'Appointment/1234567' }]
+      appt[:service_type] = 'unknownServiceType'
+      appt[:description] = 'Cerner description'
+      subject.send(:set_type_of_care, appt)
+      expect(appt[:type_of_care]).to eq('Cerner description')
+      expect(Rails.logger).not_to receive(:warn)
+    end
+
+    it 'logs a warning when type_of_care cannot be determined' do
+      allow(Rails.logger).to receive(:warn)
+      appt = build(:appointment_form_v2, :va_booked).attributes
+      appt[:service_type] = 'unknownServiceType'
+      subject.send(:set_type_of_care, appt)
+      expect(appt[:type_of_care]).to be_nil
+      expect(Rails.logger).to have_received(:warn).with(
+        "VAOS appointment id #{appt[:id]} type of care cannot be determined", any_args
+      ).at_least(:once)
     end
   end
 end

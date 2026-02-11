@@ -115,18 +115,39 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
-  it 'ignores forms created within the last 1 minute' do
-    # We created 3 test forms above
-    forms[0].update(created_at: Time.zone.now) # Created within the last minute
-    # Created more than 1 minute ago
-    forms[1].update(created_at: 2.minutes.ago)
-    forms[2].update(created_at: 3.minutes.ago)
+  context 'when champva_ignore_recent_missing_statuses flag is enabled' do
+    it 'ignores forms created within the last 2 hours' do
+      allow(Flipper).to receive(:enabled?).with(:champva_ignore_recent_missing_statuses,
+                                                @current_user).and_return(true)
+      # We created 3 test forms above
+      forms[0].update(created_at: 2.hours.ago + 2.minutes) # slightly less than 2 hours ago
+      forms[1].update(created_at: 2.hours.ago - 2.minutes) # slightly more than 2 hours ago
+      forms[2].update(created_at: 3.hours.ago)
 
-    # Perform the job that checks form statuses
-    job.perform
+      # Perform the job that checks form statuses
+      job.perform
 
-    # Check that forms created in the last minute are ignored
-    expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+      # Check that forms created in the last 2 hours are ignored
+      expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+    end
+  end
+
+  context 'when champva_ignore_recent_missing_statuses flag is disabled' do
+    it 'ignores forms created within the last 1 minute' do
+      allow(Flipper).to receive(:enabled?).with(:champva_ignore_recent_missing_statuses,
+                                                @current_user).and_return(false)
+      # We created 3 test forms above
+      forms[0].update(created_at: Time.zone.now) # Created within the last minute
+      # Created more than 1 minute ago
+      forms[1].update(created_at: 2.minutes.ago)
+      forms[2].update(created_at: 3.minutes.ago)
+
+      # Perform the job that checks form statuses
+      job.perform
+
+      # Check that forms created in the last minute are ignored
+      expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+    end
   end
 
   it 'processes nil forms in batches that belong to the same submission' do

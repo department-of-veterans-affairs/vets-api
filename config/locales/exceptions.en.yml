@@ -210,6 +210,12 @@ en:
         detail: The upstream service returned an incomplete response for prescription refill orders
         code: 502
         status: 502
+      upstream_partial_failure:
+        <<: *defaults
+        title: Upstream Partial Failure
+        detail: Some health records could not be retrieved due to upstream service errors
+        code: 502
+        status: 502
       service_unavailable:
         <<: *defaults
         title: Service Unavailable
