@@ -16,6 +16,7 @@ module MyHealth
       attribute :draft_date
       attribute :to_date
       attribute :has_attachments
+      attribute :oh_migration_phase
       attribute :attachments do |object|
         Array(object.attachments).map do |att|
           {
