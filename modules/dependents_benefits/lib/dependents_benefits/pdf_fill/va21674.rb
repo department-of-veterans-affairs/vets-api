@@ -1039,6 +1039,9 @@ module DependentsBenefits
       end
       # rubocop:enable Metrics/MethodLength
 
+      ##
+      # Expands cases where a student has no SSN
+      # @return [void]
       def expand_no_ssn_cases
         # We can assume 1 student in the array since this filler
         # gets called on every student in the students array within the saved claim

@@ -1915,64 +1915,87 @@ module PdfFill
         }
       end
 
+      ##
+      # Expands no SSN cases into remarks for PDF form
+      #
+      # @return [void]
       def expand_no_ssn_cases
-        # need to account for children not in exact order
-        no_ssn_mappings = {
-          spouse: @form_data.dig('dependents_application', 'spouse_information', 'no_ssn'),
-          children: @form_data.dig('dependents_application', 'children_to_add')&.map { |child| child['no_ssn'] }.present?
-        }
-        no_ssn_reasons = {
-          spouse: @form_data.dig('dependents_application', 'spouse_information', 'no_ssn_reason'),
-          children: @form_data.dig('dependents_application', 'children_to_add')&.map { |child| child['no_ssn_reason'] }
-        }
+        remarks = []
 
-        # 11c -> spouse
-        # 16B -> children (increment by 1 for each child)
+        process_spouse_no_ssn(remarks)
+        process_children_no_ssn(remarks)
+        add_remarks_to_form(remarks)
+      end
 
-        all_no_ssn_remarks = []
+      ##
+      # Processes spouse no SSN case and adds to remarks
+      # @param remarks [Array] Array to append spouse no SSN reason to
+      # @return [void]
+      def process_spouse_no_ssn(remarks)
+        spouse_info = @form_data.dig('dependents_application', 'spouse_information')
+        return unless spouse_info&.dig('no_ssn')
 
-        if no_ssn_mappings[:spouse]
-          reason = no_ssn_reasons[:spouse]
-          @form_data['dependents_application']['spouse_information']['ssn'] = {
-            'first' => 'See',
-            'second' => 'ad',
-            'third' => "d'l "
-          }
-          all_no_ssn_remarks << "11C. Spouse no SSN reason: #{reason}"
-          # @form_data['remarks']['remarks_line1'] = text[0..34]
-          # @form_data['remarks']['remarks_line2'] = text[35..]
+        set_placeholder_ssn(spouse_info, 'ssn')
+
+        reason = spouse_info['no_ssn_reason']
+        remarks << "11C. Spouse no SSN reason: #{reason}"
+      end
+
+      ##
+      # Processes children no SSN cases and adds to remarks
+      # @param remarks [Array] Array to append children no SSN reasons to
+      # @return [void]
+      def process_children_no_ssn(remarks)
+        children = @form_data.dig('dependents_application', 'children_to_add')
+        return unless children
+
+        children.each_with_index do |child, index|
+          next unless child['no_ssn_reason']
+
+          set_placeholder_ssn(child, 'ssn')
+
+          question_number = calculate_child_question_number(index)
+          reason = child['no_ssn_reason']
+          remarks << "#{question_number}B. Child no SSN reason: #{reason}"
         end
+      end
 
-        if no_ssn_mappings[:children]
-          no_ssn_reasons[:children].each_with_index do |reason, index|
-            next unless reason
+      ##
+      # Sets placeholder SSN value to indicate addendum reference
+      # @param data_hash [Hash] The hash containing the SSN field
+      # @param ssn_key [String] The key for the SSN field in the hash
+      # @return [void]
+      def set_placeholder_ssn(data_hash, ssn_key)
+        data_hash[ssn_key] = {
+          'first' => 'See',
+          'second' => 'ad',
+          'third' => "d'l "
+        }
+      end
 
-            @form_data['dependents_application']['children_to_add'][index]['ssn'] = {
-              'first' => 'See',
-              'second' => 'ad',
-              'third' => "d'l "
-            }
-            # 16B -> children
-            # (increment question number by 1 for each additional child until 4 children, then start at 1B)
-            question_num = index < 4 ? 16 + index : index - 3
-            all_no_ssn_remarks << "#{question_num}B. Child no SSN reason: #{reason}"
-          end
-        end
+      ##
+      # Calculates the question number for child SSN based on index
+      # First 4 children: 16, 17, 18, 19
+      # Additional children: 1, 2, 3, etc.
+      # @param index [Integer] The index of the child
+      # @return [Integer] The question number for the child SSN
+      def calculate_child_question_number(index)
+        index < 4 ? 16 + index : index - 3
+      end
 
-        # Combine all no SSN reasons into remarks
-        full_text_with_commas = all_no_ssn_remarks.join(', ')
-        count = 1
-        remark_line = 1
-        full_text_with_commas.each_char do |char|
-          if count <= 35
-            @form_data['remarks']["remarks_line#{remark_line}"] ||= ''
-            @form_data['remarks']["remarks_line#{remark_line}"] += char
-            count += 1
-          else
-            # start a new line every 35 characters
-            remark_line += 1
-            count = 1
-          end
+      ##
+      # Adds remarks to form data, splitting into 35-character lines
+      # @param remarks [Array] Array of remarks to add to the form
+      # @return [void]
+      def add_remarks_to_form(remarks)
+        return if remarks.empty?
+
+        combined_text = remarks.join(', ')
+        @form_data['remarks'] ||= {}
+
+        # Split text into chunks of up to 35 characters and assign to remark lines
+        combined_text.scan(/.{1,35}/).each_with_index do |chunk, index|
+          @form_data['remarks']["remarks_line#{index + 1}"] = chunk
         end
       end
 
