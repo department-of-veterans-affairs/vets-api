@@ -1841,7 +1841,7 @@ describe VAOS::V2::AppointmentsService do
         end
 
         context 'when a MAP token error occurs' do
-          it 'logs missing ICN error' do
+          it 'logs missing ICN error and combines with format errors' do
             expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
             allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
             allow(Rails.logger).to receive(:warn).at_least(:once)
@@ -1851,7 +1851,9 @@ describe VAOS::V2::AppointmentsService do
             expect(Rails.logger)
               .to have_received(:warn)
               .with(expected_message)
-            expect(check[:failures]).to eq('Missing ICN message')
+            expect(check[:failures]).to be_an(Array)
+            expect(check[:failures]).to include('Missing ICN message')
+            expect(check[:failures].map { |f| f.is_a?(Hash) ? f[:code] : nil }).to include('VAOS_RESPONSE_FORMAT_ERROR')
           end
         end
       end

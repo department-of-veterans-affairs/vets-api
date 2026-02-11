@@ -155,24 +155,26 @@ module VAOS
         unless eps_appointments_service.config.mock_enabled?
           vaos_response = get_all_appointments(pagination_params)
           vaos_request_failures = vaos_response[:meta][:failures]
-
-          return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-
           vaos_data = vaos_response[:data]
+
+          # Collect all failures (API errors and data format errors)
+          failures = Array(vaos_request_failures)
+
           unless vaos_data.is_a?(Array)
             Rails.logger.error(
               'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
               "Unexpected VAOS response format: data is #{vaos_data.class.name}, expected Array"
             )
-            vaos_format_failure = {
+            failures << {
               code: 'VAOS_RESPONSE_FORMAT_ERROR',
               source: 'VAOS',
               detail: 'VAOS get_all_appointments returned data in unexpected format'
             }
-            return { error: true, failures: [vaos_format_failure] }
           end
-          return { exists: true } if vaos_data.any? { |appt| appt[:referral_id] == referral_id }
 
+          return { error: true, failures: } if failures.present?
+
+          return { exists: true } if vaos_data.any? { |appt| appt[:referral_id] == referral_id }
         end
 
         eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
