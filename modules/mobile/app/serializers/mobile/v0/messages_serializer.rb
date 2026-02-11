@@ -10,7 +10,7 @@ module Mobile
 
       attributes :category, :subject, :body, :attachment, :sent_date,
                  :sender_id, :sender_name, :recipient_id, :recipient_name, :read_receipt,
-                 :triage_group_name, :proxy_sender_name, :is_oh_message
+                 :triage_group_name, :proxy_sender_name, :is_oh_message, :oh_migration_phase
 
       attribute :message_id, &:id
 
