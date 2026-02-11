@@ -100,10 +100,9 @@ module IbmDataDictionary
     }.compact
   end
 
-  # Format date from YYYY-MM-DD to MM/DD/YYYY or MMDDYYYY for IBM MMS
-  # Different VA forms use different date formats in their VBA Data Dictionaries:
-  # - Form 21P-8416: MM/DD/YYYY (with slashes)
-  # - Form 21-4192: MMDDYYYY (no slashes)
+  # Format date from YYYY-MM-DD to MM/DD/YYYY for IBM MMS
+  # Per vendor specification, all forms use MM/DD/YYYY format with slashes
+  # Example: "VETERAN_DOB": "10/19/1948"
   # @param date_string [String, nil] ISO 8601 date string (YYYY-MM-DD)
   # @param format [Symbol] Date format - :with_slashes (default) or :without_slashes
   # @return [String, nil] Formatted date or nil if invalid
@@ -130,11 +129,11 @@ module IbmDataDictionary
   end
 
   # Build checkbox value
-  # Returns true for checked, nil for unchecked (IBM MMS convention)
+  # Returns true for checked, false for unchecked (IBM MMS convention)
   # @param value [Boolean, nil]
-  # @return [Boolean, nil]
+  # @return [Boolean]
   def build_checkbox_value(value)
-    value == true ? true : nil
+    value == true
   end
 
   # Build form metadata fields

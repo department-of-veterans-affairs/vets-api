@@ -116,12 +116,6 @@ class SavedClaim::Form214192 < SavedClaim
     # Use VETERAN_INITIAL instead of VETERAN_MIDDLE_INITIAL for this form
     basic_fields = build_veteran_basic_fields(vet_info)
     basic_fields['VETERAN_INITIAL'] = basic_fields.delete('VETERAN_MIDDLE_INITIAL')
-
-    # Override date format: AUG2024 spec requires MMDDYYYY (no slashes)
-    if vet_info['dateOfBirth']
-      basic_fields['VETERAN_DOB'] = format_date_for_ibm(vet_info['dateOfBirth'], format: :without_slashes)
-    end
-
     basic_fields
   end
 

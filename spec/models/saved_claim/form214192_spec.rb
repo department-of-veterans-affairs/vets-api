@@ -296,7 +296,7 @@ RSpec.describe SavedClaim::Form214192, type: :model do
         'VETERAN_LAST_NAME' => 'Doe',
         'VETERAN_SSN' => '123456789',
         'VA_FILE_NUMBER' => '987654321',
-        'VETERAN_DOB' => '01011980'
+        'VETERAN_DOB' => '01/01/1980'
       )
     end
 

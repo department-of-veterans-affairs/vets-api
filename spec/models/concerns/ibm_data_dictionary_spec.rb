@@ -225,12 +225,12 @@ RSpec.describe IbmDataDictionary do
       expect(subject.build_checkbox_value(true)).to be(true)
     end
 
-    it 'returns nil for false' do
-      expect(subject.build_checkbox_value(false)).to be_nil
+    it 'returns false for false' do
+      expect(subject.build_checkbox_value(false)).to be(false)
     end
 
-    it 'returns nil for nil' do
-      expect(subject.build_checkbox_value(nil)).to be_nil
+    it 'returns false for nil' do
+      expect(subject.build_checkbox_value(nil)).to be(false)
     end
   end
 
