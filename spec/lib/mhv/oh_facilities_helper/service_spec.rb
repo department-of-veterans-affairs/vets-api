@@ -62,6 +62,10 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
   end
 
   describe '#user_facility_ready_for_info_alert?' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled, user).and_return(true)
+    end
+
     context 'when user has a facility in facilities ready for info alert list' do
       let(:va_treatment_facility_ids) { %w[553 999] }
 
@@ -99,6 +103,18 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       it 'returns true' do
         expect(service.user_facility_ready_for_info_alert?).to be true
+      end
+    end
+
+    context 'when portal_notice_interstitial_enabled toggle is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled, user).and_return(false)
+      end
+
+      let(:va_treatment_facility_ids) { %w[553 999] }
+
+      it 'returns false regardless of facility match' do
+        expect(service.user_facility_ready_for_info_alert?).to be false
       end
     end
   end
