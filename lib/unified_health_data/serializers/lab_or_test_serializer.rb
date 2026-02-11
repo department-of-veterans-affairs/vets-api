@@ -10,6 +10,7 @@ module UnifiedHealthData
 
     attributes :display,
                :test_code,
+               :test_code_display,
                :date_completed,
                :sample_tested,
                :encoded_data,
