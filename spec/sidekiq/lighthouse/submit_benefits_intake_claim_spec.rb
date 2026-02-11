@@ -262,5 +262,55 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       end
     end
   end
+
+  describe '#generate_metadata' do
+    let(:lighthouse_service) { double('BenefitsIntakeService::Service', uuid: '123-456-789', location: 'test') }
+    let(:form214192_claim) do
+      claim = SavedClaim::Form214192.new(form: {
+        veteranInformation: {
+          fullName: { first: 'John', last: 'Doe' },
+          ssn: '123456789',
+          vaFileNumber: '987654321'
+        },
+        employmentInformation: {
+          employerAddress: { postalCode: '12345' }
+        }
+      }.to_json)
+      claim.form_id = '21-4192'
+      claim
+    end
+
+    before do
+      job.instance_variable_set(:@lighthouse_service, lighthouse_service)
+    end
+
+    context 'when form provides docType in metadata (GCIO-enabled)' do
+      before do
+        job.instance_variable_set(:@claim, form214192_claim)
+      end
+
+      it 'uses the docType from metadata with StructuredData:: prefix' do
+        metadata = job.send(:generate_metadata)
+        expect(metadata['docType']).to eq('StructuredData::21-4192')
+      end
+    end
+
+    context 'when form does not provide docType in metadata' do
+      let(:regular_claim) do
+        claim = create(:fake_saved_claim)
+        claim.form_id = '10-10EZ'
+        claim
+      end
+
+      before do
+        job.instance_variable_set(:@claim, regular_claim)
+      end
+
+      it 'falls back to form_id without prefix' do
+        metadata = job.send(:generate_metadata)
+        expect(metadata['docType']).to eq('10-10EZ')
+      end
+    end
+  end
   # Rspec.describe
 end

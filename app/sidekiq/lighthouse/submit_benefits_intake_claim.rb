@@ -75,8 +75,10 @@ module Lighthouse
 
     def generate_metadata
       md = @claim.metadata_for_benefits_intake
+      # Use docType from metadata if provided (for GCIO-enabled forms), otherwise use form_id
+      doc_type = md[:docType] || @claim.form_id
       ::BenefitsIntake::Metadata.generate(md[:veteranFirstName], md[:veteranLastName], md[:fileNumber],
-                                          md[:zipCode], "#{@claim.class} va.gov", @claim.form_id,
+                                          md[:zipCode], "#{@claim.class} va.gov", doc_type,
                                           md[:businessLine])
     end
 
