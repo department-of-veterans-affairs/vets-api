@@ -14,6 +14,14 @@ module V0
       extend ActiveSupport::Concern
       include BenefitsClaims::Concerns::MultiProviderBase
 
+      # Maps provider type strings to their provider classes
+      # Single source of truth for supported providers
+      PROVIDER_TYPE_MAPPINGS = {
+        'lighthouse' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+        # TODO: Add CHAMPVA mapping when provider is onboarded
+        # 'champva' => BenefitsClaims::Providers::Champva::ChampvaBenefitsClaimsProvider
+      }.freeze
+
       private
 
       def format_error_entry(provider_name, message)
@@ -81,19 +89,46 @@ module V0
       end
 
       def provider_class_for_type(type)
-        case type.to_s.downcase
-        when 'lighthouse'
-          BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
-        # TODO: Add ID collision test when multiple providers are available
-        else
+        normalized_type = type.to_s.downcase
+        provider_class = PROVIDER_TYPE_MAPPINGS[normalized_type]
+
+        if provider_class.nil?
           raise Common::Exceptions::ParameterMissing.new('type', detail: "Unknown provider type: #{type}")
         end
+
+        provider_class
       end
 
       def supported_provider_types
-        # Returns list of valid provider type strings that can be used in the type parameter
-        # This is derived from the provider_class_for_type case statement
-        ['lighthouse']
+        PROVIDER_TYPE_MAPPINGS.keys
+      end
+
+      # Override base implementation to add provider field to each claim
+      # This enables the frontend to distinguish claims with identical IDs from different providers
+      def extract_claims_data(provider_class, response)
+        claims_data = super(provider_class, response)
+        provider_type = provider_type_from_class(provider_class)
+
+        # Add provider field to each claim
+        claims_data.each do |claim|
+          claim['attributes']['provider'] = provider_type if claim.is_a?(Hash)
+        end
+
+        claims_data
+      end
+
+      # Maps provider class to provider type string
+      def provider_type_from_class(provider_class)
+        # Reverse lookup from PROVIDER_TYPE_MAPPINGS
+        PROVIDER_TYPE_MAPPINGS.each do |type, class|
+          return type if class == provider_class
+        end
+
+        # Fallback: derive from class name for testing/unknown providers
+        class_name = provider_class.name.to_s.downcase
+        return 'lighthouse' if class_name.include?('lighthouse')
+
+        class_name.split('::').last.downcase
       end
     end
   end
