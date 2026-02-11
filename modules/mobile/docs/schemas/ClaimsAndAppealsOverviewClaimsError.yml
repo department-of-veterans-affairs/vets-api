@@ -34,6 +34,11 @@ properties:
             - developmentLetterSent
             - claimTypeCode
           properties:
+            provider:
+              type: string
+              nullable: true
+              description: The provider system that owns this claim. Used by mobile app to route subsequent requests for this claim.
+              example: "lighthouse"
             subtype:
               type: string
               example: "legacyAppeal"
