@@ -31,17 +31,29 @@ module UnifiedHealthData
       return nil if station_number.blank?
 
       facility = get_facility_with_cache(station_number)
-      return nil if facility.nil?
+      if facility.nil?
+        StatsD.increment("#{STATSD_KEY_PREFIX}.timezone_lookup", tags: ['result:facility_not_found'])
+        return nil
+      end
 
-      facility.dig(:timezone, :time_zone_id) || facility.dig('timezone', 'timeZoneId')
+      # VA Mobile Facilities API returns timezone.zoneId
+      timezone = facility.dig(:timezone, :zoneId)
+      if timezone.present?
+        StatsD.increment("#{STATSD_KEY_PREFIX}.timezone_lookup", tags: ['result:success'])
+      else
+        StatsD.increment("#{STATSD_KEY_PREFIX}.timezone_lookup", tags: ['result:timezone_missing'])
+      end
+      timezone
     end
 
     # Gets facility information with caching.
+    # Only successful responses are cached; nil results from errors are not cached
+    # to allow retries on subsequent requests.
     #
     # @param facility_id [String] The facility/station ID
     # @return [Hash, nil] Facility information or nil on error
     def get_facility_with_cache(facility_id)
-      Rails.cache.fetch(cache_key(facility_id), expires_in: CACHE_TTL) do
+      Rails.cache.fetch(cache_key(facility_id), expires_in: CACHE_TTL, skip_nil: true) do
         get_facility(facility_id)
       end
     end
@@ -84,6 +96,12 @@ module UnifiedHealthData
       else
         response.body
       end
+    rescue JSON::ParserError => e
+      Rails.logger.warn(
+        "UHD FacilityService: Failed to parse response body: #{e.message}",
+        { service: 'unified_health_data' }
+      )
+      nil
     end
 
     def log_facility_error(facility_id, error)
@@ -95,7 +113,9 @@ module UnifiedHealthData
           error_class: error.class.name
         }
       )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.error", tags: ["facility_id:#{facility_id}"])
+      # Use error_class tag instead of facility_id to avoid high-cardinality metrics
+      # Per-facility details are available in logs
+      StatsD.increment("#{STATSD_KEY_PREFIX}.error", tags: ["error_class:#{error.class.name}"])
     end
   end
 end

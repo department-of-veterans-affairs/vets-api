@@ -2129,7 +2129,22 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       expect(result).to eq('668')
     end
 
-    it 'returns nil when no Practitioner exists' do
+    it 'falls back to Organization when no Practitioner exists' do
+      contained = [
+        {
+          'resourceType' => 'Organization',
+          'id' => 'org-1',
+          'identifier' => [
+            { 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('989')
+    end
+
+    it 'returns nil when neither Practitioner nor Organization have valid identifiers' do
       contained = [
         { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Test Lab' }
       ]
@@ -2152,7 +2167,52 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       expect(adapter.send(:extract_station_number, [])).to be_nil
     end
 
-    it 'ignores non-3-digit OTHER identifiers' do
+    it 'extracts station number with letter suffix from OTHER identifier' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668A' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668A')
+    end
+
+    it 'extracts station number with two-letter suffix from OTHER identifier' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668GC' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668GC')
+    end
+
+    it 'ignores identifiers with more than 2 letter suffix' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668ABC' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to be_nil
+    end
+
+    it 'ignores non-station-number OTHER identifiers' do
       contained = [
         {
           'resourceType' => 'Practitioner',
@@ -2261,6 +2321,38 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:extract_station_number, contained)
         expect(result).to eq('500')
       end
+    end
+  end
+
+  describe '#extract_station_number_from_record' do
+    it 'extracts station number from a full record structure' do
+      record = {
+        'resource' => {
+          'contained' => [
+            {
+              'resourceType' => 'Practitioner',
+              'identifier' => [
+                { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+              ]
+            }
+          ]
+        }
+      }
+
+      result = adapter.extract_station_number_from_record(record)
+      expect(result).to eq('668')
+    end
+
+    it 'returns nil when record has no contained resources' do
+      record = { 'resource' => {} }
+
+      result = adapter.extract_station_number_from_record(record)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when record is nil' do
+      result = adapter.extract_station_number_from_record(nil)
+      expect(result).to be_nil
     end
   end
 
@@ -2392,6 +2484,27 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       expect(parsed.hour).to eq(13)
       expect(parsed.min).to eq(32)
       expect(result).to include('-05:00')
+    end
+
+    it 'converts UTC time with Z suffix' do
+      # Common format from SCDF: 2023-11-06T18:32:00.000Z
+      result = adapter.send(:convert_to_facility_time, '2023-11-06T18:32:00.000Z', 'America/Los_Angeles')
+
+      parsed = DateTime.parse(result)
+      expect(parsed.hour).to eq(10)
+      expect(parsed.min).to eq(32)
+    end
+
+    it 'correctly handles dates that already have non-UTC offsets' do
+      # If the incoming date has -04:00 offset (e.g., from previous conversion or different source)
+      # it should still convert correctly to the target timezone
+      # 2023-11-06T14:32:00-04:00 = 2023-11-06T18:32:00 UTC = 2023-11-06T10:32:00 PST
+      result = adapter.send(:convert_to_facility_time, '2023-11-06T14:32:00-04:00', 'America/Los_Angeles')
+
+      parsed = DateTime.parse(result)
+      expect(parsed.hour).to eq(10)
+      expect(parsed.min).to eq(32)
+      expect(result).to include('-08:00')
     end
 
     it 'returns original date when timezone is blank' do

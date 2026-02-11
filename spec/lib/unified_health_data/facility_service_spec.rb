@@ -25,7 +25,7 @@ RSpec.describe UnifiedHealthData::FacilityService, type: :service do
             body: {
               id: '668',
               name: 'Mann-Grandstaff VA Medical Center',
-              timezone: { timeZoneId: 'America/Los_Angeles' }
+              timezone: { zoneId: 'America/Los_Angeles' }
             }.to_json,
             headers: { 'Content-Type' => 'application/json' }
           )
@@ -80,9 +80,9 @@ RSpec.describe UnifiedHealthData::FacilityService, type: :service do
         )
     end
 
-    it 'uses Rails.cache.fetch with correct key and TTL' do
+    it 'uses Rails.cache.fetch with correct key, TTL, and skip_nil' do
       expect(Rails.cache).to receive(:fetch)
-        .with(cache_key, expires_in: 12.hours)
+        .with(cache_key, expires_in: 12.hours, skip_nil: true)
         .and_call_original
 
       service.get_facility_with_cache(facility_id)
@@ -105,7 +105,7 @@ RSpec.describe UnifiedHealthData::FacilityService, type: :service do
             body: {
               id: '983',
               name: 'Cheyenne VA Medical Center',
-              timezone: { timeZoneId: 'America/Denver' }
+              timezone: { zoneId: 'America/Denver' }
             }.to_json,
             headers: { 'Content-Type' => 'application/json' }
           )
@@ -114,7 +114,7 @@ RSpec.describe UnifiedHealthData::FacilityService, type: :service do
       it 'returns facility data' do
         result = service.get_facility(facility_id)
         expect(result[:id]).to eq('983')
-        expect(result[:timezone][:timeZoneId]).to eq('America/Denver')
+        expect(result[:timezone][:zoneId]).to eq('America/Denver')
       end
     end
 
@@ -131,6 +131,27 @@ RSpec.describe UnifiedHealthData::FacilityService, type: :service do
         )
 
         result = service.get_facility('999')
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when API returns invalid JSON' do
+      before do
+        stub_request(:get, %r{/facilities/v2/facilities/668})
+          .to_return(
+            status: 200,
+            body: 'not valid json {{{',
+            headers: { 'Content-Type' => 'application/json' }
+          )
+      end
+
+      it 'returns nil and logs warning' do
+        expect(Rails.logger).to receive(:warn).with(
+          /Failed to parse response body/,
+          hash_including(service: 'unified_health_data')
+        )
+
+        result = service.get_facility('668')
         expect(result).to be_nil
       end
     end

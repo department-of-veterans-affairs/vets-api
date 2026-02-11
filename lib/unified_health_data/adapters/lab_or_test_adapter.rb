@@ -63,6 +63,18 @@ module UnifiedHealthData
         build_lab_or_test(record, code, encoded_data, observations, contained)
       end
 
+      # Public method to extract station number from a record's contained resources.
+      # Used by Service layer for cache pre-warming.
+      #
+      # @param record [Hash] A UHD record with 'resource' > 'contained'
+      # @return [String, nil] Station number or nil if not found
+      def extract_station_number_from_record(record)
+        return nil if record.nil?
+
+        contained = record.dig('resource', 'contained')
+        extract_station_number(contained)
+      end
+
       private
 
       def allowed_status?(status)
@@ -459,9 +471,9 @@ module UnifiedHealthData
         sn_identifier = identifiers.find { |i| i['value'].present? && i['value'].start_with?('SN=') }
         return sn_identifier['value'].sub('SN=', '') if sn_identifier
 
-        # Priority 2: Plain 3-digit number with "OTHER" type
+        # Priority 2: Station number with "OTHER" type (3 digits, optionally with letter suffix like 668A, 668GC)
         plain_identifier = identifiers.find do |i|
-          i['value'].present? && i.dig('type', 'text') == 'OTHER' && i['value'].match?(/^\d{3}$/)
+          i['value'].present? && i.dig('type', 'text') == 'OTHER' && i['value'].match?(/^\d{3}[A-Z]{0,2}$/i)
         end
         plain_identifier&.dig('value')
       end
