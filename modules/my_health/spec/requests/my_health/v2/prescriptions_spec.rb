@@ -384,6 +384,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           # Verify prescription_source is valid for Oracle (VA indicates Oracle Health/Cerner system)
           expect(oracle_attrs['prescription_source']).to eq('VA')
+
+          # Verify source_ehr identifies this as an Oracle Health prescription
+          expect(oracle_attrs['source_ehr']).to eq('OH')
         end
       end
 

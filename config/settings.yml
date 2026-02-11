@@ -578,6 +578,10 @@ gclaws:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
     veteran_service_organizations:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
+  accreditation_xlsx:
+    password: <%= ENV['gclaws__accreditation_xlsx__password'] %>
+    url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
+    username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:
   base_url: <%= ENV['genisis__base_url'] %>
   form_submission_path: "/formdata"
@@ -1133,6 +1137,23 @@ reports:
     bucket: <%= ENV['reports__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['reports__aws__secret_access_key'] %>
+  bio_submission_status:
+    emails:
+    - Cameron.Testerman@va.gov
+    - Leah.Keeler@va.gov
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+    - '21-4192'
+    - '21-0779'
+    - '21P-530a'
+    - '21-2680'
+    staging_emails:
+    - Cameron.Testerman@va.gov
+    - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:

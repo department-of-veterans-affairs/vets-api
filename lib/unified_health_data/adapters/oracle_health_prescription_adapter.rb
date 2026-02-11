@@ -48,6 +48,7 @@ module UnifiedHealthData
           .merge(build_contact_and_source_attributes(resource, dispenses_data))
           .merge(dispenses: dispenses_data)
           .merge(refill_metadata)
+          .merge(source_ehr: UnifiedHealthData::Prescription::SOURCE_EHR_ORACLE_HEALTH)
       end
 
       # Builds core prescription attributes from the FHIR MedicationRequest resource.
