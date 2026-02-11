@@ -120,8 +120,8 @@ module V0
       # Maps provider class to provider type string
       def provider_type_from_class(provider_class)
         # Reverse lookup from PROVIDER_TYPE_MAPPINGS
-        PROVIDER_TYPE_MAPPINGS.each do |type, class|
-          return type if class == provider_class
+        PROVIDER_TYPE_MAPPINGS.each do |type, klass|
+          return type if klass == provider_class
         end
 
         # Fallback: derive from class name for testing/unknown providers
