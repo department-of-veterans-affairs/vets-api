@@ -85,7 +85,7 @@ Compile all findings into the structured output format below.
 After presenting the report, ask the user how they'd like to capture the results:
 
 1. **Chat only** (default) — the report is already displayed above, no further action
-2. **Write a markdown file** — save the report to `tmp/sre-audit-<module-name>.md` in the repo (useful for attaching to PRs or sharing)
+2. **Write a markdown file** — save the report to `tmp/sre-audit-<module-name>.md` using the same formatting rules as the chat output (see Output Format below). The file should be a clean, readable document a developer can review in GitHub or any markdown viewer.
 3. **Create GitHub issues** — use `gh` CLI to create issues in `department-of-veterans-affairs/vets-api`:
    - If **3 or fewer findings**: create one issue per finding with the play name, file:line, code snippet, and remediation
    - If **4+ findings**: create a parent tracking issue (the audit summary) and individual sub-issues for each finding, linked to the parent via task list
@@ -98,29 +98,29 @@ After presenting the report, ask the user how they'd like to capture the results
 
 ### Error-Handling Plays (21)
 
-| # | Play | Priority | File |
-|---|------|----------|------|
-| 01 | Don't Leak PII/PHI/Secrets | P1 | `plays/01-dont-leak-pii-phi-secrets.md` |
-| 02 | Preserve Cause Chains | P1 | `plays/02-preserve-cause-chains.md` |
-| 03 | Never Use Bare Rescues | P1 | `plays/03-never-use-bare-rescues.md` |
-| 04 | Map Upstream Network Errors | P1 | `plays/04-map-upstream-network-errors-correctly.md` |
-| 05 | Classify Errors Honestly | P1 | `plays/05-classify-errors-honestly.md` |
-| 06 | Handle 401 Token Ownership | P1 | `plays/06-handle-401-token-ownership.md` |
-| 07 | Handle 403 Permission vs Existence | P1 | `plays/07-handle-403-permission-vs-existence.md` |
-| 08 | Prefer Typed Exceptions | P1 | `plays/08-prefer-typed-exceptions.md` |
-| 09 | Expected vs Unexpected Errors | P1 | `plays/09-expected-vs-unexpected-errors.md` |
-| 10 | Don't Build Module-Specific Frameworks | P1 | `plays/10-dont-build-module-specific-frameworks.md` |
-| 11 | Standardized Error Responses | P1 | `plays/11-standardized-error-responses.md` |
-| 12 | Never Return 2xx with Errors | P2 | `plays/12-never-return-2xx-with-errors.md` |
-| 13 | Send Retry Hints | P2 | `plays/13-send-retry-hints-to-clients.md` |
-| 14 | Don't Mix Error Concerns | P2 | `plays/14-dont-mix-error-concerns.md` |
-| 15 | Stable Unique Error Codes | P2 | `plays/15-stable-unique-error-codes.md` |
-| 16 | Don't Swallow Errors | P2 | `plays/16-dont-swallow-errors.md` |
-| 17 | Prefer Structured Logs | P2 | `plays/17-prefer-structured-logs.md` |
-| 18 | Metrics vs Logs Cardinality | P2 | `plays/18-metrics-vs-logs-cardinality.md` |
-| 19 | Validate at Boundaries | P2 | `plays/19-validate-at-boundaries-fail-fast.md` |
-| 20 | Don't Catch-Log-Reraise | P2 | `plays/20-dont-catch-log-reraise.md` |
-| 21 | Respect Retry Headers | P2 | `plays/21-respect-retry-headers-when-calling-upstream.md` |
+| # | Play | Priority |
+|---|------|----------|
+| [01](.github/agents/sre/plays/01-dont-leak-pii-phi-secrets.md) | Don't Leak PII/PHI/Secrets | P1 |
+| [02](.github/agents/sre/plays/02-preserve-cause-chains.md) | Preserve Cause Chains | P1 |
+| [03](.github/agents/sre/plays/03-never-use-bare-rescues.md) | Never Use Bare Rescues | P1 |
+| [04](.github/agents/sre/plays/04-map-upstream-network-errors-correctly.md) | Map Upstream Network Errors | P1 |
+| [05](.github/agents/sre/plays/05-classify-errors-honestly.md) | Classify Errors Honestly | P1 |
+| [06](.github/agents/sre/plays/06-handle-401-token-ownership.md) | Handle 401 Token Ownership | P1 |
+| [07](.github/agents/sre/plays/07-handle-403-permission-vs-existence.md) | Handle 403 Permission vs Existence | P1 |
+| [08](.github/agents/sre/plays/08-prefer-typed-exceptions.md) | Prefer Typed Exceptions | P1 |
+| [09](.github/agents/sre/plays/09-expected-vs-unexpected-errors.md) | Expected vs Unexpected Errors | P1 |
+| [10](.github/agents/sre/plays/10-dont-build-module-specific-frameworks.md) | Don't Build Module-Specific Frameworks | P1 |
+| [11](.github/agents/sre/plays/11-standardized-error-responses.md) | Standardized Error Responses | P1 |
+| [12](.github/agents/sre/plays/12-never-return-2xx-with-errors.md) | Never Return 2xx with Errors | P2 |
+| [13](.github/agents/sre/plays/13-send-retry-hints-to-clients.md) | Send Retry Hints | P2 |
+| [14](.github/agents/sre/plays/14-dont-mix-error-concerns.md) | Don't Mix Error Concerns | P2 |
+| [15](.github/agents/sre/plays/15-stable-unique-error-codes.md) | Stable Unique Error Codes | P2 |
+| [16](.github/agents/sre/plays/16-dont-swallow-errors.md) | Don't Swallow Errors | P2 |
+| [17](.github/agents/sre/plays/17-prefer-structured-logs.md) | Prefer Structured Logs | P2 |
+| [18](.github/agents/sre/plays/18-metrics-vs-logs-cardinality.md) | Metrics vs Logs Cardinality | P2 |
+| [19](.github/agents/sre/plays/19-validate-at-boundaries-fail-fast.md) | Validate at Boundaries | P2 |
+| [20](.github/agents/sre/plays/20-dont-catch-log-reraise.md) | Don't Catch-Log-Reraise | P2 |
+| [21](.github/agents/sre/plays/21-respect-retry-headers-when-calling-upstream.md) | Respect Retry Headers | P2 |
 
 All file paths above are relative to `.github/agents/sre/`.
 
@@ -164,66 +164,95 @@ For Tier 3 full audits, also analyze:
 
 ## Output Format
 
-**Important:** Avoid markdown tables for findings — they render poorly in narrow chat windows. Use numbered lists with structured sub-items instead.
+**Formatting rules — follow these exactly:**
+- Leave a blank line before and after every code block
+- Leave a blank line after every heading
+- Use headings to create hierarchy — `##` for sections, `###` for plays, `####` for individual findings
+- Do NOT use horizontal rules (`---`) between findings — headings provide the separation
+- Only use `---` to separate major report sections (P1 findings, P2 findings, Cross-Cutting, Summary)
+- Do NOT put play reference or recommendations in blockquotes (`>`) — use bold labels
+- **Chat output**: avoid tables with 4+ columns — they render poorly in narrow chat windows. Tables with 2-3 columns (e.g., the summary table) are fine.
+- **Markdown files and GitHub issues**: tables render well and are encouraged for summary sections, finding lists, and module structure
+- Keep code snippets to 1-5 lines — enough to show the violation, not the whole method
 
 ```markdown
 # SRE Audit: modules/<name>
 
 **Tier**: Quick | Standard | Full
-**Date**: <date>  |  **Files scanned**: <count>  |  **Findings**: <count>
+**Date**: <date>
+**Files scanned**: <count>
+**Findings**: <count>
 **Plays evaluated**: <count>
 
 ## Executive Summary
+
 <2-3 sentences: top concerns, critical vs warning count, overall health assessment>
 
 ## Module Structure
+
 - Controllers: <count> | Services: <count> | Models: <count> | Jobs: <count>
 - External integrations: <list of upstream services>
 
+---
+
 ## P1 Critical Findings
 
-### Play NN: <Play Name> [CRITICAL | WARNING]
+### Play NN: <Play Name> — CRITICAL
 
-**1. path/to/file.rb:45** · `HIGH`
+#### 1. `path/to/file.rb:45` — HIGH
 
 ```ruby
-<actual code snippet, 1-3 lines>
+<actual code snippet>
 ```
 
-<description of the violation and why it matters>
+<1-2 sentence description of the violation and why it matters>
+
+#### 2. `path/to/file.rb:90` — MEDIUM
+
+```ruby
+<actual code snippet>
+```
+
+<1-2 sentence description>
+
+**Recommendation**
+
+<Specific remediation guidance with a golden-pattern code example from the play file.
+Show the corrected code so the developer can see exactly what to change.>
+
+```ruby
+<corrected code example>
+```
+
+**Play**: [<Play Name>](.github/agents/sre/plays/<filename>.md)
+
+### Play NN: <Next Play Name> — WARNING
+
+<same structure per play — omit plays that PASS>
 
 ---
 
-**2. path/to/file.rb:90** · `MEDIUM`
+## P2 Important Findings
 
-```ruby
-<actual code snippet, 1-3 lines>
-```
-
-<description of the violation>
-
----
-
-> **Play reference**: `plays/<filename>.md`
->
-> **Recommendation**: <specific remediation with golden pattern from play file>
-
-<repeat for each play with findings — omit plays that PASS>
-
-## P2 Important Findings (Standard + Full tiers)
 <same structure as P1>
 
+---
+
 ## Cross-Cutting Concerns (Full tier only)
+
 <silent failures, missing error handling, PII risks, inconsistent patterns>
+
+---
 
 ## Summary
 
-🔴 **CRITICAL** (<count> plays): <Play NN Name> · <Play NN Name>
-🟡 **WARNING** (<count> plays): <Play NN Name> · <Play NN Name>
-🟢 **PASS** (<count> plays): <comma-separated play numbers>
+**CRITICAL** (<count>): <Play NN Name>, <Play NN Name>
+**WARNING** (<count>): <Play NN Name>, <Play NN Name>
+**PASS** (<count>): <comma-separated play numbers>
 
 ## Top 3 Priority Remediations
-1. <most impactful fix with file:line reference>
+
+1. <most impactful fix with file:line>
 2. <second most impactful>
 3. <third most impactful>
 ```
