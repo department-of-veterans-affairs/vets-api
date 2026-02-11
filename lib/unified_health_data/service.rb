@@ -138,6 +138,7 @@ module UnifiedHealthData
         parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
+        clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
 
         parsed_notes
       end
@@ -439,11 +440,22 @@ module UnifiedHealthData
     def parse_single_note(record)
       return nil if record.blank?
 
-      clinical_notes_adapter.parse(record)
+      clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
     end
 
     def log_loinc_codes_enabled?
       Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    end
+
+    def clinical_notes_logging_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, @user)
+    end
+
+    def log_notes_response_count(total, returned)
+      Rails.logger.info(
+        "Clinical Notes response: total_doc_refs=#{total}, returned=#{returned}, filtered=#{total - returned}",
+        { service: 'unified_health_data' }
+      )
     end
 
     def increment_refill(count = 1)

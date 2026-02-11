@@ -41,7 +41,8 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
       prescription_source: 'VA',
       remarks: 'Patient should monitor blood sugar levels',
       cmop_ndc_number: '00093721410',
-      disp_status: 'Active'
+      disp_status: 'Active',
+      source_ehr: 'OH'
     )
   end
 
@@ -83,6 +84,9 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
 
       # disp_status
       expect(attributes[:disp_status]).to eq('Active')
+
+      # source_ehr
+      expect(attributes[:source_ehr]).to eq('OH')
     end
   end
 
