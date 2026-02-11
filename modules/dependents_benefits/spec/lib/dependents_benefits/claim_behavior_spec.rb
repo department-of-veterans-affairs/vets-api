@@ -94,9 +94,19 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
   end
 
   describe '#to_pdf' do
-    it 'does not fail' do
-      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(child_claim, nil).and_call_original
-      expect { child_claim.to_pdf }.not_to raise_error
+    it 'works with legacy string filename argument' do
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, 'custom_filename', {})
+      child_claim.to_pdf('custom_filename')
+    end
+
+    it 'works with keyword arguments and uses claim ID as filename' do
+      student_data = { name: 'Test Student' }
+
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, child_claim.id.to_s, hash_including(form_id: '21-674', student: student_data))
+
+      child_claim.to_pdf(form_id: '21-674', student: student_data)
     end
 
     context 'when veteran_information is missing' do
@@ -118,7 +128,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       end
 
       it 'builds the pdf correctly' do
-        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil).and_call_original
+        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil,
+                                                                                {}).and_call_original
         expect { student_claim.to_pdf }.not_to raise_error
       end
 

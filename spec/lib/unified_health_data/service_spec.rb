@@ -897,9 +897,12 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'excludes notes with blank or invalid dates and logs a warning' do
-        # Disable LOINC logging to simplify test
+        # Disable logging to simplify test
         allow(Flipper).to receive(:enabled?)
           .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
           .and_return(false)
 
         # Create mock notes with various date conditions
@@ -990,6 +993,9 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
         allow(Rails.logger).to receive(:info)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .and_return(false)
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
@@ -1012,6 +1018,40 @@ describe UnifiedHealthData::Service, type: :service do
       it 'does not log LOINC code distribution when flipper disabled' do
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
                                                   user).and_return(false)
+
+        expect(Rails.logger).not_to receive(:info)
+        service.get_care_summaries_and_notes
+      end
+    end
+
+    context 'clinical notes logging' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, user)
+          .and_return(false)
+      end
+
+      it 'logs notes response count when flipper enabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .and_return(true)
+
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          /Clinical Notes response: total_doc_refs=\d+, returned=\d+, filtered=\d+/,
+          { service: 'unified_health_data' }
+        )
+      end
+
+      it 'does not log notes response count when flipper disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
         service.get_care_summaries_and_notes

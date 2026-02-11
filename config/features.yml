@@ -134,6 +134,9 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
+  bio_submission_status_report_enabled:
+    actor_type: user
+    description: Enables periodic job that generates CSV reports tracking BIO form submission status through Lighthouse Benefits Intake and Central Mail Processing
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
@@ -358,6 +361,9 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_ignore_recent_missing_statuses:
+    actor_type: user
+    description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -1391,6 +1397,10 @@ features:
   mhv_vaccine_uhd_name_logging:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
@@ -2665,6 +2675,9 @@ features:
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
+  va_notify_v2_in_progress_form_reminder:
+    actor_type: user
+    description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
   va_notify_delivery_status_update_job:
     actor_type: user
     description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications
@@ -2904,3 +2917,6 @@ features:
   vets_model_nested_array:
     actor_type: user
     description: If enabled, allows Vets::Model to serialize nested array of objects
+  discover_your_benefits_results_page_update:
+    actor_type: cookie_id
+    description: "If enabled, displays new results page features and designs"
