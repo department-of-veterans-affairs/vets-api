@@ -42,8 +42,7 @@ class AccreditedIndividual < ApplicationRecord
   scope :representatives, -> { where(individual_type: 'representative') }
   scope :claims_agents, -> { where(individual_type: 'claims_agent') }
   scope :with_location, lambda {
-    where.not(location: nil)
-         .or(where('lat IS NOT NULL AND "long" IS NOT NULL'))
+    where('location IS NOT NULL OR (lat IS NOT NULL AND "long" IS NOT NULL)')
   }
 
   scope :without_location, lambda {
@@ -168,7 +167,7 @@ class AccreditedIndividual < ApplicationRecord
 
   # City/state-only OR zip-only
   def partial_address?
-    return false unless has_location?
+    return false unless location?
     return false if full_address?
 
     city_state_only = city.present? && state_code.present? && address_line1.blank? && zip_code.blank?
@@ -178,7 +177,7 @@ class AccreditedIndividual < ApplicationRecord
   end
 
   def no_location?
-    !has_location?
+    !location?
   end
 
   # Optional: one method that gives the 3-way status cleanly
