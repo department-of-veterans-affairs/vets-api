@@ -13,6 +13,8 @@ module DependentsBenefits
   # Tracks submission status and handles failures during the enqueueing process.
   #
   class ClaimProcessor
+    include DependentsBenefits::DependentsHelper
+
     attr_reader :parent_claim_id
 
     # Initializes a new ClaimProcessor
@@ -230,13 +232,5 @@ module DependentsBenefits
     def child_claims
       @child_claims ||= collect_child_claims
     end
-
-    # Returns the component name for monitoring/logging
-    #
-    # Used as the default component tag value in monitor event tracking.
-    # Returns the fully qualified class name for better log filtering and debugging.
-    #
-    # @return [String] The fully qualified class name
-    def component = self.class.name
   end
 end

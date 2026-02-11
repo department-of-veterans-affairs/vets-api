@@ -11,6 +11,7 @@ module DependentsBenefits
   # and handles VA Profile email lookup with fallback to form email.
   #
   class UserData
+    include DependentsBenefits::DependentsHelper
     attr_reader :first_name,
                 :middle_name,
                 :last_name,
@@ -161,13 +162,5 @@ module DependentsBenefits
     def monitor
       @monitor ||= DependentsBenefits::Monitor.new
     end
-
-    # Returns the component name for monitoring/logging
-    #
-    # Used as the default component tag value in monitor event tracking.
-    # Returns the fully qualified class name for better log filtering and debugging.
-    #
-    # @return [String] The fully qualified class name
-    def component = self.class.name
   end
 end

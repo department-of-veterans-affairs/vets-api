@@ -7,6 +7,7 @@ module DependentsBenefits
     #
     module FormValidation
       extend ActiveSupport::Concern
+      include DependentsBenefits::DependentsHelper
 
       # @see ::SavedClaim#form_schema
       def form_schema(form_id)
@@ -86,10 +87,6 @@ module DependentsBenefits
           data
         end
       end
-
-      ##
-      # Returns the component name for monitoring/logging
-      def component = self.class.name
     end
   end
 end
