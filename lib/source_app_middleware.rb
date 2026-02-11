@@ -30,6 +30,7 @@ class SourceAppMiddleware
     '1010cg-application-caregiver-assistance',
     '10182-board-appeal',
     '10203-edu-benefits',
+    '10297-edu-benefits',
     '10206-pa',
     '10207-pp',
     '10210-lay-witness-statement',
