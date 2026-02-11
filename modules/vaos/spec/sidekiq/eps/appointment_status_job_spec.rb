@@ -29,6 +29,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
     allow(Eps::AppointmentStatusEmailJob).to receive(:perform_async)
+    allow(PersonalInformationLog).to receive(:create)
   end
 
   after do
@@ -85,6 +86,19 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
           user.uuid,
           appointment_id_last4,
           Eps::AppointmentStatusJob::ERROR_MESSAGE
+        )
+        worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
+      end
+
+      it 'logs PII on max retry failure' do
+        expect(PersonalInformationLog).to receive(:create).with(
+          error_class: 'eps_appointment_status_confirmation_failed',
+          data: {
+            appointment_id:,
+            user_uuid: user.uuid,
+            last_state: 'pending',
+            last_status: 'pending'
+          }
         )
         worker.perform(user.uuid, appointment_id_last4, Eps::AppointmentStatusJob::MAX_RETRIES)
       end
