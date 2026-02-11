@@ -93,6 +93,7 @@ class AccreditedIndividual < ApplicationRecord
     where(query, params)
   end
 
+  # rubocop:disable Metrics/MethodLength
   def self.address_quality_counts
     no_location_relation = without_location
     with_location_relation = with_location
@@ -100,7 +101,7 @@ class AccreditedIndividual < ApplicationRecord
     partial_zip_only_relation = with_location_relation.with_zip_only
     partial_city_state_only_relation = with_location_relation.with_city_state_only
 
-    sql = <<~SQL
+    sql = <<~SQL.squish
       SELECT
         (SELECT COUNT(*) FROM (#{no_location_relation.select('1').to_sql}) AS no_loc_sub) AS no_location,
         (SELECT COUNT(*) FROM (#{full_relation.select('1').to_sql}) AS full_sub) AS full_count,
@@ -121,6 +122,7 @@ class AccreditedIndividual < ApplicationRecord
       h[:other] = row[:with_location] - h[:full] - h[:partial]
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   #
   # Find all [AccreditedIndividuals] with a full name with at least the threshold value of
