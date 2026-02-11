@@ -221,7 +221,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
           {
             total: 10,
             page: 1,
-            per_page: 50,
+            per_page: 10,
             copay_summary: {
               total_current_balance: 757.27,
               copay_bill_count: 10,
