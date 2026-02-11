@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../support/helpers/rails_helper'
+require 'sm/client'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
   include SchemaMatchers
@@ -32,6 +33,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
@@ -139,29 +141,27 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
     end
 
-    context 'when there are cached triage teams' do
+    context 'when stubbing get_all_triage_teams' do
       let(:params) { { useCache: true } }
 
       before do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'all_triage_teams.json')
-        data = Common::Collection.new(AllTriageTeams, data: JSON.parse(File.read(path)))
-        AllTriageTeams.set_cached("#{user.uuid}-all-triage-teams", data)
+        data = Vets::Collection.new(JSON.parse(File.read(path)), AllTriageTeams)
+        allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(data)
       end
 
-      it 'retrieve cached triage teams rather than hitting the service' do
+      it 'retrieves triage teams from the stubbed client' do
         allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
           care_systems_stub
         )
-        expect do
-          get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-          parsed_response_contents = response.parsed_body['data']
-          triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
-          expect(triage_team.dig('attributes', 'name')).to eq('589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON')
-          expect(triage_team['type']).to eq('all_triage_teams')
-          expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
-        end.to trigger_statsd_increment('mhv.sm.api.client.cache.hit', times: 1)
+        get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        parsed_response_contents = response.parsed_body['data']
+        triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
+        expect(triage_team.dig('attributes', 'name')).to eq('589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON')
+        expect(triage_team['type']).to eq('all_triage_teams')
+        expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
       end
     end
 
@@ -171,8 +171,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       before do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures',
                                'all_triage_teams_with_duplicates.json')
-        data = Common::Collection.new(AllTriageTeams, data: JSON.parse(File.read(path)))
-        AllTriageTeams.set_cached("#{user.uuid}-all-triage-teams", data)
+        data = Vets::Collection.new(JSON.parse(File.read(path)), AllTriageTeams)
+        allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(data)
       end
 
       it 'returns a list of the name and station number for each unique care system in meta with 612 off' do
