@@ -210,10 +210,9 @@ module SurvivorsBenefits
         form_data['nationalGuardActivationDate'] = split_date(form_data['nationalGuardActivationDate'])
 
         unit_name_and_address = expand_unit_info_lines(form_data['unitNameAndAddress'])
-
-        form_data['unitNameAndAddressLineOne'] = split_unit_into_lines(form_data['unitNameAndAddress'])
-        form_data['unitNameAndAddressLineOne'] = split_unit_into_lines(form_data['unitNameAndAddress'])
-        form_data['unitNameAndAddressLineOne'] = split_unit_into_lines(form_data['unitNameAndAddress'])
+        form_data['unitNameAndAddressLineOne'] = unit_name_and_address['line_one']
+        form_data['unitNameAndAddressLineTwo'] = unit_name_and_address['line_two']
+        form_data['unitNameAndAddressLineThree'] = unit_name_and_address['line_three']
 
         unit_phone = form_data['unitPhone']
         unit_phone = unit_phone['contact'] if unit_phone.is_a?(Hash)
@@ -259,16 +258,6 @@ module SurvivorsBenefits
             'line_three' => ''
           }
         end
-      end
-
-      def split_unit_into_lines(unit_name_and_address)
-        unit_name_and_address ||= ''
-        parts = unit_name_and_address.scan(/.{1,20}/)
-        {
-          'line_one' => parts[0],
-          'line_two' => parts[1],
-          'line_three' => parts[2]
-        }
       end
     end
   end
