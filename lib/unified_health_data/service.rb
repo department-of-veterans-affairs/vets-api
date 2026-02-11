@@ -139,6 +139,8 @@ module UnifiedHealthData
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
 
+        log_notes_response_count(doc_ref_records.size, parsed_notes.size)
+
         parsed_notes
       end
     end
@@ -444,6 +446,13 @@ module UnifiedHealthData
 
     def log_loinc_codes_enabled?
       Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    end
+
+    def log_notes_response_count(total, returned)
+      Rails.logger.info(
+        "Clinical Notes response: total_doc_refs=#{total}, returned=#{returned}, filtered=#{total - returned}",
+        { service: 'unified_health_data' }
+      )
     end
 
     def increment_refill(count = 1)
