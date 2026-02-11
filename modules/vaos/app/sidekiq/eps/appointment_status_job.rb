@@ -108,8 +108,8 @@ module Eps
         "#{CC_APPOINTMENTS}: #{self.class} appointment status response",
         {
           appointment_id_last4: @appointment_id_last4,
-          state: response.state,
-          appointment_details_status: response.appointment_details&.status,
+          state: response&.state,
+          appointment_details_status: response&.appointment_details&.status,
           retry_count:
         }
       )
@@ -180,7 +180,7 @@ module Eps
     # @return [Boolean] true if the appointment is finished (completed or booked), false otherwise
     #
     def appointment_finished?(response)
-      response.appointment_details&.status&.downcase == 'booked'
+      response&.appointment_details&.status&.downcase == 'booked'
     end
 
     ##
