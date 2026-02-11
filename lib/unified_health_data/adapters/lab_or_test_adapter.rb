@@ -82,23 +82,24 @@ module UnifiedHealthData
       end
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
-        date_completed_value, facility_timezone = resolve_date_and_timezone(record['resource'], contained)
+        resource = record['resource']
+        date_completed_value, facility_timezone = resolve_date_and_timezone(resource, contained)
 
         UnifiedHealthData::LabOrTest.new(
-          id: record['resource']['id'],
-          type: record['resource']['resourceType'],
+          id: resource['id'],
+          type: resource['resourceType'],
           display: format_display(record),
           test_code: code,
           test_code_display: get_test_code_display(record, code),
           date_completed: date_completed_value,
           sort_date: normalize_date_for_sorting(date_completed_value),
-          sample_tested: get_sample_tested(record['resource'], contained),
+          sample_tested: get_sample_tested(resource, contained),
           encoded_data:,
           location: get_location(record),
           ordered_by: get_ordered_by(record),
           observations:,
-          body_site: get_body_site(record['resource'], contained),
-          status: record['resource']['status'],
+          body_site: get_body_site(resource, contained),
+          status: resource['status'],
           source: record['source'],
           facility_timezone:
         )
@@ -468,12 +469,12 @@ module UnifiedHealthData
         identifiers = practitioner['identifier']
 
         # Priority 1: SN=XXX format (most explicit)
-        sn_identifier = identifiers.find { |i| i['value'].present? && i['value'].start_with?('SN=') }
+        sn_identifier = identifiers.find { |i| (val = i['value']).present? && val.start_with?('SN=') }
         return sn_identifier['value'].sub('SN=', '') if sn_identifier
 
         # Priority 2: Station number with "OTHER" type (3 digits, optionally with letter suffix like 668A, 668GC)
         plain_identifier = identifiers.find do |i|
-          i['value'].present? && i.dig('type', 'text') == 'OTHER' && i['value'].match?(/^\d{3}[A-Z]{0,2}$/i)
+          (val = i['value']).present? && i.dig('type', 'text') == 'OTHER' && val.match?(/^\d{3}[A-Z]{0,2}$/i)
         end
         plain_identifier&.dig('value')
       end

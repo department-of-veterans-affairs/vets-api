@@ -87,14 +87,15 @@ module UnifiedHealthData
     end
 
     def parse_response(response)
-      return nil if response.body.blank?
+      body = response.body
+      return nil if body.blank?
 
-      if response.body.is_a?(Hash)
-        response.body.with_indifferent_access
-      elsif response.body.is_a?(String)
-        JSON.parse(response.body).with_indifferent_access
+      if body.is_a?(Hash)
+        body.with_indifferent_access
+      elsif body.is_a?(String)
+        JSON.parse(body).with_indifferent_access
       else
-        response.body
+        body
       end
     rescue JSON::ParserError => e
       Rails.logger.warn(
