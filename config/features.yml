@@ -1392,6 +1392,10 @@ features:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for OH patients
