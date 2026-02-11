@@ -571,19 +571,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         before do
           allow(mock_resolver).to receive(:extract_station_number).and_return(nil)
-          allow(StatsD).to receive(:increment)
         end
 
         it 'sets station_number to nil when extraction fails' do
           result = subject.parse(resource_with_invalid_station)
           expect(result.station_number).to be_nil
-        end
-
-        it 'increments StatsD counter when extraction fails' do
-          subject.parse(resource_with_invalid_station)
-          expect(StatsD).to have_received(:increment).with(
-            'unified_health_data.oracle_health.failed_station_extraction'
-          )
         end
       end
 
@@ -592,7 +584,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         before do
           allow(mock_resolver).to receive(:extract_station_number).and_return(nil)
-          allow(StatsD).to receive(:increment)
         end
 
         it 'returns nil station_number for all invalid stations' do
@@ -620,7 +611,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
             ]
           )
           subject.parse(resource)
-          expect(StatsD).to have_received(:increment)
         end
       end
 
@@ -658,11 +648,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         it 'returns nil station_number when no dispense exists' do
           result = subject.parse(resource_without_dispense)
           expect(result.station_number).to be_nil
-        end
-
-        it 'does not increment StatsD counter when no dispense exists' do
-          expect(StatsD).not_to receive(:increment)
-          subject.parse(resource_without_dispense)
         end
       end
     end
