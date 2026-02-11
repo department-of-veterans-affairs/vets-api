@@ -312,6 +312,8 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
         double(validate: double(valid_pdf?: true, errors: []))
       )
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_correct_form)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_pdf_integrity)
+
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_pdf_page_count)
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_unlocked_pdf)
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_max_width)
@@ -331,7 +333,6 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
     it 'raises PersistenceError with validation messages when save! fails' do
       attachment.errors.add(:base, 'database unavailable')
       allow(attachment).to receive(:save!).and_raise(ActiveRecord::RecordInvalid.new(attachment))
-
       expect { processor.process! }
         .to raise_error(SimpleFormsApi::ScannedFormProcessor::PersistenceError) do |error|
           expect(error.errors.first[:detail]).to eq('database unavailable')
@@ -345,7 +346,7 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       expect { processor.process! }
         .to raise_error(SimpleFormsApi::ScannedFormProcessor::PersistenceError) do |error|
           expect(error.errors.first[:detail]).to include('save your file')
-        end
+      end
     end
   end
 
