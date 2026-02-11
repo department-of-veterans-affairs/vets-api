@@ -102,18 +102,18 @@ class AccreditedIndividual < ApplicationRecord
 
     sql = <<~SQL
       SELECT
-        (SELECT COUNT(*) FROM (#{no_location_relation.select('1').to_sql}) AS no_location) AS no_location,
-        (SELECT COUNT(*) FROM (#{full_relation.select('1').to_sql}) AS full,
-        (SELECT COUNT(*) FROM (#{partial_zip_only_relation.select('1').to_sql}) AS partial_zip_only,
-        (SELECT COUNT(*) FROM (#{partial_city_state_only_relation.select('1').to_sql}) AS partial_city_state_only,
-        (SELECT COUNT(*) FROM (#{with_location_relation.select('1').to_sql}) AS with_location
+        (SELECT COUNT(*) FROM (#{no_location_relation.select('1').to_sql}) AS no_loc_sub) AS no_location,
+        (SELECT COUNT(*) FROM (#{full_relation.select('1').to_sql}) AS full_sub) AS full_count,
+        (SELECT COUNT(*) FROM (#{partial_zip_only_relation.select('1').to_sql}) AS zip_sub) AS partial_zip_only,
+        (SELECT COUNT(*) FROM (#{partial_city_state_only_relation.select('1').to_sql}) AS city_sub) AS partial_city_state_only,
+        (SELECT COUNT(*) FROM (#{with_location_relation.select('1').to_sql}) AS with_loc_sub) AS with_location
     SQL
 
     row = connection.exec_query(sql).first.symbolize_keys
 
     {
       no_location: row[:no_location],
-      full: row[:full],
+      full: row[:full_count],
       partial_zip_only: row[:partial_zip_only],
       partial_city_state_only: row[:partial_city_state_only]
     }.tap do |h|
