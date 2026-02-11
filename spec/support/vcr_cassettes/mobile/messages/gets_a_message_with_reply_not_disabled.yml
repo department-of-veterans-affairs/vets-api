@@ -35,7 +35,7 @@ http_interactions:
       encoding: UTF-8
       string: '{"id":573059,"category":"OTHER","subject":"Quote test: &ldquo;test&rdquo;","body":"Einstein once said: &ldquo;Profound quote contents here&rdquo;. \n\nThat was supposed to show a regular quote but it didn&rsquo;t display like it did in the compose form.\n\nLet&rsquo;s try out more symbols here:\n\nSingle quote: &lsquo; contents&rsquo;\nQuestion mark: ?\nColon: :\nDash: -\nLess than: &lt;\nGreat then: &gt;\nEquals: =\nAsterisk: *\nAnd symbol: &amp;\nDollar symbol: $\nDivide symbol: %\nAt symbol: @\nParentheses: ( contents )\nBrackets: [ contents ]\nCurly braces: { contents }\nSemicolon: ;\nSlash: /\nPlus: +\nUp symbol: ^\nPound key: #\nExclamation: !","attachment":true,"attachments":{"attachment":[{"id":674847,"name":"sm_file1.jpg","attachmentSize":210000},{"id":674848,"name":"sm_file2.jpg","attachmentSize":210000},{"id":674849,"name":"sm_file3.jpg","attachmentSize":210000},{"id":674850,"name":"sm_file4.jpg","attachmentSize":210000}]},"sentDate":"Mon,
         11 Apr 2016 15:49:39 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":345468,"recipientName":"WORKLOAD
-        CAPTURE_Mohammad","readReceipt":"READ", "isOhMessage":"false", "replyDisabled": true}'
+        CAPTURE_Mohammad","readReceipt":"READ", "isOhMessage":"false", "replyDisabled": false}'
     http_version: 
   recorded_at: Tue, 31 Jan 2017 21:30:45 GMT
 recorded_with: VCR 3.0.3
