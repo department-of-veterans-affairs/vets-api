@@ -73,7 +73,7 @@ class SavedClaim::Form214192 < SavedClaim
       fileNumber: parsed_form.dig('veteranInformation', 'vaFileNumber') || parsed_form.dig('veteranInformation', 'ssn'),
       zipCode: zip_code_for_metadata,
       businessLine: business_line,
-      docType: "StructuredData::#{FORM}" }
+      docType: "StructuredData:#{FORM}" }
   end
 
   # Convert form data to IBM MMS VBA Data Dictionary format

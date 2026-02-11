@@ -289,9 +289,9 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         job.instance_variable_set(:@claim, form214192_claim)
       end
 
-      it 'uses the docType from metadata with StructuredData:: prefix' do
+      it 'uses the docType from metadata with StructuredData: prefix' do
         metadata = job.send(:generate_metadata)
-        expect(metadata['docType']).to eq('StructuredData::21-4192')
+        expect(metadata['docType']).to eq('StructuredData:21-4192')
       end
     end
 

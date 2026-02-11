@@ -221,7 +221,7 @@ RSpec.describe SavedClaim::Form214192, type: :model do
           fileNumber: '987654321',
           zipCode: '54321',
           businessLine: 'CMP',
-          docType: 'StructuredData::21-4192'
+          docType: 'StructuredData:21-4192'
         )
       end
     end
