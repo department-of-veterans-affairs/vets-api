@@ -48,9 +48,10 @@ module UnifiedHealthData
           return nil
         end
 
-        return nil unless get_note(record)
+        note_content = get_note(record)
+        return nil unless note_content
 
-        UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record))
+        UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record, note_content))
       end
 
       # The AVS is a DocumentReference FHIR type and specific type of note
@@ -112,7 +113,7 @@ module UnifiedHealthData
 
       private
 
-      def build_clinical_note_attributes(record)
+      def build_clinical_note_attributes(record, note_content)
         date_value = record['date']
 
         {
@@ -128,7 +129,7 @@ module UnifiedHealthData
           location: extract_location(record),
           admission_date: record['context']&.dig('period', 'start') || nil,
           discharge_date: record['context']&.dig('period', 'end') || nil,
-          note: get_note(record)
+          note: note_content
         }
       end
 
