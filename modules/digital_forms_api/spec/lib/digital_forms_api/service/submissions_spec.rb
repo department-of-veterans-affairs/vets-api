@@ -9,7 +9,9 @@ require_relative 'shared/service'
 RSpec.describe DigitalFormsApi::Service::Submissions do
   let(:service) { described_class.new }
 
-  let(:payload) { 'TEST' }
+  let(:payload) do
+    { data: 'TEST' }
+  end
   let(:metadata) do
     {
       formId: '99t-12345',

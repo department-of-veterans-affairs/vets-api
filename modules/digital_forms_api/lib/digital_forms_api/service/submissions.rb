@@ -17,12 +17,14 @@ module DigitalFormsApi
       # @option metadata [String] :claimLabel the claim label; required
       # @param dry_run [Boolean] perform a dry run in which no action is taken except validation by the endpoint
       def submit(payload, metadata, dry_run: false)
-        metadata[:claimantId] ||= metadata[:veteranId]
-        metadata[:claimantId] = { identifierType: 'PARTICIPANTID', value: metadata[:claimantId] }
-        metadata[:veteranId] = { identifierType: 'PARTICIPANTID', value: metadata[:veteranId] }
+        transformed = {
+          claimantId: { identifierType: 'PARTICIPANTID', value: metadata[:claimantId] || metadata[:veteranId] },
+          veteranId: { identifierType: 'PARTICIPANTID', value: metadata[:veteranId] },
+          payload:
+        }
 
         # TODO: validate the request structure (future)
-        request = { envelope: metadata.merge({ payload: }) }
+        request = { envelope: metadata.merge(transformed) }
 
         headers = {}
 
