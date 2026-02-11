@@ -11,7 +11,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Service do
     context 'when the request is successful' do
       it 'returns the form data from the enrollment system' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' }}) do
           response = subject.get_form_by_icn(icn:, tax_year:)
 
           expect(response).to eq(
