@@ -12,6 +12,18 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
   before do
     sign_in_as(current_user)
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
+
+    # Stub Settings.mhv.facility_range for FacilityNameResolver validation
+    # Station 668 (Oracle Health) is within range 358-758
+    facility_range_config = { 'min' => 358, 'max' => 758 }
+    allow(Settings.mhv).to receive(:facility_range).and_return(facility_range_config)
+
+    # Stub HealthFacility to validate station numbers used in tests
+    allow(HealthFacility).to receive(:exists?).and_return(false)
+    allow(HealthFacility).to receive(:exists?).with(unique_id: '668').and_return(true)
+    allow(HealthFacility).to receive(:exists?).with(unique_id: '556').and_return(true)
+    allow(HealthFacility).to receive(:exists?).with(unique_id: '570').and_return(true)
+    allow(HealthFacility).to receive(:exists?).with(unique_id: '989').and_return(true)
   end
 
   describe 'POST /my_health/v2/prescriptions/refill' do

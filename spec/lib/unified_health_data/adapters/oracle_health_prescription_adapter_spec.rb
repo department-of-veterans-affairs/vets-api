@@ -521,5 +521,156 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.is_trackable).to be false
       end
     end
+
+    # Add this context block to the existing spec file
+
+    describe '#parse' do
+      # ... existing tests ...
+
+      context 'with station number extraction and validation' do
+        let(:mock_resolver) { instance_double(UnifiedHealthData::Adapters::FacilityNameResolver) }
+
+        before do
+          allow(UnifiedHealthData::Adapters::FacilityNameResolver).to receive(:new).and_return(mock_resolver)
+          allow(mock_resolver).to receive(:resolve_facility_name).and_return('Test Facility')
+        end
+
+        context 'with valid station number' do
+          let(:resource_with_valid_station) do
+            base_fhir_resource.merge(
+              'contained' => [
+                {
+                  'resourceType' => 'MedicationDispense',
+                  'location' => { 'display' => '556-RX-MAIN-OP' }
+                }
+              ]
+            )
+          end
+
+          before do
+            allow(mock_resolver).to receive(:extract_station_number).and_return('556')
+          end
+
+          it 'extracts and sets the station number' do
+            result = subject.parse(resource_with_valid_station)
+            expect(result.station_number).to eq('556')
+          end
+
+          it 'calls FacilityNameResolver to extract station number' do
+            subject.parse(resource_with_valid_station)
+            expect(mock_resolver).to have_received(:extract_station_number)
+          end
+        end
+
+        context 'with invalid station number' do
+          let(:resource_with_invalid_station) do
+            base_fhir_resource.merge(
+              'contained' => [
+                {
+                  'resourceType' => 'MedicationDispense',
+                  'location' => { 'display' => '005-SOME-LOCATION' }
+                }
+              ]
+            )
+          end
+
+          before do
+            allow(mock_resolver).to receive(:extract_station_number).and_return(nil)
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'sets station_number to nil when extraction fails' do
+            result = subject.parse(resource_with_invalid_station)
+            expect(result.station_number).to be_nil
+          end
+
+          it 'increments StatsD counter when extraction fails' do
+            subject.parse(resource_with_invalid_station)
+            expect(StatsD).to have_received(:increment).with(
+              'unified_health_data.oracle_health.failed_station_extraction'
+            )
+          end
+        end
+
+        context 'with multiple invalid station numbers from production errors' do
+          let(:invalid_stations) { %w[080 000 004 026 070 003] }
+
+          before do
+            allow(mock_resolver).to receive(:extract_station_number).and_return(nil)
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'returns nil station_number for all invalid stations' do
+            invalid_stations.each do |station|
+              resource = base_fhir_resource.merge(
+                'contained' => [
+                  {
+                    'resourceType' => 'MedicationDispense',
+                    'location' => { 'display' => "#{station}-RX-MAIN" }
+                  }
+                ]
+              )
+              result = subject.parse(resource)
+              expect(result.station_number).to be_nil
+            end
+          end
+
+          it 'tracks failed extractions' do
+            resource = base_fhir_resource.merge(
+              'contained' => [
+                {
+                  'resourceType' => 'MedicationDispense',
+                  'location' => { 'display' => '080-RX-MAIN' }
+                }
+              ]
+            )
+            subject.parse(resource)
+            expect(StatsD).to have_received(:increment)
+          end
+        end
+
+        context 'with extended station identifier' do
+          let(:resource_with_extended_station) do
+            base_fhir_resource.merge(
+              'contained' => [
+                {
+                  'resourceType' => 'MedicationDispense',
+                  'location' => { 'display' => '648A4-PHARMACY' }
+                }
+              ]
+            )
+          end
+
+          before do
+            allow(mock_resolver).to receive(:extract_station_number).and_return('648A4')
+          end
+
+          it 'extracts extended station identifiers' do
+            result = subject.parse(resource_with_extended_station)
+            expect(result.station_number).to eq('648A4')
+          end
+        end
+
+        context 'without MedicationDispense' do
+          let(:resource_without_dispense) do
+            base_fhir_resource.merge('contained' => [])
+          end
+
+          before do
+            allow(mock_resolver).to receive(:extract_station_number).and_return(nil)
+          end
+
+          it 'returns nil station_number when no dispense exists' do
+            result = subject.parse(resource_without_dispense)
+            expect(result.station_number).to be_nil
+          end
+
+          it 'does not increment StatsD counter when no dispense exists' do
+            expect(StatsD).not_to receive(:increment)
+            subject.parse(resource_without_dispense)
+          end
+        end
+      end
+    end
   end
 end
