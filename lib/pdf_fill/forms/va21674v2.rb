@@ -943,6 +943,7 @@ module PdfFill
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
+        expand_no_ssn_cases if Flipper.enabled?(:va_dependents_no_ssn)
         FORMATTER.handle_overflows(@form_data)
 
         @form_data
@@ -1014,6 +1015,25 @@ module PdfFill
         FORMATTER.format_checkboxes(dependents_application)
       end
       # rubocop:enable Metrics/MethodLength
+
+      def expand_no_ssn_cases
+        # We can assume 1 student in the array since this filler
+        # gets called on every student in the students array within the saved claim
+        no_ssn = @form_data
+                 .dig('dependents_application', 'student_information', 0, 'no_ssn')
+        no_ssn_reason = @form_data
+                        .dig('dependents_application', 'student_information', 0, 'no_ssn_reason')
+
+        if no_ssn
+          @form_data['dependents_application']['student_information'][0]['ssn'] = {
+            'first' => 'See',
+            'second' => 'ad',
+            'third' => "d'l "
+          }
+          reason_text = "5. Student no SSN reason: #{no_ssn_reason}"
+          @form_data['dependents_application']['student_information'][0]['remarks'] = reason_text
+        end
+      end
     end
   end
 end
