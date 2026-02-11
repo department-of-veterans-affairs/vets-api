@@ -22,6 +22,7 @@ require 'sidekiq/monitored_worker'
 module Form1010cg
   class SubmissionJob
     STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
+    API_KEY_PATH = 'Settings.vanotify.services.health_apps_1010.api_key'
 
     DD_ZSF_TAGS = [
       'service:caregiver-application',
@@ -105,13 +106,23 @@ module Form1010cg
         api_key = Settings.vanotify.services.health_apps_1010.api_key
         salutation = first_name ? "Dear #{first_name}," : ''
 
-        VANotify::EmailJob.perform_async(
-          email,
-          template_id,
-          { 'salutation' => salutation },
-          api_key,
-          CALLBACK_METADATA
-        )
+        if Flipper.enabled?(:va_notify_v2_form1010cg_submission)
+          VANotify::V2::QueueEmailJob.enqueue(
+            email,
+            template_id,
+            { 'salutation' => salutation },
+            API_KEY_PATH,
+            CALLBACK_METADATA
+          )
+        else
+          VANotify::EmailJob.perform_async(
+            email,
+            template_id,
+            { 'salutation' => salutation },
+            api_key,
+            CALLBACK_METADATA
+          )
+        end
 
         StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"])
       end

@@ -103,6 +103,11 @@ RSpec.describe Form1010cg::SubmissionJob do
     context 'when the parsed form has an email' do
       let(:form) { form_with_email }
 
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010cg_submission).and_return(false)
+      end
+
       let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
       let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email }
       let(:template_params) do
@@ -137,6 +142,43 @@ RSpec.describe Form1010cg::SubmissionJob do
           )
         end
       end
+
+      context 'when va_notify_v2_form1010cg_submission is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010cg_submission).and_return(true)
+        end
+
+        it 'increments StatsD and sends the failure email via V2::QueueEmailJob' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            allow(VANotify::V2::QueueEmailJob).to receive(:enqueue)
+
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+
+            expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(
+              email_address,
+              template_id,
+              { 'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')}," },
+              'Settings.vanotify.services.health_apps_1010.api_key',
+              {
+                callback_metadata: {
+                  notification_type: 'error',
+                  form_number: claim.form_id,
+                  statsd_tags: zsf_tags
+                }
+              }
+            )
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"]
+            )
+          end
+        end
+      end
     end
   end
 
@@ -167,6 +209,8 @@ RSpec.describe Form1010cg::SubmissionJob do
         allow(Process).to receive(:clock_gettime).and_call_original
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010cg_submission).and_return(false)
       end
 
       context 'form has email' do
@@ -195,6 +239,50 @@ RSpec.describe Form1010cg::SubmissionJob do
           )
 
           job.perform(claim.id)
+        end
+
+        context 'when va_notify_v2_form1010cg_submission is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010cg_submission).and_return(true)
+          end
+
+          it 'sends failure email via V2::QueueEmailJob' do
+            start_time = Time.current
+            expected_arguments = { context: :process_job, event: :failure, start_time: }
+            expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
+              .with(**expected_arguments)
+            allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+
+            expect_any_instance_of(Form1010cg::Service).to receive(
+              :process_claim_v2!
+            ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
+
+            expect(SavedClaim.exists?(id: claim.id)).to be(true)
+
+            expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(
+              email_address,
+              Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email,
+              { 'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')}," },
+              'Settings.vanotify.services.health_apps_1010.api_key',
+              {
+                callback_metadata: {
+                  notification_type: 'error',
+                  form_number: '10-10CG',
+                  statsd_tags: zsf_tags
+                }
+              }
+            )
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"]
+            )
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}record_parse_error",
+              tags: ["claim_id:#{claim.id}"]
+            )
+
+            job.perform(claim.id)
+          end
         end
       end
 
