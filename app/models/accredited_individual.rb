@@ -41,6 +41,34 @@ class AccreditedIndividual < ApplicationRecord
   scope :attorneys, -> { where(individual_type: 'attorney') }
   scope :representatives, -> { where(individual_type: 'representative') }
   scope :claims_agents, -> { where(individual_type: 'claims_agent') }
+  scope :with_location, lambda {
+    where.not(location: nil)
+         .or(where('lat IS NOT NULL AND "long" IS NOT NULL'))
+  }
+
+  scope :without_location, lambda {
+    where(location: nil)
+      .where('lat IS NULL OR "long" IS NULL')
+  }
+
+  scope :with_full_address, lambda {
+    where.not(address_line1: [nil, ''])
+         .where.not(city: [nil, ''])
+         .where.not(state_code: [nil, ''])
+         .where.not(zip_code: [nil, ''])
+  }
+
+  scope :with_city_state_only, lambda {
+    where.not(city: [nil, ''])
+         .where.not(state_code: [nil, ''])
+         .where(address_line1: [nil, ''])
+         .where(zip_code: [nil, ''])
+  }
+
+  scope :with_zip_only, lambda {
+    where.not(zip_code: [nil, ''])
+         .where(address_line1: [nil, ''], city: [nil, ''], state_code: [nil, ''])
+  }
 
   before_save :set_full_name
 
@@ -64,6 +92,18 @@ class AccreditedIndividual < ApplicationRecord
     params = { long:, lat:, max_distance: }
 
     where(query, params)
+  end
+
+  def self.address_quality_counts
+    {
+      no_location: without_location.count,
+      full: with_location.with_full_address.count,
+      partial_zip_only: with_location.with_zip_only.count,
+      partial_city_state_only: with_location.with_city_state_only.count
+    }.tap do |h|
+      h[:partial] = h[:partial_zip_only] + h[:partial_city_state_only]
+      h[:other] = with_location.count - h[:full] - h[:partial]
+    end
   end
 
   #
@@ -110,5 +150,43 @@ class AccreditedIndividual < ApplicationRecord
   rescue => e
     Rails.logger.error("Address validation failed for AccreditedIndividual #{id}: #{e.message}")
     false
+  end
+
+  # Address completeness / “returnable in FAR” helpers
+
+  def location?
+    location.present? || (lat.present? && long.present?)
+  end
+
+  def full_address?
+    location? &&
+      address_line1.present? &&
+      city.present? &&
+      state_code.present? &&
+      zip_code.present?
+  end
+
+  # City/state-only OR zip-only
+  def partial_address?
+    return false unless has_location?
+    return false if full_address?
+
+    city_state_only = city.present? && state_code.present? && address_line1.blank? && zip_code.blank?
+    zip_only = zip_code.present? && address_line1.blank? && city.blank? && state_code.blank?
+
+    city_state_only || zip_only
+  end
+
+  def no_location?
+    !has_location?
+  end
+
+  # Optional: one method that gives the 3-way status cleanly
+  def address_quality
+    return :none if no_location?
+    return :full if full_address?
+    return :partial if partial_address?
+
+    :unknown
   end
 end

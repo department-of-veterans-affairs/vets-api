@@ -87,6 +87,7 @@ module RepresentationManagement
 
       # Add deletion skip summary
       add_deletion_skip_summary
+      add_address_quality_report_by_individual_type
 
       @report << "\nJob Duration: #{duration}\n"
       log_to_slack_channel(@report)
@@ -392,7 +393,7 @@ module RepresentationManagement
       end
     rescue => e
       @processing_error_types << entity_type unless @processing_error_types.include?(entity_type)
-      log_error("Error updating #{entity_type}s: #{e.message}")
+      log_error("Error updating #{entity_type}: #{e.message}")
     end
 
     # Fetches VSO data from the GCLAWS API and updates database records
@@ -556,6 +557,30 @@ module RepresentationManagement
       skip_vso_deletion = @processing_error_types.include?(VSOS) ||
                           @count_mismatch_types.include?(:veteran_service_organizations)
       @vso_ids = AccreditedOrganization.all.pluck(:id) if skip_vso_deletion
+    end
+
+    def add_address_quality_report_by_individual_type
+      types = {
+        'Attorney' => AccreditedIndividual.attorneys,
+        'Claims agent' => AccreditedIndividual.claims_agents,
+        'Representative' => AccreditedIndividual.representatives
+      }
+
+      @report << "\n📍 **Address Quality by AccreditedIndividual Type:**\n"
+      @report << "```\n"
+
+      types.each do |label, scope|
+        counts = scope.address_quality_counts
+
+        @report << "#{label}:\n"
+        @report << "  Full (validated): #{counts[:full]}\n"
+        @report << "  Partial (zip-only): #{counts[:partial_zip_only]}\n"
+        @report << "  Partial (city/state-only): #{counts[:partial_city_state_only]}\n"
+        @report << "  No location: #{counts[:no_location]}\n"
+        @report << "  Other w/ location: #{counts[:other]}\n" if counts[:other].positive?
+      end
+
+      @report << "```\n"
     end
 
     # Validates processed counts for all entity types against expected counts
