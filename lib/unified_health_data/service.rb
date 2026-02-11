@@ -31,6 +31,11 @@ module UnifiedHealthData
         body = response.body
 
         combined_records = fetch_combined_records(body)
+
+        # Pre-warm facility cache to avoid N+1 API calls during parsing
+        # Each unique station number is fetched once and cached for 12 hours
+        prewarm_facility_cache(combined_records)
+
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
 
         # Log test code distribution
@@ -474,6 +479,20 @@ module UnifiedHealthData
 
     def lab_or_test_adapter
       @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new(@user)
+    end
+
+    # Pre-warms facility cache to avoid N+1 API calls during record parsing
+    # Extracts unique station numbers and fetches each facility once
+    def prewarm_facility_cache(records)
+      return if records.blank?
+
+      station_numbers = records.filter_map do |record|
+        contained = record.dig('resource', 'contained')
+        lab_or_test_adapter.send(:extract_station_number, contained)
+      end.uniq
+
+      facility_service = UnifiedHealthData::FacilityService.new
+      station_numbers.each { |sn| facility_service.get_facility_with_cache(sn) }
     end
 
     def clinical_notes_adapter

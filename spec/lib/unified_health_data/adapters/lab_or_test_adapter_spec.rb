@@ -2416,6 +2416,19 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       result = adapter.send(:convert_to_facility_time, invalid_date, 'America/New_York')
       expect(result).to eq(invalid_date)
     end
+
+    it 'returns original date and logs warning on invalid timezone' do
+      valid_date = '2023-11-06T18:32:00+00:00'
+      invalid_timezone = 'Invalid/Timezone'
+
+      expect(Rails.logger).to receive(:warn).with(
+        /Failed to convert time to facility timezone/,
+        hash_including(service: 'unified_health_data', timezone: invalid_timezone)
+      )
+
+      result = adapter.send(:convert_to_facility_time, valid_date, invalid_timezone)
+      expect(result).to eq(valid_date)
+    end
   end
 
   describe 'facility_timezone integration' do

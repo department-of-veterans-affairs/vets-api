@@ -517,7 +517,7 @@ module UnifiedHealthData
           parsed_time = DateTime.parse(date_string).to_time.utc
           local_time = parsed_time.in_time_zone(timezone)
           local_time.iso8601
-        rescue ArgumentError, TypeError => e
+        rescue ArgumentError, TypeError, TZInfo::InvalidTimezoneIdentifier, TZInfo::UnknownTimezone => e
           Rails.logger.warn(
             "Failed to convert time to facility timezone: #{e.message}",
             { service: 'unified_health_data', date_string:, timezone: }

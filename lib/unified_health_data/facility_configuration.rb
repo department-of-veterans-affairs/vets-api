@@ -4,7 +4,9 @@ require 'common/client/configuration/rest'
 
 module UnifiedHealthData
   class FacilityConfiguration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.va_mobile.timeout || 55
+    # Explicit type coercion for timeout - handles nil, strings, or unexpected types from Parameter Store
+    timeout_value = Settings.va_mobile.timeout.to_i
+    self.read_timeout = timeout_value.positive? ? timeout_value : 55
 
     def base_path
       Settings.va_mobile.url
@@ -27,7 +29,8 @@ module UnifiedHealthData
     end
 
     def mock_enabled?
-      Settings.mhv.uhd.mock
+      # Explicit boolean coercion - handles "false" strings, 0, or other unexpected types from Parameter Store
+      ActiveModel::Type::Boolean.new.cast(Settings.mhv.uhd.mock)
     end
   end
 end
