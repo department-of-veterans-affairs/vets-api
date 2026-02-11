@@ -27,7 +27,7 @@ http_interactions:
             "correlationId": "test-correlation-id",
             "timeStamp": "2025-11-26T12:00:00Z",
             "data": {
-              "agentSkills": []
+              "topics": []
             }
           }
     recorded_at: Thu, 26 Nov 2025 12:00:00 GMT

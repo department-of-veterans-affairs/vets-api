@@ -188,6 +188,7 @@ http_interactions:
                                     }
                                 ],
                                 "status": "current",
+                                "docStatus": "final",
                                 "type": {
                                     "coding": [
                                         {
@@ -264,6 +265,7 @@ http_interactions:
                             {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833586"}
                         ],
                         "status": "current",
+                        "docStatus": "final",
                         "type": {
                             "coding": [
                                 {
@@ -2979,7 +2981,7 @@ http_interactions:
                             "reference": "Patient/66415180",
                             "display": "SILVA, ALEXANDER RICARDO"
                         },
-                        "date": "2025-07-29T17:48:51Z",
+                        "date": "2025-05-15T17:48:51Z",
                         "author": [
                             {
                                 "reference": "Practitioner/63662034",
