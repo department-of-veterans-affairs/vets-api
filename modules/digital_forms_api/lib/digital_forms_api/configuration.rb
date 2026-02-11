@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/client/configuration/rest'
+require 'faraday/multipart'
+
 module DigitalFormsApi
   # HTTP client configuration for the {DigitalFormsApi::Service::Base},
   class Configuration < Common::Client::Configuration::REST
