@@ -111,6 +111,7 @@ MyHealth::Engine.routes.draw do
         get :signature, on: :collection
         patch :move, on: :member
         post :reply, on: :member
+        post :renewal, on: :collection
         resources :attachments, only: [:show], defaults: { format: :json }
       end
 

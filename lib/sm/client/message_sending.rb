@@ -30,6 +30,22 @@ module SM
       end
 
       ##
+      # Create a renewal message
+      #
+      # @param args [Hash] a hash of message arguments including prescription_id
+      # @return [Message]
+      # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
+      #
+      def post_create_renewal_message(args = {}, is_oh: false, **kwargs)
+        track_with_status('post_create_renewal_message', is_oh:) do
+          args.merge!(kwargs)
+          validate_create_context(args)
+          json = perform_with_logging(:post, 'message/renewal', args)
+          build_message_response(json, is_oh, 'post_create_renewal_message')
+        end
+      end
+
+      ##
       # Create a message with an attachment
       #
       # @param args [Hash] a hash of message arguments

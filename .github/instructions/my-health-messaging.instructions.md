@@ -90,6 +90,7 @@ scope :messaging do
     get :signature, on: :collection                   # GET /messages/signature
     patch :move, on: :member                          # PATCH /messages/:id/move
     post :reply, on: :member                          # POST /messages/:id/reply
+    post :renewal, on: :collection                    # POST /messages/renewal (RX renewal with prescriptionId)
     resources :attachments, only: [:show]             # GET /messages/:message_id/attachments/:id
   end
 
@@ -128,6 +129,7 @@ client.post_create_message_with_lg_attachments(params, poll_for_status: false)
 client.post_create_message_reply(message_id, params, poll_for_status: false)
 client.post_create_message_reply_with_attachment(message_id, params, poll_for_status: false)
 client.post_create_message_reply_with_lg_attachment(message_id, params, poll_for_status: false)
+client.post_create_renewal_message(params, is_oh: false)  # RX renewal message with prescriptionId
 client.delete_message(message_id)
 
 # Folders
@@ -359,7 +361,7 @@ module MyHealth
   module V1
     class MessagesController < SMController
       # Always extend timeout for OH triage groups
-      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
+      before_action :extend_timeout, only: %i[create reply renewal], if: :oh_triage_group?
 
       def create
         # 1. Create message with large attachment flag
@@ -423,6 +425,54 @@ module MyHealth
   end
 end
 ```
+
+### Controller Param Isolation for Action-Specific Fields
+
+**When to use:** An SM action requires fields that are NOT part of the shared `Message` model (e.g., `prescription_id` for RX renewal).
+
+**Pattern:** Create a separate strong params method instead of modifying the shared `message_params`.
+
+```ruby
+# message_params is memoized and used by:
+#   - Message.new (model validation)
+#   - recipient_facility_id (facility tracking)
+#   - prepare_message_params_h (shared create/reply flow)
+# Adding action-specific fields here would leak them into other actions.
+
+def message_params
+  @message_params ||= begin
+    params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
+    params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+  end
+end
+
+# Separate params method for renewal — adds :prescription_id
+def renewal_message_params
+  @renewal_message_params ||= begin
+    params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
+    params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number, :prescription_id)
+  end
+end
+
+def prepare_renewal_params_h
+  params_h = renewal_message_params.to_h
+  params_h[:id] = params_h.delete(:draft_id) if params_h[:draft_id].present?
+  params_h
+end
+```
+
+**Anti-pattern:**
+```ruby
+# DON'T add action-specific fields to the shared message_params
+def message_params
+  @message_params ||= begin
+    params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :prescription_id)
+    #                                                                               ^^^ leaks into create/reply
+  end
+end
+```
+
+**Why:** `message_params` is memoized (`@message_params ||=`) and used by multiple private methods. Adding fields to it causes them to propagate through `prepare_message_params_h` and `recipient_facility_id` into unrelated actions. The action-specific params method keeps the concern isolated and is safe to modify independently.
 
 ### SM Client Usage Pattern
 

@@ -349,6 +349,19 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           end
         end
 
+        it 'extends timeout when is_oh_triage_group=true on renewal' do
+          renewal_params = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            VCR.use_cassette('sm_client/messages/creates/status_sent') do
+              post '/my_health/v1/messaging/messages/renewal?is_oh_triage_group=true',
+                   params: { message: renewal_params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+            end
+          end
+        end
+
         it 'does not extend timeout when is_oh_triage_group=false on create' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
             post '/my_health/v1/messaging/messages?is_oh_triage_group=false',
@@ -386,6 +399,82 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
             expect(response).to be_successful
             expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
           end
+        end
+      end
+    end
+
+    describe 'POST renewal' do
+      let(:message_params) { attributes_for(:message, subject: 'Renewal Needed', body: 'Medication name...') }
+      let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+      let(:params_with_prescription) { params.merge(prescription_id: '24654491') }
+      let(:params_with_station) { params_with_prescription.merge(station_number: '979') }
+
+      context 'message' do
+        it 'creates a renewal message' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages/renewal', params: { message: params_with_station }
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/messaging/v1/message')
+
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: ['979']
+          )
+        end
+
+        it 'creates a renewal message when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages/renewal',
+                 params: { message: params_with_prescription },
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
+        end
+
+        it 'without station_number omits facility tracking' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages/renewal',
+                 params: { message: params_with_prescription }
+          end
+
+          expect(response).to be_successful
+
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: []
+          )
+        end
+
+        it 'returns error when prescription_id is missing' do
+          post '/my_health/v1/messaging/messages/renewal',
+               params: { message: params }
+
+          expect(response).to have_http_status(:bad_request)
+        end
+
+        it 'returns error when prescription_id is empty string' do
+          post '/my_health/v1/messaging/messages/renewal',
+               params: { message: params.merge(prescription_id: '') }
+
+          expect(response).to have_http_status(:bad_request)
+        end
+
+        it 'returns validation error when body is missing' do
+          post '/my_health/v1/messaging/messages/renewal',
+               params: { message: params_with_prescription.merge(body: nil) }
+
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
     end
