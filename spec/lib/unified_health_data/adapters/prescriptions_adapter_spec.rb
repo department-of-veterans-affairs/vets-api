@@ -484,6 +484,8 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
         allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
         allow(StatsD).to receive(:increment)
+        allow_any_instance_of(UnifiedHealthData::Adapters::FacilityNameResolver)
+          .to receive(:valid_station_number?).and_return(true)
       end
 
       it 'extracts facility name from dispense location via cache' do
@@ -817,6 +819,8 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
       before do
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
         allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+        allow_any_instance_of(UnifiedHealthData::Adapters::FacilityNameResolver)
+          .to receive(:valid_station_number?).and_return(true)
       end
 
       it 'includes dispenses in Oracle Health prescriptions' do

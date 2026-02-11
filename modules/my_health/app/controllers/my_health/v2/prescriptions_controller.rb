@@ -140,7 +140,8 @@ module MyHealth
             # This catches both non-existent prescriptions and invalid station numbers
             raise Common::Exceptions::InvalidFieldValue.new(
               "orders[#{index}]",
-              "Prescription #{order['id']} with station #{order['stationNumber']} not found or has invalid station number"
+              "Prescription #{order['id']} with station #{order['stationNumber']}
+              not found or has invalid station number"
             )
           end
 
