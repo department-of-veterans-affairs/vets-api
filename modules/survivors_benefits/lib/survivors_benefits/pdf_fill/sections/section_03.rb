@@ -9,6 +9,7 @@ module SurvivorsBenefits
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include Helpers
+      ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       SERVICE_BRANCH_MAPPING = {
         'army' => 'ARMY',
@@ -43,24 +44,24 @@ module SurvivorsBenefits
             limit: 12,
             question_num: 3,
             question_suffix: 'A',
-            question_label: 'Veteran\'s First Name (additional)',
-            question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
+            question_label: 'Veteran\'s First Name (1st additional)',
+            question_text: 'VETERAN\'S FIRST NAME (1ST ADDITIONAL)',
             key: 'form1[0].#subform[207].First_Name[1]'
           },
           'middle' => {
             limit: 1,
             question_num: 3,
             question_suffix: 'A',
-            question_label: 'Veteran\'s Middle Initial (additional)',
-            question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
+            question_label: 'Veteran\'s Middle Initial (1st additional)',
+            question_text: 'VETERAN\'S MIDDLE INITIAL (1ST ADDITIONAL)',
             key: 'form1[0].#subform[207].Middle_Initial[1]'
           },
           'last' => {
             limit: 18,
             question_num: 3,
             question_suffix: 'A',
-            question_label: 'Veteran\'s Last Name (additional)',
-            question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
+            question_label: 'Veteran\'s Last Name (1st additional)',
+            question_text: 'VETERAN\'S LAST NAME (1ST ADDITIONAL)',
             key: 'form1[0].#subform[207].Last_Name[1]'
           }
         },
@@ -70,24 +71,24 @@ module SurvivorsBenefits
             limit: 12,
             question_num: 3,
             question_suffix: 'A',
-            question_label: 'Veteran\'s First Name (additional)',
-            question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
+            question_label: 'Veteran\'s First Name (2nd additional)',
+            question_text: 'VETERAN\'S FIRST NAME (2ND ADDITIONAL)',
             key: 'form1[0].#subform[207].First_Name[0]'
           },
           'middle' => {
             limit: 1,
             question_num: 3,
             question_suffix: 'A',
-            question_label: 'Veteran\'s Middle Initial (additional)',
-            question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
+            question_label: 'Veteran\'s Middle Initial (2nd additional)',
+            question_text: 'VETERAN\'S MIDDLE INITIAL (2ND ADDITIONAL)',
             key: 'form1[0].#subform[207].Middle_Initial[0]'
           },
           'last' => {
             limit: 18,
             question_num: 3,
             question_suffix: 'A',
-            question_label: 'Veteran\'s Last Name (additional)',
-            question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
+            question_label: 'Veteran\'s Last Name (2nd additional)',
+            question_text: 'VETERAN\'S LAST NAME (2ND ADDITIONAL)',
             key: 'form1[0].#subform[207].Last_Name[0]'
           }
         },
