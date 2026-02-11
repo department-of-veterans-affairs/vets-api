@@ -87,6 +87,7 @@ sign_in:
   user_info_clients:
     - okta_test
     - okta_stg
+    - occ_localhost
   usip_uri: http://localhost:3001/sign-in
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
@@ -102,6 +103,7 @@ ssoe_get_traits:
   client_cert_path: spec/fixtures/certs/vetsgov-localhost.crt
   client_key_path: spec/fixtures/certs/vetsgov-localhost.key
   url: https://int.services.eauth.va.gov:9303/psim_webservice/dev/IdMSSOeWebService
+  mock: true
 
 terms_of_use:
   current_version: v1

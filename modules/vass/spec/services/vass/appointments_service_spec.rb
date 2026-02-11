@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../app/services/vass/appointments_service'
+require_relative '../../support/vass_settings_helper'
 
 describe Vass::AppointmentsService do
   subject { described_class.build(edipi:, correlation_id:) }
@@ -18,19 +19,7 @@ describe Vass::AppointmentsService do
     Rails.cache.clear
 
     # Stub Settings.vass
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(
-        auth_url: 'https://login.microsoftonline.us',
-        tenant_id: 'test-tenant-id',
-        client_id: 'test-client-id',
-        client_secret: 'test-client-secret',
-        jwt_secret: 'test-jwt-secret',
-        scope: 'https://api.va.gov/.default',
-        api_url: 'https://api.vass.va.gov',
-        subscription_key: 'test-subscription-key',
-        service_name: 'vass_api'
-      )
-    )
+    stub_vass_settings
   end
 
   describe '.build' do
@@ -137,6 +126,20 @@ describe Vass::AppointmentsService do
             expect(result['success']).to be true
             expect(result['data']['appointment_id']).to eq(appointment_id)
             expect(result['data']['agent_nickname']).to eq('Agent Smith')
+          end
+        end
+      end
+
+      it 'transforms topics from skill_id/skill_name to topic_id/topic_name' do
+        VCR.use_cassette('vass/oauth_token_success') do
+          VCR.use_cassette('vass/appointments/get_appointment_success') do
+            result = subject.get_appointment(appointment_id:)
+
+            topics = result['data']['topics']
+            expect(topics).to be_an(Array)
+            expect(topics.length).to eq(2)
+            expect(topics.first['topic_id']).to eq('d7374595-5e53-f011-bec2-001dd806389e')
+            expect(topics.first['topic_name']).to eq('Benefits')
           end
         end
       end
@@ -266,17 +269,17 @@ describe Vass::AppointmentsService do
     end
   end
 
-  describe '#get_agent_skills' do
+  describe '#get_topics' do
     context 'when successful' do
-      it 'retrieves available agent skills' do
+      it 'retrieves and transforms topics for frontend' do
         VCR.use_cassette('vass/oauth_token_success') do
           VCR.use_cassette('vass/appointments/agent_skills/get_agent_skills_success') do
-            result = subject.get_agent_skills
+            result = subject.get_topics
 
-            expect(result['success']).to be true
-            expect(result['data']['agent_skills']).to be_an(Array)
-            expect(result['data']['agent_skills'].length).to eq(3)
-            expect(result['data']['agent_skills'].first['skill_name']).to eq('Benefits')
+            expect(result).to be_an(Array)
+            expect(result.length).to eq(3)
+            expect(result.first['topic_id']).to eq('d7374595-5e53-f011-bec2-001dd806389e')
+            expect(result.first['topic_name']).to eq('Benefits')
           end
         end
       end
@@ -304,7 +307,7 @@ describe Vass::AppointmentsService do
 
         it 'raises VassApiError' do
           expect do
-            service_with_mock_client.get_agent_skills
+            service_with_mock_client.get_topics
           end.to raise_error(Vass::Errors::VassApiError, /VASS API error/)
         end
       end
@@ -318,7 +321,7 @@ describe Vass::AppointmentsService do
 
         it 'raises ServiceError with timeout message' do
           expect do
-            service_with_mock_client.get_agent_skills
+            service_with_mock_client.get_topics
           end.to raise_error(Vass::Errors::ServiceError, /Request timeout/)
         end
       end
@@ -332,7 +335,7 @@ describe Vass::AppointmentsService do
 
         it 'raises ServiceError with HTTP error message' do
           expect do
-            service_with_mock_client.get_agent_skills
+            service_with_mock_client.get_topics
           end.to raise_error(Vass::Errors::ServiceError, /HTTP error/)
         end
       end
@@ -351,7 +354,7 @@ describe Vass::AppointmentsService do
 
         it 'raises AuthenticationError' do
           expect do
-            service_with_mock_client.get_agent_skills
+            service_with_mock_client.get_topics
           end.to raise_error(Vass::Errors::AuthenticationError, /Authentication failed/)
         end
       end
@@ -370,7 +373,7 @@ describe Vass::AppointmentsService do
 
         it 'raises NotFoundError' do
           expect do
-            service_with_mock_client.get_agent_skills
+            service_with_mock_client.get_topics
           end.to raise_error(Vass::Errors::NotFoundError, /Resource not found/)
         end
       end

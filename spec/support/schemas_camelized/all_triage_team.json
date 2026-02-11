@@ -10,7 +10,8 @@
     "locationName",
     "suggestedNameDisplay",
     "healthCareSystemName",
-    "ohTriageGroup"
+    "ohTriageGroup",
+    "migratingToOh"
   ],
   "properties": {
     "triageTeamId": {
@@ -38,6 +39,9 @@
       "type": "string"
     },
     "ohTriageGroup": {
+      "type": "boolean"
+    },
+    "migratingToOh": {
       "type": "boolean"
     }
   }

@@ -15,98 +15,168 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#get_labs' do
-    context 'with valid lab responses', :vcr do
-      it 'returns all labs/tests with encodedData and/or observations' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
-          expect(labs.size).to eq(29)
+    let(:labs_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'labs_response.json'
+      ).read)
+    end
 
-          # Verify that labs with encodedData are returned
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: labs_sample_response
+      )
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:warn)
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_labs_by_date)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all labs/tests with encodedData and/or observations' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          # 12 total records: 1 VistA filtered (nil status), 1 OH filtered (nil status) = 10 parsed
+          expect(labs.size).to eq(10)
+
           labs_with_encoded_data = labs.select { |lab| lab.encoded_data.present? }
           expect(labs_with_encoded_data).not_to be_empty
 
-          # Verify that labs with observations are returned
           labs_with_observations = labs.select { |lab| lab.observations.present? }
           expect(labs_with_observations).not_to be_empty
         end
-      end
 
-      it 'returns labs sorted by date_completed in descending order' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30').sort
+        it 'returns labs sorted by date_completed in descending order' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31').sort
 
           labs_with_dates = labs.select { |lab| lab.date_completed.present? }
-          dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
+          dates = labs_with_dates.map(&:sort_date)
           expect(dates).to eq(dates.sort.reverse)
 
-          last_labs = labs.last(5)
-          if last_labs.any? { |lab| lab.date_completed.nil? }
-            expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
-              lab.date_completed.nil?
-            })
-          end
-        end
-      end
-
-      it 'logs test code distribution from parsed records' do
-        allow(Rails.logger).to receive(:info)
-
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+          labs_without_dates = labs.select { |lab| lab.date_completed.nil? }
+          expect(labs.last(labs_without_dates.size)).to eq(labs_without_dates) if labs_without_dates.any?
         end
 
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD test code and name distribution',
-            service: 'unified_health_data'
+        it 'returns specific VistA lab with expected attributes' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+
+          chem_lab = labs.find { |lab| lab.id == 'df64e7c7-d354-43a1-ab57-445844b59b52' }
+          expect(chem_lab).to have_attributes(
+            'id' => 'df64e7c7-d354-43a1-ab57-445844b59b52',
+            'display' => 'Laboratory procedure',
+            'test_code' => 'CH',
+            'date_completed' => '2025-01-23T22:01:52+00:00',
+            'location' => 'CHYSHR TEST LAB',
+            'source' => 'vista',
+            'status' => 'final'
           )
-        )
-      end
+          expect(chem_lab.observations.size).to eq(7)
+        end
 
-      it 'returns labs with only encodedData' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+        it 'returns specific Oracle Health lab with expected attributes' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
 
-          # Find labs that have encoded data but no observations
-          labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
-          expect(labs_with_encoded_only).not_to be_empty
+          oh_lab = labs.find { |lab| lab.id == '15248982124' }
+          expect(oh_lab).to have_attributes(
+            'id' => '15248982124',
+            'display' => 'Blood Culture',
+            'test_code' => 'MB',
+            'date_completed' => '2025-03-13T17:28:00Z',
+            'source' => 'oracle-health',
+            'status' => 'final'
+          )
+          expect(oh_lab.observations.size).to eq(2)
+        end
+
+        it 'returns labs with expected attribute types' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+
+          expect(labs).to all(have_attributes(
+                                'id' => be_a(String),
+                                'display' => be_a(String),
+                                'test_code' => be_a(String),
+                                'date_completed' => be_a(String).or(be_nil),
+                                'source' => be_a(String),
+                                'status' => be_a(String)
+                              ))
         end
       end
 
-      it 'returns labs with only observations' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+      context 'when data exists for only VistA or OH' do
+        it 'returns labs for VistA only' do
+          modified_response = labs_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_labs_by_date)
+            .and_return(Faraday::Response.new(body: modified_response))
 
-          # Find labs that have observations but no encoded data
-          labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
-          expect(labs_with_observations_only).not_to be_empty
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          # 8 VistA records, 1 filtered (nil status) = 7 parsed
+          expect(labs.size).to eq(7)
+          expect(labs.map(&:source)).to all(eq('vista'))
+        end
+
+        it 'returns labs for OH only' do
+          modified_response = labs_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_labs_by_date)
+            .and_return(Faraday::Response.new(body: modified_response))
+
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          # 4 OH records, 1 filtered (nil status) = 3 parsed
+          expect(labs.size).to eq(3)
+          expect(labs.map(&:source)).to all(eq('oracle-health'))
         end
       end
 
-      it 'returns labs with both encodedData and observations' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_labs_by_date)
+            .and_return(Faraday::Response.new(body: { 'vista' => {}, 'oracle-health' => {} }))
 
-          # Check if any labs have both (may or may not exist in cassette)
-          labs_with_both = labs.select { |lab| lab.encoded_data.present? && lab.observations.present? }
-          # This is just checking the structure works - we don't require cassette to have this combination
-          expect(labs_with_both).to be_an(Array)
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          expect(labs.size).to eq(0)
         end
       end
     end
 
+    it 'returns labs with only encodedData' do
+      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+
+      labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
+      expect(labs_with_encoded_only).not_to be_empty
+    end
+
+    it 'returns labs with only observations' do
+      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+
+      labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
+      expect(labs_with_observations_only).not_to be_empty
+    end
+
+    it 'logs test code distribution from parsed records' do
+      service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+
+      expect(Rails.logger).to have_received(:info).with(
+        hash_including(
+          message: 'UHD test code and name distribution',
+          service: 'unified_health_data'
+        )
+      )
+    end
+
     context 'with malformed response' do
-      before do
+      it 'handles gracefully' do
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_labs_by_date)
-          .and_return(Faraday::Response.new(
-                        body: nil
-                      ))
-      end
+          .and_return(Faraday::Response.new(body: nil))
 
-      it 'handles gracefully' do
-        allow(Flipper).to receive(:enabled?).and_return(true)
-        expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30') }.not_to raise_error
+        expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31') }.not_to raise_error
       end
     end
   end
@@ -827,9 +897,12 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'excludes notes with blank or invalid dates and logs a warning' do
-        # Disable LOINC logging to simplify test
+        # Disable logging to simplify test
         allow(Flipper).to receive(:enabled?)
           .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
           .and_return(false)
 
         # Create mock notes with various date conditions
@@ -920,6 +993,9 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
         allow(Rails.logger).to receive(:info)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .and_return(false)
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
@@ -942,6 +1018,40 @@ describe UnifiedHealthData::Service, type: :service do
       it 'does not log LOINC code distribution when flipper disabled' do
         allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
                                                   user).and_return(false)
+
+        expect(Rails.logger).not_to receive(:info)
+        service.get_care_summaries_and_notes
+      end
+    end
+
+    context 'clinical notes logging' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, user)
+          .and_return(false)
+      end
+
+      it 'logs notes response count when flipper enabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .and_return(true)
+
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          /Clinical Notes response: total_doc_refs=\d+, returned=\d+, filtered=\d+/,
+          { service: 'unified_health_data' }
+        )
+      end
+
+      it 'does not log notes response count when flipper disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
         service.get_care_summaries_and_notes
@@ -1421,19 +1531,11 @@ describe UnifiedHealthData::Service, type: :service do
             end
           end
 
-          it 'passes through isRenewable: false from the API response' do
-            VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
-              prescriptions = service.get_prescriptions
-
-              # 25804852: dispStatus='Active: On Hold', isRenewable=false in cassette
-              hold_prescription = prescriptions.find { |p| p.prescription_id == '25804852' }
-              expect(hold_prescription.is_renewable).to be false
-
-              # 25804855: dispStatus='Expired', isRenewable=false in cassette
-              expired_prescription = prescriptions.find { |p| p.prescription_id == '25804855' }
-              expect(expired_prescription.is_renewable).to be false
-            end
-          end
+          # NOTE: The vista_only cassette has OperationOutcome errors from Oracle Health,
+          # which now raises UpstreamPartialFailure. The is_renewable: true case (tested above
+          # with get_prescriptions_success cassette) provides coverage for VistA renewability pass-through.
+          # If we need to test is_renewable: false specifically, we'd need a cassette with both
+          # sources returning valid data but containing non-renewable prescriptions.
         end
 
         context 'Oracle Health prescriptions' do
@@ -1581,19 +1683,24 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
-    context 'with partial data', :vcr do
-      it 'handles VistA-only data' do
+    context 'with partial data (OperationOutcome errors)', :vcr do
+      # The vista_only cassette contains OperationOutcome errors from Oracle Health (rate limiting).
+      # The detector now raises UpstreamPartialFailure to prevent returning incomplete data.
+
+      it 'raises UpstreamPartialFailure for VistA-only data when Oracle Health has errors' do
         VCR.use_cassette('unified_health_data/get_prescriptions_vista_only') do
-          prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(10)
-          expect(prescriptions.map(&:prescription_id)).to contain_exactly(
-            '25804851', '25804852', '25804853', '25804854', '25804855',
-            '25804856', '25804858', '25804859', '25804860', '25804848'
-          )
+          expect { service.get_prescriptions }.to raise_error(Common::Exceptions::UpstreamPartialFailure) do |error|
+            expect(error.failed_sources).to include('oracle-health')
+          end
         end
       end
+    end
 
-      it 'handles Oracle Health-only data' do
+    context 'with Oracle Health only data (no errors)', :vcr do
+      # The oracle_only cassette has valid Oracle Health data and empty VistA data (no OperationOutcome errors).
+      # This tests that we can successfully parse responses when one source has no data.
+
+      it 'handles Oracle Health-only data without errors' do
         VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only') do
           prescriptions = service.get_prescriptions
           expect(prescriptions.size).to eq(45)
