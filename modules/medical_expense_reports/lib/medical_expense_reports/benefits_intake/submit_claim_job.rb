@@ -65,7 +65,7 @@ module MedicalExpenseReports
         @form_path = process_document(
           @claim.to_pdf(
             @claim.id,
-            extras_redesign: true,
+            extras_redesign: false,
             omit_esign_stamp: true
           )
         )
