@@ -1135,35 +1135,35 @@ module DependentsBenefits
                 key: 'step_children.address.address_line1[%iterator%]',
                 limit: 27,
                 question_num: 21,
-                question_suffix: 'E',
+                question_suffix: 'E1',
                 question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > STREET'
               },
               'street2' => {
                 key: 'step_children.address.address_line2[%iterator%]',
                 limit: 5,
                 question_num: 21,
-                question_suffix: 'E',
+                question_suffix: 'E2',
                 question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > STREET'
               },
               'city' => {
                 key: 'step_children.address.city[%iterator%]',
                 limit: 18,
                 question_num: 21,
-                question_suffix: 'E',
+                question_suffix: 'E3',
                 question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > CITY'
               },
               'state' => {
                 key: 'step_children.address.state_code[%iterator%]',
                 limit: 2,
                 question_num: 21,
-                question_suffix: 'E',
+                question_suffix: 'E4',
                 question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > STATE'
               },
               'country' => {
                 key: 'step_children.address.country_name[%iterator%]',
                 limit: 2,
                 question_num: 21,
-                question_suffix: 'E',
+                question_suffix: 'E5',
                 question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > COUNTRY'
               },
               'postal_code' => {
@@ -1171,14 +1171,14 @@ module DependentsBenefits
                   key: 'step_children.address.zip_code.firstFive[%iterator%]',
                   limit: 5,
                   question_num: 21,
-                  question_suffix: 'E',
+                  question_suffix: 'E6',
                   question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > ZIPCODE FIRST FIVE'
                 },
                 'lastFour' => {
                   key: 'step_children.address.zip_code.lastFour[%iterator%]',
                   limit: 4,
                   question_num: 21,
-                  question_suffix: 'E',
+                  question_suffix: 'E7',
                   question_text: 'INFORMATION NEEDED FOR STEPCHILD > LIVING WHERE > ZIPCODE LAST FOUR'
                 }
               } # end of zip_code
