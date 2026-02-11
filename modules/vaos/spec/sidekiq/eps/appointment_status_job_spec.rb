@@ -10,8 +10,8 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
   let(:appointment_id) { '12345' }
   let(:appointment_id_last4) { '2345' }
   let(:service) { instance_double(Eps::AppointmentService) }
-  let(:response) { OpenStruct.new(state: 'completed', appointmentDetails: OpenStruct.new(status: 'booked')) }
-  let(:unfinished_response) { OpenStruct.new(state: 'pending', appointmentDetails: OpenStruct.new(status: 'pending')) }
+  let(:response) { OpenStruct.new(state: 'completed', appointment_details: OpenStruct.new(status: 'booked')) }
+  let(:unfinished_response) { OpenStruct.new(state: 'pending', appointment_details: OpenStruct.new(status: 'pending')) }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
@@ -42,15 +42,32 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
       end.to change(described_class.jobs, :size).by(1)
     end
 
-    it 'calls get_appointment with the appointment_id' do
-      allow(service).to receive(:get_appointment).with(appointment_id:).and_return(response)
-      expect(service).to receive(:get_appointment).with(appointment_id:)
+    it 'calls get_appointment with the appointment_id and retrieve_latest_details' do
+      allow(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true)
+                                                 .and_return(response)
+      expect(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true)
+      worker.perform(user.uuid, appointment_id_last4)
+    end
+
+    it 'logs the appointment status response' do
+      allow(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true)
+                                                 .and_return(response)
+      expect(Rails.logger).to receive(:info).with(
+        'Community Care Appointments: Eps::AppointmentStatusJob appointment status response',
+        {
+          appointment_id_last4:,
+          state: 'completed',
+          appointment_details_status: 'booked',
+          retry_count: 0
+        }
+      )
       worker.perform(user.uuid, appointment_id_last4)
     end
 
     context 'when the appointment is not finished' do
       before do
-        allow(service).to receive(:get_appointment).with(appointment_id:).and_return(unfinished_response)
+        allow(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true)
+                                                   .and_return(unfinished_response)
       end
 
       it 'retries the job' do
@@ -75,7 +92,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
     context 'when the appointment is not found' do
       before do
-        allow(service).to receive(:get_appointment).with(appointment_id:).and_raise(
+        allow(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true).and_raise(
           Common::Exceptions::BackendServiceException.new(nil, {}, 404, 'Appointment not found')
         )
       end
@@ -92,7 +109,7 @@ RSpec.describe Eps::AppointmentStatusJob, type: :job do
 
     context 'when the upstream service returns a 500 error' do
       before do
-        allow(service).to receive(:get_appointment).with(appointment_id:).and_raise(
+        allow(service).to receive(:get_appointment).with(appointment_id:, retrieve_latest_details: true).and_raise(
           Common::Exceptions::BackendServiceException.new(nil, {}, 500, 'Internal server error')
         )
       end
