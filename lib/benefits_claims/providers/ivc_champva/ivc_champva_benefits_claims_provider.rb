@@ -15,7 +15,7 @@ module BenefitsClaims
         end
 
         def get_claims
-          return empty_response if user_email.blank?
+          return empty_response if user_emails.blank?
 
           claims = forms_grouped_by_uuid.map { |records| transform_to_dto(records) }
 
@@ -23,7 +23,7 @@ module BenefitsClaims
         end
 
         def get_claim(id)
-          return record_not_found!(id) if user_email.blank?
+          return record_not_found!(id) if user_emails.blank?
 
           records = scoped_forms.where(form_uuid: id).order(:created_at)
           record_not_found!(id) if records.blank?
@@ -51,14 +51,17 @@ module BenefitsClaims
         end
 
         def scoped_forms
-          IvcChampvaForm.where('LOWER(TRIM(email)) = ?', user_email)
+          IvcChampvaForm.where('LOWER(TRIM(email)) IN (?)', user_emails)
         end
 
-        def user_email
-          [
-            @user&.email,
-            @user&.user_verification&.user_credential_email&.credential_email
-          ].find(&:present?)&.strip&.downcase
+        def user_emails
+          @user_emails ||= begin
+            verification_emails = @user&.user_account&.user_verifications&.includes(:user_credential_email)&.filter_map do |verification|
+              verification.user_credential_email&.credential_email&.strip&.downcase
+            end || []
+
+            ([@user&.email&.strip&.downcase] + verification_emails).compact.uniq
+          end
         end
       end
     end

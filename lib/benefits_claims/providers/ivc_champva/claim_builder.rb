@@ -19,6 +19,7 @@ module BenefitsClaims
         }.freeze
 
         PROCESSED_STATUSES = ['Processed', 'Manually Processed'].freeze
+        ERROR_STATUSES = ['Error', 'Failed', 'Rejected', 'Submission failed'].freeze
 
         def self.build_claim_response(records)
           records = Array(records)
@@ -52,12 +53,8 @@ module BenefitsClaims
         end
 
         def self.status_for(records)
-          latest_with_status = records.select { |record| record.pega_status.present? }
-                                      .max_by(&:updated_at)
-
-          return latest_with_status.pega_status if latest_with_status
-
-          'Submission failed'
+          representative = pick_representative(records)
+          normalize_status(representative&.pega_status)
         end
 
         def self.close_date_for(record)
@@ -84,6 +81,13 @@ module BenefitsClaims
 
         def self.format_datetime(value)
           value&.iso8601
+        end
+
+        def self.normalize_status(pega_status)
+          return 'vbms' if PROCESSED_STATUSES.include?(pega_status)
+          return 'error' if ERROR_STATUSES.include?(pega_status)
+
+          'pending'
         end
       end
     end
