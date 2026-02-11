@@ -45,7 +45,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s First Name (additional)',
             question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
-            key: "form1[0].#subform[207].First_Name[1]"
+            key: 'form1[0].#subform[207].First_Name[1]'
           },
           'middle' => {
             limit: 1,
@@ -53,7 +53,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Middle Initial (additional)',
             question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
-            key: "form1[0].#subform[207].Middle_Initial[1]"
+            key: 'form1[0].#subform[207].Middle_Initial[1]'
           },
           'last' => {
             limit: 18,
@@ -61,7 +61,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Last Name (additional)',
             question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
-            key: "form1[0].#subform[207].Last_Name[1]"
+            key: 'form1[0].#subform[207].Last_Name[1]'
           }
         },
         'veteranPreviousNameTwo' => {
@@ -72,7 +72,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s First Name (additional)',
             question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
-            key: "form1[0].#subform[207].First_Name[0]"
+            key: 'form1[0].#subform[207].First_Name[0]'
           },
           'middle' => {
             limit: 1,
@@ -80,7 +80,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Middle Initial (additional)',
             question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
-            key: "form1[0].#subform[207].Middle_Initial[0]"
+            key: 'form1[0].#subform[207].Middle_Initial[0]'
           },
           'last' => {
             limit: 18,
@@ -88,7 +88,7 @@ module SurvivorsBenefits
             question_suffix: 'A',
             question_label: 'Veteran\'s Last Name (additional)',
             question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
-            key: "form1[0].#subform[207].Last_Name[0]"
+            key: 'form1[0].#subform[207].Last_Name[0]'
           }
         },
         'activeServiceDateRange' => {
@@ -216,12 +216,6 @@ module SurvivorsBenefits
         form_data['serviceBranch'] = service_to_radio(form_data['serviceBranch'])
         form_data['nationalGuardActivated'] = to_radio_yes_no(form_data['nationalGuardActivated'])
         form_data['nationalGuardActivationDate'] = split_date(form_data['nationalGuardActivationDate'])
-
-        unit_name_and_address = expand_unit_info_lines(form_data['unitNameAndAddress'])
-        form_data['unitNameAndAddressLineOne'] = unit_name_and_address['line_one']
-        form_data['unitNameAndAddressLineTwo'] = unit_name_and_address['line_two']
-        form_data['unitNameAndAddressLineThree'] = unit_name_and_address['line_three']
-
         unit_phone = form_data['unitPhone']
         unit_phone = unit_phone['contact'] if unit_phone.is_a?(Hash)
         form_data['unitPhone'] = expand_phone_number(unit_phone.to_s)
@@ -230,7 +224,7 @@ module SurvivorsBenefits
           'from' => split_date(form_data.dig('powDateRange', 'from')),
           'to' => split_date(form_data.dig('powDateRange', 'to'))
         }
-        form_data
+        form_data.merge!(expand_unit_info_lines(form_data['unitNameAndAddress']))
       end
 
       def to_radio_yes_no(obj)
@@ -250,20 +244,19 @@ module SurvivorsBenefits
       end
 
       def expand_unit_info_lines(unit_name_and_address)
-        
         if unit_name_and_address&.length.to_i <= 60
           unit_name_and_address ||= ''
           parts = unit_name_and_address.scan(/.{1,20}/)
           {
-            'line_one' => parts[0] || '',
-            'line_two' => parts[1] || '',
-            'line_three' => parts[2] || ''
+            'unitNameAndAddressLineOne' => parts[0] || '',
+            'unitNameAndAddressLineTwo' => parts[1] || '',
+            'unitNameAndAddressLineThree' => parts[2] || ''
           }
         else
           {
-            'line_one' => unit_name_and_address,
-            'line_two' => '',
-            'line_three' => ''
+            'unitNameAndAddressLineOne' => unit_name_and_address,
+            'unitNameAndAddressLineTwo' => '',
+            'unitNameAndAddressLineThree' => ''
           }
         end
       end
