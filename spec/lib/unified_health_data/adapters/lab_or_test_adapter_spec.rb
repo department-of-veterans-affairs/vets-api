@@ -21,26 +21,137 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
   end
 
   describe '#get_location' do
-    it 'returns the organization name if present' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Organization', 'name' => 'LabX' }] } }
-      expect(adapter.send(:get_location, record)).to eq('LabX')
+    it 'returns the Organization name matching the performer reference' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Organization/org-456' }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-123', 'name' => 'Wrong Lab' },
+          { 'resourceType' => 'Organization', 'id' => 'org-456', 'name' => 'Correct Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Correct Lab')
     end
 
-    it 'returns nil if no organization' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
+    it 'returns the Location name matching the performer reference' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Location/loc-789' }],
+        'contained' => [
+          { 'resourceType' => 'Location', 'id' => 'loc-789', 'name' => 'Primary Care Blue' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Primary Care Blue')
+    end
+
+    it 'skips non-location performer references and matches Organization' do
+      record = { 'resource' => {
+        'performer' => [
+          { 'reference' => 'Practitioner/prac-1' },
+          { 'reference' => 'Organization/org-2' }
+        ],
+        'contained' => [
+          { 'resourceType' => 'Practitioner', 'id' => 'prac-1', 'name' => [{ 'family' => 'Smith' }] },
+          { 'resourceType' => 'Organization', 'id' => 'org-2', 'name' => 'Test Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Test Lab')
+    end
+
+    it 'falls back to first Organization when no performer references exist' do
+      record = { 'resource' => {
+        'contained' => [{ 'resourceType' => 'Organization', 'name' => 'Fallback Lab' }]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
+    end
+
+    it 'returns nil if no Organization or Location matches and no fallback exists' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Practitioner/prac-1' }],
+        'contained' => [{ 'resourceType' => 'Practitioner', 'id' => 'prac-1' }]
+      } }
       expect(adapter.send(:get_location, record)).to be_nil
+    end
+
+    it 'returns nil if contained is nil' do
+      record = { 'resource' => {} }
+      expect(adapter.send(:get_location, record)).to be_nil
+    end
+
+    it 'handles performer entries with nil reference gracefully' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => nil }, { 'reference' => 'Organization/org-1' }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Good Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Good Lab')
+    end
+
+    it 'falls back to first Organization when all performer references are nil' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => nil }, { 'reference' => nil }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Fallback Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
     end
   end
 
   describe '#get_ordered_by' do
-    it 'returns practitioner full name if present' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner',
-                                                   'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
+    it 'returns practitioner full name matching the service request requester' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest', 'requester' => { 'reference' => 'Practitioner/abc-123' } },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] },
+        { 'resourceType' => 'Practitioner', 'id' => 'other-456',
+          'name' => [{ 'given' => ['X'], 'family' => 'Y' }] }
+      ] } }
       expect(adapter.send(:get_ordered_by, record)).to eq('A B')
     end
 
-    it 'returns nil if no practitioner' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
+    it 'returns requester display when practitioner is not in contained' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => 'Practitioner/ext-999', 'display' => 'Smith, Jane' } }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to eq('Smith, Jane')
+    end
+
+    it 'returns nil when no service request requester exists' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest' },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns nil if no service request' do
+      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner', 'id' => 'abc',
+                                                   'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns nil if contained is nil' do
+      record = { 'resource' => { 'contained' => nil } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns requester display when requester reference is nil' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => nil, 'display' => 'Doe, John' } }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to eq('Doe, John')
+    end
+
+    it 'returns nil when requester reference is nil and no display exists' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => nil } },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] }
+      ] } }
       expect(adapter.send(:get_ordered_by, record)).to be_nil
     end
   end
@@ -111,10 +222,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     context 'when contained is nil' do
       it 'returns an empty string' do
         resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/123' }] }
-        contained = nil
-
-        result = adapter.send(:get_body_site, resource, contained)
-
+        result = adapter.send(:get_body_site, resource, nil)
         expect(result).to eq('')
       end
     end
@@ -123,10 +231,93 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       it 'returns an empty string' do
         resource = {}
         contained = [{ 'resourceType' => 'ServiceRequest', 'id' => '123' }]
-
         result = adapter.send(:get_body_site, resource, contained)
-
         expect(result).to eq('')
+      end
+    end
+
+    context 'when ServiceRequest has bodySite with coding display' do
+      it 'returns the coding display value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has text but no coding display' do
+      it 'falls back to the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'code' => '12345' }], 'text' => 'Left Arm' }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('Left Arm')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has text but no coding array' do
+      it 'returns the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'text' => 'Arm' }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('Arm')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has multiple entries' do
+      it 'joins them with commas' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [
+            { 'coding' => [{ 'display' => 'SERUM' }] },
+            { 'text' => 'Arm' }
+          ]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM, Arm')
+      end
+    end
+
+    context 'when ServiceRequest has no bodySite' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-1' }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn reference does not match any ServiceRequest' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-other' }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-missing' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn entry has nil reference' do
+      it 'returns an empty string' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => nil }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn has mix of nil and valid references' do
+      it 'returns body site from the valid reference only' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => nil }, { 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
       end
     end
   end
@@ -221,6 +412,53 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:get_sample_tested, record, contained)
 
         expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when specimen hash has nil reference' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => nil } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen array has entries with nil references' do
+      it 'returns only specimens with valid references' do
+        record = {
+          'specimen' => [
+            { 'reference' => nil },
+            { 'reference' => 'Specimen/123' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when all specimen references in array are nil' do
+      it 'returns an empty string' do
+        record = {
+          'specimen' => [
+            { 'reference' => nil },
+            { 'reference' => nil }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
       end
     end
   end
@@ -515,6 +753,24 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
   end
 
+  describe '#get_reference_id' do
+    it 'extracts the ID from a full reference format' do
+      expect(adapter.send(:get_reference_id, 'Organization/abc-123')).to eq('abc-123')
+    end
+
+    it 'returns the reference as-is when it has no slash (bare ID)' do
+      expect(adapter.send(:get_reference_id, 'abc-123')).to eq('abc-123')
+    end
+
+    it 'returns nil when reference is nil' do
+      expect(adapter.send(:get_reference_id, nil)).to be_nil
+    end
+
+    it 'returns nil when reference is an empty string' do
+      expect(adapter.send(:get_reference_id, '')).to be_nil
+    end
+  end
+
   describe '#get_code' do
     context 'when category is nil' do
       it 'returns nil' do
@@ -533,6 +789,196 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:get_code, record)
 
         expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#parse_single_record test_code_display mapping' do
+    let(:base_record) do
+      {
+        'resource' => {
+          'resourceType' => 'DiagnosticReport',
+          'id' => 'test-display-map',
+          'status' => 'final',
+          'code' => { 'text' => 'Test Report' },
+          'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+          'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }]
+        }
+      }
+    end
+
+    context 'with known test codes' do
+      it 'maps CH to "Chemistry and hematology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'CH' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+
+      it 'maps MI to "Microbiology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'MI' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MI')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'maps SP to "Surgical Pathology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'SP' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('SP')
+        expect(result.test_code_display).to eq('Surgical Pathology')
+      end
+
+      it 'maps CY to "Cytology"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'CY' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CY')
+        expect(result.test_code_display).to eq('Cytology')
+      end
+
+      it 'maps EM to "Electron Microscopy"' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'EM' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('EM')
+        expect(result.test_code_display).to eq('Electron Microscopy')
+      end
+
+      it 'maps MB to "Microbiology" (Oracle Health format)' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'MB' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('MB')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'maps LP29684-5 to "Radiology" (LOINC code)' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'LP29684-5' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('LP29684-5')
+        expect(result.test_code_display).to eq('Radiology')
+      end
+    end
+
+    context 'with VistA URN format codes' do
+      it 'preserves raw URN in test_code but maps to "Microbiology" in test_code_display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:MI' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:MI')
+        expect(result.test_code_display).to eq('Microbiology')
+      end
+
+      it 'preserves raw URN in test_code but maps to "Chemistry and hematology" in test_code_display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:CH' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
+      end
+
+      it 'preserves raw URN in test_code but maps to "Surgical Pathology" in test_code_display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:SP' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:SP')
+        expect(result.test_code_display).to eq('Surgical Pathology')
+      end
+
+      it 'falls back to category.coding.display for unknown VistA URN codes' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'urn:va:lab-category:XX', 'display' => 'Unknown Lab Type' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:XX')
+        expect(result.test_code_display).to eq('Unknown Lab Type')
+      end
+
+      it 'falls back to extracted code for unknown VistA URN when no display available' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'urn:va:lab-category:XX' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('urn:va:lab-category:XX')
+        expect(result.test_code_display).to eq('XX')
+      end
+    end
+
+    context 'with unknown test codes' do
+      it 'falls back to category.coding.display when code is not in map' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'NEWCODE', 'display' => 'New Test Category' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('NEWCODE')
+        expect(result.test_code_display).to eq('New Test Category')
+      end
+
+      it 'falls back to category.text when code is not in map and no display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'NEWCODE' }],
+          'text' => 'Category Text Fallback'
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('NEWCODE')
+        expect(result.test_code_display).to eq('Category Text Fallback')
+      end
+
+      it 'falls back to normalized code when no display or text available' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{ 'coding' => [{ 'code' => 'UNKNOWN' }] }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('UNKNOWN')
+        expect(result.test_code_display).to eq('UNKNOWN')
+      end
+
+      it 'prefers explicit map over category.coding.display' do
+        record = base_record.deep_dup
+        record['resource']['category'] = [{
+          'coding' => [{ 'code' => 'CH', 'display' => 'Chemistry' }]
+        }]
+
+        result = adapter.send(:parse_single_record, record)
+
+        expect(result.test_code).to eq('CH')
+        expect(result.test_code_display).to eq('Chemistry and hematology')
       end
     end
   end
@@ -843,7 +1289,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'when resource has neither effectiveDateTime nor effectivePeriod' do
-      it 'returns nil' do
+      it 'returns nil when no presentedForm exists' do
         resource = {}
 
         result = adapter.send(:get_date_completed, resource)
@@ -853,12 +1299,78 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'when effectivePeriod exists but has no start' do
-      it 'returns nil' do
+      it 'returns nil when no presentedForm exists' do
         resource = { 'effectivePeriod' => { 'end' => '2025-06-24T15:21:00.000Z' } }
 
         result = adapter.send(:get_date_completed, resource)
 
         expect(result).to be_nil
+      end
+    end
+
+    context 'when falling back to presentedForm creation date' do
+      it 'returns the creation date from text/plain presentedForm' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'creation' => '2024-12-05T12:50:00+00:00', 'data' => 'encoded' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2024-12-05T12:50:00+00:00')
+      end
+
+      it 'returns nil when presentedForm has no text/plain entry' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'creation' => '2024-12-05T12:50:00+00:00' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when text/plain entry has no creation date' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'data' => 'encoded' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+
+      it 'prefers effectiveDateTime over presentedForm creation' do
+        resource = {
+          'effectiveDateTime' => '2025-01-01T00:00:00Z',
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'creation' => '2024-12-05T12:50:00+00:00' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2025-01-01T00:00:00Z')
+      end
+    end
+
+    context 'with fixture data' do
+      it 'falls back to presentedForm creation for radiology records without effectiveDateTime' do
+        # vista[1] has no effectiveDateTime or effectivePeriod but has presentedForm with creation
+        radiology_record = labs_response['vista']['entry'][1]
+        resource = radiology_record['resource']
+
+        expect(resource['effectiveDateTime']).to be_nil
+        expect(resource['effectivePeriod']).to be_nil
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2024-12-05T12:50:00+00:00')
       end
     end
   end

@@ -86,13 +86,12 @@ module MPI
 
     def find_profile_by_identifier(identifier:,
                                    identifier_type:,
-                                   search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+                                   search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA,
+                                   view_type: Constants::PRIMARY_VIEW)
       with_monitoring do
-        raw_response = perform(:post, '',
-                               MPI::Messages::FindProfileByIdentifier.new(identifier:,
-                                                                          identifier_type:,
-                                                                          search_type:).perform,
-                               soapaction: Constants::FIND_PROFILE)
+        message = MPI::Messages::FindProfileByIdentifier.new(identifier:, identifier_type:, search_type:, view_type:)
+        raw_response = perform(:post, '', message.perform, soapaction: Constants::FIND_PROFILE)
+
         MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_IDENTIFIER_TYPE,
                                                       response: raw_response).perform
       end

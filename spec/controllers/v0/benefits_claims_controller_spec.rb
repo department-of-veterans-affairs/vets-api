@@ -649,6 +649,24 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           .to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
       end
 
+      it 'adds provider field to each claim' do
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['data'].count).to eq(2)
+
+        # Each claim should have a provider field in attributes
+        parsed_body['data'].each do |claim|
+          expect(claim['attributes']).to have_key('provider')
+          expect(claim['attributes']['provider']).to be_in(%w[mockproviderone mockprovidertwo])
+        end
+
+        # Verify provider values match the provider classes
+        providers = parsed_body['data'].map { |claim| claim['attributes']['provider'] }
+        expect(providers).to contain_exactly('mockproviderone', 'mockprovidertwo')
+      end
+
       it 'continues processing when one provider fails' do
         failing_provider = Class.new do
           def self.name

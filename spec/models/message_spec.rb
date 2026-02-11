@@ -15,7 +15,9 @@ RSpec.describe Message do
                                                                :sender_id, :sender_name, :recipient_id,
                                                                :recipient_name, :read_receipt, :uploads,
                                                                :suggested_name_display, :is_oh_message,
-                                                               :triage_group_name, :proxy_sender_name,
+                                                               :oh_migration_phase,
+                                                               :triage_group_name, :triage_group_id,
+                                                               :proxy_sender_name,
                                                                :has_attachments, :attachment1_id,
                                                                :attachment2_id, :attachment3_id,
                                                                :attachment4_id, :metadata, :is_large_attachment_upload)
