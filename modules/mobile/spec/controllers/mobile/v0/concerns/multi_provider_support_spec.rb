@@ -90,7 +90,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
 
         expect(result).to be_an(Array)
         expect(result.length).to eq(2)
-        expect(result[0]).to eq([{ 'id' => '1' }])
+        expect(result[0]).to eq([{ 'id' => '1', 'provider' => 'testprovider' }])
         expect(result[1]).to eq([])
       end
 
@@ -125,7 +125,7 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         claims_list, errors = controller.send(:get_claims_from_providers)
 
         expect(claims_list.length).to eq(2)
-        expect(claims_list).to eq([{ 'id' => '1' }, { 'id' => '2' }])
+        expect(claims_list).to eq([{ 'id' => '1', 'provider' => 'testprovider' }, { 'id' => '2', 'provider' => 'testprovider2' }])
         expect(errors).to eq([])
       end
     end
@@ -133,68 +133,64 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
     describe '#get_claim_from_providers' do
       let(:claim_id) { '123' }
 
-      it 'returns claim when response has data' do
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
-                                                                                    'data' => { 'id' => claim_id }
-                                                                                  })
+      it 'returns claim via lighthouse proxy when no type specified' do
+        proxy = double('LighthouseProxy')
+        allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
 
         result = controller.send(:get_claim_from_providers, claim_id)
 
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        expect(Mobile::V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
       end
 
-      it 'skips provider when response has nil data' do
+      it 'defaults to lighthouse when no type parameter specified (even with multiple providers)' do
+        lighthouse_class = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
         provider_class2 = double('ProviderClass2', name: 'TestProvider2')
         provider_instance2 = double('Provider2')
+
         allow(provider_class2).to receive(:new).with(user).and_return(provider_instance2)
         allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
           .with(user)
-          .and_return([provider_class, provider_class2])
+          .and_return([lighthouse_class, provider_class2])
 
-        # First provider returns nil data (should be skipped)
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
-                                                                                    'data' => nil
-                                                                                  })
-        # Second provider has the claim
-        allow(provider_instance2).to receive(:get_claim).with(claim_id).and_return({
-                                                                                     'data' => { 'id' => claim_id }
-                                                                                   })
-        allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+        proxy = double('LighthouseProxy')
+        allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
 
         result = controller.send(:get_claim_from_providers, claim_id)
 
         expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        expect(Mobile::V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
       end
 
-      it 'raises RecordNotFound when no provider has valid data' do
-        allow(provider_instance).to receive(:get_claim).with(claim_id).and_return({
-                                                                                    'data' => nil
-                                                                                  })
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+      it 'routes lighthouse to proxy when type parameter specified' do
+        proxy = double('LighthouseProxy')
+        allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
 
-        expect do
-          controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::RecordNotFound)
+        result = controller.send(:get_claim_from_providers, claim_id, 'lighthouse')
+
+        expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        expect(Mobile::V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
       end
 
-      it 'tracks metrics with mobile prefix' do
-        allow(provider_instance).to receive(:get_claim)
-          .with(claim_id)
-          .and_raise(StandardError.new('Failed'))
-        allow(Rails.logger).to receive(:error)
-        allow(StatsD).to receive(:increment)
+      it 'routes non-lighthouse providers directly to provider (bypasses proxy)' do
+        champva_class = double('ChampvaProviderClass', name: 'ChampvaProvider')
+        champva_instance = double('ChampvaProvider')
+        allow(champva_class).to receive(:new).with(user).and_return(champva_instance)
+        allow(champva_instance).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+        allow(controller).to receive(:provider_class_for_type).with('champva').and_return(champva_class)
 
-        expect do
-          controller.send(:get_claim_from_providers, claim_id)
-        end.to raise_error(Common::Exceptions::RecordNotFound)
+        # Verify Proxy is NOT called
+        allow(Mobile::V0::LighthouseClaims::Proxy).to receive(:new)
 
-        expect(StatsD).to have_received(:increment).with(
-          'mobile.claims_and_appeals.get_claim.provider_error',
-          tags: ['provider:TestProvider']
-        )
+        result = controller.send(:get_claim_from_providers, claim_id, 'champva')
+
+        expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        expect(champva_class).to have_received(:new).with(user)
+        expect(champva_instance).to have_received(:get_claim).with(claim_id)
+        expect(Mobile::V0::LighthouseClaims::Proxy).not_to have_received(:new)
       end
     end
   end

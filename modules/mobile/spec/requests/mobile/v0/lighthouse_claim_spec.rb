@@ -157,6 +157,87 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           expect(SchemaContract::Validation.last.status).to eq('success')
         end
       end
+
+      context 'when :cst_multi_claim_provider_mobile is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+
+          # Mock provider registry to return Lighthouse provider
+          lighthouse_provider = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
+            .and_return([lighthouse_provider])
+        end
+
+        context 'when no type parameter is provided' do
+          it 'defaults to lighthouse and returns claim successfully (backward compatibility)',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255', headers: sis_headers
+            end
+
+            assert_schema_conform(200)
+            expect(response.parsed_body['data']['id']).to eq('600383363')
+            expect(response.parsed_body['data']['type']).to eq('claim')
+          end
+        end
+
+        context 'when type=lighthouse parameter is provided' do
+          it 'routes to lighthouse and returns claim successfully', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255?type=lighthouse', headers: sis_headers
+            end
+
+            assert_schema_conform(200)
+            expect(response.parsed_body['data']['id']).to eq('600383363')
+            expect(response.parsed_body['data']['type']).to eq('claim')
+          end
+        end
+
+        # context 'when type=champva parameter is provided' do
+        #   it 'uses lighthouse adapter (until CHAMPVA adapter is implemented)',
+        #      run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        #     VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+        #       get '/mobile/v0/claim/600117255?type=champva', headers: sis_headers
+        #     end
+
+        #     # For now, CHAMPVA uses Lighthouse adapter and returns successfully
+        #     # TODO: Update this test when CHAMPVA adapter is implemented
+        #     assert_schema_conform(200)
+        #     expect(response.parsed_body['data']['id']).to eq('600383363')
+        #   end
+        # end
+
+        context 'provider field in response' do
+          it 'includes provider field when no type specified (defaults to lighthouse)',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255', headers: sis_headers
+            end
+
+            expect(response.parsed_body.dig('data', 'attributes', 'provider')).to eq('lighthouse')
+          end
+
+          it 'includes provider field when type=lighthouse specified',
+             run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+            VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+              get '/mobile/v0/claim/600117255?type=lighthouse', headers: sis_headers
+            end
+
+            expect(response.parsed_body.dig('data', 'attributes', 'provider')).to eq('lighthouse')
+          end
+
+          # it 'includes provider field when type=champva specified',
+          #    run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          #   VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+          #     get '/mobile/v0/claim/600117255?type=champva', headers: sis_headers
+          #   end
+
+          #   expect(response.parsed_body.dig('data', 'attributes', 'provider')).to eq('champva')
+          # end
+        end
+      end
     end
 
     context 'with a non-existent claim' do
