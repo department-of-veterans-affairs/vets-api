@@ -1,9 +1,10 @@
 ---
-name: SRE
+name: SRE Agent
 description: >-
   Performs an SRE audit of a vets-api module against error handling,
   logging, and metrics best practices from the watchtower playbook.
 tools: ["read", "search", "execute", "edit"]
+argument-hint: "Name a module to audit, e.g. 'audit modules/check_in'"
 ---
 
 # SRE Audit Agent
@@ -86,7 +87,7 @@ After presenting the report, ask the user how they'd like to capture the results
 
 1. **Chat only** (default) — the report is already displayed above, no further action
 2. **Write a markdown file** — save the report to `tmp/sre-audit-<module-name>.md` using the same formatting rules as the chat output (see Output Format below). The file should be a clean, readable document a developer can review in GitHub or any markdown viewer.
-3. **Create GitHub issues** — use `gh` CLI to create issues in `department-of-veterans-affairs/vets-api`:
+3. **Create GitHub issues** (requires [GitHub CLI](https://cli.github.com/) installed and authenticated) — use `gh` CLI to create issues in `department-of-veterans-affairs/vets-api`:
    - If **3 or fewer findings**: create one issue per finding with the play name, file:line, code snippet, and remediation
    - If **4+ findings**: create a parent tracking issue (the audit summary) and individual sub-issues for each finding, linked to the parent via task list
    - Label all issues with `sre-audit` and the module name
