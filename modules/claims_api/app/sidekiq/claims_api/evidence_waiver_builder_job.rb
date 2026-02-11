@@ -35,14 +35,8 @@ module ClaimsApi
       raise e
     end
 
-    def benefits_doc_api
-      ClaimsApi::BD.new
-    end
-
     def benefits_doc_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
       EvidenceWaiverDocumentService.new.create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
-      log_ews_event(claim, :benefits_doc_upload,
-                    'EvidenceWaiverDocumentService creation successful.')
     end
 
     def update_status_for_submission(lighthouse_claim)
