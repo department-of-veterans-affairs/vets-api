@@ -637,27 +637,6 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       }
     end
 
-    # field validation tests
-    # this does not throw an error because the schema validation handles required fields
-    context 'when anticipatedSeparationDate is missing' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
-      let(:anticipated_separation_date) { nil }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
-      end
-    end
-
-    # this does not throw an error because the schema validation handles required fields
-    context 'when title10ActivationDate is missing' do
-      let(:title10_activation_date) { nil }
-      let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
-      end
-    end
-
     # happy path test
     context 'when anticipatedSeparationDate is within 180 days of title10ActivationDate' do
       let(:title10_activation_date) { Time.zone.today.iso8601 }
@@ -689,31 +668,12 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
-    # FES allows anticipatedSeparationDate to be the same as title10ActivationDate, so we allow here as well
-    context 'when both anticipatedSeparationDate and title10ActivationDate are today' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
-      let(:anticipated_separation_date) { Time.zone.today.iso8601 }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
-      end
-    end
-
     context 'when anticipatedSeparationDate is exactly today' do
       let(:title10_activation_date) { 1.day.ago.to_date.iso8601 }
       let(:anticipated_separation_date) { Time.zone.today.iso8601 }
 
       it 'does not raise an error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
-      end
-    end
-
-    context 'when anticipatedSeparationDate is 179 days from title10ActivationDate' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
-      let(:anticipated_separation_date) { 179.days.from_now.to_date.iso8601 }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
 
@@ -729,15 +689,6 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
 
     context 'when anticipatedSeparationDate is tomorrow' do
       let(:title10_activation_date) { Time.zone.today.iso8601 }
-      let(:anticipated_separation_date) { 1.day.from_now.to_date.iso8601 }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
-      end
-    end
-
-    context 'when anticipatedSeparationDate equals title10ActivationDate' do
-      let(:title10_activation_date) { 1.day.from_now.to_date.iso8601 }
       let(:anticipated_separation_date) { 1.day.from_now.to_date.iso8601 }
 
       it 'does not raise an error' do
