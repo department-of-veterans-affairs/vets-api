@@ -505,8 +505,7 @@ module UnifiedHealthData
           total_records:,
           records_with_station_number: records_with_station,
           records_without_station_number: total_records - records_with_station,
-          unique_station_numbers: station_numbers.size,
-          station_numbers: station_numbers.join(',')
+          unique_station_numbers: station_numbers.size
         }
       )
 
