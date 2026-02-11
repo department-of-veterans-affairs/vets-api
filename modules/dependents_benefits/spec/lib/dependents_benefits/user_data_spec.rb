@@ -21,6 +21,7 @@ RSpec.describe DependentsBenefits::UserData do
     )
   end
 
+  let(:component) { described_class.name }
   let(:claim_data) do
     {
       'veteran_information' => {
@@ -47,8 +48,9 @@ RSpec.describe DependentsBenefits::UserData do
     allow(bgs_service).to receive(:people).and_return(bgs_people)
     allow(bgs_people).to receive_messages(find_person_by_ptcpnt_id: nil, find_by_ssn: nil)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
-    allow(monitor).to receive(:track_user_data_error)
-    allow(monitor).to receive(:track_user_data_warning)
+    allow(monitor).to receive(:track_error_event)
+    allow(monitor).to receive(:track_warning_event)
+    allow(monitor).to receive(:track_info_event)
   end
 
   describe '#initialize' do
@@ -101,7 +103,7 @@ RSpec.describe DependentsBenefits::UserData do
 
     context 'when file number lookup succeeds' do
       before do
-        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123', '123456789')
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123')
                                                                .and_return({ file_nbr: '987-65-4321' })
       end
 
@@ -128,10 +130,11 @@ RSpec.describe DependentsBenefits::UserData do
       end
 
       it 'tracks error and raises UnprocessableEntity' do
-        expect(monitor).to receive(:track_user_data_error).with(
+        expect(monitor).to receive(:track_error_event).with(
           'DependentsBenefits::UserData#initialize error',
-          'user_hash.failure',
-          { error: instance_of(StandardError) }
+          action: 'user_hash.failure',
+          component:,
+          error: instance_of(StandardError)
         )
 
         expect do
@@ -201,10 +204,11 @@ RSpec.describe DependentsBenefits::UserData do
       end
 
       it 'tracks error and raises UnprocessableEntity' do
-        expect(monitor).to receive(:track_user_data_error).with(
+        expect(monitor).to receive(:track_error_event).with(
           'DependentsBenefits::UserData#get_user_hash error',
-          'user_hash.failure',
-          { error: instance_of(StandardError) }
+          action: 'user_hash.failure',
+          component:,
+          error: instance_of(StandardError)
         )
 
         expect do
@@ -219,7 +223,7 @@ RSpec.describe DependentsBenefits::UserData do
 
     context 'when BGS returns file number with dashes' do
       before do
-        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123', '123456789')
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123')
                                                                .and_return({ file_nbr: '123-45-6789' })
       end
 
@@ -231,7 +235,7 @@ RSpec.describe DependentsBenefits::UserData do
 
     context 'when BGS returns normal file number' do
       before do
-        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123', '123456789')
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123')
                                                                .and_return({ file_nbr: '987654321' })
       end
 
@@ -260,10 +264,12 @@ RSpec.describe DependentsBenefits::UserData do
       end
 
       it 'tracks warning and returns nil' do
-        expect(monitor).to receive(:track_user_data_warning).with(
+        expect(monitor).to receive(:track_warning_event).with(
           'DependentsBenefits::UserData#get_file_number error',
-          'file_number_lookup.failure',
-          { error: 'Could not retrieve file number from BGS' }
+          action: 'file_number.missing',
+          component:,
+          error: 'Missing bgs_person file_nbr',
+          bgs_person_present: 'no'
         )
 
         file_number = user_data.send(:get_file_number)
@@ -277,10 +283,11 @@ RSpec.describe DependentsBenefits::UserData do
       end
 
       it 'tracks warning and returns nil' do
-        expect(monitor).to receive(:track_user_data_warning).with(
+        expect(monitor).to receive(:track_warning_event).with(
           'DependentsBenefits::UserData#get_file_number error',
-          'file_number_lookup.failure',
-          { error: 'Could not retrieve file number from BGS' }
+          action: 'file_number.failure',
+          component:,
+          error: 'Could not retrieve file number from BGS'
         )
 
         file_number = user_data.send(:get_file_number)
@@ -424,10 +431,11 @@ RSpec.describe DependentsBenefits::UserData do
       end
 
       it 'tracks warning and returns nil' do
-        expect(monitor).to receive(:track_user_data_warning).with(
+        expect(monitor).to receive(:track_warning_event).with(
           'DependentsBenefits::UserData#get_user_email failed to get va_profile_email',
-          'get_va_profile_email.failure',
-          { error: 'VAProfile service error' }
+          action: 'get_va_profile_email.failure',
+          component:,
+          error: 'VAProfile service error'
         )
 
         result = user_data.send(:get_user_email, error_user)
@@ -466,7 +474,7 @@ RSpec.describe DependentsBenefits::UserData do
       end
 
       it 'falls back to form email for notification_email' do
-        expect(monitor).to receive(:track_user_data_warning)
+        expect(monitor).to receive(:track_warning_event)
 
         user_data = described_class.new(error_user, claim_data)
         expect(user_data.notification_email).to eq('john.doe@example.com')

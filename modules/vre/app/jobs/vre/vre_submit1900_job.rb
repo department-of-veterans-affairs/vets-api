@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'vre/vre_monitor'
-require 'vre/monitor'
 
 module VRE
   class VRESubmit1900Job

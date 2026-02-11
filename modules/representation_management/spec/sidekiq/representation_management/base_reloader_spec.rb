@@ -356,12 +356,26 @@ RSpec.describe RepresentationManagement::BaseReloader do
         </body></html>
       HTML
 
-      expect(conn).to receive(:post).with('attorneyexcellist.asp', id: 'frmExcelList', name: 'frmExcelList')
-                                    .and_return(double(body: html))
+      connection = instance_double(Faraday::Connection)
+      request = instance_double(Faraday::Request)
+
+      allow(reloader).to receive(:connection).and_return(connection)
+
+      allow(request).to receive(:headers).and_return({})
+      allow(request).to receive(:body=)
+
+      expect(connection).to receive(:post).with('attorneyexcellist.asp') do |&block|
+        block.call(request)
+
+        expect(request.headers['Content-Type']).to eq('application/x-www-form-urlencoded')
+        expect(request).to have_received(:body=)
+          .with('id=frmExcelList&name=frmExcelList')
+      end.and_return(double(body: html))
 
       rows = reloader.send(:fetch_data, 'attorneyexcellist.asp')
 
-      expect(rows.size).to eq 2
+      expect(rows.size).to eq(2)
+
       expect(rows).to include(
         { 'Registration Num' => 'A1', 'First Name' => 'June', 'Last Name' => 'Park', 'POA Code' => '9G-B',
           'AccrAttorneyId' => '9c6f8595-4e84-42e5-b90a-270c422c373a' }
