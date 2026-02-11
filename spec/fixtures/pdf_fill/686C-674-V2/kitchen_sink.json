@@ -231,7 +231,7 @@
           }
         },
         "no_ssn": true,
-        "no_ssn_reason": "No SSN has been assigned or requested",
+        "no_ssn_reason": "No SSN Assigned by SSA",
         "full_name": { "first": "test", "middle": "middle", "last": "childtwo" },
         "birth_date": "2009-04-05",
         "date_entered_household": "2024-05-04",
@@ -299,7 +299,7 @@
         "is_biological_child": false,
         "birth_location": { "location": { "state": "NH", "city": "durham", "postal_code": "03301" } },
         "no_ssn": true,
-        "no_ssn_reason": "No SSN has been assigned or requested",
+        "no_ssn_reason": "No SSN Assigned by SSA",
         "full_name": { "first": "test", "middle": "middle", "last": "childfive" },
         "birth_date": "2019-10-08",
         "school_age_in_school": false
