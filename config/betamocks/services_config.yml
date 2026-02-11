@@ -1274,3 +1274,20 @@
     - :method: :post
       :path: "/api/SaveAppointment"
       :file_path: "/vass/save_appointment/default"
+
+# PPMS
+- :name: 'PPMS'
+  :base_uri: <%= "#{URI(Settings.ppms.url).host}:#{URI(Settings.ppms.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/dws/v1.0/FacilityServiceLocator"
+      :file_path: "ppms/facility_service_locator/default"
+    - :method: :get
+      :path: "/dws/v1.0/ProviderLocator"
+      :file_path: "ppms/provider_locator/default"
+    - :method: :get
+      :path: "/dws/v1.0/PlaceOfServiceLocator"
+      :file_path: "ppms/pos_locator/default"
+    - :method: :get
+      :path: "/dws/v1.0/Specialties"
+      :file_path: "ppms/specialties/default"
