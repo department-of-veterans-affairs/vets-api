@@ -61,7 +61,8 @@
     "spouse_information": {
       "va_file_number": "987654321",
       "service_number": "987654321",
-      "ssn": "987654321",
+      "no_ssn": true,
+      "no_ssn_reason": "Nonresident Alien",
       "birth_date": "1977-01-01",
       "is_veteran": true,
       "full_name": {
@@ -229,7 +230,8 @@
             "postal_code": "03301"
           }
         },
-        "ssn": "987654321",
+        "no_ssn": true,
+        "no_ssn_reason": "No SSN has been assigned or requested",
         "full_name": { "first": "test", "middle": "middle", "last": "childtwo" },
         "birth_date": "2009-04-05",
         "date_entered_household": "2024-05-04",
@@ -274,20 +276,6 @@
         "school_age_in_school": false
       },
       {
-        "income_in_last_year": "Y",
-        "marriage_end_reason": "annulment",
-        "marriage_end_description": "description of annulment",
-        "does_child_live_with_you": true,
-        "has_child_ever_been_married": false,
-        "relationship_to_child": { "adopted": true },
-        "is_biological_child": false,
-        "birth_location": { "location": { "state": "NH", "city": "durham", "postal_code": "03301" } },
-        "ssn": "987654321",
-        "full_name": { "first": "test", "middle": "middle", "last": "childfive" },
-        "birth_date": "2019-10-08",
-        "school_age_in_school": false
-      },
-      {
         "income_in_last_year": "N",
         "marriage_end_reason": "annulment",
         "marriage_end_description": "description of annulment",
@@ -299,6 +287,21 @@
         "ssn": "987654321",
         "full_name": { "first": "test", "middle": "middle", "last": "childsix" },
         "birth_date": "2023-11-07",
+        "school_age_in_school": false
+      },
+      {
+        "income_in_last_year": "Y",
+        "marriage_end_reason": "annulment",
+        "marriage_end_description": "description of annulment",
+        "does_child_live_with_you": true,
+        "has_child_ever_been_married": false,
+        "relationship_to_child": { "adopted": true },
+        "is_biological_child": false,
+        "birth_location": { "location": { "state": "NH", "city": "durham", "postal_code": "03301" } },
+        "no_ssn": true,
+        "no_ssn_reason": "No SSN has been assigned or requested",
+        "full_name": { "first": "test", "middle": "middle", "last": "childfive" },
+        "birth_date": "2019-10-08",
         "school_age_in_school": false
       }
     ],
