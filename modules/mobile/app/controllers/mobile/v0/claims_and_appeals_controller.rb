@@ -36,7 +36,7 @@ module Mobile
         adapter = adapter_for_provider(provider_type)
         # Default to 'lighthouse' if no provider_type specified
         provider = provider_type.presence || 'lighthouse'
-        claim_detail = adapter.parse(claim_response, provider: provider)
+        claim_detail = adapter.parse(claim_response, provider:)
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
@@ -222,17 +222,17 @@ module Mobile
         Mobile::V0::Adapters::LighthouseIndividualClaims.new
       end
 
-      def adapter_for_provider(provider_type)
-        case provider_type&.downcase
+      def adapter_for_provider(_provider_type)
+        # TODO: Add case statement when CHAMPVA is onboarded to CST
+        # case provider_type&.downcase
         # when 'champva'
-        #   # TODO: Uncomment when CHAMPVA is onboarded to CST
-        #   # Create CHAMPVA-specific adapter if status codes differ from Lighthouse
-        #   # For now, use Lighthouse adapter as CHAMPVA uses same JSONAPI format
+        #   Mobile::V0::Adapters::ChampvaIndividualClaims.new
+        # else
         #   Mobile::V0::Adapters::LighthouseIndividualClaims.new
-        else
-          # Default to Lighthouse
-          Mobile::V0::Adapters::LighthouseIndividualClaims.new
-        end
+        # end
+
+        # For now, all providers use Lighthouse adapter
+        Mobile::V0::Adapters::LighthouseIndividualClaims.new
       end
 
       def appeal_adapter

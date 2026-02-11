@@ -125,7 +125,8 @@ RSpec.describe Mobile::V0::Concerns::MultiProviderSupport do
         claims_list, errors = controller.send(:get_claims_from_providers)
 
         expect(claims_list.length).to eq(2)
-        expect(claims_list).to eq([{ 'id' => '1', 'provider' => 'testprovider' }, { 'id' => '2', 'provider' => 'testprovider2' }])
+        expect(claims_list).to eq([{ 'id' => '1', 'provider' => 'testprovider' },
+                                   { 'id' => '2', 'provider' => 'testprovider2' }])
         expect(errors).to eq([])
       end
     end

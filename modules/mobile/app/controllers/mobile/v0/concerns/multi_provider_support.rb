@@ -74,8 +74,9 @@ module Mobile
         # Maps provider type strings to their provider classes
         # Single source of truth for supported providers
         PROVIDER_TYPE_MAPPINGS = {
-          'lighthouse' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider,
-          # 'champva' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider # TODO: Update when CHAMPVA provider exists
+          'lighthouse' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+          # TODO: Add CHAMPVA mapping when provider is onboarded to CST
+          # 'champva' => BenefitsClaims::Providers::Champva::ChampvaBenefitsClaimsProvider
         }.freeze
 
         def provider_class_for_type(type)
@@ -116,6 +117,7 @@ module Mobile
           # Fallback: derive from class name for testing/unknown providers
           class_name = provider_class.name.to_s.downcase
           return 'lighthouse' if class_name.include?('lighthouse')
+
           # return 'champva' if class_name.include?('champva')
 
           class_name.split('::').last.downcase
