@@ -157,22 +157,16 @@ module VAOS
           vaos_request_failures = vaos_response[:meta][:failures]
           vaos_data = vaos_response[:data]
 
-          # Collect all failures (API errors and data format errors)
-          failures = Array(vaos_request_failures)
-
           unless vaos_data.is_a?(Array)
             Rails.logger.error(
               'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
               "Unexpected VAOS response format: data is #{vaos_data.class.name}, expected Array"
             )
-            failures << {
-              code: 'VAOS_RESPONSE_FORMAT_ERROR',
-              source: 'VAOS',
-              detail: 'VAOS get_all_appointments returned data in unexpected format'
-            }
+            msg = 'Unexpected VAOS response in referral_appointment_already_exists? - data is not an Array'
+            vaos_request_failures = msg if vaos_request_failures.blank?
           end
 
-          return { error: true, failures: } if failures.present?
+          return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
 
           return { exists: true } if vaos_data.any? { |appt| appt[:referral_id] == referral_id }
         end

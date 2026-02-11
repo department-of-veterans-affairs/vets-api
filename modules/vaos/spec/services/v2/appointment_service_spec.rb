@@ -1851,9 +1851,8 @@ describe VAOS::V2::AppointmentsService do
             expect(Rails.logger)
               .to have_received(:warn)
               .with(expected_message)
-            expect(check[:failures]).to be_an(Array)
+            expect(check[:failures]).to be_a(String)
             expect(check[:failures]).to include('Missing ICN message')
-            expect(check[:failures].map { |f| f.is_a?(Hash) ? f[:code] : nil }).to include('VAOS_RESPONSE_FORMAT_ERROR')
           end
         end
       end
@@ -1868,11 +1867,8 @@ describe VAOS::V2::AppointmentsService do
           result = appointments_service.referral_appointment_already_exists?('ref-150')
 
           expect(result[:error]).to be(true)
-          expect(result[:failures]).to be_an(Array)
-          failure_codes = result[:failures]
-                          .select { |f| f.is_a?(Hash) }
-                          .map { |f| f[:code] }
-          expect(failure_codes).to include('VAOS_RESPONSE_FORMAT_ERROR')
+          expect(result[:failures]).to be_a(String)
+          expect(result[:failures]).to include('Unexpected VAOS response')
           expect(Rails.logger).to have_received(:error).with(
             'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
             'Unexpected VAOS response format: data is Hash, expected Array'
