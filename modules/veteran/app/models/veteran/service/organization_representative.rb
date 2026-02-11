@@ -24,6 +24,34 @@ module Veteran
 
       validates :organization_poa, presence: true
       validates :representative_id, uniqueness: { scope: :organization_poa }
+
+      scope :active, -> { where(deactivated_at: nil) }
+      scope :deactivated, -> { where.not(deactivated_at: nil) }
+
+      def activate!
+        return true if deactivated_at.nil?
+
+        update!(deactivated_at: nil)
+      end
+
+      def deactivate!
+        update!(deactivated_at: Time.current)
+      end
+
+      def self.deactivate!(ids)
+        ids = Array(ids).compact
+        return 0 if ids.empty?
+
+        now = Time.current
+        count = 0
+
+        where(id: ids).find_each do |record|
+          record.update!(deactivated_at: now)
+          count += 1
+        end
+
+        count
+      end
     end
   end
 end
