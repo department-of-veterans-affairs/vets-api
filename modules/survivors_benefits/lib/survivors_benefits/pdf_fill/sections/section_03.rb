@@ -140,21 +140,29 @@ module SurvivorsBenefits
             key: 'form1[0].#subform[208].Date_Of_Activation_Year[0]'
           }
         },
-        'unitNameAndAddress' => {
-          'line_one' => {
-            limit: 60,
-            question_num: 3,
-            question_suffix: 'H',
-            question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
-            question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
-            key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[0]'
-          },
-          'line_two' => {
-            key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[1]'
-          },
-          'line_three' => {
-            key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[2]'
-          }
+        'unitNameAndAddressLineOne' => {
+          limit: 20,
+          question_num: 3,
+          question_suffix: 'H',
+          question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+          question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
+          key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[0]'
+        },
+        'unitNameAndAddressLineTwo' => {
+          limit: 20,
+          question_num: 3,
+          question_suffix: 'H',
+          question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+          question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
+          key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[1]'
+        },
+        'unitNameAndAddressLineThree' => {
+          limit: 20,
+          question_num: 3,
+          question_suffix: 'H',
+          question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+          question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
+          key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[2]'
         },
         'unitPhone' => {
           'phone_area_code' => {
