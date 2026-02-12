@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -380,16 +380,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
     t.string "accredited_individual_registration_number", null: false
     t.datetime "created_at", null: false
     t.index ["saved_claim_id"], name: "idx_on_saved_claim_id_f4f27623c2", unique: true
-  end
-
-  create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "accredited_individual_registration_number", null: false
-    t.string "power_of_attorney_holder_type", null: false
-    t.string "user_account_email", null: false
-    t.string "user_account_icn"
-    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
-    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
-    t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -1502,6 +1492,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "organization_representatives", force: :cascade do |t|
+    t.string "representative_id", null: false
+    t.string "organization_poa", limit: 3, null: false
+    t.string "acceptance_mode", default: "no_acceptance", null: false
+    t.datetime "deactivated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_poa", "representative_id"], name: "idx_org_reps_on_org_poa_and_rep_id", unique: true
+    t.check_constraint "acceptance_mode::text = ANY (ARRAY['any_request'::character varying, 'self_only'::character varying, 'no_acceptance'::character varying]::text[])", name: "org_reps_acceptance_mode_check"
+  end
+
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -2277,6 +2278,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_02_150423) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "organization_representatives", "veteran_organizations", column: "organization_poa", primary_key: "poa"
+  add_foreign_key "organization_representatives", "veteran_representatives", column: "representative_id", primary_key: "representative_id"
   add_foreign_key "saved_claim_groups", "saved_claims", column: "parent_claim_id", validate: false
   add_foreign_key "saved_claim_groups", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false

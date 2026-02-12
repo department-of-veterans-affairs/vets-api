@@ -207,7 +207,8 @@ module DependentsBenefits
                   else
                     monitor.track_error_event(
                       "Diaries is not a hash! Diaries type: #{diaries.class.name}",
-                      'dependents_benefits.dependency_decisions.invalid_diaries_type'
+                      action: 'invalid_diaries_type',
+                      component: 'DependentsBenefits::DependentsHelper'
                     )
                     nil
                   end
@@ -224,5 +225,14 @@ module DependentsBenefits
     def monitor
       @monitor ||= DependentsBenefits::Monitor.new
     end
+
+    ##
+    # Returns the component name for monitoring/logging
+    #
+    # Used as the default component tag value in monitor event tracking.
+    # Returns the fully qualified class name for better log filtering and debugging.
+    #
+    # @return [String] The fully qualified class name
+    def component = self.class.name
   end
 end

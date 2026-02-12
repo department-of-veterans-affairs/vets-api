@@ -55,11 +55,11 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
         allow(lh_submission).to receive(:initialize_service)
         allow(lh_submission).to receive(:prepare_submission).and_raise(test_error)
         allow(job).to receive(:monitor).and_return(monitor_instance)
-        allow(monitor_instance).to receive(:track_submission_info)
+        allow(monitor_instance).to receive(:track_info_event)
       end
 
       it 'updates submission to failed, ensures cleanup, and re-raises error' do
-        allow(monitor_instance).to receive(:track_submission_error)
+        allow(monitor_instance).to receive(:track_error_event)
         expect(job).to receive(:mark_submission_attempt_failed)
         expect(lh_submission).to receive(:cleanup_file_paths)
         expect do
@@ -132,8 +132,12 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
       end
 
       it 'tracks the error without re-raising' do
-        expect(monitor_instance).to receive(:track_submission_error)
-          .with('Error handling job success', 'success_failure', error: test_error, parent_claim_id: parent_claim.id)
+        expect(monitor_instance).to receive(:track_error_event)
+          .with('Error handling job success',
+                action: 'success_failure',
+                component: anything,
+                error: test_error,
+                parent_claim_id: parent_claim.id)
         expect { job.handle_job_success }.not_to raise_error
       end
     end

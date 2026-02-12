@@ -577,6 +577,10 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
+  accreditation_xlsx:
+    password: ~
+    url: ~
+    username: ~
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
@@ -1117,6 +1121,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: ~
   apim_url: ~
+  mock: true
   open_timeout: 15
   read_timeout: 55
   url: https://some.fakesite.com
@@ -1148,6 +1153,23 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
+  bio_submission_status:
+    emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+      - '21-4192'
+      - '21-0779'
+      - '21P-530a'
+      - '21-2680'
+    staging_emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:
@@ -1371,6 +1393,12 @@ travel_pay:
     resource: ~
     tenant_id: ~
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '757'
+  - '506'
+  - '515'
+  - '553'
+  - '655'
   processor_job:
     batch_size: 50
     max_iterations: 20
@@ -1625,8 +1653,10 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       push_api_key: fake_secret
+      sms_sender_id: fake_secret
       template_id:
         decision_letter_ready_email: fake_template_id
+        decision_letter_ready_sms: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
@@ -1866,6 +1896,7 @@ vass:
   service_name: VASS-API
   subscription_key: fake_subscription_key
   tenant_id: fake_tenant_id
+  token_encryption_key: development-encryption-key-32chars-min-for-aes256-testing
 vba_documents:
   custom_metadata_allow_list: ~
   enable_download_endpoint: ~
