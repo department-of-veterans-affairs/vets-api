@@ -368,6 +368,7 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
         described_class.new.perform
 
         expect(StatsD).to have_received(:increment).with("#{described_class::STATS_KEY}.completed")
+        expect(StatsD).to have_received(:gauge).with("#{described_class::STATS_KEY}.errors", 1)
       end
     end
 
