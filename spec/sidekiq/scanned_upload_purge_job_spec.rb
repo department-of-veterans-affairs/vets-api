@@ -17,6 +17,7 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
           }.to_json
         )
       end
+
       it 'increments job.started and job.completed when job begins and finishes' do
         expect(StatsD).to receive(:increment)
           .with("#{described_class::STATS_KEY}.started")
@@ -259,17 +260,27 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
                                       aasm_state: 'vbms', lighthouse_updated_at: cutoff_date)
 
         allow(bad_fs).to receive(:update_columns).and_raise(StandardError)
-        # Need to intercept the specific record
         call_count = 0
         allow_any_instance_of(FormSubmission).to receive(:form_data).and_wrap_original do |m|
           call_count += 1
           raise StandardError, 'boom' if call_count == 1
+
           m.call
         end
 
         described_class.new.perform
 
         expect(good_fs.reload.form_data).to be_nil
+      end
+
+      it 'does not purge submissions exactly at the cutoff boundary' do
+        fs = FormSubmission.create!(form_type:, form_data: { test: 'data' }.to_json)
+        FormSubmissionAttempt.create!(form_submission: fs, benefits_intake_uuid: SecureRandom.uuid,
+                                      aasm_state: 'vbms', lighthouse_updated_at: 59.days.ago)
+
+        described_class.new.perform
+
+        expect(fs.reload.form_data).not_to be_nil
       end
     end
 
@@ -340,10 +351,10 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
         allow(Rails.logger).to receive(:error).and_call_original
 
         expect(Rails.logger).to receive(:error)
-        .with('Failed to purge form submission', hash_including(
-          form_submission_id: form_submission.id,
-          backtrace: anything
-        ))
+          .with('Failed to purge form submission', hash_including(
+                                                     form_submission_id: form_submission.id,
+                                                     backtrace: anything
+                                                   ))
 
         expect { described_class.new.perform }.not_to raise_error
       end
