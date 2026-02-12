@@ -33,7 +33,7 @@ module Mobile
 
       def refill
         parsed_orders = orders
-        allowed_orders, blocked_failures = partition_orders_by_oh_status(parsed_orders)
+        allowed_orders, blocked_failures = oh_transition_filter.partition_orders(parsed_orders)
 
         # Only call upstream service if there are non-blocked orders
         api_result = if allowed_orders.present?
@@ -42,7 +42,7 @@ module Mobile
                        { success: [], failed: [] }
                      end
 
-        merged_result = merge_refill_results(api_result, blocked_failures)
+        merged_result = MHV::Prescriptions::OhTransitionRefillFilter.merge_results(api_result, blocked_failures)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, merged_result)
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
 
