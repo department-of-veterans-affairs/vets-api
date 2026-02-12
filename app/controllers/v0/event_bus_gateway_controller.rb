@@ -4,13 +4,12 @@ module V0
   class EventBusGatewayController < SignIn::ServiceAccountApplicationController
     service_tag 'event_bus_gateway'
 
-    def send_email
-      template_id = send_email_params.require(:template_id)
-      final_template_id = select_email_template(template_id)
+    before_action :process_email_template, only: %i[send_email send_notifications]
 
+    def send_email
       EventBusGateway::LetterReadyEmailJob.perform_async(
         participant_id,
-        final_template_id
+        @final_email_template_id
       )
       head :ok
     end
@@ -27,18 +26,25 @@ module V0
       validate_at_least_one_template!
       return if performed?
 
-      email_template_id = send_notifications_params[:email_template_id]
-      final_email_template_id = email_template_id.present? ? select_email_template(email_template_id) : nil
-
       EventBusGateway::LetterReadyNotificationJob.perform_async(
         participant_id,
-        final_email_template_id,
+        @final_email_template_id,
         send_notifications_params[:push_template_id]
       )
       head :ok
     end
 
     private
+
+    def process_email_template
+      template_id = if action_name == 'send_email'
+                      send_email_params.require(:template_id)
+                    else
+                      send_notifications_params[:email_template_id]
+                    end
+
+      @final_email_template_id = template_id.present? ? select_email_template(template_id) : nil
+    end
 
     def participant_id
       @participant_id ||= @service_account_access_token.user_attributes['participant_id']
