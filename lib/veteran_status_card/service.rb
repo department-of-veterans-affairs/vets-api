@@ -529,9 +529,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: something_went_wrong_response[:message],
-            title: something_went_wrong_response[:title],
-            status: something_went_wrong_response[:status]
+            message: unknown_eligibility_response[:message],
+            title: unknown_eligibility_response[:title],
+            status: unknown_eligibility_response[:status]
           }
         else
           {

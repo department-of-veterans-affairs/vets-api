@@ -561,17 +561,14 @@ RSpec.describe VeteranStatusCard::Service do
 
       context 'with PERSON_NOT_FOUND reason' do
         let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
-        let(:error_title) { 'Person Not Found Title' }
-        let(:error_message) { 'Person not found message' }
-        let(:error_status) { 'error' }
 
         it 'returns veteran_status_alert with error details' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq('Person Not Found Title')
-          expect(result[:attributes][:body]).to eq('Person not found message')
-          expect(result[:attributes][:alert_type]).to eq('error')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:status])
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
@@ -580,17 +577,14 @@ RSpec.describe VeteranStatusCard::Service do
 
       context 'with ERROR reason' do
         let(:not_confirmed_reason) { 'ERROR' }
-        let(:error_title) { 'Error Title' }
-        let(:error_message) { 'Error message' }
-        let(:error_status) { 'error' }
 
         it 'returns veteran_status_alert with error details' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq('Error Title')
-          expect(result[:attributes][:body]).to eq('Error message')
-          expect(result[:attributes][:alert_type]).to eq('error')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('ERROR')
           expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
@@ -1011,9 +1005,9 @@ RSpec.describe VeteranStatusCard::Service do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE[:status])
         end
       end
 
@@ -1081,9 +1075,9 @@ RSpec.describe VeteranStatusCard::Service do
 
           expect(status[:veteran_status]).to be_nil
           expect(status[:reason]).to eq('ERROR')
-          expect(status[:message]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
-          expect(status[:title]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
-          expect(status[:status]).to eq(VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
+          expect(status[:message]).to eq(VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(status[:title]).to eq(VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(status[:status]).to eq(VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
 
