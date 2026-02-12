@@ -133,7 +133,6 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
 
   describe '#send' do
     let(:template_id) { Settings.vanotify.services.va_gov.template_id.form_upload_confirmation_email }
-    let(:form_number) { '21-0779' }
     let(:notification_type) { :confirmation }
     let(:confirmation_number) { 'confirmation-number' }
     let(:statsd_tags) do
@@ -168,40 +167,52 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
       { form_number:, form_data:, confirmation_number:, date_submitted: }
     end
 
-    context 'send at time is not specified' do
-      it 'sends the email' do
-        allow(VANotify::EmailJob).to receive(:perform_async)
+    shared_examples 'sends confirmation email' do
+      context 'send at time is not specified' do
+        it 'sends the email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
 
-        subject = described_class.new(config, notification_type: :confirmation)
+          subject = described_class.new(config, notification_type: :confirmation)
+          subject.send
 
-        subject.send
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            email,
+            template_id,
+            expected_personalization,
+            *email_args
+          )
+        end
+      end
 
-        expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          email,
-          template_id,
-          expected_personalization,
-          *email_args
-        )
+      context 'send at time is specified' do
+        it 'sends the email at the specified time' do
+          time = double
+          allow(VANotify::EmailJob).to receive(:perform_at)
+
+          subject = described_class.new(config, notification_type: :confirmation)
+          subject.send(at: time)
+
+          expect(VANotify::EmailJob).to have_received(:perform_at).with(
+            time,
+            email,
+            template_id,
+            expected_personalization,
+            *email_args
+          )
+        end
       end
     end
 
-    context 'send at time is specified' do
-      it 'sends the email at the specified time' do
-        time = double
-        allow(VANotify::EmailJob).to receive(:perform_at)
+    context 'form 21-0779' do
+      let(:form_number) { '21-0779' }
 
-        subject = described_class.new(config, notification_type: :confirmation)
+      it_behaves_like 'sends confirmation email'
+    end
 
-        subject.send(at: time)
+    context 'form 20-10208' do
+      let(:form_number) { '20-10208' }
 
-        expect(VANotify::EmailJob).to have_received(:perform_at).with(
-          time,
-          email,
-          template_id,
-          expected_personalization,
-          *email_args
-        )
-      end
+      it_behaves_like 'sends confirmation email'
     end
   end
 end
