@@ -357,7 +357,9 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
-digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
+digital_forms_api:
+  <<: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
+  base_url: https://vefs-forms-api-test.dev.bip.va.gov/
 directory:
   apikey: fake_apikey
   health_server_id: ~

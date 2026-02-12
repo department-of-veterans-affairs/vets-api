@@ -6,5 +6,119 @@ Ensure the following line is in the root project's Gemfile:
 
   gem 'digital_forms_api', path: 'modules/digital_forms_api'
 
+== Discovery Status (Not Production-Wired)
+
+The submissions service includes a discovery helper:
+
+  DigitalFormsApi::Service::Submissions#submit_and_resolve_uuid
+
+This method is intended for local/discovery evaluation only right now. It performs:
+
+* submit
+* retrieve(submission_id)
+* UUID extraction from the retrieved submission payload (when available)
+
+Important:
+
+* This helper is not currently wired into production submission flows.
+* Existing +submit+ and +retrieve+ behavior remains unchanged.
+* If UUID is not present in the upstream submission payload, +resolved_user_uuid+ will be +nil+.
+
+== Fetching UUID from Submission
+
+If you need to resolve a user UUID from a successful Digital Forms submission,
+use +DigitalFormsApi::Service::Submissions#submit_and_resolve_uuid+.
+
+This method:
+
+* submits payload/metadata
+* reads +submissionId+ from the submit response
+* calls +retrieve(submission_id)+
+* extracts UUID candidates from the retrieved payload
+
+Expected return shape:
+
+  {
+    submission_id: String | nil,
+    claim_id: String | nil,
+    participant_id: String | nil,
+    resolved_user_uuid: String | nil,
+    submit_response: Faraday::Env,
+    retrieve_response: Faraday::Env | nil
+  }
+
+Example (application usage):
+
+  service = DigitalFormsApi::Service::Submissions.new
+  result = service.submit_and_resolve_uuid(payload, metadata, dry_run: true)
+
+  uuid = result[:resolved_user_uuid]
+  submission_id = result[:submission_id]
+
+Example (rails console):
+
+  require 'digital_forms_api/service/submissions'
+
+  service = DigitalFormsApi::Service::Submissions.new
+  payload = { data: 'TEST' }
+  metadata = {
+    formId: '21-686c',
+    veteranId: '123456789',
+    claimantId: '123456789',
+    epCode: '130',
+    claimLabel: '130DPEBNAJRE'
+  }
+
+  result = service.submit_and_resolve_uuid(payload, metadata, dry_run: true)
+  result.slice(:submission_id, :claim_id, :participant_id, :resolved_user_uuid)
+
+Troubleshooting:
+
+* +dry_run: true+ still performs network calls.
+* DNS/VPN/network issues can fail before a response is returned.
+* If +resolved_user_uuid+ is +nil+, upstream payload likely did not include UUID fields.
+
+== Schema Validation
+
+Schema validation utilities are implemented in:
+
+  lib/digital_forms_api/validation/schema.rb
+
+This module validates payloads against form-specific JSON schemas fetched from the
+Digital Forms API +schemas/:form_id+ endpoint.
+
+Primary methods:
+
+* +validate_schema_property(form_id, property, value)+
+* +validate_upload_payload(form_id, file_name, provider_data)+
+* +validate_provider_data(form_id, provider_data)+
+* +validate_search_file_request(form_id, results_per_page:, page:, filters:, sort:)+
+* +fetch_form_schema(form_id)+
+
+Behavior notes:
+
+* Supports schema response shapes of +{"schema": ...}+ and +{"data" => {"schema" => ...}}+.
+* Raises +JSON::Schema::ValidationError+ for invalid payloads or schema parse failures.
+* Normalizes pagination inputs via +normalize_integer+ for search requests.
+* Tracks schema-related errors via +DigitalFormsApi::Monitor::Service+.
+
+Example usage:
+
+  # Validate upload payload for a form
+  payload = DigitalFormsApi::Validation::Schema.validate_upload_payload(
+    '21-686c',
+    'dependents.pdf',
+    { participantId: '600123456', source: 'va.gov' }
+  )
+
+  # Validate file search request payload
+  request = DigitalFormsApi::Validation::Schema.validate_search_file_request(
+    '21-686c',
+    results_per_page: 10,
+    page: 1,
+    filters: { status: 'UPLOADED' },
+    sort: [{ field: 'createdAt', order: 'DESC' }]
+  )
+
 == License
 This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
