@@ -87,13 +87,14 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(session_model).to receive(:save_veteran_metadata_for_session)
       end
 
-      it 'returns success response' do
+      it 'returns success response with obfuscated email' do
         post :request_otp, params:, format: :json
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
         expect(json_response['data']['message']).to eq('OTP sent to registered email address')
         expect(json_response['data']['expiresIn']).to be_a(Integer)
+        expect(json_response['data']['email']).to eq('v******@example.com')
       end
 
       it 'validates and fetches veteran info from VASS' do
@@ -226,7 +227,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         allow(session_model).to receive(:validate_identity_against_veteran_data).and_raise(
           Vass::Errors::IdentityValidationError.new('Veteran identity could not be verified')
         )
-        allow(redis_client).to receive_messages(rate_limit_exceeded?: false, validation_rate_limit_exceeded?: false)
+        allow(redis_client).to receive_messages(rate_limit_exceeded?: false, validation_rate_limit_exceeded?: false,
+                                                rate_limit_count: 1)
         allow(redis_client).to receive(:increment_rate_limit)
         allow(appointments_service).to receive(:get_veteran_info).and_return(veteran_data_mismatch)
       end
@@ -274,7 +276,7 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
       it 'returns unprocessable entity status' do
         post :request_otp, params:, format: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
         expect(json_response['errors'].first['code']).to eq('missing_contact_info')
@@ -449,7 +451,8 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
           .and_raise(Vass::Errors::AuthenticationError, 'Invalid OTP')
         allow(redis_client).to receive(:increment_validation_rate_limit)
         allow(redis_client).to receive_messages(validation_rate_limit_exceeded?: false,
-                                                validation_attempts_remaining: 2)
+                                                validation_attempts_remaining: 2,
+                                                validation_rate_limit_count: 1)
       end
 
       it 'returns unauthorized status' do
@@ -466,9 +469,9 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         post :authenticate_otp, params:, format: :json
       end
 
-      it 'logs StatsD metric' do
+      it 'logs StatsD metric with attempt number' do
         expect(StatsD).to receive(:increment).with('api.vass.infrastructure.session.otp.invalid',
-                                                   tags: ['service:vass'])
+                                                   tags: ['service:vass', 'attempt:1'])
         post :authenticate_otp, params:, format: :json
       end
     end
@@ -509,6 +512,21 @@ RSpec.describe Vass::V0::SessionsController, type: :controller do
         expect(permitted[:uuid]).to eq(uuid)
         expect(permitted[:last_name]).to eq(last_name)
         expect(permitted[:dob]).to eq(date_of_birth)
+      end
+    end
+
+    describe '#obfuscate_email' do
+      it 'obfuscates email showing first character and domain' do
+        expect(controller.send(:obfuscate_email, 'veteran@example.com')).to eq('v******@example.com')
+        expect(controller.send(:obfuscate_email, 'ab@domain.com')).to eq('a*@domain.com')
+        expect(controller.send(:obfuscate_email, 'a@domain.com')).to eq('a@domain.com')
+      end
+
+      it 'returns nil for invalid inputs' do
+        expect(controller.send(:obfuscate_email, nil)).to be_nil
+        expect(controller.send(:obfuscate_email, '')).to be_nil
+        expect(controller.send(:obfuscate_email, 'invalid')).to be_nil
+        expect(controller.send(:obfuscate_email, '@domain.com')).to be_nil
       end
     end
   end

@@ -15,6 +15,7 @@ FactoryBot.define do
       "Body #{n}"
     end
 
+    reply_disabled { true }
     attachment { false }
     sent_date { 'Thu, 11 Jul 2013 20:25:54 GMT' }
     sender_id { 1 }
@@ -52,12 +53,14 @@ FactoryBot.define do
     end
 
     factory :message_thread_details, class: 'MessageThreadDetails' do
+      reply_disabled { false }
       message_id { 123 }
       thread_id { 456 }
       folder_id { 789 }
       draft_date { Time.current.iso8601 }
       to_date { Time.current.iso8601 }
       has_attachments { false }
+      oh_migration_phase { nil }
     end
   end
 end
