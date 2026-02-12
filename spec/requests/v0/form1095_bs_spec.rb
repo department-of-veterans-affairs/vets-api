@@ -44,7 +44,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       # this will be irrelevant after we add the template
-      it 'throws 422 when template is not available' do
+      it 'returns 422 when template is not available' do
         get '/v0/form1095_bs/download_pdf/2023'
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -52,7 +52,9 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       context 'with form1095b_multiple_years flag on' do
         before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(true) }
 
-        it 'throws 422 when requested year is not in supported range' do
+        it 'returns 422 when requested year is not in supported range' do
+          # 2022 and 2023 should return 200 but the templates don't currently exist.
+          # they will be added in an upcoming ticket
           years = {
             '2021' => :unprocessable_entity,
             '2022' => :unprocessable_entity,
@@ -74,7 +76,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       context 'with form1095b_multiple_years flag off' do
         before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(false) }
 
-        it 'throws 422 when requested year is not in supported range' do
+        it 'returns 422 when requested year is not in supported range' do
           years = {
             '2021' => :unprocessable_entity,
             '2022' => :unprocessable_entity,
@@ -143,16 +145,58 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
+
+
       # this will be irrelevant after we add the template
-      it 'throws 422 when template is not available' do
+      it 'returns 422 when template is not available' do
         get '/v0/form1095_bs/download_txt/2023'
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      # 2021 is the one unsupported year for which we have a template
-      it 'throws 422 when requested year is not in supported range' do
-        get '/v0/form1095_bs/download_txt/2021'
-        expect(response).to have_http_status(:unprocessable_entity)
+      context 'with form1095b_multiple_years flag on' do
+        before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(true) }
+
+        it 'returns 422 when requested year is not in supported range' do
+          # 2022 and 2023 should return 200 but the templates don't currently exist.
+          # they will be added in an upcoming ticket
+          years = {
+            '2021' => :unprocessable_entity,
+            '2022' => :unprocessable_entity,
+            '2023' => :unprocessable_entity,
+            '2024' => :ok,
+            '2025' => :unprocessable_entity
+          }
+
+          years.each_pair do |k, v|
+            VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                            { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
+              get "/v0/form1095_bs/download_txt/#{k}"
+              expect(response).to have_http_status(v)
+            end
+          end
+        end
+      end
+
+      context 'with form1095b_multiple_years flag off' do
+        before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(false) }
+
+        it 'returns 422 when requested year is not in supported range' do
+          years = {
+            '2021' => :unprocessable_entity,
+            '2022' => :unprocessable_entity,
+            '2023' => :unprocessable_entity,
+            '2024' => :ok,
+            '2025' => :unprocessable_entity
+          }
+
+          years.each_pair do |k, v|
+            VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                            { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
+              get "/v0/form1095_bs/download_txt/#{k}"
+              expect(response).to have_http_status(v)
+            end
+          end
+        end
       end
     end
 
