@@ -73,20 +73,18 @@ module UnifiedHealthData
         return false if station_number.blank?
 
         # Extract numeric prefix for range validation (e.g., '648A4' -> 648)
-        numeric_prefix = station_number.match(/^(\d{3})/)[1].to_i
+        match = station_number.match(/^(\d{3})/)
+        return false unless match
 
-        # Check against MHV facility range configuration (e.g., 358-758)
+        numeric_prefix = match[1].to_i
+
+        # Check against MHV facility range configuration
+        # Format: [[358, 718], [720, 740], [742, 758]] (array of [min, max] pairs)
         facility_range = Settings.mhv&.facility_range
-        if facility_range.present?
-          min_station = facility_range['min'].to_i
-          max_station = facility_range['max'].to_i
-
-          # Guard against misconfiguration (both min and max being zero/nil)
-          if min_station.positive? && max_station.positive? &&
-             !(numeric_prefix >= min_station && numeric_prefix <= max_station)
-            # Fast fail: Station must be within configured range
-            return false
-          end
+        if facility_range.present? && facility_range.is_a?(Array)
+          # Fast fail: Check if station falls within any configured range
+          in_range = facility_range.any? { |range| numeric_prefix.between?(*range) }
+          return false unless in_range
         end
 
         # Additional validation: Check HealthFacility table

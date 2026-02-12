@@ -13,6 +13,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   let(:current_user) { user }
   let(:patient) { false }
 
+  # Use the actual Settings format (array of [min, max] pairs)
+  let(:facility_range) { [[358, 718], [720, 740], [742, 758]] }
+
   before do
     allow_any_instance_of(User).to receive(:va_patient?).and_return(va_patient)
     allow_any_instance_of(User).to receive(:mhv_user_account).and_return(OpenStruct.new(patient:))
@@ -21,10 +24,15 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     # Freeze today so service default_end_date is deterministic for VCR cassettes
     allow(Time.zone).to receive(:today).and_return(Date.new(2025, 9, 19))
 
-    # Stub FacilityNameResolver to bypass station number validation
-    # The validation requires Settings.mhv.facility_range which has a different format in production
-    allow_any_instance_of(UnifiedHealthData::Adapters::FacilityNameResolver)
-      .to receive(:valid_station_number?).and_return(true)
+    # Set up Settings with actual format used in production
+    allow(Settings.mhv).to receive(:facility_range).and_return(facility_range)
+
+    # Stub HealthFacility for stations used in test fixtures
+    # These are the stations that appear in VCR cassettes
+    valid_stations = %w[556 570 668 989 757 123 124 125 500 600]
+    allow(HealthFacility).to receive(:exists?) do |args|
+      valid_stations.include?(args[:unique_id])
+    end
   end
 
   describe 'GET /mobile/v1/health/rx/prescriptions' do
@@ -259,12 +267,12 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     context 'when user is authenticated and has mhv access' do
       let(:patient) { true }
 
-      before do
-        # Skip prescription validation for tests that don't have get_prescriptions cassette
-        allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
-      end
-
       context 'when response count does not match request count' do
+        before do
+          # Skip prescription validation for tests without get_prescriptions cassette
+          allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
+        end
+
         it 'returns an error for each order id when response count does not match request count' do
           VCR.use_cassette('unified_health_data/refill_prescription_success') do
             put '/mobile/v1/health/rx/prescriptions/refill',
@@ -324,6 +332,11 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
         end
 
         context 'when prescription refill fails' do
+          before do
+            # Skip validation for this test
+            allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
+          end
+
           it 'returns 502 error for upstream service failure' do
             VCR.use_cassette('unified_health_data/refill_prescription_failure') do
               put '/mobile/v1/health/rx/prescriptions/refill',
@@ -361,6 +374,8 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
           before do
             allow(UnifiedHealthData::Service).to receive(:new).and_return(mock_service)
+            # Skip validation for these mocked service tests
+            allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
           end
 
           it 'handles empty success and failed arrays correctly' do

@@ -6,7 +6,8 @@ require 'unified_health_data/adapters/facility_name_resolver'
 RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
   subject { described_class.new }
 
-  let(:facility_range) { { 'min' => 358, 'max' => 758 } }
+  # Use the actual configuration format: array of [min, max] pairs
+  let(:facility_range) { [[358, 718], [720, 740], [742, 758]] }
 
   before do
     allow(Settings.mhv).to receive(:facility_range).and_return(facility_range)
@@ -205,8 +206,9 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         allow(StatsD).to receive(:increment)
       end
 
-      it 'returns nil because HealthFacility validation also required' do
-        # Station must be in range AND in HealthFacility table
+      it 'returns nil because HealthFacility validation is also required' do
+        # Station 400 is in range [358, 718], but still fails because
+        # it must also exist in HealthFacility table (OR logic after range check passes)
         expect(subject.extract_station_number(dispense)).to be_nil
       end
     end
@@ -227,8 +229,63 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       it 'returns nil because range check fails before HealthFacility check' do
-        # Range check happens first - out of range returns false early
+        # Station 005 (numeric 5) is not in any range, so range check returns false early
+        # HealthFacility check never happens
         expect(subject.extract_station_number(dispense)).to be_nil
+      end
+    end
+
+    context 'with station in a gap between ranges' do
+      let(:dispense) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'location' => { 'display' => '719-RX-MAIN' }
+        }
+      end
+
+      before do
+        allow(HealthFacility).to receive(:exists?).and_return(false)
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'returns nil because station is in a gap between ranges' do
+        # Station 719 falls in gap between [358-718] and [720-740]
+        expect(subject.extract_station_number(dispense)).to be_nil
+      end
+    end
+
+    context 'with station in second range' do
+      let(:dispense) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'location' => { 'display' => '730-RX-MAIN' }
+        }
+      end
+
+      before do
+        allow(HealthFacility).to receive(:exists?).with(unique_id: '730').and_return(true)
+      end
+
+      it 'validates correctly when station is in second range [720-740]' do
+        expect(subject.extract_station_number(dispense)).to eq('730')
+      end
+    end
+
+    context 'with station in third range' do
+      let(:dispense) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'location' => { 'display' => '750-RX-MAIN' }
+        }
+      end
+
+      before do
+        allow(HealthFacility).to receive(:exists?).with(unique_id: '750').and_return(true)
+      end
+
+      it 'validates correctly when station is in third range [742-758]' do
+        expect(subject.extract_station_number(dispense)).to eq('750')
       end
     end
 
