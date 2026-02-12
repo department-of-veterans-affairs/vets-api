@@ -539,6 +539,7 @@
       "description": "Any current disabilities or symptoms the Veteran is claiming are related to their military service and/or are service-connected.",
       "type": "array",
       "minItems": 1,
+      "maxItems": 150,
       "items": {
         "type": "object",
         "additionalProperties": false,
