@@ -39,9 +39,90 @@ describe 'sm client' do
     end
 
     it 'gets a message with id', :vcr do
+      allow(client).to receive(:get_triage_teams_station_numbers).and_return([])
       message = client.get_message(existing_message_id)
       expect(message.id).to eq(existing_message_id)
       expect(message.subject).to eq('Quote test: “test”')
+    end
+
+    describe '#get_message OH migration phase derivation' do
+      let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+
+      before do
+        allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+      end
+
+      it 'sets oh_migration_phase when triage team is found in cache and in migration' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          cached_teams = [
+            TriageTeamCache.new(triage_team_id: 401_155, station_number: '979')
+          ]
+          allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+          allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return('p3')
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to eq('p3')
+        end
+      end
+
+      it 'sets oh_migration_phase to nil when triage team is not in migration' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          cached_teams = [
+            TriageTeamCache.new(triage_team_id: 401_155, station_number: '979')
+          ]
+          allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+          allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return(nil)
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+        end
+      end
+
+      it 'sets oh_migration_phase to soonest phase when cached teams are empty but migration data exists' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(client).to receive(:get_triage_teams_station_numbers).and_return([])
+          allow(oh_service).to receive(:get_soonest_migration_phase).and_return('p4')
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to eq('p4')
+        end
+      end
+
+      it 'sets oh_migration_phase to soonest phase when triage_group_id not found in cache' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          cached_teams = [
+            TriageTeamCache.new(triage_team_id: 999_999, station_number: '456')
+          ]
+          allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+          allow(oh_service).to receive(:get_soonest_migration_phase).and_return('p5')
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to eq('p5')
+        end
+      end
+
+      it 'logs error and sets oh_migration_phase to nil when an exception occurs' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          cached_teams = [
+            TriageTeamCache.new(triage_team_id: 401_155, station_number: '979')
+          ]
+          allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+          allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
+
+          expect(Rails.logger).to receive(:error).with(
+            'Error deriving OH migration phase',
+            hash_including(:error_class, :error_message, :message_id)
+          )
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+        end
+      end
     end
 
     it 'gets a message thread', :vcr do
@@ -56,6 +137,180 @@ describe 'sm client' do
       expect(categories.message_category_type).to contain_exactly(
         'OTHER', 'APPOINTMENTS', 'MEDICATIONS', 'TEST_RESULTS', 'EDUCATION'
       )
+    end
+
+    describe '#get_full_messages_for_thread' do
+      let(:message_id) { 3_188_782 }
+
+      it 'returns a collection of MessageThreadDetails', :vcr do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+          result = client.get_full_messages_for_thread(message_id)
+
+          expect(result).to be_a(Vets::Collection)
+          expect(result.type).to eq(MessageThreadDetails)
+          expect(result.data).not_to be_empty
+        end
+      end
+
+      describe 'OH migration phase derivation' do
+        let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+        let(:triage_team_id) { 3_188_767 }
+
+        before do
+          allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+        end
+
+        it 'sets oh_migration_phase on all messages when triage team is in migration' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            # Mock the cached triage teams lookup
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return('p3')
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            # Set triage_group_id on messages to simulate proper data (API uses recipient_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            # Re-derive the phase with triage_group_id set
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to eq('p3')
+          end
+        end
+
+        it 'does not set oh_migration_phase when triage team is not in migration' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'returns soonest migration phase when cached teams are empty but migration data exists' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return([])
+            allow(oh_service).to receive(:get_soonest_migration_phase).and_return('p3')
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to eq('p3')
+          end
+        end
+
+        it 'returns soonest migration phase when cached teams have non-matching triage_team_ids' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            # Cached teams with different triage_team_ids that don't match the message's triage_group_id
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id: 111_111, station_number: '123'),
+              TriageTeamCache.new(triage_team_id: 222_222, station_number: '456'),
+              TriageTeamCache.new(triage_team_id: 333_333, station_number: '789')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_soonest_migration_phase).and_return('p4')
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to eq('p4')
+          end
+        end
+
+        it 'returns nil when cached teams are empty and no migration data exists' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return([])
+            allow(oh_service).to receive(:get_soonest_migration_phase).and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'returns soonest migration phase when triage_group_id not found in cache but migration data exists' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            # Cached teams with different triage_team_id
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id: 999_999, station_number: '456')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_soonest_migration_phase).and_return('p5')
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to eq('p5')
+          end
+        end
+
+        it 'returns nil when triage_group_id not found in cache and no migration data exists' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            # Cached teams with different triage_team_id
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id: 999_999, station_number: '456')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_soonest_migration_phase).and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'returns nil when messages have no triage_group_id' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+
+            result = client.get_full_messages_for_thread(message_id)
+            # Don't set triage_group_id - it will be nil from the API
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'logs error and returns nil when an exception occurs' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            cached_teams = [
+              TriageTeamCache.new(triage_team_id:, station_number: '979')
+            ]
+            allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
+            allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
+
+            result = client.get_full_messages_for_thread(message_id)
+            result.data.each { |msg| msg.triage_group_id = triage_team_id }
+
+            expect(Rails.logger).to receive(:error).with(
+              'Error deriving OH migration phase',
+              hash_including(:error_class, :error_message, :message_id)
+            )
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+      end
     end
 
     context 'creates' do

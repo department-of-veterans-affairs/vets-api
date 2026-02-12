@@ -94,22 +94,58 @@ module DependentsBenefits
     #
     # @return [String, nil] The VA file number, or nil if lookup fails
     def get_file_number
-      # include ssn in call to BGS for mocks
-      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
-      va_file_number = bgs_person[:file_nbr]
-      # BGS's file number is supposed to be an eight or nine-digit string, and
-      # our code is built upon the assumption that this is the case. However,
-      # we've seen cases where BGS returns a file number with dashes
-      # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
-      # the dashes and proceed with form submission.
-      va_file_number = va_file_number.delete('-') if va_file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+      return @file_number if @file_number.present?
 
-      va_file_number
-    rescue
-      monitor.track_warning_event('DependentsBenefits::UserData#get_file_number error',
-                                  action: 'file_number_lookup.failure', component:,
-                                  error: 'Could not retrieve file number from BGS')
-      nil
+      begin
+        bgs_person = lookup_bgs_person
+
+        # Safely extract file number from BGS response as an instance variable for later use;
+        # For more details on why this matters, see dependents_veteran_identifiers.md
+        # The short version is that we need the file number to be present for RBPS, but we are retrieving by PID.
+        if bgs_person.respond_to?(:[]) && bgs_person[:file_nbr].present?
+          @file_number = bgs_person[:file_nbr]
+        else
+          monitor.track_warning_event('DependentsBenefits::UserData#get_file_number error',
+                                      action: 'file_number.missing', component:,
+                                      error: 'Missing bgs_person file_nbr',
+                                      bgs_person_present: bgs_person.present? ? 'yes' : 'no')
+          @file_number = nil
+        end
+
+        # Normalize file numbers that are returned in dashed SSN format (XXX-XX-XXXX).
+        # BGS's file number is supposed to be an eight or nine-digit string, and
+        # our code is built upon the assumption that this is the case. However,
+        # we've seen cases where BGS returns a file number with dashes
+        # (e.g. XXX-XX-XXXX). In this case specifically, we can simply strip out
+        # the dashes and proceed with form submission.
+        @file_number = @file_number.delete('-') if @file_number =~ /\A\d{3}-\d{2}-\d{4}\z/
+
+      # This rescue could be hit if BGS is down or unreachable when trying to run find_person_by_ptcpnt_id()
+      # It could also be hit if the file number is invalid or missing. We log and continue since we can
+      # fall back to using Lighthouse and want to still generate the PDF.
+      rescue
+        monitor.track_warning_event('DependentsBenefits::UserData#get_file_number error',
+                                    action: 'file_number.failure', component:,
+                                    error: 'Could not retrieve file number from BGS')
+        @file_number = nil
+      end
+
+      @file_number
+    end
+
+    # Lookup BGS person record by participant_id (preferred) or SSN (fallback)
+    def lookup_bgs_person
+      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id)
+      if bgs_person.present?
+        monitor.track_info_event('DependentsBenefits::UserData#get_file_number found bgs_person by PID',
+                                 action: 'find_by_participant_id', component:)
+      else
+        bgs_person = service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+        monitor.track_info_event('DependentsBenefits::UserData#get_file_number found bgs_person by ssn',
+                                 action: 'find_by_ssn', component:)
+      end
+
+      bgs_person
     end
 
     # Returns a memoized BGS service instance
