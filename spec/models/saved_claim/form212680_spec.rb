@@ -134,4 +134,156 @@ RSpec.describe SavedClaim::Form212680, type: :model do
       expect(instructions[:regional_office]).to include('Pension Management Center')
     end
   end
+
+  describe '#metadata_for_benefits_intake' do
+    let(:parsed_form_data) do
+      {
+        'veteranInformation' => {
+          'fullName' => { 'first' => 'John', 'last' => 'Doe' },
+          'ssn' => '123456789',
+          'vaFileNumber' => '987654321'
+        },
+        'claimantInformation' => {
+          'address' => { 'postalCode' => '627011234' }
+        }
+      }
+    end
+
+    before do
+      allow(claim).to receive(:parsed_form).and_return(parsed_form_data)
+    end
+
+    it 'returns correct metadata hash including docType' do
+      metadata = claim.metadata_for_benefits_intake
+
+      expect(metadata).to eq(
+        veteranFirstName: 'John',
+        veteranLastName: 'Doe',
+        fileNumber: '987654321',
+        zipCode: '62701',
+        businessLine: 'PMC',
+        docType: 'StructuredData:21-2680'
+      )
+    end
+
+    it 'includes docType with correct format' do
+      metadata = claim.metadata_for_benefits_intake
+      expect(metadata[:docType]).to eq('StructuredData:21-2680')
+    end
+
+    it 'falls back to SSN when vaFileNumber is missing' do
+      parsed_form_data['veteranInformation'].delete('vaFileNumber')
+      metadata = claim.metadata_for_benefits_intake
+
+      expect(metadata[:fileNumber]).to eq('123456789')
+    end
+
+    it 'extracts first 5 digits of zip code' do
+      metadata = claim.metadata_for_benefits_intake
+      expect(metadata[:zipCode]).to eq('62701')
+    end
+  end
+
+  describe '#to_ibm' do
+    let(:ibm_data) { claim.to_ibm }
+
+    it 'returns a hash with all required fields' do
+      expect(ibm_data).to be_a(Hash)
+      expect(ibm_data).not_to be_empty
+    end
+
+    context 'veteran identification fields (Boxes 1-5)' do
+      it 'includes veteran name fields' do
+        expect(ibm_data['VETERAN_FIRST_NAME']).to eq('John')
+        expect(ibm_data['VETERAN_MIDDLE_INITIAL']).to eq('A')
+        expect(ibm_data['VETERAN_LAST_NAME']).to eq('Doe')
+      end
+
+      it 'includes veteran SSN and file numbers' do
+        expect(ibm_data['VETERAN_SSN']).to eq('123456789')
+        expect(ibm_data['VA_FILE_NUMBER']).to eq('987654321')
+        expect(ibm_data['VETERAN_SERVICE_NUMBER']).to eq('A123456')
+      end
+
+      it 'includes veteran DOB with slashes' do
+        expect(ibm_data['VETERAN_DOB']).to eq('02/03/1951')
+      end
+    end
+
+    context 'claimant identification fields (Boxes 6-12)' do
+      it 'includes claimant name fields' do
+        expect(ibm_data['CLAIMANT_FIRST_NAME']).to eq('Jane')
+        expect(ibm_data['CLAIMANT_MIDDLE_INITIAL']).to eq('c')
+        expect(ibm_data['CLAIMANT_LAST_NAME']).to eq('Dough')
+      end
+
+      it 'includes claimant SSN and DOB' do
+        expect(ibm_data['CLAIMANT_SSN']).to eq('987654321')
+        expect(ibm_data['CLAIMANT_DOB']).to eq('01/01/1950')
+      end
+
+      it 'includes claimant contact information' do
+        expect(ibm_data['PHONE_NUMBER']).to eq('5551234567')
+        expect(ibm_data['EMAIL']).to eq('test@va.gov')
+      end
+
+      it 'includes claimant address fields' do
+        expect(ibm_data['CLAIMANT_ADDRESS_LINE1']).to eq('123 Main St')
+        expect(ibm_data['CLAIMANT_ADDRESS_LINE2']).to eq('Apt 4')
+        expect(ibm_data['CLAIMANT_ADDRESS_CITY']).to eq('Springfield')
+        expect(ibm_data['CLAIMANT_ADDRESS_STATE']).to eq('IL')
+        expect(ibm_data['CLAIMANT_ADDRESS_COUNTRY']).to eq('USA')
+        expect(ibm_data['CLAIMANT_ADDRESS_ZIP5']).to eq('62701')
+      end
+
+      it 'includes relationship checkboxes' do
+        expect(ibm_data['SELF']).to be(true)
+        expect(ibm_data['SPOUSE']).to be(false)
+        expect(ibm_data['PARENT']).to be(false)
+        expect(ibm_data['CHILD']).to be(false)
+      end
+    end
+
+    context 'benefit information fields (Box 13)' do
+      it 'includes benefit selection checkboxes' do
+        expect(ibm_data['CB_SMC']).to be(true)
+        expect(ibm_data['CB_SMP']).to be(false)
+      end
+    end
+
+    context 'hospitalization fields (Box 14)' do
+      it 'includes hospitalization status' do
+        expect(ibm_data['CL_HOSPITALIZED_YES']).to be(false)
+        expect(ibm_data['CL_HOSPITALIZED_NO']).to be(true)
+      end
+
+      it 'includes hospital details' do
+        expect(ibm_data['ADMISSION_DATE']).to eq('01/01/2023')
+        expect(ibm_data['HOSPITAL_NAME']).to eq('VA Medical Center')
+        expect(ibm_data['HOSPITAL_ADDRESS']).to include('123 Main St')
+      end
+    end
+
+    context 'signature fields (Box 15)' do
+      it 'includes claimant signature and date' do
+        expect(ibm_data['CLAIMANT_SIGNATURE']).to eq('John A Doe')
+        expect(ibm_data['CLAIMANT_SIGNATURE_DATE']).to eq('10/20/2025')
+      end
+
+      it 'includes duplicate veteran SSN fields for pages 2-4' do
+        expect(ibm_data['VETERAN_SSN_1']).to eq('123456789')
+        expect(ibm_data['VETERAN_SSN_2']).to eq('123456789')
+        expect(ibm_data['VETERAN_SSN_3']).to eq('123456789')
+      end
+    end
+
+    context 'form metadata fields' do
+      it 'includes form type on all pages' do
+        expect(ibm_data['FORM_TYPE']).to eq('21-2680')
+        expect(ibm_data['FORM_TYPE_1']).to eq('21-2680')
+        expect(ibm_data['FORM_TYPE_2']).to eq('21-2680')
+        expect(ibm_data['FORM_TYPE_3']).to eq('21-2680')
+      end
+    end
+  end
 end
