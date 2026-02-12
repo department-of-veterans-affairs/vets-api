@@ -72,6 +72,9 @@ module V0
         raise Common::Exceptions::UnprocessableEntity, detail: "1095-B for tax year #{tax_year} not supported",
                                                        source: self.class.name
       end
+    rescue ArgumentError, TypeError
+      raise Common::Exceptions::UnprocessableEntity, detail: "Invalid tax year: #{tax_year}",
+                                                     source: self.class.name
     end
 
     def validate_txt_template

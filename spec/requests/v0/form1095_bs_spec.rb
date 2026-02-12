@@ -21,7 +21,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri]}) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response).to have_http_status(:success)
         end
@@ -29,7 +29,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns a PDF form' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri]}) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response.content_type).to eq('application/pdf')
         end
@@ -43,15 +43,27 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # this will be irrelevant after we add the template
-      it 'returns 422 when template is not available' do
-        get '/v0/form1095_bs/download_pdf/2023'
-        expect(response).to have_http_status(:unprocessable_entity)
+      context 'when template is not available' do
+        # Changing the time is necessary for testing this because the "available years" restriction will be met first.
+        # The validation is still valuable for ensuring that we add new templates each year.
+        before { Timecop.freeze(Time.zone.parse('2020-03-05T08:00:00Z')) }
+        after { Timecop.return }
+
+        it 'returns 422' do
+          get '/v0/form1095_bs/download_pdf/2019'
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
       end
 
       it 'returns 422 when requested year is not in supported range' do
-        get "/v0/form1095_bs/download_pdf/2021"
+        get '/v0/form1095_bs/download_pdf/2021'
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns 422 when requested year is not a valid integer' do
+        get '/v0/form1095_bs/download_pdf/invalid_year'
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['errors'].first['detail']).to eq('Invalid tax year: invalid_year')
       end
     end
 
@@ -82,7 +94,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri]}) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_txt/2024'
           expect(response).to have_http_status(:success)
         end
@@ -90,7 +102,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns a txt form' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri]}) do
+                         { match_requests_on: %i[method uri] }) do
           get '/v0/form1095_bs/download_txt/2024'
           expect(response.content_type).to eq('text/plain')
         end
@@ -104,15 +116,27 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # this will be irrelevant after we add the template
-      it 'returns 422 when template is not available' do
-        get '/v0/form1095_bs/download_txt/2023'
-        expect(response).to have_http_status(:unprocessable_entity)
+      context 'when template is not available' do
+        # Changing the time is necessary for testing this because the "available years" restriction will be met first.
+        # The validation is still valuable for ensuring that we add new templates each year.
+        before { Timecop.freeze(Time.zone.parse('2020-03-05T08:00:00Z')) }
+        after { Timecop.return }
+
+        it 'returns 422' do
+          get '/v0/form1095_bs/download_txt/2019'
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
       end
 
       it 'returns 422 when requested year is not in supported range' do
-        get "/v0/form1095_bs/download_txt/2021"
-        expect(response).to have_http_status(422)
+        get '/v0/form1095_bs/download_txt/2021'
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'returns 422 when requested year is not a valid integer' do
+        get '/v0/form1095_bs/download_txt/invalid_year'
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['errors'].first['detail']).to eq('Invalid tax year: invalid_year')
       end
     end
 
@@ -146,7 +170,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
         it 'returns success with list of available form years during allowed date range' do
           VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
-                          { match_requests_on: %i[method uri] }) do
+                           { match_requests_on: %i[method uri] }) do
             get '/v0/form1095_bs/available_forms'
           end
           expect(response).to have_http_status(:success)
@@ -166,7 +190,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
         it 'returns success with list of available form years during allowed date range' do
           VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
-                          { match_requests_on: %i[method uri] }) do
+                           { match_requests_on: %i[method uri] }) do
             get '/v0/form1095_bs/available_forms'
           end
           expect(response).to have_http_status(:success)
@@ -182,7 +206,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       context 'when user not found on enrollment system' do
         it 'returns success with an empty list' do
           VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_not_found',
-                          { match_requests_on: %i[method uri] }) do
+                           { match_requests_on: %i[method uri] }) do
             get '/v0/form1095_bs/available_forms'
           end
           expect(response).to have_http_status(:success)
@@ -199,7 +223,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
         it 'returns an empty array' do
           VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
-                          { match_requests_on: %i[method uri] }) do
+                           { match_requests_on: %i[method uri] }) do
             get '/v0/form1095_bs/available_forms'
           end
           expect(response).to have_http_status(:success)

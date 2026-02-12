@@ -97,7 +97,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
     after { Timecop.return }
 
-    context 'with form1095b_multiple_years flag on' do
+    context 'with form1095b_multiple_years feature enabled' do
       before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(true) }
 
       context 'with start and end dates' do
@@ -136,7 +136,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
       end
     end
 
-    context 'with form1095b_multiple_years flag off' do
+    context 'with form1095b_multiple_years feature disabled' do
       before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(false) }
 
       context 'with start and end dates' do
@@ -180,7 +180,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
     after { Timecop.return }
 
-    context 'with form1095b_multiple_years flag on' do
+    context 'with form1095b_multiple_years feature enabled' do
       before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(true) }
 
       it 'returns an array containing first and last years of accessible 1095-B data' do
@@ -189,7 +189,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
       end
     end
 
-    context 'with form1095b_multiple_years flag off' do
+    context 'with form1095b_multiple_years feature disabled' do
       before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(false) }
 
       it 'returns an array containing first and last years of accessible 1095-B data' do
