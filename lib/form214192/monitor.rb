@@ -46,6 +46,12 @@ module Form214192
         "#{self.class.name} #{FORM_ID} Committee validation failed",
         "#{STATS_KEY}.validation_error",
         call_location:,
+        tags: [
+          "path:#{request.path}",
+          "error_type:#{validation_details[:error_type]}",
+          "data_pointer:#{validation_details[:data_pointer]}",
+          "source_app:#{extract_source_app(request)}"
+        ],
         form_id: FORM_ID,
         path: request.path,
         method: request.request_method,

@@ -30,7 +30,23 @@ RSpec.describe Form21p530a::Monitor do
       it 'increments StatsD metric with correct tags' do
         expect(StatsD).to receive(:increment).with(
           "#{stats_key}.validation_error",
-          hash_including(tags: array_including('service:form21p530a'))
+          hash_including(tags: array_including(
+                           'service:form21p530a',
+                           'path:/v0/form21p530a',
+                           'error_type:pattern_mismatch',
+                           'source_app:21p-530a-interment-allowance'
+                         ))
+        )
+
+        monitor.track_request_validation_error(error:, request:)
+      end
+
+      it 'includes data_pointer in StatsD tags' do
+        expect(StatsD).to receive(:increment).with(
+          "#{stats_key}.validation_error",
+          hash_including(tags: array_including(
+                           match(/^data_pointer:/)
+                         ))
         )
 
         monitor.track_request_validation_error(error:, request:)

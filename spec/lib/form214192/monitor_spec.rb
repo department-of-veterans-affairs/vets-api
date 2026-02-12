@@ -30,7 +30,23 @@ RSpec.describe Form214192::Monitor do
       it 'increments StatsD metric with correct tags' do
         expect(StatsD).to receive(:increment).with(
           "#{stats_key}.validation_error",
-          hash_including(tags: array_including('service:form214192'))
+          hash_including(tags: array_including(
+                           'service:form214192',
+                           'path:/v0/form214192',
+                           'error_type:pattern_mismatch',
+                           'source_app:21-4192-employment-information'
+                         ))
+        )
+
+        monitor.track_request_validation_error(error:, request:)
+      end
+
+      it 'includes data_pointer in StatsD tags' do
+        expect(StatsD).to receive(:increment).with(
+          "#{stats_key}.validation_error",
+          hash_including(tags: array_including(
+                           match(/^data_pointer:/)
+                         ))
         )
 
         monitor.track_request_validation_error(error:, request:)
