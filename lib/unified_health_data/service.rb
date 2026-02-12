@@ -6,6 +6,7 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/imaging_study_adapter'
 require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
@@ -37,6 +38,18 @@ module UnifiedHealthData
         logger.log_test_code_distribution(parsed_records)
 
         parsed_records
+      end
+    end
+
+    def get_imaging_studies(start_date:, end_date:, imaging_study_type: 'ALL')
+      with_monitoring do
+        response = uhd_client.get_imaging_studies(
+          patient_id: @user.icn,
+          start_date:,
+          end_date:,
+          imaging_study_type:
+        )
+        imaging_study_adapter.parse(response.body)
       end
     end
 
@@ -138,6 +151,7 @@ module UnifiedHealthData
         parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
+        clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
 
         parsed_notes
       end
@@ -439,11 +453,22 @@ module UnifiedHealthData
     def parse_single_note(record)
       return nil if record.blank?
 
-      clinical_notes_adapter.parse(record)
+      clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
     end
 
     def log_loinc_codes_enabled?
       Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    end
+
+    def clinical_notes_logging_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, @user)
+    end
+
+    def log_notes_response_count(total, returned)
+      Rails.logger.info(
+        "Clinical Notes response: total_doc_refs=#{total}, returned=#{returned}, filtered=#{total - returned}",
+        { service: 'unified_health_data' }
+      )
     end
 
     def increment_refill(count = 1)
@@ -470,6 +495,10 @@ module UnifiedHealthData
 
     def conditions_adapter
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
+    def imaging_study_adapter
+      @imaging_study_adapter ||= UnifiedHealthData::Adapters::ImagingStudyAdapter.new
     end
 
     def vitals_adapter

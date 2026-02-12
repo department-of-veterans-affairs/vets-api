@@ -1398,6 +1398,10 @@ features:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for OH patients
@@ -1497,6 +1501,12 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
     enable_in_development: true
+  mhv_secure_messaging_stream_via_revproxy:
+    actor_type: user
+    description: >
+      When enabled, uses nginx X-Accel-Redirect to stream S3 attachment downloads via revproxy,
+      reducing memory usage and freeing Rails processes immediately instead of
+      blocking while streaming large files. Requires nginx/openresty configuration.
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -2671,6 +2681,9 @@ features:
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
+  va_notify_v2_in_progress_form_reminder:
+    actor_type: user
+    description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
   va_notify_delivery_status_update_job:
     actor_type: user
     description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications
@@ -2910,3 +2923,9 @@ features:
   vets_model_nested_array:
     actor_type: user
     description: If enabled, allows Vets::Model to serialize nested array of objects
+  vre_form_submission_tracking:
+    actor_type: user
+    description: If enabled, track form submissions for VR&E application Form 28-1900
+  discover_your_benefits_results_page_update:
+    actor_type: cookie_id
+    description: "If enabled, displays new results page features and designs"
