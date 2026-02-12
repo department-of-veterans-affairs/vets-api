@@ -8,25 +8,29 @@ RSpec.describe BenefitsClaims::Providers::IvcChampva::IvcChampvaBenefitsClaimsPr
 
   let(:user) { create(:user) }
 
-  after do
-    RequestStore.clear!
-  end
-
   it_behaves_like 'benefits claims provider'
 
   describe '#get_claims' do
-    it 'returns empty data when no form_uuids are provided' do
-      RequestStore.store[described_class::REQUEST_STORE_KEY] = nil
-
+    it 'returns empty data when no matching forms exist for the user' do
       expect(provider.get_claims).to eq({ 'data' => [] })
     end
 
     it 'returns claims grouped by form_uuid' do
       form_uuid = SecureRandom.uuid
-      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf', created_at: 2.days.ago)
-      create(:ivc_champva_form, form_uuid:, file_name: 'attachment.pdf', created_at: 1.day.ago)
-
-      RequestStore.store[described_class::REQUEST_STORE_KEY] = [form_uuid]
+      create(
+        :ivc_champva_form,
+        form_uuid:,
+        email: user.email,
+        file_name: 'main_form.pdf',
+        created_at: 2.days.ago
+      )
+      create(
+        :ivc_champva_form,
+        form_uuid:,
+        email: user.email,
+        file_name: 'attachment.pdf',
+        created_at: 1.day.ago
+      )
 
       response = provider.get_claims
       claim = response['data'].first
@@ -36,11 +40,10 @@ RSpec.describe BenefitsClaims::Providers::IvcChampva::IvcChampvaBenefitsClaimsPr
       expect(claim['attributes']['supportingDocuments'].size).to eq(2)
     end
 
-    it 'ignores blank and duplicate form_uuids' do
+    it 'returns only forms matching the user email' do
       form_uuid = SecureRandom.uuid
-      create(:ivc_champva_form, form_uuid:)
-
-      RequestStore.store[described_class::REQUEST_STORE_KEY] = [form_uuid, '', form_uuid, '  ']
+      create(:ivc_champva_form, form_uuid:, email: user.email)
+      create(:ivc_champva_form, form_uuid: SecureRandom.uuid, email: 'other.user@example.com')
 
       response = provider.get_claims
 
@@ -52,7 +55,7 @@ RSpec.describe BenefitsClaims::Providers::IvcChampva::IvcChampvaBenefitsClaimsPr
   describe '#get_claim' do
     it 'returns a single claim by form_uuid' do
       form_uuid = SecureRandom.uuid
-      create(:ivc_champva_form, form_uuid:, file_name: 'main_form.pdf')
+      create(:ivc_champva_form, form_uuid:, email: user.email, file_name: 'main_form.pdf')
 
       response = provider.get_claim(form_uuid)
 
