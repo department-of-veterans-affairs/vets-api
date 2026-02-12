@@ -42,7 +42,7 @@ module VANotify
       end
 
       def self.enqueue(email, template_id, personalisation, api_key_path, callback_options = {})
-        key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation: })
+        key = Sidekiq::AttrPackage.create(email:, personalisation:)
         perform_async(template_id, key, api_key_path, callback_options)
       end
 

@@ -1,4 +1,3 @@
-
 {
     "vista": {
         "resourceType": "Bundle",
@@ -81,9 +80,13 @@
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1834074"
                         },
-                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1834074"}
+                        {
+                            "system": "vista-uid",
+                            "value": "urn:va:document:F253:7227761:1834074"
+                        }
                     ],
                     "status": "current",
+                    "docStatus": "final",
                     "type": {
                         "coding": [
                             {
@@ -284,7 +287,10 @@
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1833586"
                         },
-                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833586"}
+                        {
+                            "system": "vista-uid",
+                            "value": "urn:va:document:F253:7227761:1833586"
+                        }
                     ],
                     "status": "current",
                     "type": {
@@ -349,7 +355,8 @@
                                 "reference": "Location/b632dad9-5881-48ab-a566-334ff6c79db8"
                             }
                         ]
-                    }
+                    },
+                    "docStatus": "final"
                 }
             },
             {
@@ -495,7 +502,10 @@
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1833381"
                         },
-                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833381"}
+                        {
+                            "system": "vista-uid",
+                            "value": "urn:va:document:F253:7227761:1833381"
+                        }
                     ],
                     "status": "current",
                     "type": {
@@ -560,7 +570,8 @@
                                 "reference": "Location/5389c4fa-ea9e-41aa-b77a-ad656a5c3118"
                             }
                         ]
-                    }
+                    },
+                    "docStatus": "final"
                 }
             },
             {
@@ -641,7 +652,10 @@
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1833578"
                         },
-                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833578"}
+                        {
+                            "system": "vista-uid",
+                            "value": "urn:va:document:F253:7227761:1833578"
+                        }
                     ],
                     "status": "current",
                     "type": {
@@ -698,7 +712,8 @@
                                 "reference": "Location/0d8abab7-ea07-4d48-88bd-ad2eafc51fd8"
                             }
                         ]
-                    }
+                    },
+                    "docStatus": "final"
                 }
             }
         ]
@@ -1033,7 +1048,8 @@
                                 "start": "2025-03-12T15:42:38.000Z"
                             }
                         }
-                    ]
+                    ],
+                    "docStatus": "final"
                 }
             },
             {
