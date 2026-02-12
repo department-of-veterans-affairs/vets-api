@@ -14,7 +14,7 @@
 class ScannedUploadPurgeJob
   include Sidekiq::Job
 
-  sidekiq_options retry: 3
+  sidekiq_options retry: false
 
   STATS_KEY = 'api.scanned_upload.data_purge'
   RETENTION_DAYS = 60
