@@ -12944,7 +12944,7 @@
           },
           "short_description": {
             "type": "string",
-            "description": "Brief description of the an action, if any, that needs to be taken or has been taken",
+            "description": "Brief description of an action, if any, that needs to be taken or has been taken",
             "nullable": true,
             "example": "We need your permission to request your personal information from a non-VA source."
           },
