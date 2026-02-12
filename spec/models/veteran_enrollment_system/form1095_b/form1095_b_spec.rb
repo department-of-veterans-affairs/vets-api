@@ -119,9 +119,9 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
       context 'with multiple periods' do
         it 'returns all currently available years during which the user had coverage' do
           periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
-                    { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
-                    { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
-                    { 'startDate' => '2024-03-05', 'endDate' => nil }]
+                     { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
+                     { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
+                     { 'startDate' => '2024-03-05', 'endDate' => nil }]
           result = described_class.available_years(user, periods)
           expect(result).to eq([2022, 2024])
         end
@@ -158,9 +158,9 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
       context 'with multiple periods' do
         it 'returns all currently available years during which the user had coverage' do
           periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
-                    { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
-                    { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
-                    { 'startDate' => '2024-03-05', 'endDate' => nil }]
+                     { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
+                     { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
+                     { 'startDate' => '2024-03-05', 'endDate' => nil }]
           result = described_class.available_years(user, periods)
           expect(result).to eq([2024])
         end

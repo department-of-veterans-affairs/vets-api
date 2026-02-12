@@ -21,7 +21,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' }  }) do
+                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response).to have_http_status(:success)
         end
@@ -65,7 +65,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
           years.each_pair do |k, v|
             VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                            { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
+                             { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
               get "/v0/form1095_bs/download_pdf/#{k}"
               expect(response).to have_http_status(v)
             end
@@ -87,7 +87,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
           years.each_pair do |k, v|
             VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                            { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
+                             { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
               get "/v0/form1095_bs/download_pdf/#{k}"
               expect(response).to have_http_status(v)
             end
@@ -145,8 +145,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-
-
       # this will be irrelevant after we add the template
       it 'returns 422 when template is not available' do
         get '/v0/form1095_bs/download_txt/2023'
@@ -169,7 +167,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
           years.each_pair do |k, v|
             VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                            { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
+                             { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
               get "/v0/form1095_bs/download_txt/#{k}"
               expect(response).to have_http_status(v)
             end
@@ -191,7 +189,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
           years.each_pair do |k, v|
             VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                            { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
+                             { match_requests_on: %i[method uri], erb: { tax_year: k } }) do
               get "/v0/form1095_bs/download_txt/#{k}"
               expect(response).to have_http_status(v)
             end
