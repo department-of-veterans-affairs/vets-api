@@ -98,6 +98,9 @@
                   "isOhMessage": {
                     "type": "boolean"
                   },
+                  "replyDisabled": {
+                    "type": "boolean"
+                  },
                   "ohMigrationPhase": {
                     "type": [
                       "null",
