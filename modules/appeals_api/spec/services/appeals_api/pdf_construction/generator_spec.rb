@@ -135,6 +135,17 @@ describe AppealsApi::PdfConstruction::Generator do
           end
         end
 
+        # Test condition where issues overflow because the issues disagreement area is too long
+        # to fit on the form
+        context 'issues disagreement area length overflow' do
+          let(:fixture_name) { 'expected_10182_min_issues_area_overflow.pdf' }
+          let(:nod) { create(:min_nod_v2_issues_long_disagreement_area, created_at: '2021-02-03T14:15:16Z') }
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf expected_pdf
+          end
+        end
+
         # Test condition where issues overflow because there are too many to fit on form
         context 'issues count overflow' do
           let(:fixture_name) { 'expected_10182_min_issues_count_overflow.pdf' }
