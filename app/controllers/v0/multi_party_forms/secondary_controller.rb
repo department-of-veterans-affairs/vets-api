@@ -9,14 +9,7 @@ module V0
       # POST /v0/multi_party_forms/secondary/:id/start
       def start
         @submission = MultiPartyFormSubmission.find(params[:id])
-        unless @submission.verify_secondary_token(params[:token])
-          raise Common::Exceptions::Forbidden,
-                detail: 'The access token is invalid or has expired'
-        end
-        unless @submission.may_secondary_start?
-          raise Common::Exceptions::UnprocessableEntity,
-                detail: 'Submission cannot be started in its current state'
-        end
+        validate_token_and_state
 
         ActiveRecord::Base.transaction do
           secondary_form = create_secondary_form
@@ -29,6 +22,29 @@ module V0
           tags: ["form_type:#{@submission.form_type}"]
         )
 
+        render_submission_response
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      end
+
+      private
+
+      def check_feature_enabled
+        routing_error unless Flipper.enabled?(:form_2680_multi_party_forms_enabled, current_user)
+      end
+
+      def validate_token_and_state
+        unless @submission.verify_secondary_token(params[:token])
+          raise Common::Exceptions::Forbidden,
+                detail: 'The access token is invalid or has expired'
+        end
+        unless @submission.may_secondary_start?
+          raise Common::Exceptions::UnprocessableEntity,
+                detail: 'Submission cannot be started in its current state'
+        end
+      end
+
+      def render_submission_response
         render json: {
           data: {
             id: @submission.id,
@@ -43,16 +59,6 @@ module V0
             }
           }
         }
-      rescue ActiveRecord::RecordNotFound
-        raise Common::Exceptions::RecordNotFound, params[:id]
-      rescue => e
-        handle_error(e)
-      end
-
-      private
-
-      def check_feature_enabled
-        routing_error unless Flipper.enabled?(:form_2680_multi_party_forms_enabled, current_user)
       end
 
       def create_secondary_form
@@ -70,21 +76,6 @@ module V0
           secondary_user_uuid: current_user.uuid,
           secondary_in_progress_form: secondary_form
         )
-      end
-
-      def handle_error(error)
-        Rails.logger.error(
-          'MultiPartyForms::SecondaryController: Error starting secondary flow',
-          {
-            submission_id: params[:id],
-            user_id: current_user&.uuid,
-            error: error.message,
-            backtrace: error.backtrace&.first(5)
-          }
-        )
-
-        StatsD.increment('multi_party_form.secondary_started.failure')
-        raise
       end
     end
   end

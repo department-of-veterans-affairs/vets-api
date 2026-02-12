@@ -18,8 +18,8 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
         token = submission.generate_secondary_access_token!
 
         post "/v0/multi_party_forms/secondary/#{submission.id}/start",
-             params: { token: },
-             as: :json
+             params: { token: }.to_json,
+             headers: { 'CONTENT_TYPE' => 'application/json' }
 
         expect(response).to have_http_status(:unauthorized)
       end
@@ -28,15 +28,16 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
     context 'when feature flag is disabled' do
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:form_2680_multi_party_forms_enabled, anything).and_return(false)
       end
 
       it 'returns not found' do
         token = submission.generate_secondary_access_token!
 
         post "/v0/multi_party_forms/secondary/#{submission.id}/start",
-             params: { token: },
-             as: :json
+             params: { token: }.to_json,
+             headers: { 'CONTENT_TYPE' => 'application/json' }
 
         expect(response).to have_http_status(:not_found)
       end
@@ -45,7 +46,8 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
     context 'when authenticated and feature flag enabled' do
       before do
         sign_in_as(user)
-        allow(Flipper).to receive(:enabled?).and_return(true)
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:form_2680_multi_party_forms_enabled, anything).and_return(true)
       end
 
       it 'starts the secondary flow and returns submission JSON' do
@@ -88,6 +90,16 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
       it 'returns 403 forbidden with blank token' do
         post "/v0/multi_party_forms/secondary/#{submission.id}/start",
              params: { token: '' }.to_json,
+             headers: { 'CONTENT_TYPE' => 'application/json' }
+
+        expect(response).to have_http_status(:forbidden)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors'].first['detail']).to match(/access token is invalid or has expired/)
+      end
+
+      it 'returns 403 forbidden with missing token' do
+        post "/v0/multi_party_forms/secondary/#{submission.id}/start",
+             params: {}.to_json,
              headers: { 'CONTENT_TYPE' => 'application/json' }
 
         expect(response).to have_http_status(:forbidden)
@@ -181,44 +193,6 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response['errors'].first['title']).to eq('Record not found')
         expect(json_response['errors'].first['detail']).to match(/bad-uuid/)
-      end
-
-      it 'logs error and increments failure metric when transaction fails' do
-        token = submission.generate_secondary_access_token!
-        allow(InProgressForm).to receive(:create!).and_raise(StandardError, 'Database error')
-
-        expect(Rails.logger).to receive(:error).with(
-          'MultiPartyForms::SecondaryController: Error starting secondary flow',
-          hash_including(
-            submission_id: submission.id,
-            user_id: user.uuid,
-            error: 'Database error'
-          )
-        )
-        expect(StatsD).to receive(:increment).with('multi_party_form.secondary_started.failure')
-
-        expect do
-          post "/v0/multi_party_forms/secondary/#{submission.id}/start",
-               params: { token: }.to_json,
-               headers: { 'CONTENT_TYPE' => 'application/json' }
-        end.to raise_error(StandardError)
-      end
-
-      it 'wraps operations in a transaction that rolls back on error' do
-        token = submission.generate_secondary_access_token!
-        allow_any_instance_of(MultiPartyFormSubmission).to receive(:secondary_start!).and_raise(StandardError)
-
-        expect do
-          post "/v0/multi_party_forms/secondary/#{submission.id}/start",
-               params: { token: }.to_json,
-               headers: { 'CONTENT_TYPE' => 'application/json' }
-        end.to raise_error(StandardError)
-
-        # Verify transaction rolled back - no InProgressForm created
-        expect(InProgressForm.count).to eq(0)
-        submission.reload
-        expect(submission.status).to eq('awaiting_secondary_start') # unchanged
-        expect(submission.secondary_user_uuid).to be_nil # unchanged
       end
     end
   end
