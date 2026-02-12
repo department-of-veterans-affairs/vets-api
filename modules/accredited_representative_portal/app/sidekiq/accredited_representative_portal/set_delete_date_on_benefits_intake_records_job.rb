@@ -38,7 +38,7 @@ module AccreditedRepresentativePortal
         .joins(:form_submissions)
         .joins(
           'INNER JOIN form_submission_attempts ON form_submission_attempts.form_submission_id' \
-          ' = form_submissions.id AND form_submission_attempts.aasm_state IN ('vbms', 'manually')'
+          " = form_submissions.id AND form_submission_attempts.aasm_state IN ('vbms', 'manually')"
         ).find_each(batch_size: 1000) do |record|
           # rubocop:disable Rails/SkipsModelValidations
           record.update_columns(delete_date:)
