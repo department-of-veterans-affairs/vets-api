@@ -82,7 +82,8 @@ module UnifiedHealthData
           max_station = facility_range['max'].to_i
 
           # Guard against misconfiguration (both min and max being zero/nil)
-          if min_station.positive? && max_station.positive? && !(numeric_prefix >= min_station && numeric_prefix <= max_station)
+          if min_station.positive? && max_station.positive? &&
+             !(numeric_prefix >= min_station && numeric_prefix <= max_station)
             # Fast fail: Station must be within configured range
             return false
           end

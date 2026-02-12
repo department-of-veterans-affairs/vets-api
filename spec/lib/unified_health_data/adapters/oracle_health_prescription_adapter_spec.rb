@@ -610,18 +610,6 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
             expect(result.station_number).to be_nil
           end
         end
-
-        it 'tracks failed extractions' do
-          resource = base_fhir_resource.merge(
-            'contained' => [
-              {
-                'resourceType' => 'MedicationDispense',
-                'location' => { 'display' => '080-RX-MAIN' }
-              }
-            ]
-          )
-          subject.parse(resource)
-        end
       end
 
       context 'with extended station identifier' do
