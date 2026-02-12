@@ -126,7 +126,7 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
 
       it 'deletes S3 files for attachments' do
         file_double = double('file', exists?: true, delete: true)
-        attachment = instance_double(PersistentAttachment, guid: 'test-guid-123', file: file_double)
+        attachment = double('PersistentAttachment', guid: 'test-guid-123', file: file_double, update_columns: true)
         allow(PersistentAttachment).to receive(:find_by).with(guid: 'test-guid-123').and_return(attachment)
 
         described_class.new.perform
@@ -247,6 +247,29 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
         described_class.new.perform
 
         expect(form_submission.reload.form_data).to be_nil
+      end
+
+      it 'continues processing after a single record fails' do
+        bad_fs = FormSubmission.create!(form_type:, form_data: { confirmation_code: 'bad' }.to_json)
+        FormSubmissionAttempt.create!(form_submission: bad_fs, benefits_intake_uuid: SecureRandom.uuid,
+                                      aasm_state: 'vbms', lighthouse_updated_at: cutoff_date)
+
+        good_fs = FormSubmission.create!(form_type:, form_data: { confirmation_code: 'good' }.to_json)
+        FormSubmissionAttempt.create!(form_submission: good_fs, benefits_intake_uuid: SecureRandom.uuid,
+                                      aasm_state: 'vbms', lighthouse_updated_at: cutoff_date)
+
+        allow(bad_fs).to receive(:update_columns).and_raise(StandardError)
+        # Need to intercept the specific record
+        call_count = 0
+        allow_any_instance_of(FormSubmission).to receive(:form_data).and_wrap_original do |m|
+          call_count += 1
+          raise StandardError, 'boom' if call_count == 1
+          m.call
+        end
+
+        described_class.new.perform
+
+        expect(good_fs.reload.form_data).to be_nil
       end
     end
 

@@ -133,6 +133,7 @@ class ScannedUploadPurgeJob
     return unless attachment
 
     delete_s3_file(attachment, stats)
+    attachment.update_columns(file_data: nil, updated_at: Time.zone.now)
   rescue => e
     stats[:errors] += 1
     Rails.logger.error('Failed to purge attachment', guid:, error: e.message)
