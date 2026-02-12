@@ -18,7 +18,7 @@
     "veteranIdentification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mailingAddress", "currentVaEmployee"],
+      "required": ["currentVaEmployee"],
       "properties": {
         "serviceNumber": {
           "type": ["null", "string"],
