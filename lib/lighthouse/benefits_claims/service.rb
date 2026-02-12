@@ -389,18 +389,16 @@ module BenefitsClaims
     end
 
     def track_tracked_item_metrics(item, display_name)
-      if item['description'].blank?
-        StatsD.increment(
-          "#{STATSD_KEY_PREFIX}.tracked_item.missing_api_description",
-          tags: ["display_name:#{display_name}"]
-        )
-      end
-
-      if item['friendlyName'].blank?
-        StatsD.increment(
-          "#{STATSD_KEY_PREFIX}.tracked_item.missing_friendly_name",
-          tags: ["display_name:#{display_name}"]
-        )
+      {
+        'description' => 'missing_api_description',
+        'friendlyName' => 'missing_friendly_name'
+      }.each do |field, metric|
+        if item[field].blank?
+          StatsD.increment(
+            "#{STATSD_KEY_PREFIX}.tracked_item.#{metric}",
+            tags: ["display_name:#{display_name}"]
+          )
+        end
       end
     end
 
