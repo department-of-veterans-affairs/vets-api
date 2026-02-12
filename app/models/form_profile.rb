@@ -133,6 +133,7 @@ class FormProfile
       21P-4706B-UPLOAD
       21P-4171-UPLOAD
       21P-8924-UPLOAD
+      20-10208-UPLOAD
     ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
@@ -222,7 +223,8 @@ class FormProfile
     '21P-601-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-4171-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-4706b-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-8924-UPLOAD' => ::FormProfiles::FormUpload
+    '21P-8924-UPLOAD' => ::FormProfiles::FormUpload,
+    '20-10208-UPLOAD' => ::FormProfiles::FormUpload
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

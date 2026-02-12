@@ -21,9 +21,13 @@ module DependentsBenefits
     # Generates a PDF representation of the claim form
     #
     # @param file_name [String, nil] Optional custom filename for the generated PDF
+    # @param fill_options [Hash] Additional options for PDF generation
+    # @param kwargs [Hash] Keyword arguments (form_id, student, created_at, etc.)
     # @return [String] Path to the generated PDF file
-    def to_pdf(file_name = nil)
-      DependentsBenefits::PdfFill::Filler.fill_form(self, file_name)
+    def to_pdf(file_name = nil, fill_options = {}, **kwargs)
+      options = fill_options.merge(kwargs)
+      actual_file_name = kwargs.any? ? id.to_s : file_name
+      DependentsBenefits::PdfFill::Filler.fill_form(self, actual_file_name, options)
     end
 
     private

@@ -41,7 +41,9 @@ class PersistentAttachments::VAForm < PersistentAttachment
       '21P-601' => { max_pages: 5, min_pages: 3 },
       '21P-4706B' => { max_pages: 2, min_pages: 2 },
       '21P-4171' => { max_pages: 2, min_pages: 2 },
-      '21P-8924' => { max_pages: 3, min_pages: 3 }
+      '21P-8924' => { max_pages: 3, min_pages: 3 },
+      '20-10208' => { max_pages: 2, min_pages: 2 },
+      '40-1330M' => { max_pages: 10, min_pages: 1 }
     }
   )
 

@@ -70,6 +70,9 @@ properties:
         type: string
         nullable: true
         enum: [ READ, null]
+      replyDisabled:
+        type: boolean
+        example: false
       triageGroupName:
         type: string
         nullable: true
@@ -81,6 +84,11 @@ properties:
       isOhMessage:
         type: boolean
         example: true
+      ohMigrationPhase:
+        type: string
+        nullable: true
+        description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+        example: null
   relationships:
     type: object
     additionalProperties: false

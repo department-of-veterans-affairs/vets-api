@@ -25,6 +25,7 @@ module SimpleFormsApi
       21P-601
       21P-4171
       21P-8924
+      20-10208
     ].freeze
 
     # Special cases: forms that stamp on a different page
