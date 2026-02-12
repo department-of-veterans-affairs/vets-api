@@ -102,6 +102,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
     context 'when the parsed form has an email' do
       let(:form) { form_with_email }
+      let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
       let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email }
       let(:template_params) do
         [
@@ -110,7 +111,7 @@ RSpec.describe Form1010cg::SubmissionJob do
           {
             'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')},"
           },
-          'Settings.vanotify.services.health_apps_1010.api_key',
+          api_key,
           {
             callback_metadata: {
               notification_type: 'error',

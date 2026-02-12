@@ -131,7 +131,7 @@ module Form1010cg
           email,
           template_id,
           { 'salutation' => salutation },
-          API_KEY_PATH,
+          Settings.vanotify.services.health_apps_1010.api_key,
           CALLBACK_METADATA
         )
       end
