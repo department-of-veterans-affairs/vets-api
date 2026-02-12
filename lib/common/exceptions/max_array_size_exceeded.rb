@@ -20,11 +20,7 @@ module Common
         Array(
           SerializableError.new(
             i18n_interpolated(
-              detail: {
-                field: @field,
-                max_size: @max_size,
-                actual_size: @actual_size
-              }
+              detail: { field: @field, max_size: @max_size, actual_size: @actual_size }
             )
           )
         )
