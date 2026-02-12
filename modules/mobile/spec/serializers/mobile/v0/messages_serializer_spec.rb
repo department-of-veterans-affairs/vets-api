@@ -66,8 +66,16 @@ describe Mobile::V0::MessagesSerializer, type: :serializer do
     expect(attributes['proxy_sender_name']).to eq message.proxy_sender_name
   end
 
+  it 'includes :oh_migration_phase' do
+    expect(attributes['oh_migration_phase']).to eq message.oh_migration_phase
+  end
+
   it 'includes :self link' do
     expected_url = Mobile::UrlHelper.new.v0_message_url(message.id)
     expect(links['self']).to eq expected_url
+  end
+
+  it 'includes :reply_disabled' do
+    expect(attributes['reply_disabled']).to eq message.reply_disabled
   end
 end
