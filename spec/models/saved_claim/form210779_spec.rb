@@ -98,4 +98,62 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       saved_claim.to_pdf(file_name, fill_options)
     end
   end
+
+  describe '#metadata_for_benefits_intake' do
+    it 'includes docType with StructuredData: prefix' do
+      metadata = claim.metadata_for_benefits_intake
+      expect(metadata[:docType]).to eq('StructuredData:21-0779')
+    end
+
+    it 'includes all required metadata fields' do
+      metadata = claim.metadata_for_benefits_intake
+      expect(metadata).to include(
+        veteranFirstName: 'John',
+        veteranLastName: 'Doe',
+        zipCode: '62701',
+        businessLine: 'CMP',
+        docType: 'StructuredData:21-0779'
+      )
+    end
+  end
+
+  describe '#to_ibm' do
+    let(:claim) { create(:va210779) }
+
+    it 'returns a hash with VBA Data Dictionary fields' do
+      ibm_payload = claim.to_ibm
+      expect(ibm_payload).to be_a(Hash)
+    end
+
+    it 'includes veteran information fields' do
+      ibm_payload = claim.to_ibm
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME',
+        'VETERAN_LAST_NAME',
+        'VETERAN_SSN'
+      )
+    end
+
+    it 'includes claimant information fields' do
+      ibm_payload = claim.to_ibm
+      expect(ibm_payload).to include(
+        'CLAIMANT_FIRST_NAME',
+        'CLAIMANT_LAST_NAME'
+      )
+    end
+
+    it 'includes nursing home facility fields' do
+      ibm_payload = claim.to_ibm
+      expect(ibm_payload).to include(
+        'NAME_FACILITY_C',
+        'FACILITY_ADDRESS_LINE1_C'
+      )
+    end
+
+    it 'includes form metadata' do
+      ibm_payload = claim.to_ibm
+      expect(ibm_payload['FORM_TYPE']).to eq('21-0779')
+      expect(ibm_payload['FORM_TYPE_1']).to eq('21-0779')
+    end
+  end
 end
