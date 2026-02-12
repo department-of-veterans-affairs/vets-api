@@ -76,7 +76,7 @@ module RepresentationManagement
     end
 
     def setup_daily_report
-      @report << 'RepresentationManagement::AccreditedEntitiesQueueUpdates Report'
+      @report << 'RepresentationManagement::AccreditedEntitiesQueueUpdates Report\n'
       @report << "📊 **Entity Counts:**\n"
       @report << "```\n#{@entity_counts&.count_report || 'Entity counts unavailable'}\n```\n"
     end
