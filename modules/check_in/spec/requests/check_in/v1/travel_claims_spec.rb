@@ -156,7 +156,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           json_response = JSON.parse(response.body)
           expect(json_response).to include('errors')
           expect(json_response['errors']).to be_an(Array)
-          expect(json_response['errors'].first['detail']).to include('Missing required arguments: ICN')
+          expect(json_response['errors'].first['detail']).to include('Patient ICN not found')
         end
       end
 
@@ -207,7 +207,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           json_response = JSON.parse(response.body)
           expect(json_response).to include('errors')
           expect(json_response['errors']).to be_an(Array)
-          expect(json_response['errors'].first['detail']).to include('Missing required arguments: ICN')
+          expect(json_response['errors'].first['detail']).to include('Patient ICN not found')
         end
       end
 
@@ -441,8 +441,9 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
         end
 
         it 'handles 401 error and retries with fresh tokens' do
-          # Mock Rails.logger to capture log calls
-          allow(Rails.logger).to receive(:error)
+          # Enable logging feature flag for AuthManager
+          allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
+          allow(Rails.logger).to receive(:info)
 
           VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
             VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
@@ -463,14 +464,11 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the auth retry log was called
-          expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient 401 error - retrying authentication',
+          # Verify that the auth retry log was called (now in AuthManager)
+          expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              correlation_id: be_present,
-              check_in_uuid: uuid,
-              veis_token_present: true,
-              btsss_token_present: true
+              message: 'TravelClaim::AuthManager: 401 error - refreshing all tokens',
+              correlation_id: be_present
             )
           )
 
