@@ -50,6 +50,7 @@ RSpec.describe DependentsBenefits::UserData do
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive(:track_error_event)
     allow(monitor).to receive(:track_warning_event)
+    allow(monitor).to receive(:track_info_event)
   end
 
   describe '#initialize' do
@@ -102,7 +103,7 @@ RSpec.describe DependentsBenefits::UserData do
 
     context 'when file number lookup succeeds' do
       before do
-        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123', '123456789')
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123')
                                                                .and_return({ file_nbr: '987-65-4321' })
       end
 
@@ -222,7 +223,7 @@ RSpec.describe DependentsBenefits::UserData do
 
     context 'when BGS returns file number with dashes' do
       before do
-        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123', '123456789')
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123')
                                                                .and_return({ file_nbr: '123-45-6789' })
       end
 
@@ -234,7 +235,7 @@ RSpec.describe DependentsBenefits::UserData do
 
     context 'when BGS returns normal file number' do
       before do
-        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123', '123456789')
+        allow(bgs_people).to receive(:find_person_by_ptcpnt_id).with('participant-123')
                                                                .and_return({ file_nbr: '987654321' })
       end
 
@@ -265,9 +266,10 @@ RSpec.describe DependentsBenefits::UserData do
       it 'tracks warning and returns nil' do
         expect(monitor).to receive(:track_warning_event).with(
           'DependentsBenefits::UserData#get_file_number error',
-          action: 'file_number_lookup.failure',
+          action: 'file_number.missing',
           component:,
-          error: 'Could not retrieve file number from BGS'
+          error: 'Missing bgs_person file_nbr',
+          bgs_person_present: 'no'
         )
 
         file_number = user_data.send(:get_file_number)
@@ -283,7 +285,7 @@ RSpec.describe DependentsBenefits::UserData do
       it 'tracks warning and returns nil' do
         expect(monitor).to receive(:track_warning_event).with(
           'DependentsBenefits::UserData#get_file_number error',
-          action: 'file_number_lookup.failure',
+          action: 'file_number.failure',
           component:,
           error: 'Could not retrieve file number from BGS'
         )
