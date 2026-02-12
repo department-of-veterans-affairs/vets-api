@@ -6,6 +6,7 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/imaging_study_adapter'
 require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
@@ -37,6 +38,18 @@ module UnifiedHealthData
         logger.log_test_code_distribution(parsed_records)
 
         parsed_records
+      end
+    end
+
+    def get_imaging_studies(start_date:, end_date:, imaging_study_type: 'ALL')
+      with_monitoring do
+        response = uhd_client.get_imaging_studies(
+          patient_id: @user.icn,
+          start_date:,
+          end_date:,
+          imaging_study_type:
+        )
+        imaging_study_adapter.parse(response.body)
       end
     end
 
@@ -482,6 +495,10 @@ module UnifiedHealthData
 
     def conditions_adapter
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
+    def imaging_study_adapter
+      @imaging_study_adapter ||= UnifiedHealthData::Adapters::ImagingStudyAdapter.new
     end
 
     def vitals_adapter
