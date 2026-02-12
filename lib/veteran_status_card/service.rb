@@ -178,8 +178,8 @@ module VeteranStatusCard
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def unknown_service_response
-      VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
+    def unknown_eligibility_response
+      VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
     end
 
     ##
@@ -345,16 +345,16 @@ module VeteranStatusCard
         ineligible_service_response
       when UNKNOWN_SERVICE_SSC_CODE
         @confirmation_status = UNKNOWN_SSC_MESSAGE
-        unknown_service_response
+        unknown_eligibility_response
       when EDIPI_NO_PNL_CODE
         @confirmation_status = EDIPI_NO_PNL_SSC_MESSAGE
-        edipi_no_pnl_response
+        unknown_eligibility_response
       when *CURRENTLY_SERVING_CODES
         @confirmation_status = CURRENTLY_SERVING_SSC_MESSAGE
         currently_serving_response
       when *ERROR_SSC_CODES
         @confirmation_status = ERROR_SSC_MESSAGE
-        error_response
+        unknown_eligibility_response
       else
         @confirmation_status = UNCAUGHT_SSC_MESSAGE
         error_response
