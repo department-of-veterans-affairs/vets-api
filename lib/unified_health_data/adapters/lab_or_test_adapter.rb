@@ -23,10 +23,6 @@ module UnifiedHealthData
         'LP29684-5' => 'Radiology'
       }.freeze
 
-      def initialize(user = nil)
-        @user = user
-      end
-
       def parse_labs(records)
         return [] if records.blank?
 

@@ -478,7 +478,7 @@ module UnifiedHealthData
     end
 
     def lab_or_test_adapter
-      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new(@user)
+      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
     end
 
     # Pre-warms facility cache to avoid N+1 API calls during record parsing.
