@@ -132,7 +132,7 @@ module EventBusGateway
     end
 
     def log_notification_skipped(notification_type, reason, template_id)
-      ::Rails.logger.error(
+      ::Rails.logger.warn(
         "LetterReadyNotificationJob #{notification_type} skipped",
         {
           notification_type:,

@@ -221,7 +221,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         end
 
         it 'logs skipped notifications for both email and push' do
-          expect(Rails.logger).to receive(:error).with(
+          expect(Rails.logger).to receive(:warn).with(
             'LetterReadyNotificationJob email skipped',
             {
               notification_type: 'email',
@@ -229,7 +229,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
               template_id: email_template_id
             }
           )
-          expect(Rails.logger).to receive(:error).with(
+          expect(Rails.logger).to receive(:warn).with(
             'LetterReadyNotificationJob push skipped',
             {
               notification_type: 'push',
@@ -281,7 +281,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         end
 
         it 'logs skipped email notification due to missing first_name' do
-          expect(Rails.logger).to receive(:error).with(
+          expect(Rails.logger).to receive(:warn).with(
             'LetterReadyNotificationJob email skipped',
             {
               notification_type: 'email',
@@ -475,7 +475,7 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
         end
 
         it 'logs that push notification was skipped due to feature flag' do
-          expect(Rails.logger).to receive(:error).with(
+          expect(Rails.logger).to receive(:warn).with(
             'LetterReadyNotificationJob push skipped',
             {
               notification_type: 'push',
