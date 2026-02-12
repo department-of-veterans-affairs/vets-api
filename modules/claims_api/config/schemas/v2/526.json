@@ -751,6 +751,7 @@
           "description": "Identifies the Service dates and Branch the Veteran served in.",
           "type": "array",
           "minItems": 1,
+          "maxItems": 100,
           "items": {
             "type": "object",
             "required": [
