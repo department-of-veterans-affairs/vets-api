@@ -40,7 +40,7 @@ module Mobile
         user_triage_teams = client.get_all_triage_teams(@current_user.uuid)
         active_teams = user_triage_teams.data.reject(&:blocked_status)
         matched_team = active_teams.find do |team|
-          response.triage_group_name && team.name == response.triage_group_name
+          response.triage_group_id && team.triage_team_id == response.triage_group_id
         end
 
         meta = response.metadata.merge(user_in_triage_team: matched_team.present?,
