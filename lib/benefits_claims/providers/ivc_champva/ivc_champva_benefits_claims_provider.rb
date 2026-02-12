@@ -56,7 +56,9 @@ module BenefitsClaims
 
         def user_emails
           @user_emails ||= begin
-            verification_emails = @user&.user_account&.user_verifications&.includes(:user_credential_email)&.filter_map do |verification|
+            verification_emails = @user&.user_account&.user_verifications
+                                         &.includes(:user_credential_email)
+                                         &.filter_map do |verification|
               verification.user_credential_email&.credential_email&.strip&.downcase
             end || []
 
