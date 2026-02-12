@@ -5,7 +5,7 @@ require 'common/models/resource'
 module Mobile
   module V0
     class ClaimEventTimeline < Common::Resource
-      # Common event fields
+      # Event fields
       attribute :date, Types::Date.optional.default(nil)
       attribute :type, Types::String
       # Document fields
