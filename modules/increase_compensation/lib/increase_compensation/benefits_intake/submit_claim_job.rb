@@ -43,7 +43,7 @@ module IncreaseCompensation
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.guid, { extras_redesign: true, omit_esign_stamp: true }))
+        @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
