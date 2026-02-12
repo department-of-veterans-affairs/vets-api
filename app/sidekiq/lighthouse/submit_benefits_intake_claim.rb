@@ -171,7 +171,7 @@ module Lighthouse
     # Upload to IBM MMS if the govcio flipper is enabled
     # Feature flag format: form_21_0779_govcio_mms, form_21_2680_govcio_mms, etc.
     def govcio_upload
-      form_id = @claim.form_id.tr('-', '_')
+      form_id = @claim.form_id.tr('-', '_').downcase
       flipper_key = :"form_#{form_id}_govcio_mms"
 
       return unless Flipper.enabled?(flipper_key)
