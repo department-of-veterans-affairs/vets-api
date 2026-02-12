@@ -15,7 +15,11 @@ module IvcChampva
     def perform
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      batches = missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
+      batches = if Flipper.enabled?(:champva_ignore_recent_missing_statuses, @current_user)
+                  missing_status_cleanup.get_missing_statuses(silent: true, ignore_recent: true)
+                else
+                  missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
+                end
 
       Rails.logger.info "IVC Forms MissingFormStatusJob - Job started - batch_count: #{batches.count}"
 
