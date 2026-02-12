@@ -110,16 +110,16 @@ module VeteranStatusCard
       status: WARNING_STATUS
     }.freeze
 
-    ERROR_TITLE = "This page isn't working right now"
-    ERROR_MESSAGE = [
+    UNCAUGHT_ERROR_TITLE = "This page isn't working right now"
+    UNCAUGHT_ERROR_MESSAGE = [
       {
         type: 'text',
         value: "We're sorry. Something went wrong on our end. Refresh this page or try again later."
       }
     ].freeze
-    ERROR_RESPONSE = {
-      title: ERROR_TITLE,
-      message: ERROR_MESSAGE,
+    UNCAUGHT_ERROR_RESPONSE = {
+      title: UNCAUGHT_ERROR_TITLE,
+      message: UNCAUGHT_ERROR_MESSAGE,
       status: WARNING_STATUS
     }.freeze
 
@@ -134,6 +134,27 @@ module VeteranStatusCard
       title: SOMETHING_WENT_WRONG_TITLE,
       message: SOMETHING_WENT_WRONG_MESSAGE,
       status: ERROR_STATUS
+    }.freeze
+
+    PERSON_NOT_FOUND_MESSAGE = [
+      {
+        type: 'text',
+        value: 'Your records are missing from the system.'
+      },
+      {
+        type: 'text',
+        value: "To fix the issue, call us. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
+    ].freeze
+    PERSON_NOT_FOUND_RESPONSE = {
+      title: STANDARD_ERROR_TITLE,
+      message: PERSON_NOT_FOUND_MESSAGE,
+      status: WARNING_STATUS
     }.freeze
   end
 end

@@ -203,13 +203,23 @@ module VeteranStatusCard
     end
 
     ##
-    # Returns the generic error response
+    # Returns the uncaught error response
     # Override in subclasses to use different messaging
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def error_response
-      VeteranStatusCard::Constants::ERROR_RESPONSE
+    def uncaught_error_response
+      VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+    end
+
+    ##
+    # Returns the person not found response
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
+    def person_not_found_response
+      VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
     end
 
     private
@@ -317,13 +327,9 @@ module VeteranStatusCard
     #
     def error_results
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
-      if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
-        return {
-          title: vet_verification_status[:title],
-          message: vet_verification_status[:message],
-          status: vet_verification_status[:status]
-        }
-      end
+      return person_not_found_response if vet_verification_status[:reason] == VET_STATUS_PERSON_NOT_FOUND_TEXT
+
+      return something_went_wrong_response if vet_verification_status[:reason] == VET_STATUS_ERROR_TEXT
 
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
       response_for_ssc_code
@@ -357,7 +363,7 @@ module VeteranStatusCard
         unknown_eligibility_response
       else
         @confirmation_status = UNCAUGHT_SSC_MESSAGE
-        error_response
+        uncaught_error_response
       end
     end
 
@@ -523,9 +529,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: error_response[:message],
-            title: error_response[:title],
-            status: error_response[:status]
+            message: something_went_wrong_response[:message],
+            title: something_went_wrong_response[:title],
+            status: something_went_wrong_response[:status]
           }
         else
           {
