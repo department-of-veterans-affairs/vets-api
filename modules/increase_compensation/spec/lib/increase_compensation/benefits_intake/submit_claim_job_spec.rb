@@ -4,15 +4,16 @@ require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
+require 'increase_compensation/notification_email'
 require 'pdf_utilities/datestamp_pdf'
 
-RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_helpers,
-               skip: 'TODO after schema built' do
+RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:increase_compensation_claim) }
-  let(:service) { double('service') }
+  let(:service) { double(BenefitsIntake::Service) }
   let(:monitor) { IncreaseCompensation::Monitor.new }
+  let(:user_account) { UserAccount }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -119,7 +120,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
   end
 
   describe '#process_document' do
-    let(:service) { instance_double(service) }
+    let(:service) { instance_double(BenefitsIntake::Service) }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
@@ -161,7 +162,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
   describe '#send_submitted_email' do
     let(:monitor_error) { create(:monitor_error) }
-    let(:notification) { instance_double(notification) }
+    let(:notification) { instance_double(IncreaseCompensation::NotificationEmail) }
 
     before do
       job.instance_variable_set(:@claim, claim)
