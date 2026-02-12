@@ -140,4 +140,10 @@ properties:
         example: true
         description: This field is only present if the user is in the triage team for this message. This can be used to
                      determine if the user can reply to the message.
+      stationNumber:
+        type: string
+        nullable: true
+        example: "979"
+        description: The station number of the triage group associated with this message. Null if the user is not in an
+                     active triage team for this message.
 

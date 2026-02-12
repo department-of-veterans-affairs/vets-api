@@ -39,11 +39,12 @@ module Mobile
 
         user_triage_teams = client.get_all_triage_teams(@current_user.uuid)
         active_teams = user_triage_teams.data.reject(&:blocked_status)
-        user_in_triage_team = active_teams.any? do |team|
+        matched_team = active_teams.find do |team|
           response.triage_group_name && team.name == response.triage_group_name
         end
 
-        meta = response.metadata.merge(user_in_triage_team:)
+        meta = response.metadata.merge(user_in_triage_team: matched_team.present?,
+                                       station_number: matched_team&.station_number)
         options = { meta: }
         options[:include] = [:attachments] if response.attachment
         render json: Mobile::V0::MessageSerializer.new(response, options)
