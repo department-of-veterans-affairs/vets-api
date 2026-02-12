@@ -272,11 +272,11 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
         activityDescription: 'Test activity description',
         supportAliases: ['test-alias'],
         canUploadFile: true,
-        noActionNeeded: false,
-        isDBQ: false,
-        isProperNoun: false,
-        isSensitive: false,
-        noProvidePrefix: false,
+        noActionNeeded: true,
+        isDBQ: true,
+        isProperNoun: true,
+        isSensitive: true,
+        noProvidePrefix: true,
         longDescription: { blocks: [{ type: 'paragraph', content: 'Test long description' }] },
         nextSteps: { blocks: [{ type: 'paragraph', content: 'Test next steps' }] }
       }
