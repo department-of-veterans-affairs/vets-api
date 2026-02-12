@@ -119,7 +119,19 @@ properties:
   long_description:
     type: object
     nullable: true
-    example: null
+    example:
+      blocks:
+        - type: paragraph
+          content: 'For your benefits claim, we need your permission to request your personal information from a non-VA source, like a private doctor or hospital.'
+        - type: paragraph
+          content: 'Personal information may include:'
+        - type: list
+          style: bullet
+          items:
+            - 'Medical treatments'
+            - 'Hospitalizations'
+            - 'Psychotherapy'
+            - 'Outpatient care'
   next_steps:
     type: object
     nullable: true

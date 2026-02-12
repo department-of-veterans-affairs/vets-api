@@ -26,6 +26,14 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(
+            Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE,
+            anything
+          )
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?).with('schema_contract_claims_and_appeals_get_claim').and_return(false)
       end
 
       it 'matches our schema is successfully returned with the 200 status',
@@ -67,8 +75,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
       context 'when cst_override_reserve_records_mobile flipper is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(true)
         end
 
@@ -85,12 +91,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       end
 
       context 'when cst_override_reserve_records_mobile flipper is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
-        end
-
         it 'leaves the tracked item status as NEEDED_FROM_YOU', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
           VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
             get '/mobile/v0/claim/600117255', headers: sis_headers
@@ -122,8 +122,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         end
 
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?)
             .with(
               Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE,
@@ -159,17 +157,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       end
 
       context "when the 'cst_evidence_requests_content_override_mobile' feature flag is disabled" do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
-          allow(Flipper).to receive(:enabled?)
-            .with(
-              Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE,
-              anything
-            )
-            .and_return(false)
-        end
-
         it 'does not include content override fields in tracked item events' do
           VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
             get '/mobile/v0/claim/600117255', headers: sis_headers
@@ -196,8 +183,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
       context 'when :cst_suppress_evidence_requests_mobile is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(true)
         end
 
@@ -213,12 +198,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       end
 
       context 'when :cst_suppress_evidence_requests_mobile is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
-        end
-
         it 'includes suppressed evidence request tracked items' do
           VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
             get '/mobile/v0/claim/600117255', headers: sis_headers
@@ -232,8 +211,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
       context 'when :schema_contract_claims_and_appeals_get_claim is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
           allow(Flipper).to receive(:enabled?).with('schema_contract_claims_and_appeals_get_claim').and_return(true)
 
           user.user_account_uuid = user_account.id
