@@ -9,6 +9,7 @@ require 'common/pdf_helpers'
 module IvcChampva
   module V1
     class UploadsController < ApplicationController
+      service_tag 'veteran-ivc-champva-forms'
       skip_after_action :set_csrf_header
 
       include ActionView::Helpers::NumberHelper

@@ -24,6 +24,7 @@ module V0
         forms = []
         # Always include benefits intake forms for backward compatibility
         forms += restricted_benefits_intake_forms
+        forms += ivc_champva_forms_if_enabled
         forms += decision_reviews_forms_if_enabled
         forms
       end
@@ -38,13 +39,25 @@ module V0
           21-4142
           21-4140
           21-4142a
-          21-8940v1
           21P-0847
           21P-527EZ
           21P-530EZ
           21P-0969
           21P-535
         ] + uploadable_forms
+      end
+
+      def ivc_champva_forms_if_enabled
+        return [] unless display_ivc_champva_forms?
+
+        %w[
+          10-10D
+          10-10D-EXTENDED
+          10-7959A
+          10-7959C
+          10-7959F-1
+          10-7959F-2
+        ]
       end
 
       def decision_reviews_forms_if_enabled
@@ -84,7 +97,8 @@ module V0
           # ALWAYS enable benefits intake for backward compatibility
           # The feature flag only controls whether to show ALL forms vs restricted list
           benefits_intake_enabled: true,
-          decision_reviews_enabled: display_decision_reviews_forms?
+          decision_reviews_enabled: display_decision_reviews_forms?,
+          ivc_champva_enabled: display_ivc_champva_forms?
         }
       end
 
@@ -100,6 +114,13 @@ module V0
       def display_decision_reviews_forms?
         Flipper.enabled?(
           :my_va_display_decision_reviews_forms,
+          @current_user
+        )
+      end
+
+      def display_ivc_champva_forms?
+        Flipper.enabled?(
+          :benefits_claims_ivc_champva_provider,
           @current_user
         )
       end
