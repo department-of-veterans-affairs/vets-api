@@ -67,7 +67,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
-                'hasAttachments' => false
+                'hasAttachments' => false,
+                'replyDisabled' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573059'
@@ -95,7 +96,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
-                'hasAttachments' => false
+                'hasAttachments' => false,
+                'replyDisabled' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573052'
@@ -123,7 +125,8 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
-                'hasAttachments' => false
+                'hasAttachments' => false,
+                'replyDisabled' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'
@@ -148,6 +151,16 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
         expect(response).to be_successful
         expect(response.parsed_body).to eq(thread_response)
         expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
+      end
+
+      it 'includes replyDisabled' do
+        VCR.use_cassette('mobile/messages/v1_get_thread_reply_disabled') do
+          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
+        end
+
+        expect(response).to be_successful
+        # messages with reply_disabled: false, true, nil
+        expect(response.parsed_body['data'].map { |msg| msg['attributes']['replyDisabled'] }).to eq [false, true, false]
       end
 
       it 'filters the provided message when excludeProvidedMessage is true' do
