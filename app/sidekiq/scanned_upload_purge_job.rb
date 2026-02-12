@@ -133,7 +133,9 @@ class ScannedUploadPurgeJob
     return unless attachment
 
     delete_s3_file(attachment, stats)
+    # rubocop:disable Rails/SkipsModelValidations
     attachment.update_columns(file_data: nil, updated_at: Time.zone.now)
+    # rubocop:enable Rails/SkipsModelValidations
   rescue => e
     stats[:errors] += 1
     Rails.logger.error('Failed to purge attachment', guid:, error: e.message)
