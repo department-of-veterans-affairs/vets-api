@@ -146,7 +146,7 @@ module IncreaseCompensation
       # Insert submission polling entries
       def lighthouse_submission_polling
         lighthouse_submission = {
-          form_id: @claim.form_id,
+          form_id: IncreaseCompensation::FORM_REAL_ID,
           reference_data: @claim.to_json,
           saved_claim: @claim
         }
