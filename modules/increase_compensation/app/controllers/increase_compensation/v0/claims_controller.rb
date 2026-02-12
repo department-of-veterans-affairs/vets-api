@@ -65,15 +65,24 @@ module IncreaseCompensation
         end
 
         process_attachments(in_progress_form, claim)
-
-        IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
+        #? create a new service
+        intake_service = BenefitsIntake::Service.new
+        location, benefits_intake_uuid = intake_service.request_upload
+        #?  send it to the job, Job only call refresh: true
+        IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(
+          claim.id,
+          current_user&.user_account_uuid,
+          intake_service
+        )
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id[..6])
 
         # submission attempt is created in the method
-        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
+        # ? add benefits_intake_uuid to this
+        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new, benefits_intake_uuid)
         log_success(claim, current_user&.user_account_uuid)
+        # ? add benefits_intake_uuid to this or find FormSubmission Attempt with # ? add benefits_intake_uuid to this
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)

@@ -37,10 +37,10 @@ module IncreaseCompensation
       #
       # @return [UUID] benefits intake upload uuid
       #
-      def perform(saved_claim_id, user_account_uuid = nil)
+      def perform(saved_claim_id, user_account_uuid = nil, intake_service)
         return unless Flipper.enabled?(:increase_compensation_form_enabled)
 
-        init(saved_claim_id, user_account_uuid)
+        init(saved_claim_id, user_account_uuid, intake_service)
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.guid, { extras_redesign: true, omit_esign_stamp: true }))
@@ -48,7 +48,6 @@ module IncreaseCompensation
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
 
-        # upload must be performed within 15 minutes of this request
         upload_document
 
         send_submitted_email
@@ -66,7 +65,7 @@ module IncreaseCompensation
       private
 
       # Instantiate instance variables for _this_ job
-      def init(saved_claim_id, user_account_uuid)
+      def init(saved_claim_id, user_account_uuid, intake_service)
         @user_account_uuid = user_account_uuid
         @user_account = UserAccount.find(@user_account_uuid) if @user_account_uuid.present?
         # UserAccount.find will raise an error if unable to find the user_account record
@@ -77,7 +76,8 @@ module IncreaseCompensation
                 "Unable to find IncreaseCompensation::SavedClaim #{saved_claim_id}"
         end
 
-        @intake_service = ::BenefitsIntake::Service.new
+        #* used the fomerly created service, call refresh true
+        @intake_service = inake_service # || ::BenefitsIntake::Service.new
       end
 
       # Create a monitor to be used for _this_ job
@@ -127,7 +127,8 @@ module IncreaseCompensation
 
       # Upload generated pdf to Benefits Intake API
       def upload_document
-        @intake_service.request_upload # <- benefits_intake_uuid come from here
+        # upload must be performed within 15 minutes of this request
+        @intake_service.request_upload(refresh: true) # <- benefits_intake_uuid come from here
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
         lighthouse_submission_polling
 

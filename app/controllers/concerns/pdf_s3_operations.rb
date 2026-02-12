@@ -8,8 +8,8 @@ module PdfS3Operations
   # Upload to S3 and return a download URL
   # @param claim [SavedClaim] the claim to upload
   # @param config [SimpleFormsApi::FormRemediation::Configuration::Base] S3 config
-  def upload_to_s3(claim, config:)
-    form_submission_attempt = create_submission_attempt(claim)
+  def upload_to_s3(claim, config:, benefits_intake_uuid = nil)
+    form_submission_attempt = create_submission_attempt(claim, benefits_intake_uuid)
     pdf_path = claim.to_pdf(claim.guid)
 
     begin
@@ -26,7 +26,7 @@ module PdfS3Operations
   end
 
   # Creates a submission record used for dating the PDF
-  def create_submission_attempt(claim)
+  def create_submission_attempt(claim, benefits_intake_uuid = nil)
     form_submission = FormSubmission.create!(
       form_type: claim.form_id,
       form_data: claim.to_json,
@@ -34,7 +34,7 @@ module PdfS3Operations
       saved_claim_id: claim.id,
       user_account_id: claim.user_account_id
     )
-    FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
+    FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: benefits_intake_uuid || claim.guid)
   end
 
   ## Returns the URL of an already-created PDF
