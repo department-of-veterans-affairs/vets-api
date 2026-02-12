@@ -62,5 +62,23 @@ RSpec.describe DigitalFormsApi::Monitor do
         service.track_api_request(:get, endpoint, code, reason, call_location:)
       end
     end
+
+    describe '#track_schema_payload_error' do
+      it 'tracks schema payload parse failures as a separate metric' do
+        metric = DigitalFormsApi::Monitor::Service::SCHEMA_PAYLOAD_ERROR_METRIC
+        form_id = '21-686c'
+        reason = 'bad schema shape'
+        call_location = 'foobar'
+
+        tags = { endpoint: 'schemas', form_id: }
+        formatted_tags = ['endpoint:schemas', 'form_id:21-686c']
+        message = "#{service.class}: #{reason}"
+
+        kwargs = { call_location:, reason:, tags: formatted_tags, **tags }
+        expect(service).to receive(:track_request).with(:error, message, metric, **kwargs)
+
+        service.track_schema_payload_error(form_id, reason, call_location:)
+      end
+    end
   end
 end
