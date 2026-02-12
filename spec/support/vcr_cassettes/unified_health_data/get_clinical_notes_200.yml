@@ -188,6 +188,7 @@ http_interactions:
                                     }
                                 ],
                                 "status": "current",
+                                "docStatus": "final",
                                 "type": {
                                     "coding": [
                                         {
@@ -264,6 +265,7 @@ http_interactions:
                             {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1833586"}
                         ],
                         "status": "current",
+                        "docStatus": "final",
                         "type": {
                             "coding": [
                                 {
