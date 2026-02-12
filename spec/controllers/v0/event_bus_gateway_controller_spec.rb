@@ -309,9 +309,8 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
     before do
       allow(Settings.vanotify.services.benefits_management_tools.template_id)
-        .to receive(:decision_letter_ready_email).and_return(decision_letter_template_id)
-      allow(Settings.vanotify.services.benefits_management_tools.template_id)
-        .to receive(:decision_letter_ready_email_universal_link).and_return(universal_link_template_id)
+        .to receive_messages(decision_letter_ready_email: decision_letter_template_id,
+                             decision_letter_ready_email_universal_link: universal_link_template_id)
     end
 
     context 'when template is decision letter and universal link is enabled' do
@@ -439,9 +438,8 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
 
     before do
       allow(Settings.vanotify.services.benefits_management_tools.template_id)
-        .to receive(:decision_letter_ready_email).and_return(decision_letter_template_id)
-      allow(Settings.vanotify.services.benefits_management_tools.template_id)
-        .to receive(:decision_letter_ready_email_universal_link).and_return(universal_link_template_id)
+        .to receive_messages(decision_letter_ready_email: decision_letter_template_id,
+                             decision_letter_ready_email_universal_link: universal_link_template_id)
       allow(Flipper).to receive(:enabled?).and_return(false)
     end
 
