@@ -16,7 +16,8 @@ module Mobile
                  :location_name,
                  :suggested_name_display,
                  :health_care_system_name,
-                 :oh_triage_group
+                 :oh_triage_group,
+                 :migrating_to_oh
     end
   end
 end

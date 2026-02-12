@@ -757,6 +757,45 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
     end
   end
 
+  describe 'Betamocks Integration', vcr: vcr_options do
+    context 'when mock mode is enabled' do
+      let(:params) do
+        {
+          lat: 40.415217,
+          long: -74.057114,
+          radius: 200,
+          type: 'pharmacy'
+        }
+      end
+
+      before do
+        allow(Settings.ppms).to receive(:mock).and_return(true)
+        allow(Settings.betamocks).to receive_messages(
+          enabled: true,
+          cache_dir: Rails.root.join('..', 'vets-api-mockdata').to_s
+        )
+      end
+
+      it 'returns mock data when betamocks is enabled' do
+        get('/facilities_api/v2/ccp', params:)
+
+        expect(response).to be_successful
+        bod = JSON.parse(response.body)
+
+        # Verify response has expected structure from mock data
+        expect(bod['data']).to be_an(Array)
+        expect(bod['data'].first).to include('id', 'type', 'attributes')
+        expect(bod['data'].first['type']).to eq('provider')
+
+        # Verify mock data contains expected provider from pos_locator/default.json
+        expect(bod['data'].first['attributes']).to include(
+          'name' => 'BAYSHORE PHARMACY',
+          'uniqueId' => '1225028293'
+        )
+      end
+    end
+  end
+
   describe 'fetch_lat_long_and_radius parameter validation' do
     context 'Invalid latitude parameter' do
       it 'returns 400 error when latitude is not a valid float' do

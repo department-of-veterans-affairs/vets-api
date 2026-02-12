@@ -17,6 +17,7 @@ module DependentsBenefits::Sidekiq
   # - Early exits if any sibling has already failed the claim group
   class DependentSubmissionJob
     include ::Sidekiq::Job
+    include DependentsBenefits::DependentsHelper
 
     # dead: false ensures critical dependent claims never go to dead queue
     # https://github.com/sidekiq/sidekiq/wiki/Advanced-Options#jobs
@@ -367,13 +368,5 @@ module DependentsBenefits::Sidekiq
     def claim_processor
       @claim_processor ||= DependentsBenefits::ClaimProcessor.new(parent_claim_id)
     end
-
-    # Returns the component name for monitoring/logging
-    #
-    # Used as the default component tag value in monitor event tracking.
-    # Returns the fully qualified class name for better log filtering and debugging.
-    #
-    # @return [String] The fully qualified class name
-    def component = self.class.name
   end
 end
