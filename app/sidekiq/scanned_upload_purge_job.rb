@@ -29,13 +29,13 @@ class ScannedUploadPurgeJob
 
   def perform
     StatsD.increment("#{STATS_KEY}.started")
-    Rails.logger.info('FormUploadDataPurgeJob started')
+    Rails.logger.info('ScannedUploadPurgeJob started')
 
     stats = initialize_stats
     purge_old_submissions(stats)
 
     record_metrics(stats)
-    Rails.logger.info('FormUploadDataPurgeJob completed', stats)
+    Rails.logger.info('ScannedUploadPurgeJob completed', stats)
   rescue => e
     handle_failure(e)
     raise
@@ -134,7 +134,7 @@ class ScannedUploadPurgeJob
 
     delete_s3_file(attachment, stats)
     # rubocop:disable Rails/SkipsModelValidations
-    attachment.update_columns(file_data: nil, updated_at: Time.zone.now)
+    attachment.update_columns(file_data_ciphertext: nil, updated_at: Time.zone.now)
     # rubocop:enable Rails/SkipsModelValidations
   rescue => e
     stats[:errors] += 1
@@ -213,7 +213,7 @@ class ScannedUploadPurgeJob
   def handle_failure(exception)
     StatsD.increment("#{STATS_KEY}.failed")
     Rails.logger.error(
-      'FormUploadDataPurgeJob failed',
+      'ScannedUploadPurgeJob failed',
       backtrace: exception.backtrace&.first(5)
     )
   end

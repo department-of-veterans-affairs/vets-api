@@ -35,7 +35,7 @@ RSpec.describe ScannedUploadPurgeJob, type: :job do
         expect(StatsD).to receive(:increment)
           .with("#{described_class::STATS_KEY}.failed")
         expect(Rails.logger).to receive(:error)
-          .with('FormUploadDataPurgeJob failed', hash_including(backtrace: anything))
+          .with('ScannedUploadPurgeJob failed', hash_including(backtrace: anything))
 
         expect { described_class.new.perform }.to raise_error(StandardError, 'Database error')
       end
