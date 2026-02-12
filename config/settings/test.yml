@@ -1284,10 +1284,13 @@ res:
   api_key: fake_auth
   base_url: https://fake_url.com
   ch_31_case_details:
-    mock: ~
+    mock: false
+  ch_31_case_milestones:
+    api_key: fake_appian_api_key
+    mock: false
   ch_31_eligibility:
-    mock: ~
-  mock_ch_31: ~
+    mock: false
+  mock_ch_31: false
 review_instance_slug: ~
 rrd:
   alerts:
