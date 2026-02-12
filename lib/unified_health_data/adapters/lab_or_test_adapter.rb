@@ -2,6 +2,7 @@
 
 require_relative '../models/lab_or_test'
 require_relative '../reference_range_formatter'
+require_relative '../facility_service'
 require_relative 'date_normalizer'
 
 module UnifiedHealthData
@@ -58,6 +59,18 @@ module UnifiedHealthData
         build_lab_or_test(record, code, encoded_data, observations, contained)
       end
 
+      # Public method to extract station number from a record's contained resources.
+      # Used by Service layer for cache pre-warming.
+      #
+      # @param record [Hash] A UHD record with 'resource' > 'contained'
+      # @return [String, nil] Station number or nil if not found
+      def extract_station_number_from_record(record)
+        return nil if record.nil?
+
+        contained = record.dig('resource', 'contained')
+        extract_station_number(contained)
+      end
+
       private
 
       def allowed_status?(status)
@@ -65,25 +78,37 @@ module UnifiedHealthData
       end
 
       def build_lab_or_test(record, code, encoded_data, observations, contained)
-        date_completed_value = get_date_completed(record['resource'])
+        resource = record['resource']
+        date_completed_value, facility_timezone = resolve_date_and_timezone(resource, contained)
 
         UnifiedHealthData::LabOrTest.new(
-          id: record['resource']['id'],
-          type: record['resource']['resourceType'],
+          id: resource['id'],
+          type: resource['resourceType'],
           display: format_display(record),
           test_code: code,
           test_code_display: get_test_code_display(record, code),
           date_completed: date_completed_value,
           sort_date: normalize_date_for_sorting(date_completed_value),
-          sample_tested: get_sample_tested(record['resource'], contained),
+          sample_tested: get_sample_tested(resource, contained),
           encoded_data:,
           location: get_location(record),
           ordered_by: get_ordered_by(record),
           observations:,
-          body_site: get_body_site(record['resource'], contained),
-          status: record['resource']['status'],
-          source: record['source']
+          body_site: get_body_site(resource, contained),
+          status: resource['status'],
+          source: record['source'],
+          facility_timezone:
         )
+      end
+
+      # Resolves date_completed and facility_timezone by extracting station number
+      # and converting UTC to facility local time when possible
+      def resolve_date_and_timezone(resource, contained)
+        raw_date = get_date_completed(resource)
+        station_number = extract_station_number(contained)
+        facility_timezone = get_facility_timezone(station_number)
+        date_completed = convert_to_facility_time(raw_date, facility_timezone)
+        [date_completed, facility_timezone]
       end
 
       def log_warnings(record, encoded_data, observations)
@@ -405,6 +430,108 @@ module UnifiedHealthData
         # Fallback to report's creation date if no other dates available
         elsif resource['presentedForm']
           resource['presentedForm'].find { |form| form['contentType'] == 'text/plain' }&.dig('creation')
+        end
+      end
+
+      # Extracts station number from contained resources using multiple fallback strategies
+      # Fallback chain:
+      #   1. Practitioner SN=XXX format (most explicit, Oracle Health)
+      #   2. Practitioner plain 3-digit number with "OTHER" type (Oracle Health)
+      #   3. Organization with VA OID system (VistA data via UHD)
+      #
+      # @param contained [Array<Hash>] Array of contained FHIR resources
+      # @return [String, nil] Station number (e.g., '668') or nil if not found
+      def extract_station_number(contained)
+        return nil if contained.blank?
+
+        # Try Practitioner identifiers first (Oracle Health data)
+        station_number = extract_station_from_practitioner(contained)
+        return station_number if station_number.present?
+
+        # Fallback: Try Organization identifiers (VistA data via UHD)
+        extract_station_from_organization(contained)
+      end
+
+      # Extracts station number from Practitioner identifiers
+      # Used primarily for Oracle Health data
+      # Priority: SN=XXX format > plain 3-digit with OTHER type
+      #
+      # @param contained [Array<Hash>] Array of contained FHIR resources
+      # @return [String, nil] Station number or nil if not found
+      def extract_station_from_practitioner(contained)
+        practitioner = contained.find { |r| r['resourceType'] == 'Practitioner' }
+        return nil unless practitioner&.dig('identifier')
+
+        identifiers = practitioner['identifier']
+
+        # Priority 1: SN=XXX format (most explicit)
+        sn_identifier = identifiers.find { |i| (val = i['value']).present? && val.start_with?('SN=') }
+        return sn_identifier['value'].sub('SN=', '') if sn_identifier
+
+        # Priority 2: Station number with "OTHER" type (3 digits, optionally with letter suffix like 668A, 668GC)
+        plain_identifier = identifiers.find do |i|
+          (val = i['value']).present? && i.dig('type', 'text') == 'OTHER' && val.match?(/^\d{3}[A-Z]{0,2}$/i)
+        end
+        plain_identifier&.dig('value')
+      end
+
+      # Extracts station number from Organization identifiers
+      # Used primarily for VistA data coming through UHD
+      # Looks for identifiers with the VA OID system (urn:oid:2.16.840.1.113883.4.349)
+      #
+      # @param contained [Array<Hash>] Array of contained FHIR resources
+      # @return [String, nil] Station number or nil if not found
+      def extract_station_from_organization(contained)
+        organization = contained.find { |r| r['resourceType'] == 'Organization' }
+        return nil unless organization&.dig('identifier')
+
+        organization['identifier'].each do |identifier|
+          system = identifier['system']
+          value = identifier['value']
+
+          # VA OID system identifier contains station number
+          # Example: {"system": "urn:oid:2.16.840.1.113883.4.349", "value": "989"}
+          next unless system.to_s.include?('2.16.840.1.113883.4.349') && value.present?
+
+          return value
+        end
+
+        nil
+      end
+
+      # Gets the facility timezone using the UHD FacilityService
+      #
+      # @param station_number [String] The station number (e.g., '668')
+      # @return [String, nil] IANA timezone ID (e.g., 'America/Los_Angeles') or nil if not found
+      def get_facility_timezone(station_number)
+        return nil if station_number.blank?
+
+        facility_service.get_facility_timezone(station_number)
+      end
+
+      def facility_service
+        @facility_service ||= UnifiedHealthData::FacilityService.new
+      end
+
+      # Converts a UTC datetime string to facility local time
+      #
+      # @param date_string [String] ISO 8601 datetime string (e.g., '2023-11-06T18:32:00+00:00')
+      # @param timezone [String] IANA timezone ID (e.g., 'America/Los_Angeles')
+      # @return [String] ISO 8601 datetime string in facility local time, or original if conversion fails
+      def convert_to_facility_time(date_string, timezone)
+        return date_string if date_string.blank? || timezone.blank?
+
+        begin
+          # Parse the datetime and convert to the facility timezone
+          parsed_time = DateTime.parse(date_string).to_time.utc
+          local_time = parsed_time.in_time_zone(timezone)
+          local_time.iso8601
+        rescue ArgumentError, TypeError, TZInfo::InvalidTimezoneIdentifier, TZInfo::UnknownTimezone => e
+          Rails.logger.warn(
+            "Failed to convert time to facility timezone: #{e.message}",
+            { service: 'unified_health_data', date_string:, timezone: }
+          )
+          date_string
         end
       end
     end
