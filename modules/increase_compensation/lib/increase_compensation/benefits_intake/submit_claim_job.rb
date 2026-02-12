@@ -120,14 +120,14 @@ module IncreaseCompensation
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           address['postalCode'],
           'va_gov_benefits_intake_pingwind',
-          @claim.form_id, # TODO: cahnge to 21-8940
+          IncreaseCompensation::FORM_REAL_ID,
           @claim.business_line
         )
       end
 
       # Upload generated pdf to Benefits Intake API
       def upload_document
-        @intake_service.request_upload
+        @intake_service.request_upload # <- benefits_intake_uuid come from here
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
         lighthouse_submission_polling
 
