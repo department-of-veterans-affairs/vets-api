@@ -100,7 +100,9 @@ module BenefitsIntake
     # @param uuids [Array<String>] the uuids to check
     # @raise [Common::Exceptions::MaxArraySizeExceeded] if more than 1000 uuids are provided
     def bulk_status(uuids:)
-      raise Common::Exceptions::MaxArraySizeExceeded.new('uuids', uuids.size, 1000) if uuids.size > 1000
+      if Flipper.enabled?(:vba_documents_uploads_report_uuid_limit) && uuids.size > 1000
+        raise Common::Exceptions::MaxArraySizeExceeded.new('uuids', uuids.size, 1000)
+      end
 
       headers = { 'Content-Type' => Mime[:json].to_s, 'Accept' => Mime[:json].to_s }
       data = { ids: uuids }.to_json

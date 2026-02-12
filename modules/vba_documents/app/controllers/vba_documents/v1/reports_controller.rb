@@ -32,8 +32,13 @@ module VBADocuments
       def validate_params
         raise Common::Exceptions::ParameterMissing, ID_PARAM if params[ID_PARAM].nil?
         raise Common::Exceptions::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) unless params[ID_PARAM].is_a?(Array)
-        raise Common::Exceptions::MaxArraySizeExceeded.new(ID_PARAM, params[ID_PARAM].size, MAX_REPORT_SIZE) if
-          params[ID_PARAM].size > MAX_REPORT_SIZE
+        return unless params[ID_PARAM].size > MAX_REPORT_SIZE
+
+        if Flipper.enabled?(:vba_documents_uploads_report_uuid_limit)
+          raise Common::Exceptions::MaxArraySizeExceeded.new(ID_PARAM, params[ID_PARAM].size, MAX_REPORT_SIZE)
+        end
+
+        raise Common::Exceptions::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM])
       end
     end
   end

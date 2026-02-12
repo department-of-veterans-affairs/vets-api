@@ -86,9 +86,20 @@ RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
       end
 
       it 'returns error if guids parameter has too many elements' do
+        allow(Flipper).to receive(:enabled?).with(:vba_documents_uploads_report_uuid_limit).and_return(true)
         params = Array.new(1001, 'abcd-1234')
         post '/services/vba_documents/v1/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an(Array)
+        expect(json['errors'].size).to eq(1)
+        error = json['errors'].first
+        expect(error).to include(
+          'title' => 'Too many items submitted',
+          'detail' => '"ids" cannot exceed 1000 items (submitted 1001)',
+          'code' => '108',
+          'status' => '400'
+        )
       end
     end
 

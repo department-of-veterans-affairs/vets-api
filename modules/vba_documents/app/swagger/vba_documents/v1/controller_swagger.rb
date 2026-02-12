@@ -212,7 +212,20 @@ module VBADocuments
           end
 
           response 400 do
-            key :description, 'Bad Request - invalid or missing list of guids'
+            key :description, 'Bad Request - invalid, missing, or oversized list of guids (max 1000)'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :ErrorModel
+                  end
+                end
+              end
+            end
           end
         end
       end

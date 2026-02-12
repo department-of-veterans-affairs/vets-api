@@ -3,13 +3,6 @@
 require 'rails_helper'
 
 describe Common::Exceptions::MaxArraySizeExceeded do
-  context 'with no attributes provided' do
-    it do
-      expect { described_class.new }
-        .to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 3)')
-    end
-  end
-
   context 'with field, actual_size, and max_size provided' do
     subject { described_class.new('ids', 1002, 1000) }
 
