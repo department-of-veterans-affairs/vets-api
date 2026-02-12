@@ -9,7 +9,6 @@ module SurvivorsBenefits
       include ::PdfFill::Forms::FormHelper
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include Helpers
-      ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       SERVICE_BRANCH_MAPPING = {
         'army' => 'ARMY',
