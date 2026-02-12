@@ -19,6 +19,7 @@ module UnifiedHealthData
                :body_site,
                :status,
                :source,
+               :facility_timezone,
                :observations
   end
 end

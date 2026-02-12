@@ -61,6 +61,14 @@ describe DependentsBenefits::PdfFill::Filler, type: :model do
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
                 fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
+
+                # This gives more detailed output on where the PDFs differ
+                file_texts = [extras_path, fixture_pdf].map do |path|
+                  reader1 = PDF::Reader.new(path)
+                  reader1.pages.map(&:text).join('\n').squeeze
+                end
+                expect(file_texts[0]).to eq(file_texts[1])
+
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
