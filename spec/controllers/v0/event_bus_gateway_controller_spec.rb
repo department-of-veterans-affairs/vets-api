@@ -301,4 +301,230 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       expect(described_class.trace_service_tag).to eq('event_bus_gateway')
     end
   end
+
+  describe '#select_email_template' do
+    let(:decision_letter_template_id) { 'decision_letter_template_123' }
+    let(:universal_link_template_id) { 'universal_link_template_456' }
+    let(:other_template_id) { 'some_other_template_789' }
+
+    before do
+      allow(Settings.vanotify.services.benefits_management_tools.template_id)
+        .to receive(:decision_letter_ready_email).and_return(decision_letter_template_id)
+      allow(Settings.vanotify.services.benefits_management_tools.template_id)
+        .to receive(:decision_letter_ready_email_universal_link).and_return(universal_link_template_id)
+    end
+
+    context 'when template is decision letter and universal link is enabled' do
+      before do
+        allow(controller).to receive(:universal_link_enabled?).and_return(true)
+      end
+
+      it 'returns universal link template' do
+        result = controller.send(:select_email_template, decision_letter_template_id)
+        expect(result).to eq(universal_link_template_id)
+      end
+
+      it 'logs the template selection' do
+        expect(Rails.logger).to receive(:info).with(
+          'EventBusGatewayController using universal link template',
+          {
+            original_template: decision_letter_template_id,
+            universal_link_template: universal_link_template_id
+          }
+        )
+
+        controller.send(:select_email_template, decision_letter_template_id)
+      end
+    end
+
+    context 'when template is decision letter but universal link is disabled' do
+      before do
+        allow(controller).to receive(:universal_link_enabled?).and_return(false)
+      end
+
+      it 'returns original template' do
+        result = controller.send(:select_email_template, decision_letter_template_id)
+        expect(result).to eq(decision_letter_template_id)
+      end
+
+      it 'does not log template selection' do
+        expect(Rails.logger).not_to receive(:info)
+        controller.send(:select_email_template, decision_letter_template_id)
+      end
+    end
+
+    context 'when template is not a decision letter' do
+      before do
+        allow(controller).to receive(:universal_link_enabled?).and_return(true)
+      end
+
+      it 'returns original template' do
+        result = controller.send(:select_email_template, other_template_id)
+        expect(result).to eq(other_template_id)
+      end
+
+      it 'does not check universal link enabled' do
+        expect(controller).not_to receive(:universal_link_enabled?)
+        controller.send(:select_email_template, other_template_id)
+      end
+    end
+
+    context 'when universal link template is not configured' do
+      before do
+        allow(Settings.vanotify.services.benefits_management_tools.template_id)
+          .to receive(:decision_letter_ready_email_universal_link).and_return(nil)
+        allow(controller).to receive(:universal_link_enabled?).and_return(true)
+      end
+
+      it 'returns original template' do
+        result = controller.send(:select_email_template, decision_letter_template_id)
+        expect(result).to eq(decision_letter_template_id)
+      end
+    end
+
+    context 'when universal link template is empty string' do
+      before do
+        allow(Settings.vanotify.services.benefits_management_tools.template_id)
+          .to receive(:decision_letter_ready_email_universal_link).and_return('')
+        allow(controller).to receive(:universal_link_enabled?).and_return(true)
+      end
+
+      it 'returns original template' do
+        result = controller.send(:select_email_template, decision_letter_template_id)
+        expect(result).to eq(decision_letter_template_id)
+      end
+    end
+  end
+
+  describe '#universal_link_enabled?' do
+    let(:flipper_actor) { instance_double(Flipper::Actor) }
+
+    before do
+      allow(Flipper::Actor).to receive(:new).with(participant_id).and_return(flipper_actor)
+    end
+
+    context 'when flipper flag is enabled for participant' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:event_bus_gateway_letter_ready_email_universal_link, flipper_actor)
+          .and_return(true)
+      end
+
+      it 'returns true' do
+        expect(controller.send(:universal_link_enabled?)).to be true
+      end
+
+      it 'creates flipper actor with participant_id' do
+        expect(Flipper::Actor).to receive(:new).with(participant_id)
+        controller.send(:universal_link_enabled?)
+      end
+    end
+
+    context 'when flipper flag is disabled for participant' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:event_bus_gateway_letter_ready_email_universal_link, flipper_actor)
+          .and_return(false)
+      end
+
+      it 'returns false' do
+        expect(controller.send(:universal_link_enabled?)).to be false
+      end
+    end
+  end
+
+  describe '#process_email_template' do
+    let(:decision_letter_template_id) { 'decision_letter_template_123' }
+    let(:universal_link_template_id) { 'universal_link_template_456' }
+
+    before do
+      allow(Settings.vanotify.services.benefits_management_tools.template_id)
+        .to receive(:decision_letter_ready_email).and_return(decision_letter_template_id)
+      allow(Settings.vanotify.services.benefits_management_tools.template_id)
+        .to receive(:decision_letter_ready_email_universal_link).and_return(universal_link_template_id)
+      allow(Flipper).to receive(:enabled?).and_return(false)
+    end
+
+    context 'for send_email action' do
+      it 'processes template_id from params' do
+        allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+
+        post :send_email, params: { template_id: decision_letter_template_id }
+
+        expect(controller.instance_variable_get(:@final_email_template_id)).to eq(decision_letter_template_id)
+      end
+
+      context 'when universal link is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_return(true)
+        end
+
+        it 'sets final template to universal link template' do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+
+          post :send_email, params: { template_id: decision_letter_template_id }
+
+          expect(controller.instance_variable_get(:@final_email_template_id)).to eq(universal_link_template_id)
+        end
+
+        it 'enqueues job with universal link template' do
+          expect(EventBusGateway::LetterReadyEmailJob)
+            .to receive(:perform_async)
+            .with(participant_id, universal_link_template_id)
+
+          post :send_email, params: { template_id: decision_letter_template_id }
+        end
+      end
+    end
+
+    context 'for send_notifications action' do
+      it 'processes email_template_id from params' do
+        allow(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async)
+
+        post :send_notifications, params: { email_template_id: decision_letter_template_id }
+
+        expect(controller.instance_variable_get(:@final_email_template_id)).to eq(decision_letter_template_id)
+      end
+
+      context 'when universal link is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_return(true)
+        end
+
+        it 'sets final template to universal link template' do
+          allow(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async)
+
+          post :send_notifications, params: { email_template_id: decision_letter_template_id }
+
+          expect(controller.instance_variable_get(:@final_email_template_id)).to eq(universal_link_template_id)
+        end
+
+        it 'enqueues job with universal link template' do
+          expect(EventBusGateway::LetterReadyNotificationJob)
+            .to receive(:perform_async)
+            .with(participant_id, universal_link_template_id, nil)
+
+          post :send_notifications, params: { email_template_id: decision_letter_template_id }
+        end
+      end
+
+      context 'when email_template_id is nil' do
+        it 'sets final template to nil' do
+          allow(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async)
+
+          post :send_notifications, params: { push_template_id: }
+
+          expect(controller.instance_variable_get(:@final_email_template_id)).to be_nil
+        end
+
+        it 'does not call select_email_template' do
+          allow(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async)
+
+          expect(controller).not_to receive(:select_email_template)
+
+          post :send_notifications, params: { push_template_id: }
+        end
+      end
+    end
+  end
 end
