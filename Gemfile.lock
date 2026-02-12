@@ -140,6 +140,17 @@ PATH
     veteran (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
+    
+GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.3.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.3.7, < 8)
+      sidekiq-pro (>= 7.3.4, < 8)
+    sidekiq-pro (7.3.6)
+      sidekiq (>= 7.3.7, < 8)
 
 GEM
   remote: https://rubygems.org/
