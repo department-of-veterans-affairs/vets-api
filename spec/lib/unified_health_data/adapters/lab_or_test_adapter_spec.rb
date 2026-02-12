@@ -21,26 +21,137 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
   end
 
   describe '#get_location' do
-    it 'returns the organization name if present' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Organization', 'name' => 'LabX' }] } }
-      expect(adapter.send(:get_location, record)).to eq('LabX')
+    it 'returns the Organization name matching the performer reference' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Organization/org-456' }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-123', 'name' => 'Wrong Lab' },
+          { 'resourceType' => 'Organization', 'id' => 'org-456', 'name' => 'Correct Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Correct Lab')
     end
 
-    it 'returns nil if no organization' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
+    it 'returns the Location name matching the performer reference' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Location/loc-789' }],
+        'contained' => [
+          { 'resourceType' => 'Location', 'id' => 'loc-789', 'name' => 'Primary Care Blue' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Primary Care Blue')
+    end
+
+    it 'skips non-location performer references and matches Organization' do
+      record = { 'resource' => {
+        'performer' => [
+          { 'reference' => 'Practitioner/prac-1' },
+          { 'reference' => 'Organization/org-2' }
+        ],
+        'contained' => [
+          { 'resourceType' => 'Practitioner', 'id' => 'prac-1', 'name' => [{ 'family' => 'Smith' }] },
+          { 'resourceType' => 'Organization', 'id' => 'org-2', 'name' => 'Test Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Test Lab')
+    end
+
+    it 'falls back to first Organization when no performer references exist' do
+      record = { 'resource' => {
+        'contained' => [{ 'resourceType' => 'Organization', 'name' => 'Fallback Lab' }]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
+    end
+
+    it 'returns nil if no Organization or Location matches and no fallback exists' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => 'Practitioner/prac-1' }],
+        'contained' => [{ 'resourceType' => 'Practitioner', 'id' => 'prac-1' }]
+      } }
       expect(adapter.send(:get_location, record)).to be_nil
+    end
+
+    it 'returns nil if contained is nil' do
+      record = { 'resource' => {} }
+      expect(adapter.send(:get_location, record)).to be_nil
+    end
+
+    it 'handles performer entries with nil reference gracefully' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => nil }, { 'reference' => 'Organization/org-1' }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Good Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Good Lab')
+    end
+
+    it 'falls back to first Organization when all performer references are nil' do
+      record = { 'resource' => {
+        'performer' => [{ 'reference' => nil }, { 'reference' => nil }],
+        'contained' => [
+          { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Fallback Lab' }
+        ]
+      } }
+      expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
     end
   end
 
   describe '#get_ordered_by' do
-    it 'returns practitioner full name if present' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner',
-                                                   'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
+    it 'returns practitioner full name matching the service request requester' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest', 'requester' => { 'reference' => 'Practitioner/abc-123' } },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] },
+        { 'resourceType' => 'Practitioner', 'id' => 'other-456',
+          'name' => [{ 'given' => ['X'], 'family' => 'Y' }] }
+      ] } }
       expect(adapter.send(:get_ordered_by, record)).to eq('A B')
     end
 
-    it 'returns nil if no practitioner' do
-      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Other' }] } }
+    it 'returns requester display when practitioner is not in contained' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => 'Practitioner/ext-999', 'display' => 'Smith, Jane' } }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to eq('Smith, Jane')
+    end
+
+    it 'returns nil when no service request requester exists' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest' },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns nil if no service request' do
+      record = { 'resource' => { 'contained' => [{ 'resourceType' => 'Practitioner', 'id' => 'abc',
+                                                   'name' => [{ 'given' => ['A'], 'family' => 'B' }] }] } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns nil if contained is nil' do
+      record = { 'resource' => { 'contained' => nil } }
+      expect(adapter.send(:get_ordered_by, record)).to be_nil
+    end
+
+    it 'returns requester display when requester reference is nil' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => nil, 'display' => 'Doe, John' } }
+      ] } }
+      expect(adapter.send(:get_ordered_by, record)).to eq('Doe, John')
+    end
+
+    it 'returns nil when requester reference is nil and no display exists' do
+      record = { 'resource' => { 'contained' => [
+        { 'resourceType' => 'ServiceRequest',
+          'requester' => { 'reference' => nil } },
+        { 'resourceType' => 'Practitioner', 'id' => 'abc-123',
+          'name' => [{ 'given' => ['A'], 'family' => 'B' }] }
+      ] } }
       expect(adapter.send(:get_ordered_by, record)).to be_nil
     end
   end
@@ -111,10 +222,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     context 'when contained is nil' do
       it 'returns an empty string' do
         resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/123' }] }
-        contained = nil
-
-        result = adapter.send(:get_body_site, resource, contained)
-
+        result = adapter.send(:get_body_site, resource, nil)
         expect(result).to eq('')
       end
     end
@@ -123,10 +231,93 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       it 'returns an empty string' do
         resource = {}
         contained = [{ 'resourceType' => 'ServiceRequest', 'id' => '123' }]
-
         result = adapter.send(:get_body_site, resource, contained)
-
         expect(result).to eq('')
+      end
+    end
+
+    context 'when ServiceRequest has bodySite with coding display' do
+      it 'returns the coding display value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has text but no coding display' do
+      it 'falls back to the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'code' => '12345' }], 'text' => 'Left Arm' }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('Left Arm')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has text but no coding array' do
+      it 'returns the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'text' => 'Arm' }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('Arm')
+      end
+    end
+
+    context 'when ServiceRequest bodySite has multiple entries' do
+      it 'joins them with commas' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [
+            { 'coding' => [{ 'display' => 'SERUM' }] },
+            { 'text' => 'Arm' }
+          ]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM, Arm')
+      end
+    end
+
+    context 'when ServiceRequest has no bodySite' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-1' }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn reference does not match any ServiceRequest' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-other' }]
+        resource = { 'basedOn' => [{ 'reference' => 'ServiceRequest/sr-missing' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn entry has nil reference' do
+      it 'returns an empty string' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => nil }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('')
+      end
+    end
+
+    context 'when basedOn has mix of nil and valid references' do
+      it 'returns body site from the valid reference only' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'bodySite' => [{ 'coding' => [{ 'display' => 'SERUM' }] }]
+        }]
+        resource = { 'basedOn' => [{ 'reference' => nil }, { 'reference' => 'ServiceRequest/sr-1' }] }
+        expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
       end
     end
   end
@@ -221,6 +412,53 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:get_sample_tested, record, contained)
 
         expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when specimen hash has nil reference' do
+      it 'returns an empty string' do
+        record = { 'specimen' => { 'reference' => nil } }
+        contained = [{ 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when specimen array has entries with nil references' do
+      it 'returns only specimens with valid references' do
+        record = {
+          'specimen' => [
+            { 'reference' => nil },
+            { 'reference' => 'Specimen/123' }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('Blood')
+      end
+    end
+
+    context 'when all specimen references in array are nil' do
+      it 'returns an empty string' do
+        record = {
+          'specimen' => [
+            { 'reference' => nil },
+            { 'reference' => nil }
+          ]
+        }
+        contained = [
+          { 'resourceType' => 'Specimen', 'id' => '123', 'type' => { 'text' => 'Blood' } }
+        ]
+
+        result = adapter.send(:get_sample_tested, record, contained)
+
+        expect(result).to eq('')
       end
     end
   end
@@ -512,6 +750,24 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
+    end
+  end
+
+  describe '#get_reference_id' do
+    it 'extracts the ID from a full reference format' do
+      expect(adapter.send(:get_reference_id, 'Organization/abc-123')).to eq('abc-123')
+    end
+
+    it 'returns the reference as-is when it has no slash (bare ID)' do
+      expect(adapter.send(:get_reference_id, 'abc-123')).to eq('abc-123')
+    end
+
+    it 'returns nil when reference is nil' do
+      expect(adapter.send(:get_reference_id, nil)).to be_nil
+    end
+
+    it 'returns nil when reference is an empty string' do
+      expect(adapter.send(:get_reference_id, '')).to be_nil
     end
   end
 
@@ -1033,7 +1289,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'when resource has neither effectiveDateTime nor effectivePeriod' do
-      it 'returns nil' do
+      it 'returns nil when no presentedForm exists' do
         resource = {}
 
         result = adapter.send(:get_date_completed, resource)
@@ -1043,12 +1299,78 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
 
     context 'when effectivePeriod exists but has no start' do
-      it 'returns nil' do
+      it 'returns nil when no presentedForm exists' do
         resource = { 'effectivePeriod' => { 'end' => '2025-06-24T15:21:00.000Z' } }
 
         result = adapter.send(:get_date_completed, resource)
 
         expect(result).to be_nil
+      end
+    end
+
+    context 'when falling back to presentedForm creation date' do
+      it 'returns the creation date from text/plain presentedForm' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'creation' => '2024-12-05T12:50:00+00:00', 'data' => 'encoded' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2024-12-05T12:50:00+00:00')
+      end
+
+      it 'returns nil when presentedForm has no text/plain entry' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'creation' => '2024-12-05T12:50:00+00:00' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+
+      it 'returns nil when text/plain entry has no creation date' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'data' => 'encoded' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to be_nil
+      end
+
+      it 'prefers effectiveDateTime over presentedForm creation' do
+        resource = {
+          'effectiveDateTime' => '2025-01-01T00:00:00Z',
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'creation' => '2024-12-05T12:50:00+00:00' }
+          ]
+        }
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2025-01-01T00:00:00Z')
+      end
+    end
+
+    context 'with fixture data' do
+      it 'falls back to presentedForm creation for radiology records without effectiveDateTime' do
+        # vista[1] has no effectiveDateTime or effectivePeriod but has presentedForm with creation
+        radiology_record = labs_response['vista']['entry'][1]
+        resource = radiology_record['resource']
+
+        expect(resource['effectiveDateTime']).to be_nil
+        expect(resource['effectivePeriod']).to be_nil
+
+        result = adapter.send(:get_date_completed, resource)
+
+        expect(result).to eq('2024-12-05T12:50:00+00:00')
       end
     end
   end
@@ -1754,6 +2076,635 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           expect(result.size).to eq(2)
           expect(result.map(&:id)).to contain_exactly('1', '3')
           expect(result.map(&:status)).to contain_exactly('final', 'amended')
+        end
+      end
+    end
+  end
+
+  describe '#extract_station_number' do
+    it 'extracts station number from SN= format' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668')
+    end
+
+    it 'extracts station number from plain 3-digit format with OTHER type' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'Personnel Primary Identifier' }, 'value' => '2116663646' },
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668')
+    end
+
+    it 'prioritizes SN= format over plain format' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '999' },
+            { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668')
+    end
+
+    it 'falls back to Organization when no Practitioner exists' do
+      contained = [
+        {
+          'resourceType' => 'Organization',
+          'id' => 'org-1',
+          'identifier' => [
+            { 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('989')
+    end
+
+    it 'returns nil when neither Practitioner nor Organization have valid identifiers' do
+      contained = [
+        { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Test Lab' }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when Practitioner has no identifiers' do
+      contained = [
+        { 'resourceType' => 'Practitioner', 'id' => 'prac-123', 'name' => [{ 'family' => 'Smith' }] }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when contained is blank' do
+      expect(adapter.send(:extract_station_number, nil)).to be_nil
+      expect(adapter.send(:extract_station_number, [])).to be_nil
+    end
+
+    it 'extracts station number with letter suffix from OTHER identifier' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668A' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668A')
+    end
+
+    it 'extracts station number with two-letter suffix from OTHER identifier' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668GC' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to eq('668GC')
+    end
+
+    it 'ignores identifiers with more than 2 letter suffix' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '668ABC' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to be_nil
+    end
+
+    it 'ignores non-station-number OTHER identifiers' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => '1000690375' },
+            { 'type' => { 'text' => 'Messaging' }, 'value' => '8305155' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_number, contained)
+      expect(result).to be_nil
+    end
+
+    context 'with Organization fallback (VistA data)' do
+      it 'extracts station number from Organization with VA OID system' do
+        contained = [
+          {
+            'resourceType' => 'Organization',
+            'id' => 'org-123',
+            'identifier' => [
+              { 'use' => 'usual', 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+            ],
+            'name' => 'CHYSHR TEST LAB'
+          }
+        ]
+
+        result = adapter.send(:extract_station_number, contained)
+        expect(result).to eq('989')
+      end
+
+      it 'returns nil when Organization has no VA OID identifier' do
+        contained = [
+          {
+            'resourceType' => 'Organization',
+            'id' => 'org-123',
+            'identifier' => [
+              { 'use' => 'usual', 'system' => 'some-other-system', 'value' => '123' }
+            ],
+            'name' => 'Test Lab'
+          }
+        ]
+
+        result = adapter.send(:extract_station_number, contained)
+        expect(result).to be_nil
+      end
+
+      it 'prioritizes Practitioner over Organization' do
+        contained = [
+          {
+            'resourceType' => 'Practitioner',
+            'id' => 'prac-123',
+            'identifier' => [
+              { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+            ]
+          },
+          {
+            'resourceType' => 'Organization',
+            'id' => 'org-123',
+            'identifier' => [
+              { 'use' => 'usual', 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+            ]
+          }
+        ]
+
+        result = adapter.send(:extract_station_number, contained)
+        expect(result).to eq('668')
+      end
+
+      it 'falls back to Organization when Practitioner has no station number' do
+        contained = [
+          {
+            'resourceType' => 'Practitioner',
+            'id' => 'prac-123',
+            'identifier' => [
+              { 'extension' => [{ 'url' => 'http://hl7.org/fhir/StructureDefinition/data-absent-reason',
+                                  'valueCode' => 'unknown' }] }
+            ]
+          },
+          {
+            'resourceType' => 'Organization',
+            'id' => 'org-123',
+            'identifier' => [
+              { 'use' => 'usual', 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+            ]
+          }
+        ]
+
+        result = adapter.send(:extract_station_number, contained)
+        expect(result).to eq('989')
+      end
+
+      it 'falls back to Organization when no Practitioner exists' do
+        contained = [
+          {
+            'resourceType' => 'Organization',
+            'id' => 'org-123',
+            'identifier' => [
+              { 'use' => 'usual', 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '500' }
+            ]
+          },
+          { 'resourceType' => 'ServiceRequest', 'id' => 'sr-1' }
+        ]
+
+        result = adapter.send(:extract_station_number, contained)
+        expect(result).to eq('500')
+      end
+    end
+  end
+
+  describe '#extract_station_number_from_record' do
+    it 'extracts station number from a full record structure' do
+      record = {
+        'resource' => {
+          'contained' => [
+            {
+              'resourceType' => 'Practitioner',
+              'identifier' => [
+                { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+              ]
+            }
+          ]
+        }
+      }
+
+      result = adapter.extract_station_number_from_record(record)
+      expect(result).to eq('668')
+    end
+
+    it 'returns nil when record has no contained resources' do
+      record = { 'resource' => {} }
+
+      result = adapter.extract_station_number_from_record(record)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when record is nil' do
+      result = adapter.extract_station_number_from_record(nil)
+      expect(result).to be_nil
+    end
+  end
+
+  describe '#extract_station_from_practitioner' do
+    it 'extracts station number from SN= format' do
+      contained = [
+        {
+          'resourceType' => 'Practitioner',
+          'id' => 'prac-123',
+          'identifier' => [
+            { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_from_practitioner, contained)
+      expect(result).to eq('668')
+    end
+
+    it 'returns nil when no Practitioner exists' do
+      contained = [{ 'resourceType' => 'Organization', 'id' => 'org-1' }]
+
+      result = adapter.send(:extract_station_from_practitioner, contained)
+      expect(result).to be_nil
+    end
+  end
+
+  describe '#extract_station_from_organization' do
+    it 'extracts station number from Organization with VA OID system' do
+      contained = [
+        {
+          'resourceType' => 'Organization',
+          'id' => 'org-123',
+          'identifier' => [
+            { 'use' => 'usual', 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_from_organization, contained)
+      expect(result).to eq('989')
+    end
+
+    it 'returns nil when Organization has no identifiers' do
+      contained = [
+        { 'resourceType' => 'Organization', 'id' => 'org-123', 'name' => 'Test Lab' }
+      ]
+
+      result = adapter.send(:extract_station_from_organization, contained)
+      expect(result).to be_nil
+    end
+
+    it 'returns nil when no Organization exists' do
+      contained = [{ 'resourceType' => 'Practitioner', 'id' => 'prac-1' }]
+
+      result = adapter.send(:extract_station_from_organization, contained)
+      expect(result).to be_nil
+    end
+
+    it 'ignores identifiers without VA OID system' do
+      contained = [
+        {
+          'resourceType' => 'Organization',
+          'id' => 'org-123',
+          'identifier' => [
+            { 'system' => 'http://some-other-system.com', 'value' => '12345' }
+          ]
+        }
+      ]
+
+      result = adapter.send(:extract_station_from_organization, contained)
+      expect(result).to be_nil
+    end
+  end
+
+  describe '#get_facility_timezone' do
+    it 'returns nil when station_number is blank' do
+      expect(adapter.send(:get_facility_timezone, nil)).to be_nil
+      expect(adapter.send(:get_facility_timezone, '')).to be_nil
+    end
+
+    context 'when facility service returns timezone' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::FacilityService)
+          .to receive(:get_facility_timezone)
+          .with('668')
+          .and_return('America/Los_Angeles')
+      end
+
+      it 'returns the timezone from facility service' do
+        result = adapter.send(:get_facility_timezone, '668')
+        expect(result).to eq('America/Los_Angeles')
+      end
+    end
+
+    context 'when facility service returns nil' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::FacilityService)
+          .to receive(:get_facility_timezone)
+          .with('999')
+          .and_return(nil)
+      end
+
+      it 'returns nil' do
+        result = adapter.send(:get_facility_timezone, '999')
+        expect(result).to be_nil
+      end
+    end
+  end
+
+  describe '#convert_to_facility_time' do
+    it 'converts UTC time to facility local time' do
+      # UTC time: 2023-11-06T18:32:00+00:00 (6:32 PM UTC)
+      # Los Angeles is UTC-8 in November (PST), so local time should be 10:32 AM
+      result = adapter.send(:convert_to_facility_time, '2023-11-06T18:32:00+00:00', 'America/Los_Angeles')
+
+      parsed = DateTime.parse(result)
+      expect(parsed.hour).to eq(10)
+      expect(parsed.min).to eq(32)
+      expect(result).to include('-08:00')
+    end
+
+    it 'converts UTC time to Eastern time' do
+      # UTC time: 2023-11-06T18:32:00+00:00 (6:32 PM UTC)
+      # New York is UTC-5 in November (EST), so local time should be 1:32 PM
+      result = adapter.send(:convert_to_facility_time, '2023-11-06T18:32:00+00:00', 'America/New_York')
+
+      parsed = DateTime.parse(result)
+      expect(parsed.hour).to eq(13)
+      expect(parsed.min).to eq(32)
+      expect(result).to include('-05:00')
+    end
+
+    it 'converts UTC time with Z suffix' do
+      # Common format from SCDF: 2023-11-06T18:32:00.000Z
+      result = adapter.send(:convert_to_facility_time, '2023-11-06T18:32:00.000Z', 'America/Los_Angeles')
+
+      parsed = DateTime.parse(result)
+      expect(parsed.hour).to eq(10)
+      expect(parsed.min).to eq(32)
+    end
+
+    it 'correctly handles dates that already have non-UTC offsets' do
+      # If the incoming date has -04:00 offset (e.g., from previous conversion or different source)
+      # it should still convert correctly to the target timezone
+      # 2023-11-06T14:32:00-04:00 = 2023-11-06T18:32:00 UTC = 2023-11-06T10:32:00 PST
+      result = adapter.send(:convert_to_facility_time, '2023-11-06T14:32:00-04:00', 'America/Los_Angeles')
+
+      parsed = DateTime.parse(result)
+      expect(parsed.hour).to eq(10)
+      expect(parsed.min).to eq(32)
+      expect(result).to include('-08:00')
+    end
+
+    it 'returns original date when timezone is blank' do
+      original = '2023-11-06T18:32:00+00:00'
+      expect(adapter.send(:convert_to_facility_time, original, nil)).to eq(original)
+      expect(adapter.send(:convert_to_facility_time, original, '')).to eq(original)
+    end
+
+    it 'returns original date when date_string is blank' do
+      expect(adapter.send(:convert_to_facility_time, nil, 'America/New_York')).to be_nil
+      expect(adapter.send(:convert_to_facility_time, '', 'America/New_York')).to eq('')
+    end
+
+    it 'returns original date and logs warning on parse error' do
+      invalid_date = 'not-a-date'
+
+      expect(Rails.logger).to receive(:warn).with(
+        /Failed to convert time to facility timezone/,
+        hash_including(service: 'unified_health_data')
+      )
+
+      result = adapter.send(:convert_to_facility_time, invalid_date, 'America/New_York')
+      expect(result).to eq(invalid_date)
+    end
+
+    it 'returns original date and logs warning on invalid timezone' do
+      valid_date = '2023-11-06T18:32:00+00:00'
+      invalid_timezone = 'Invalid/Timezone'
+
+      expect(Rails.logger).to receive(:warn).with(
+        /Failed to convert time to facility timezone/,
+        hash_including(service: 'unified_health_data', timezone: invalid_timezone)
+      )
+
+      result = adapter.send(:convert_to_facility_time, valid_date, invalid_timezone)
+      expect(result).to eq(valid_date)
+    end
+  end
+
+  describe 'facility_timezone integration' do
+    let(:record_with_practitioner) do
+      {
+        'resource' => {
+          'resourceType' => 'DiagnosticReport',
+          'id' => 'test-tz-123',
+          'status' => 'final',
+          'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+          'code' => { 'text' => 'Lab Report' },
+          'effectiveDateTime' => '2023-11-06T18:32:00+00:00',
+          'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }],
+          'contained' => [
+            {
+              'resourceType' => 'Practitioner',
+              'id' => 'prac-8305155',
+              'identifier' => [
+                { 'type' => { 'text' => 'Personnel Primary Identifier' }, 'value' => '2116663646' },
+                { 'type' => { 'text' => 'OTHER' }, 'value' => '668' },
+                { 'type' => { 'text' => 'OTHER' }, 'value' => 'SN=668' }
+              ],
+              'name' => [{ 'given' => ['Steve'], 'family' => 'Skojec' }]
+            }
+          ]
+        },
+        'source' => 'oracle-health'
+      }
+    end
+
+    context 'when facility lookup succeeds' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::FacilityService)
+          .to receive(:get_facility_timezone)
+          .with('668')
+          .and_return('America/Los_Angeles')
+      end
+
+      it 'includes facility_timezone in parsed record' do
+        result = adapter.send(:parse_single_record, record_with_practitioner)
+
+        expect(result.facility_timezone).to eq('America/Los_Angeles')
+      end
+
+      it 'converts date_completed to facility local time' do
+        result = adapter.send(:parse_single_record, record_with_practitioner)
+
+        # Original UTC: 2023-11-06T18:32:00+00:00
+        # Los Angeles PST (UTC-8): 2023-11-06T10:32:00-08:00
+        expect(result.date_completed).to include('10:32')
+        expect(result.date_completed).to include('-08:00')
+      end
+    end
+
+    context 'when facility lookup fails' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::FacilityService)
+          .to receive(:get_facility_timezone)
+          .and_return(nil)
+      end
+
+      it 'sets facility_timezone to nil' do
+        result = adapter.send(:parse_single_record, record_with_practitioner)
+
+        expect(result.facility_timezone).to be_nil
+      end
+
+      it 'keeps original UTC date_completed' do
+        result = adapter.send(:parse_single_record, record_with_practitioner)
+
+        expect(result.date_completed).to eq('2023-11-06T18:32:00+00:00')
+      end
+    end
+
+    context 'when no Practitioner in contained' do
+      let(:record_without_practitioner) do
+        {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => 'test-no-prac',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Lab Report' },
+            'effectiveDateTime' => '2023-11-06T18:32:00+00:00',
+            'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }],
+            'contained' => [
+              { 'resourceType' => 'Organization', 'id' => 'org-1', 'name' => 'Test Lab' }
+            ]
+          },
+          'source' => 'oracle-health'
+        }
+      end
+
+      it 'sets facility_timezone to nil and keeps original date' do
+        result = adapter.send(:parse_single_record, record_without_practitioner)
+
+        expect(result.facility_timezone).to be_nil
+        expect(result.date_completed).to eq('2023-11-06T18:32:00+00:00')
+      end
+    end
+
+    context 'with VistA data (Organization fallback)' do
+      let(:vista_record_with_organization) do
+        {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => 'vista-lab-123',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'urn:va:lab-category:CH' }] }],
+            'code' => { 'text' => 'HEMOGLOBIN A1C' },
+            'effectiveDateTime' => '2025-01-23T22:06:02Z',
+            'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'test_data' }],
+            'contained' => [
+              {
+                'resourceType' => 'Organization',
+                'id' => 'org-vista',
+                'identifier' => [
+                  { 'use' => 'usual', 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }
+                ],
+                'name' => 'CHYSHR TEST LAB'
+              }
+            ]
+          },
+          'source' => 'vista'
+        }
+      end
+
+      context 'when facility lookup succeeds via Organization' do
+        before do
+          allow_any_instance_of(UnifiedHealthData::FacilityService)
+            .to receive(:get_facility_timezone)
+            .with('989')
+            .and_return('America/Chicago')
+        end
+
+        it 'extracts station number from Organization and sets facility_timezone' do
+          result = adapter.send(:parse_single_record, vista_record_with_organization)
+
+          expect(result.facility_timezone).to eq('America/Chicago')
+        end
+
+        it 'converts date_completed to facility local time' do
+          result = adapter.send(:parse_single_record, vista_record_with_organization)
+
+          # Original UTC: 2025-01-23T22:06:02Z
+          # Chicago CST (UTC-6): 2025-01-23T16:06:02-06:00
+          expect(result.date_completed).to include('16:06')
+          expect(result.date_completed).to include('-06:00')
+        end
+      end
+
+      context 'when facility lookup fails' do
+        before do
+          allow_any_instance_of(UnifiedHealthData::FacilityService)
+            .to receive(:get_facility_timezone)
+            .and_return(nil)
+        end
+
+        it 'keeps original UTC date_completed' do
+          result = adapter.send(:parse_single_record, vista_record_with_organization)
+
+          expect(result.facility_timezone).to be_nil
+          expect(result.date_completed).to eq('2025-01-23T22:06:02Z')
         end
       end
     end
