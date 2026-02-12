@@ -177,7 +177,7 @@ describe 'sm client' do
         end
       end
 
-      it 'sets blocked_status and migrating_to_oh to true when station is in p6 phase' do
+      it 'does not set blocked_status and migrating_to_oh to true when station is in p6 phase' do
         allow(oh_service).to receive(:get_phases_for_station_numbers).and_return({ '979' => 'p6' })
 
         VCR.use_cassette 'sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients' do
@@ -185,8 +185,8 @@ describe 'sm client' do
             collection = client.get_all_triage_teams('1234')
 
             collection.data.each do |team|
-              expect(team.blocked_status).to be true
-              expect(team.migrating_to_oh).to be true
+              expect(team.blocked_status).to be false
+              expect(team.migrating_to_oh).to be false
             end
           end
         end
