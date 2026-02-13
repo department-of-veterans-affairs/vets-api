@@ -28,8 +28,8 @@ namespace :vre do
     # Collect the IDs of affected claims
     puts 'Collecting claim IDs...'
     claim_ids = SavedClaim::VeteranReadinessEmploymentClaim
-                .where('created_at > ?', start_date)
-                .where('created_at < ?', end_date)
+                .where('created_at >= ?', start_date)
+                .where('created_at <= ?', end_date)
                 .where(form_id: '28-1900')
                 .pluck(:id)
 
