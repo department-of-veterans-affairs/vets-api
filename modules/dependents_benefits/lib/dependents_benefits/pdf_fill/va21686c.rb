@@ -3,6 +3,7 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/formatters/va686c674v2'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -19,6 +20,9 @@ module DependentsBenefits
 
       # Iterator constant from PdfFill::HashConverter
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      # Formatter class for shared logic
+      FORMATTER = ::PdfFill::Forms::Formatters::Va686c674v2
 
       # Path to the 21-686c PDF template
       TEMPLATE = DependentsBenefits::PDF_PATH_21_686C
@@ -2029,92 +2033,14 @@ module DependentsBenefits
         }
       end
 
-      # Expands cases where a student has no SSN
+      # Expands cases where dependents have no SSN
       #
-      # When a student has no SSN, replaces the SSN field with "See ad d'l "
+      # When dependents have no SSN, replaces SSN fields with "See ad d'l "
       # placeholder text and adds the no-SSN reason to the remarks section.
-      # Assumes only one student per form instance.
       #
       # @return [void]
       def expand_no_ssn_cases
-        remarks = []
-
-        process_spouse_no_ssn(remarks)
-        process_children_no_ssn(remarks)
-        add_remarks_to_form(remarks)
-      end
-
-      ##
-      # Processes spouse no SSN case and adds to remarks
-      # @param remarks [Array] Array to append spouse no SSN reason to
-      # @return [void]
-      def process_spouse_no_ssn(remarks)
-        spouse_info = @form_data.dig('dependents_application', 'spouse_information')
-        return unless spouse_info&.dig('no_ssn')
-
-        set_placeholder_ssn(spouse_info, 'ssn')
-
-        reason = spouse_info['no_ssn_reason']
-        remarks << "11C. Spouse no SSN reason: #{reason}"
-      end
-
-      ##
-      # Processes children no SSN cases and adds to remarks
-      # @param remarks [Array] Array to append children no SSN reasons to
-      # @return [void]
-      def process_children_no_ssn(remarks)
-        children = @form_data.dig('dependents_application', 'children_to_add')
-        return unless children
-
-        children.each_with_index do |child, index|
-          next unless child['no_ssn_reason']
-
-          set_placeholder_ssn(child, 'ssn')
-
-          question_number = calculate_child_question_number(index)
-          reason = child['no_ssn_reason']
-          remarks << "#{question_number}B. Child no SSN reason: #{reason}"
-        end
-      end
-
-      ##
-      # Sets placeholder SSN value to indicate addendum reference
-      # @param data_hash [Hash] The hash containing the SSN field
-      # @param ssn_key [String] The key for the SSN field in the hash
-      # @return [void]
-      def set_placeholder_ssn(data_hash, ssn_key)
-        data_hash[ssn_key] = {
-          'first' => 'See',
-          'second' => 'ad',
-          'third' => "d'l "
-        }
-      end
-
-      ##
-      # Calculates the question number for child SSN based on index
-      # First 4 children: 16, 17, 18, 19
-      # Additional children: 1, 2, 3, etc.
-      # @param index [Integer] The index of the child
-      # @return [Integer] The question number for the child SSN
-      def calculate_child_question_number(index)
-        index < 4 ? 16 + index : index - 3
-      end
-
-      ##
-      # Adds remarks to form data, splitting into 35-character lines
-      # @param remarks [Array] Array of remarks to add to the form
-      # @return [void]
-      def add_remarks_to_form(remarks)
-        return if remarks.empty?
-
-        combined_text = remarks.join(', ')
-        @form_data['remarks'] ||= {}
-
-        # Split text into chunks of up to 35 characters and assign to remark lines
-        # 35 characters is remark line limit in pdf
-        combined_text.scan(/.{1,35}/).each_with_index do |chunk, index|
-          @form_data['remarks']["remarks_line#{index + 1}"] = chunk
-        end
+        FORMATTER.expand_no_ssn_cases(@form_data)
       end
 
       ##

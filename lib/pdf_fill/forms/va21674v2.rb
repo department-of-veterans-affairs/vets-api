@@ -1024,22 +1024,7 @@ module PdfFill
       #
       # @return [void]
       def expand_no_ssn_cases
-        # We can assume 1 student in the array since this filler
-        # gets called on every student in the students array within the saved claim
-        no_ssn = @form_data
-                 .dig('dependents_application', 'student_information', 0, 'no_ssn')
-        no_ssn_reason = @form_data
-                        .dig('dependents_application', 'student_information', 0, 'no_ssn_reason')
-
-        if no_ssn
-          @form_data['dependents_application']['student_information'][0]['ssn'] = {
-            'first' => 'See',
-            'second' => 'ad',
-            'third' => "d'l "
-          }
-          reason_text = "5. Student no SSN reason: #{no_ssn_reason}"
-          @form_data['dependents_application']['student_information'][0]['remarks'] = reason_text
-        end
+        FORMATTER.expand_no_ssn_cases(@form_data)
       end
     end
   end
