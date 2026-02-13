@@ -50,6 +50,16 @@ module TravelPay
 
         response.body['data']['accessToken']
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      # BTSSS auth 4xx errors indicate upstream service issues, not client errors
+      # Reraise as 502 Bad Gateway to ensure proper monitoring/alerting
+      Rails.logger.error(
+        "BTSSS token request failed with #{e.original_status}: #{e.original_body}",
+        { response_status: e.original_status, response_body: e.original_body, correlation_id: }
+      )
+      raise Common::Exceptions::BadGateway.new(
+        errors: [{ title: 'Bad Gateway', detail: "BTSSS returned an error: #{e.original_body}", status: 502 }]
+      )
     end
 
     def request_sts_token(user)
