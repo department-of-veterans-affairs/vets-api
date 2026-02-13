@@ -130,7 +130,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns 422 when requested year is not in supported range' do
         get '/v0/form1095_bs/download_txt/2021'
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns 422 when requested year is not a valid integer' do
