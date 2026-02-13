@@ -38,6 +38,10 @@ class AccreditedIndividual < ApplicationRecord
     'representative' => 'representative'
   }
 
+  scope :attorneys, -> { where(individual_type: 'attorney') }
+  scope :representatives, -> { where(individual_type: 'representative') }
+  scope :claims_agents, -> { where(individual_type: 'claims_agent') }
+
   before_save :set_full_name
 
   # Set the full_name attribute for the representative

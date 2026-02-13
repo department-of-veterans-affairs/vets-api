@@ -6,6 +6,7 @@ module Mobile
   module V0
     class DebtsController < ApplicationController
       before_action { authorize :debt, :access? }
+      before_action :validate_feature_flag
 
       def index
         count_only = ActiveModel::Type::Boolean.new.cast(params[:countOnly])
@@ -25,6 +26,17 @@ module Mobile
       end
 
       private
+
+      def validate_feature_flag
+        return if Flipper.enabled?(:mobile_debts_enabled, @current_user)
+
+        render json: {
+          error: {
+            code: 'FEATURE_NOT_AVAILABLE',
+            message: 'This feature is not currently available'
+          }
+        }, status: :forbidden
+      end
 
       def service
         @service ||= DebtManagementCenter::DebtsService.new(@current_user)

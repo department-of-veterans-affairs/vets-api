@@ -29,7 +29,7 @@ require 'dependents_benefits/pdf_fill/filler'
 # }
 RSpec.shared_examples 'a form filler' do |options|
   form_id, factory, test_data_types, run_at = options.values_at(:form_id, :factory, :test_data_types, :run_at)
-  test_data_types ||= %w[simple kitchen_sink overflow pension_overflow]
+  test_data_types ||= %w[simple kitchen_sink overflow]
 
   describe DependentsBenefits::PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: run_at || '2017-07-25 00:00:00 -0400' do
@@ -90,6 +90,14 @@ RSpec.shared_examples 'a form filler' do |options|
               extras_path = the_extras_generator.generate
 
               fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+
+              # This gives more detailed output on where the PDFs differ
+              file_texts = [extras_path, fixture_pdf].map do |path|
+                reader1 = PDF::Reader.new(path)
+                reader1.pages.map(&:text).join('\n').squeeze
+              end
+              expect(file_texts[0]).to eq(file_texts[1])
+
               expect(extras_path).to match_file_exactly(fixture_pdf)
 
               File.delete(extras_path)

@@ -8,10 +8,11 @@ module SubmitAllClaimSpec
     extend ActiveSupport::Concern
 
     class_methods do
-      def define_example(description, &)
+      def define_example(description, **metadata, &) # rubocop:disable Metrics/MethodLength
         definition = ExampleDefinition.build!(&)
+        metadata = { caller: caller(1, 1) }.merge(metadata)
 
-        it description, caller: caller(1, 1) do
+        it description, **metadata do
           definition.before and instance_exec(&definition.before)
           user = build(:user, :loa3, icn: definition.user_icn)
           sign_in_as(user)
