@@ -34,6 +34,12 @@ module VRE
         'update-ch31-milestone-status'
       end
 
+      def request_headers
+        {
+          'Appian-API-Key' => Settings.res.ch_31_case_milestones.api_key.to_s
+        }
+      end
+
       def build_payload(milestone_params)
         {
           icn: @icn,

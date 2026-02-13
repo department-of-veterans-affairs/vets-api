@@ -835,6 +835,29 @@ en:
         code: 'RES_CH31_CASE_DETAILS_503'
         detail: 'Service Unavailable'
         status: 503
+      RES_CH31_CASE_MILESTONES_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CH31_CASE_MILESTONES_400'
+        detail: 'Bad Request'
+        status: 400
+      RES_CH31_CASE_MILESTONES_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'RES_CH31_CASE_MILESTONES_403'
+        detail: 'Forbidden'
+        status: 403
+      RES_CH31_CASE_MILESTONES_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CH31_CASE_MILESTONES_500'
+        detail: 'Internal Server Error'
+      RES_CH31_CASE_MILESTONES_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CH31_CASE_MILESTONES_503'
+        detail: 'Service Unavailable'
+        status: 503
       RES_CH31_ELIGIBILITY_400:
         <<: *external_defaults
         title: Bad Request

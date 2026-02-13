@@ -73,7 +73,7 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
     context 'when RES service unavailable with specific error code' do
       let(:key) { 'RES_CH31_CASE_MILESTONES_500' }
       let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
-      let(:message) { described_class::SERVICE_UNAVAILABLE_ERROR }
+      let(:message) { described_class::SERVICE_UNAVAILABLE_ERROR_CODE }
       let(:error) { error_klass.new(key, response_values, 500, 'error' => message) }
 
       before do

@@ -36,11 +36,11 @@ RSpec.describe 'VRE::V0::Ch31CaseMilestones', type: :request do
     context 'when no icn present' do
       let(:user) { create(:user, icn: nil) }
 
-      it 'returns 403 response' do
+      it 'returns 400 response' do
         post '/vre/v0/ch31_case_milestones', params: valid_request_body
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:bad_request)
         message = JSON.parse(response.body)['errors'].first['detail']
-        expect(message).to eq('ICN is required')
+        expect(message).to eq('ICN')
       end
     end
 
