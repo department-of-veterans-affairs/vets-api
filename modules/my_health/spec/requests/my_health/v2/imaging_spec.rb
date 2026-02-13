@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'support/shared_examples_for_mhv'
-require 'unified_health_data/service'
+require 'unified_health_data/imaging_service'
 
 RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, type: :request do
   let(:path) { '/my_health/v2/medical_records/imaging' }
@@ -49,7 +49,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
 
     context 'error responses' do
       it 'returns a 500 response when there is a server error' do
-        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_imaging_studies)
+        allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_studies)
           .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
         VCR.use_cassette('unified_health_data/get_imaging_studies_200', match_requests_on: %i[method path]) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
@@ -58,7 +58,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
       end
 
       it 'returns an error response when there is a client error' do
-        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_imaging_studies)
+        allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_studies)
           .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
         VCR.use_cassette('unified_health_data/get_imaging_studies_200', match_requests_on: %i[method path]) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
@@ -106,7 +106,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
 
     context 'error responses' do
       it 'returns a 500 response when there is a server error' do
-        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_imaging_study)
+        allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_study)
           .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
         VCR.use_cassette('unified_health_data/get_imaging_study_200', match_requests_on: %i[method path]) do
           get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }, params: thumbnails_params
@@ -115,7 +115,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
       end
 
       it 'returns an error response when there is a client error' do
-        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_imaging_study)
+        allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_study)
           .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
         VCR.use_cassette('unified_health_data/get_imaging_study_200', match_requests_on: %i[method path]) do
           get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }, params: thumbnails_params
