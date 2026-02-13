@@ -19,7 +19,6 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
-      MAX_SUMMARY_PAGES = 20
 
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
@@ -45,24 +44,15 @@ module MedicalCopays
       end
 
       def summary(month_count: 6)
-        from = month_count.months.ago.utc
-        page = 1
+        _raw_bundle, entries = collect_invoices_in_range(month_count:)
+
         total_amount = 0.to_d
         count = 0
 
-        loop do
-          break if page > MAX_SUMMARY_PAGES
-
-          raw = invoice_service.list(count: 50, page:)
-          entries = raw['entry'] || []
-          break if entries.empty?
-
-          stop, total_amount, count =
-            process_entries(entries, from, total_amount, count)
-
-          break if stop
-
-          page += 1
+        entries.each do |entry|
+          invoice = Lighthouse::HCC::Invoice.new(entry)
+          total_amount += invoice.current_balance.to_d
+          count += 1
         end
 
         summary_output(total_amount, count, month_count)
@@ -72,20 +62,24 @@ module MedicalCopays
         raise ServiceError, 'External service error'
       end
 
-      def process_entries(entries, from, total_amount, count)
-        entries.each do |entry|
-          date_str = entry.dig('resource', 'date')
-          next unless date_str
+      def list_months(month_count: 6, count: 50)
+        raw_bundle, entries = collect_invoices_in_range(month_count:, count:)
 
-          invoice_date = Time.iso8601(date_str)
-          return [true, total_amount, count] if invoice_date < from
-
-          invoice = Lighthouse::HCC::Invoice.new(entry)
-          total_amount += invoice.current_balance.to_d
-          count += 1
+        if entries.empty?
+          return Lighthouse::HCC::Bundle.new(
+            raw_bundle.merge('entry' => []),
+            []
+          )
         end
 
-        [false, total_amount, count]
+        raw_bundle = raw_bundle.merge(
+          'entry' => entries,
+          'total' => entries.length,
+          'link' => []
+        )
+
+        formatted_entries = build_invoice_entries(raw_bundle)
+        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
       end
 
       def summary_output(total_amount, count, month_count)
@@ -113,32 +107,12 @@ module MedicalCopays
         raise e
       end
 
-      def list_months(month_count: 18, count: 50)
-        raw_bundle, entries = collect_entries_in_range(month_count:, count:)
-
-        if entries.empty?
-          return Lighthouse::HCC::Bundle.new(
-            raw_bundle.merge('entry' => []),
-            []
-          )
-        end
-
-        raw_bundle = raw_bundle.merge(
-          'entry' => entries,
-          'total' => entries.length,
-          'link' => []
-        )
-
-        formatted_entries = build_invoice_entries(raw_bundle)
-        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
-      end
-
       private
 
-      def collect_entries_in_range(month_count:, count:)
+      def collect_invoices_in_range(month_count:, count: 50)
         from = month_count.months.ago.utc
         page = 1
-        all_entries = []
+        collected_entries = []
         last_raw_bundle = nil
 
         loop do
@@ -153,15 +127,16 @@ module MedicalCopays
             next unless date_str
 
             invoice_date = Time.iso8601(date_str)
-            next if invoice_date < from
 
-            all_entries << entry
+            return [last_raw_bundle, collected_entries] if invoice_date < from
+
+            collected_entries << entry
           end
 
           page += 1
         end
 
-        [last_raw_bundle, all_entries]
+        [last_raw_bundle, collected_entries]
       end
 
       def record_success(operation)
