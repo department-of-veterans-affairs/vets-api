@@ -10,6 +10,7 @@ class Shrine
         ALLOWED_MIME_TYPE_STRINGS = %i[pdf png jpeg].map { |type| Mime[type].to_s }
 
         def validate_correct_form(form_id: nil)
+          return if errors.any?
           return unless ALLOWED_MIME_TYPE_STRINGS.include?(get.mime_type) && form_id
 
           image_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.jpg").to_s
