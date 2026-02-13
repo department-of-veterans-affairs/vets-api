@@ -659,6 +659,25 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     # edge case tests
+    context 'when claimDate is missing and anticipatedSeparationDate is within 180 days of current date' do
+      let(:claim_date) { nil }
+      let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
+    context 'when claimDate is missing and anticipatedSeparationDate is more than 180 days from current date' do
+      let(:claim_date) { nil }
+      let(:anticipated_separation_date) { 200.days.from_now.to_date.iso8601 }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+    
     context 'when anticipatedSeparationDate is exactly 180 days from claimDate' do
       let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 180.days.from_now.to_date.iso8601 }
