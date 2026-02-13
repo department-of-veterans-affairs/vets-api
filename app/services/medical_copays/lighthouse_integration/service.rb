@@ -63,7 +63,7 @@ module MedicalCopays
         raise ServiceError, 'External service error'
       end
 
-      def list_months(month_count: 6, count: 50)
+      def list_months(month_count: 6)
         result = collect_invoices_in_range(month_count:)
         entries = result[:entries]
 
@@ -111,6 +111,7 @@ module MedicalCopays
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def collect_invoices_in_range(month_count:, count: 50)
         from = month_count.months.ago.utc
         page = 1
@@ -130,10 +131,7 @@ module MedicalCopays
 
             invoice_date = Time.iso8601(date_str)
 
-            return {
-              raw_bundle: last_raw_bundle,
-              entries: collected_entries
-            } if invoice_date < from
+            return { raw_bundle: last_raw_bundle, entries: collected_entries } if invoice_date < from
 
             collected_entries << entry
           end
@@ -146,6 +144,7 @@ module MedicalCopays
           entries: collected_entries
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
       def record_success(operation)
         start_time = Time.current
