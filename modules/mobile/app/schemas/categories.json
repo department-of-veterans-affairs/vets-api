@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Schema for SM get_categories response - message categories",
+  "type": "object",
+  "required": ["message_category_type"],
+  "additionalProperties": false,
+  "properties": {
+    "message_category_type": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
