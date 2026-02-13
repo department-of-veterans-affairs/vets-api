@@ -69,6 +69,12 @@ module UnifiedHealthData
       perform(:get, path, params, request_headers)
     end
 
+    def get_imaging_study(patient_id:, start_date:, end_date:, record_id:)
+      path = "#{config.base_path}imaging-study/oracle-health"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
+      perform(:get, path, params, request_headers)
+    end
+
     private
 
     # Override perform to automatically detect OperationOutcome partial failures in FHIR responses.

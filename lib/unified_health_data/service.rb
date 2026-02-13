@@ -58,6 +58,18 @@ module UnifiedHealthData
       end
     end
 
+    def get_imaging_study(start_date:, end_date:, record_id:)
+      with_monitoring do
+        response = uhd_client.get_imaging_study(
+          patient_id: @user.icn,
+          start_date:,
+          end_date:,
+          record_id:
+        )
+        imaging_study_adapter.parse(response.body)
+      end
+    end
+
     def get_conditions
       with_monitoring do
         start_date = default_start_date

@@ -33,6 +33,26 @@ module MyHealth
         handle_error(e, resource_name: 'imaging studies', api_type: 'FHIR')
       end
 
+      def thumbnails
+        start_date = params[:start_date]
+        end_date = params[:end_date]
+        record_id = params[:id]
+
+        imaging_studies = service.get_imaging_study(
+          start_date:,
+          end_date:,
+          record_id:
+        )
+        serialized_studies = UnifiedHealthData::Serializers::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
+
+        render json: serialized_studies,
+               status: :ok
+      rescue Common::Client::Errors::ClientError,
+             Common::Exceptions::BackendServiceException,
+             StandardError => e
+        handle_error(e, resource_name: 'imaging study', api_type: 'FHIR')
+      end
+
       private
 
       def service
