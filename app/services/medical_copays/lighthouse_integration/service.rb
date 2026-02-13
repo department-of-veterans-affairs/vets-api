@@ -44,6 +44,7 @@ module MedicalCopays
       end
 
       def summary(month_count: 6)
+        result = collect_invoices_in_range(month_count:)
         entries = result[:entries]
 
         total_amount = 0.to_d
