@@ -37,7 +37,7 @@ module Mobile
         response = client.get_message(message_id)
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
-        user_triage_teams = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        user_triage_teams = client.get_all_triage_teams(@current_user.uuid)
         active_teams = user_triage_teams.data.reject(&:blocked_status)
         user_in_triage_team = active_teams.any? do |team|
           response.triage_group_name && team.name == response.triage_group_name

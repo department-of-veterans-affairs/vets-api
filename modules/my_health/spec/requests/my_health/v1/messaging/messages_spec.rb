@@ -40,6 +40,8 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
   context 'when authorized' do
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
+      # Stub get_triage_teams_station_numbers to avoid additional API call for OH migration phase
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
       VCR.insert_cassette('sm_client/session')
     end
 
@@ -463,6 +465,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['messageId']).to eq(3_207_476)
         expect(first_message['threadId']).to eq(3_188_781)
         expect(first_message['senderId']).to eq(251_391)
+      end
+
+      it 'responds to GET #thread with replyDisabled' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread_full') do
+          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
+        end
+        json_response = JSON.parse(response.body)
+        data = json_response['data']
+        expect(data).to be_an(Array)
+        expect(data[0]['attributes']['reply_disabled']).to be(true)
+        expect(data[1]['attributes']['reply_disabled']).to be(false)
+        expect(data[2]['attributes']['reply_disabled']).to be(false)
       end
     end
 
