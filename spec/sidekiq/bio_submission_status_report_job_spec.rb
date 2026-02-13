@@ -61,7 +61,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
     end
 
     context 'with submission data' do
-      let!(:saved_claim) { create(:saved_claim_form_214192) }
+      let!(:saved_claim) { create(:saved_claim_form_21_4192) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
@@ -131,7 +131,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when CMP service is down' do
       let(:down_uuid) { 'b2c3d4e5-f6a7-8901-bcde-f12345678901' }
-      let!(:saved_claim) { create(:saved_claim_form_214192) }
+      let!(:saved_claim) { create(:saved_claim_form_21_4192) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
@@ -167,8 +167,8 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when one form type errors' do
       before do
-        saved_claim_4192 = create(:saved_claim_form_214192)
-        saved_claim_0779 = create(:saved_claim_form_210779)
+        saved_claim_4192 = create(:saved_claim_form_21_4192)
+        saved_claim_0779 = create(:saved_claim_form_21_0779)
         create(:form_submission, form_type: '21-4192', saved_claim: saved_claim_4192)
         create(:form_submission, form_type: '21-0779', saved_claim: saved_claim_0779)
 
@@ -196,7 +196,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when CMP status call raises an error' do
       let(:error_uuid) { 'c3d4e5f6-a7b8-9012-cdef-123456789012' }
-      let!(:saved_claim) { create(:saved_claim_form_214192) }
+      let!(:saved_claim) { create(:saved_claim_form_21_4192) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
@@ -239,7 +239,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           }
         ].to_json)
       end
-      let!(:saved_claim) { create(:saved_claim_form_214192) }
+      let!(:saved_claim) { create(:saved_claim_form_21_4192) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end

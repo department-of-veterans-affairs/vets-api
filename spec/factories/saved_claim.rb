@@ -71,7 +71,7 @@ FactoryBot.define do
   end
 
   # BIO Forms SavedClaim factories
-  factory :saved_claim_form_214192, class: 'SavedClaim::Form214192' do
+  factory :saved_claim_form_21_4192, class: 'SavedClaim::Form214192' do
     guid { SecureRandom.uuid }
     form do
       {
@@ -88,7 +88,7 @@ FactoryBot.define do
     end
   end
 
-  factory :saved_claim_form_210779, class: 'SavedClaim::Form210779' do
+  factory :saved_claim_form_21_0779, class: 'SavedClaim::Form210779' do
     guid { SecureRandom.uuid }
     form do
       {
@@ -100,7 +100,7 @@ FactoryBot.define do
     end
   end
 
-  factory :saved_claim_form_21p530a, class: 'SavedClaim::Form21p530a' do
+  factory :saved_claim_form_21p_530a, class: 'SavedClaim::Form21p530a' do
     guid { SecureRandom.uuid }
     form do
       {
@@ -112,7 +112,7 @@ FactoryBot.define do
     end
   end
 
-  factory :saved_claim_form_212680, class: 'SavedClaim::Form212680' do
+  factory :saved_claim_form_21_2680, class: 'SavedClaim::Form212680' do
     guid { SecureRandom.uuid }
     form do
       {
