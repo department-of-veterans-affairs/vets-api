@@ -38,6 +38,18 @@ module UnifiedHealthData
       end
     end
 
+    def get_dicom_zip(start_date:, end_date:, record_id:)
+      with_monitoring do
+        response = uhd_client.get_dicom_zip(
+          patient_id: @user.icn,
+          start_date:,
+          end_date:,
+          record_id:
+        )
+        imaging_study_adapter.parse(response.body)
+      end
+    end
+
     private
 
     def uhd_client

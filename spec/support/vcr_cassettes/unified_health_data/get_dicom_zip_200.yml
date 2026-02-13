@@ -1,0 +1,179 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+    body:
+      encoding: UTF-8
+      string: '{"appId":"test-app","appToken":"test-token","subject":"test-subject","userType":"test-user-type"}'
+    headers:
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer test-access-token-12345
+    body:
+      encoding: UTF-8
+      string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
+  recorded_at: Thu, 13 Feb 2026 16:20:00 GMT
+- request:
+    method: get
+    uri: "<MHV_UHD_HOST>/v1/medicalrecords/dicom-zip/oracle-health?patientId=123456789V012345&startDate=2026-01-01&endDate=2027-01-01&recordId=urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer test-access-token-12345
+      X-Api-Key:
+      - test-api-key
+      User-Agent:
+      - Faraday v2.13.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: |
+        {
+            "resourceType": "Bundle",
+            "id": "5fb7731f-e66c-4aff-9ef8-b759d4833bc4",
+            "meta": {
+                "versionId": "1770218510:dtagent10323250822043923XVuO",
+                "lastUpdated": "2026-02-04T10:21:50.931-05:00"
+            },
+            "type": "searchset",
+            "total": 1,
+            "link": [
+                {
+                    "relation": "self",
+                    "url": "https://mhv-sysb-api.myhealth.va.gov/du/fhir/ImagingStudy?_pretty=true&identifier=urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ"
+                }
+            ],
+            "entry": [
+                {
+                    "fullUrl": "https://mhv-sysb-api.myhealth.va.gov/du/fhir/ImagingStudy/13",
+                    "resource": {
+                        "resourceType": "ImagingStudy",
+                        "id": "13",
+                        "meta": {
+                            "versionId": "1",
+                            "lastUpdated": "2026-01-23T14:08:28.108-05:00",
+                            "source": "#777e9a14f1468c5a"
+                        },
+                        "extension": [
+                            {
+                                "url": "http://va.gov/mhv/fhir/StructureDefinition/presigned-url",
+                                "valueUrl": "https://test-cvix-zips.s3.us-gov-west-1.amazonaws.com/hashed-test-hash1/hashed-test-hash2.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260213T162000Z&X-Amz-Expires=1800&X-Amz-Signature=test-signature-dicom-zip"
+                            }
+                        ],
+                        "identifier": [
+                            {
+                                "use": "usual",
+                                "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                "value": "urn:vastudy:200CRNR-CM_4_ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ-1012740414V122180"
+                            },
+                            {
+                                "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                "value": "urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ"
+                            }
+                        ],
+                        "status": "available",
+                        "subject": {
+                            "reference": "Patient/21"
+                        },
+                        "started": "2025-10-28T15:04:44+00:00",
+                        "note": [
+                            {
+                                "text": "CT Chest with Contrast"
+                            }
+                        ],
+                        "description": "CT Chest with Contrast",
+                        "series": [
+                            {
+                                "number": 1,
+                                "modality": {
+                                    "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                },
+                                "instance": [
+                                    {
+                                        "extension": [
+                                            {
+                                                "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                "valueString": "urn:vaimage:200CRNR-CM_5_test-dicom-image-id"
+                                            }
+                                        ],
+                                        "sopClass": {
+                                            "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                        },
+                                        "number": 0,
+                                        "title": "JPEG"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "search": {
+                        "mode": "match"
+                    }
+                },
+                {
+                    "resource": {
+                        "resourceType": "OperationOutcome",
+                        "id": "ebb65755-1355-49bd-8a34-1c8500a981e2",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "diagnostics": "Success"
+                            },
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "diagnostics": "Overall message outcome"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "resource": {
+                        "resourceType": "OperationOutcome",
+                        "id": "e16b888b-df1f-4e48-a316-a22e68e5020c",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "diagnostics": "Success"
+                            },
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "diagnostics": "Overall message outcome"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+  recorded_at: Thu, 13 Feb 2026 16:20:32 GMT
+recorded_with: VCR 6.3.1

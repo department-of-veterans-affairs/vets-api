@@ -48,11 +48,24 @@ module UnifiedHealthData
           patient_id: extract_patient_id(resource),
           series_count: series_data.size,
           image_count: count_images(series_data),
-          series: parse_series(series_data)
+          series: parse_series(series_data),
+          dicom_zip_url: extract_study_presigned_url(resource)
         )
       end
 
       private
+
+      # Extracts the presigned DICOM zip URL from study-level extension
+      #
+      # @param resource [Hash] FHIR ImagingStudy resource
+      # @return [String, nil] the presigned URL or nil
+      def extract_study_presigned_url(resource)
+        extensions = resource['extension'] || []
+        url_extension = extensions.find do |ext|
+          ext['url'] == 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url'
+        end
+        url_extension&.dig('valueUrl')
+      end
 
       # Extracts the primary identifier value
       #

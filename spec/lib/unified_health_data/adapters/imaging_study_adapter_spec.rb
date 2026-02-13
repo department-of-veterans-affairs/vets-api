@@ -163,6 +163,41 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
       end
     end
 
+    context 'with study-level presigned DICOM zip URL' do
+      let(:response_with_dicom_zip) do
+        {
+          'entry' => [
+            {
+              'resource' => {
+                'resourceType' => 'ImagingStudy',
+                'id' => 'study-with-dicom-zip',
+                'status' => 'available',
+                'extension' => [
+                  {
+                    'url' => 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url',
+                    'valueUrl' => 'https://test-cvix-zips.s3.amazonaws.com/hashed-abc/hashed-def.zip?sig=xyz'
+                  }
+                ],
+                'series' => []
+              }
+            }
+          ]
+        }
+      end
+
+      it 'extracts the presigned DICOM zip URL from study-level extensions' do
+        result = adapter.parse(response_with_dicom_zip).first
+
+        expect(result.dicom_zip_url).to eq('https://test-cvix-zips.s3.amazonaws.com/hashed-abc/hashed-def.zip?sig=xyz')
+      end
+
+      it 'returns nil dicom_zip_url when study-level extension is absent' do
+        result = adapter.parse(imaging_study_response).first
+
+        expect(result.dicom_zip_url).to be_nil
+      end
+    end
+
     context 'with empty response' do
       it 'returns empty array for nil body' do
         expect(adapter.parse(nil)).to eq([])
