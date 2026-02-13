@@ -102,6 +102,10 @@ module Veteran
 
     private
 
+    def normalize_poa(poa)
+      poa&.gsub(/\W/, '')
+    end
+
     # Setup methods for perform
 
     def setup_ingestion
@@ -227,22 +231,24 @@ module Veteran
     def find_or_create_vso(vso)
       unless vso['Representative']&.match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
         ClaimsApi::Logger.log('VSO', detail: "Rep name not in expected format: #{vso['Registration Num']}")
-        return
+        return nil
       end
 
       rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), USER_TYPE_VSO)
       rep.save
+      rep
     end
 
     def convert_vso_to_useable_hash(vso)
-      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
+      last_name, first_name, middle_initial =
+        vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
 
       {
-        'Last Name' => last_name,
-        'First Name' => first_name,
-        'Middle Initial' => middle_initial || '',
+        'Last Name' => last_name&.strip,
+        'First Name' => first_name&.strip,
+        'Middle Initial' => (middle_initial || '').strip,
         'Registration Num' => vso['Registration Num'],
-        'POA Code' => vso['POA'],
+        'POA Code' => normalize_poa(vso['POA']),
         'Phone' => vso['Rep Phone'] || vso['Org Phone'],
         'City' => vso['Rep City'] || vso['Org City'],
         'State' => vso['Rep State'] || vso['Org State'],
@@ -347,30 +353,100 @@ module Veteran
     end
 
     def process_vso_data(vso_data)
+      vso_reps, rep_org_pairs, vso_orgs = extract_vso_entities(vso_data)
+
+      current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
+
+      import_vso_organizations(vso_orgs)
+      populate_org_representative_joins!(rep_org_pairs:, poa_codes: current_poa_codes)
+      remove_stale_organizations(current_poa_codes)
+
+      vso_reps
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def extract_vso_entities(vso_data)
       vso_reps = []
-      vso_orgs = vso_data.map do |vso_rep|
+      rep_org_pairs = []
+
+      vso_orgs = vso_data.filter_map do |vso_rep|
         next unless vso_rep['Representative']
 
-        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
-        vso_reps << vso_rep['Registration Num']
+        rep_id = vso_rep['Registration Num']
+        poa = normalize_poa(vso_rep['POA'])
+
+        if rep_id.present?
+          rep = find_or_create_vso(vso_rep)
+          if rep.present?
+            vso_reps << rep_id
+            rep_org_pairs << [rep_id, poa] if poa.present?
+          end
+        end
+
+        next if poa.blank?
+
         {
-          poa: vso_rep['POA'].gsub(/\W/, ''),
+          poa:,
           name: vso_rep['Organization Name'],
           phone: vso_rep['Org Phone'],
           state: vso_rep['Org State']
         }
       end.compact.uniq
 
-      # Extract current POA codes from incoming data
-      current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
+      [vso_reps, rep_org_pairs, vso_orgs]
+    end
+    # rubocop:enable Metrics/MethodLength
 
-      # Always import organizations when processing VSO data to maintain referential integrity
+    def import_vso_organizations(vso_orgs)
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
+    end
 
-      # Remove stale organizations that are no longer in the OGC data
+    def remove_stale_organizations(current_poa_codes)
       Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
+    end
 
-      vso_reps
+    # Creates/upserts join records for representative <-> organization relationships.
+    # Seeds acceptance_mode based on veteran_organizations.can_accept_digital_poa_requests (status quo behavior).
+    def populate_org_representative_joins!(rep_org_pairs:, poa_codes:)
+      pairs = rep_org_pairs.compact.uniq
+      return if pairs.empty? || poa_codes.blank?
+
+      org_accept_map = organization_accept_map(poa_codes)
+      rows = build_org_rep_rows(pairs, org_accept_map)
+      return if rows.empty?
+
+      upsert_org_rep_rows(rows)
+    end
+
+    def organization_accept_map(poa_codes)
+      Veteran::Service::Organization
+        .where(poa: poa_codes)
+        .pluck(:poa, :can_accept_digital_poa_requests)
+        .to_h
+    end
+
+    # rubocop:disable Rails/SkipsModelValidations
+    def upsert_org_rep_rows(rows)
+      Veteran::Service::OrganizationRepresentative.upsert_all(
+        rows,
+        unique_by: %i[organization_poa representative_id],
+        update_only: %i[acceptance_mode]
+      )
+    end
+    # rubocop:enable Rails/SkipsModelValidations
+
+    def build_org_rep_rows(pairs, org_accept_map)
+      pairs.filter_map do |rep_id, poa|
+        next if rep_id.blank? || poa.blank?
+
+        acceptance_mode = org_accept_map.fetch(poa, false) ? 'any_request' : 'no_acceptance'
+
+        {
+          representative_id: rep_id,
+          organization_poa: poa,
+          acceptance_mode:
+        }
+      end
     end
 
     # Maps VSOReloader's rep_type symbols to AccreditationDataIngestionLog entity types

@@ -19,6 +19,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(Veteran::Service::Representative.veteran_service_officers.count).to eq 152
         expect(Veteran::Service::Representative.claim_agents.count).to eq 42
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
+        expect(Veteran::Service::OrganizationRepresentative.count).to be.positive?
       end
     end
 
@@ -38,10 +39,19 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    it 'loads a vso rep with the poa code' do
+    it 'loads a vso rep with the poa code and creates join records' do
       VCR.use_cassette('veteran/ogc_vso_rep_data') do
         Veteran::VSOReloader.new.reload_vso_reps
-        expect(Veteran::Service::Representative.last.poa_codes).to include('095')
+
+        rep = Veteran::Service::Representative.find_by!(first_name: 'Edgar', last_name: 'Anderson')
+
+        expect(rep.poa_codes).to include('091')
+        expect(
+          Veteran::Service::OrganizationRepresentative.exists?(
+            representative_id: rep.representative_id,
+            organization_poa: '091'
+          )
+        ).to be(true)
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
@@ -65,6 +75,24 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           expect(org.phone).to eq('253-589-0766')
           expect(org.state).to eq('WA')
           expect(org.city).to eq('New York')
+        end
+      end
+    end
+
+    context 'join table acceptance_mode (status quo)' do
+      it 'sets acceptance_mode based on can_accept_digital_poa_requests and updates on rerun' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
+          org = create(:organization, poa: '095', can_accept_digital_poa_requests: false)
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          org_rep = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '095')
+          expect(org_rep.acceptance_mode).to eq('no_acceptance')
+
+          org.update!(can_accept_digital_poa_requests: true)
+
+          Veteran::VSOReloader.new.reload_vso_reps
+          org_rep.reload
+          expect(org_rep.acceptance_mode).to eq('any_request')
         end
       end
     end
