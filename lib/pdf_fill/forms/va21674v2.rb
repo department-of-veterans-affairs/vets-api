@@ -943,6 +943,7 @@ module PdfFill
         extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
+        expand_no_ssn_cases if Flipper.enabled?(:va_dependents_no_ssn)
         FORMATTER.handle_overflows(@form_data)
 
         @form_data
@@ -1014,6 +1015,17 @@ module PdfFill
         FORMATTER.format_checkboxes(dependents_application)
       end
       # rubocop:enable Metrics/MethodLength
+
+      # Expands cases where a student has no SSN
+      #
+      # When a student has no SSN, replaces the SSN field with "See ad d'l "
+      # placeholder text and adds the no-SSN reason to the remarks section.
+      # Assumes only one student per form instance.
+      #
+      # @return [void]
+      def expand_no_ssn_cases
+        FORMATTER.expand_no_ssn_cases(@form_data)
+      end
     end
   end
 end
