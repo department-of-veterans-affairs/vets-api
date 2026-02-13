@@ -81,8 +81,10 @@ RSpec.describe DigitalFormsApi::Validation::Schema do
     end
 
     it 'returns the schema when nested under data.schema' do
-      allow(response).to receive(:body).and_return(build(:digital_forms_api_schema_response, nested: true,
-                                                                                             schema_body: schema))
+      allow(response).to receive(:body)
+        .and_return(build(:digital_forms_api_schema_response,
+                          nested: true,
+                          schema_body: schema))
 
       expect(subject.fetch_form_schema('21-686c')).to eq(schema)
     end
