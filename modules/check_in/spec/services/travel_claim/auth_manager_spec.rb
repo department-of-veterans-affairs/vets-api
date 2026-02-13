@@ -282,9 +282,9 @@ RSpec.describe TravelClaim::AuthManager do
   describe '#veis_token' do
     it 'returns cached token from Rails.cache' do
       Rails.cache.write(
-        described_class::VEIS_CACHE_KEY,
+        'token',
         'cached-token',
-        namespace: described_class::VEIS_CACHE_NAMESPACE
+        namespace: 'check-in-veis-token-cache-v1'
       )
 
       expect(auth_manager.veis_token).to eq('cached-token')
@@ -307,8 +307,8 @@ RSpec.describe TravelClaim::AuthManager do
       auth_manager.veis_token
 
       cached = Rails.cache.read(
-        described_class::VEIS_CACHE_KEY,
-        namespace: described_class::VEIS_CACHE_NAMESPACE
+        'token',
+        namespace: 'check-in-veis-token-cache-v1'
       )
       expect(cached).to eq('veis-token')
     end

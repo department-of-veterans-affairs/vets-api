@@ -11,8 +11,6 @@ module TravelClaim
   class AuthManager
     attr_reader :station_number, :facility_type, :correlation_id
 
-    VEIS_CACHE_NAMESPACE = 'check-in-btsss-cache-v1'
-    VEIS_CACHE_KEY = 'token'
     VEIS_CACHE_TTL = 54.minutes
     VEIS_RACE_CONDITION_TTL = 5.minutes
 
@@ -121,6 +119,10 @@ module TravelClaim
 
     attr_reader :settings
 
+    def redis_client
+      @redis_client ||= TravelClaim::RedisClient.build
+    end
+
     ##
     # Ensures both tokens are available, fetching as needed.
     #
@@ -131,12 +133,10 @@ module TravelClaim
 
     ##
     # Fetches VEIS token from cache or mints a new one.
-    # Uses race_condition_ttl to prevent thundering herd on cache expiry.
+    # Delegates to RedisClient which handles caching with race_condition_ttl.
     #
     def fetch_veis_token!
-      @current_veis_token = Rails.cache.fetch(
-        VEIS_CACHE_KEY,
-        namespace: VEIS_CACHE_NAMESPACE,
+      @current_veis_token = redis_client.fetch_veis_token(
         expires_in: VEIS_CACHE_TTL,
         race_condition_ttl: VEIS_RACE_CONDITION_TTL
       ) do
@@ -264,12 +264,16 @@ module TravelClaim
     def subscription_key_headers
       if Settings.vsp_environment == 'production'
         {
-          'Ocp-Apim-Subscription-Key-E' => settings.e_subscription_key.to_s.presence || raise('Missing e_subscription_key'),
-          'Ocp-Apim-Subscription-Key-S' => settings.s_subscription_key.to_s.presence || raise('Missing s_subscription_key')
+          'Ocp-Apim-Subscription-Key-E' => fetch_required_setting(:e_subscription_key),
+          'Ocp-Apim-Subscription-Key-S' => fetch_required_setting(:s_subscription_key)
         }
       else
-        { 'Ocp-Apim-Subscription-Key' => settings.subscription_key.to_s.presence || raise('Missing subscription_key') }
+        { 'Ocp-Apim-Subscription-Key' => fetch_required_setting(:subscription_key) }
       end
+    end
+
+    def fetch_required_setting(key)
+      settings.public_send(key).to_s.presence || raise("Missing #{key}")
     end
 
     ##
