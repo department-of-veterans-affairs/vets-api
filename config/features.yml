@@ -518,6 +518,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
+  cst_claims_list_filter:
+    actor_type: user
+    description: When enabled, claims status tool displays a filter on the claims list
+    enable_in_development: true
   cst_evidence_requests_content_override:
     actor_type: user
     description: >
