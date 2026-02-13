@@ -11,11 +11,10 @@ module DependentsBenefits
         report_stepchild_not_in_household
         report_marriage_of_child_under18
       ].freeze
-      DEPENDENT_REMOVAL_OPTIONS = REMOVE_CHILD_OPTIONS.dup + %w[report_death report_divorce]
       MARRIAGE_TYPES = %w[COMMON-LAW TRIBAL PROXY OTHER].freeze
       RELATIONSHIPS = %w[CHILD DEPENDENT_PARENT].freeze
 
-      def set_claim_information
+      def get_claim_information(user = nil)
         dependents_app = parsed_form['dependents_application']
         selectable_options = parsed_form['view:selectable686_options']
 
@@ -24,7 +23,9 @@ module DependentsBenefits
         @proc_state = 'Ready'
 
         set_proc_state(selectable_options, dependents_app)
-        set_claim_type(selectable_options)
+        set_claim_type(selectable_options, user)
+
+        { proc_state: @proc_state, claim_label: @claim_label }
       end
 
       private
@@ -78,51 +79,52 @@ module DependentsBenefits
 
         @proc_state = 'MANUAL_VAGOV'
       end
-    end
 
-    # rubocop:disable Metrics/MethodLength
-    # the default claim type is 130DPNEBNADJ (eBenefits Dependency Adjustment)
-    def set_claim_type(selectable_options)
-      # selectable_options is a hash of boolean values (ex. 'report_divorce' => false)
-      # if any of the dependent_removal_options in selectable_options is set to true, we are removing a dependent
-      removing_dependent = false
-      if Flipper.enabled?(:dependents_removal_check)
-        removing_dependent = DEPENDENT_REMOVAL_OPTIONS.any? { |option| selectable_options[option] }
-      end
+      # rubocop:disable Metrics/MethodLength
+      # the default claim type is 130DPNEBNADJ (eBenefits Dependency Adjustment)
+      def set_claim_type(selectable_options, user = nil)
+        # selectable_options is a hash of boolean values (ex. 'report_divorce' => false)
+        # if any of the dependent_removal_options in selectable_options is set to true, we are removing a dependent
+        removing_dependent = false
+        if Flipper.enabled?(:dependents_removal_check)
+          dependent_removal_options = REMOVE_CHILD_OPTIONS.dup << 'report_death' << 'report_divorce'
+          removing_dependent = dependent_removal_options.any? { |option| selectable_options[option] }
+        end
 
-      # we only need to do a pension check if we are removing a dependent or we have set the status to manual
-      receiving_pension = false
-      if Flipper.enabled?(:dependents_pension_check) && (removing_dependent || @proc_state == 'MANUAL_VAGOV')
-        pension_response = bid_service.get_awards_pension
-        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
-      end
+        # we only need to do a pension check if we are removing a dependent or we have set the status to manual
+        receiving_pension = false
+        if Flipper.enabled?(:dependents_pension_check) && user && (removing_dependent || @proc_state == 'MANUAL_VAGOV')
+          bid_service = BID::Awards::Service.new(user)
+          pension_response = bid_service.get_awards_pension
+          receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+        end
 
-      # if we are setting the claim to be manually reviewed, then exception/rejection labels should be used
-      if @proc_state == 'MANUAL_VAGOV'
-        if removing_dependent && receiving_pension
-          @claim_name = 'PMC - Self Service - Removal of Dependent Exceptn'
-          @claim_label = '130SSRDPMCE'
+        # if we are setting the claim to be manually reviewed, then exception/rejection labels should be used
+        if @proc_state == 'MANUAL_VAGOV'
+          if removing_dependent && receiving_pension
+            @claim_name = 'PMC - Self Service - Removal of Dependent Exceptn'
+            @claim_label = '130SSRDPMCE'
+          elsif removing_dependent
+            @claim_name = 'Self Service - Removal of Dependent Exception'
+            @claim_label = '130SSRDE'
+          elsif receiving_pension
+            @claim_name = 'PMC eBenefits Dependency Adjustment Reject'
+            @claim_label = '130DAEBNPMCR'
+          else
+            @claim_name = 'eBenefits Dependency Adjustment Reject'
+            @claim_label = '130DPEBNAJRE'
+          end
         elsif removing_dependent
-          @claim_name = 'Self Service - Removal of Dependent Exception'
-          @claim_label = '130SSRDE'
-        elsif receiving_pension
-          @claim_name = 'PMC eBenefits Dependency Adjustment Reject'
-          @claim_label = '130DAEBNPMCR'
-        else
-          @claim_name = 'eBenefits Dependency Adjustment Reject'
-          @claim_label = '130DPEBNAJRE'
-        end
-      elsif removing_dependent
-        if receiving_pension
-          @claim_name = 'PMC - Self Service - Removal of Dependent'
-          @claim_label = '130SSRDPMC'
-        else
-          @claim_name = 'Self Service - Removal of Dependent'
-          @claim_label = '130SSRD'
+          if receiving_pension
+            @claim_name = 'PMC - Self Service - Removal of Dependent'
+            @claim_label = '130SSRDPMC'
+          else
+            @claim_name = 'Self Service - Removal of Dependent'
+            @claim_label = '130SSRD'
+          end
         end
       end
+      # rubocop:enable Metrics/MethodLength
     end
-    # rubocop:enable Metrics/MethodLength
-
   end
 end

@@ -9,6 +9,7 @@ require 'dependents/notification_email'
 require 'dependents_benefits/claim_behavior/vbms_information'
 
 class SavedClaim::DependencyClaim < CentralMailClaim
+  include DependentsBenefits::ClaimBehavior::FormTypeChecking
   include DependentsBenefits::ClaimBehavior::VbmsInformation
 
   FORM = '686C-674'

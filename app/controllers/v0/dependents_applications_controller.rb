@@ -33,6 +33,18 @@ module V0
 
       claim.process_attachments!
 
+      claim_info = claim.get_claim_information(current_user)
+      if claim.claim_form_type == '21-686c' && claim_info[:proc_state] == 'MANUAL_VAGOV'
+        begin
+          submit_via_forms_api(claim, claim_info[:claim_label])
+          log_submitted(in_progress_form, claim)
+          claim.send_submitted_email(current_user)
+          return render json: SavedClaimSerializer.new(claim)
+        rescue => e
+          monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission' { error: e })
+        end
+      end
+
       dependent_service = create_dependent_service
 
       dependent_service.submit_686c_form(claim)
@@ -49,21 +61,27 @@ module V0
 
     private
 
-    def submit_via_forms_api(claim)
+    def submit_via_forms_api(claim, claim_label)
       return unless Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
 
       digital_forms_api_submission_service ||= DigitalFormsApi::Service::Submissions.new
 
       payload = claim.parsed_form
       metadata = {
-        formId: claim.form_id,
+        formId: claim.claim_form_type,
         veteranId: current_user.participant_id,
         claimantId: current_user.participant_id,
-        epCode: @end_product_code[/^\d+/],
-        claimLabel: @end_product_code
+        epCode: claim_label[/^\d+/],
+        claimLabel: claim_label
       }
 
-      digital_forms_api_submission_service.submit(payload, metadata)
+      response = digital_forms_api_submission_service.submit(payload, metadata)
+      raise RuntimeError, response.to_s unless response.success?
+
+      monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
+
+      # TODO parse the response body and pass back the identifier to be used by the form viewer (future)
+      'submission-id'
     end
 
     def dependent_params
