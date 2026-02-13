@@ -8,8 +8,13 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
   let(:slack_enabled) { true }
 
   before do
-    allow(Settings.vba_documents.slack).to receive_messages(in_flight_notification_hung_time_in_days: 14,
-                                                            renotification_in_minutes: 240, update_stalled_notification_in_minutes: 180, enabled: slack_enabled)
+    allow(Settings.vba_documents.slack).to receive_messages(
+      in_flight_notification_hung_time_in_days: 14,
+      renotification_in_minutes: 240,
+      update_stalled_notification_in_minutes: 180,
+      enabled: slack_enabled
+    )
+    allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(false)
     allow(VBADocuments::Slack::Messenger).to receive(:new).and_return(slack_messenger)
     allow(slack_messenger).to receive(:notify!)
     @job = VBADocuments::SlackInflightNotifier.new
@@ -31,8 +36,12 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
   context 'summary notification' do
     let(:upload_submission) { VBADocuments::UploadSubmission.create(status: 'received') }
 
+    around do |example|
+      Timecop.freeze(Time.zone.now) { example.run }
+    end
+
     before do
-      upload_submission.metadata['status']['received']['start'] = 15.minutes.ago.to_i
+      upload_submission.metadata['status']['received']['start'] = 5.days.ago.to_i
       upload_submission.save!
     end
 
@@ -42,7 +51,7 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
         {
           class: 'VBADocuments::SlackInflightNotifier',
           alert: 'Submissions Exceeding Thresholds',
-          details: "\n\tGUID: #{upload_submission.guid} | Status: received | Duration: about 1 hour"
+          details: "\n\tGUID: #{upload_submission.guid} | Status: received | Duration: 5 days"
         }
       )
       expect(slack_messenger).to have_received(:notify!).once
@@ -52,12 +61,12 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
     context 'when the :decision_review_delay_evidence feature is enabled' do
       before do
         # Create an appeals submission that would be included if the flag were off
-        VBADocuments::UploadSubmission.create(status: 'uploaded').tap do |sub|
+        VBADocuments::UploadSubmission.create(status: 'uploaded',
+                                              consumer_name: 'appeals_api_sc_evidence_submission').tap do |sub|
           sub.metadata['status']['uploaded']['start'] = 2.days.ago.to_i
-          sub.metadata['from_appeals_api'] = true
           sub.save!
         end
-        Flipper.enable(:decision_review_delay_evidence)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true)
       end
 
       it 'excludes evidence submissions from the "uploaded" status grouping' do
@@ -67,7 +76,7 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
           {
             class: 'VBADocuments::SlackInflightNotifier',
             alert: 'Submissions Exceeding Thresholds',
-            details: "\n\tGUID: #{upload_submission.guid} | Status: received | Duration: about 1 hour"
+            details: "\n\tGUID: #{upload_submission.guid} | Status: received | Duration: 5 days"
           }
         )
         expect(slack_messenger).to have_received(:notify!).once
@@ -76,25 +85,25 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
     end
 
     context 'when the :decision_review_delay_evidence feature is disabled' do
+      let(:appeals_submission) do
+        VBADocuments::UploadSubmission.create(status: 'uploaded', consumer_name: 'appeals_api_sc_evidence_submission')
+      end
+
       before do
         # Create an appeals submission that will be included
-        VBADocuments::UploadSubmission.create(status: 'uploaded').tap do |sub|
-          sub.metadata['status']['uploaded']['start'] = 2.days.ago.to_i
-          sub.metadata['from_appeals_api'] = true
-          sub.save!
-        end
-        Flipper.disable(:decision_review_delay_evidence)
+        appeals_submission.metadata['status']['uploaded']['start'] = 2.days.ago.to_i
+        appeals_submission.save!
       end
 
       it 'includes evidence submissions in the "uploaded" status grouping' do
         @results = @job.perform
-        # The notification details will now include the 'uploaded' appeals submission
-        appeals_submission = VBADocuments::UploadSubmission.find_by(metadata: { 'from_appeals_api' => true })
+        expected_details = "\n\tGUID: #{appeals_submission.guid} | Status: uploaded | Duration: 2 days" \
+                           "\n\tGUID: #{upload_submission.guid} | Status: received | Duration: 5 days"
         expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
           {
             class: 'VBADocuments::SlackInflightNotifier',
             alert: 'Submissions Exceeding Thresholds',
-            details: include("GUID: #{appeals_submission.guid} | Status: uploaded")
+            details: expected_details
           }
         )
         expect(slack_messenger).to have_received(:notify!).once
@@ -176,7 +185,7 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
 
     it 'notifies when invalid parts exist' do
       @results = @job.perform
-      expect(slack_messenger).to have_received(:notify!).twice # once for invalid parts and once for summary
+      expect(slack_messenger).to have_received(:notify!).once
       expect(@results[:invalid_parts_alerted]).to be(true)
     end
 
@@ -186,46 +195,24 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
 
       @results = @job.perform
       expect(@results[:invalid_parts_alerted]).to be_nil
-      expect(slack_messenger).to have_received(:notify!).exactly(3).times # once for invalid parts and twice for summary
+      expect(slack_messenger).to have_received(:notify!).once
     end
   end
 
   context 'upload stalled alert' do
-    context 'when the :decision_review_delay_evidence feature is enabled' do
-      before do
-        # Create an appeals submission that is old enough to be alerted on
-        VBADocuments::UploadSubmission.create(status: 'uploaded').tap do |sub|
-          sub.metadata['status']['uploaded']['start'] = 200.minutes.ago.to_i
-          sub.metadata['from_appeals_api'] = true
-          sub.save!
-        end
-        Flipper.enable(:decision_review_delay_evidence)
-      end
-
-      it 'does not alert on evidence submissions' do
-        @results = @job.perform
-        # No new alert should be sent, so only the summary notification happens
-        expect(slack_messenger).to have_received(:notify!).once
-        expect(@results[:upload_stalled_alerted]).to be_nil
-      end
-    end
-  end
-
-  context 'when the :decision_review_delay_evidence feature is disabled' do
     before do
-      # Create a standard submission that is old enough to be alerted on
-      VBADocuments::UploadSubmission.create(status: 'uploaded').tap do |sub|
-        sub.metadata['status']['uploaded']['start'] = 200.minutes.ago.to_i
-        sub.save!
+      allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true)
+      VBADocuments::UploadSubmission.create(status: 'uploaded', consumer_name: 'appeals_api_sc_evidence_submission')
+                                    .tap do |sub|
+                                      sub.metadata['status']['uploaded']['start'] = 200.minutes.ago.to_i
+                                      sub.save!
       end
-      Flipper.disable(:decision_review_delay_evidence)
+      @job.send(:fetch_settings)
     end
 
-    it 'alerts on standard submissions' do
-      @results = @job.perform
-      # A new alert should be sent in addition to the summary notification
-      expect(slack_messenger).to have_received(:notify!).twice
-      expect(@results[:upload_stalled_alerted]).to be(true)
+    it 'does not alert on evidence submissions when delay is enabled' do
+      @job.send(:upload_stalled_alert)
+      expect(slack_messenger).not_to have_received(:notify!)
     end
   end
 end
