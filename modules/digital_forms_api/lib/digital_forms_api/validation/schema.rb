@@ -177,9 +177,13 @@ module DigitalFormsApi
       #   normalize_integer('invalid', 10) # => returns 10 as the default value
       #   since 'invalid' cannot be converted to an integer
       def normalize_integer(value, default)
-        return value.presence.to_i if value.respond_to?(:presence)
+        value = value.presence if value.respond_to?(:presence)
+        return default if value.nil?
+        return value if value.is_a?(Integer)
 
-        (value || default).to_i
+        Integer(value, 10)
+      rescue ArgumentError, TypeError
+        default
       end
 
       # Utility function to track schema-related errors in the monitor
