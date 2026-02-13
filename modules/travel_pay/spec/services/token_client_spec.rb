@@ -82,7 +82,7 @@ describe TravelPay::TokenClient do
       token_client = TravelPay::TokenClient.new(123)
 
       expect(Rails.logger).to receive(:error).with(
-        'BTSSS token request failed with 403: {"message"=>"Forbidden"}',
+        a_string_including('BTSSS token request failed with status 403'),
         hash_including(response_status: 403)
       )
 
@@ -92,7 +92,26 @@ describe TravelPay::TokenClient do
       end.to raise_error(Common::Exceptions::BadGateway) do |e|
         expect(e.errors).to be_present
         expect(e.errors.first).to be_a(Hash)
-        expect(e.errors.first[:detail]).to include('BTSSS returned an error')
+        expect(e.errors.first[:detail]).to eq('BTSSS authentication service error')
+      end
+      # rubocop:enable Style/MultilineBlockChain
+    end
+
+    it 'does not convert 5xx errors to BadGateway' do
+      @stubs.post('api/v2/Auth/access-token') do
+        [
+          503,
+          { 'Content-Type': 'application/json' },
+          '{"message": "Service Unavailable"}'
+        ]
+      end
+
+      token_client = TravelPay::TokenClient.new(123)
+      # rubocop:disable Style/MultilineBlockChain
+      expect do
+        token_client.request_btsss_token('veis_token', user)
+      end.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+        expect(e.original_status).to eq(503)
       end
       # rubocop:enable Style/MultilineBlockChain
     end
