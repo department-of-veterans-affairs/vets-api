@@ -4,26 +4,9 @@ require 'rails_helper'
 require 'digital_forms_api/service/base'
 require 'digital_forms_api/validation/schema'
 RSpec.describe DigitalFormsApi::Validation::Schema do
-  let(:schema) do
-    {
-      'type' => 'object',
-      'properties' => {
-        'contentName' => { 'type' => 'string' },
-        'providerData' => { 'type' => 'object' }
-      }
-    }
-  end
-
-  let(:schema_with_required) do
-    {
-      'type' => 'object',
-      'properties' => {
-        'contentName' => { 'type' => 'string' },
-        'providerData' => { 'type' => 'object' }
-      },
-      'required' => %w[contentName providerData]
-    }
-  end
+  let(:schema) { build(:digital_forms_api_schema) }
+  let(:schema_with_required) { build(:digital_forms_api_schema, :with_required) }
+  let(:search_schema) { build(:digital_forms_api_schema, :search) }
 
   let(:response) { instance_double(Faraday::Response, body: schema) }
   let(:service) { instance_double(DigitalFormsApi::Service::Base, perform: response) }
@@ -93,8 +76,8 @@ RSpec.describe DigitalFormsApi::Validation::Schema do
     end
 
     it 'returns the schema when nested under data.schema' do
-      nested_schema = { 'data' => { 'schema' => schema } }
-      allow(response).to receive(:body).and_return(nested_schema)
+      allow(response).to receive(:body).and_return(build(:digital_forms_api_schema_response, nested: true,
+                                                                                        schema_body: schema))
 
       expect(subject.fetch_form_schema('21-686c')).to eq(schema)
     end
@@ -106,6 +89,27 @@ RSpec.describe DigitalFormsApi::Validation::Schema do
         subject.fetch_form_schema('21-686c')
       end.to raise_error(JSON::Schema::ValidationError,
                          /form_id '21-686c' did not include a JSON schema \(expected Hash, got String\)/)
+    end
+  end
+
+  describe '.validate_search_file_request' do
+    it 'validates the search file request successfully' do
+      allow(response).to receive(:body).and_return(search_schema)
+
+      payload = subject.validate_search_file_request('21-686c', filters: nil, sort: nil)
+      expect(payload).to eq({
+                             pageRequest: { resultsPerPage: 10, page: 1 },
+                             filters: {},
+                             sort: []
+                           })
+    end
+
+    it 'raises an error for invalid search file request' do
+      allow(response).to receive(:body).and_return(search_schema)
+
+      expect do
+        subject.validate_search_file_request('21-686c', filters: { foo: 'bar' })
+      end.to raise_error(JSON::Schema::ValidationError)
     end
   end
 end
