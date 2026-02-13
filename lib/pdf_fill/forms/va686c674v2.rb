@@ -1170,6 +1170,29 @@ module PdfFill
               } # end of zip_code
             }, # end of address
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
+            'date_stepchild_left_household' => {
+              'month' => {
+                key: 'step_children.left_household.month[%iterator%]',
+                limit: 2,
+                question_num: 21,
+                question_suffix: 'F',
+                question_text: 'INFORMATION NEEDED TO REPORT DATE STEPCHILD LEFT HOUSEHOLD > DATE > MONTH'
+              },
+              'day' => {
+                key: 'step_children.left_household.day[%iterator%]',
+                limit: 2,
+                question_num: 21,
+                question_suffix: 'F',
+                question_text: 'INFORMATION NEEDED TO REPORT DATE STEPCHILD LEFT HOUSEHOLD > DATE > DAY'
+              },
+              'year' => {
+                key: 'step_children.left_household.year[%iterator%]',
+                limit: 4,
+                question_num: 21,
+                question_suffix: 'F',
+                question_text: 'INFORMATION NEEDED TO REPORT DATE STEPCHILD LEFT HOUSEHOLD > DATE > YEAR'
+              }
+            }, # end of date stepchild left household
             'living_expenses_paid' => {
               'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
               'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]' },
@@ -1836,6 +1859,9 @@ module PdfFill
             'half' => select_radio_button(living_expenses_paid == 'Half'),
             'less_than_half' => select_radio_button(living_expenses_paid == 'Less than half')
           }
+
+          # extract date
+          stepchild['date_stepchild_left_household'] = split_date(death['date_stepchild_left_household'])
 
           # if any stepchild is present then this should be checked as yes
           stepchild['biological_adopted_stepchild'] = {
