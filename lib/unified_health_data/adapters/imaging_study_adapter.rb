@@ -108,7 +108,7 @@ module UnifiedHealthData
         reference = resource.dig('subject', 'reference')
         return nil unless reference
 
-        # Extract ID from "Patient/1012740414V122180" format
+        # Extract ID from "Patient/1234567890V012345" format
         reference.split('/').last
       end
 

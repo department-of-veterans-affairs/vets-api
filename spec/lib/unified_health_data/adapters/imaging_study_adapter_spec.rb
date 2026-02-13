@@ -21,7 +21,7 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
             'modality' => [{ 'code' => 'CT' }],
             'started' => '2025-01-15T10:30:00Z',
             'description' => 'CT Scan of Chest',
-            'subject' => { 'reference' => 'Patient/1012740414V122180' },
+            'subject' => { 'reference' => 'Patient/1234567890V012345' },
             'note' => [
               { 'text' => 'Routine follow-up scan' }
             ],
@@ -79,7 +79,7 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
       it 'extracts patient_id from subject reference' do
         result = adapter.parse(imaging_study_response).first
 
-        expect(result.patient_id).to eq('1012740414V122180')
+        expect(result.patient_id).to eq('1234567890V012345')
       end
 
       it 'extracts notes correctly' do
