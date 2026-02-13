@@ -314,7 +314,6 @@
               "description": "Object describing Homeless Veteran Point of Contact.",
               "type": "object",
               "additionalProperties": false,
-              "required": ["pointOfContactName", "primaryPhone"],
               "properties": {
                 "pointOfContactName": {
                   "description": "Point of contact in direct contact with Veteran.",
@@ -328,7 +327,6 @@
                   "description": "Phone Number Object for Point of Contact.",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["areaCode", "phoneNumber"],
                   "properties": {
                     "areaCode": {
                       "description": "Area code of Point of Contact.",
@@ -347,7 +345,6 @@
             "currentlyHomeless": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["homelessSituationType", "otherLivingSituation"],
               "properties": {
                 "homelessSituationType": {
                   "description": "Current state of the veteran's homelessness.",
@@ -373,10 +370,6 @@
             "homelessnessRisk": {
               "type": "object",
               "additionalProperties": false,
-              "required": [
-                "homelessnessRiskSituationType",
-                "otherLivingSituation"
-              ],
               "properties": {
                 "homelessnessRiskSituationType": {
                   "type": "string",
