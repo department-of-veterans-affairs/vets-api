@@ -44,7 +44,7 @@ module MedicalCopays
       end
 
       def summary(month_count: 6)
-        _raw_bundle, entries = collect_invoices_in_range(month_count:)
+        entries = result[:entries]
 
         total_amount = 0.to_d
         count = 0
@@ -63,7 +63,8 @@ module MedicalCopays
       end
 
       def list_months(month_count: 6, count: 50)
-        raw_bundle, entries = collect_invoices_in_range(month_count:, count:)
+        result = collect_invoices_in_range(month_count:)
+        entries = result[:entries]
 
         if entries.empty?
           return Lighthouse::HCC::Bundle.new(
@@ -128,7 +129,10 @@ module MedicalCopays
 
             invoice_date = Time.iso8601(date_str)
 
-            return [last_raw_bundle, collected_entries] if invoice_date < from
+            return {
+              raw_bundle: last_raw_bundle,
+              entries: collected_entries
+            } if invoice_date < from
 
             collected_entries << entry
           end
@@ -136,7 +140,10 @@ module MedicalCopays
           page += 1
         end
 
-        [last_raw_bundle, collected_entries]
+        {
+          raw_bundle: last_raw_bundle,
+          entries: collected_entries
+        }
       end
 
       def record_success(operation)
