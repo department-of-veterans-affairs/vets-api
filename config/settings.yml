@@ -260,7 +260,7 @@ claims_api:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
         notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
-claims_evidence_api:
+claims_evidence_api: &claims_evidence_api
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
   breakers_error_threshold: 80
   include_request: false
@@ -357,6 +357,7 @@ dhp:
     aws_secret_access_key: <%= ENV['dhp__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['dhp__s3__bucket'] %>
     region: us-gov-west-1
+digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
 directory:
   apikey: fake_apikey
   health_server_id: <%= ENV['directory__health_server_id'] %>
@@ -578,6 +579,10 @@ gclaws:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
     veteran_service_organizations:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
+  accreditation_xlsx:
+    password: <%= ENV['gclaws__accreditation_xlsx__password'] %>
+    url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
+    username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:
   base_url: <%= ENV['genisis__base_url'] %>
   form_submission_path: "/formdata"
@@ -1101,6 +1106,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: <%= ENV['ppms__api_keys__ocp-apim-subscription-key'] %>
   apim_url: <%= ENV['ppms__apim_url'] %>
+  mock: false
   open_timeout: 15
   read_timeout: 55
   url: <%= ENV['ppms__url'] %>
@@ -1132,6 +1138,23 @@ reports:
     bucket: <%= ENV['reports__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['reports__aws__secret_access_key'] %>
+  bio_submission_status:
+    emails:
+    - Cameron.Testerman@va.gov
+    - Leah.Keeler@va.gov
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+    - '21-4192'
+    - '21-0779'
+    - '21P-530a'
+    - '21-2680'
+    staging_emails:
+    - Cameron.Testerman@va.gov
+    - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:
@@ -1277,7 +1300,10 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  message_show: modules/mobile/app/schemas/message_show.json
+  messages_index: modules/mobile/app/schemas/messages_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
+  triage_teams: modules/mobile/app/schemas/triage_teams.json
 search:
   access_key: <%= ENV['search__access_key'] %>
   affiliate: va
@@ -1352,6 +1378,12 @@ travel_pay:
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '757'
+  - '506'
+  - '515'
+  - '553'
+  - '655'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>

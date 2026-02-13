@@ -259,7 +259,7 @@ claims_api:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
-claims_evidence_api:
+claims_evidence_api: &claims_evidence_api
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
   include_request: false
@@ -356,6 +356,7 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
+digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
 directory:
   apikey: "<fake_api_key>"
   health_server_id: ~
@@ -576,6 +577,10 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
+  accreditation_xlsx:
+    password: ~
+    url: ~
+    username: ~
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
@@ -1116,6 +1121,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: ~
   apim_url: ~
+  mock: false
   open_timeout: 15
   read_timeout: 55
   url: https://some.fakesite.com
@@ -1147,6 +1153,23 @@ reports:
     bucket: bucket
     region: region
     secret_access_key: secret
+  bio_submission_status:
+    emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+      - '21-4192'
+      - '21-0779'
+      - '21P-530a'
+      - '21-2680'
+    staging_emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:
@@ -1295,7 +1318,10 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  message_show: modules/mobile/app/schemas/message_show.json
+  messages_index: modules/mobile/app/schemas/messages_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
+  triage_teams: modules/mobile/app/schemas/triage_teams.json
 search:
   access_key: TESTKEY
   affiliate: va
@@ -1370,6 +1396,12 @@ travel_pay:
     resource: resource_id
     tenant_id: tenant_id
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '757'
+  - '506'
+  - '515'
+  - '553'
+  - '655'
   processor_job:
     batch_size: 500
     max_iterations: 20
