@@ -82,6 +82,7 @@ module MyHealth
       def renewal
         raise Common::Exceptions::ParameterMissing, 'prescription_id' if renewal_message_params[:prescription_id].blank?
 
+        # Validate standard message fields (prescription_id excluded from message_params by design)
         message = Message.new(message_params.merge(upload_params)
                   .merge(is_large_attachment_upload: use_large_attachment_upload))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
