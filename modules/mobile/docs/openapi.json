@@ -12936,6 +12936,118 @@
             "description": "Only used for other_documents_list type event for untracked documents",
             "nullable": true,
             "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
+          },
+          "friendly_name": {
+            "type": "string",
+            "description": "User-friendly display name for the tracked item",
+            "nullable": true,
+            "example": "Authorization to disclose information"
+          },
+          "short_description": {
+            "type": "string",
+            "description": "Brief description of an action, if any, that needs to be taken or has been taken",
+            "nullable": true,
+            "example": "We need your permission to request your personal information from a non-VA source."
+          },
+          "activity_description": {
+            "type": "string",
+            "description": "Description of the activity",
+            "nullable": true,
+            "example": "We’ve requested your reserve records on your behalf. No action is needed."
+          },
+          "support_aliases": {
+            "type": "array",
+            "description": "Alternative names/identifiers for a given tracked item type",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "21-4142"
+            ]
+          },
+          "can_upload_file": {
+            "type": "boolean",
+            "nullable": true,
+            "example": true
+          },
+          "no_action_needed": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "is_dbq": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "is_proper_noun": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "is_sensitive": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "no_provide_prefix": {
+            "type": "boolean",
+            "nullable": true,
+            "example": false
+          },
+          "long_description": {
+            "type": "object",
+            "nullable": true,
+            "example": {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "content": "For your benefits claim, we need your permission to request your personal information from a non-VA source, like a private doctor or hospital."
+                },
+                {
+                  "type": "paragraph",
+                  "content": "Personal information may include:"
+                },
+                {
+                  "type": "list",
+                  "style": "bullet",
+                  "items": [
+                    "Medical treatments",
+                    "Hospitalizations",
+                    "Psychotherapy",
+                    "Outpatient care"
+                  ]
+                }
+              ]
+            }
+          },
+          "next_steps": {
+            "type": "object",
+            "nullable": true,
+            "example": {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "content": "Use VA Form 21-4142 to give us permission to request your personal information."
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    "You can complete and sign this form online, or use a PDF version and upload or mail it.",
+                    {
+                      "type": "lineBreak"
+                    },
+                    {
+                      "type": "link",
+                      "text": "VA Form 21-4142",
+                      "href": "/find-forms/about-form-21-4142/",
+                      "testId": "VA Form 21-4142"
+                    }
+                  ]
+                }
+              ]
+            }
           }
         }
       },
@@ -22768,6 +22880,17 @@
                 "type": "string",
                 "nullable": true,
                 "example": "SMITH, JOHN"
+              },
+              "isOhMessage": {
+                "type": "boolean",
+                "description": "Indicates if this message is an Oracle Health message",
+                "example": false
+              },
+              "ohMigrationPhase": {
+                "type": "string",
+                "nullable": true,
+                "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
+                "example": null
               }
             }
           },
@@ -22980,6 +23103,11 @@
               "unreadMessages": {
                 "type": "boolean",
                 "example": true
+              },
+              "isOhMessage": {
+                "type": "boolean",
+                "description": "Indicates if this message thread is an Oracle Health message",
+                "example": false
               }
             }
           },
@@ -23467,6 +23595,10 @@
                   null
                 ]
               },
+              "replyDisabled": {
+                "type": "boolean",
+                "example": false
+              },
               "triageGroupName": {
                 "type": "string",
                 "nullable": true,
@@ -23480,6 +23612,12 @@
               "isOhMessage": {
                 "type": "boolean",
                 "example": true
+              },
+              "ohMigrationPhase": {
+                "type": "string",
+                "nullable": true,
+                "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
+                "example": null
               }
             }
           },
@@ -23700,6 +23838,10 @@
                         "READ",
                         null
                       ]
+                    },
+                    "replyDisabled": {
+                      "type": "boolean",
+                      "example": false
                     },
                     "triageGroupName": {
                       "type": "string",
@@ -26718,7 +26860,6 @@
         "additionalProperties": false,
         "required": [
           "type",
-          "veteranStatus",
           "attributes"
         ],
         "properties": {
@@ -26731,78 +26872,46 @@
             "description": "'veteran_status_card' or 'veteran_status_alert' depending on the vet eligibility",
             "example": "veteran_status_card"
           },
-          "veteranStatus": {
-            "type": "string",
-            "enum": [
-              "confirmed",
-              "not confirmed"
-            ],
-            "description": "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card",
-            "example": "confirmed"
-          },
-          "serviceSummaryCode": {
-            "type": "string",
-            "description": "The veteran's Service Summary Code determined by VAProfile",
-            "example": "A5"
-          },
-          "notConfirmedReason": {
-            "type": "string",
-            "description": "Displays the reason the veteran is not eligible for a status card",
-            "example": "PERSON_NOT_FOUND"
-          },
           "attributes": {
             "type": "object",
             "additionalProperties": false,
+            "required": [
+              "veteranStatus",
+              "confirmationStatus",
+              "serviceSummaryCode"
+            ],
             "description": "Displays data specific to either 'confirmed' or 'not confirmed' veteran status card",
             "properties": {
               "fullName": {
                 "type": "string",
+                "nullable": true,
                 "description": "The concatenated full name of the veteran, displayed when eligible for a status card",
                 "example": "John T Doe Sr"
               },
               "disabilityRating": {
                 "type": "integer",
+                "nullable": true,
                 "description": "The disability rating for the veteran when eligible for a status card",
                 "example": 50
               },
-              "latestService": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The latest branch of service, begin date, and end date when the veteran is eligible for a status card",
-                "required": [
-                  "branch",
-                  "beginDate",
-                  "endDate"
-                ],
-                "properties": {
-                  "branch": {
-                    "type": "string",
-                    "description": "The veteran's latest branch of service"
-                  },
-                  "beginDate": {
-                    "type": "string",
-                    "description": "The start date of the veteran's latest service"
-                  },
-                  "endDate": {
-                    "type": "string",
-                    "description": "The end date of the veteran's latest service"
-                  }
-                }
-              },
               "edipi": {
                 "type": "string",
+                "nullable": true,
                 "description": "The user's EDIPI number when eligible for a veteran status card",
                 "example": "001001999"
               },
               "header": {
                 "type": "string",
+                "nullable": true,
                 "description": "Displays an error/warning title when the veteran is ineligible for a status card",
                 "example": "You're not eligible for a Veteran Status Card"
               },
               "body": {
                 "type": "array",
+                "nullable": true,
                 "description": "A list of message components to display when the veteran is ineligible for a status card",
                 "items": {
+                  "type": "object",
                   "required": [
                     "type",
                     "value"
@@ -26826,11 +26935,13 @@
                     },
                     "tty": {
                       "type": "boolean",
+                      "nullable": true,
                       "description": "An optional parameter when data type is 'phone' to signify TTY",
                       "example": true
                     },
                     "url": {
                       "type": "string",
+                      "nullable": true,
                       "description": "When data type is 'link', this field contains the hyperlink",
                       "example": "https://www.va.gov"
                     }
@@ -26839,8 +26950,60 @@
               },
               "alertType": {
                 "type": "string",
+                "enum": [
+                  "error",
+                  "warning"
+                ],
+                "nullable": true,
                 "description": "The type of alert - can either be 'error' or 'warning'",
                 "example": "warning"
+              },
+              "veteranStatus": {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "not confirmed"
+                ],
+                "description": "'confirmed' or 'not confirmed' depending on if the veteran is eligible for a status card",
+                "example": "confirmed"
+              },
+              "notConfirmedReason": {
+                "type": "string",
+                "enum": [
+                  "ERROR",
+                  "MORE_RESEARCH_REQUIRED",
+                  "NOT_TITLE_38",
+                  "PERSON_NOT_FOUND"
+                ],
+                "nullable": true,
+                "description": "Displays the reason the veteran is not eligible for a status card",
+                "example": "PERSON_NOT_FOUND"
+              },
+              "confirmationStatus": {
+                "type": "string",
+                "enum": [
+                  "DISCHONORABLE_SSC",
+                  "INELIGIBLE_SSC",
+                  "UNKNOWN_SSC",
+                  "EDIPI_NO_PNL_SSC",
+                  "CURRENTLY_SERVING_SSC",
+                  "ERROR_SSC",
+                  "UNCAUGHT_SSC",
+                  "UNKNOWN_REASON",
+                  "NO_SSC_CHECK",
+                  "AD_DSCH_VAL_SSC",
+                  "AD_VAL_PREV_QUAL_SSC",
+                  "AD_VAL_PREV_RES_GRD_SSC",
+                  "AD_UNCHAR_DSCH_SSC",
+                  "VAL_PREV_QUAL_SSC"
+                ],
+                "description": "Displays the confirmation status of the veteran",
+                "example": "INELIGIBLE_SSC_CODE"
+              },
+              "serviceSummaryCode": {
+                "type": "string",
+                "description": "The veteran's Service Summary Code determined by VAProfile",
+                "example": "A5"
               }
             }
           }

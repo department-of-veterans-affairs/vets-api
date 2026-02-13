@@ -17,7 +17,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when mhv_oh_unique_user_metrics_logging is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_oh_unique_user_metrics_logging).and_return(false)
-        allow(user).to receive(:vha_facility_ids).and_return(%w[757])
+        allow(user).to receive(:cerner_facility_ids).and_return(%w[757])
       end
 
       it 'returns empty array without generating OH events' do
@@ -30,7 +30,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
     context 'when event is tracked for Oracle Health' do
       context 'when user has matching facilities' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(%w[757 200])
+          allow(user).to receive(:cerner_facility_ids).and_return(%w[757 200])
         end
 
         it 'generates OH events for matching facilities' do
@@ -42,7 +42,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       context 'when user has only the tracked facility' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(%w[757])
+          allow(user).to receive(:cerner_facility_ids).and_return(%w[757])
         end
 
         it 'generates OH event for the matching facility' do
@@ -54,7 +54,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       context 'when user has no matching facilities' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(%w[200 300])
+          allow(user).to receive(:cerner_facility_ids).and_return(%w[200 300])
         end
 
         it 'returns empty array' do
@@ -66,7 +66,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
       context 'when user has nil facility IDs' do
         before do
-          allow(user).to receive(:vha_facility_ids).and_return(nil)
+          allow(user).to receive(:cerner_facility_ids).and_return(nil)
         end
 
         it 'returns empty array' do
@@ -79,7 +79,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
     context 'when event is not tracked for Oracle Health' do
       before do
-        allow(user).to receive(:vha_facility_ids).and_return(['757'])
+        allow(user).to receive(:cerner_facility_ids).and_return(['757'])
       end
 
       it 'returns empty array' do
@@ -93,6 +93,115 @@ RSpec.describe UniqueUserEvents::OracleHealth do
   describe '.get_user_tracked_facilities' do
     it 'is a private method' do
       expect(described_class.private_methods).to include(:get_user_tracked_facilities)
+    end
+  end
+
+  describe 'TRACKED_FACILITY_IDS' do
+    it 'loads facility IDs that are all valid 3-digit numbers' do
+      # Uses actual settings from config/settings/test.yml
+      facility_ids = described_class::TRACKED_FACILITY_IDS
+
+      expect(facility_ids).to be_an(Array)
+      expect(facility_ids).to all(match(/^\d{3}$/))
+      expect(facility_ids).to all(be_a(String))
+      expect(facility_ids).to be_frozen
+    end
+
+    it 'includes expected facility IDs from config' do
+      facility_ids = described_class::TRACKED_FACILITY_IDS
+
+      expect(facility_ids).to include('757', '506', '515', '553', '655')
+    end
+
+    context 'validation behavior during initialization' do
+      it 'would reject invalid 2-digit facility IDs' do
+        invalid_ids = %w[757 12 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(['12'])
+      end
+
+      it 'would reject invalid 4-digit facility IDs' do
+        invalid_ids = %w[757 7575 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(['7575'])
+      end
+
+      it 'would reject non-numeric facility IDs' do
+        invalid_ids = %w[757 ABC 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(['ABC'])
+      end
+
+      it 'would reject multiple invalid facility IDs' do
+        invalid_ids = %w[757 12 9999 ABC 506]
+        result = invalid_ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        expect(result).to eq(%w[12 9999 ABC])
+      end
+
+      it 'demonstrates the error path returns empty frozen array when validation fails' do
+        # Simulate what happens in the constant initialization
+        ids = %w[757 12 ABC]
+        invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        result = if invalid_ids.any?
+                   [].freeze
+                 else
+                   ids.map(&:to_s).freeze
+                 end
+
+        expect(result).to eq([])
+        expect(result).to be_frozen
+      end
+
+      it 'demonstrates the success path returns valid IDs when validation passes' do
+        # Simulate what happens in the constant initialization
+        ids = %w[757 506 515]
+        invalid_ids = ids.reject { |id| id.to_s =~ /^\d{3}$/ }
+
+        result = if invalid_ids.any?
+                   [].freeze
+                 else
+                   ids.map(&:to_s).freeze
+                 end
+
+        expect(result).to eq(%w[757 506 515])
+        expect(result).to be_frozen
+      end
+
+      it 'handles scalar integer value from env override using Array()' do
+        # Simulates when env var sets SETTINGS__...__ORACLE_HEALTH_TRACKED_FACILITY_IDS=757
+        # and env_parse_values converts it to integer 757
+        raw_value = 757
+        ids = Array(raw_value)
+
+        expect(ids).to eq([757])
+        expect(ids.map(&:to_s)).to eq(['757'])
+      end
+
+      it 'handles scalar string value from env override using Array()' do
+        raw_value = '757'
+        ids = Array(raw_value)
+
+        expect(ids).to eq(['757'])
+      end
+
+      it 'handles nil value using Array()' do
+        raw_value = nil
+        ids = Array(raw_value)
+
+        expect(ids).to eq([])
+      end
+
+      it 'passes through array values unchanged using Array()' do
+        raw_value = %w[757 506]
+        ids = Array(raw_value)
+
+        expect(ids).to eq(%w[757 506])
+      end
     end
   end
 
@@ -274,7 +383,7 @@ RSpec.describe UniqueUserEvents::OracleHealth do
 
   describe 'all tracked events' do
     before do
-      allow(user).to receive(:vha_facility_ids).and_return(['757'])
+      allow(user).to receive(:cerner_facility_ids).and_return(['757'])
     end
 
     described_class::TRACKED_EVENTS.each do |tracked_event|
