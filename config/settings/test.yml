@@ -259,7 +259,7 @@ claims_api:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
-claims_evidence_api:
+claims_evidence_api: &claims_evidence_api
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
   include_request: false
@@ -356,6 +356,7 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
+digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
 directory:
   apikey: "<fake_api_key>"
   health_server_id: ~
@@ -1318,7 +1319,10 @@ schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
   get_awards_pension: modules/mobile/app/schemas/get_awards_pension.json
+  message_show: modules/mobile/app/schemas/message_show.json
+  messages_index: modules/mobile/app/schemas/messages_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
+  triage_teams: modules/mobile/app/schemas/triage_teams.json
 search:
   access_key: TESTKEY
   affiliate: va

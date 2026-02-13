@@ -51,9 +51,15 @@ module PdfFill
             key: 'submission_type_other'
           },
           'otherExplanation' => {
+            limit: 105,
+            question_num: 1,
+            question_text: 'Other additional info',
             key: 'other_explanation'
           },
           'updateExplanation' => {
+            limit: 110,
+            question_num: 1,
+            question_text: 'Update additional info',
             key: 'update_explanation'
           },
           'institutionType' => {
@@ -186,20 +192,29 @@ module PdfFill
         form_data = JSON.parse(JSON.generate(@form_data))
 
         format_general_info(form_data)
-        format_institutions(form_data)
+        format_primary_institution(form_data)
+        format_additional_institutions(form_data)
         format_acknowledgements(form_data)
         format_faculty(form_data)
         format_medical_data(form_data)
         format_contacts(form_data)
+        format_signed_date(form_data)
         form_data
       end
 
-      def format_institutions(form_data)
+      def format_primary_institution(form_data)
         form_data['primaryInstitution'] = form_data['institutionDetails'].first
-        form_data['primaryInstitution']['physicalAddress'] =
-          combine_full_address(form_data['primaryInstitution']['physicalAddress'])
         form_data['primaryInstitution']['mailingAddress'] =
           combine_full_address(form_data['primaryInstitution']['mailingAddress'])
+
+        if form_data['primaryInstitution']['physicalAddress'].present?
+          form_data['primaryInstitution']['physicalAddress'] =
+            combine_full_address(form_data['primaryInstitution']['physicalAddress'])
+        else
+          form_data['primaryInstitution']['physicalAddress'] =
+            form_data['primaryInstitution']['mailingAddress']
+        end
+
         form_data['primaryInstitution']['country'] =
           if form_data['primaryInstitution']['isForeignCountry']
             form_data['primaryInstitution']['physicalAddress']['country']
@@ -207,11 +222,13 @@ module PdfFill
             ''
           end
         form_data['primaryInstitution']['website'] = form_data['website']
+      end
 
+      def format_additional_institutions(form_data)
         form_data['branches'] = form_data['institutionDetails'][1..].map do |data|
           {
             'name' => data['institutionName'],
-            'address' => combine_full_address(data['physicalAddress'])
+            'address' => combine_full_address(data['mailingAddress'])
           }
         end
       end
@@ -260,9 +277,9 @@ module PdfFill
           'hasRecentGraduatingClasses' => form_data['graduatedLast12Months'] ? 'YES' : 'NO'
         }
         if form_data['graduatedClasses'].present? && form_data['graduatedClasses'].size >= 2
-          form_data['medicalData']['graduation1Date'] = form_data['graduatedClasses'][0]['graduationDate']
+          form_data['medicalData']['graduation1Date'] = format_date(form_data['graduatedClasses'][0]['graduationDate'])
           form_data['medicalData']['graduation1NumStudents'] = form_data['graduatedClasses'][0]['graduatesCount']
-          form_data['medicalData']['graduation2Date'] = form_data['graduatedClasses'][1]['graduationDate']
+          form_data['medicalData']['graduation2Date'] = format_date(form_data['graduatedClasses'][1]['graduationDate'])
           form_data['medicalData']['graduation2NumStudents'] = form_data['graduatedClasses'][1]['graduatesCount']
         end
       end
@@ -276,6 +293,16 @@ module PdfFill
           'authorizingOfficialName' => combine_full_name(form_data['authorizingOfficial']['fullName']),
           'authorizingOfficialSignature' => form_data['authorizingOfficial']['signature']
         }
+      end
+
+      def format_signed_date(form_data)
+        form_data['dateSigned'] = format_date(form_data['dateSigned'])
+      end
+
+      def format_date(date_string)
+        Date.parse(date_string).strftime('%m/%d/%Y')
+      rescue
+        date_string
       end
     end
   end

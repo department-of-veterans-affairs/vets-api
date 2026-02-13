@@ -134,6 +134,12 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
+  bio_heart_mms_submit:
+    actor_type: user
+    description: Toggle the sending of data to MMS for BIO HEART forms
+  bio_heart_mms_logging:
+    actor_type: user
+    description: Enable verbose logging in the BIO HEART MMS data submission workflow
   bio_submission_status_report_enabled:
     actor_type: user
     description: Enables periodic job that generates CSV reports tracking BIO form submission status through Lighthouse Benefits Intake and Central Mail Processing
@@ -1501,6 +1507,12 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
     enable_in_development: true
+  mhv_secure_messaging_stream_via_revproxy:
+    actor_type: user
+    description: >
+      When enabled, uses nginx X-Accel-Redirect to stream S3 attachment downloads via revproxy,
+      reducing memory usage and freeing Rails processes immediately instead of
+      blocking while streaming large files. Requires nginx/openresty configuration.
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -1896,9 +1908,21 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+<<<<<<< HEAD
   schema_contract_get_awards_pension:
     actor_type: user
     description: Enables schema validation for the pensions service get awards pension fetch.
+=======
+  schema_contract_message_show:
+    actor_type: user
+    description: Enables schema validation for the mobile message show service call.
+  schema_contract_messages_index:
+    actor_type: user
+    description: Enables schema validation for the mobile messages index service call.
+  schema_contract_triage_teams:
+    actor_type: user
+    description: Enables schema validation for the mobile triage teams service call.
+>>>>>>> master
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -2920,6 +2944,9 @@ features:
   vets_model_nested_array:
     actor_type: user
     description: If enabled, allows Vets::Model to serialize nested array of objects
+  vre_form_submission_tracking:
+    actor_type: user
+    description: If enabled, track form submissions for VR&E application Form 28-1900
   discover_your_benefits_results_page_update:
     actor_type: cookie_id
     description: "If enabled, displays new results page features and designs"
