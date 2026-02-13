@@ -27,10 +27,11 @@ module TravelClaim
       @station_number = station_number
       @facility_type = facility_type
       @correlation_id = correlation_id || SecureRandom.uuid
-      @settings = Settings.check_in.travel_reimbursement_api_v2
       @current_veis_token = nil
       @current_btsss_token = nil
       @auth_retry_attempted = false
+
+      validate_required_settings!
     end
 
     ##
@@ -154,15 +155,15 @@ module TravelClaim
     #
     def mint_veis_token
       body = URI.encode_www_form({
-                                   client_id: fetch_required_setting(:travel_pay_client_id),
-                                   client_secret: fetch_required_setting(:client_secret),
+                                   client_id: @veis_client_id,
+                                   client_secret: @veis_client_secret,
                                    client_type: '1',
                                    grant_type: 'client_credentials',
-                                   resource: fetch_required_setting(:travel_pay_resource)
+                                   resource: @veis_resource
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      response = veis_connection.post("#{fetch_required_setting(:tenant_id)}/oauth2/token", body, headers)
+      response = veis_connection.post("#{@veis_tenant_id}/oauth2/token", body, headers)
 
       token = response.body['access_token']
       raise_token_error('VEIS', 'access_token') if token.blank?
@@ -178,14 +179,14 @@ module TravelClaim
 
       log_auth_event('Fetching BTSSS token')
       client_secret = if @facility_type.to_s.strip.downcase == 'oh'
-                        fetch_required_setting(:travel_pay_client_secret_oh)
+                        @btsss_client_secret_oh
                       else
-                        fetch_required_setting(:travel_pay_client_secret)
+                        @btsss_client_secret_standard
                       end
       body = { secret: client_secret, icn: @icn }
       headers = {
         'X-Correlation-ID' => @correlation_id,
-        'BTSSS-API-Client-Number' => fetch_required_setting(:client_number),
+        'BTSSS-API-Client-Number' => @btsss_client_number,
         'Authorization' => "Bearer #{@current_veis_token}"
       }.merge(subscription_key_headers)
 
@@ -264,16 +265,12 @@ module TravelClaim
     def subscription_key_headers
       if Settings.vsp_environment == 'production'
         {
-          'Ocp-Apim-Subscription-Key-E' => fetch_required_setting(:e_subscription_key),
-          'Ocp-Apim-Subscription-Key-S' => fetch_required_setting(:s_subscription_key)
+          'Ocp-Apim-Subscription-Key-E' => @subscription_key_e,
+          'Ocp-Apim-Subscription-Key-S' => @subscription_key_s
         }
       else
-        { 'Ocp-Apim-Subscription-Key' => fetch_required_setting(:subscription_key) }
+        { 'Ocp-Apim-Subscription-Key' => @subscription_key }
       end
-    end
-
-    def fetch_required_setting(key)
-      settings.public_send(key).to_s.presence || raise("Missing #{key}")
     end
 
     ##
@@ -283,7 +280,7 @@ module TravelClaim
     # @return [Faraday::Connection] configured connection
     #
     def veis_connection
-      @veis_connection ||= Faraday.new(url: settings.auth_url) do |conn|
+      @veis_connection ||= Faraday.new(url: @veis_auth_url) do |conn|
         conn.response :json
         conn.response :raise_error
         conn.adapter Faraday.default_adapter
@@ -305,6 +302,34 @@ module TravelClaim
                           veis_token_present: @current_veis_token.present?,
                           btsss_token_present: @current_btsss_token.present?
                         })
+    end
+
+    def validate_required_settings!
+      settings = Settings.check_in.travel_reimbursement_api_v2
+
+      # VEIS token settings
+      @veis_client_id = require_setting(settings, :travel_pay_client_id)
+      @veis_client_secret = require_setting(settings, :client_secret)
+      @veis_resource = require_setting(settings, :travel_pay_resource)
+      @veis_tenant_id = require_setting(settings, :tenant_id)
+      @veis_auth_url = require_setting(settings, :auth_url)
+
+      # BTSSS token settings
+      @btsss_client_secret_oh = require_setting(settings, :travel_pay_client_secret_oh)
+      @btsss_client_secret_standard = require_setting(settings, :travel_pay_client_secret)
+      @btsss_client_number = require_setting(settings, :client_number)
+
+      # Environment-specific subscription keys
+      if Settings.vsp_environment == 'production'
+        @subscription_key_e = require_setting(settings, :e_subscription_key)
+        @subscription_key_s = require_setting(settings, :s_subscription_key)
+      else
+        @subscription_key = require_setting(settings, :subscription_key)
+      end
+    end
+
+    def require_setting(settings, key)
+      settings.public_send(key).to_s.presence || raise("Missing required setting: #{key}")
     end
   end
 end

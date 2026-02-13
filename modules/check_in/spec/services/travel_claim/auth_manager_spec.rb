@@ -208,23 +208,50 @@ RSpec.describe TravelClaim::AuthManager do
     end
 
     it 'includes subscription key for non-production' do
-      allow(Settings).to receive(:vsp_environment).and_return('staging')
-      allow(auth_manager.send(:settings)).to receive(:subscription_key).and_return(subscription_key)
-
+      # Settings are loaded at initialization - use actual test.yml values
       headers = auth_manager.auth_headers
 
-      expect(headers['Ocp-Apim-Subscription-Key']).to eq(subscription_key)
+      expect(headers['Ocp-Apim-Subscription-Key']).to eq('fake_subscription_key')
     end
 
-    it 'includes separate E and S keys for production' do
-      allow(Settings).to receive(:vsp_environment).and_return('production')
-      allow(auth_manager.send(:settings)).to receive_messages(e_subscription_key:,
-                                                              s_subscription_key:)
+    context 'when in production environment' do
+      let(:production_settings) do
+        double(
+          travel_pay_client_id: 'fake_travel_pay_client_id',
+          client_secret: 'fake_client_secret',
+          travel_pay_resource: 'fake_travel_pay_resource',
+          tenant_id: 'fake_tenant_id',
+          auth_url: 'https://login.microsoftonline.us',
+          travel_pay_client_secret_oh: 'fake_travel_pay_client_secret_oh',
+          travel_pay_client_secret: 'fake_travel_pay_client_secret',
+          client_number: 'fake_client_number',
+          e_subscription_key:,
+          s_subscription_key:
+        )
+      end
 
-      headers = auth_manager.auth_headers
+      before do
+        allow(Settings).to receive(:vsp_environment).and_return('production')
+        allow(Settings.check_in).to receive(:travel_reimbursement_api_v2).and_return(production_settings)
+      end
 
-      expect(headers['Ocp-Apim-Subscription-Key-E']).to eq(e_subscription_key)
-      expect(headers['Ocp-Apim-Subscription-Key-S']).to eq(s_subscription_key)
+      it 'includes separate E and S keys for production' do
+        production_manager = described_class.new(
+          icn:,
+          station_number:,
+          facility_type:,
+          correlation_id:
+        )
+        stub_connections(production_manager)
+        # Set tokens so auth_headers doesn't raise
+        production_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+        production_manager.instance_variable_set(:@current_btsss_token, 'btsss-token')
+
+        headers = production_manager.auth_headers
+
+        expect(headers['Ocp-Apim-Subscription-Key-E']).to eq(e_subscription_key)
+        expect(headers['Ocp-Apim-Subscription-Key-S']).to eq(s_subscription_key)
+      end
     end
 
     it 'raises error when tokens are not present' do
@@ -332,6 +359,10 @@ RSpec.describe TravelClaim::AuthManager do
   end
 
   describe 'BTSSS client secret selection' do
+    # Test values from config/settings/test.yml
+    let(:oh_secret) { 'fake_travel_pay_client_secret_oh' }
+    let(:standard_secret) { 'fake_travel_pay_client_secret' }
+
     context 'when facility_type is "oh"' do
       let(:facility_type) { 'oh' }
 
@@ -341,15 +372,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          # Body is now a Hash (middleware handles JSON encoding)
-          expect(body[:secret]).to eq('oh-secret')
+          expect(body[:secret]).to eq(oh_secret)
           btsss_response
         end
 
@@ -366,15 +391,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          # Body is now a Hash (middleware handles JSON encoding)
-          expect(body[:secret]).to eq('standard-secret')
+          expect(body[:secret]).to eq(standard_secret)
           btsss_response
         end
 
@@ -391,14 +410,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          expect(body[:secret]).to eq('standard-secret')
+          expect(body[:secret]).to eq(standard_secret)
           btsss_response
         end
 
@@ -415,14 +429,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          expect(body[:secret]).to eq('oh-secret')
+          expect(body[:secret]).to eq(oh_secret)
           btsss_response
         end
 
@@ -439,14 +448,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          expect(body[:secret]).to eq('standard-secret')
+          expect(body[:secret]).to eq(standard_secret)
           btsss_response
         end
 
@@ -463,14 +467,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          expect(body[:secret]).to eq('oh-secret')
+          expect(body[:secret]).to eq(oh_secret)
           btsss_response
         end
 
@@ -487,14 +486,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          expect(body[:secret]).to eq('standard-secret')
+          expect(body[:secret]).to eq(standard_secret)
           btsss_response
         end
 
@@ -511,14 +505,9 @@ RSpec.describe TravelClaim::AuthManager do
         btsss_conn = instance_double(Faraday::Connection)
         config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
         allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-        allow(auth_manager.send(:settings)).to receive_messages(
-          travel_pay_client_secret_oh: 'oh-secret',
-          travel_pay_client_secret: 'standard-secret',
-          client_number: '123'
-        )
 
         expect(btsss_conn).to receive(:post) do |_path, body, _headers|
-          expect(body[:secret]).to eq('oh-secret')
+          expect(body[:secret]).to eq(oh_secret)
           btsss_response
         end
 
@@ -546,7 +535,6 @@ RSpec.describe TravelClaim::AuthManager do
       btsss_conn = instance_double(Faraday::Connection)
       config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
       allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
-      allow(auth_manager.send(:settings)).to receive(:client_number).and_return('123')
       allow(btsss_conn).to receive(:post).and_return(
         instance_double(Faraday::Response, body: { 'data' => {} })
       )
