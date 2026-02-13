@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../support/vass_settings_helper'
 
 RSpec.describe Vass::JwtAuthentication, type: :controller do
   controller(ActionController::Base) do
@@ -30,9 +31,7 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
   let(:redis_client) { instance_double(Vass::RedisClient) }
 
   before do
-    allow(Settings).to receive(:vass).and_return(
-      OpenStruct.new(jwt_secret: secret)
-    )
+    stub_vass_settings(jwt_secret: secret)
     allow(Vass::RedisClient).to receive(:build).and_return(redis_client)
     allow(redis_client).to receive(:session_valid_for_jti?).and_return(true)
     routes.draw { get 'index' => 'anonymous#index' }
@@ -156,6 +155,11 @@ RSpec.describe Vass::JwtAuthentication, type: :controller do
         expect(Rails.logger).to receive(:warn)
           .with(a_string_including('"service":"vass"', '"component":"jwt_authentication"',
                                    '"action":"auth_failure"', '"reason":"expired_token"'))
+        expect(Rails.logger).to receive(:warn)
+          .with(a_string_including('"service":"vass"', '"action":"session_timeout"',
+                                   '"failure_type":"jwt_expired"'))
+        expect(StatsD).to receive(:increment)
+          .with('api.vass.infrastructure.session.jwt.expired', tags: ['service:vass'])
         get :index
       end
     end

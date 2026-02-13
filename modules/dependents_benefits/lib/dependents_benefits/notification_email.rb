@@ -88,7 +88,8 @@ module DependentsBenefits
     rescue => e
       # we cannot overwrite the monitor used in the base class so create a new one here
       monitor = DependentsBenefits::Monitor.new
-      monitor.track_error_event("Error sending #{status} notification email", 'notification_failure',
+      monitor.track_error_event("Error sending #{status} notification email",
+                                action: 'notification_failure', component: self.class.name,
                                 error: e, claim_id: claim.id)
       raise e
     end

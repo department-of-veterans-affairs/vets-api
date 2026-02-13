@@ -126,11 +126,57 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
     context 'when all retries are exhausted' do
       let(:form526_job_status) { create(:form526_job_status, :poll_form526_pdf, form526_submission:, job_id: 1) }
 
-      it 'transitions to the pdf_not_found status' do
+      it 'transitions to the pdf_not_found status and queues a backup submission' do
         job_params = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
 
+        expect(Sidekiq::Form526BackupSubmissionProcess::Submit).to receive(:perform_async)
+          .with(form526_submission.id)
+          .and_return('backup_job_id_123')
+
+        expect(StatsD).to receive(:increment)
+          .with('worker.lighthouse.poll_form526_pdf.backup_queued')
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Poll for Form 526 PDF: Retries exhausted - queueing backup submission',
+          hash_including(form526_submission_id: form526_submission.id)
+        )
+
+        expect(Rails.logger).to receive(:warn).with(
+          'PollForm526Pdf exhausted - backup submission queued',
+          {
+            submission_id: form526_submission.id,
+            backup_job_id: 'backup_job_id_123',
+            reason: 'pdf_polling_exhausted'
+          }
+        )
+
         subject.within_sidekiq_retries_exhausted_block(job_params) do
-          # block is required to use this functionality.
+          true
+        end
+        form526_job_status.reload
+        expect(form526_job_status.status).to eq 'pdf_not_found'
+      end
+
+      it 'skips backup submission if backup_submitted_claim_id already exists' do
+        form526_submission.update!(backup_submitted_claim_id: '999')
+        job_params = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+
+        expect(Sidekiq::Form526BackupSubmissionProcess::Submit).not_to receive(:perform_async)
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Poll for Form 526 PDF: Retries exhausted - queueing backup submission',
+          hash_including(form526_submission_id: form526_submission.id)
+        )
+
+        expect(Rails.logger).to receive(:warn).with(
+          'PollForm526Pdf exhausted - backup submission already exists, skipping',
+          {
+            submission_id: form526_submission.id,
+            backup_submitted_claim_id: '999'
+          }
+        )
+
+        subject.within_sidekiq_retries_exhausted_block(job_params) do
           true
         end
         form526_job_status.reload
