@@ -154,15 +154,15 @@ module TravelClaim
     #
     def mint_veis_token
       body = URI.encode_www_form({
-                                   client_id: settings.travel_pay_client_id,
-                                   client_secret: settings.client_secret,
+                                   client_id: fetch_required_setting(:travel_pay_client_id),
+                                   client_secret: fetch_required_setting(:client_secret),
                                    client_type: '1',
                                    grant_type: 'client_credentials',
-                                   resource: settings.travel_pay_resource
+                                   resource: fetch_required_setting(:travel_pay_resource)
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      response = veis_connection.post("#{settings.tenant_id}/oauth2/token", body, headers)
+      response = veis_connection.post("#{fetch_required_setting(:tenant_id)}/oauth2/token", body, headers)
 
       token = response.body['access_token']
       raise_token_error('VEIS', 'access_token') if token.blank?
@@ -178,14 +178,14 @@ module TravelClaim
 
       log_auth_event('Fetching BTSSS token')
       client_secret = if @facility_type.to_s.strip.downcase == 'oh'
-                        settings.travel_pay_client_secret_oh
+                        fetch_required_setting(:travel_pay_client_secret_oh)
                       else
-                        settings.travel_pay_client_secret
+                        fetch_required_setting(:travel_pay_client_secret)
                       end
       body = { secret: client_secret, icn: @icn }
       headers = {
         'X-Correlation-ID' => @correlation_id,
-        'BTSSS-API-Client-Number' => settings.client_number.to_s,
+        'BTSSS-API-Client-Number' => fetch_required_setting(:client_number),
         'Authorization' => "Bearer #{@current_veis_token}"
       }.merge(subscription_key_headers)
 
