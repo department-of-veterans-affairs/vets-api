@@ -69,5 +69,4 @@ FactoryBot.define do
     guid { SecureRandom.uuid }
     form { { veteranFullName: { first: 'Bob', last: 'Johnson' } }.to_json }
   end
-
 end
