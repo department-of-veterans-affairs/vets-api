@@ -49,18 +49,19 @@ module UnifiedHealthData
           series_count: series_data.size,
           image_count: count_images(series_data),
           series: parse_series(series_data),
-          dicom_zip_url: extract_study_presigned_url(resource)
+          dicom_zip_url: extract_presigned_url(resource)
         )
       end
 
       private
 
-      # Extracts the presigned DICOM zip URL from study-level extension
+      # Extracts a presigned URL from the extensions of any FHIR element
+      # (study-level for DICOM zip, instance-level for thumbnails).
       #
-      # @param resource [Hash] FHIR ImagingStudy resource
+      # @param element [Hash] A FHIR element (resource or instance) with an extensions array
       # @return [String, nil] the presigned URL or nil
-      def extract_study_presigned_url(resource)
-        extensions = resource['extension'] || []
+      def extract_presigned_url(element)
+        extensions = element['extension'] || []
         url_extension = extensions.find do |ext|
           ext['url'] == 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url'
         end
@@ -146,7 +147,7 @@ module UnifiedHealthData
             title: instance['title'],
             sop_class: instance.dig('sopClass', 'code'),
             image_id: extract_image_id(instance),
-            thumbnail_url: extract_thumbnail_url(instance)
+            thumbnail_url: extract_presigned_url(instance)
           }
         end
       end
@@ -163,17 +164,7 @@ module UnifiedHealthData
         image_extension&.dig('valueString')
       end
 
-      # Extracts the presigned thumbnail URL from instance extension
-      #
-      # @param instance [Hash] Instance data
-      # @return [String, nil] the presigned URL or nil
-      def extract_thumbnail_url(instance)
-        extensions = instance['extension'] || []
-        url_extension = extensions.find do |ext|
-          ext['url'] == 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url'
-        end
-        url_extension&.dig('valueUrl')
-      end
+
     end
   end
 end
