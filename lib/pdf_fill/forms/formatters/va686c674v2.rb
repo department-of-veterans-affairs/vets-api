@@ -16,9 +16,8 @@ module PdfFill
           ##
           # Expands cases where dependents have no SSN
           #
-          # When a student has no SSN, replaces the SSN field with "See ad d'l"
+          # When a spouse or child has no SSN, replaces the SSN field with "See ad d'l"
           # placeholder text and adds the no-SSN reason to the remarks section.
-          # Assumes only one student per form instance.
           #
           # @param form_data [Hash] The complete form data hash
           # @return [void] Modifies form_data in place
@@ -83,9 +82,11 @@ module PdfFill
           end
 
           ##
-          # Calculates the question number for child SSN based on index
-          # First 4 children: 16, 17, 18, 19
-          # Additional children: 1, 2, 3, etc.
+          # Calculates the question number for child SSN based on index so that it matches the pdf
+          # First 4 children question numbers: 16, 17, 18, 19
+          # Additional children question numbers: 1, 2, 3, etc.
+          # This is because the pdf has specific question numbers for the first 4 children,
+          # and then restarts numbering for additional children
           # @param index [Integer] The index of the child
           # @return [Integer] The question number for the child SSN
           def calculate_child_question_number(index)
