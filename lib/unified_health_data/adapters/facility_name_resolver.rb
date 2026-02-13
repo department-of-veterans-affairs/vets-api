@@ -89,8 +89,8 @@ module UnifiedHealthData
 
         # Additional validation: Check HealthFacility table
         # This catches valid stations that might be outside the range but still legitimate
-        HealthFacility.exists?(unique_id: station_number) ||
-          HealthFacility.exists?(unique_id: numeric_prefix.to_s)
+        HealthFacility.exists?(station_number:) ||
+          HealthFacility.exists?(station_number: numeric_prefix.to_s)
       rescue => e
         Rails.logger.error("Error validating station number #{station_number}: #{e.message}")
         false

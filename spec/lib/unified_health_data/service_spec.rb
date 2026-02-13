@@ -1304,14 +1304,14 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'with valid prescription responses', :vcr do
       before do
-        # Stub Settings.mhv.facility_range to match the expected hash format
-        # Station 668 is within the range 358-758
-        facility_range_config = { 'min' => 358, 'max' => 758 }
+        # Stub Settings.mhv.facility_range with proper array format
+        # [[min, max], ...] - Station 668 is within the range 358-758
+        facility_range_config = [[358, 758]]
         allow(Settings.mhv).to receive(:facility_range).and_return(facility_range_config)
 
         # Stub HealthFacility to validate station number 668 as legitimate
         allow(HealthFacility).to receive(:exists?).and_return(false)
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '668').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '668').and_return(true)
 
         # Stub the cache to return the expected facility name for station 668
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:668').and_return('Ambulatory Pharmacy')

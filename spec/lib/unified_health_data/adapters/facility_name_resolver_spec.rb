@@ -23,7 +23,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '556').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '556').and_return(true)
       end
 
       it 'extracts and returns the 3-digit station number' do
@@ -120,8 +120,8 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
 
       before do
         # 3-digit fails validation, but extended identifier succeeds
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '648').and_return(false)
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '648A4').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '648').and_return(false)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '648A4').and_return(true)
       end
 
       it 'falls back to extended identifier when 3-digit fails' do
@@ -222,8 +222,8 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '005').and_return(true)
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '5').and_return(false)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '005').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '5').and_return(false)
         allow(Rails.logger).to receive(:warn)
         allow(StatsD).to receive(:increment)
       end
@@ -264,7 +264,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '730').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '730').and_return(true)
       end
 
       it 'validates correctly when station is in second range [720-740]' do
@@ -281,7 +281,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '750').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '750').and_return(true)
       end
 
       it 'validates correctly when station is in third range [742-758]' do
@@ -353,7 +353,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '556').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '556').and_return(true)
         allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return('VA Test Medical Center')
         allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(true)
       end
@@ -395,7 +395,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
 
       before do
-        allow(HealthFacility).to receive(:exists?).with(unique_id: '556').and_return(true)
+        allow(HealthFacility).to receive(:exists?).with(station_number: '556').and_return(true)
         allow(Rails.cache).to receive_messages(
           read: nil,
           exist?: false

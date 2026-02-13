@@ -21,8 +21,8 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     # Stub HealthFacility to validate station numbers used in tests
     valid_stations = %w[668 556 570 989 757 123 124 125]
 
-    allow(HealthFacility).to receive(:exists?) do |station|
-      valid_stations.include?(station[:unique_id])
+    allow(HealthFacility).to receive(:exists?) do |args|
+      valid_stations.include?(args[:station_number])
     end
   end
 

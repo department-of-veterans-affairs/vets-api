@@ -31,7 +31,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     # These are the stations that appear in VCR cassettes
     valid_stations = %w[556 570 668 989 757 123 124 125 500 600]
     allow(HealthFacility).to receive(:exists?) do |args|
-      valid_stations.include?(args[:unique_id])
+      valid_stations.include?(args[:station_number])
     end
   end
 
