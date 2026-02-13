@@ -163,8 +163,6 @@ module UnifiedHealthData
         end
         image_extension&.dig('valueString')
       end
-
-
     end
   end
 end
