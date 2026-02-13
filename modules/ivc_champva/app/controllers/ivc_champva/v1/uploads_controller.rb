@@ -169,37 +169,77 @@ module IvcChampva
         ves_request
       end
 
-      # Submits data to VES while ignoring any errors that occur
+      # Submits data to VES while ignoring any errors that occur.
+      # If the primary request has subforms, they are submitted sequentially after the primary succeeds.
       #
       # @param [IvcChampva::VesRequest, nil] ves_request the formatted request data
       # @param [Hash] metadata the metadata for the form
-      def submit_ves_request(ves_request, metadata) # rubocop:disable Metrics/MethodLength
-        unless ves_request.nil?
-          ves_client = IvcChampva::VesApi::Client.new
-          on_failure = lambda { |e, attempt|
-            Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
-          }
+      def submit_ves_request(ves_request, metadata)
+        return if ves_request.nil?
 
-          response = nil
+        ves_client = IvcChampva::VesApi::Client.new
 
-          begin
-            # omitting retry_on to always retry for now
-            IvcChampva::Retry.do(1, on_failure:) do
-              ves_request.transaction_uuid = SecureRandom.uuid
-              response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
-            end
+        # Submit the primary form
+        parent_response = submit_ves_form(ves_client, ves_request, 'vha_10_10d', metadata)
 
-            begin
-              update_ves_records(metadata['uuid'], ves_request.application_uuid, response, ves_request.to_json)
-            rescue => e
-              Rails.logger.error "Ignoring error updating VES records: #{e.message}"
-            end
-          rescue => e
-            # Log but don't propagate the error so the form submission can still succeed
-            Rails.logger.error "Error in VES submission: #{e.message}"
+        # Only submit subforms if parent succeeded
+        return parent_response if parent_response.nil? || parent_response.status != 200 || !ves_request.subforms?
+
+        ves_request.subforms.each do |subform|
+          submit_ves_form(ves_client, subform[:request], subform[:form_type], metadata)
+        rescue => e
+          Rails.logger.error "Error submitting VES subform (#{subform[:form_type]}): #{e.message}"
+        end
+
+        parent_response
+      end
+
+      ##
+      # Submits a VES form request with retry logic.
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client the VES API client
+      # @param [Object] request the VES request object (VesRequest or VesOhiRequest)
+      # @param [String] form_type the form type identifier (e.g., 'vha_10_10d', 'vha_10_7959c')
+      # @param [Hash] metadata the metadata for the form
+      # @return [Faraday::Response, nil] the VES API response or nil on failure
+      def submit_ves_form(ves_client, request, form_type, metadata)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
+        }
+
+        response = nil
+
+        begin
+          IvcChampva::Retry.do(1, on_failure:) do
+            request.transaction_uuid = SecureRandom.uuid
+            response = send_to_ves_by_form_type(ves_client, request, form_type)
           end
 
-          response
+          update_ves_records(metadata['uuid'], request.application_uuid, response, request.to_json)
+        rescue => e
+          Rails.logger.error "Error in VES submission for #{form_type}: #{e.message}"
+        end
+
+        response
+      end
+
+      ##
+      # Routes the VES submission to the appropriate client method based on form type.
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client the VES API client
+      # @param [Object] request the VES request object
+      # @param [String] form_type the form type identifier
+      # @return [Faraday::Response] the VES API response
+      def send_to_ves_by_form_type(ves_client, request, form_type)
+        case form_type
+        when 'vha_10_10d'
+          ves_client.submit_1010d(request.transaction_uuid, 'fake-user', request)
+        when 'vha_10_7959c'
+          if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user)
+            ves_client.submit_7959c(request.transaction_uuid, 'fake-user', request)
+          end
+        else
+          raise ArgumentError, "Unknown VES form type: #{form_type}"
         end
       end
 

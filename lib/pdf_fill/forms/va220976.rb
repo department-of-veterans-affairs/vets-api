@@ -192,7 +192,8 @@ module PdfFill
         form_data = JSON.parse(JSON.generate(@form_data))
 
         format_general_info(form_data)
-        format_institutions(form_data)
+        format_primary_institution(form_data)
+        format_additional_institutions(form_data)
         format_acknowledgements(form_data)
         format_faculty(form_data)
         format_medical_data(form_data)
@@ -201,12 +202,19 @@ module PdfFill
         form_data
       end
 
-      def format_institutions(form_data)
+      def format_primary_institution(form_data)
         form_data['primaryInstitution'] = form_data['institutionDetails'].first
-        form_data['primaryInstitution']['physicalAddress'] =
-          combine_full_address(form_data['primaryInstitution']['physicalAddress'])
         form_data['primaryInstitution']['mailingAddress'] =
           combine_full_address(form_data['primaryInstitution']['mailingAddress'])
+
+        if form_data['primaryInstitution']['physicalAddress'].present?
+          form_data['primaryInstitution']['physicalAddress'] =
+            combine_full_address(form_data['primaryInstitution']['physicalAddress'])
+        else
+          form_data['primaryInstitution']['physicalAddress'] =
+            form_data['primaryInstitution']['mailingAddress']
+        end
+
         form_data['primaryInstitution']['country'] =
           if form_data['primaryInstitution']['isForeignCountry']
             form_data['primaryInstitution']['physicalAddress']['country']
@@ -214,7 +222,9 @@ module PdfFill
             ''
           end
         form_data['primaryInstitution']['website'] = form_data['website']
+      end
 
+      def format_additional_institutions(form_data)
         form_data['branches'] = form_data['institutionDetails'][1..].map do |data|
           {
             'name' => data['institutionName'],
