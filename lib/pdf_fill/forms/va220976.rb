@@ -266,7 +266,9 @@ module PdfFill
 
       def format_medical_data(form_data)
         unless form_data['isMedicalSchool']
-          form_data['medicalData'] = {}
+          form_data['medicalData'] = {
+            'isInWDOMS' => 'NO'
+          }
           return
         end
 
