@@ -120,7 +120,7 @@ module RepresentationManagement
         next if registration_number.blank?
 
         record = AccreditedIndividual.find_by(
-          registration_number: registration_number,
+          registration_number:,
           individual_type: type
         )
         next unless record
@@ -169,7 +169,7 @@ module RepresentationManagement
         poa_code = xlsx_record[:poa_code]
         next if poa_code.blank?
 
-        record = AccreditedOrganization.find_by(poa_code: poa_code)
+        record = AccreditedOrganization.find_by(poa_code:)
         next unless record
 
         diff = build_organization_diff(record, xlsx_record)

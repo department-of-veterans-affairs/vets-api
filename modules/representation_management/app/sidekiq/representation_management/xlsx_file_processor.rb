@@ -144,7 +144,7 @@ module RepresentationManagement
         individual_type: type,
         email: get_value(row, column_map, email_column_name(sheet_name)),
         phone_number: get_value(row, column_map, 'WorkNumber'),
-        address: address,
+        address:,
         raw_address: build_raw_address(address)
       }
     end
@@ -155,7 +155,7 @@ module RepresentationManagement
         poa_code: row[column_map['POA']]&.to_s&.strip,
         name: get_value(row, column_map, 'OrganizationName'),
         phone: get_value(row, column_map, 'OrganizationPhoneNumber'),
-        address: address,
+        address:,
         raw_address: build_raw_address(address)
       }
     end
@@ -169,8 +169,8 @@ module RepresentationManagement
         address_line3: get_value(row, column_map, 'WorkAddress3'),
         city: get_value(row, column_map, 'WorkCity'),
         state: { state_code: get_value(row, column_map, INDIVIDUAL_STATE_COLUMN) },
-        zip_code5: zip_code5,
-        zip_code4: zip_code4,
+        zip_code5:,
+        zip_code4:,
         country_code_iso3: 'US'
       }
     end
@@ -184,8 +184,8 @@ module RepresentationManagement
         address_line3: get_value(row, column_map, 'OrganizationAddressLine3'),
         city: get_value(row, column_map, 'OrganizationCity'),
         state: { state_code: get_value(row, column_map, ORG_STATE_COLUMN) },
-        zip_code5: zip_code5,
-        zip_code4: zip_code4,
+        zip_code5:,
+        zip_code4:,
         country_code_iso3: 'US'
       }
     end

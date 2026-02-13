@@ -95,11 +95,9 @@ module RepresentationManagement
 
       record.update(updates) if updates.any?
 
-      if data['address_changed']
-        unless record.validate_address
-          log_error("Address validation failed for record #{data['id']}", send_to_slack: false)
-          @records_needing_geocoding << record.id
-        end
+      if data['address_changed'] && !record.validate_address
+        log_error("Address validation failed for record #{data['id']}", send_to_slack: false)
+        @records_needing_geocoding << record.id
       end
     rescue => e
       log_error("Error processing record #{data['id']}: #{e.message}", send_to_slack: true)

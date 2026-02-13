@@ -121,9 +121,7 @@ module RepresentationManagement
       return nil if types.blank?
 
       invalid = types - VALID_TYPES
-      if invalid.any?
-        Rails.logger.warn("VSOReloader: Invalid types ignored: #{invalid.join(', ')}")
-      end
+      Rails.logger.warn("VSOReloader: Invalid types ignored: #{invalid.join(', ')}") if invalid.any?
 
       valid = types & VALID_TYPES
       valid.empty? ? nil : valid
