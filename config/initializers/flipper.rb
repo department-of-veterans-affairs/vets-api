@@ -48,6 +48,13 @@ Rails.application.reloader.to_prepare do
   end
 
   Rails.application.config.after_initialize do
+    # Skip feature initialization if using rake task setup (FLIPPER_USE_RAKE_SETUP=true)
+    # When enabled, features are initialized via `rake features:setup` instead of during app boot
+    if ActiveModel::Type::Boolean.new.cast(ENV.fetch('FLIPPER_USE_RAKE_SETUP', nil))
+      Rails.logger.info 'Skipping Flipper feature initialization (FLIPPER_USE_RAKE_SETUP=true)'
+      next
+    end
+
     # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
     added_flippers = []
     begin

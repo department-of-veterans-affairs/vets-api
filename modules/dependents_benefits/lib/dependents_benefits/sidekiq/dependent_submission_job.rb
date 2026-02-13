@@ -17,6 +17,7 @@ module DependentsBenefits::Sidekiq
   # - Early exits if any sibling has already failed the claim group
   class DependentSubmissionJob
     include ::Sidekiq::Job
+    include DependentsBenefits::DependentsHelper
 
     # dead: false ensures critical dependent claims never go to dead queue
     # https://github.com/sidekiq/sidekiq/wiki/Advanced-Options#jobs
@@ -29,17 +30,17 @@ module DependentsBenefits::Sidekiq
 
       # Use the class of the inheriting job that exhausted, not the base class
       job_class_name = msg['class']
-      monitor.track_submission_info("Retries exhausted for #{job_class_name} claim_id #{claim_id}", 'exhaustion',
-                                    claim_id:)
 
-      # If we don't have a job class name, the error is irrecoverable
       if job_class_name.blank?
+        # If we don't have a job class name, the error is irrecoverable
         monitor.log_silent_failure({ claim_id:, error: exception })
-        return
-      end
+      else
+        monitor.track_info_event("Retries exhausted for #{job_class_name} claim_id #{claim_id}",
+                                 action: 'exhaustion', component: job_class_name, claim_id:)
 
-      job_class = job_class_name.constantize
-      job_class.new.send(:handle_permanent_failure, claim_id, exception)
+        job_class = job_class_name.constantize
+        job_class.new.send(:handle_permanent_failure, claim_id, exception)
+      end
     end
 
     # Main job execution method for submitting dependent claims
@@ -56,8 +57,8 @@ module DependentsBenefits::Sidekiq
       @claim_id = claim_id
       @proc_id = proc_id
 
-      monitor.track_submission_info("Starting #{self.class} for claim_id #{claim_id}", 'start', claim_id:,
-                                                                                                parent_claim_id:)
+      monitor.track_info_event("Starting #{self.class} for claim_id #{claim_id}",
+                               action: 'start', component:, claim_id:, parent_claim_id:)
 
       # Early exit optimization - prevents unnecessary service calls
       return if parent_group_failed?
@@ -155,19 +156,19 @@ module DependentsBenefits::Sidekiq
       submission_attempt = create_form_submission_attempt(submission)
       claim.add_veteran_info(user_data)
       if claim.form_id == DependentsBenefits::ADD_REMOVE_DEPENDENT
-        raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
+        raise DependentsBenefits::Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
         submit_686c_form(claim)
       elsif claim.form_id == DependentsBenefits::SCHOOL_ATTENDANCE_APPROVAL
-        raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
+        raise DependentsBenefits::Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
         submit_674_form(claim)
       end
       mark_submission_attempt_succeeded(submission_attempt)
       DependentsBenefits::ServiceResponse.new(status: true)
     rescue => e
-      monitor.track_submission_error("Submission attempt failure in #{self.class}", 'claim.error',
-                                     error: e, parent_claim_id:, saved_claim_id: claim.id)
+      monitor.track_error_event("Submission attempt failure in #{self.class}",
+                                action: 'claim.error', component:, error: e, parent_claim_id:, saved_claim_id: claim.id)
       mark_submission_attempt_failed(submission_attempt, e)
       DependentsBenefits::ServiceResponse.new(status: false, error: e.message)
     end
@@ -175,12 +176,12 @@ module DependentsBenefits::Sidekiq
     # Handles successful job completion with coordinated status updates
     # @return [void]
     def handle_job_success
-      monitor.track_submission_info("Successfully submitted #{self.class} for parent_claim_id #{parent_claim_id}",
-                                    'success', parent_claim_id:)
+      monitor.track_info_event("Successfully submitted #{self.class} for parent_claim_id #{parent_claim_id}",
+                               action: 'success', component:, parent_claim_id:)
       claim_processor.handle_successful_submission
     rescue => e
-      monitor.track_submission_error('Error handling job success', 'success_failure', error: e, claim_id:,
-                                                                                      parent_claim_id:)
+      monitor.track_error_event('Error handling job success',
+                                action: 'success_failure', component:, error: e, claim_id:, parent_claim_id:)
     end
 
     # Handles job failure by determining if error is permanent or transient
@@ -195,7 +196,8 @@ module DependentsBenefits::Sidekiq
     # @raise [::Sidekiq::JobRetry::Skip] for permanent failures to skip retries
     # @raise [DependentSubmissionError] for transient failures to trigger retries
     def handle_job_failure(error)
-      monitor.track_submission_error("Error submitting #{self.class}", 'error', error:, claim_id:, parent_claim_id:)
+      monitor.track_error_event("Error submitting #{self.class}",
+                                action: 'error', component:, error:, claim_id:, parent_claim_id:)
 
       if permanent_failure?(error)
         # Skip Sidekiq retries for permanent failures
@@ -220,8 +222,8 @@ module DependentsBenefits::Sidekiq
     def handle_permanent_failure(claim_id, exception)
       # Reset claim_id class variable for if this was called from sidekiq_retries_exhausted
       @claim_id = claim_id
-      monitor.track_submission_error("Error submitting #{self.class}", 'error.permanent', error: exception, claim_id:,
-                                                                                          parent_claim_id:)
+      monitor.track_error_event("Error submitting #{self.class}",
+                                action: 'error.permanent', component:, error: exception, claim_id:, parent_claim_id:)
       claim_processor.handle_permanent_failure(exception)
     rescue => e
       begin

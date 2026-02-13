@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://api.vass.va.gov/api/AppointmentAvailability
+    uri: <VASS_API_URL>/api/AppointmentAvailability
     body:
       encoding: UTF-8
       string: '{"correlationId":"test-correlation-id","veteranId":"vet-uuid-123","dtStartUtc":"2026-01-05T00:00:00Z","dtEndUtc":"2026-01-20T23:59:59Z"}'

@@ -12,6 +12,7 @@ module SAML
     UUID_MISSING_CODE = '104'
     MULTPLE_CORP_IDS_CODE = '106'
     MHV_UNVERIFIED_BLOCKED_CODE = '108'
+    SSN_MISMATCH_CODE = '113'
 
     ERRORS = {
       multiple_mhv_ids: { code: MULTIPLE_MHV_IDS_CODE,
@@ -31,16 +32,19 @@ module SAML
                            message: 'User attributes contain multiple distinct CORP ID values' }.freeze,
       mhv_unverified_blocked: { code: MHV_UNVERIFIED_BLOCKED_CODE,
                                 tag: :mhv_unverified_blocked,
-                                message: 'MHV account is unverified for context requiring verified account' }.freeze
+                                message: 'MHV account is unverified for context requiring verified account' }.freeze,
+      ssn_mismatch: { code: SSN_MISMATCH_CODE,
+                      tag: :ssn_mismatch,
+                      message: "Attribute mismatch: ssn in primary view doesn't match correlation record" }.freeze
     }.freeze
 
     attr_reader :identifier
 
-    def initialize(message:, code:, tag:, identifier: nil)
+    def initialize(message:, code:, tag:, context: {}, identifier: nil)
       @code = code
       @tag = tag
       @level = :warning
-      @context = {}
+      @context = context
       @identifier = identifier
       super(message)
     end

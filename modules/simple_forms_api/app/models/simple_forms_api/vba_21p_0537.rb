@@ -39,7 +39,7 @@ module SimpleFormsApi
 
     def desired_stamps
       stamp_items = [
-        { coords: [50, 245], text: data.dig('recipient', 'signature'), page: 1 }
+        { coords: [50, 245], text: data.dig('recipient', 'signature'), page: 2 }
       ]
 
       # If email address is longer than what fits in the form, just stamp

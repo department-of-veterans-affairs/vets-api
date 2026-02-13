@@ -22,6 +22,12 @@ module FacilitiesApi
             body['source'] = 'Lighthouse Facilities'
 
             body
+          rescue JSON::ParserError
+            {
+              'detail' => 'Unexpected response from Lighthouse Facilities',
+              'code' => env.status,
+              'source' => 'Lighthouse Facilities'
+            }
           end
         end
       end

@@ -16,6 +16,7 @@ module V0
 
     before_action :authorize_service
     before_action :validate_type_param, only: %i[submit]
+    before_action { authorize :lighthouse, :access_vet_status? }
 
     wrap_with_logging(
       :index,

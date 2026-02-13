@@ -23,7 +23,8 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     if @user.present? && FeatureFlipper.send_email?
       education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
 
-      authorized = @user.authorize(:evss, :access?)
+      policy = Flipper.enabled?(:form_10203_claimant_service) ? :dgi : :lighthouse
+      authorized = @user.authorize(policy, :access?)
 
       if authorized
         EducationForm::SendSchoolCertifyingOfficialsEmail.perform_async(id, less_than_six_months?,

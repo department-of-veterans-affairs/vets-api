@@ -200,6 +200,11 @@ module VAProfile
       end
 
       class PermissionTransactionResponse < TransactionResponse; end
+
+      # PersonOptionsTransactionResponse handles transactions from the VAProfile Person Settings API.
+      # While not Contact Information, it's included in this module to leverage the existing transaction
+      # infrastructure and maintain consistency with other VAProfile transaction types
+      class PersonOptionsTransactionResponse < TransactionResponse; end
     end
   end
 end

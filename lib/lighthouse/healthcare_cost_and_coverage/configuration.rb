@@ -78,15 +78,15 @@ module Lighthouse
         s = settings
         host ||= base_path
         url = "#{host}/#{TOKEN_PATH}"
-
         client_id ||= s.access_token.client_id
         rsa_key ||= s.access_token.rsa_key
         aud_claim_url ||= s.access_token.aud_claim_url
+        kid = s.access_token.kid
         scopes ||= Array(s.scopes)
 
         # no memoization; let Redis cache the token
         Auth::ClientCredentials::Service.new(
-          url, scopes, client_id, aud_claim_url, rsa_key, 'hccc'
+          url, scopes, client_id, aud_claim_url, rsa_key, 'hccc', kid
         )
       end
     end

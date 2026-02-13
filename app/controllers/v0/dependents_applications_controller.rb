@@ -16,8 +16,7 @@ module V0
     end
 
     def create
-      form = dependent_params.to_json
-      claim = SavedClaim::DependencyClaim.new(form:)
+      claim = create_claim(dependent_params.to_json)
 
       monitor.track_create_attempt(claim, current_user)
 
@@ -69,6 +68,18 @@ module V0
       )
     end
 
+    # Creates a new claim instance with the provided form parameters.
+    #
+    # @param form_params [String] The JSON string for the claim form.
+    # @return [Claim] A new instance of the claim class initialized with the given attributes.
+    #   If the current user has an associated user account, it is included in the claim attributes.
+    def create_claim(form_params)
+      claim_attributes = { form: form_params }
+      claim_attributes[:user_account] = @current_user.user_account if @current_user&.user_account
+
+      SavedClaim::DependencyClaim.new(**claim_attributes)
+    end
+
     ##
     # Include validation error on in_progress_form metadata.
     # `noop` if in_progress_form is `blank?`
@@ -94,7 +105,7 @@ module V0
     end
 
     def create_dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(current_user)
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
 
     def dependency_verification_service

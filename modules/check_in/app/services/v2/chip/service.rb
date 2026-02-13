@@ -93,6 +93,7 @@ module V2
       # @return [Hash] success message if successful
       # @return [Hash] unauthorized message if token is not present
       def pre_check_in
+        log_pre_check_in_confirmation if token.present? && Flipper.enabled?(:check_in_experience_detailed_logging)
         resp = if token.present?
                  chip_client.pre_check_in(token:, demographic_confirmations:)
                else
@@ -150,6 +151,7 @@ module V2
       # @return [Hash] unauthorized message if token is not present
       # @return [Hash] invalid request message if demographic_confirmations is not present
       def confirm_demographics
+        log_demographic_confirmation if token.present? && Flipper.enabled?(:check_in_experience_detailed_logging)
         resp = if check_in_body.nil?
                  Faraday::Response.new(response_body: check_in.invalid_request.to_json, status: 400)
                elsif token.present?
@@ -296,6 +298,31 @@ module V2
         jwt_token = Oj.load(resp.body)&.fetch('token')
         redis_client.save(token: jwt_token)
         jwt_token
+      end
+
+      def log_pre_check_in_confirmation
+        confirmations = demographic_confirmations[:demographicConfirmations] || {}
+
+        Rails.logger.info({
+                            message: 'Pre-check-in confirmation sent to CHIP',
+                            check_in_uuid: check_in.uuid,
+                            confirmation_flags_count: confirmations.size,
+                            demographics_needs_update: confirmations[:demographicsNeedsUpdate],
+                            next_of_kin_needs_update: confirmations[:nextOfKinNeedsUpdate],
+                            emergency_contact_needs_update: confirmations[:emergencyContactNeedsUpdate]
+                          })
+      end
+
+      def log_demographic_confirmation
+        return if check_in_body.blank?
+
+        Rails.logger.info({
+                            message: 'Demographics confirmation',
+                            check_in_uuid: check_in.uuid,
+                            demographics_up_to_date: check_in_body[:demographics_up_to_date],
+                            next_of_kin_up_to_date: check_in_body[:next_of_kin_up_to_date],
+                            emergency_contact_up_to_date: check_in_body[:emergency_contact_up_to_date]
+                          })
       end
     end
   end

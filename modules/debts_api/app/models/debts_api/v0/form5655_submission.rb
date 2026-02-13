@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'user_profile_attribute_service'
+require 'sidekiq/attr_package'
 
 module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
@@ -112,12 +113,17 @@ module DebtsApi
     def send_failed_form_email
       StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
       submission_email = ipf_form['personal_data']['email_address'].downcase
+      cache_key = Sidekiq::AttrPackage.create(
+        expires_in: 30.days,
+        email: submission_email,
+        personalisation: failure_email_personalization_info
+      )
       jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
         24.hours,
-        submission_email,
+        nil,
         SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
-        failure_email_personalization_info,
-        { id_type: 'email', failure_mailer: true }
+        nil,
+        { id_type: 'email', failure_mailer: true, cache_key: }
       )
 
       Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")

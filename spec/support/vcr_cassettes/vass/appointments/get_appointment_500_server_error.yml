@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.vass.va.gov/api/GetVeteranAppointment
+    uri: <VASS_API_URL>/api/GetVeteranAppointment
     body:
       encoding: US-ASCII
       string: ''

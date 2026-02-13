@@ -68,6 +68,7 @@ module CheckIn
       # @return [Hash] payload with appointment, demographics and demographics status data
       def approved
         appt_hash = Oj.load(http_body).merge(uuid: check_in.uuid).with_indifferent_access
+        log_response_structure(appt_hash) if Flipper.enabled?(:check_in_experience_detailed_logging)
         appt_struct = OpenStruct.new(appt_hash)
         appt_serializer = AppointmentDataSerializer.new(appt_struct)
 
@@ -96,6 +97,45 @@ module CheckIn
 
       def error_status?
         [401, 404, 403, 500, 501, 502, 503, 504].include?(http_status)
+      end
+
+      private
+
+      def log_response_structure(data)
+        # Log presence of key fields to identify missing insurance data
+        payload = data[:payload] || {}
+        demographics = payload[:demographics] || {}
+        demographics_status = payload[:patientDemographicsStatus] || {}
+
+        Rails.logger.info(build_response_log_data(payload, demographics, demographics_status))
+        track_demographics_flags(demographics_status)
+      end
+
+      def build_response_log_data(payload, demographics, demographics_status)
+        {
+          message: 'Check-in response structure',
+          check_in_uuid: check_in.uuid,
+          has_appointments: payload[:appointments].present?,
+          has_demographics: demographics.present?,
+          has_demographics_status: demographics_status.present?,
+          demographics_keys: demographics.keys.sort,
+          demographics_status_keys: demographics_status.keys.sort,
+          appointment_fields_sample: payload[:appointments]&.first&.keys&.sort || []
+        }
+      end
+
+      def track_demographics_flags(demographics_status)
+        return if demographics_status.blank?
+
+        %w[demographicsNeedsUpdate nextOfKinNeedsUpdate emergencyContactNeedsUpdate].each do |flag|
+          value = demographics_status[flag]
+          next if value.nil?
+
+          StatsD.increment(
+            CheckIn::Constants::STATSD_CHECKIN_DEMOGRAPHICS_STATUS,
+            tags: ['service:check_in', "flag:#{flag.underscore}", "needs_update:#{value}"]
+          )
+        end
       end
     end
   end

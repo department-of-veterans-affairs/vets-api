@@ -11,7 +11,6 @@ module BGS
       @proc_id = proc_id
       @views = payload['view:selectable686_options']
       @dependents_application = payload['dependents_application']
-      @is_v2 = false
     end
 
     def create_all
@@ -59,22 +58,13 @@ module BGS
         step_child = BGSDependents::StepChild.new(stepchild_info)
         formatted_info = step_child.format_info
         participant = bgs_service.create_participant(@proc_id)
-        guardian_participant = bgs_service.create_participant(@proc_id)
-
-        step_child_guardian_person(guardian_participant, stepchild_info)
         bgs_service.create_person(person_params(step_child, participant, formatted_info))
-        send_address(step_child, participant, stepchild_info['address'])
-
-        @step_children << step_child.serialize_dependent_result(
-          participant,
-          'Guardian',
-          'Other',
-          {
-            living_expenses_paid: formatted_info['living_expenses_paid'],
-            guardian_particpant_id: guardian_participant[:vnp_ptcpnt_id],
-            type: 'stepchild'
-          }
-        )
+        if stepchild_info['who_does_the_stepchild_live_with'].present?
+          guardian_participant = bgs_service.create_participant(@proc_id)
+          step_child_guardian_person(guardian_participant, stepchild_info)
+          send_address(step_child, participant, stepchild_info['address'])
+          add_to_step_children(step_child, participant, formatted_info, guardian_participant)
+        end
       end
     end
 
@@ -119,22 +109,27 @@ module BGS
       bgs_service.create_address(address_params)
     end
 
+    def add_to_step_children(step_child, participant, formatted_info, guardian_participant)
+      @step_children << step_child.serialize_dependent_result(
+        participant,
+        'Guardian',
+        'Other',
+        {
+          living_expenses_paid: formatted_info['living_expenses_paid'],
+          guardian_particpant_id: guardian_participant[:vnp_ptcpnt_id],
+          type: 'stepchild'
+        }
+      )
+    end
+
     def report_child_event(event_type)
       if event_type == 'child_marriage'
-        if @is_v2
-          @dependents_application['child_marriage'].each do |child_marriage_details|
-            generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
-          end
-        else
-          generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']), event_type)
+        @dependents_application['child_marriage'].each do |child_marriage_details|
+          generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
         end
       elsif event_type == 'not_attending_school'
-        if @is_v2
-          @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
-            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type) # rubocop:disable Layout/LineLength
-          end
-        else
-          generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']), event_type) # rubocop:disable Layout/LineLength
+        @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
+          generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type) # rubocop:disable Layout/LineLength
         end
       end
     end
@@ -142,17 +137,17 @@ module BGS
     # rubocop:disable Metrics/MethodLength
     def step_child_parent(child_info)
       parent = bgs_service.create_participant(@proc_id)
-      child_status = @is_v2 ? child_info : child_info['child_status']
-      stepchild_parent = @is_v2 ? child_info['biological_parent_name'] : child_status['stepchild_parent']
-      household_date = @is_v2 ? child_info['date_entered_household'] : child_status['date_became_dependent']
+      child_status = child_info
+      stepchild_parent = child_info['biological_parent_name']
+      household_date = child_info['date_entered_household']
       bgs_service.create_person(
         {
           vnp_proc_id: @proc_id,
           vnp_ptcpnt_id: parent[:vnp_ptcpnt_id],
           first_nm: stepchild_parent['first'],
           last_nm: stepchild_parent['last'],
-          brthdy_dt: format_date(child_status['birth_date']),
-          ssn_nbr: child_status['ssn']
+          brthdy_dt: format_date(child_status['biological_parent_dob']),
+          ssn_nbr: child_status['biological_parent_ssn']
         }
       )
 
@@ -163,7 +158,8 @@ module BGS
           family_relationship_type_name: 'Spouse',
           event_date: household_date,
           begin_date: household_date,
-          type: 'stepchild_parent'
+          type: 'stepchild_parent',
+          ssn_nbr: child_status['biological_parent_ssn']
         }
     end
     # rubocop:enable Metrics/MethodLength

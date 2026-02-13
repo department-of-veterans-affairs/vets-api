@@ -15,11 +15,11 @@ RSpec.describe SignIn::AcrTranslator do
     context 'when type is idme' do
       let(:type) { SignIn::Constants::Auth::IDME }
       let(:ial2_feature_flag_enabled) { false }
-      let(:vsp_environment) { 'staging' }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:identity_ial2_enforcement).and_return(ial2_feature_flag_enabled)
-        allow(Settings).to receive(:vsp_environment).and_return(vsp_environment)
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with('identity_idme_ial2_enforcement')
+                                            .and_return(ial2_feature_flag_enabled)
       end
 
       context 'and acr is loa1' do
@@ -40,12 +40,11 @@ RSpec.describe SignIn::AcrTranslator do
         end
       end
 
-      context 'and acr is ial2' do
-        let(:acr) { 'ial2' }
+      context 'and acr is IAL2_REQUIRED' do
+        let(:acr) { SignIn::Constants::Auth::IAL2_REQUIRED }
 
         context 'when ial2 is enabled' do
           let(:ial2_feature_flag_enabled) { true }
-          let(:vsp_environment) { 'staging' }
           let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::IDME_IAL2 } }
 
           it 'returns expected translated acr value' do
@@ -55,17 +54,6 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'when ial2 is disabled' do
           let(:ial2_feature_flag_enabled) { false }
-          let(:expected_error) { SignIn::Errors::InvalidAcrError }
-          let(:expected_error_message) { 'Invalid ACR for idme' }
-
-          it 'raises invalid acr error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
-        end
-
-        context 'when ial2 is called in production' do
-          let(:ial2_feature_flag_enabled) { true }
-          let(:vsp_environment) { 'production' }
           let(:expected_error) { SignIn::Errors::InvalidAcrError }
           let(:expected_error_message) { 'Invalid ACR for idme' }
 
@@ -111,6 +99,13 @@ RSpec.describe SignIn::AcrTranslator do
 
     context 'when type is logingov' do
       let(:type) { SignIn::Constants::Auth::LOGINGOV }
+      let(:ial2_feature_flag_enabled) { false }
+
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with('identity_logingov_ial2_enforcement')
+                                            .and_return(ial2_feature_flag_enabled)
+      end
 
       context 'and acr is ial1' do
         let(:acr) { 'ial1' }
@@ -130,6 +125,52 @@ RSpec.describe SignIn::AcrTranslator do
         end
       end
 
+      context 'and acr is IAL2_REQUIRED' do
+        let(:acr) { SignIn::Constants::Auth::IAL2_REQUIRED }
+
+        context 'when ial2 is enabled' do
+          let(:ial2_feature_flag_enabled) { true }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2_REQUIRED } }
+
+          it 'returns expected translated acr value' do
+            expect(subject).to eq(expected_translated_acr)
+          end
+        end
+
+        context 'when ial2 is disabled' do
+          let(:ial2_feature_flag_enabled) { false }
+          let(:expected_error) { SignIn::Errors::InvalidAcrError }
+          let(:expected_error_message) { 'Invalid ACR for logingov' }
+
+          it 'raises invalid acr error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
+      context 'and acr is IAL2_PREFERRED' do
+        let(:acr) { SignIn::Constants::Auth::IAL2_PREFERRED }
+
+        context 'when ial2 is enabled' do
+          let(:ial2_feature_flag_enabled) { true }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2_PREFERRED } }
+
+          it 'returns expected translated acr value' do
+            expect(subject).to eq(expected_translated_acr)
+          end
+        end
+
+        context 'when ial2 is disabled' do
+          let(:ial2_feature_flag_enabled) { false }
+          let(:expected_error) { SignIn::Errors::InvalidAcrError }
+          let(:expected_error_message) { 'Invalid ACR for logingov' }
+
+          it 'raises invalid acr error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+      end
+
       context 'and acr is min' do
         let(:acr) { 'min' }
 
@@ -144,6 +185,8 @@ RSpec.describe SignIn::AcrTranslator do
 
         context 'and uplevel is true' do
           let(:uplevel) { true }
+
+          let(:ial2_feature_flag_enabled) { false }
           let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
 
           it 'returns expected translated acr value' do

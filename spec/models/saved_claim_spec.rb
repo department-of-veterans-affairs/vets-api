@@ -82,7 +82,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
         it 'adds validation errors to the form' do
           expect(Rails.logger).to receive(:error)
-            .with('SavedClaim form did not pass validation',
+            .with('SavedClaim form (safely filtered) did not pass validation',
                   { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: filtered_schema_errors })
           saved_claim.validate
           expect(saved_claim.errors.full_messages).not_to be_empty

@@ -20,9 +20,17 @@ module SimpleFormsApi
     def generate(current_loa = nil, timestamp: Time.current)
       generated_form_path, stamped_template_path = prepare_to_generate_pdf
 
-      if File.exist? stamped_template_path
-        stamp_pdf(stamped_template_path, current_loa, timestamp)
-        fill_and_generate_pdf(generated_form_path, stamped_template_path)
+      if File.exist?(stamped_template_path)
+        generated_form_path = fill_and_generate_pdf(generated_form_path, stamped_template_path)
+
+        final_path = if form.respond_to?(:overflow_pdf)
+                       merge_overflow_if_needed(generated_form_path)
+                     else
+                       generated_form_path
+                     end
+
+        # Stamp once, at the end, on the final output for consistent stamping
+        stamp_final_pdf(final_path, current_loa, timestamp)
       else
         raise "stamped template file does not exist: #{stamped_template_path}"
       end
@@ -55,9 +63,10 @@ module SimpleFormsApi
       end
     end
 
-    def stamp_pdf(stamped_template_path, current_loa, timestamp)
-      stamper = PdfStamper.new(stamped_template_path:, form:, current_loa:, timestamp:)
+    def stamp_final_pdf(final_pdf_path, current_loa, timestamp)
+      stamper = PdfStamper.new(stamped_template_path: final_pdf_path, form:, current_loa:, timestamp:)
       stamper.stamp_pdf
+      final_pdf_path
     end
 
     def fill_and_generate_pdf(generated_form_path, stamped_template_path)
@@ -65,6 +74,33 @@ module SimpleFormsApi
       pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
       Common::FileHelpers.delete_file_if_exists(stamped_template_path)
       generated_form_path
+    end
+
+    # Merges overflow pages if the form provides them; on failure, returns the original filled PDF
+    def merge_overflow_if_needed(filled_pdf_path)
+      overflow_pdf = form.overflow_pdf
+      return filled_pdf_path if overflow_pdf.blank?
+
+      merge_with_overflow(filled_pdf_path, overflow_pdf)
+    rescue => e
+      Rails.logger.error(
+        'Failed to merge overflow PDF',
+        error_class: e.class.name,
+        error_message: e.message
+      )
+      FileUtils.rm_f(overflow_pdf) if overflow_pdf && File.exist?(overflow_pdf)
+      filled_pdf_path
+    end
+
+    def merge_with_overflow(filled_pdf_path, overflow_pdf)
+      merged_path = filled_pdf_path.sub(/\.pdf\z/, "_with_overflow_#{SecureRandom.hex}.pdf")
+
+      PdfFill::Filler.merge_pdfs(filled_pdf_path, overflow_pdf, merged_path)
+
+      FileUtils.rm_f(overflow_pdf)
+      FileUtils.rm_f(filled_pdf_path)
+
+      merged_path
     end
 
     def mapped_data

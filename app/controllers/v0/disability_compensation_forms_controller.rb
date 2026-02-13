@@ -12,6 +12,7 @@ module V0
   class DisabilityCompensationFormsController < ApplicationController
     service_tag 'disability-application'
     before_action(except: :rating_info) { authorize :evss, :access? }
+    before_action(only: :rated_disabilities) { authorize :lighthouse, :access_vet_status? }
     before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]
 

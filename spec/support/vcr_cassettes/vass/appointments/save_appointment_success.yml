@@ -1,25 +1,43 @@
 ---
 http_interactions:
-- request:
-    method: post
-    uri: https://api.vass.va.gov/api/SaveAppointment
-    body:
-      encoding: UTF-8
-      string: '{"correlationId":"test-correlation-id","veteranId":"vet-123","timeStartUTC":"2025-11-27T10:00:00Z","timeEndUTC":"2025-11-27T10:30:00Z","selectedAgentSkills":["skill-1","skill-2"]}'
-    headers:
-      Content-Type:
-      - application/json
-      Authorization:
-      - Bearer test-token
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/json; charset=utf-8
-    body:
-      encoding: UTF-8
-      string: '{"success":true,"message":"Appointment created successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z","data":{"appointmentId":"appt-abc123"}}'
-  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+  - request:
+      method: post
+      uri: <VASS_API_URL>/api/SaveAppointment
+      body:
+        encoding: UTF-8
+        string: '{"correlationId":"test-correlation-id","veteranId":"vet-uuid-123","timeStartUTC":"2026-01-10T10:00:00Z","timeEndUTC":"2026-01-10T10:30:00Z","appointmentId":"cohort-current-123","selectedAgentSkills":["67e0bd9f-5e53-f011-bec2-001dd806389e","78f1ce0a-6f64-g122-cfd3-112ee917462f"]}'
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-token
+        Edipi:
+          - "1234567890"
+        Correlationid:
+          - test-correlation-id
+        Ocp-Apim-Subscription-Key:
+          - test-subscription-key
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json; charset=utf-8
+      body:
+        encoding: UTF-8
+        string: |
+          {
+            "success": true,
+            "message": "Appointment saved successfully",
+            "correlationId": "test-correlation-id",
+            "timeStamp": "2026-01-09T12:00:00Z",
+            "data": {
+              "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea",
+              "veteranId": "vet-uuid-123",
+              "timeStartUTC": "2026-01-10T10:00:00Z",
+              "timeEndUTC": "2026-01-10T10:30:00Z"
+            }
+          }
+    recorded_at: Thu, 09 Jan 2026 12:00:00 GMT
 recorded_with: VCR 6.0.0

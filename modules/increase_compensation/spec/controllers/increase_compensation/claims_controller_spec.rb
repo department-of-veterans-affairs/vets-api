@@ -6,8 +6,10 @@ require 'increase_compensation/monitor'
 require 'support/controller_spec_helper'
 
 RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
+  include PdfS3Operations
   let(:monitor) { double('IncreaseCompensation::Monitor') }
   let(:user) { create(:user) }
+  let(:mock_url) { 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }
 
   before do
     sign_in_as(user)
@@ -43,13 +45,14 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
       expect(response).to have_http_status(:internal_server_error)
     end
 
-    it('returns a serialized claim', skip: 'TODO after schema built') do
+    it 'returns a serialized claim', :vcr, skip: 'ToDo: keep getting 500 errors' do
       allow(IncreaseCompensation::SavedClaim).to receive(:new).and_return(claim)
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
       expect(claim).to receive(:process_attachments!).once
       expect(IncreaseCompensation::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
+      receive(:upload_to_s3).with(claim, config: IncreaseCompensation::ZsfConfig.new).and_return(pdf_url: 'pdf_url')
 
       post '/increase_compensation/v0/claims', params: { param_name => { form: claim.form } }
 
@@ -80,31 +83,19 @@ RSpec.describe IncreaseCompensation::V0::ClaimsController, type: :request do
     it 'returns a serialized claim' do
       claim = build(:increase_compensation_claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find_by!).and_return(claim)
+      mock_attempt = double('FormSubmissionEvent', created_at: Time.zone.now)
+      allow_any_instance_of(PdfS3Operations)
+        .to receive(:last_form_submission_attempt).and_return(mock_attempt)
+      allow_any_instance_of(PdfS3Operations)
+        .to receive(:s3_signed_url).and_return(mock_url)
 
       get '/increase_compensation/v0/claims/:id', params: { id: 'increase_compensation_claim' }
+      attributes = JSON.parse(response.body)['data']['attributes']
 
+      expect(attributes['guid']).to eq(claim.guid)
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
+      expect(attributes['pdf_url']).to eq(mock_url)
       expect(response).to have_http_status(:ok)
-    end
-  end
-
-  describe '#process_attachments' do
-    let(:claim) { create(:increase_compensation_claim) }
-    let(:in_progress_form) { build(:in_progress_form) }
-    let(:bad_attachment) { PersistentAttachment.create!(saved_claim_id: claim.id) }
-    let(:error) { StandardError.new('Something went wrong') }
-
-    it 'returns a success', skip: 'TODO after schema built' do
-      expect(claim).to receive(:process_attachments!)
-      subject.send(:process_attachments, in_progress_form, claim)
-    end
-
-    it 'returns a failure', skip: 'TODO after schema built' do
-      allow(claim).to receive(:process_attachments!).and_raise(error)
-
-      expect do
-        subject.send(:process_attachments!, in_progress_form, claim)
-      end.to raise_error(StandardError, 'Something went wrong')
     end
   end
 

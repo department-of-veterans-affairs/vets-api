@@ -257,7 +257,15 @@
                   "uploadDate": {
                     "format": "date",
                     "type": "string",
-                    "description": "Date and time document was uploaded",
+                    "description": "Date document was uploaded",
+                    "example": "2023-04-14",
+                    "nullable": true
+                  },
+                  "uploadDateTime": {
+                    "format": "date",
+                    "type": "string",
+                    "description": "Date and time document was uploaded in UTC format",
+                    "example": "2023-04-14T13:54:52Z",
                     "nullable": true
                   }
                 }

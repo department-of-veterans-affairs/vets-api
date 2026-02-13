@@ -5,9 +5,10 @@ require 'bgs/monitor'
 
 module BGS
   class VnpVeteran
-    def initialize(proc_id:, payload:, user:, claim_type:)
+    def initialize(proc_id:, payload:, user:, claim_type:, claim_type_end_product: nil)
       @user = user
       @proc_id = proc_id
+      @claim_type_end_product = claim_type_end_product
       @payload = payload.with_indifferent_access
       @veteran_info = veteran.formatted_params(@payload)
       @claim_type = claim_type
@@ -16,8 +17,9 @@ module BGS
 
     def create
       participant = bgs_service.create_participant(@proc_id, @user.participant_id)
-      claim_type_end_product = bgs_service.find_benefit_claim_type_increment(@claim_type)
-
+      if @claim_type_end_product.blank?
+        @claim_type_end_product = bgs_service.find_benefit_claim_type_increment(@claim_type)
+      end
       address = create_address(participant)
       regional_office_number = get_regional_office(address[:zip_prefix_nbr], address[:cntry_nm], '')
       location_id = get_location_id(regional_office_number)
@@ -28,7 +30,7 @@ module BGS
         address,
         {
           va_file_number: @va_file_number,
-          claim_type_end_product:,
+          claim_type_end_product: @claim_type_end_product,
           regional_office_number:,
           location_id:,
           net_worth_over_limit_ind: veteran.formatted_boolean(@payload['dependents_application']['household_income'])
@@ -104,9 +106,7 @@ module BGS
       # retrieve the list of all regional offices
       # match the regional number to find the corresponding location id
       regional_offices = bgs_service.find_regional_offices
-
-      # return default value 347 if regional office is not found
-      return '347' if regional_offices.blank?
+      return '347' if regional_offices.blank? # return default value 347 if regional office is not found
 
       regional_office = regional_offices.find { |ro| ro[:station_number] == regional_office_number }
       return '347' if regional_office.nil? # return default value 347 if regional office is not found

@@ -7,7 +7,7 @@ require 'bgs_service/local_bgs'
 require 'bgs/power_of_attorney_verifier'
 require 'bgs_service/org_web_service'
 
-RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
@@ -175,7 +175,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
   def mock_poa_verifier_call(method:, return_value:, method_args: anything)
     dbl = instance_double(BGS::PowerOfAttorneyVerifier)
-    # Intercepting `new` here since we don't have a cascade of VCR casettes recorded for all the HTTP
+    # Intercepting `new` here since we don't have a cascade of VCR cassettes recorded for all the HTTP
     # calls invoked when initializing & using BGS::PowerOfAttorneyVerifier
     allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(dbl)
     allow(dbl).to receive(method).with(method_args).and_return(return_value)

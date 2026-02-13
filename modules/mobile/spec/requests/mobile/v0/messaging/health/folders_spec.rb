@@ -31,6 +31,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
@@ -84,7 +85,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
             expect(folder.dig('attributes', 'name')).to eq('Drafts')
             expect(folder['type']).to eq('folders')
             expect(response).to match_camelized_response_schema('folders')
-          end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
+          end.to trigger_statsd_increment('mhv.sm.api.client.cache.hit', times: 1)
         end
       end
 
@@ -201,7 +202,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
             expect(message.dig('attributes', 'category')).to eq('MEDICATIONS')
             expect(message['type']).to eq('messages')
             expect(response).to match_camelized_response_schema('messages')
-          end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
+          end.to trigger_statsd_increment('mhv.sm.api.client.cache.hit', times: 1)
         end
       end
 
@@ -212,6 +213,32 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
 
         expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(6)
         expect(response.parsed_body.dig('meta', 'messageCounts', 'unread')).to eq(4)
+      end
+
+      describe 'schema contract validation' do
+        let(:user_account) { create(:user_account) }
+
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        context 'when :schema_contract_messages_index is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:schema_contract_messages_index).and_return(true)
+          end
+
+          it 'validates schema for get_folder_messages' do
+            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+              get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
+            end
+            expect(response).to be_successful
+            SchemaContract::ValidationJob.drain
+            validation = SchemaContract::Validation.find_by(contract_name: 'messages_index')
+            expect(validation).to be_present
+            expect(validation.status).to eq('success')
+          end
+        end
       end
     end
   end

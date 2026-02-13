@@ -10,6 +10,8 @@ module V0
       service_tag 'form-submission-pdf'
 
       def create
+        verify_submission_ownership!
+
         url = Forms::SubmissionStatuses::PdfUrls.new(
           form_id: request_params[:form_id],
           submission_guid: request_params[:submission_guid]
@@ -35,6 +37,17 @@ module V0
       def check_flipper_flag
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:my_va_form_submission_pdf_link,
                                                                     current_user)
+      end
+
+      def verify_submission_ownership!
+        submission = FormSubmissionAttempt.find_by(benefits_intake_uuid: request_params[:submission_guid])
+                                          &.form_submission
+        user_account = current_user.user_account
+
+        # Explicitly check both exist and match - prevents nil == nil from passing
+        unless submission && user_account && submission.user_account_id == user_account.id
+          raise Common::Exceptions::Forbidden, detail: 'You do not have access to this submission'
+        end
       end
     end
   end

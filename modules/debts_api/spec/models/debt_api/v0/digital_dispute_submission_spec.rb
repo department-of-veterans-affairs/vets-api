@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'debt_management_center/sidekiq/va_notify_email_job'
-require 'debts_api/v0/digital_dispute_submission_service'
 
 RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   let(:form_submission) { create(:debts_api_digital_dispute_submission) }
@@ -12,6 +11,85 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
 
     it { is_expected.to validate_presence_of(:user_uuid) }
     it { is_expected.to validate_uniqueness_of(:guid).ignoring_case_sensitivity }
+  end
+
+  describe 'file validations' do
+    subject(:submission) { create(:debts_api_digital_dispute_submission) }
+
+    context 'when no files attached' do
+      before { submission.files.purge }
+
+      it { is_expected.not_to be_valid }
+
+      it 'has appropriate error' do
+        submission.valid?
+        expect(submission.errors[:files]).to include(/Invalid file/)
+      end
+    end
+
+    context 'when file is too large' do
+      before do
+        submission.files.purge
+        large_content = "%PDF-#{'x' * ((2 * 1024 * 1024) - 5)}" # 2MB with PDF header
+        submission.files.attach(
+          io: StringIO.new(large_content),
+          filename: 'large.pdf',
+          content_type: 'application/pdf'
+        )
+      end
+
+      it { is_expected.not_to be_valid }
+
+      it 'has size error' do
+        expect(Rails.logger).to receive(:error).with(/file size must be less than 1 MB/)
+        submission.valid?
+        expect(submission.errors[:files]).to include(/Invalid file/)
+      end
+    end
+
+    context 'when file is not a PDF' do
+      before do
+        submission.files.purge
+        submission.files.attach(
+          io: StringIO.new('plain text content'),
+          filename: 'document.txt',
+          content_type: 'text/plain'
+        )
+      end
+
+      it { is_expected.not_to be_valid }
+
+      it 'has content type error' do
+        expect(Rails.logger).to receive(:error).with(/has an invalid content type/)
+        submission.valid?
+        expect(submission.errors[:files]).to include(/Invalid file/)
+      end
+    end
+
+    context 'when file is valid' do
+      it { is_expected.to be_valid }
+    end
+
+    context 'when content-type is spoofed' do
+      before do
+        submission.files.purge
+        submission.files.attach(
+          io: StringIO.new("MZ\x90\x00"),
+          filename: 'virus.exe',
+          content_type: 'application/pdf'
+        )
+      end
+
+      it 'rejects the file' do
+        expect(submission).not_to be_valid
+      end
+
+      it 'has PDF-related error' do
+        expect(Rails.logger).to receive(:error).with(/has an invalid content type/)
+        submission.valid?
+        expect(submission.errors[:files]).to include(/Invalid file/)
+      end
+    end
   end
 
   describe 'associations' do
@@ -247,83 +325,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     it 'stores composite debt IDs' do
       form_submission.store_debt_identifiers(disputes)
       expect(form_submission.debt_identifiers).to eq(%w[ABC123 DEF456])
-    end
-  end
-
-  describe 'Flipper flag interactions' do
-    let(:user) { create(:user, :loa3, email: 'test@example.com') }
-    let(:form_submission) { create(:debts_api_digital_dispute_submission, user_uuid: user.uuid) }
-
-    describe 'email notifications behavior' do
-      context 'when digital_dispute_email_notifications is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true)
-        end
-
-        it 'allows email sending when user has email' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:email_notifications_enabled?)).to be(true)
-        end
-
-        it 'prevents email sending when user has no email' do
-          user_without_email = create(:user, :loa3, email: nil)
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user_without_email, [])
-          expect(service.send(:email_notifications_enabled?)).to be(false)
-        end
-      end
-
-      context 'when digital_dispute_email_notifications is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
-        end
-
-        it 'prevents email sending even when user has email' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:email_notifications_enabled?)).to be(false)
-        end
-      end
-    end
-
-    describe 'duplicate prevention behavior' do
-      let(:existing_submission) do
-        create(:debts_api_digital_dispute_submission,
-               user_uuid: user.uuid,
-               user_account: user.user_account,
-               debt_identifiers: ['ABC123'],
-               state: :submitted)
-      end
-
-      let(:new_submission) do
-        create(:debts_api_digital_dispute_submission,
-               user_uuid: user.uuid,
-               user_account: user.user_account,
-               debt_identifiers: ['ABC123'],
-               state: :pending)
-      end
-
-      before { existing_submission }
-
-      context 'when digital_dispute_duplicate_prevention is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(true)
-        end
-
-        it 'detects duplicate submissions' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:duplicate_submission_exists?, new_submission)).to be(true)
-        end
-      end
-
-      context 'when digital_dispute_duplicate_prevention is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_duplicate_prevention).and_return(false)
-        end
-
-        it 'does not check for duplicates' do
-          service = DebtsApi::V0::DigitalDisputeSubmissionService.new(user, [])
-          expect(service.send(:duplicate_submission_exists?, new_submission)).to be(false)
-        end
-      end
     end
   end
 end

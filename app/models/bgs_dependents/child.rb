@@ -57,7 +57,6 @@ module BGSDependents
 
     def initialize(child_info)
       @child_info = child_info
-      @is_v2 = v2?
 
       assign_attributes
     end
@@ -79,7 +78,7 @@ module BGSDependents
       dependent_address(
         dependents_application:,
         lives_with_vet: @child_info['does_child_live_with_you'],
-        alt_address: @is_v2 ? @child_info['address'] : @child_info.dig('child_address_info', 'address')
+        alt_address: @child_info['address']
       )
     end
 
@@ -94,8 +93,8 @@ module BGSDependents
       @place_of_birth_city = place_of_birth['city']
       @reason_marriage_ended = reason_marriage_ended
       @ever_married_ind = marriage_indicator
-      @child_income = formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income'])
-      @not_self_sufficient = formatted_boolean(@child_info['not_self_sufficient'])
+      @child_income = child_income
+      @not_self_sufficient = formatted_boolean(@child_info['does_child_have_permanent_disability'])
       @first = @child_info['full_name']['first']
       @middle = @child_info['full_name']['middle']
       @last = @child_info['full_name']['last']
@@ -103,30 +102,44 @@ module BGSDependents
     end
 
     def place_of_birth
-      @is_v2 ? @child_info.dig('birth_location', 'location') : @child_info['place_of_birth']
+      @child_info.dig('birth_location', 'location')
     end
 
     def child_status
-      if @is_v2
-        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
+      if @child_info['is_biological_child']
+        'Biological'
+      elsif @child_info['relationship_to_child']
+        # adopted, stepchild
+        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)] || 'Other'
+      elsif @child_info['child_status']
+        # v1 format - included in case of legacy data
+        # adopted, stepchild, child_under18, child_over18_in_school, disabled
+        CHILD_STATUS[@child_info['child_status']&.key(true)] || 'Other'
       else
-        CHILD_STATUS[@child_info['child_status']&.key(true)]
+        Rails.logger.warn(
+          'BGSDependents::Child: Unable to determine child status', {
+            relationship_to_child: @child_info['relationship_to_child'],
+            child_status: @child_info['child_status'],
+            is_biological_child: @child_info['is_biological_child']
+          }
+        )
+        'Other'
       end
     end
 
     def marriage_indicator
-      if @is_v2
-        @child_info['has_child_ever_been_married'] ? 'Y' : 'N'
-      else
-        @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
-      end
+      @child_info['has_child_ever_been_married'] ? 'Y' : 'N'
     end
 
     def reason_marriage_ended
-      if @is_v2
-        @child_info['marriage_end_reason']
+      @child_info['marriage_end_reason']
+    end
+
+    def child_income
+      if @child_info['income_in_last_year'] == 'NA'
+        nil
       else
-        @child_info.dig('previous_marriage_details', 'reason_marriage_ended')
+        @child_info['income_in_last_year']
       end
     end
   end

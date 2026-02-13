@@ -10,6 +10,8 @@ module DependentsBenefits
   # Handles prefilling veteran's address and dependent information from BGS and VA Profile services
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA686c674 < FormProfile
+    include PensionAwardHelper
+    include DependentsBenefits::DependentsHelper
     ##
     # Model representing dependent information for the 686c-674 form
     # Contains personal details and relationship data for each dependent
@@ -83,12 +85,12 @@ module DependentsBenefits
 
       return if mailing_address.blank?
 
+      zip_code = mailing_address.zip_code.presence || mailing_address.international_postal_code.presence
       @form_address = FormAddress.new(
         mailing_address.to_h.slice(
           :address_line1, :address_line2, :address_line3,
-          :city, :state_code, :province,
-          :zip_code, :international_postal_code
-        ).merge(country_name: mailing_address.country_code_iso3)
+          :city, :state_code, :province
+        ).merge(country_name: mailing_address.country_code_iso3, zip_code:)
       )
     end
 
@@ -113,42 +115,9 @@ module DependentsBenefits
       end
       @va_file_number
     rescue => e
-      monitor.track_prefill_warning('Failed to retrieve VA file number', 'file_number_error',
-                                    error: e&.message)
+      monitor.track_warning_event('Failed to retrieve VA file number',
+                                  action: 'file_number_error', component:, error: e&.message)
       user.ssn.presence
-    end
-
-    # @return [Integer] 1 if user is in receipt of pension, 0 if not, -1 if request fails
-    # Needed for FE to differentiate between 200 response and error
-    def is_in_receipt_of_pension # rubocop:disable Naming/PredicatePrefix
-      case awards_pension[:is_in_receipt_of_pension]
-      when true
-        1
-      when false
-        0
-      else
-        -1
-      end
-    end
-
-    # @return [Integer] the net worth limit for pension, default is 163,699 as of 2026
-    # Default will be cached in future enhancement
-    def net_worth_limit
-      awards_pension[:net_worth_limit] || 163_699
-    end
-
-    # @return [Hash] the awards pension data from BID service or an empty hash if the request fails
-    def awards_pension
-      @awards_pension ||= begin
-        response = pension_award_service.get_awards_pension
-        response.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
-      rescue => e
-        monitor.track_prefill_warning('Failed to retrieve awards pension data', 'awards_pension_error',
-                                      user_account_uuid: user&.user_account_uuid,
-                                      error: e.message,
-                                      form_id:)
-        {}
-      end
     end
 
     ##
@@ -170,8 +139,8 @@ module DependentsBenefits
         @dependents_information
       end
     rescue => e
-      monitor.track_prefill_warning('Failed to retrieve dependents information', 'dependents_error',
-                                    error: e&.message)
+      monitor.track_warning_event('Failed to retrieve dependents information',
+                                  action: 'dependents_error', component:, error: e&.message)
       @dependents_information = Flipper.enabled?(:va_dependents_v3, user) ? { success: 'false', dependents: [] } : []
     end
 
@@ -208,9 +177,9 @@ module DependentsBenefits
     # Returns a BGS dependent service instance for the current user
     # Memoized to avoid creating multiple instances
     #
-    # @return [BGS::DependentV2Service] Service for retrieving dependent information
+    # @return [BGS::DependentService] Service for retrieving dependent information
     def dependent_service
-      @dependent_service ||= BGS::DependentV2Service.new(user)
+      @dependent_service ||= BGS::DependentService.new(user)
     end
 
     ##
@@ -229,6 +198,18 @@ module DependentsBenefits
     # @return [DependentsBenefits::Monitor] Monitoring service for dependents module
     def monitor
       @monitor ||= DependentsBenefits::Monitor.new
+    end
+
+    ##
+    # Implementation of abstract method from PensionAwardHelper
+    # Tracks pension award errors using the monitor service
+    #
+    # @param error [Exception] The error that occurred during pension award retrieval
+    def track_pension_award_error(error)
+      monitor.track_warning_event('Failed to retrieve awards pension data',
+                                  action: 'awards_pension_error', component:,
+                                  user_account_uuid: user&.user_account_uuid,
+                                  error: error.message, form_id:)
     end
 
     ##

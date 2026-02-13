@@ -48,31 +48,6 @@ module Mobile
           MOBILE_GFE
         ].freeze
 
-        # Only a subset of types of service that requires human readable conversion
-        SERVICE_TYPES = {
-          'amputation' => 'Amputation care',
-          'audiology' => 'Audiology and speech (including hearing aid support)',
-          'audiology-routine exam' => 'Routine hearing exam',
-          'CCAUDRTNE' => 'Routine hearing exam',
-          'audiology-hearing aid support' => 'Hearing aid support',
-          'CCAUDHEAR' => 'Hearing aid support',
-          'clinicalPharmacyPrimaryCare' => 'Pharmacy',
-          'covid' => 'COVID-19 vaccine',
-          'cpap' => 'Continuous Positive Airway Pressure (CPAP)',
-          'foodAndNutrition' => 'Nutrition and Food',
-          'moveProgram' => 'MOVE! weight management program',
-          'ophthalmology' => 'Ophthalmology',
-          'podiatry' => 'Podiatry',
-          'CCPOD' => 'Podiatry',
-          'optometry' => 'Optometry',
-          'CCOPT' => 'Optometry',
-          'outpatientMentalHealth' => 'Mental Health',
-          'primaryCare' => 'Primary Care',
-          'CCPRMYRTNE' => 'Primary Care',
-          'homeSleepTesting' => 'Sleep medicine and home sleep testing',
-          'socialWork' => 'Social Work'
-        }.freeze
-
         REASONS = {
           'ROUTINEVISIT' => 'Routine Follow-up',
           'MEDICALISSUE' => 'New problem',
@@ -112,7 +87,7 @@ module Mobile
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
             is_pending: appointment_request?,
             proposed_times:,
-            type_of_care: type_of_care(appointment[:service_type]),
+            type_of_care: appointment[:type_of_care],
             patient_phone_number:,
             patient_email:,
             best_time_to_call: appointment[:preferred_times_for_phone_call],
@@ -168,7 +143,10 @@ module Mobile
         # this does not match the way friendly name is set for web.
         # our mocks do not match the web mocks 1:1 so different data is needed
         def friendly_location_name
-          return appointment.dig(:location, :name) if va_appointment? || appointment_request?
+          if va_appointment? || appointment_request?
+            return appointment[:service_name] || appointment.dig(:location,
+                                                                 :name)
+          end
 
           appointment.dig(:extension, :cc_location, :practice_name)
         end
@@ -221,12 +199,6 @@ module Mobile
 
         def cancellable?
           appointment[:cancellable] && appointment[:kind] != 'telehealth'
-        end
-
-        def type_of_care(service_type)
-          return nil if service_type.nil?
-
-          SERVICE_TYPES[service_type] || service_type.titleize
         end
 
         def cancellation_reason(cancellation_reason)

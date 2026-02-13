@@ -35,7 +35,6 @@ module Logging
           user_account_uuid:,
           benefits_intake_uuid: lighthouse_service&.uuid,
           # the fields below will be stripped from the logs in production
-          # @see config/initializers/filter_parameter_logging.rb
           file: upload[:file],
           attachments: upload[:attachments]
         )
@@ -78,12 +77,12 @@ module Logging
         )
       end
 
-      ##
       # log Sidkiq job exhaustion, complete failure after all retries
       #
       # @param msg [Hash] sidekiq exhaustion response
+      # @option msg [Array<Mixed>] 'args' the arguments supplied to the job
+      # @option msg [String] 'error_message' the error message
       # @param claim [SavedClaim]
-      #
       def track_submission_exhaustion(msg, claim = nil)
         user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
 
@@ -93,7 +92,7 @@ module Logging
           "#{submission_stats_key}.exhausted",
           claim: claim || msg['args'].first,
           user_account_uuid:,
-          error: msg,
+          error: msg['error_message'],
           call_location: caller_locations.second
         )
 
@@ -108,7 +107,6 @@ module Logging
         end
       end
 
-      ##
       # Tracks the failure to send a Submission in Progress email for a claim.
       #
       # @param claim [SavedClaim]
@@ -116,7 +114,6 @@ module Logging
       # @param user_account_uuid [UUID]
       # @param email_type [String] 'submitted' or 'confirmation'
       # @param e [Exception]
-      #
       def track_send_email_failure(claim, lighthouse_service, user_account_uuid, email_type, e)
         submit_event(
           :warn,

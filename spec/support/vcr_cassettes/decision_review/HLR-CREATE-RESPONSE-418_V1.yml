@@ -1,0 +1,91 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/appeals/v2/decision_reviews/higher_level_reviews
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      X-Va-Ssn:
+      - '796111863'
+      X-Va-First-Name:
+      - abraham
+      X-Va-Last-Name:
+      - lincoln
+      X-Va-Birth-Date:
+      - '1809-02-12'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 418
+      message: I'm a teapot
+    headers:
+      Date:
+      - Fri, 20 Aug 2021 22:17:24 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '90'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '36'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - d788bc6a3537dd9cbfada5af8079cb8f64b2a69b
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - eb9aecf8-44dc-4314-899a-f86dbad718c2
+      X-Runtime:
+      - '0.036967'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '43'
+      X-Kong-Proxy-Latency:
+      - '2'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Set-Cookie:
+      - TS01dd66bd=0119a2687f14e7f32fac9ad2558f35c05846eba7651110fab37dc9cef0e4f5ad29230e33cac13a802cb346abd4a4f255add9fbf2dd;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"I am a teapot","detail":"Unexpected error","status":"418"}]}'
+  recorded_at: Fri, 20 Aug 2021 22:17:24 GMT
+recorded_with: VCR 6.0.0

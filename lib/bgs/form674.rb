@@ -16,26 +16,27 @@ module BGS
   class Form674
     include Vets::SharedLogging
 
-    attr_reader :user, :saved_claim, :proc_id
+    attr_reader :user, :saved_claim, :proc_id, :claim_type_end_product
 
-    def initialize(user, saved_claim)
+    def initialize(user, saved_claim, options = {})
       @user = user
       @saved_claim = saved_claim
-      @proc_id = vnp_proc_id(saved_claim)
+      @proc_id = options[:proc_id] || vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready'
+      @claim_type_end_product = options[:claim_type_end_product]
     end
 
     def submit(payload)
-      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
+      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN', claim_type_end_product:).create
 
       process_relationships(proc_id, veteran, payload)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674 when submitted w/686c
       if @saved_claim.submittable_686?
         set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
@@ -49,8 +50,8 @@ module BGS
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
         log_claim_status(benefit_claim_record, proc_id)
-      rescue => e
-        log_submit_failure(e)
+      rescue
+        log_submit_failure(error)
       end
     end
 
@@ -70,6 +71,7 @@ module BGS
     def log_claim_status(benefit_claim_record, proc_id)
       if @proc_state == 'MANUAL_VAGOV'
         reason = 'This application needs manual review.'
+        # if 674 is being submitted alongside a 686c, note that in the reason
         if @saved_claim.submittable_686?
           reason = 'This application needs manual review because a 674 was submitted alongside a 686c.'
           monitor.track_event('info', "21-674 Combination 686C-674 claim set to manual by VA.gov: #{reason}",
@@ -93,7 +95,11 @@ module BGS
       # use this to make sure the created dependent and student payload line up for process_674
       # if it's nil, it is v1.
       dependent_student_map = {}
-      dependents << DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student: nil).create
+      payload&.dig('dependents_application', 'student_information').to_a.each do |student|
+        dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
+        dependents << dependent
+        dependent_student_map[dependent[:vnp_participant_id]] = student
+      end
 
       VnpRelationships.new(
         proc_id:,
@@ -108,6 +114,7 @@ module BGS
       end
     end
 
+    # rubocop:disable Naming/VariableNumber
     def process_674(proc_id, dependent, payload, student = nil)
       StudentSchool.new(
         proc_id:,
@@ -117,6 +124,7 @@ module BGS
         student:
       ).create
     end
+    # rubocop:enable Naming/VariableNumber
 
     def vnp_proc_id(saved_claim)
       set_to_manual = saved_claim.submittable_686?

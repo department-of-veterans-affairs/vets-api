@@ -37,6 +37,12 @@ module V0
 
       def icn
         @icn ||= @service_account_access_token.user_attributes['icn']
+        if @icn.blank?
+          render json: { error: 'Unauthorized: ICN not found' }, status: :unauthorized
+          return
+        end
+
+        @icn
       end
 
       def poll_claims_from_lighthouse

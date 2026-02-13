@@ -1,25 +1,40 @@
 ---
 http_interactions:
-- request:
-    method: post
-    uri: https://api.vass.va.gov/api/CancelAppointment
-    body:
-      encoding: UTF-8
-      string: '{"appointmentId":"appt-abc123"}'
-    headers:
-      Content-Type:
-      - application/json
-      Authorization:
-      - Bearer test-token
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/json; charset=utf-8
-    body:
-      encoding: UTF-8
-      string: '{"success":true,"message":"Appointment cancelled successfully","correlationId":"test-correlation-id","timeStamp":"2025-11-26T12:00:00Z"}'
-  recorded_at: Thu, 26 Nov 2025 12:00:00 GMT
+  - request:
+      method: post
+      uri: <VASS_API_URL>/api/CancelAppointment
+      body:
+        encoding: UTF-8
+        string: '{"appointmentId":"e61e1a40-1e63-f011-bec2-001dd80351ea"}'
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-token
+        Edipi:
+          - "1234567890"
+        Correlationid:
+          - test-correlation-id
+        Ocp-Apim-Subscription-Key:
+          - test-subscription-key
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json; charset=utf-8
+      body:
+        encoding: UTF-8
+        string: |
+          {
+            "success": true,
+            "message": "Appointment cancelled successfully",
+            "correlationId": "test-correlation-id",
+            "timeStamp": "2026-01-13T12:00:00Z",
+            "data": {
+              "appointmentId": "e61e1a40-1e63-f011-bec2-001dd80351ea"
+            }
+          }
+    recorded_at: Mon, 13 Jan 2026 12:00:00 GMT
 recorded_with: VCR 6.0.0

@@ -31,9 +31,9 @@ module ClaimsApi
                   'zipCodeSuffix' => data['claimant']['zip_first_suffix_nbr']
                 },
                 'phone' => {
-                  'countryCode' => parse_phone_number(data['claimant']['phone_nbr'])[0],
-                  'areaCode' => parse_phone_number(data['claimant']['phone_nbr'])[1],
-                  'phoneNumber' => parse_phone_number(data['claimant']['phone_nbr'])[2]
+                  'countryCode' => data.dig('claimant', 'country_code'),
+                  'areaCode' => data.dig('claimant', 'area_code'),
+                  'phoneNumber' => data.dig('claimant', 'phone_number')
                 },
                 'email' => data['claimant']['email_addrs_txt'],
                 'relationship' => data['claimant_relationship']
@@ -41,22 +41,6 @@ module ClaimsApi
             }
           end
           # rubocop:enable Metrics/MethodLength
-
-          def parse_phone_number(number)
-            return [] unless number.is_a?(String) && number.length < 12
-
-            if number.length == 10
-              area_code = number[0, 3]
-              phone_number = number[-7, 7]
-              country_code = nil
-            elsif number.length == 11
-              area_code = number[1, 3]
-              phone_number = number[-7, 7]
-              country_code = number[0, 1]
-            end
-
-            [country_code, area_code, phone_number]
-          end
 
           def determine_bool_for_form_field(val)
             val == 'true'

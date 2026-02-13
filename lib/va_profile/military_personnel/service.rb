@@ -5,8 +5,10 @@ require 'common/client/errors'
 require 'va_profile/service'
 require 'va_profile/stats'
 require 'va_profile/models/service_history'
+require 'va_profile/models/dod_service_summary'
 require_relative 'configuration'
 require_relative 'service_history_response'
+require_relative 'dod_service_summary_response'
 
 ##
 # @see https://qa.vaprofile.va.gov:7005/profile-service/swagger-ui/index.html?urls.primaryName=ProfileServiceV3
@@ -47,6 +49,35 @@ module VAProfile
 
         # Sometimes e.status is nil. Why?
         Rails.logger.info('Miscellaneous service history error', error: e)
+        handle_error(e)
+      rescue => e
+        handle_error(e)
+      end
+
+      # GET's a user's DoD service summary from the VAProfile API
+      # If a user is not found in VAProfile, an empty DodServiceSummaryResponse with a 404 status will be returned
+      # @return [VAProfile::MilitaryPersonnel::DodServiceSummaryResponse] response wrapper around a
+      # dod_service_summary object
+      def get_dod_service_summary
+        with_monitoring do
+          edipi_present!
+
+          response = perform(:post, identity_path, VAProfile::Models::DodServiceSummary.in_json)
+
+          DodServiceSummaryResponse.from(response)
+        end
+      rescue Common::Client::Errors::ClientError => e
+        error_status = e.status
+        if error_status == 404
+          Rails.logger.warn('Dod Service Summary not found', edipi: @user.edipi)
+
+          return DodServiceSummaryResponse.new(404, dod_service_summary: nil)
+        elsif error_status && (400...500).include?(error_status)
+          return DodServiceSummaryResponse.new(error_status, dod_service_summary: nil)
+        end
+
+        # Sometimes e.status is nil. Why?
+        Rails.logger.info('Miscellaneous DoD service summary error', error: e)
         handle_error(e)
       rescue => e
         handle_error(e)

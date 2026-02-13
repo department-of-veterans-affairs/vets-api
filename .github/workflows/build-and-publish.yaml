@@ -24,7 +24,7 @@ jobs:
         run: |
           echo ${{ steps.version.outputs.version }}
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: us-gov-west-1
           role-to-assume: arn:aws-us-gov:iam::008577686731:role/prt-gha-oidc-role

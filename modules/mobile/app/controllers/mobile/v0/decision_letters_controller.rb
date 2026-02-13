@@ -17,14 +17,17 @@ module Mobile
         log_decision_letters(list) if Flipper.enabled?(:mobile_claims_log_decision_letter_sent)
 
         render json: Mobile::V0::DecisionLetterSerializer.new(list)
+      rescue Common::Exceptions::ExternalServerInternalServerError => e
+        translate_lighthouse_server_error!(e, '#index')
       end
 
       def download
         document_id = CGI.unescape(params[:document_id])
-
         service.get_letter(document_id) do |data, mime_type, disposition, filename|
           send_data(data, type: mime_type, disposition:, filename:)
         end
+      rescue Common::Exceptions::ExternalServerInternalServerError => e
+        translate_lighthouse_server_error!(e, '#download')
       end
 
       private
@@ -54,6 +57,14 @@ module Mobile
         else
           ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
         end
+      end
+
+      def translate_lighthouse_server_error!(error, source)
+        if Flipper.enabled?(:cst_claim_letters_use_lighthouse_api_provider_mobile, @current_user)
+          raise Common::Exceptions::BadGateway.new(detail: error.message, source: "DecisionLettersController#{source}")
+        end
+
+        raise
       end
     end
   end

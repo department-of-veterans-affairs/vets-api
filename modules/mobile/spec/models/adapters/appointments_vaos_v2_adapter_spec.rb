@@ -111,7 +111,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
                                  'patient_phone_number' => nil,
                                  'patient_email' => nil,
                                  'best_time_to_call' => nil,
-                                 'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                 'friendly_location_name' => 'Friendly Name Optometry',
                                  'service_category_name' => nil,
                                  'show_schedule_link' => nil,
                                  'is_cerner' => nil,
@@ -495,29 +495,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
   end
 
-  describe 'type_of_care' do
-    context 'with nil service type' do
-      it 'returns nil' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: nil })
-        expect(vaos_data[:type_of_care]).to be_nil
-      end
-    end
-
-    context 'with known service type' do
-      it 'returns appropriate copy for the service type' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'outpatientMentalHealth' })
-        expect(vaos_data[:type_of_care]).to eq('Mental Health')
-      end
-    end
-
-    context 'with unknown service type' do
-      it 'returns a capitalized version of the service type' do
-        vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: 'hey there' })
-        expect(vaos_data[:type_of_care]).to eq('Hey There')
-      end
-    end
-  end
-
   describe 'status' do
     context 'with known status' do
       it 'converts status to appropriate text' do
@@ -660,13 +637,35 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'friendly_location_name' do
     context 'with VA appointment' do
-      it 'is set to location name' do
+      it 'is set to service name value if it exists' do
         appt = appointment_by_id(booked_va_id)
+        expect(appt.friendly_location_name).to eq('Friendly Name Optometry')
+      end
+
+      it 'is set to location name value if service_name does not exist' do
+        appt = appointment_by_id(booked_va_id, without: [:service_name])
         expect(appt.friendly_location_name).to eq('Cheyenne VA Medical Center')
       end
 
-      it 'is set to nil when location name is absent' do
-        appt = appointment_by_id(booked_va_id, without: [:location])
+      it 'is set to nil when location name and service name are absent' do
+        appt = appointment_by_id(booked_va_id, without: %i[location service_name])
+        expect(appt.friendly_location_name).to be_nil
+      end
+    end
+
+    context 'with VA proposed appointment' do
+      it 'is set to service name value if it exists' do
+        appt = appointment_by_id(proposed_va_id)
+        expect(appt.friendly_location_name).to eq('Friendly Name Optometry')
+      end
+
+      it 'is set to location name value if service_name does not exist' do
+        appt = appointment_by_id(proposed_va_id, without: [:service_name])
+        expect(appt.friendly_location_name).to eq('Cheyenne VA Medical Center')
+      end
+
+      it 'is set to nil when location name and service name are absent' do
+        appt = appointment_by_id(proposed_va_id, without: %i[location service_name])
         expect(appt.friendly_location_name).to be_nil
       end
     end
@@ -677,7 +676,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         expect(appt.friendly_location_name).to eq('Cheyenne VA Medical Center')
       end
 
-      it 'is set to nil when location name is absent' do
+      it 'is set to nil when CC location name is absent' do
         appt = appointment_by_id(proposed_cc_id, without: [:location])
         expect(appt.friendly_location_name).to be_nil
       end

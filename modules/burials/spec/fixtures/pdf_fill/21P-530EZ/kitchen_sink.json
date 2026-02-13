@@ -18,8 +18,15 @@
  "plotAllowance":true,
  "processOption":false,
  "transportation":true,
- "previousNames":[{"first":"previous", "middle":"other", "last":"name", "suffix":"Jr.", "serviceBranch":"navy"}],
+ "previousNames": [{"first": "John", "middle": "Jacob", "last": "Schmitt", "suffix": "Jr."}],
+ "powPeriods": [{"powDateRange": {"from": "1971-02-26", "to": "1973-03-02"}}],
  "militaryServiceNumber":"123123",
+ "serviceBranch": "airForce",
+ "serviceDateRange": {
+  "from": "2020-03-15",
+  "to": "2021-02-15"
+},
+ "placeOfSeparation": "location",
  "toursOfDuty":
   [{"serviceBranch":"Air Force",
     "dateRange":{"from":"1970-01-01", "to":"1974-01-01"},
@@ -40,7 +47,10 @@
     "rank":"gradeofentry56",
     "unit":"unit"}],
  "locationOfDeath":{"location":"nursingHomePaid"},
+ "homeHospiceCare":true,
+ "homeHospiceCareAfterDischarge":true,
  "nursingHomePaid":{"facilityName":"Best Nursing Home","facilityLocation":"portland, ME"},
+ "bankAccount": {"accountType": "checking", "routingNumber": "123123123","accountNumber": "001122334455"},
  "deathDate":"2024-01-01",
  "burialDate":"2024-01-02",
  "veteranFullName":{"first":"veteran", "middle":"middle", "last":"lastname", "suffix":"Jr."},

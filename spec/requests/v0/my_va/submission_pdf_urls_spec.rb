@@ -12,7 +12,8 @@ VALID_FORM_ID = '20-10206'
 RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
                                               team_owner: :vfs_authenticated_experience_backend,
                                               type: :request do
-  let(:user) { build(:user, :loa1) }
+  let(:user) { create(:user, :loa1) }
+  let(:user_account) { user.user_account }
   let(:mock_config) { instance_double(SimpleFormsApi::FormRemediation::Configuration::VffConfig) }
 
   before do
@@ -21,8 +22,14 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
   end
 
   describe 'POST /v0/my_va/submission_pdf_urls' do
-    context 'when pdf download is available' do
+    context 'when user owns the submission and pdf download is available' do
+      let(:form_submission) { create(:form_submission, user_account:) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
       before do
+        form_submission_attempt
         allow(SimpleFormsApi::FormRemediation::Configuration::VffConfig).to receive(:new).and_return(mock_config)
         allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_URL)
       end
@@ -37,8 +44,55 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
       end
     end
 
-    context 'when pdf download is supposed to be available but does not exist in S3' do
+    context 'when user does not own the submission' do
+      let(:other_user_account) { create(:user_account) }
+      let(:form_submission) { create(:form_submission, user_account: other_user_account) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
       before do
+        form_submission_attempt
+      end
+
+      it 'raises Forbidden error' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when submission does not exist' do
+      it 'raises Forbidden error' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when both submission.user_account_id and current_user.user_account are nil' do
+      let(:form_submission) { create(:form_submission, user_account: nil) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
+      before do
+        form_submission_attempt
+        allow_any_instance_of(User).to receive(:user_account).and_return(nil)
+      end
+
+      it 'raises Forbidden error (prevents nil == nil from passing)' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user owns submission but pdf does not exist in S3' do
+      let(:form_submission) { create(:form_submission, user_account:) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
+      before do
+        form_submission_attempt
         allow(SimpleFormsApi::FormRemediation::Configuration::VffConfig).to receive(:new).and_return(mock_config)
         allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_404_URL)
       end
@@ -51,22 +105,39 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
       end
     end
 
-    context 'when pdf download is not available' do
-      before do
-        allow(SimpleFormsApi::FormRemediation::Configuration::VffConfig).to receive(:new).and_return(mock_config)
-        allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(nil)
+    context 'when user owns submission but pdf url is nil' do
+      let(:form_submission) { create(:form_submission, user_account:) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
       end
 
-      it 'raises Forbidden error if Form ID is not supported' do
-        post('/v0/my_va/submission_pdf_urls', params: { form_id: 'BAD_ID', submission_guid: MOCK_GUID })
-        expect(response).to have_http_status(:forbidden)
+      before do
+        form_submission_attempt
+        allow(SimpleFormsApi::FormRemediation::Configuration::VffConfig).to receive(:new).and_return(mock_config)
+        allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(nil)
       end
 
       it 'raises RecordNotFound error if url result is not a string' do
         post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
         expect(response).to have_http_status(:not_found)
       end
+    end
 
+    context 'when Form ID is not supported' do
+      let(:form_submission) { create(:form_submission, user_account:) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
+      before { form_submission_attempt }
+
+      it 'raises Forbidden error' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: 'BAD_ID', submission_guid: MOCK_GUID })
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when request params are invalid' do
       it 'raises Validation error when given bad params' do
         post('/v0/my_va/submission_pdf_urls', params: { f: VALID_FORM_ID, g: MOCK_GUID })
         expect(response).to have_http_status(:bad_request)

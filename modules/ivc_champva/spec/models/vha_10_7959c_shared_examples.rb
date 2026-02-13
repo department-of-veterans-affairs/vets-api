@@ -176,6 +176,92 @@ RSpec.shared_examples 'form model 10_7959C' do |form_number|
     end
   end
 
+  describe '#track_submission' do
+    let(:form_version) { described_class::FORM_VERSION }
+    let(:mock_user) { double(loa: { current: 3 }) }
+
+    context 'with email provided' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => { 'email' => 'test@example.com' },
+          'form_number' => form_number
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'increments StatsD with tags and logs submission info' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: ['identity:applicant', 'current_user_loa:3', 'email_used:yes', "form_version:#{form_version}"]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          "IVC ChampVA Forms - #{form_number} Submission",
+          identity: 'applicant',
+          current_user_loa: 3,
+          email_used: 'yes',
+          form_version:
+        )
+
+        form_instance.track_submission(mock_user)
+      end
+    end
+
+    context 'without email' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'sponsor',
+          'primary_contact_info' => {},
+          'form_number' => form_number
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'tracks email as no' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: ['identity:sponsor', 'current_user_loa:3', 'email_used:no', "form_version:#{form_version}"]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          "IVC ChampVA Forms - #{form_number} Submission",
+          identity: 'sponsor',
+          current_user_loa: 3,
+          email_used: 'no',
+          form_version:
+        )
+
+        form_instance.track_submission(mock_user)
+      end
+    end
+
+    context 'when current_user is nil' do
+      let(:submission_data) do
+        {
+          'certifier_role' => 'applicant',
+          'primary_contact_info' => {},
+          'form_number' => form_number
+        }
+      end
+      let(:form_instance) { described_class.new(submission_data) }
+
+      it 'defaults loa to 0' do
+        expect(StatsD).to receive(:increment).with(
+          "#{statsd_key}.submission",
+          tags: ['identity:applicant', 'current_user_loa:0', 'email_used:no', "form_version:#{form_version}"]
+        )
+        expect(Rails.logger).to receive(:info).with(
+          "IVC ChampVA Forms - #{form_number} Submission",
+          identity: 'applicant',
+          current_user_loa: 0,
+          email_used: 'no',
+          form_version:
+        )
+
+        form_instance.track_submission(nil)
+      end
+    end
+  end
+
   describe '#method_missing' do
     it 'returns the method name and arguments' do
       result = vha107959c.some_missing_method('arg1', 'arg2')

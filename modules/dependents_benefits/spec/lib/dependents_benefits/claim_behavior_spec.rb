@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'dependents_benefits/claim_behavior'
+require 'dependents_benefits/monitor'
 
 RSpec.describe DependentsBenefits::ClaimBehavior do
   before do
@@ -93,9 +94,19 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
   end
 
   describe '#to_pdf' do
-    it 'does not fail' do
-      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(child_claim, nil).and_call_original
-      expect { child_claim.to_pdf }.not_to raise_error
+    it 'works with legacy string filename argument' do
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, 'custom_filename', {})
+      child_claim.to_pdf('custom_filename')
+    end
+
+    it 'works with keyword arguments and uses claim ID as filename' do
+      student_data = { name: 'Test Student' }
+
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, child_claim.id.to_s, hash_including(form_id: '21-674', student: student_data))
+
+      child_claim.to_pdf(form_id: '21-674', student: student_data)
     end
 
     context 'when veteran_information is missing' do
@@ -108,6 +119,91 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
 
       it 'raises an error in the PDF filler' do
         expect { child_claim.to_pdf }.to raise_error(DependentsBenefits::MissingVeteranInfoError)
+      end
+    end
+
+    context 'with a student claim' do
+      before do
+        allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_call_original
+      end
+
+      it 'builds the pdf correctly' do
+        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil,
+                                                                                {}).and_call_original
+        expect { student_claim.to_pdf }.not_to raise_error
+      end
+
+      context 'when veteran_information is missing' do
+        before do
+          allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_call_original
+
+          student_claim.parsed_form.delete('veteran_information')
+        end
+
+        it 'raises an error in the PDF filler' do
+          expect { student_claim.to_pdf }.to raise_error(DependentsBenefits::MissingVeteranInfoError)
+        end
+      end
+    end
+  end
+
+  describe 'validation behavior' do
+    context 'when the form matches the schema' do
+      it 'returns true' do
+        expect(claim.form_matches_schema).to be true
+      end
+    end
+
+    context 'when the form does not match the schema' do
+      let(:monitor_double) { instance_double(DependentsBenefits::Monitor) }
+
+      before do
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim)
+          .to receive(:validate_schema)
+          .and_return([
+                        { fragment: '#/veteran_information', message: 'is missing' }
+                      ])
+        allow_any_instance_of(DependentsBenefits::PrimaryDependencyClaim)
+          .to receive(:validate_form)
+          .and_return([])
+        allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor_double)
+        allow(monitor_double).to receive(:track_error_event)
+      end
+
+      it 'returns false and adds errors' do
+        expect(claim.form_matches_schema).to be false
+        expect(monitor_double).to have_received(:track_error_event).with(
+          'Dependents Benefits schema failed validation.',
+          action: 'schema_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
+          form_id: claim.form_id,
+          errors: [{ fragment: '#/veteran_information', message: 'is missing' }]
+        ).at_least(:once)
+      end
+    end
+  end
+
+  describe '#form_schema' do
+    context 'when the schema file cannot be loaded' do
+      let(:monitor_double) { instance_double(DependentsBenefits::Monitor) }
+      let(:error_message) { 'No such file or directory' }
+      let(:form_id) { '21-686C' }
+
+      before do
+        allow(claim).to receive(:monitor).and_return(monitor_double)
+        allow(monitor_double).to receive(:track_error_event)
+        allow(File).to receive(:read).and_raise(Errno::ENOENT, error_message)
+      end
+
+      it 'returns nil and tracks the error' do
+        expect(claim.form_schema(form_id)).to be_nil
+        expect(monitor_double).to have_received(:track_error_event).with(
+          'Dependents Benefits form schema could not be loaded.',
+          action: 'schema_load_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
+          form_id:,
+          error: "No such file or directory - #{error_message}"
+        )
       end
     end
   end
@@ -201,6 +297,39 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       it 'returns 21-674' do
         expect(student_claim.claim_form_type).to eq('21-674')
       end
+    end
+
+    context 'when form type is unknown' do
+      let(:monitor_double) { instance_double(DependentsBenefits::Monitor) }
+
+      before do
+        allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor_double)
+        allow(claim).to receive(:submittable_686?).and_raise(StandardError.new('Unknown form type'))
+        allow(monitor_double).to receive(:track_warning_event)
+      end
+
+      it 'returns nil and tracks the unknown claim type' do
+        expect(claim.claim_form_type).to be_nil
+        expect(monitor_double).to have_received(:track_warning_event)
+      end
+    end
+  end
+
+  describe '#add_veteran_info' do
+    it 'merges veteran information into the parsed form' do
+      veteran_info = {
+        'veteran_information' => {
+          'ssn' => '987-65-4321',
+          'participant_id' => 'P987654321',
+          'icn' => 'ICN987654321'
+        }
+      }
+
+      claim.add_veteran_info(veteran_info)
+
+      expect(claim.parsed_form['veteran_information']['ssn']).to eq('987-65-4321')
+      expect(claim.parsed_form['veteran_information']['participant_id']).to eq('P987654321')
+      expect(claim.parsed_form['veteran_information']['icn']).to eq('ICN987654321')
     end
   end
 end
