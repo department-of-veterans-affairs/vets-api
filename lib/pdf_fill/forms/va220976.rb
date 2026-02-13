@@ -185,6 +185,9 @@ module PdfFill
         },
         'dateSigned' => {
           key: 'date_signed'
+        },
+        'authenticatedUser' => {
+          key: 'authenticated_user'
         }
       }.freeze
 
@@ -199,6 +202,10 @@ module PdfFill
         format_medical_data(form_data)
         format_contacts(form_data)
         format_signed_date(form_data)
+
+        form_data['authenticatedUser'] =
+          form_data['isAuthenticated'] ? 'Filled out by authenticated user' : 'Filled out by unauthenticated user'
+
         form_data
       end
 
