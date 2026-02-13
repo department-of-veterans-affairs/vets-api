@@ -382,6 +382,150 @@ RSpec.describe TravelClaim::AuthManager do
         auth_manager.btsss_token
       end
     end
+
+    context 'when facility_type is nil (default)' do
+      # Uses the top-level let(:facility_type) { nil }
+
+      it 'falls back to the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(auth_manager.send(:settings)).to receive_messages(
+          travel_pay_client_secret_oh: 'oh-secret',
+          travel_pay_client_secret: 'standard-secret',
+          client_number: '123'
+        )
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq('standard-secret')
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is uppercase "OH"' do
+      let(:facility_type) { 'OH' }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(auth_manager.send(:settings)).to receive_messages(
+          travel_pay_client_secret_oh: 'oh-secret',
+          travel_pay_client_secret: 'standard-secret',
+          client_number: '123'
+        )
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq('oh-secret')
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is uppercase "VAMC"' do
+      let(:facility_type) { 'VAMC' }
+
+      it 'uses the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(auth_manager.send(:settings)).to receive_messages(
+          travel_pay_client_secret_oh: 'oh-secret',
+          travel_pay_client_secret: 'standard-secret',
+          client_number: '123'
+        )
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq('standard-secret')
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type contains extra whitespace around "oh"' do
+      let(:facility_type) { '  oh  ' }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(auth_manager.send(:settings)).to receive_messages(
+          travel_pay_client_secret_oh: 'oh-secret',
+          travel_pay_client_secret: 'standard-secret',
+          client_number: '123'
+        )
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq('oh-secret')
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is an unexpected type (integer)' do
+      let(:facility_type) { 123 }
+
+      it 'falls back to the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(auth_manager.send(:settings)).to receive_messages(
+          travel_pay_client_secret_oh: 'oh-secret',
+          travel_pay_client_secret: 'standard-secret',
+          client_number: '123'
+        )
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq('standard-secret')
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is a symbol :oh' do
+      let(:facility_type) { :oh }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(auth_manager.send(:settings)).to receive_messages(
+          travel_pay_client_secret_oh: 'oh-secret',
+          travel_pay_client_secret: 'standard-secret',
+          client_number: '123'
+        )
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq('oh-secret')
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
   end
 
   describe 'error handling' do
