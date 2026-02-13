@@ -1861,7 +1861,7 @@ module PdfFill
           }
 
           # extract date
-          stepchild['date_stepchild_left_household'] = split_date(death['date_stepchild_left_household'])
+          stepchild['date_stepchild_left_household'] = split_date(stepchild['date_stepchild_left_household'])
 
           # if any stepchild is present then this should be checked as yes
           stepchild['biological_adopted_stepchild'] = {
