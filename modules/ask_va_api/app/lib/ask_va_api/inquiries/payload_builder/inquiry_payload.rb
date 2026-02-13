@@ -51,6 +51,10 @@ module AskVAApi
           context = {
             attachments: attachment_present?,
             category: inquiry_params[:select_category],
+            has_business_email: inquiry_params[:business_email].present?,
+            has_business_phone: inquiry_params[:business_phone].present?,
+            has_personal_email: inquiry_params[:email_address].present?,
+            has_personal_phone: inquiry_params[:phone_number].present?,
             is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
             level_of_authentication: inquiry_details[:level_of_authentication],
             relationship_to_veteran: inquiry_params[:relationship_to_veteran],
