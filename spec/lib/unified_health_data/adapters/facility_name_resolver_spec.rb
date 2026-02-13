@@ -208,7 +208,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
 
       it 'returns nil because HealthFacility validation is also required' do
         # Station 400 is in range [358, 718], but still fails because
-        # it must also exist in HealthFacility table (OR logic after range check passes)
+        # it must ALSO exist in HealthFacility table (AND logic with range check)
         expect(subject.extract_station_number(dispense)).to be_nil
       end
     end
