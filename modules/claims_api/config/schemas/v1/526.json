@@ -1023,6 +1023,22 @@
             "then": {
               "required": ["diagnosticCode"]
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "disabilityActionType": {
+                  "const": "NEW"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "name": {
+                  "pattern": "([a-zA-Z0-9\\-'.,/\\(\\)]([a-zA-Z0-9\\-',. ])?)+$"
+                }
+              }
+            }
           }
         ]
       }
