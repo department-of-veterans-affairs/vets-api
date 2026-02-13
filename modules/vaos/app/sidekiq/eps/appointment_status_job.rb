@@ -94,6 +94,29 @@ module Eps
     end
 
     ##
+    # Logs the appointment status from the EPS response.
+    #
+    # Records the current state and appointment details status for debugging
+    # and monitoring appointment processing progress.
+    #
+    # @param response [Object] The response object from the EPS appointment service
+    # @param retry_count [Integer] Current retry attempt number
+    # @return [void]
+    #
+    def log_appointment_status(response, retry_count)
+      Rails.logger.info(
+        "#{CC_APPOINTMENTS}: #{self.class} appointment status response",
+        {
+          appointment_id_last4: @appointment_id_last4,
+          state: response&.state,
+          appointment_details_status: response&.appointment_details&.status,
+          retry_count:,
+          eps_trace_id:
+        }
+      )
+    end
+
+    ##
     # Processes appointment status checking with comprehensive error handling.
     #
     # Calls the EPS appointment service to check the current status of the appointment.
@@ -108,7 +131,8 @@ module Eps
     def process_appointment_status(user, appointment_id, retry_count)
       service = Eps::AppointmentService.new(user)
       begin
-        response = service.get_appointment(appointment_id:)
+        response = service.get_appointment(appointment_id:, retrieve_latest_details: true)
+        log_appointment_status(response, retry_count)
         handle_appointment_response(response, retry_count)
       rescue
         Rails.logger.error("#{CC_APPOINTMENTS}: #{self.class} failed to get appointment status",
@@ -136,8 +160,14 @@ module Eps
         self.class.perform_in(1.minute, @user_uuid, @appointment_id_last4, retry_count + 1)
       else
         StatsD.increment(STATSD_FAILURE_METRIC, tags: [COMMUNITY_CARE_SERVICE_TAG])
-        Rails.logger.error("#{CC_APPOINTMENTS}: #{self.class} could not confirm appointment booking",
-                           { user_uuid: @user_uuid, appointment_id_last4: @appointment_id_last4 })
+        Rails.logger.error(
+          "#{CC_APPOINTMENTS}: #{self.class} could not confirm appointment booking",
+          {
+            user_uuid: @user_uuid,
+            appointment_id_last4: @appointment_id_last4,
+            eps_trace_id:
+          }
+        )
         send_vanotify_message(error: ERROR_MESSAGE)
       end
     end
@@ -153,11 +183,23 @@ module Eps
     # in response formatting from external systems and safely handles nil values.
     #
     # @param response [Object] The response object from the appointment service containing
-    #   state and appointmentDetails information
+    #   state and appointment_details information
     # @return [Boolean] true if the appointment is finished (completed or booked), false otherwise
     #
     def appointment_finished?(response)
-      response.state&.downcase == 'completed' || response.appointmentDetails&.status&.downcase == 'booked'
+      response&.appointment_details&.status&.downcase == 'booked'
+    end
+
+    ##
+    # Retrieves the EPS trace ID from RequestStore.
+    #
+    # The trace ID is set by the EPS middleware and can be used to correlate
+    # requests across services for debugging purposes.
+    #
+    # @return [String, nil] The trace ID or nil if not set
+    #
+    def eps_trace_id
+      RequestStore.store['eps_trace_id']
     end
 
     ##

@@ -10,7 +10,7 @@ FactoryBot.define do
           middleinitial: 'D',
           last: 'Rico'
         },
-        vaFileNumber: 'C12345678',
+        vaFileNumber: '12345678',
         dateOfBirth: '1975-03-15',
         veteranSocialSecurityNumber: '333224444',
         veteranPhone: '3075551234',
