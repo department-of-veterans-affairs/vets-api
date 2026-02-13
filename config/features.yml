@@ -737,6 +737,10 @@ features:
     actor_type: user
     description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
+  dependents_digital_forms_api_submission_enabled:
+    actor_type: user
+    description: Enables submission of dependents forms via Forms API
+    enable_in_development: false
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
