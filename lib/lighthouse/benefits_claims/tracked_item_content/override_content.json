@@ -260,7 +260,7 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
-              "href": "/forms/21-4138/",
+              "href": "/find-forms/about-form-21-4138/",
               "testId": "Get VA Form 21-4138 to download"
             }
           ]
@@ -349,19 +349,14 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
-              "href": "/forms/21-4138/",
+              "href": "/find-forms/about-form-21-4138/",
               "testId": "Get VA Form 21-4138 to download"
             }
           ]
         },
         {
           "type": "paragraph",
-          "content": [
-            "Make sure your name and Social Security number are included on any document you upload or send.",
-            {
-              "type": "lineBreak"
-            }
-          ]
+          "content": "Make sure your name and Social Security number are included on any document you upload or send."
         }
       ]
     }
@@ -409,7 +404,7 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
-              "href": "/forms/21-4138/",
+              "href": "/find-forms/about-form-21-4138/",
               "testId": "Get VA Form 21-4138 to download"
             }
           ]
@@ -424,7 +419,7 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4142",
-              "href": "/forms/21-4142/",
+              "href": "/find-forms/about-form-21-4142/",
               "testId": "Get VA Form 21-4142"
             }
           ]
@@ -477,7 +472,7 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
-              "href": "/forms/21-4138/",
+              "href": "/find-forms/about-form-21-4138/",
               "testId": "Get VA Form 21-4138 to download"
             }
           ]
@@ -492,7 +487,7 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4142",
-              "href": "/forms/21-4142/",
+              "href": "/find-forms/about-form-21-4142/",
               "testId": "Get VA Form 21-4142"
             }
           ]
