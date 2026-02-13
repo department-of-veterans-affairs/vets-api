@@ -1,0 +1,35 @@
+{
+  "applicantName": {
+    "first": "John",
+    "last": "Smith"
+  },
+  "remarks": "lorem ispum",
+  "testCost": 55,
+  "organizationName": "Acme Co.",
+  "organizationAddress": {
+    "country": "USA",
+    "street": "123 Fake St",
+    "city": "Tulsa",
+    "state": "OK",
+    "postalCode": "23456"
+  },
+  "testName": "Fake test",
+  "testDate": "2022-11-13",
+  "mobilePhone": "6665431234",
+  "homePhone": "9998765456",
+  "emailAddress": "example@example.com",
+  "mailingAddress": {
+    "country": "USA",
+    "street": "123 Maple Ln",
+    "street2": "Unit B",
+    "city": "Hamilton",
+    "state": "IA",
+    "postalCode": "12345"
+  },
+  "payeeNumber": "AB",
+  "ssn": "123456789",
+  "vaBenefitProgram": "chapter30",
+  "hasPreviouslyApplied": true,
+  "statementOfTruthSignature": "Jackie Doe",
+  "dateSigned": "2025-01-01"
+}
