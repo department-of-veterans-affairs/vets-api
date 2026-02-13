@@ -223,6 +223,126 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
       end
     end
 
+    context 'when no form types are configured' do
+      before do
+        allow(Settings.reports.bio_submission_status).to receive(:form_types).and_return([])
+      end
+
+      it 'does not send an email' do
+        expect { subject.perform }.not_to change { ActionMailer::Base.deliveries.count }
+      end
+    end
+
+    context 'when attempts have nil benefits_intake_uuid' do
+      let!(:saved_claim) { create(:fake_saved_claim) }
+      let!(:form_submission) do
+        create(:form_submission, form_type: '21-4192', saved_claim:)
+      end
+      let!(:attempt) do
+        create(:form_submission_attempt,
+               form_submission:,
+               benefits_intake_uuid: nil,
+               aasm_state: 'pending')
+      end
+
+      it 'generates report with blank CMP columns' do
+        stub_reports_s3 do
+          csv_content = nil
+          allow(Reports::Uploader).to receive(:get_s3_link) do |path|
+            csv_content = CSV.read(path) if path.include?('21-4192')
+            'https://s3.example.com/report.csv'
+          end
+
+          subject.perform
+
+          header_idx = csv_content.index(described_class::HEADER_COLUMNS)
+          data_row = csv_content[header_idx + 1]
+          expect(data_row[0]).to be_nil
+          expect(data_row[3]).to be_nil
+        end
+      end
+    end
+
+    context 'when submission has failure state' do
+      let!(:saved_claim) { create(:fake_saved_claim) }
+      let!(:form_submission) do
+        create(:form_submission, form_type: '21-4192', saved_claim:)
+      end
+      let!(:attempt) do
+        create(:form_submission_attempt,
+               form_submission:,
+               benefits_intake_uuid: test_uuid,
+               aasm_state: 'failure')
+      end
+
+      it 'includes error count in CSV summary' do
+        stub_reports_s3 do
+          csv_content = nil
+          allow(Reports::Uploader).to receive(:get_s3_link) do |path|
+            csv_content = CSV.read(path) if path.include?('21-4192')
+            'https://s3.example.com/report.csv'
+          end
+          subject.perform
+
+          error_row = csv_content.find { |r| r&.first == 'Number of Incomplete/Errors' }
+          expect(error_row[1]).to eq('1')
+        end
+      end
+    end
+
+    context 'when expected annual submissions is configured' do
+      let!(:saved_claim) { create(:fake_saved_claim) }
+      let!(:form_submission) do
+        create(:form_submission, form_type: '21-4192', saved_claim:)
+      end
+      let!(:attempt) do
+        create(:form_submission_attempt,
+               form_submission:,
+               benefits_intake_uuid: test_uuid,
+               aasm_state: 'pending')
+      end
+
+      before do
+        allow(Settings.reports.bio_submission_status.expected_annual_submissions)
+          .to receive(:[]).and_call_original
+        allow(Settings.reports.bio_submission_status.expected_annual_submissions)
+          .to receive(:[]).with('21-4192').and_return(1000)
+      end
+
+      it 'calculates canary percentage in CSV summary' do
+        stub_reports_s3 do
+          csv_content = nil
+          allow(Reports::Uploader).to receive(:get_s3_link) do |path|
+            csv_content = CSV.read(path) if path.include?('21-4192')
+            'https://s3.example.com/report.csv'
+          end
+          subject.perform
+
+          total_row = csv_content.find { |r| r&.first == 'Total submissions' }
+          expect(total_row[2]).to eq('0.1%')
+        end
+      end
+    end
+
+    context 'when perform completes' do
+      let!(:saved_claim) { create(:fake_saved_claim) }
+      let!(:form_submission) do
+        create(:form_submission, form_type: '21-4192', saved_claim:)
+      end
+      let!(:attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: test_uuid)
+      end
+
+      it 'cleans up the temporary report folder' do
+        stub_reports_s3 do
+          subject.perform
+          # The jid-based folder should be cleaned up by the ensure block
+          report_dirs = Dir.glob('tmp/bio_submission_reports/*')
+          expect(report_dirs).to be_empty
+        end
+      end
+    end
+
     context 'when packet ID is not yet available' do
       let(:no_packet_uuid) { 'd4e5f6a7-b8c9-0123-def0-234567890123' }
       let(:cmp_response_no_packet) do
