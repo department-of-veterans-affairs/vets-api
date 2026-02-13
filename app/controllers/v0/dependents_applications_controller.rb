@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents/monitor'
+require 'digital_forms_api/service/submissions'
 
 module V0
   class DependentsApplicationsController < ApplicationController
@@ -47,6 +48,23 @@ module V0
     end
 
     private
+
+    def submit_via_forms_api(claim)
+      return unless Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
+
+      digital_forms_api_submission_service ||= DigitalFormsApi::Service::Submissions.new
+
+      payload = claim.parsed_form
+      metadata = {
+        formId: claim.form_id,
+        veteranId: current_user.participant_id,
+        claimantId: current_user.participant_id,
+        epCode: @end_product_code[/^\d+/],
+        claimLabel: @end_product_code
+      }
+
+      digital_forms_api_submission_service.submit(payload, metadata)
+    end
 
     def dependent_params
       params.permit(

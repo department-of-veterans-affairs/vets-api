@@ -2,8 +2,6 @@
 
 require 'vets/shared_logging'
 
-require 'digital_forms_api/service/submissions'
-
 require_relative 'benefit_claim'
 require_relative 'dependents'
 require_relative 'marriages'
@@ -42,8 +40,6 @@ module BGS
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
       set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
-
-      submit_via_forms_api if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
 
       @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd) if @proc_id.nil?
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ', claim_type_end_product:).create
@@ -237,26 +233,6 @@ module BGS
 
     def monitor
       @monitor ||= ::Dependents::Monitor.new(@saved_claim.id)
-    end
-
-    def digital_forms_api_submission_service
-      @dfass ||= DigitalFormsApi::Service::Submissions.new
-    end
-
-    def submit_via_forms_api
-      return unless Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
-
-      payload = @saved_claim.parsed_form
-      metadata = {
-        formId: @saved_claim.form_id,
-        veteranId: @user.participant_id,
-        claimantId: @user.participant_id,
-        epCode: @end_product_code[/^\d+/],
-        claimLabel: @end_product_code
-      }
-
-      digital_forms_api_submission_service.submit(payload, metadata)
-    rescue
     end
   end
 end

@@ -5,7 +5,12 @@ require 'pdf_utilities/datestamp_pdf'
 require 'dependents/monitor'
 require 'dependents/notification_email'
 
+# temporary for FDF
+require 'dependents_benefits/claim_behavior/vbms_information'
+
 class SavedClaim::DependencyClaim < CentralMailClaim
+  include DependentsBenefits::ClaimBehavior::VbmsInformation
+
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
     student_information
