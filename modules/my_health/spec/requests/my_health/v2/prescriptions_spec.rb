@@ -14,9 +14,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
 
     # Stub Settings.mhv.facility_range for FacilityNameResolver validation
-    # Station 668 (Oracle Health) is within range 358-758
-    facility_range_config = { 'min' => 358, 'max' => 758 }
-    allow(Settings.mhv).to receive(:facility_range).and_return(facility_range_config)
+    # Use actual format: array of [min, max] pairs
+    facility_range = [[358, 718], [720, 740], [742, 758]]
+    allow(Settings.mhv).to receive(:facility_range).and_return(facility_range)
 
     # Stub HealthFacility to validate station numbers used in tests
     valid_stations = %w[668 556 570 989 757 123 124 125]
@@ -63,13 +63,75 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     context 'with feature flag enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, current_user).and_return(true)
-        # Skip prescription validation which would require additional VCR cassettes
-        # The validation logic is tested separately in the validation specs
-        allow_any_instance_of(MyHealth::V2::PrescriptionsController).to receive(:validate_refill_orders!)
+      end
+
+      context 'validation of refill orders' do
+        it 'returns 400 error when prescription does not exist for user' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            # Use prescription ID that doesn't exist in the cassette
+            post refill_path,
+                 params: [{ stationNumber: '556', id: 'NONEXISTENT_ID' }].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:bad_request)
+            error = response.parsed_body['errors']&.first
+            expect(error['detail']).to include('Prescription not found or has invalid station number')
+          end
+        end
+
+        it 'returns 400 error when station number does not match prescription' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+            # Use valid prescription ID but wrong station number
+            post refill_path,
+                 params: [{ stationNumber: '999', id: '20848812135' }].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:bad_request)
+            error = response.parsed_body['errors']&.first
+            expect(error['detail']).to include('Prescription not found or has invalid station number')
+          end
+        end
+
+        it 'returns 400 error when station number is invalid (extracted as nil)' do
+          # Mock a prescription with nil station_number (simulating invalid extraction)
+          mock_rx = OpenStruct.new(
+            prescription_id: '12345',
+            station_number: nil, # Invalid station that was set to nil
+            refill_status: 'active'
+          )
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return([mock_rx])
+
+          post refill_path,
+               params: [{ stationNumber: '005', id: '12345' }].to_json,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error['detail']).to include('Prescription not found or has invalid station number')
+        end
       end
 
       context 'when refill is successful' do
         it 'returns success response for batch refill' do
+          # Mock prescriptions that match the refill request so validation passes
+          mock_prescriptions = [
+            OpenStruct.new(
+              prescription_id: '15220389459',
+              station_number: '556',
+              refill_status: 'active'
+            ),
+            OpenStruct.new(
+              prescription_id: '0000000000001',
+              station_number: '570',
+              refill_status: 'active'
+            )
+          ]
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return(mock_prescriptions)
+
           allow(UniqueUserEvents).to receive(:log_event)
           VCR.use_cassette('unified_health_data/refill_prescription_success') do
             post refill_path,
@@ -103,6 +165,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
 
         it 'logs event with station numbers from the request' do
+          mock_prescriptions = [
+            OpenStruct.new(prescription_id: '15220389459', station_number: '757', refill_status: 'active'),
+            OpenStruct.new(prescription_id: '0000000000001', station_number: '570', refill_status: 'active')
+          ]
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return(mock_prescriptions)
+
           allow(UniqueUserEvents).to receive(:log_event)
 
           VCR.use_cassette('unified_health_data/refill_prescription_success') do
@@ -122,6 +192,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
 
         it 'logs event with unique station numbers when duplicates exist' do
+          mock_prescriptions = [
+            OpenStruct.new(prescription_id: '15220389459', station_number: '757', refill_status: 'active'),
+            OpenStruct.new(prescription_id: '0000000000001', station_number: '757', refill_status: 'active')
+          ]
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return(mock_prescriptions)
+
           allow(UniqueUserEvents).to receive(:log_event)
 
           VCR.use_cassette('unified_health_data/refill_prescription_success') do
@@ -142,7 +220,17 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
       end
 
       context 'when prescription refill fails' do
-        it 'returns 502 error for upstream service failure' do
+        it 'returns error for upstream service failure' do
+          # Mock prescriptions so validation passes first
+          mock_rx = OpenStruct.new(
+            prescription_id: '99999999999999',
+            station_number: '123',
+            refill_status: 'active'
+          )
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return([mock_rx])
+
           VCR.use_cassette('unified_health_data/refill_prescription_failure') do
             post refill_path,
                  params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
@@ -224,6 +312,16 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
       context 'when response count does not match request count' do
         it 'returns an error for each order id when response count does not match request count' do
+          # Mock prescriptions so validation passes
+          mock_prescriptions = [
+            OpenStruct.new(prescription_id: '25804851', station_number: '123', refill_status: 'active'),
+            OpenStruct.new(prescription_id: '25804852', station_number: '124', refill_status: 'active'),
+            OpenStruct.new(prescription_id: '25804853', station_number: '125', refill_status: 'active')
+          ]
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return(mock_prescriptions)
+
           VCR.use_cassette('unified_health_data/refill_prescription_success') do
             post refill_path,
                  params: [

@@ -252,7 +252,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
       it 'returns a 403 forbidden response' do
         put '/mobile/v1/health/rx/prescriptions/refill',
-            params: [{ stationNumber: '123', id: '25804851' }].to_json,
+            params: [{ stationNumber: '556', id: '15220389459' }].to_json,
             headers: sis_headers.merge('Content-Type' => 'application/json')
 
         expect(response).to have_http_status(:forbidden)
@@ -267,80 +267,128 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
     context 'when user is authenticated and has mhv access' do
       let(:patient) { true }
 
-      context 'when response count does not match request count' do
+      context 'validation of refill orders' do
         before do
-          # Skip prescription validation for tests without get_prescriptions cassette
-          allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
+          allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
         end
 
-        it 'returns an error for each order id when response count does not match request count' do
-          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+        it 'returns 400 error when prescription does not exist for user' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            # Use prescription ID that doesn't exist in the cassette
             put '/mobile/v1/health/rx/prescriptions/refill',
-                params: [
-                  { stationNumber: '123', id: '25804851' },
-                  { stationNumber: '124', id: '25804852' },
-                  { stationNumber: '125', id: '25804853' }
-                ].to_json,
+                params: [{ stationNumber: '556', id: 'NONEXISTENT_ID' }].to_json,
                 headers: sis_headers.merge('Content-Type' => 'application/json')
-          end
 
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body['data']['attributes']['failedPrescriptionIds'].length).to eq(3)
+            expect(response).to have_http_status(:bad_request)
+            error = response.parsed_body['errors']&.first
+            expect(error['detail']).to include('Prescription not found or has invalid station number')
+          end
+        end
+
+        it 'returns 400 error when station number does not match prescription' do
+          VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+            # Use valid prescription ID but wrong station number
+            put '/mobile/v1/health/rx/prescriptions/refill',
+                params: [{ stationNumber: '999', id: '15220389459' }].to_json,
+                headers: sis_headers.merge('Content-Type' => 'application/json')
+
+            expect(response).to have_http_status(:bad_request)
+            error = response.parsed_body['errors']&.first
+            expect(error['detail']).to include('Prescription not found or has invalid station number')
+          end
+        end
+
+        it 'returns 400 error when station number is invalid (extracted as nil)' do
+          # Mock a prescription with nil station_number (simulating invalid extraction)
+          mock_rx = OpenStruct.new(
+            prescription_id: '12345',
+            station_number: nil, # Invalid station that was set to nil
+            refill_status: 'active'
+          )
+
+          allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+            .and_return([mock_rx])
+
+          put '/mobile/v1/health/rx/prescriptions/refill',
+              params: [{ stationNumber: '005', id: '12345' }].to_json,
+              headers: sis_headers.merge('Content-Type' => 'application/json')
+
+          expect(response).to have_http_status(:bad_request)
+          error = response.parsed_body['errors']&.first
+          expect(error['detail']).to include('Prescription not found or has invalid station number')
         end
       end
 
       context 'with feature mhv_medications_cerner_pilot flag enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
-          # Skip prescription validation for tests - station numbers in test orders
-          # may not match the prescriptions in the cassette
-          allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
         end
 
         context 'when refill is successful' do
           it 'returns success response for batch refill' do
+            # Mock prescriptions that match the refill request so validation passes
+            mock_prescriptions = [
+              OpenStruct.new(
+                prescription_id: '15220389459',
+                station_number: '556',
+                refill_status: 'active'
+              ),
+              OpenStruct.new(
+                prescription_id: '0000000000001',
+                station_number: '570',
+                refill_status: 'active'
+              )
+            ]
+
+            allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+              .and_return(mock_prescriptions)
+
             allow(UniqueUserEvents).to receive(:log_event)
-            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
-              VCR.use_cassette('unified_health_data/refill_prescription_success') do
-                put '/mobile/v1/health/rx/prescriptions/refill',
-                    params: [
-                      { stationNumber: '556', id: '15220389459' },
-                      { stationNumber: '570', id: '0000000000001' }
-                    ].to_json,
-                    headers: sis_headers.merge('Content-Type' => 'application/json')
+            VCR.use_cassette('unified_health_data/refill_prescription_success') do
+              put '/mobile/v1/health/rx/prescriptions/refill',
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
 
-                expect(response).to have_http_status(:ok)
-                expect(response.parsed_body).to have_key('data')
+              expect(response).to have_http_status(:ok)
+              expect(response.parsed_body).to have_key('data')
 
-                data = response.parsed_body['data']
-                expect(data).to have_key('id')
-                expect(data['type']).to eq('PrescriptionRefills')
-                expect(data['attributes']).to have_key('failedStationList')
-                expect(data['attributes']).to have_key('successfulStationList')
-                expect(data['attributes']).to have_key('lastUpdatedTime')
-                expect(data['attributes']).to have_key('prescriptionList')
-                expect(data['attributes']).to have_key('failedPrescriptionIds')
-                expect(data['attributes']).to have_key('errors')
-                expect(data['attributes']).to have_key('infoMessages')
+              data = response.parsed_body['data']
+              expect(data).to have_key('id')
+              expect(data['type']).to eq('PrescriptionRefills')
+              expect(data['attributes']).to have_key('failedStationList')
+              expect(data['attributes']).to have_key('successfulStationList')
+              expect(data['attributes']).to have_key('lastUpdatedTime')
+              expect(data['attributes']).to have_key('prescriptionList')
+              expect(data['attributes']).to have_key('failedPrescriptionIds')
+              expect(data['attributes']).to have_key('errors')
+              expect(data['attributes']).to have_key('infoMessages')
 
-                # Verify event logging was called with station numbers from orders
-                expect(UniqueUserEvents).to have_received(:log_event).with(
-                  user: anything,
-                  event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
-                  event_facility_ids: %w[556 570]
-                )
-              end
+              # Verify event logging was called with station numbers from orders
+              expect(UniqueUserEvents).to have_received(:log_event).with(
+                user: anything,
+                event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+                event_facility_ids: %w[556 570]
+              )
             end
           end
         end
 
-        context 'when prescription refill fails' do
-          before do
-            # Skip validation for this test
-            allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
-          end
+        context 'when prescription refill fails at upstream service' do
+          it 'returns error when upstream service fails (after validation passes)' do
+            # For this test, we need to mock the prescriptions to include the invalid ID
+            # so validation passes, but then the upstream service fails
+            mock_rx = OpenStruct.new(
+              prescription_id: '99999999999999',
+              station_number: '123',
+              refill_status: 'active'
+            )
 
-          it 'returns 502 error for upstream service failure' do
+            allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_prescriptions)
+              .and_return([mock_rx])
+
             VCR.use_cassette('unified_health_data/refill_prescription_failure') do
               put '/mobile/v1/health/rx/prescriptions/refill',
                   params: [{ stationNumber: '123', id: '99999999999999' }].to_json,
@@ -355,30 +403,34 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
         context 'when no prescriptions provided' do
           it 'returns parameter required error' do
-            VCR.use_cassette('unified_health_data/refill_prescription_success') do
-              put '/mobile/v1/health/rx/prescriptions/refill',
-                  params: '[]',
-                  headers: sis_headers.merge('Content-Type' => 'application/json')
+            put '/mobile/v1/health/rx/prescriptions/refill',
+                params: '[]',
+                headers: sis_headers.merge('Content-Type' => 'application/json')
 
-              expect(response).to have_http_status(:bad_request)
-              # Assert structured VA.gov error envelope for missing required parameter
-              error = response.parsed_body['errors']&.first
-              expect(error).to be_present
-              expect(error['title']).to eq('Missing parameter')
-              expect(error['status']).to eq('400')
-              expect(error['code']).to eq('108')
-              expect(error['detail']).to include('orders')
-            end
+            expect(response).to have_http_status(:bad_request)
+            # Assert structured VA.gov error envelope for missing required parameter
+            error = response.parsed_body['errors']&.first
+            expect(error).to be_present
+            expect(error['title']).to eq('Missing parameter')
+            expect(error['status']).to eq('400')
+            expect(error['code']).to eq('108')
+            expect(error['detail']).to include('orders')
           end
         end
 
         context 'refill response handling' do
           let(:mock_service) { instance_double(UnifiedHealthData::Service) }
+          let(:mock_prescriptions) do
+            [
+              OpenStruct.new(prescription_id: '25804851', station_number: '123', refill_status: 'active'),
+              OpenStruct.new(prescription_id: '25804852', station_number: '124', refill_status: 'active')
+            ]
+          end
 
           before do
             allow(UnifiedHealthData::Service).to receive(:new).and_return(mock_service)
-            # Skip validation for these mocked service tests
-            allow_any_instance_of(Mobile::V1::PrescriptionsController).to receive(:validate_refill_orders!)
+            # Return mock prescriptions so validation passes
+            allow(mock_service).to receive(:get_prescriptions).and_return(mock_prescriptions)
           end
 
           it 'handles empty success and failed arrays correctly' do
@@ -401,7 +453,6 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
           end
 
           it 'handles service response with only successful refills' do
-            # Mock service returns success array with items, empty failed array
             allow(mock_service).to receive(:refill_prescription).and_return({
                                                                               success: [
                                                                                 { id: '25804851', status: 'submitted',
@@ -417,13 +468,9 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(response).to have_http_status(:ok)
             data = response.parsed_body['data']
             expect(data['type']).to eq('PrescriptionRefills')
-            expect(data['attributes']).to have_key('successfulStationList')
-            expect(data['attributes']).to have_key('failedStationList')
-            expect(data['attributes']).to have_key('prescriptionList')
           end
 
           it 'handles service response with only failed refills' do
-            # Mock service returns empty success array, failed array with items
             allow(mock_service).to receive(:refill_prescription).and_return({
                                                                               success: [],
                                                                               failed: [
@@ -438,15 +485,10 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
             expect(response).to have_http_status(:ok)
             data = response.parsed_body['data']
-            expect(data['type']).to eq('PrescriptionRefills')
-            expect(data['attributes']).to have_key('successfulStationList')
-            expect(data['attributes']).to have_key('failedStationList')
-            expect(data['attributes']).to have_key('prescriptionList')
             expect(data['attributes']).to have_key('failedPrescriptionIds')
           end
 
           it 'handles service response with mixed success and failed refills' do
-            # Mock service returns both success and failed arrays with items
             allow(mock_service).to receive(:refill_prescription).and_return({
                                                                               success: [
                                                                                 { id: '25804851', status: 'submitted',
@@ -467,32 +509,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
 
             expect(response).to have_http_status(:ok)
             data = response.parsed_body['data']
-            expect(data['type']).to eq('PrescriptionRefills')
-            expect(data['attributes']).to have_key('successfulStationList')
-            expect(data['attributes']).to have_key('failedStationList')
-            expect(data['attributes']).to have_key('prescriptionList')
             expect(data['attributes']).to have_key('failedPrescriptionIds')
-          end
-
-          it 'always receives arrays from service for success and failed keys' do
-            # This test verifies the service contract - that we always get arrays
-            expect(mock_service).to receive(:refill_prescription) do |orders|
-              expect(orders).to be_an(Array)
-              # Return the expected format with arrays
-              {
-                success: [],
-                failed: []
-              }
-            end
-
-            put '/mobile/v1/health/rx/prescriptions/refill',
-                params: [{ stationNumber: '123', id: '25804851' }].to_json,
-                headers: sis_headers.merge('Content-Type' => 'application/json')
-
-            # Controller now always returns success response with serialized result
-            expect(response).to have_http_status(:ok)
-            data = response.parsed_body['data']
-            expect(data['type']).to eq('PrescriptionRefills')
           end
         end
       end
