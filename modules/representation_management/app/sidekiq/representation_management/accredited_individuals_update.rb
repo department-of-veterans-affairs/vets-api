@@ -21,13 +21,17 @@ module RepresentationManagement
       @records_needing_geocoding = []
     end
 
-    # Processes address validation for AccreditedIndividuals by ID.
-    # This method finds records by ID and calls validate_address on each one.
-    # For records where address validation fails, enqueues geocoding jobs.
-    # Works for all individual types: agents, attorneys, and representatives.
-    # @param record_ids [Array<Integer>] Array of AccreditedIndividual IDs to validate.
-    def perform(record_ids)
-      record_ids.each { |record_id| process_record(record_id) }
+    # Processes address validation for AccreditedIndividuals.
+    # Supports two input formats for backward compatibility:
+    # 1. Array of IDs (from AccreditedEntitiesQueueUpdates) — validates addresses only
+    # 2. JSON string (from AccreditationQueueUpdates) — updates email/phone/raw_address then validates
+    # @param input [Array<Integer>, String] Array of IDs or JSON string with update data
+    def perform(input)
+      if input.is_a?(String)
+        process_json_input(input)
+      else
+        process_id_input(input)
+      end
       enqueue_geocoding_jobs
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
@@ -38,7 +42,20 @@ module RepresentationManagement
 
     private
 
-    # Processes individual AccreditedIndividual record by ID.
+    # Processes legacy ID-based input (from AccreditedEntitiesQueueUpdates)
+    # @param record_ids [Array<Integer>] Array of AccreditedIndividual IDs
+    def process_id_input(record_ids)
+      record_ids.each { |record_id| process_record(record_id) }
+    end
+
+    # Processes JSON-based input (from AccreditationQueueUpdates)
+    # @param json_string [String] JSON string containing array of update data
+    def process_json_input(json_string)
+      records_data = JSON.parse(json_string)
+      records_data.each { |data| process_record_with_updates(data) }
+    end
+
+    # Processes individual AccreditedIndividual record by ID (legacy path).
     # Finds the record and calls validate_address on it.
     # If validation fails, adds the record to the geocoding queue.
     # If the record is not found or validation fails, the error is logged.
@@ -57,6 +74,35 @@ module RepresentationManagement
       end
     rescue => e
       log_error("Error processing record #{record_id}: #{e.message}", send_to_slack: true)
+    end
+
+    # Processes an AccreditedIndividual record with email/phone/address updates from XLSX data.
+    # Updates contact fields first, then validates address if changed.
+    # @param data [Hash] Update data with keys: 'id', 'email', 'phone', 'raw_address',
+    #   'address_changed', 'email_changed', 'phone_changed'
+    def process_record_with_updates(data)
+      record = AccreditedIndividual.find_by(id: data['id'])
+
+      if record.nil?
+        log_error("Record not found: #{data['id']}", send_to_slack: false)
+        return
+      end
+
+      updates = {}
+      updates[:email] = data['email'] if data['email_changed']
+      updates[:phone] = data['phone'] if data['phone_changed']
+      updates[:raw_address] = data['raw_address'] if data['raw_address'].present?
+
+      record.update(updates) if updates.any?
+
+      if data['address_changed']
+        unless record.validate_address
+          log_error("Address validation failed for record #{data['id']}", send_to_slack: false)
+          @records_needing_geocoding << record.id
+        end
+      end
+    rescue => e
+      log_error("Error processing record #{data['id']}: #{e.message}", send_to_slack: true)
     end
 
     # Enqueues geocoding jobs for records that failed address validation.

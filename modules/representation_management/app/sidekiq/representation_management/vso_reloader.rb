@@ -12,12 +12,16 @@ module RepresentationManagement
     # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
-    def perform
+    # Valid types for partial reloads
+    VALID_TYPES = %w[attorney claims_agent representative organization].freeze
+
+    def perform(types = nil)
+      @types = validate_types(types)
       setup_ingestion
       array_of_organizations = reload_representatives
-      save_accreditation_totals
-      remove_obsolete_representatives(array_of_organizations)
-      complete_ingestion_log
+      save_accreditation_totals unless partial_reload?
+      remove_obsolete_representatives(array_of_organizations) unless partial_reload?
+      complete_ingestion_log unless partial_reload?
     rescue Faraday::ConnectionFailed => e
       handle_connection_failure(e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
@@ -96,6 +100,34 @@ module RepresentationManagement
     end
 
     private
+
+    # Determines if a partial reload is being performed (specific types only)
+    # @return [Boolean]
+    def partial_reload?
+      @types.present?
+    end
+
+    # Determines if a specific type should be reloaded
+    # @param type [String] The entity type to check
+    # @return [Boolean]
+    def should_reload?(type)
+      @types.nil? || @types.include?(type)
+    end
+
+    # Validates and normalizes the types parameter
+    # @param types [Array<String>, nil] The types to validate
+    # @return [Array<String>, nil] Validated types or nil for all types
+    def validate_types(types)
+      return nil if types.blank?
+
+      invalid = types - VALID_TYPES
+      if invalid.any?
+        Rails.logger.warn("VSOReloader: Invalid types ignored: #{invalid.join(', ')}")
+      end
+
+      valid = types & VALID_TYPES
+      valid.empty? ? nil : valid
+    end
 
     # Setup methods for perform
 
@@ -210,10 +242,15 @@ module RepresentationManagement
     end
 
     # Combines all representative IDs from attorneys, claim agents, and VSOs
+    # When types are specified, only reloads those types
     # @return [Array<String>] Combined array of all representative IDs that should remain in the system
     #   This list is used to identify representatives that are no longer in OGC data and should be removed
     def reload_representatives
-      reload_attorneys + reload_claim_agents + reload_vso_reps
+      results = []
+      results += reload_attorneys if should_reload?('attorney')
+      results += reload_claim_agents if should_reload?('claims_agent')
+      results += reload_vso_reps if should_reload?('representative') || should_reload?('organization')
+      results
     end
 
     def find_or_create_attorneys(attorney)
