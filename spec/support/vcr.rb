@@ -80,6 +80,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
   c.filter_sensitive_data('<VAOS_PATIENTS_PATH>') { Settings.va_mobile.patients_path }
   c.filter_sensitive_data('<BENEFITS_CLAIMS_PATH>') { Settings.va_mobile.claims_path }
+  c.filter_sensitive_data('<AWARDS_PENSION_PATH>') { Settings.bid.awards.base_url }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
     Settings.accredited_representative_portal.allow_list.github.access_token
   end
