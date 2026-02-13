@@ -9,7 +9,7 @@ module TravelClaim
   # 409 (contact ID mismatch) errors by refreshing appropriate tokens and retrying.
   #
   class AuthManager
-    attr_reader :icn, :station_number, :facility_type, :correlation_id
+    attr_reader :station_number, :facility_type, :correlation_id
 
     VEIS_CACHE_NAMESPACE = 'check-in-btsss-cache-v1'
     VEIS_CACHE_KEY = 'token'

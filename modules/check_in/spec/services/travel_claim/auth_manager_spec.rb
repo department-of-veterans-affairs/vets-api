@@ -64,7 +64,6 @@ RSpec.describe TravelClaim::AuthManager do
         correlation_id: 'abc-123'
       )
 
-      expect(manager.icn).to eq('123')
       expect(manager.station_number).to eq('500')
       expect(manager.facility_type).to eq('oh')
       expect(manager.correlation_id).to eq('abc-123')
