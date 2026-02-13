@@ -36,6 +36,8 @@ module MyHealth
       def thumbnails
         start_date = params[:start_date]
         end_date = params[:end_date]
+
+        # NOTE: params[:id] is a FHIR imaging study identifier URN (e.g. 'urn-vastudy-...')
         record_id = params[:id]
 
         imaging_studies = service.get_imaging_study(
