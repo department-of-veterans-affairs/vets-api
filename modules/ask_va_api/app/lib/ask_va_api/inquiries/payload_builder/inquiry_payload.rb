@@ -49,17 +49,17 @@ module AskVAApi
 
         def log_inquiry_context
           context = {
-            level_of_authentication: inquiry_details[:level_of_authentication],
-            user_loa: user&.loa&.fetch(:current, nil),
-            user_is_authenticated: user.present?,
+            attachments: attachment_present?,
             category: inquiry_params[:select_category],
-            topic: inquiry_params[:select_topic],
-            subtopic: inquiry_params[:select_subtopic],
-            who: inquiry_params[:who_is_your_question_about],
-            relationship_to_veteran: inquiry_params[:relationship_to_veteran],
             is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
-            your_role: inquiry_params[:your_role],
-            attachments: attachment_present?
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            relationship_to_veteran: inquiry_params[:relationship_to_veteran],
+            subtopic: inquiry_params[:select_subtopic],
+            topic: inquiry_params[:select_topic],
+            user_is_authenticated: user.present?,
+            user_loa: user&.loa&.fetch(:current, nil),
+            who: inquiry_params[:who_is_your_question_about],
+            your_role: inquiry_params[:your_role]
           }
           Rails.logger.info('Inquiry Context', context)
         end
