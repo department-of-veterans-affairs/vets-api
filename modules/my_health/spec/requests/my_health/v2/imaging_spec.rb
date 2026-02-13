@@ -94,6 +94,13 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
           'description',
           'series'
         )
+
+        # Verify the presigned thumbnail URL makes it through to the response
+        series = json_response.first['attributes']['series']
+        expect(series).to be_an(Array)
+        expect(series.first['instances']).to be_an(Array)
+        instance = series.first['instances'].first
+        expect(instance['thumbnailUrl']).to start_with('https://test-cvix-thumbnails.s3.us-gov-west-1.amazonaws.com/')
       end
     end
 

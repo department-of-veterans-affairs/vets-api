@@ -110,6 +110,59 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
       end
     end
 
+    context 'with presigned thumbnail URLs' do
+      let(:response_with_thumbnails) do
+        {
+          'entry' => [
+            {
+              'resource' => {
+                'resourceType' => 'ImagingStudy',
+                'id' => 'study-with-thumbnails',
+                'status' => 'available',
+                'series' => [
+                  {
+                    'number' => 1,
+                    'modality' => { 'code' => 'CT' },
+                    'instance' => [
+                      {
+                        'number' => 0,
+                        'title' => 'JPEG',
+                        'extension' => [
+                          {
+                            'url' => 'http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid',
+                            'valueString' => 'urn:vaimage:test-image-id'
+                          },
+                          {
+                            'url' => 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url',
+                            'valueUrl' => 'https://test-bucket.s3.amazonaws.com/thumb.jpg?sig=abc123'
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      end
+
+      it 'extracts the presigned thumbnail URL from instance extensions' do
+        result = adapter.parse(response_with_thumbnails).first
+
+        instance = result.series.first[:instances].first
+        expect(instance[:thumbnail_url]).to eq('https://test-bucket.s3.amazonaws.com/thumb.jpg?sig=abc123')
+        expect(instance[:image_id]).to eq('urn:vaimage:test-image-id')
+      end
+
+      it 'returns nil thumbnail_url when presigned-url extension is absent' do
+        result = adapter.parse(imaging_study_response).first
+
+        instance = result.series.first[:instances].first
+        expect(instance[:thumbnail_url]).to be_nil
+      end
+    end
+
     context 'with empty response' do
       it 'returns empty array for nil body' do
         expect(adapter.parse(nil)).to eq([])

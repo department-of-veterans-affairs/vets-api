@@ -132,7 +132,8 @@ module UnifiedHealthData
             number: instance['number'],
             title: instance['title'],
             sop_class: instance.dig('sopClass', 'code'),
-            image_id: extract_image_id(instance)
+            image_id: extract_image_id(instance),
+            thumbnail_url: extract_thumbnail_url(instance)
           }
         end
       end
@@ -147,6 +148,18 @@ module UnifiedHealthData
           ext['url'] == 'http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid'
         end
         image_extension&.dig('valueString')
+      end
+
+      # Extracts the presigned thumbnail URL from instance extension
+      #
+      # @param instance [Hash] Instance data
+      # @return [String, nil] the presigned URL or nil
+      def extract_thumbnail_url(instance)
+        extensions = instance['extension'] || []
+        url_extension = extensions.find do |ext|
+          ext['url'] == 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url'
+        end
+        url_extension&.dig('valueUrl')
       end
     end
   end
