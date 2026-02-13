@@ -69,4 +69,58 @@ FactoryBot.define do
     guid { SecureRandom.uuid }
     form { { veteranFullName: { first: 'Bob', last: 'Johnson' } }.to_json }
   end
+
+  # BIO Forms SavedClaim factories
+  factory :saved_claim_form_214192, class: 'SavedClaim::Form214192' do
+    guid { SecureRandom.uuid }
+    form do
+      {
+        veteranInformation: {
+          fullName: { first: 'John', last: 'Doe' },
+          ssn: '123456789',
+          vaFileNumber: '987654321'
+        },
+        employmentInformation: {
+          employerName: 'Acme Corp',
+          employerAddress: { postalCode: '12345' }
+        }
+      }.to_json
+    end
+  end
+
+  factory :saved_claim_form_210779, class: 'SavedClaim::Form210779' do
+    guid { SecureRandom.uuid }
+    form do
+      {
+        veteranInformation: {
+          fullName: { first: 'Jane', last: 'Smith' },
+          ssn: '987654321'
+        }
+      }.to_json
+    end
+  end
+
+  factory :saved_claim_form_21p530a, class: 'SavedClaim::Form21p530a' do
+    guid { SecureRandom.uuid }
+    form do
+      {
+        veteranInformation: {
+          fullName: { first: 'Bob', last: 'Wilson' },
+          ssn: '111222333'
+        }
+      }.to_json
+    end
+  end
+
+  factory :saved_claim_form_212680, class: 'SavedClaim::Form212680' do
+    guid { SecureRandom.uuid }
+    form do
+      {
+        veteranInformation: {
+          fullName: { first: 'Alice', last: 'Johnson' },
+          ssn: '444555666'
+        }
+      }.to_json
+    end
+  end
 end

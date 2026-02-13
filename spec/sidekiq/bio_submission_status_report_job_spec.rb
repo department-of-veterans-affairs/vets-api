@@ -61,8 +61,9 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
     end
 
     context 'with submission data' do
+      let!(:saved_claim) { create(:saved_claim_form_214192) }
       let!(:form_submission) do
-        create(:form_submission, form_type: '21-4192')
+        create(:form_submission, form_type: '21-4192', saved_claim:)
       end
       let!(:attempt) do
         create(:form_submission_attempt,
@@ -102,12 +103,37 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           expect(data_row[5]).to eq(test_packet_id)
         end
       end
+
+      it 'excludes Quick Submit submissions (those without saved_claim_id)' do
+        # Create a Quick Submit form submission without a saved_claim
+        quick_submit_submission = create(:form_submission, form_type: '21-4192', saved_claim_id: nil)
+        create(:form_submission_attempt,
+               form_submission: quick_submit_submission,
+               benefits_intake_uuid: 'e5f6a7b8-c9d0-1234-ef01-345678901234',
+               aasm_state: 'pending')
+
+        stub_reports_s3 do
+          csv_content = nil
+          allow(Reports::Uploader).to receive(:get_s3_link) do |path|
+            csv_content = CSV.read(path) if path.include?('21-4192')
+            'https://s3.example.com/report.csv'
+          end
+          subject.perform
+
+          # Should only include the submission with saved_claim (test_uuid), not the Quick Submit one
+          header_idx = csv_content.index(described_class::HEADER_COLUMNS)
+          data_rows = csv_content[(header_idx + 1)..]
+          expect(data_rows.size).to eq(1)
+          expect(data_rows[0][0]).to eq(test_uuid)
+        end
+      end
     end
 
     context 'when CMP service is down' do
       let(:down_uuid) { 'b2c3d4e5-f6a7-8901-bcde-f12345678901' }
+      let!(:saved_claim) { create(:saved_claim_form_214192) }
       let!(:form_submission) do
-        create(:form_submission, form_type: '21-4192')
+        create(:form_submission, form_type: '21-4192', saved_claim:)
       end
       let!(:attempt) do
         create(:form_submission_attempt,
@@ -141,8 +167,10 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when one form type errors' do
       before do
-        create(:form_submission, form_type: '21-4192')
-        create(:form_submission, form_type: '21-0779')
+        saved_claim_4192 = create(:saved_claim_form_214192)
+        saved_claim_0779 = create(:saved_claim_form_210779)
+        create(:form_submission, form_type: '21-4192', saved_claim: saved_claim_4192)
+        create(:form_submission, form_type: '21-0779', saved_claim: saved_claim_0779)
 
         call_count = 0
         allow(FormSubmissionAttempt).to receive(:joins).and_wrap_original do |method, *args|
@@ -168,8 +196,9 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when CMP status call raises an error' do
       let(:error_uuid) { 'c3d4e5f6-a7b8-9012-cdef-123456789012' }
+      let!(:saved_claim) { create(:saved_claim_form_214192) }
       let!(:form_submission) do
-        create(:form_submission, form_type: '21-4192')
+        create(:form_submission, form_type: '21-4192', saved_claim:)
       end
       let!(:attempt) do
         create(:form_submission_attempt, form_submission:, benefits_intake_uuid: error_uuid)
@@ -210,8 +239,9 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           }
         ].to_json)
       end
+      let!(:saved_claim) { create(:saved_claim_form_214192) }
       let!(:form_submission) do
-        create(:form_submission, form_type: '21-4192')
+        create(:form_submission, form_type: '21-4192', saved_claim:)
       end
       let!(:attempt) do
         create(:form_submission_attempt, form_submission:, benefits_intake_uuid: no_packet_uuid)
