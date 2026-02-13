@@ -177,7 +177,7 @@ module TravelClaim
       fetch_veis_token! if @current_veis_token.blank?
 
       log_auth_event('Fetching BTSSS token')
-      client_secret = if @facility_type&.downcase == 'oh'
+      client_secret = if @facility_type.to_s.strip.downcase == 'oh'
                         settings.travel_pay_client_secret_oh
                       else
                         settings.travel_pay_client_secret
