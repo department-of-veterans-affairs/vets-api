@@ -47,7 +47,7 @@ module PdfFill
 
         file_path = File.join(TMP_DIR, "22-0976_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
-        file_path
+        combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
       end
 
       def generate_extended_form(merged_form_data, hash_converter)

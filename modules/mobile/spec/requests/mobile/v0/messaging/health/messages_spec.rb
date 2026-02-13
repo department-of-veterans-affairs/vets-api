@@ -38,6 +38,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
@@ -75,6 +76,30 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                    'attachmentSize' => 210_000 },
                                  'links' => { 'download' => 'http://www.example.com/mobile/v0/messaging' \
                                                             '/health/messages/573059/attachments/674847' } })
+      end
+
+      it 'responds to GET #show with reply_disabled' do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_reply_disabled') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+            get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+          end
+        end
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(true)
+        expect(response).to match_camelized_response_schema('message', strict: false)
+      end
+
+      it 'responds to GET #show with reply_disabled false' do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_reply_not_disabled') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+            get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+          end
+        end
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(false)
+        expect(response).to match_camelized_response_schema('message', strict: false)
       end
 
       it 'responds to GET #show with active triage group' do
@@ -486,6 +511,53 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                               'status' => '404' }] }
             expect(response).to have_http_status(:not_found)
             expect(response.parsed_body).to eq(expected_error)
+          end
+        end
+      end
+
+      describe 'schema contract validation' do
+        let(:user_account) { create(:user_account) }
+
+        before do
+          user.user_account_uuid = user_account.id
+          user.save!
+        end
+
+        context 'when :schema_contract_message_show is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with('schema_contract_message_show').and_return(true)
+          end
+
+          it 'validates schema for get_message' do
+            VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+                get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+              end
+            end
+            expect(response).to be_successful
+            SchemaContract::ValidationJob.drain
+            validation = SchemaContract::Validation.find_by(contract_name: 'message_show')
+            expect(validation).to be_present
+            expect(validation.status).to eq('success')
+          end
+        end
+
+        context 'when :schema_contract_triage_teams is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with('schema_contract_triage_teams').and_return(true)
+          end
+
+          it 'validates schema for get_all_triage_teams' do
+            VCR.use_cassette('mobile/messages/gets_a_message_with_id_and_attachment') do
+              VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+                get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+              end
+            end
+            expect(response).to be_successful
+            SchemaContract::ValidationJob.drain
+            validation = SchemaContract::Validation.find_by(contract_name: 'triage_teams')
+            expect(validation).to be_present
+            expect(validation.status).to eq('success')
           end
         end
       end
