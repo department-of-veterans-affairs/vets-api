@@ -1023,18 +1023,6 @@
             "if": {
               "properties": {
                 "disabilityActionType": {
-                  "enum": ["INCREASE"]
-                }
-              }
-            },
-            "then": {
-              "required": ["ratedDisabilityId", "diagnosticCode"]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "disabilityActionType": {
                   "enum": ["NONE"]
                 }
               },
