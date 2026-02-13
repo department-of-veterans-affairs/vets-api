@@ -61,7 +61,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
     end
 
     context 'with submission data' do
-      let!(:saved_claim) { create(:saved_claim_form214192) }
+      let!(:saved_claim) { create(:fake_saved_claim) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
@@ -131,7 +131,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when CMP service is down' do
       let(:down_uuid) { 'b2c3d4e5-f6a7-8901-bcde-f12345678901' }
-      let!(:saved_claim) { create(:saved_claim_form214192) }
+      let!(:saved_claim) { create(:fake_saved_claim) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
@@ -167,22 +167,18 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when one form type errors' do
       before do
-        saved_claim4192 = create(:saved_claim_form214192)
-        saved_claim0779 = create(:saved_claim_form210779)
+        saved_claim4192 = create(:fake_saved_claim)
+        saved_claim0779 = create(:fake_saved_claim)
         create(:form_submission, form_type: '21-4192', saved_claim: saved_claim4192)
         create(:form_submission, form_type: '21-0779', saved_claim: saved_claim0779)
 
-        call_count = 0
-        allow(FormSubmissionAttempt).to receive(:joins).and_wrap_original do |method, *args|
-          result = method.call(*args)
-          allow(result).to receive(:where).and_wrap_original do |where_method, *where_args|
-            where_result = where_method.call(*where_args)
-            call_count += 1
-            # Raise error on second where call (first form type, after date filter)
-            allow(where_result).to receive(:order).and_raise(StandardError, 'db error') if call_count == 2
-            where_result
+        first_call = true
+        allow(Reports::Uploader).to receive(:get_s3_link).and_wrap_original do |method, *args|
+          if first_call
+            first_call = false
+            raise StandardError, 'S3 upload error'
           end
-          result
+          method.call(*args)
         end
       end
 
@@ -196,7 +192,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
 
     context 'when CMP status call raises an error' do
       let(:error_uuid) { 'c3d4e5f6-a7b8-9012-cdef-123456789012' }
-      let!(:saved_claim) { create(:saved_claim_form214192) }
+      let!(:saved_claim) { create(:fake_saved_claim) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
@@ -239,7 +235,7 @@ RSpec.describe BioSubmissionStatusReportJob, type: :aws_helpers do
           }
         ].to_json)
       end
-      let!(:saved_claim) { create(:saved_claim_form214192) }
+      let!(:saved_claim) { create(:fake_saved_claim) }
       let!(:form_submission) do
         create(:form_submission, form_type: '21-4192', saved_claim:)
       end
