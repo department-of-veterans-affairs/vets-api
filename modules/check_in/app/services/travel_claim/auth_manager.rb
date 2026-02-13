@@ -75,27 +75,6 @@ module TravelClaim
     end
 
     ##
-    # Refreshes only the BTSSS token, keeping the VEIS token.
-    # Use this for 409 contact ID mismatch errors.
-    #
-    def refresh_btsss_token!
-      log_auth_event('Refreshing BTSSS token only')
-      @current_btsss_token = nil
-      fetch_btsss_token!
-    end
-
-    ##
-    # Refreshes both VEIS and BTSSS tokens.
-    # Use this for 401 unauthorized errors.
-    #
-    def refresh_all_tokens!
-      log_auth_event('Refreshing all tokens')
-      @current_veis_token = nil
-      @current_btsss_token = nil
-      ensure_tokens!
-    end
-
-    ##
     # Returns the current VEIS token, fetching if needed.
     #
     # @return [String] VEIS access token
@@ -121,6 +100,27 @@ module TravelClaim
 
     def redis_client
       @redis_client ||= TravelClaim::RedisClient.build
+    end
+
+    ##
+    # Refreshes only the BTSSS token, keeping the VEIS token.
+    # Used internally for 409 contact ID mismatch errors.
+    #
+    def refresh_btsss_token!
+      log_auth_event('Refreshing BTSSS token only')
+      @current_btsss_token = nil
+      fetch_btsss_token!
+    end
+
+    ##
+    # Refreshes both VEIS and BTSSS tokens.
+    # Used internally for 401 unauthorized errors.
+    #
+    def refresh_all_tokens!
+      log_auth_event('Refreshing all tokens')
+      @current_veis_token = nil
+      @current_btsss_token = nil
+      ensure_tokens!
     end
 
     ##

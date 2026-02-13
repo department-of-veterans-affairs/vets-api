@@ -236,7 +236,7 @@ RSpec.describe TravelClaim::AuthManager do
     end
   end
 
-  describe '#refresh_btsss_token!' do
+  describe '#refresh_btsss_token! (private)' do
     it 'clears and re-fetches only the BTSSS token' do
       auth_manager.instance_variable_set(:@current_veis_token, 'original-veis-token')
       auth_manager.instance_variable_set(:@current_btsss_token, 'old-btsss-token')
@@ -248,14 +248,14 @@ RSpec.describe TravelClaim::AuthManager do
         instance_double(Faraday::Response, body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
       )
 
-      auth_manager.refresh_btsss_token!
+      auth_manager.send(:refresh_btsss_token!)
 
       expect(auth_manager.send(:instance_variable_get, :@current_veis_token)).to eq('original-veis-token')
       expect(auth_manager.send(:instance_variable_get, :@current_btsss_token)).to eq('new-btsss-token')
     end
   end
 
-  describe '#refresh_all_tokens!' do
+  describe '#refresh_all_tokens! (private)' do
     it 'clears and re-fetches both tokens' do
       auth_manager.instance_variable_set(:@current_veis_token, 'old-veis-token')
       auth_manager.instance_variable_set(:@current_btsss_token, 'old-btsss-token')
@@ -272,7 +272,7 @@ RSpec.describe TravelClaim::AuthManager do
         instance_double(Faraday::Response, body: { 'data' => { 'accessToken' => 'new-btsss-token' } })
       )
 
-      auth_manager.refresh_all_tokens!
+      auth_manager.send(:refresh_all_tokens!)
 
       expect(auth_manager.send(:instance_variable_get, :@current_veis_token)).to eq('new-veis-token')
       expect(auth_manager.send(:instance_variable_get, :@current_btsss_token)).to eq('new-btsss-token')
