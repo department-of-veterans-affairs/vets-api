@@ -65,6 +65,7 @@ RSpec.shared_context 'shared data' do
       }
     }
   end
+  let(:inquiry_details) { { level_of_authentication: 'Personal' } }
   let(:translated_payload) do
     { AreYouTheDependent: false,
       AttachmentPresent: true,
