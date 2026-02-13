@@ -1015,19 +1015,6 @@
             "if": {
               "properties": {
                 "disabilityActionType": {
-                  "enum": ["NONE"]
-                }
-              },
-              "required": ["secondaryDisabilities"]
-            },
-            "then": {
-              "required": ["diagnosticCode"]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "disabilityActionType": {
                   "const": "NEW"
                 }
               }
