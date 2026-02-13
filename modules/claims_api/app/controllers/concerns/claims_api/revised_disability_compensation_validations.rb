@@ -53,12 +53,12 @@ module ClaimsApi
     def validate_form_526_location_codes!
       # only retrieve separation locations if we'll need them
       need_locations = form_attributes['serviceInformation']['servicePeriods'].detect do |service_period|
-        Date.parse(service_period['activeDutyEndDate']) > Time.zone.today
+        parse_date_safely(service_period['activeDutyEndDate']) > Time.zone.today
       end
       separation_locations = retrieve_separation_locations if need_locations
 
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
-        next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
+        next if parse_date_safely(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
           location[:id]&.to_s == service_period['separationLocationCode']
         end
@@ -73,7 +73,7 @@ module ClaimsApi
 
       service_periods.each do |service_period|
         begin_date = service_period['activeDutyBeginDate']
-        next if Date.parse(begin_date) < Time.zone.today
+        next if parse_date_safely(begin_date) < Time.zone.today
 
         raise ::Common::Exceptions::InvalidFieldValue.new('servicePeriods.activeDutyBeginDate',
                                                           "A service period's activeDutyBeginDate must be in the past")
@@ -98,7 +98,7 @@ module ClaimsApi
         end_date = service_period['activeDutyEndDate']
         next if end_date.blank?
 
-        if Date.parse(end_date) < Date.parse(begin_date)
+        if parse_date_safely(end_date) < parse_date_safely(begin_date)
           raise ::Common::Exceptions::InvalidFieldValue.new(
             'serviceInformation.servicePeriods',
             'Invalid service period duty dates - ' \
@@ -128,7 +128,7 @@ module ClaimsApi
         end_date = sp['activeDutyEndDate']
         next false if end_date.blank?
 
-        Date.parse(end_date) > 180.days.from_now.end_of_day
+        parse_date_safely(end_date) > 180.days.from_now.end_of_day
       end
     end
 
@@ -139,7 +139,7 @@ module ClaimsApi
       return if age_thirteen.nil? || service_periods.nil?
 
       started_before_age_thirteen = service_periods.any? do |period|
-        Date.parse(period['activeDutyBeginDate']) < age_thirteen
+        parse_date_safely(period['activeDutyBeginDate']) < age_thirteen
       end
       if started_before_age_thirteen
         raise ::Common::Exceptions::UnprocessableEntity.new(
@@ -159,7 +159,7 @@ module ClaimsApi
         end_date = sp['activeDutyEndDate']
         next false if end_date.blank?
 
-        Date.parse(end_date) <= Time.zone.today.end_of_day
+        parse_date_safely(end_date) <= Time.zone.today.end_of_day
       end
     end
 
@@ -171,11 +171,11 @@ module ClaimsApi
       return if title10_activation_date.blank?
 
       begin_dates = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
-        Date.parse(service_period['activeDutyBeginDate'])
+        parse_date_safely(service_period['activeDutyBeginDate'])
       end
 
-      return if Date.parse(title10_activation_date) > begin_dates.min &&
-                Date.parse(title10_activation_date) <= Time.zone.now
+      return if parse_date_safely(title10_activation_date) > begin_dates.min &&
+                parse_date_safely(title10_activation_date) <= Time.zone.now
 
       raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
     end
@@ -188,15 +188,15 @@ module ClaimsApi
       return if anticipated_separation_date.blank?
 
       # validate anticipated_separation_date is in the future
-      if Date.parse(anticipated_separation_date) <= Time.zone.today
+      if parse_date_safely(anticipated_separation_date) <= Time.zone.today
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
 
       # validate anticipated_separation_date is within 180 days of claimDate or current date if claimDate is not provided
       # in line with v2 validation in revised_disability_compensation_validations.rb
-      start_date = Date.parse(form_attributes['claimDate'] || Time.zone.today.to_s)
+      start_date = parse_date_safely(form_attributes['claimDate'] || Time.zone.today.to_s)
 
-      if Date.parse(anticipated_separation_date) > (start_date + 180.days)
+      if parse_date_safely(anticipated_separation_date) > (start_date + 180.days)
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
     end
@@ -228,7 +228,7 @@ module ClaimsApi
     def validate_form_526_change_of_address_beginning_date!(change_of_address)
       return if change_of_address.blank?
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
-      return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
+      return if parse_date_safely(change_of_address['beginningDate']) > Time.zone.now
 
       raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
     end
@@ -246,7 +246,7 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
 
         beginning_date = change_of_address['beginningDate']
-        if Date.parse(beginning_date) >= Date.parse(ending_date)
+        if parse_date_safely(beginning_date) >= parse_date_safely(ending_date)
           raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
         end
       end
@@ -296,7 +296,7 @@ module ClaimsApi
 
       return if end_date.nil?
 
-      return if Date.parse(end_date) >= Time.zone.today
+      return if parse_date_safely(end_date) >= Time.zone.today
 
       raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode", classification_code)
     end
@@ -322,7 +322,7 @@ module ClaimsApi
         approx_begin_date = disability['approximateBeginDate']
         next if approx_begin_date.blank?
 
-        next if Date.parse(approx_begin_date) < Time.zone.today
+        next if parse_date_safely(approx_begin_date) < Time.zone.today
 
         raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateBeginDate', approx_begin_date)
       end
@@ -397,6 +397,13 @@ module ClaimsApi
 
       # Mask all but the first character of the string
       value[0] + ('*' * (value.length - 1))
+    end
+
+    # utility method from v2 validations to parse dates without raising exceptions. 
+    def parse_date_safely(date_string)
+      Date.parse(date_string)
+    rescue
+      nil
     end
   end
 end
