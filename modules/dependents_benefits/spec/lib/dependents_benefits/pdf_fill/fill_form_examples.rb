@@ -64,6 +64,9 @@ RSpec.shared_examples 'a form filler' do |options|
             else
               allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
             end
+
+            # Defaulting this to true so that we avoid fixture issues with the no-SSN pdf filler logic
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(true)
           end
 
           it 'fills the form correctly' do
@@ -90,6 +93,14 @@ RSpec.shared_examples 'a form filler' do |options|
               extras_path = the_extras_generator.generate
 
               fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+
+              # This gives more detailed output on where the PDFs differ
+              file_texts = [extras_path, fixture_pdf].map do |path|
+                reader1 = PDF::Reader.new(path)
+                reader1.pages.map(&:text).join('\n').squeeze
+              end
+              expect(file_texts[0]).to eq(file_texts[1])
+
               expect(extras_path).to match_file_exactly(fixture_pdf)
 
               File.delete(extras_path)
