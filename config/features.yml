@@ -1908,11 +1908,9 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
-<<<<<<< HEAD
   schema_contract_get_awards_pension:
     actor_type: user
     description: Enables schema validation for the pensions service get awards pension fetch.
-=======
   schema_contract_message_show:
     actor_type: user
     description: Enables schema validation for the mobile message show service call.
@@ -1922,7 +1920,6 @@ features:
   schema_contract_triage_teams:
     actor_type: user
     description: Enables schema validation for the mobile triage teams service call.
->>>>>>> master
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
