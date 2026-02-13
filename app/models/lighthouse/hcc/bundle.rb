@@ -63,7 +63,7 @@ module Lighthouse
       end
 
       def build_meta
-        relations = @bundle['link'].to_a.index_by { |l| l['relation'] }
+        relations = @bundle['link'].index_by { |l| l['relation'] }
         self_url = relations['self']&.dig('url')
 
         base_meta = {
