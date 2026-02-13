@@ -177,7 +177,12 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if appointment not found/created
     #
     def get_appointment_id
-      response = client.send_appointment_request
+      response = auth_manager.with_auth do
+        client.send_appointment_request(
+          veis_token: auth_manager.veis_token,
+          btsss_token: auth_manager.btsss_token
+        )
+      end
       appointment_id = response.body.dig('data', 0, 'id')
 
       unless appointment_id
@@ -196,7 +201,13 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if claim creation fails
     #
     def create_new_claim(appointment_id)
-      response = client.send_claim_request(appointment_id:)
+      response = auth_manager.with_auth do
+        client.send_claim_request(
+          veis_token: auth_manager.veis_token,
+          btsss_token: auth_manager.btsss_token,
+          appointment_id:
+        )
+      end
       claim_id = response.body.dig('data', 'claimId')
 
       unless claim_id
@@ -214,10 +225,14 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if expense addition fails
     #
     def add_expense_to_claim(claim_id)
-      response = client.send_mileage_expense_request(
-        claim_id:,
-        date_incurred: appointment_date_yyyy_mm_dd
-      )
+      response = auth_manager.with_auth do
+        client.send_mileage_expense_request(
+          veis_token: auth_manager.veis_token,
+          btsss_token: auth_manager.btsss_token,
+          claim_id:,
+          date_incurred: appointment_date_yyyy_mm_dd
+        )
+      end
 
       unless response.status == 200
         increment_error_metric(EXPENSE_ADD_ERROR)
@@ -233,7 +248,13 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if submission fails
     #
     def submit_claim_for_processing(claim_id)
-      response = client.send_claim_submission_request(claim_id:)
+      response = auth_manager.with_auth do
+        client.send_claim_submission_request(
+          veis_token: auth_manager.veis_token,
+          btsss_token: auth_manager.btsss_token,
+          claim_id:
+        )
+      end
 
       unless response.status == 200
         increment_error_metric(CLAIM_SUBMIT_ERROR)
@@ -250,10 +271,74 @@ module TravelClaim
     #
     def client
       @client ||= TravelClaim::TravelPayClient.new(
-        check_in_uuid: @check_in_uuid,
         appointment_date_time: normalized_appointment_datetime,
-        facility_type: @facility_type
+        station_number:,
+        check_in_uuid: @check_in_uuid,
+        facility_type: @facility_type,
+        correlation_id:
       )
+    end
+
+    ##
+    # Returns a configured AuthManager instance.
+    #
+    # @return [TravelClaim::AuthManager] configured auth manager
+    #
+    def auth_manager
+      @auth_manager ||= TravelClaim::AuthManager.new(
+        icn:,
+        station_number:,
+        facility_type: @facility_type,
+        correlation_id: @correlation_id
+      )
+    end
+
+    ##
+    # Generates or returns the correlation ID for request tracing.
+    #
+    # @return [String] correlation ID
+    #
+    def correlation_id
+      @correlation_id ||= SecureRandom.uuid
+    end
+
+    ##
+    # Returns the Redis client for fetching patient data.
+    #
+    # @return [TravelClaim::RedisClient] Redis client instance
+    #
+    def redis_client
+      @redis_client ||= TravelClaim::RedisClient.build
+    end
+
+    ##
+    # Retrieves the patient ICN from Redis.
+    #
+    # @return [String] patient ICN
+    # @raise [Common::Exceptions::BackendServiceException] if ICN not found
+    #
+    def icn
+      @icn ||= begin
+        value = redis_client.icn(uuid: @check_in_uuid)
+        raise_backend_service_exception('Patient ICN not found in session', 400, 'VA906') if value.blank?
+
+        value
+      end
+    end
+
+    ##
+    # Retrieves the station number from Redis.
+    #
+    # @return [String] facility station number
+    # @raise [Common::Exceptions::BackendServiceException] if station number not found
+    #
+    def station_number
+      @station_number ||= begin
+        value = redis_client.station_number(uuid: @check_in_uuid)
+        raise_backend_service_exception('Station number not found in session', 400, 'VA907') if value.blank?
+
+        value
+      end
     end
 
     ##
@@ -339,7 +424,7 @@ module TravelClaim
     # Sends a success notification if feature flag is enabled
     #
     def send_notification_if_enabled
-      return unless notification_enabled?
+      return unless Flipper.enabled?(:check_in_experience_travel_reimbursement)
 
       template_id = success_template_id
       claim_number_last_four = @claim_number_last_four
@@ -366,7 +451,7 @@ module TravelClaim
     # @param error [Exception] the error that occurred
     #
     def send_error_notification_if_enabled(error)
-      return unless notification_enabled?
+      return unless Flipper.enabled?(:check_in_experience_travel_reimbursement)
 
       template_id = determine_error_template_id(error)
       claim_number_last_four = @claim_number_last_four || 'unknown'
@@ -385,16 +470,6 @@ module TravelClaim
         template_id,
         claim_number_last_four
       )
-    end
-
-    ##
-    # Determines if notifications are enabled via feature flag
-    # Uses the same flag as V1 travel reimbursement feature
-    #
-    # @return [Boolean] true if notifications should be sent
-    #
-    def notification_enabled?
-      Flipper.enabled?(:check_in_experience_travel_reimbursement)
     end
 
     ##
