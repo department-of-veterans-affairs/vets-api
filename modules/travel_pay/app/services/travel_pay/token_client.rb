@@ -32,6 +32,7 @@ module TravelPay
     #
     # @return [Faraday::Response]
     #
+    # rubocop:disable Metrics/MethodLength
     def request_btsss_token(veis_token, user)
       sts_token = request_sts_token(user)
 
@@ -61,6 +62,7 @@ module TravelPay
         errors: [{ title: 'Bad Gateway', detail: "BTSSS returned an error: #{e.original_body}", status: 502 }]
       )
     end
+    # rubocop:enable Metrics/MethodLength
 
     def request_sts_token(user)
       private_key_file = IdentitySettings.sign_in.sts_client.key_path

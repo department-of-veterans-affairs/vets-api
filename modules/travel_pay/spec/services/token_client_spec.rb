@@ -82,15 +82,19 @@ describe TravelPay::TokenClient do
       token_client = TravelPay::TokenClient.new(123)
 
       expect(Rails.logger).to receive(:error).with(
-        "BTSSS token request failed with 403: {\"message\"=>\"Forbidden\"}",
+        'BTSSS token request failed with 403: {"message"=>"Forbidden"}',
         hash_including(response_status: 403)
       )
 
-      expect { token_client.request_btsss_token('veis_token', user) }.to raise_error(Common::Exceptions::BadGateway) do |e|
+      # rubocop:disable Style/MultilineBlockChain
+      expect do
+        token_client.request_btsss_token('veis_token', user)
+      end.to raise_error(Common::Exceptions::BadGateway) do |e|
         expect(e.errors).to be_present
         expect(e.errors.first).to be_a(Hash)
         expect(e.errors.first[:detail]).to include('BTSSS returned an error')
       end
+      # rubocop:enable Style/MultilineBlockChain
     end
   end
 
