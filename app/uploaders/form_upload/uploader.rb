@@ -3,10 +3,12 @@
 require 'shrine/plugins/validate_unlocked_pdf'
 require 'shrine/plugins/validate_pdf_page_count'
 require 'shrine/plugins/validate_correct_form'
+require 'shrine/plugins/validate_pdf_integrity'
 
 class FormUpload::Uploader < VetsShrine
   plugin :storage_from_config, settings: Settings.shrine.claims
   plugin :activerecord, callbacks: false
+  plugin :validate_pdf_integrity
   plugin :validate_unlocked_pdf
   plugin :store_dimensions
   plugin :validate_pdf_page_count
@@ -14,6 +16,7 @@ class FormUpload::Uploader < VetsShrine
 
   Attacher.validate do
     validate_virus_free
+    validate_pdf_integrity
     validate_max_size 25.megabytes
     validate_min_size 1.kilobyte
     validate_mime_type_inclusion %w[image/jpg image/jpeg image/png application/pdf]
