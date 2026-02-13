@@ -134,6 +134,12 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
+  bio_heart_mms_submit:
+    actor_type: user
+    description: Toggle the sending of data to MMS for BIO HEART forms
+  bio_heart_mms_logging:
+    actor_type: user
+    description: Enable verbose logging in the BIO HEART MMS data submission workflow
   bio_submission_status_report_enabled:
     actor_type: user
     description: Enables periodic job that generates CSV reports tracking BIO form submission status through Lighthouse Benefits Intake and Central Mail Processing
@@ -512,10 +518,20 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
+  cst_claims_list_filter:
+    actor_type: user
+    description: When enabled, claims status tool displays a filter on the claims list
+    enable_in_development: true
   cst_evidence_requests_content_override:
     actor_type: user
     description: >
       When enabled, tracked items in claims status tool use content dictionary
+      overrides for display names, descriptions, and structured content blocks.
+    enable_in_development: true
+  cst_evidence_requests_content_override_mobile:
+    actor_type: user
+    description: >
+      When enabled, tracked items in mobile claims status tool use content dictionary
       overrides for display names, descriptions, and structured content blocks.
     enable_in_development: true
   cst_include_ddl_5103_letters:
@@ -1398,6 +1414,10 @@ features:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for OH patients
@@ -1497,6 +1517,12 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
     enable_in_development: true
+  mhv_secure_messaging_stream_via_revproxy:
+    actor_type: user
+    description: >
+      When enabled, uses nginx X-Accel-Redirect to stream S3 attachment downloads via revproxy,
+      reducing memory usage and freeing Rails processes immediately instead of
+      blocking while streaming large files. Requires nginx/openresty configuration.
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -2485,24 +2511,6 @@ features:
     enable_in_development: true
     actor_type: user
     description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
-  employment_questionnaires_browser_monitoring_enabled:
-    actor_type: user
-    description: Employment Questionnaire form Datadog RUM monitoring
-  employment_questionnaires_content_updates:
-    actor_type: user
-    description: Implement plain language and content updates
-  employment_questionnaires_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Action Needed email notification
-  employment_questionnaires_received_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Received email notification
-  employment_questionnaires_submitted_email_notification:
-    actor_type: user
-    description: Toggle sending of the Submission in Progress email notification
-  employment_questionnaires_persistent_attachment_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2671,6 +2679,12 @@ features:
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
+  va_notify_v2_form1010cg_submission:
+    actor_type: user
+    description: If enabled, Form1010cg::SubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
+  va_notify_v2_in_progress_form_reminder:
+    actor_type: user
+    description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
   va_notify_delivery_status_update_job:
     actor_type: user
     description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications
@@ -2910,3 +2924,9 @@ features:
   vets_model_nested_array:
     actor_type: user
     description: If enabled, allows Vets::Model to serialize nested array of objects
+  vre_form_submission_tracking:
+    actor_type: user
+    description: If enabled, track form submissions for VR&E application Form 28-1900
+  discover_your_benefits_results_page_update:
+    actor_type: cookie_id
+    description: "If enabled, displays new results page features and designs"
