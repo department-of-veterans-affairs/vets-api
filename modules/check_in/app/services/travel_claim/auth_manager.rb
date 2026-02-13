@@ -256,17 +256,19 @@ module TravelClaim
 
     ##
     # Builds environment-specific subscription key headers.
+    # Raises if required subscription keys are missing.
     #
     # @return [Hash] Headers with appropriate subscription keys
+    # @raise [RuntimeError] if subscription keys are not configured
     #
     def subscription_key_headers
       if Settings.vsp_environment == 'production'
         {
-          'Ocp-Apim-Subscription-Key-E' => settings.e_subscription_key,
-          'Ocp-Apim-Subscription-Key-S' => settings.s_subscription_key
+          'Ocp-Apim-Subscription-Key-E' => settings.e_subscription_key.to_s.presence || raise('Missing e_subscription_key'),
+          'Ocp-Apim-Subscription-Key-S' => settings.s_subscription_key.to_s.presence || raise('Missing s_subscription_key')
         }
       else
-        { 'Ocp-Apim-Subscription-Key' => settings.subscription_key }
+        { 'Ocp-Apim-Subscription-Key' => settings.subscription_key.to_s.presence || raise('Missing subscription_key') }
       end
     end
 
