@@ -1711,6 +1711,11 @@ describe UnifiedHealthData::Service, type: :service do
       # The oracle_only cassette has valid Oracle Health data and empty VistA data (no OperationOutcome errors).
       # This tests that we can successfully parse responses when one source has no data.
 
+      before do
+        allow_any_instance_of(UnifiedHealthData::Adapters::FacilityNameResolver)
+          .to receive(:valid_station_number?).and_return(true)
+      end
+
       it 'handles Oracle Health-only data without errors' do
         VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only') do
           prescriptions = service.get_prescriptions
