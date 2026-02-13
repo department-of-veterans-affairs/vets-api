@@ -2029,8 +2029,11 @@ module DependentsBenefits
         }
       end
 
-      ##
-      # Expands no SSN cases into remarks for PDF form
+      # Expands cases where a student has no SSN
+      #
+      # When a student has no SSN, replaces the SSN field with "See ad d'l "
+      # placeholder text and adds the no-SSN reason to the remarks section.
+      # Assumes only one student per form instance.
       #
       # @return [void]
       def expand_no_ssn_cases
@@ -2108,6 +2111,7 @@ module DependentsBenefits
         @form_data['remarks'] ||= {}
 
         # Split text into chunks of up to 35 characters and assign to remark lines
+        # 35 characters is remark line limit in pdf
         combined_text.scan(/.{1,35}/).each_with_index do |chunk, index|
           @form_data['remarks']["remarks_line#{index + 1}"] = chunk
         end

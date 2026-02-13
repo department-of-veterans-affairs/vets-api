@@ -2032,6 +2032,7 @@ module PdfFill
         @form_data['remarks'] ||= {}
 
         # Split text into chunks of up to 35 characters and assign to remark lines
+        # 35 characters is remark line limit in pdf
         combined_text.scan(/.{1,35}/).each_with_index do |chunk, index|
           @form_data['remarks']["remarks_line#{index + 1}"] = chunk
         end

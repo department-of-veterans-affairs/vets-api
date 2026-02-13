@@ -1039,8 +1039,12 @@ module DependentsBenefits
       end
       # rubocop:enable Metrics/MethodLength
 
-      ##
       # Expands cases where a student has no SSN
+      #
+      # When a student has no SSN, replaces the SSN field with "See ad d'l "
+      # placeholder text and adds the no-SSN reason to the remarks section.
+      # Assumes only one student per form instance.
+      #
       # @return [void]
       def expand_no_ssn_cases
         # We can assume 1 student in the array since this filler
