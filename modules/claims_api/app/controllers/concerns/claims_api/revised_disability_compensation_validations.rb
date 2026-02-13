@@ -192,13 +192,11 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
 
-      title10_activation_date = form_attributes.dig('serviceInformation',
-                                                    'reservesNationalGuardService',
-                                                    'title10Activation',
-                                                    'title10ActivationDate')
-      # validate anticipated_separation_date is within 180 days of title10_activation_date
-      if title10_activation_date.present? &&
-         Date.parse(anticipated_separation_date) > (Date.parse(title10_activation_date) + 180.days)
+      # validate anticipated_separation_date is within 180 days of claimDate or current date if claimDate is not provided
+      # in line with v2 validation in revised_disability_compensation_validations.rb
+      start_date = Date.parse(form_attributes['claimDate'] || Time.zone.today.to_s)
+
+      if Date.parse(anticipated_separation_date) > (start_date + 180.days)
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
     end

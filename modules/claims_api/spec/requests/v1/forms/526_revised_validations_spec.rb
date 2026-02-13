@@ -625,11 +625,11 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
 
     let(:form_attributes) do
       {
+        'claimDate' => claim_date,
         'serviceInformation' => {
           'servicePeriods' => service_periods,
           'reservesNationalGuardService' => {
             'title10Activation' => {
-              'title10ActivationDate' => title10_activation_date,
               'anticipatedSeparationDate' => anticipated_separation_date
             }
           }
@@ -638,8 +638,8 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     # happy path test
-    context 'when anticipatedSeparationDate is within 180 days of title10ActivationDate' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
+    context 'when anticipatedSeparationDate is within 180 days of claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
 
       it 'does not raise an error' do
@@ -648,8 +648,8 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     # sad path test
-    context 'when anticipatedSeparationDate is more than 180 days from title10ActivationDate' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
+    context 'when anticipatedSeparationDate is more than 180 days from claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 200.days.from_now.to_date.iso8601 }
 
       it 'raises an InvalidFieldValue error' do
@@ -659,8 +659,8 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     # edge case tests
-    context 'when anticipatedSeparationDate is exactly 180 days from title10ActivationDate' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
+    context 'when anticipatedSeparationDate is exactly 180 days from claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 180.days.from_now.to_date.iso8601 }
 
       it 'does not raise an error' do
@@ -669,7 +669,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     context 'when anticipatedSeparationDate is exactly today' do
-      let(:title10_activation_date) { 1.day.ago.to_date.iso8601 }
+      let(:claim_date) { 1.day.ago.to_date.iso8601 }
       let(:anticipated_separation_date) { Time.zone.today.iso8601 }
 
       it 'does not raise an error' do
@@ -677,8 +677,8 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
-    context 'when anticipatedSeparationDate is 181 days from title10ActivationDate' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
+    context 'when anticipatedSeparationDate is 181 days from claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 181.days.from_now.to_date.iso8601 }
 
       it 'raises an InvalidFieldValue error' do
@@ -688,7 +688,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     context 'when anticipatedSeparationDate is tomorrow' do
-      let(:title10_activation_date) { Time.zone.today.iso8601 }
+      let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 1.day.from_now.to_date.iso8601 }
 
       it 'does not raise an error' do
@@ -697,7 +697,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     context 'when anticipatedSeparationDate is in the past' do
-      let(:title10_activation_date) { 1.year.ago.to_date.iso8601 }
+      let(:claim_date) { 1.year.ago.to_date.iso8601 }
       let(:anticipated_separation_date) { 6.months.ago.to_date.iso8601 }
 
       it 'raises an error because anticipatedSeparationDate cannot be in the past' do
