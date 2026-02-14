@@ -8,7 +8,10 @@ module TravelClaim
   # Provides a with_auth wrapper that automatically handles 401 (unauthorized) and
   # 409 (contact ID mismatch) errors by refreshing appropriate tokens and retrying.
   #
-  class AuthManager
+  # Inherits from V1::BaseClient for circuit breaker protection, error handling,
+  # Datadog tracing, and StatsD metrics on external API calls.
+  #
+  class AuthManager < TravelClaim::V1::BaseClient
     attr_reader :station_number, :facility_type, :correlation_id
 
     VEIS_CACHE_TTL = 54.minutes
@@ -31,7 +34,9 @@ module TravelClaim
       @current_btsss_token = nil
       @auth_retry_attempted = false
 
-      validate_required_settings!
+      validate_veis_settings!
+      validate_subscription_keys!
+      super()
     end
 
     ##
@@ -256,24 +261,6 @@ module TravelClaim
     end
 
     ##
-    # Builds environment-specific subscription key headers.
-    # Raises if required subscription keys are missing.
-    #
-    # @return [Hash] Headers with appropriate subscription keys
-    # @raise [RuntimeError] if subscription keys are not configured
-    #
-    def subscription_key_headers
-      if Settings.vsp_environment == 'production'
-        {
-          'Ocp-Apim-Subscription-Key-E' => @subscription_key_e,
-          'Ocp-Apim-Subscription-Key-S' => @subscription_key_s
-        }
-      else
-        { 'Ocp-Apim-Subscription-Key' => @subscription_key }
-      end
-    end
-
-    ##
     # Creates a Faraday connection for VEIS OAuth requests.
     # Uses form-urlencoded content type, not JSON.
     #
@@ -304,7 +291,13 @@ module TravelClaim
                         })
     end
 
-    def validate_required_settings!
+    ##
+    # Validates and loads VEIS and BTSSS authentication settings.
+    # Subscription keys are validated by the parent class.
+    #
+    # @raise [RuntimeError] if required settings are missing
+    #
+    def validate_veis_settings!
       settings = Settings.check_in.travel_reimbursement_api_v2
 
       # VEIS token settings
@@ -318,18 +311,6 @@ module TravelClaim
       @btsss_client_secret_oh = require_setting(settings, :travel_pay_client_secret_oh)
       @btsss_client_secret_standard = require_setting(settings, :travel_pay_client_secret)
       @btsss_client_number = require_setting(settings, :client_number)
-
-      # Environment-specific subscription keys
-      if Settings.vsp_environment == 'production'
-        @subscription_key_e = require_setting(settings, :e_subscription_key)
-        @subscription_key_s = require_setting(settings, :s_subscription_key)
-      else
-        @subscription_key = require_setting(settings, :subscription_key)
-      end
-    end
-
-    def require_setting(settings, key)
-      settings.public_send(key).to_s.presence || raise("Missing required setting: #{key}")
     end
   end
 end

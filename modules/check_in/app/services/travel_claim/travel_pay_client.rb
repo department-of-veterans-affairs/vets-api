@@ -8,14 +8,14 @@ module TravelClaim
   # headers using tokens provided as parameters. Authentication token lifecycle
   # is managed separately by AuthManager and orchestrated by the service.
   #
-  class TravelPayClient < Common::Client::Base
-    include Common::Client::Concerns::Monitoring
-
+  # Inherits from V1::BaseClient for circuit breaker protection, error handling,
+  # Datadog tracing, and StatsD metrics on external API calls.
+  #
+  class TravelPayClient < TravelClaim::V1::BaseClient
     EXPENSE_DESCRIPTION = 'mileage'
     TRIP_TYPE           = 'RoundTrip'
     CLAIM_NAME          = 'Travel Reimbursement'
     CLAIMANT_TYPE       = 'Veteran'
-    STATSD_KEY_PREFIX   = 'api.check_in.travel_claim'
     API_EXCEPTIONS      = [
       Common::Exceptions::BackendServiceException,
       Common::Client::Errors::ClientError,
@@ -37,17 +37,8 @@ module TravelClaim
       @correlation_id = correlation_id || SecureRandom.uuid
 
       validate_required_params
-      validate_required_settings!
+      validate_subscription_keys!
       super()
-    end
-
-    ##
-    # Returns the singleton configuration instance for Travel Claim services.
-    #
-    # @return [TravelClaim::Configuration] The configuration instance
-    #
-    def config
-      TravelClaim::Configuration.instance
     end
 
     # ------------ API Operations ------------
@@ -163,22 +154,6 @@ module TravelClaim
     end
 
     ##
-    # Returns subscription key headers based on environment.
-    #
-    # @return [Hash] Subscription key headers
-    #
-    def subscription_key_headers
-      if Settings.vsp_environment == 'production'
-        {
-          'Ocp-Apim-Subscription-Key-E' => @subscription_key_e,
-          'Ocp-Apim-Subscription-Key-S' => @subscription_key_s
-        }
-      else
-        { 'Ocp-Apim-Subscription-Key' => @subscription_key }
-      end
-    end
-
-    ##
     # Validates that required parameters are present.
     #
     # @raise [ArgumentError] if any required parameter is missing
@@ -186,27 +161,6 @@ module TravelClaim
     def validate_required_params
       raise ArgumentError, 'appointment_date_time is required' if @appointment_date_time.blank?
       raise ArgumentError, 'station_number is required' if @station_number.blank?
-    end
-
-    ##
-    # Validates and stores required settings at initialization.
-    # Fails fast if any required subscription keys are missing.
-    #
-    # @raise [RuntimeError] if required settings are missing
-    #
-    def validate_required_settings!
-      settings = Settings.check_in.travel_reimbursement_api_v2
-
-      if Settings.vsp_environment == 'production'
-        @subscription_key_e = require_setting(settings, :e_subscription_key)
-        @subscription_key_s = require_setting(settings, :s_subscription_key)
-      else
-        @subscription_key = require_setting(settings, :subscription_key)
-      end
-    end
-
-    def require_setting(settings, key)
-      settings.public_send(key).to_s.presence || raise("Missing required setting: #{key}")
     end
 
     ##
