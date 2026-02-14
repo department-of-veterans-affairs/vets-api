@@ -22,8 +22,6 @@ module TravelClaim
       Common::Exceptions::GatewayTimeout
     ].freeze
 
-    attr_reader :settings
-
     ##
     # @param appointment_date_time [String] ISO 8601 appointment date/time (required)
     # @param station_number [String] Facility station number (required)
@@ -37,9 +35,9 @@ module TravelClaim
       @check_in_uuid = check_in_uuid
       @facility_type = facility_type
       @correlation_id = correlation_id || SecureRandom.uuid
-      @settings = Settings.check_in.travel_reimbursement_api_v2
 
       validate_required_params
+      validate_required_settings!
       super()
     end
 
@@ -172,11 +170,11 @@ module TravelClaim
     def subscription_key_headers
       if Settings.vsp_environment == 'production'
         {
-          'Ocp-Apim-Subscription-Key-E' => @settings.e_subscription_key,
-          'Ocp-Apim-Subscription-Key-S' => @settings.s_subscription_key
+          'Ocp-Apim-Subscription-Key-E' => @subscription_key_e,
+          'Ocp-Apim-Subscription-Key-S' => @subscription_key_s
         }
       else
-        { 'Ocp-Apim-Subscription-Key' => @settings.subscription_key }
+        { 'Ocp-Apim-Subscription-Key' => @subscription_key }
       end
     end
 
@@ -188,6 +186,27 @@ module TravelClaim
     def validate_required_params
       raise ArgumentError, 'appointment_date_time is required' if @appointment_date_time.blank?
       raise ArgumentError, 'station_number is required' if @station_number.blank?
+    end
+
+    ##
+    # Validates and stores required settings at initialization.
+    # Fails fast if any required subscription keys are missing.
+    #
+    # @raise [RuntimeError] if required settings are missing
+    #
+    def validate_required_settings!
+      settings = Settings.check_in.travel_reimbursement_api_v2
+
+      if Settings.vsp_environment == 'production'
+        @subscription_key_e = require_setting(settings, :e_subscription_key)
+        @subscription_key_s = require_setting(settings, :s_subscription_key)
+      else
+        @subscription_key = require_setting(settings, :subscription_key)
+      end
+    end
+
+    def require_setting(settings, key)
+      settings.public_send(key).to_s.presence || raise("Missing required setting: #{key}")
     end
 
     ##
