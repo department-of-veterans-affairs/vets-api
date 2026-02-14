@@ -50,6 +50,7 @@ module AskVAApi
         def log_inquiry_context
           context = {
             attachments: attachment_present?,
+            business_email_domain: top_level_domain(inquiry_params[:business_email]),
             category: inquiry_params[:select_category],
             has_business_email: inquiry_params[:business_email].present?,
             has_business_phone: inquiry_params[:business_phone].present?,
@@ -57,6 +58,7 @@ module AskVAApi
             has_personal_phone: inquiry_params[:phone_number].present?,
             is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
             level_of_authentication: inquiry_details[:level_of_authentication],
+            personal_email_domain: top_level_domain(inquiry_params[:email_address]),
             relationship_to_veteran: inquiry_params[:relationship_to_veteran],
             subtopic: inquiry_params[:select_subtopic],
             topic: inquiry_params[:select_topic],
@@ -103,6 +105,13 @@ module AskVAApi
             SubmitterProfile: submitter_profile.call,
             VeteranProfile: veteran_profile.call
           }
+        end
+
+        def top_level_domain(email)
+          return unless email.is_a?(String)
+          return unless URI::MailTo::EMAIL_REGEXP.match?(email)
+
+          email.slice(email.rindex('.')..)
         end
 
         def validate_params!
