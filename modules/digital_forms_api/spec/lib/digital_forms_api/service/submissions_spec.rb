@@ -102,10 +102,14 @@ RSpec.describe DigitalFormsApi::Service::Submissions do
     end
 
     it 'falls back claim_id and participant_id to submit response when retrieve has sparse details' do
-      sparse_retrieve_response = OpenStruct.new(body: { 'submission' => { 'submissionId' => 'a1ba50e4-e689-4852-bec7-2a66519f0ed3' } })
+      sparse_retrieve_response = OpenStruct.new(
+        body: { 'submission' => { 'submissionId' => 'a1ba50e4-e689-4852-bec7-2a66519f0ed3' } }
+      )
 
-      expect(service).to receive(:submit).with(payload, metadata, dry_run: false).and_return(submit_response)
-      expect(service).to receive(:retrieve).with('a1ba50e4-e689-4852-bec7-2a66519f0ed3').and_return(sparse_retrieve_response)
+      expect(service).to receive(:submit).with(payload, metadata, dry_run: false)
+                                         .and_return(submit_response)
+      expect(service).to receive(:retrieve).with('a1ba50e4-e689-4852-bec7-2a66519f0ed3')
+                                           .and_return(sparse_retrieve_response)
 
       result = service.submit_and_resolve_uuid(payload, metadata)
 
@@ -124,8 +128,10 @@ RSpec.describe DigitalFormsApi::Service::Submissions do
         }
       )
 
-      expect(service).to receive(:submit).with(payload, metadata, dry_run: false).and_return(submit_response)
-      expect(service).to receive(:retrieve).with('a1ba50e4-e689-4852-bec7-2a66519f0ed3').and_return(alt_uuid_retrieve_response)
+      expect(service).to receive(:submit).with(payload, metadata, dry_run: false)
+                                         .and_return(submit_response)
+      expect(service).to receive(:retrieve).with('a1ba50e4-e689-4852-bec7-2a66519f0ed3')
+                     .and_return(alt_uuid_retrieve_response)
 
       result = service.submit_and_resolve_uuid(payload, metadata)
 
@@ -142,8 +148,10 @@ RSpec.describe DigitalFormsApi::Service::Submissions do
         }
       )
 
-      expect(service).to receive(:submit).with(payload, metadata, dry_run: false).and_return(submit_response)
-      expect(service).to receive(:retrieve).with('a1ba50e4-e689-4852-bec7-2a66519f0ed3').and_return(claimant_only_retrieve_response)
+      expect(service).to receive(:submit).with(payload, metadata, dry_run: false)
+                                         .and_return(submit_response)
+      expect(service).to receive(:retrieve).with('a1ba50e4-e689-4852-bec7-2a66519f0ed3')
+                     .and_return(claimant_only_retrieve_response)
 
       result = service.submit_and_resolve_uuid(payload, metadata)
 
