@@ -5,6 +5,7 @@ module VRE
     class Service < VRE::Service
       configuration VRE::Ch31CaseMilestones::Configuration
 
+      STATSD_KEY_PREFIX = 'api.res.case_milestones'
       SERVICE_UNAVAILABLE_ERROR = 'APNX-1-4187-000'
 
       def initialize(icn)

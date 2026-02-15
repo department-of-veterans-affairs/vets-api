@@ -7,7 +7,7 @@ module VRE
 
       def create
         response = case_milestones_service.update_milestones(milestone_params)
-        render json: VRE::Ch31CaseMilestonesSerializer.new(response).serializable_hash
+        render json: VRE::Ch31CaseMilestonesSerializer.new(response)
       end
 
       private
@@ -17,7 +17,9 @@ module VRE
       end
 
       def milestone_params
-        params.permit(milestones: [:milestoneType, :isMilestoneCompleted, :milestoneCompletionDate, :milestoneSubmissionUser])
+        params.permit(
+          milestones: %i[milestoneType isMilestoneCompleted milestoneCompletionDate milestoneSubmissionUser]
+        )
       end
     end
   end

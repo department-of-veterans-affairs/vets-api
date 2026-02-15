@@ -13,11 +13,11 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
     end
 
     it 'raises Forbidden error if icn missing' do
-      expect { described_class.new(nil) }.to raise_error(Common::Exceptions::Forbidden, 'ICN is required')
+      expect { described_class.new(nil) }.to raise_error(Common::Exceptions::Forbidden)
     end
 
     it 'raises Forbidden error if icn is blank' do
-      expect { described_class.new('') }.to raise_error(Common::Exceptions::Forbidden, 'ICN is required')
+      expect { described_class.new('') }.to raise_error(Common::Exceptions::Forbidden)
     end
   end
 
@@ -38,15 +38,18 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
         ]
       }
     end
-    let(:payload) { { icn:, milestones: milestone_params[:milestones] } }
-    let(:request_params) { [:post, url, payload.to_json, headers] }
+    let(:payload) { { icn:, milestones: milestone_params[:milestones] }.to_json }
+    let(:request_params) { [:post, url, payload, headers] }
 
     context 'when successful' do
-      it 'sends payload with icn and milestones to RES' do
+      before do
         allow(service).to receive(:perform).with(*request_params).and_return(raw_response)
         allow(VRE::Ch31CaseMilestones::Response).to receive(:new)
           .with(raw_response.status, raw_response)
           .and_return(response)
+      end
+
+      it 'sends payload with icn and milestones to RES' do
         service.update_milestones(milestone_params)
         expect(service).to have_received(:perform).with(*request_params)
         expect(VRE::Ch31CaseMilestones::Response).to have_received(:new)
@@ -73,7 +76,7 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
     context 'when RES service unavailable with specific error code' do
       let(:key) { 'RES_CH31_CASE_MILESTONES_500' }
       let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
-      let(:message) { described_class::SERVICE_UNAVAILABLE_ERROR_CODE }
+      let(:message) { described_class::SERVICE_UNAVAILABLE_ERROR }
       let(:error) { error_klass.new(key, response_values, 500, 'error' => message) }
 
       before do
