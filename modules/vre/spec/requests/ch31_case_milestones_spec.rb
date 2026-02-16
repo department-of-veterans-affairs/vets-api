@@ -65,7 +65,7 @@ RSpec.describe 'VRE::V0::Ch31CaseMilestones', type: :request do
           post '/vre/v0/ch31_case_milestones', params: valid_request_body
           expect(response).to have_http_status(:forbidden)
           message = JSON.parse(response.body)['errors'].first['detail']
-          expect(message).to eq('RES does not have an application associated to this ICN')
+          expect(message).to eq('Forbidden')
         end
       end
     end
