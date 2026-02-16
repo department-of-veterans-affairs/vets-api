@@ -6,6 +6,17 @@ require 'pdf_fill/filler'
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
+  # Disable PDF field validation for existing tests
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?)
+      .with(:pdf_fill_field_validation_logging)
+      .and_return(false)
+    allow(Flipper).to receive(:enabled?)
+      .with(:pdf_fill_field_validation_enforcement)
+      .and_return(false)
+  end
+
   describe '#fill_ancillary_form', run_at: '2025-06-25 00:00:00 UTC' do
     %w[21-0538].each do |form_id|
       context "form #{form_id}" do
