@@ -396,41 +396,23 @@ module PdfFill
     def validate_field_names!(template_path, data_hash, form_id)
       template_fields = extract_template_field_names(template_path)
 
-      if template_fields.empty?
-        Rails.logger.warn(
-          "PDF field validation skipped: Could not extract fields from template",
-          form_id: form_id,
-          template_path: template_path
-        )
-        return # Skip validation if we can't read template
-      end
-
       data_field_names = data_hash.keys.map(&:to_s)
       unmatched_fields = data_field_names - template_fields
 
       if unmatched_fields.any?
-        Rails.logger.error(
-          "PDF field name mismatch detected",
-          form_id: form_id,
-          unmatched_count: unmatched_fields.size,
-          total_data_fields: data_field_names.size,
-          total_template_fields: template_fields.size,
-          unmatched_fields: unmatched_fields.first(20)
-        )
+        Rails.logger.error('PDF field name mismatch detected',
+                           form_id:, unmatched_count: unmatched_fields.size, total_data_fields: data_field_names.size,
+                           total_template_fields: template_fields.size, unmatched_fields: unmatched_fields.first(20))
 
-        # Only raise exception if enforcement flag is enabled
         if Flipper.enabled?(:pdf_fill_field_validation_enforcement)
           raise PdfFillerException,
                 "Form #{form_id}: #{unmatched_fields.size} field name(s) in data do not match PDF template fields. " \
-                "This will result in a blank or partially filled PDF. " \
+                'This will result in a blank or partially filled PDF. ' \
                 "Unmatched fields: #{unmatched_fields.first(10).join(', ')}#{unmatched_fields.size > 10 ? '...' : ''}"
         end
       elsif Flipper.enabled?(:pdf_fill_field_validation_logging)
-        Rails.logger.info(
-          "PDF field validation passed",
-          form_id: form_id,
-          field_count: data_field_names.size
-        )
+        Rails.logger.info('PDF field validation passed',
+                          form_id:, field_count: data_field_names.size)
       end
     end
 
@@ -442,18 +424,16 @@ module PdfFill
     # @return [Array<String>] Array of field names found in the template.
     #
     def extract_template_field_names(template_path)
-      begin
-        # Use PdfForms gem's built-in method to get field names
-        field_names = PDF_FORMS.get_field_names(template_path)
-        field_names || []
-      rescue StandardError => e
-        Rails.logger.warn(
-          "Failed to extract fields from PDF template",
-          template_path: template_path,
-          error: e.message
-        )
-        []
-      end
+      # Use PdfForms gem's built-in method to get field names
+      field_names = PDF_FORMS.get_field_names(template_path)
+      field_names || []
+    rescue => e
+      Rails.logger.warn(
+        'Failed to extract fields from PDF template',
+        template_path:,
+        error: e.message
+      )
+      []
     end
   end
 end

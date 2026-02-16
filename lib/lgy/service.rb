@@ -99,6 +99,7 @@ module LGY
         { message: e.message, status: e.status, body: e.body },
         { team: 'vfs-ebenefits' }
       )
+      return e if e.status == 404
 
       raise e
     end
