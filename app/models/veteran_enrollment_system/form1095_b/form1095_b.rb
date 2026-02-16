@@ -101,7 +101,6 @@ module VeteranEnrollmentSystem
             starting_year = (current_year - NUMBER_OF_YEARS_AVAILABLE)
             [starting_year, current_tax_year]
           else
-            # using a range of years because more years of form data will be available in the future
             [current_tax_year, current_tax_year]
           end
         end
