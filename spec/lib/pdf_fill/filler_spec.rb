@@ -247,4 +247,174 @@ describe PdfFill::Filler, type: :model do
       end
     end
   end
+
+  describe '#validate_field_names!' do
+    let(:form_id) { '28-1900' }
+    let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+    let(:template_fields) { ['field1', 'field2', 'field3'] }
+
+    before do
+      allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return(template_fields)
+    end
+
+    context 'when all field names match the template' do
+      let(:data_hash) { { 'field1' => 'value1', 'field2' => 'value2', 'field3' => 'value3' } }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
+      end
+
+      it 'does not raise an exception' do
+        expect do
+          described_class.validate_field_names!(template_path, data_hash, form_id)
+        end.not_to raise_error
+      end
+
+      it 'logs success message when logging flag is enabled' do
+        expect(Rails.logger).to receive(:info).with(
+          'PDF field validation passed',
+          form_id: form_id,
+          field_count: 3
+        )
+
+        described_class.validate_field_names!(template_path, data_hash, form_id)
+      end
+    end
+
+    context 'when some field names do not match the template' do
+      let(:data_hash) { { 'field1' => 'value1', 'wrong_field' => 'value2', 'another_wrong' => 'value3' } }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
+      end
+
+      it 'logs error with field details' do
+        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
+
+        expect(Rails.logger).to receive(:error).with(
+          'PDF field name mismatch detected',
+          hash_including(
+            form_id: form_id,
+            unmatched_count: 2,
+            total_data_fields: 3,
+            total_template_fields: 3
+          )
+        )
+
+        described_class.validate_field_names!(template_path, data_hash, form_id)
+      end
+
+      context 'when enforcement flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(true)
+        end
+
+        it 'raises PdfFillerException' do
+          expect do
+            described_class.validate_field_names!(template_path, data_hash, form_id)
+          end.to raise_error(
+            PdfFill::Filler::PdfFillerException,
+            /Form 28-1900: 2 field name\(s\) in data do not match PDF template fields/
+          )
+        end
+      end
+
+      context 'when enforcement flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
+        end
+
+        it 'does not raise an exception' do
+          expect do
+            described_class.validate_field_names!(template_path, data_hash, form_id)
+          end.not_to raise_error
+        end
+      end
+    end
+
+    context 'when template fields cannot be extracted' do
+      before do
+        allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return([])
+        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(true)
+      end
+
+      let(:data_hash) { { 'field1' => 'value1' } }
+
+      it 'skips validation and does not raise an exception' do
+        expect do
+          described_class.validate_field_names!(template_path, data_hash, form_id)
+        end.not_to raise_error
+      end
+
+      it 'logs warning message' do
+        expect(Rails.logger).to receive(:warn).with(
+          'PDF field validation skipped: Could not extract fields from template',
+          form_id: form_id,
+          template_path: template_path
+        )
+
+        described_class.validate_field_names!(template_path, data_hash, form_id)
+      end
+    end
+  end
+
+  describe '#extract_template_field_names' do
+    let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+
+    context 'when pdftk successfully extracts fields' do
+      let(:pdftk_output) do
+        <<~OUTPUT
+          ---
+          FieldType: Text
+          FieldName: form1[0].#subform[0].FirstName[0]
+          FieldFlags: 0
+          FieldJustification: Left
+          ---
+          FieldType: Text
+          FieldName: form1[0].#subform[0].LastName[0]
+          FieldFlags: 0
+          FieldJustification: Left
+        OUTPUT
+      end
+
+      before do
+        allow(described_class).to receive(:`).with(/pdftk.*dump_data_fields/).and_return(pdftk_output)
+        allow($?).to receive(:success?).and_return(true)
+      end
+
+      it 'returns array of field names' do
+        result = described_class.extract_template_field_names(template_path)
+
+        expect(result).to eq([
+                               'form1[0].#subform[0].FirstName[0]',
+                               'form1[0].#subform[0].LastName[0]'
+                             ])
+      end
+    end
+
+    context 'when pdftk command fails' do
+      before do
+        allow(described_class).to receive(:`).with(/pdftk.*dump_data_fields/).and_return('Error: file not found')
+        allow($?).to receive(:success?).and_return(false)
+      end
+
+      it 'returns empty array' do
+        result = described_class.extract_template_field_names(template_path)
+
+        expect(result).to eq([])
+      end
+
+      it 'logs warning message' do
+        expect(Rails.logger).to receive(:warn).with(
+          'Failed to extract fields from PDF template',
+          template_path: template_path,
+          error: 'Error: file not found'
+        )
+
+        described_class.extract_template_field_names(template_path)
+      end
+    end
+  end
 end

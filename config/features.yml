@@ -1745,6 +1745,12 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
+  pdf_fill_field_validation_logging:
+    actor_type: user
+    description: Log PDF field name mismatches without blocking form submission. Safe to enable for monitoring.
+  pdf_fill_field_validation_enforcement:
+    actor_type: user
+    description: Raise exceptions when PDF field names don't match template. Prevents blank PDFs but will fail form submission.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
