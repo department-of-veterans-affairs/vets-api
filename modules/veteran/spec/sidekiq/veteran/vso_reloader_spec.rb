@@ -19,7 +19,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(Veteran::Service::Representative.veteran_service_officers.count).to eq 152
         expect(Veteran::Service::Representative.claim_agents.count).to eq 42
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
-        expect(Veteran::Service::OrganizationRepresentative.count).to be.positive?
+        expect(Veteran::Service::OrganizationRepresentative.count).to be_positive
       end
     end
 
@@ -240,6 +240,24 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           veteran_rep = Veteran::Service::Representative.find_by(representative_id: '82391')
           expect(veteran_rep).to be_nil
         end
+
+        it 'does not delete an existing VSO rep when the feed contains the rep_id but the name is malformed' do
+          existing = create(
+            :veteran_representative,
+            representative_id: '82391',
+            first_name: 'Should',
+            last_name: 'Stay',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO]
+          )
+
+          VCR.use_cassette('veteran/ogc_vso_rep_data') do
+            Veteran::VSOReloader.new.reload_vso_reps
+          end
+
+          rep = Veteran::Service::Representative.find_by(representative_id: '82391')
+          expect(rep).to be_present
+          expect(rep.id).to eq(existing.id)
+        end
       end
 
       context 'when the last_name has trailing white space' do
@@ -248,6 +266,22 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           expect(veteran_rep.last_name).to eq('Good')
         end
       end
+    end
+  end
+
+  describe '#calculate_vso_counts' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'counts orgs using normalized POA codes' do
+      data = [
+        { 'Representative' => 'X, Y', 'Registration Num' => '1', 'POA' => '091' },
+        { 'Representative' => 'X, Y', 'Registration Num' => '2', 'POA' => '091 ' },
+        { 'Representative' => 'X, Y', 'Registration Num' => '3', 'POA' => '091-' },
+        { 'Representative' => 'X, Y', 'Registration Num' => '4', 'POA' => nil }
+      ]
+
+      counts = reloader.send(:calculate_vso_counts, data)
+      expect(counts[:orgs]).to eq(1)
     end
   end
 

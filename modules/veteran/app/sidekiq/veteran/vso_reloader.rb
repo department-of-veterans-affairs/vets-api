@@ -259,9 +259,11 @@ module Veteran
     def log_to_slack(message)
       return unless Settings.vsp_environment == 'production'
 
-      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
-                                       channel: '#benefits-representation-management-notifications',
-                                       username: 'VSOReloader')
+      client = SlackNotify::Client.new(
+        webhook_url: Settings.edu.slack.webhook_url,
+        channel: '#benefits-representation-management-notifications',
+        username: 'VSOReloader'
+      )
       client.notify(message)
     end
 
@@ -269,8 +271,7 @@ module Veteran
       {
         attorneys: Veteran::Service::Representative.where("'#{USER_TYPE_ATTORNEY}' = ANY(user_types)").count,
         claims_agents: Veteran::Service::Representative.where("'#{USER_TYPE_CLAIM_AGENT}' = ANY(user_types)").count,
-        vso_representatives: Veteran::Service::Representative
-          .where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
+        vso_representatives: Veteran::Service::Representative.where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
         vso_organizations: Veteran::Service::Organization.count
       }
     end
@@ -321,10 +322,13 @@ module Veteran
                 'Action: Update skipped, manual review required'
 
       log_to_slack(message)
-      log_message_to_sentry("VSO Reloader threshold exceeded for #{rep_type}", :warn,
-                            previous_count:,
-                            new_count:,
-                            decrease_percentage:)
+      log_message_to_sentry(
+        "VSO Reloader threshold exceeded for #{rep_type}",
+        :warn,
+        previous_count:,
+        new_count:,
+        decrease_percentage:
+      )
     end
 
     def save_accreditation_totals
@@ -346,9 +350,15 @@ module Veteran
     end
 
     def calculate_vso_counts(vso_data)
+      normalized_poas =
+        vso_data
+        .map { |v| normalize_poa(v['POA']) }
+        .compact_blank
+        .uniq
+
       {
         reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
-        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
+        orgs: normalized_poas.count
       }
     end
 
@@ -364,38 +374,47 @@ module Veteran
       vso_reps
     end
 
-    # rubocop:disable Metrics/MethodLength
     def extract_vso_entities(vso_data)
       vso_reps = []
       rep_org_pairs = []
 
-      vso_orgs = vso_data.filter_map do |vso_rep|
-        next unless vso_rep['Representative']
+      vso_orgs =
+        vso_data.filter_map do |row|
+          next unless row['Representative']
 
-        rep_id = vso_rep['Registration Num']
-        poa = normalize_poa(vso_rep['POA'])
+          rep_id = row['Registration Num']
+          poa = normalize_poa(row['POA'])
 
-        if rep_id.present?
-          rep = find_or_create_vso(vso_rep)
-          if rep.present?
-            vso_reps << rep_id
-            rep_org_pairs << [rep_id, poa] if poa.present?
-          end
-        end
+          append_seen_rep_id!(vso_reps, rep_id)
+          rep = create_vso_rep_if_valid(row)
 
-        next if poa.blank?
-
-        {
-          poa:,
-          name: vso_rep['Organization Name'],
-          phone: vso_rep['Org Phone'],
-          state: vso_rep['Org State']
-        }
-      end.compact.uniq
+          rep_org_pairs << [rep_id, poa] if rep.present? && rep_id.present? && poa.present?
+          build_org_hash(row, poa)
+        end.compact.uniq
 
       [vso_reps, rep_org_pairs, vso_orgs]
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def append_seen_rep_id!(vso_reps, rep_id)
+      vso_reps << rep_id if rep_id.present?
+    end
+
+    def create_vso_rep_if_valid(row)
+      return nil if row['Registration Num'].blank?
+
+      find_or_create_vso(row)
+    end
+
+    def build_org_hash(row, poa)
+      return nil if poa.blank?
+
+      {
+        poa:,
+        name: row['Organization Name'],
+        phone: row['Org Phone'],
+        state: row['Org State']
+      }
+    end
 
     def import_vso_organizations(vso_orgs)
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
