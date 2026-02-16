@@ -8,8 +8,8 @@ module VRE
           faraday.use(:breakers, service_name:)
           faraday.response :raise_custom_error, error_prefix: service_name
           faraday.response :betamocks if mock_enabled?
-          faraday.response :json, content_type: /\bjson/
           faraday.response :snakecase, symbolize: false
+          faraday.response :json, content_type: /\bjson/
           faraday.adapter Faraday.default_adapter
         end
       end
