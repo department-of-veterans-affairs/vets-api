@@ -95,9 +95,10 @@ module VeteranEnrollmentSystem
         end
 
         def available_years_range(user)
-          current_tax_year = Date.current.year - 1
+          current_year = Date.current.year
+          current_tax_year = current_year - 1
           if Flipper.enabled?(:form1095b_multiple_years, user)
-            starting_year = (current_tax_year - NUMBER_OF_YEARS_AVAILABLE + 1)
+            starting_year = (current_year - NUMBER_OF_YEARS_AVAILABLE)
             [starting_year, current_tax_year]
           else
             # using a range of years because more years of form data will be available in the future
