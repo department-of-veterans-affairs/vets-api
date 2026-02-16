@@ -141,4 +141,20 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
     end
     # The Tempfile is automatically deleted after the block ends
   end
+
+  it 'does not populate Item 16A when no representative is provided (unflattened)' do
+    data_no_rep = data.except(:representative_id)
+    form = RepresentationManagement::Form2122Data.new(data_no_rep)
+
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      described_class.new(tempfile).construct(form, flatten: false)
+
+      pdf_forms = PdfForms.new(Settings.binaries.pdftk)
+      fields = pdf_forms.get_fields(tempfile.path)
+
+      field_16a = fields.find { |f| f.name == 'form1[0].#subform[0].Name_Of_Official_Representative[0]' }
+      expect(field_16a&.value).to be_blank
+    end
+  end
 end

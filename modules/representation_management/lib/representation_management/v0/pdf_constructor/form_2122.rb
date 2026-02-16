@@ -174,9 +174,10 @@ module RepresentationManagement
         # Item 16A value (Name of official representative).
         # Only populate when the submission includes an individual representative.
         def field_16a_value(data)
-          return nil unless data.representative
+          rep = data.representative
+          return nil unless rep
 
-          format_name(data.representative)
+          format_name(rep)
         end
 
         def add_representative_contact(pdf, data)
