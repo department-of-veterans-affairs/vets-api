@@ -388,7 +388,7 @@ module Veteran
           append_seen_rep_id!(vso_reps, rep_id)
           rep = create_vso_rep_if_valid(row)
 
-          rep_org_pairs << [rep_id, poa] if rep.present? && rep_id.present? && poa.present?
+          rep_org_pairs << [rep_id, poa] if rep.present? && rep.persisted? && rep_id.present? && poa.present?
           build_org_hash(row, poa)
         end.compact.uniq
 
