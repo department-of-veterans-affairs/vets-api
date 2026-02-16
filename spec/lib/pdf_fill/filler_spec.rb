@@ -9,6 +9,19 @@ require 'lib/pdf_fill/fill_form_examples'
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
+  # Disable PDF field validation for existing tests to avoid breaking them
+  # Only the specific validation tests below will enable these flags
+  before do
+    # Stub Flipper to disable validation flags by default
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?)
+      .with(:pdf_fill_field_validation_logging)
+      .and_return(false)
+    allow(Flipper).to receive(:enabled?)
+      .with(:pdf_fill_field_validation_enforcement)
+      .and_return(false)
+  end
+
   describe '#combine_extras' do
     subject do
       described_class.combine_extras(old_file_path, extras_generator, form_class)
@@ -380,8 +393,9 @@ describe PdfFill::Filler, type: :model do
       end
 
       before do
-        allow(described_class).to receive(:`).with(/pdftk.*dump_data_fields/).and_return(pdftk_output)
-        allow($?).to receive(:success?).and_return(true)
+        allow(described_class).to receive(:execute_pdftk_dump_fields)
+          .with(template_path)
+          .and_return([pdftk_output, true])
       end
 
       it 'returns array of field names' do
@@ -395,9 +409,12 @@ describe PdfFill::Filler, type: :model do
     end
 
     context 'when pdftk command fails' do
+      let(:error_output) { 'Error: file not found' }
+
       before do
-        allow(described_class).to receive(:`).with(/pdftk.*dump_data_fields/).and_return('Error: file not found')
-        allow($?).to receive(:success?).and_return(false)
+        allow(described_class).to receive(:execute_pdftk_dump_fields)
+          .with(template_path)
+          .and_return([error_output, false])
       end
 
       it 'returns empty array' do
@@ -410,7 +427,7 @@ describe PdfFill::Filler, type: :model do
         expect(Rails.logger).to receive(:warn).with(
           'Failed to extract fields from PDF template',
           template_path: template_path,
-          error: 'Error: file not found'
+          error: error_output
         )
 
         described_class.extract_template_field_names(template_path)
