@@ -48,33 +48,12 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       expect(power_of_attorney_request_notification.notification_id).to eq(response.id)
     end
 
-    context 'when handling the accredited_representative_portal_email_delivery_callback feature flag' do
+    context 'when handling type of requested' do
       let(:type) { 'requested' }
 
-      context 'when the feature flag is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:accredited_representative_portal_email_delivery_callback)
-            .and_return(true)
-        end
-
-        it 'passes callback options with the correct function tag to VaNotify::Service' do
-          expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
-          described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
-        end
-      end
-
-      context 'when the feature flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?)
-            .with(:accredited_representative_portal_email_delivery_callback)
-            .and_return(false)
-        end
-
-        it 'does not pass callback options to VaNotify::Service' do
-          expect(VaNotify::Service).to receive(:new).with(api_key, nil).and_return(client)
-          described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
-        end
+      it 'passes callback options with the correct function tag to VaNotify::Service' do
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+        described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
       end
     end
 
@@ -132,17 +111,10 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       let(:type) { 'declined' }
 
       before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:accredited_representative_portal_email_delivery_callback)
-          .and_return(false)
-
         allow(VaNotify::Service).to receive(:new).with(api_key, nil).and_return(client)
       end
 
       it 'does not include personalisation and still sends the email' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:accredited_representative_portal_email_delivery_callback)
-          .and_return(false)
         allow(VaNotify::Service).to receive(:new).with(api_key, nil).and_return(client)
         allow_any_instance_of(described_class).to receive(:generate_personalisation).and_return(nil)
 
@@ -160,12 +132,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
     end
 
     describe 'callback function tag per type' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:accredited_representative_portal_email_delivery_callback)
-          .and_return(true)
-      end
-
       {
         'requested' => 'poa_request_requested_email',
         'declined' => 'poa_request_declined_email',
