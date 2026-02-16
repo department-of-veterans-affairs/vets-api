@@ -8,6 +8,12 @@ module VeteranEnrollmentSystem
       include Vets::Model
 
       NUMBER_OF_YEARS_AVAILABLE = 3
+      # maybe come up with a better name
+      PDF_FORMAT = {
+        2023: 'pdf_attributes_v1',
+        2024: 'pdf_attributes_v1',
+        2025: 'pdf_attributes_v2'
+      }
 
       attribute :first_name, String
       attribute :middle_name, String
@@ -41,8 +47,7 @@ module VeteranEnrollmentSystem
       end
 
       def pdf_file
-        template_path = self.class.pdf_template_path(tax_year)
-        unless File.exist?(template_path) && respond_to?("pdf_#{tax_year}_attributes", true)
+        unless File.exist?(template_path) && PDF_FORMAT.keys.include?(tax_year.to_sym)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
@@ -163,11 +168,14 @@ module VeteranEnrollmentSystem
         text_data
       end
 
-      def generate_pdf(pdftk, tmp_file, template_path)
+      def generate_pdf(pdftk, tmp_file)
+        template_path = self.class.pdf_template_path(tax_year)
+        form_data = pdf_data
+
         pdftk.fill_form(
           template_path,
           tmp_file,
-          pdf_data,
+          form_data,
           flatten: true
         )
         ret_pdf = tmp_file.read
@@ -178,9 +186,14 @@ module VeteranEnrollmentSystem
         ret_pdf
       end
 
-      # rubocop:disable Metrics/MethodLength
       def pdf_data
-        year_specific_attributes = send("pdf_#{tax_year}_attributes")
+        year_specific_attributes = PDF_FORMAT[year.to_sym]
+        shared_attributes = shared_pdf_data
+        shared_attributes.merge(year_specific_attributes)
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      def shared_pdf_data
         {
           'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': is_corrected && 2,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_10[0]': 'C',
@@ -209,11 +222,11 @@ module VeteranEnrollmentSystem
           'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_11[0]': coverage_months[10] && 1,
           'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_12[0]': coverage_months[11] && 1,
           'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_13[0]': coverage_months[12] && 1
-        }.merge(year_specific_attributes)
+        }
       end
       # rubocop:enable Metrics/MethodLength
 
-      def pdf_2024_attributes
+      def pdf_attributes_v1
         {
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_01[0]': first_name,
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]': middle_name,
@@ -227,7 +240,7 @@ module VeteranEnrollmentSystem
         }
       end
 
-      def pdf_2025_attributes
+      def pdf_attributes_v2
         {
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_1[0]': first_name,
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_2[0]': middle_name,
