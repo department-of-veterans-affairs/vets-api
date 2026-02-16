@@ -48,7 +48,9 @@ module RepresentationManagement
         def template_options(data)
           {
             # Service Organization Name
-            "#{PAGE1_KEY}.Name_Of_Service_Organization[0]": data.organization.name
+            "#{PAGE1_KEY}.Name_Of_Service_Organization[0]": data.organization.name,
+            # Item 16A - NAME OF OFFICIAL REPRESENTATIVE ACTING ON BEHALF OF THE ORGANIZATION
+            "#{PAGE1_KEY}.Name_Of_Official_Representative[0]": field_16a_value(data)
           }.merge(veteran_identification(data))
             .merge(veteran_contact_details(data))
             .merge(claimant_identification(data))
@@ -168,6 +170,14 @@ module RepresentationManagement
         end
 
         private
+
+        # Item 16A value (Name of official representative).
+        # Only populate when the submission includes an individual representative.
+        def field_16a_value(data)
+          return nil unless data.representative
+
+          format_name(data.representative)
+        end
 
         def add_representative_contact(pdf, data)
           representative = data.representative

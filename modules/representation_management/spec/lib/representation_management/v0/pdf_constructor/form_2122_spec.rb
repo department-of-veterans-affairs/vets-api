@@ -63,15 +63,17 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
     form = RepresentationManagement::Form2122Data.new(data)
     Tempfile.create do |tempfile|
       tempfile.binmode
-      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
-      expected_pdf = Rails.root.join('modules',
-                                     'representation_management',
-                                     'spec',
-                                     'fixtures',
-                                     '21-22',
-                                     'v0',
-                                     'default',
-                                     '2122_with_limitations.pdf')
+      described_class.new(tempfile).construct(form)
+      expected_pdf = Rails.root.join(
+        'modules',
+        'representation_management',
+        'spec',
+        'fixtures',
+        '21-22',
+        'v0',
+        'default',
+        '2122_with_limitations.pdf'
+      )
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
@@ -81,53 +83,60 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
     form = RepresentationManagement::Form2122Data.new(data)
     Tempfile.create do |tempfile|
       tempfile.binmode
-      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form, flatten: false)
-      expected_pdf = Rails.root.join('modules',
-                                     'representation_management',
-                                     'spec',
-                                     'fixtures',
-                                     '21-22',
-                                     'v0',
-                                     'unflattened', # <- Important difference
-                                     '2122_with_limitations.pdf')
+      described_class.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join(
+        'modules',
+        'representation_management',
+        'spec',
+        'fixtures',
+        '21-22',
+        'v0',
+        'unflattened',
+        '2122_with_limitations.pdf'
+      )
       expect(tempfile.path).to match_pdf_fields(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
   end
 
   it 'constructs the pdf with conditions present and no claimant' do
-    data.delete_if { |key, _| key.to_s.include?('claimant') }
-    form = RepresentationManagement::Form2122Data.new(data)
+    data_no_claimant = data.reject { |key, _| key.to_s.include?('claimant') }
+    form = RepresentationManagement::Form2122Data.new(data_no_claimant)
     Tempfile.create do |tempfile|
       tempfile.binmode
-      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
-      expected_pdf = Rails.root.join('modules',
-                                     'representation_management',
-                                     'spec',
-                                     'fixtures',
-                                     '21-22',
-                                     'v0',
-                                     'default',
-                                     '2122_with_limitations_no_claimant.pdf')
+      described_class.new(tempfile).construct(form)
+      expected_pdf = Rails.root.join(
+        'modules',
+        'representation_management',
+        'spec',
+        'fixtures',
+        '21-22',
+        'v0',
+        'default',
+        '2122_with_limitations_no_claimant.pdf'
+      )
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
   end
 
   it 'matches the field values of a pdf with no claimant with conditions present when unflattened' do
-    data.delete_if { |key, _| key.to_s.include?('claimant') }
-    form = RepresentationManagement::Form2122Data.new(data)
+    data_no_claimant = data.reject { |key, _| key.to_s.include?('claimant') }
+    form = RepresentationManagement::Form2122Data.new(data_no_claimant)
+
     Tempfile.create do |tempfile|
       tempfile.binmode
-      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form, flatten: false)
-      expected_pdf = Rails.root.join('modules',
-                                     'representation_management',
-                                     'spec',
-                                     'fixtures',
-                                     '21-22',
-                                     'v0',
-                                     'unflattened', # <- Important difference
-                                     '2122_with_limitations_no_claimant.pdf')
+      described_class.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join(
+        'modules',
+        'representation_management',
+        'spec',
+        'fixtures',
+        '21-22',
+        'v0',
+        'unflattened',
+        '2122_with_limitations_no_claimant.pdf'
+      )
       expect(tempfile.path).to match_pdf_fields(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
