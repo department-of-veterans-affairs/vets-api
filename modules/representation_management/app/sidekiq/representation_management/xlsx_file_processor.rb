@@ -37,6 +37,14 @@ module RepresentationManagement
     # Column name for state in organization sheet
     ORG_STATE_COLUMN = 'OrganizationState'
 
+    # Maps entity types to their OGC ID column header in the XLSX file
+    OGC_ID_COLUMNS = {
+      'attorney' => 'AccrAttorneyId',
+      'claims_agent' => 'AccrClaimAgentId',
+      'representative' => 'AccrRepresentativeId',
+      'organization' => 'VSOID'
+    }.freeze
+
     # @param file_content [String] Binary content of the XLSX file
     # @param types [Array<String>] Entity types to process (defaults to all)
     def initialize(file_content, types = nil)
@@ -83,17 +91,19 @@ module RepresentationManagement
       header_row = sheet.row(1)
       column_map = build_column_index_map(header_row)
 
+      ogc_id_column = OGC_ID_COLUMNS[type]
+
       if INDIVIDUAL_TYPES.include?(type)
-        process_individual_sheet(sheet, column_map, type, sheet_name)
+        process_individual_sheet(sheet, column_map, type, sheet_name, ogc_id_column)
       else
-        process_organization_sheet(sheet, column_map)
+        process_organization_sheet(sheet, column_map, ogc_id_column)
       end
     rescue => e
       log_error("Error processing sheet '#{sheet_name}': #{e.message}")
       []
     end
 
-    def process_individual_sheet(sheet, column_map, type, sheet_name)
+    def process_individual_sheet(sheet, column_map, type, sheet_name, ogc_id_column)
       processed_ids = {}
       data = []
 
@@ -107,14 +117,14 @@ module RepresentationManagement
         state_code = get_value(row, column_map, INDIVIDUAL_STATE_COLUMN)
         next unless US_STATES_TERRITORIES[state_code]
 
-        data << build_individual_hash(row, column_map, type, sheet_name)
+        data << build_individual_hash(row, column_map, type, sheet_name, ogc_id_column)
         processed_ids[registration_number] = true
       end
 
       data
     end
 
-    def process_organization_sheet(sheet, column_map)
+    def process_organization_sheet(sheet, column_map, ogc_id_column)
       processed_poa_codes = {}
       data = []
 
@@ -130,16 +140,17 @@ module RepresentationManagement
         state_code = get_value(row, column_map, ORG_STATE_COLUMN)
         next unless US_STATES_TERRITORIES[state_code]
 
-        data << build_organization_hash(row, column_map)
+        data << build_organization_hash(row, column_map, ogc_id_column)
         processed_poa_codes[poa_code] = true
       end
 
       data
     end
 
-    def build_individual_hash(row, column_map, type, sheet_name)
+    def build_individual_hash(row, column_map, type, sheet_name, ogc_id_column)
       address = build_individual_address(row, column_map)
       {
+        ogc_id: get_value(row, column_map, ogc_id_column),
         registration_number: normalize_numeric(row[column_map['Number']]),
         individual_type: type,
         email: get_value(row, column_map, email_column_name(sheet_name)),
@@ -149,9 +160,10 @@ module RepresentationManagement
       }
     end
 
-    def build_organization_hash(row, column_map)
+    def build_organization_hash(row, column_map, ogc_id_column)
       address = build_organization_address(row, column_map)
       {
+        ogc_id: get_value(row, column_map, ogc_id_column),
         poa_code: row[column_map['POA']]&.to_s&.strip,
         name: get_value(row, column_map, 'OrganizationName'),
         phone: get_value(row, column_map, 'OrganizationPhoneNumber'),
