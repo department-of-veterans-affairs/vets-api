@@ -442,31 +442,18 @@ module PdfFill
     # @return [Array<String>] Array of field names found in the template.
     #
     def extract_template_field_names(template_path)
-      result, success = execute_pdftk_dump_fields(template_path)
-
-      unless success
+      begin
+        # Use PdfForms gem's built-in method to get field names
+        field_names = PDF_FORMS.get_field_names(template_path)
+        field_names || []
+      rescue StandardError => e
         Rails.logger.warn(
           "Failed to extract fields from PDF template",
           template_path: template_path,
-          error: result
+          error: e.message
         )
-        return []
+        []
       end
-
-      result.scan(/^FieldName: (.+)$/).flatten.map(&:strip)
-    end
-
-    ##
-    # Executes pdftk dump_data_fields command.
-    # Separated for easier testing.
-    #
-    # @param template_path [String] Path to the PDF template file.
-    #
-    # @return [Array<String, Boolean>] [output, success]
-    #
-    def execute_pdftk_dump_fields(template_path)
-      result = `#{Settings.binaries.pdftk} #{template_path} dump_data_fields 2>&1`
-      [result, $?.success?]
     end
   end
 end

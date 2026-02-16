@@ -375,46 +375,32 @@ describe PdfFill::Filler, type: :model do
 
   describe '#extract_template_field_names' do
     let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+    let(:field_names) do
+      [
+        'form1[0].#subform[0].FirstName[0]',
+        'form1[0].#subform[0].LastName[0]'
+      ]
+    end
 
     context 'when pdftk successfully extracts fields' do
-      let(:pdftk_output) do
-        <<~OUTPUT
-          ---
-          FieldType: Text
-          FieldName: form1[0].#subform[0].FirstName[0]
-          FieldFlags: 0
-          FieldJustification: Left
-          ---
-          FieldType: Text
-          FieldName: form1[0].#subform[0].LastName[0]
-          FieldFlags: 0
-          FieldJustification: Left
-        OUTPUT
-      end
-
       before do
-        allow(described_class).to receive(:execute_pdftk_dump_fields)
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:get_field_names)
           .with(template_path)
-          .and_return([pdftk_output, true])
+          .and_return(field_names)
       end
 
       it 'returns array of field names' do
         result = described_class.extract_template_field_names(template_path)
 
-        expect(result).to eq([
-                               'form1[0].#subform[0].FirstName[0]',
-                               'form1[0].#subform[0].LastName[0]'
-                             ])
+        expect(result).to eq(field_names)
       end
     end
 
     context 'when pdftk command fails' do
-      let(:error_output) { 'Error: file not found' }
-
       before do
-        allow(described_class).to receive(:execute_pdftk_dump_fields)
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:get_field_names)
           .with(template_path)
-          .and_return([error_output, false])
+          .and_raise(StandardError.new('Error: file not found'))
       end
 
       it 'returns empty array' do
@@ -427,7 +413,7 @@ describe PdfFill::Filler, type: :model do
         expect(Rails.logger).to receive(:warn).with(
           'Failed to extract fields from PDF template',
           template_path: template_path,
-          error: error_output
+          error: 'Error: file not found'
         )
 
         described_class.extract_template_field_names(template_path)
