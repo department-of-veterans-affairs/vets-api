@@ -7,7 +7,6 @@
 # If DefaultCallback is updated in the future to support broader metadata-driven instrumentation,
 # we could simplify by switching back to it.
 #
-# Feature flag: :accredited_representative_portal_email_delivery_callback
 module AccreditedRepresentativePortal
   class EmailDeliveryStatusCallback
     def self.call(notification)

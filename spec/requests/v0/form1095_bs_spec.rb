@@ -43,16 +43,27 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # this will be irrelevant after we add the template
-      it 'throws 422 when template is not available' do
-        get '/v0/form1095_bs/download_pdf/2023'
+      context 'when template is not available' do
+        # Changing the time is necessary for testing this because the "available years" restriction will be met first.
+        # The validation is still valuable for ensuring that we add new templates each year.
+        before { Timecop.freeze(Time.zone.parse('2020-03-05T08:00:00Z')) }
+        after { Timecop.return }
+
+        it 'returns 422' do
+          get '/v0/form1095_bs/download_pdf/2019'
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      it 'returns 422 when requested year is not in supported range' do
+        get '/v0/form1095_bs/download_pdf/2021'
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      # 2021 is the one unsupported year for which we have a template
-      it 'throws 422 when requested year is not in supported range' do
-        get '/v0/form1095_bs/download_pdf/2021'
+      it 'returns 422 when requested year is not a valid integer' do
+        get '/v0/form1095_bs/download_pdf/invalid_year'
         expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['errors'].first['detail']).to eq('Invalid tax year: invalid_year')
       end
     end
 
@@ -105,16 +116,27 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         end
       end
 
-      # this will be irrelevant after we add the template
-      it 'throws 422 when template is not available' do
-        get '/v0/form1095_bs/download_txt/2023'
+      context 'when template is not available' do
+        # Changing the time is necessary for testing this because the "available years" restriction will be met first.
+        # The validation is still valuable for ensuring that we add new templates each year.
+        before { Timecop.freeze(Time.zone.parse('2020-03-05T08:00:00Z')) }
+        after { Timecop.return }
+
+        it 'returns 422' do
+          get '/v0/form1095_bs/download_txt/2019'
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      it 'returns 422 when requested year is not in supported range' do
+        get '/v0/form1095_bs/download_txt/2021'
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      # 2021 is the one unsupported year for which we have a template
-      it 'throws 422 when requested year is not in supported range' do
-        get '/v0/form1095_bs/download_txt/2021'
+      it 'returns 422 when requested year is not a valid integer' do
+        get '/v0/form1095_bs/download_txt/invalid_year'
         expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['errors'].first['detail']).to eq('Invalid tax year: invalid_year')
       end
     end
 
@@ -143,18 +165,42 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         sign_in_as(user)
       end
 
-      it 'returns success with list of available form years during allowed date range' do
-        VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
-                         { match_requests_on: %i[method uri] }) do
-          get '/v0/form1095_bs/available_forms'
+      context 'with form1095b_multiple_years feature flag enabled' do
+        before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(true) }
+
+        it 'returns success with list of available form years during allowed date range' do
+          VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                           { match_requests_on: %i[method uri] }) do
+            get '/v0/form1095_bs/available_forms'
+          end
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body.deep_symbolize_keys).to eq(
+            { available_forms: [
+              { year: 2022,
+                last_updated: nil },
+              { year: 2024,
+                last_updated: nil }
+            ] }
+          )
         end
-        expect(response).to have_http_status(:success)
-        expect(response.parsed_body.deep_symbolize_keys).to eq(
-          { available_forms: [
-            { year: 2024,
-              last_updated: nil }
-          ] }
-        )
+      end
+
+      context 'with form1095b_multiple_years feature flag disabled' do
+        before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(false) }
+
+        it 'returns success with list of available form years during allowed date range' do
+          VCR.use_cassette('veteran_enrollment_system/enrollment_periods/get_success',
+                           { match_requests_on: %i[method uri] }) do
+            get '/v0/form1095_bs/available_forms'
+          end
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body.deep_symbolize_keys).to eq(
+            { available_forms: [
+              { year: 2024,
+                last_updated: nil }
+            ] }
+          )
+        end
       end
 
       context 'when user not found on enrollment system' do
@@ -171,8 +217,8 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       end
 
       context 'when user was not enrolled during allowed date range' do
-        # per the vcr cassette, user was not enrolled in 2023
-        before { Timecop.freeze(Time.zone.parse('2024-03-05T08:00:00Z')) }
+        # the cassette doesn't have any coverage in the years 2016-2018
+        before { Timecop.freeze(Time.zone.parse('2019-03-05T08:00:00Z')) }
         after { Timecop.return }
 
         it 'returns an empty array' do
