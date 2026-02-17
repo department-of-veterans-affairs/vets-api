@@ -52,8 +52,6 @@ module PdfFill
     class PdfFillerException < StandardError; end
     module_function
 
-    STATSD_KEY_PREFIX = 'api.pdf_fill'
-
     # A PdfForms instance for handling standard PDF forms.
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
 
@@ -402,8 +400,6 @@ module PdfFill
       unmatched_fields = data_field_names - template_fields
 
       if unmatched_fields.any?
-        StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.mismatch", tags: ["form_id:#{form_id}"])
-
         Rails.logger.error('PDF field name mismatch detected',
                            form_id:, unmatched_count: unmatched_fields.size, total_data_fields: data_field_names.size,
                            total_template_fields: template_fields.size, unmatched_fields: unmatched_fields.first(20))
@@ -415,8 +411,6 @@ module PdfFill
                 "Unmatched fields: #{unmatched_fields.first(10).join(', ')}#{unmatched_fields.size > 10 ? '...' : ''}"
         end
       elsif Flipper.enabled?(:pdf_fill_field_validation_logging)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.success", tags: ["form_id:#{form_id}"])
-
         Rails.logger.info('PDF field validation passed',
                           form_id:, field_count: data_field_names.size)
       end
