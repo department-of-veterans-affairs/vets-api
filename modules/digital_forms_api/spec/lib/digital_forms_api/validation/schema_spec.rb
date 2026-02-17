@@ -8,7 +8,7 @@ RSpec.describe DigitalFormsApi::Validation::Schema do
   let(:schema_with_required) { build(:digital_forms_api_schema, :with_required) }
   let(:search_schema) { build(:digital_forms_api_schema, :search) }
 
-  let(:response) { instance_double(Faraday::Response, body: schema) }
+  let(:response) { instance_double(Faraday::Env, body: schema) }
   let(:service) { instance_double(DigitalFormsApi::Service::Base, perform: response) }
 
   before do
