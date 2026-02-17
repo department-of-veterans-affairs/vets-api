@@ -65,19 +65,45 @@ module Lighthouse
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     # :nocov:
     sidekiq_retries_exhausted do |msg, _ex|
-      # log, mark Form526JobStatus for submission as "pdf_not_found"
       job_id = msg['jid']
       error_class = msg['error_class']
       error_message = msg['error_message']
+      submission_id = msg['args'].first
       form_job_status = Form526JobStatus.find_by(job_id:)
 
       PollForm526PdfStatus.update_job_status(
         form_job_status:,
-        message: 'Poll for Form 526 PDF: Retries exhausted',
+        message: 'Poll for Form 526 PDF: Retries exhausted - queueing backup submission',
         error_class:,
         error_message:,
         status: Form526JobStatus::STATUS[:pdf_not_found]
       )
+
+      # Queue backup submission to ensure 526 PDF reaches eFolder
+      submission = Form526Submission.find(submission_id)
+      if submission.backup_submitted_claim_id.nil?
+        backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(submission_id)
+
+        Rails.logger.warn(
+          'PollForm526Pdf exhausted - backup submission queued',
+          {
+            submission_id:,
+            backup_job_id: backup_job_jid,
+            reason: 'pdf_polling_exhausted'
+          }
+        )
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.backup_queued")
+      else
+        # Protection just incase somehow the job submits a backup but errors out later in the process
+        Rails.logger.warn(
+          'PollForm526Pdf exhausted - backup submission already exists, skipping',
+          {
+            submission_id:,
+            backup_submitted_claim_id: submission.backup_submitted_claim_id
+          }
+        )
+      end
     rescue => e
       log_exception_to_rails(e)
     end
