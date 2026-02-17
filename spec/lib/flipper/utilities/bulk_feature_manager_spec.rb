@@ -52,6 +52,29 @@ module Flipper
           expect(manager.enabled_features).to include('f_one', 'f_two')
         end
 
+        it 'respects enable_in_test: false in test env' do
+          allow_any_instance_of(described_class).to receive(:features_config).and_return(
+            'features' => {
+              'f_disabled_in_test' => { 'enable_in_test' => false },
+              'f_normal' => {}
+            }
+          )
+
+          manager.setup
+
+          expect(memory.exist?('f_disabled_in_test')).to be true
+          expect(memory.exist?('f_normal')).to be true
+
+          # Feature with enable_in_test: false should NOT be enabled
+          expect(memory.enabled?('f_disabled_in_test')).to be false
+          # Normal feature should be enabled in test by default
+          expect(memory.enabled?('f_normal')).to be true
+
+          expect(manager.added_features).to include('f_disabled_in_test', 'f_normal')
+          expect(manager.enabled_features).to include('f_normal')
+          expect(manager.enabled_features).not_to include('f_disabled_in_test')
+        end
+
         it 'removes orphaned features present in Flipper but absent from config' do
           memory.add('orphan_x')
 

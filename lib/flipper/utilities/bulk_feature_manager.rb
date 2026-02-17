@@ -58,10 +58,12 @@ module Flipper
           added_features << feature
           @flipper.add(feature) unless @dry_run
 
-          # Default features to enabled for test and those explicitly set for development
+          # Default features to enabled based on environment and config
           enabled_in_dev = feature_config['enable_in_development']
+          enabled_in_test = feature_config['enable_in_test']
+          
           should_enable =
-            Rails.env.test? ||
+            (Rails.env.test? && enabled_in_test != false) ||
             (Rails.env.development? && enabled_in_dev) ||
             (Settings.vsp_environment == 'development' && enabled_in_dev)
 
