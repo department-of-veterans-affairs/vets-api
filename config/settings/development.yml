@@ -300,6 +300,14 @@ covid_vaccine:
 database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  appealable_issues:
+    auth:
+      aud_claim_url: ~
+      client_id: ~
+      rsa_key: ~
+      token_url: ~
+    mock: true
+    url: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0
   benchmark_performance: true
   delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
@@ -1319,6 +1327,7 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  get_awards_pension: modules/mobile/app/schemas/get_awards_pension.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: SEARCH_GOV_ACCESS_KEY

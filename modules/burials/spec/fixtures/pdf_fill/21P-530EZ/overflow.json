@@ -102,6 +102,11 @@
       "last": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     }
   ],
+  "powPeriods": [
+    {"powDateRange": {"from": "1971-02-26", "to": "1973-03-02"}},
+    {"powDateRange": {"from": "1974-02-26", "to": "1976-03-02"}},
+    {"powDateRange": {"from": "1977-02-26", "to": "1979-03-02"}}
+  ],
   "deathDate": "2012-06-27",
   "burialDate": "2012-06-28",
   "placeOfBirth": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",

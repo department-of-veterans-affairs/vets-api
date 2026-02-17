@@ -72,6 +72,13 @@ RSpec.describe TravelClaim::AuthManager do
       expect(manager.facility_type).to eq('oh')
       expect(manager.correlation_id).to eq('abc-123')
     end
+  end
+
+  describe '#with_auth' do
+    it 'ensures tokens are fetched before yielding' do
+      stub_connections(auth_manager)
+
+      result = auth_manager.with_auth { 'success' }
 
     it 'generates correlation_id if not provided' do
       manager = described_class.new(icn: '123', station_number: '500')
