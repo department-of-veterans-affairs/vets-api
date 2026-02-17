@@ -10,9 +10,9 @@ module VeteranEnrollmentSystem
       NUMBER_OF_YEARS_AVAILABLE = 3
       # maybe come up with a better name
       PDF_FORMAT = {
-        2023: 'pdf_attributes_v1',
-        2024: 'pdf_attributes_v1',
-        2025: 'pdf_attributes_v2'
+        '2023': :pdf_attributes_v1,
+        '2024': :pdf_attributes_v1,
+        '2025': :pdf_attributes_v2
       }
 
       attribute :first_name, String
@@ -47,6 +47,7 @@ module VeteranEnrollmentSystem
       end
 
       def pdf_file
+        template_path = self.class.pdf_template_path(tax_year)
         unless File.exist?(template_path) && PDF_FORMAT.keys.include?(tax_year.to_sym)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
@@ -168,8 +169,8 @@ module VeteranEnrollmentSystem
         text_data
       end
 
-      def generate_pdf(pdftk, tmp_file)
-        template_path = self.class.pdf_template_path(tax_year)
+      def generate_pdf(pdftk, tmp_file, template_path)
+        # template_path = self.class.pdf_template_path(tax_year)
         form_data = pdf_data
 
         pdftk.fill_form(
@@ -187,7 +188,8 @@ module VeteranEnrollmentSystem
       end
 
       def pdf_data
-        year_specific_attributes = PDF_FORMAT[year.to_sym]
+        variable_attributes_function_name = PDF_FORMAT[tax_year.to_sym]
+        year_specific_attributes = send(variable_attributes_function_name)
         shared_attributes = shared_pdf_data
         shared_attributes.merge(year_specific_attributes)
       end
