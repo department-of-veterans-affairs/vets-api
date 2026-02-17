@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
+require 'debt_management_center/debts_service'
 require 'sidekiq/attr_package'
 
 module DebtsApi
   module V0
     class DigitalDisputesController < ApplicationController
+      include DebtsApi::Concerns::SubmissionValidation
+
       service_tag 'debt-resolution'
       before_action :authorize_icn
+
+      before_action :parse_metadata, only: [:create]
 
       def create
         StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.initiated")
@@ -50,15 +55,27 @@ module DebtsApi
           user_uuid: current_user.uuid,
           user_account: current_user.user_account,
           state: :pending,
-          metadata: submission_params[:metadata]
+          metadata: @parsed_metadata.to_json
         ).tap { |s| s.files.attach(submission_params[:files]) }
       end
 
+      def parse_metadata
+        @parsed_metadata = DebtsApi::Concerns::SubmissionValidation::DisputeDebtValidator
+                           .validate_form_schema(
+                             submission_params[:metadata],
+                             current_user
+                           )
+      rescue ArgumentError => e
+        StatsD.increment("#{DebtsApi::V0::DigitalDisputeSubmission::STATS_KEY}.failure")
+        Rails.logger.error("DigitalDisputeController#parse_metadata validation error: #{e.message}")
+        render json: { errors: { metadata: [e.message] } }, status: :unprocessable_entity
+      end
+
       def submission_params
-        params.permit(
-          :metadata,
-          files: []
-        )
+        {
+          metadata: params.require(:metadata),
+          files: params[:files] || []
+        }
       end
 
       def email_notifications_enabled?
