@@ -57,7 +57,14 @@ module TravelClaim
     rescue Common::Exceptions::BackendServiceException => e
       if should_retry_auth?(e)
         handle_auth_retry(e)
-        yield
+        begin
+          result = yield
+          log_auth_event('Retry succeeded after token refresh', is_retry: true)
+          result
+        rescue Common::Exceptions::BackendServiceException => retry_error
+          log_auth_event("Retry failed: #{retry_error.original_status} error", is_retry: true)
+          raise
+        end
       else
         raise
       end
@@ -168,7 +175,7 @@ module TravelClaim
                                  })
 
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      response = veis_connection.post("#{@veis_tenant_id}/oauth2/token", body, headers)
+      response = config.connection(server_url: @veis_auth_url).post("#{@veis_tenant_id}/oauth2/token", body, headers)
 
       token = response.body['access_token']
       raise_token_error('VEIS', 'access_token') if token.blank?
@@ -195,7 +202,7 @@ module TravelClaim
         'Authorization' => "Bearer #{@current_veis_token}"
       }.merge(subscription_key_headers)
 
-      response = TravelClaim::Configuration.instance.connection.post('api/v4/auth/system-access-token', body, headers)
+      response = config.connection.post('api/v4/auth/system-access-token', body, headers)
 
       token = response.body.dig('data', 'accessToken')
       raise_token_error('BTSSS', 'accessToken') if token.blank?
@@ -204,6 +211,7 @@ module TravelClaim
 
     ##
     # Determines if the error warrants an authentication retry.
+    # Retries on any 4xx client error as these may indicate stale tokens.
     #
     # @param error [Common::Exceptions::BackendServiceException] the error
     # @return [Boolean] true if retry should be attempted
@@ -211,11 +219,13 @@ module TravelClaim
     def should_retry_auth?(error)
       return false if @auth_retry_attempted
 
-      [401, 409].include?(error.original_status)
+      status = error.original_status
+      status.present? && status >= 400 && status < 500
     end
 
     ##
     # Handles the authentication retry by clearing appropriate tokens and re-fetching.
+    # For 401 errors, refreshes all tokens. For 409 errors, refreshes BTSSS only.
     #
     # @param error [Common::Exceptions::BackendServiceException] the error that triggered retry
     #
@@ -226,8 +236,8 @@ module TravelClaim
       if error.original_status == 401
         log_auth_event('401 error - refreshing all tokens')
         @current_veis_token = nil
-      elsif error.original_status == 409
-        log_auth_event('409 error - refreshing BTSSS token only')
+      else
+        log_auth_event("#{error.original_status} error - refreshing BTSSS token only")
       end
 
       ensure_tokens!
@@ -261,34 +271,42 @@ module TravelClaim
     end
 
     ##
-    # Creates a Faraday connection for VEIS OAuth requests.
-    # Uses form-urlencoded content type, not JSON.
-    #
-    # @return [Faraday::Connection] configured connection
-    #
-    def veis_connection
-      @veis_connection ||= Faraday.new(url: @veis_auth_url) do |conn|
-        conn.response :json
-        conn.response :raise_error
-        conn.adapter Faraday.default_adapter
-      end
-    end
-
-    ##
     # Logs authentication events when logging is enabled.
     #
     # @param message [String] the message to log
+    # @param is_retry [Boolean] whether this is a retry attempt
     #
-    def log_auth_event(message)
+    def log_auth_event(message, is_retry: false)
       return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
 
-      Rails.logger.info({
-                          message: "TravelClaim::AuthManager: #{message}",
-                          correlation_id: @correlation_id,
-                          facility_type: @facility_type,
-                          veis_token_present: @current_veis_token.present?,
-                          btsss_token_present: @current_btsss_token.present?
-                        })
+      log_data = {
+        message: "TravelClaim::AuthManager: #{message}",
+        correlation_id: @correlation_id,
+        station_number: @station_number,
+        facility_type: @facility_type,
+        is_retry:,
+        veis_token_present: @current_veis_token.present?,
+        btsss_token_present: @current_btsss_token.present?
+      }
+
+      # Only include ICN last 4 when detailed logging is enabled
+      if Flipper.enabled?(:check_in_experience_travel_claim_log_api_error_details)
+        log_data[:icn_last_four] = icn_last_four
+      end
+
+      Rails.logger.info(log_data)
+    end
+
+    ##
+    # Returns the last 4 characters of the ICN for logging purposes.
+    # ICN is PII and should not be logged in full.
+    #
+    # @return [String, nil] last 4 characters of ICN or nil if ICN is blank
+    #
+    def icn_last_four
+      return nil if @icn.blank?
+
+      @icn.to_s.last(4)
     end
 
     ##

@@ -45,11 +45,15 @@ RSpec.describe TravelClaim::AuthManager do
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(false)
   end
 
-  def stub_connections(manager, veis_resp: veis_response, btsss_resp: btsss_response)
+  def stub_connections(_manager = nil, veis_resp: veis_response, btsss_resp: btsss_response)
     veis_conn = instance_double(Faraday::Connection)
     btsss_conn = instance_double(Faraday::Connection)
-    config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
-    allow(manager).to receive(:veis_connection).and_return(veis_conn)
+    config_instance = instance_double(TravelClaim::Configuration)
+
+    # Stub config.connection to return different connections based on server_url argument
+    allow(config_instance).to receive(:connection).with(no_args).and_return(btsss_conn)
+    allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+
     allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
     allow(veis_conn).to receive(:post).and_return(veis_resp)
     allow(btsss_conn).to receive(:post).and_return(btsss_resp)
@@ -289,8 +293,9 @@ RSpec.describe TravelClaim::AuthManager do
 
       veis_conn = instance_double(Faraday::Connection)
       btsss_conn = instance_double(Faraday::Connection)
-      config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
-      allow(auth_manager).to receive(:veis_connection).and_return(veis_conn)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(no_args).and_return(btsss_conn)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
       allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
       allow(veis_conn).to receive(:post).and_return(
         instance_double(Faraday::Response, body: { 'access_token' => 'new-veis-token' })
@@ -319,7 +324,9 @@ RSpec.describe TravelClaim::AuthManager do
 
     it 'fetches new token when cache is empty' do
       veis_conn = instance_double(Faraday::Connection)
-      allow(auth_manager).to receive(:veis_connection).and_return(veis_conn)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
       allow(veis_conn).to receive(:post).and_return(veis_response)
 
       token = auth_manager.veis_token
@@ -328,7 +335,9 @@ RSpec.describe TravelClaim::AuthManager do
 
     it 'caches the token after fetching' do
       veis_conn = instance_double(Faraday::Connection)
-      allow(auth_manager).to receive(:veis_connection).and_return(veis_conn)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
       allow(veis_conn).to receive(:post).and_return(veis_response)
 
       auth_manager.veis_token
@@ -519,7 +528,9 @@ RSpec.describe TravelClaim::AuthManager do
   describe 'error handling' do
     it 'raises BackendServiceException when VEIS token is missing from response' do
       veis_conn = instance_double(Faraday::Connection)
-      allow(auth_manager).to receive(:veis_connection).and_return(veis_conn)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
       allow(veis_conn).to receive(:post).and_return(
         instance_double(Faraday::Response, body: {})
       )
