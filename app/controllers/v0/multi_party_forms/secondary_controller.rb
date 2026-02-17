@@ -6,6 +6,20 @@ module V0
       service_tag 'multi-party-forms'
       before_action :check_feature_enabled
 
+      # GET /v0/multi_party_forms/secondary/:id
+      def show
+        @submission = MultiPartyFormSubmission.find_by!(
+          id: params[:id],
+          secondary_user_uuid: current_user.uuid
+        )
+
+        render json: { data: show_response_data }
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      rescue => e
+        handle_show_error(e)
+      end
+
       # POST /v0/multi_party_forms/secondary/:id/start
       def start
         @submission = MultiPartyFormSubmission.find(params[:id])
@@ -22,7 +36,7 @@ module V0
           tags: ["form_type:#{@submission.form_type}"]
         )
 
-        render_submission_response
+        render json: { data: start_response_data }
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, params[:id]
       end
@@ -44,19 +58,39 @@ module V0
         end
       end
 
-      def render_submission_response
-        render json: {
-          data: {
-            id: @submission.id,
-            type: 'multi_party_form_submission',
-            attributes: {
-              form_type: @submission.form_type,
-              status: @submission.status,
-              primary_form_id: @submission.primary_form_id,
-              secondary_form_id: @submission.secondary_form_id,
-              created_at: @submission.created_at.iso8601,
-              veteran_sections: { read_only: true }
+      def show_response_data
+        {
+          id: @submission.id,
+          type: 'multi_party_form_submission',
+          attributes: {
+            form_type: @submission.form_type,
+            status: @submission.status,
+            primary_form_id: @submission.primary_form_id,
+            secondary_form_id: @submission.secondary_form_id,
+            created_at: @submission.created_at.iso8601,
+            veteran_sections: {
+              read_only: true,
+              data: parse_form_data(@submission.primary_in_progress_form)
+            },
+            physician_sections: {
+              editable: true,
+              data: parse_form_data(@submission.secondary_in_progress_form)
             }
+          }
+        }
+      end
+
+      def start_response_data
+        {
+          id: @submission.id,
+          type: 'multi_party_form_submission',
+          attributes: {
+            form_type: @submission.form_type,
+            status: @submission.status,
+            primary_form_id: @submission.primary_form_id,
+            secondary_form_id: @submission.secondary_form_id,
+            created_at: @submission.created_at.iso8601,
+            veteran_sections: { read_only: true }
           }
         }
       end
@@ -76,6 +110,36 @@ module V0
           secondary_user_uuid: current_user.uuid,
           secondary_in_progress_form: secondary_form
         )
+      end
+
+      def parse_form_data(in_progress_form)
+        return {} if in_progress_form.blank?
+
+        JSON.parse(in_progress_form.form_data)
+      rescue JSON::ParserError => e
+        Rails.logger.error(
+          'MultiPartyForms::SecondaryController: Error parsing form data',
+          {
+            in_progress_form_id: in_progress_form&.id,
+            error: e.message
+          }
+        )
+        {}
+      end
+
+      def handle_show_error(error)
+        Rails.logger.error(
+          'MultiPartyForms::SecondaryController: Error retrieving submission',
+          {
+            submission_id: params[:id],
+            user_id: current_user&.uuid,
+            error: error.message,
+            backtrace: error.backtrace&.first(5)
+          }
+        )
+
+        StatsD.increment('multi_party_form.secondary.show.failure')
+        raise
       end
     end
   end
