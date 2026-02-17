@@ -22,8 +22,12 @@ describe SM::Client, '#message_sending_helpers' do
         allow(client).to receive(:get_triage_teams_station_numbers).and_return(cached_teams)
       end
 
-      it 'returns the station_number' do
+      it 'returns the station_number with integer recipient_id' do
         expect(client.send(:resolve_station_number, recipient_id)).to eq('989')
+      end
+
+      it 'returns the station_number with string recipient_id' do
+        expect(client.send(:resolve_station_number, recipient_id.to_s)).to eq('989')
       end
     end
 
@@ -69,6 +73,12 @@ describe SM::Client, '#message_sending_helpers' do
     context 'when recipient_id is blank' do
       it 'returns unknown' do
         expect(client.send(:resolve_station_number, '')).to eq('unknown')
+      end
+    end
+
+    context 'when recipient_id is non-numeric' do
+      it 'returns unknown' do
+        expect(client.send(:resolve_station_number, 'abc')).to eq('unknown')
       end
     end
 

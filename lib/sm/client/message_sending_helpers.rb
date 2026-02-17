@@ -34,10 +34,13 @@ module SM
       def resolve_station_number(recipient_id)
         return 'unknown' if recipient_id.blank?
 
+        recipient_id_int = Integer(recipient_id, exception: false)
+        return 'unknown' if recipient_id_int.nil?
+
         cached_teams = get_triage_teams_station_numbers
         return 'unknown' if cached_teams.blank?
 
-        matching_team = cached_teams.find { |team| team.triage_team_id == recipient_id }
+        matching_team = cached_teams.find { |team| team.triage_team_id == recipient_id_int }
         matching_team&.station_number || 'unknown'
       rescue => e
         Rails.logger.error("Error resolving station number: #{e.message}")
