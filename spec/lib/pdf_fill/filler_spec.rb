@@ -347,28 +347,45 @@ describe PdfFill::Filler, type: :model do
     end
 
     context 'when template fields cannot be extracted' do
+      let(:data_hash) { { 'field1' => 'value1' } }
+
       before do
         allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return([])
         allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(true)
       end
 
-      let(:data_hash) { { 'field1' => 'value1' } }
+      context 'when enforcement is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(true)
+        end
 
-      it 'skips validation and does not raise an exception' do
-        expect do
-          described_class.validate_field_names!(template_path, data_hash, form_id)
-        end.not_to raise_error
+        it 'logs error and raises exception' do
+          expect(Rails.logger).to receive(:error).with(
+            'PDF field name mismatch detected',
+            hash_including(form_id: form_id, total_template_fields: 0)
+          )
+
+          expect do
+            described_class.validate_field_names!(template_path, data_hash, form_id)
+          end.to raise_error(PdfFill::Filler::PdfFillerException)
+        end
       end
 
-      it 'logs warning message' do
-        expect(Rails.logger).to receive(:warn).with(
-          'PDF field validation skipped: Could not extract fields from template',
-          form_id: form_id,
-          template_path: template_path
-        )
+      context 'when enforcement is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
+        end
 
-        described_class.validate_field_names!(template_path, data_hash, form_id)
+        it 'logs error but does not raise exception' do
+          expect(Rails.logger).to receive(:error).with(
+            'PDF field name mismatch detected',
+            hash_including(form_id: form_id, total_template_fields: 0)
+          )
+
+          expect do
+            described_class.validate_field_names!(template_path, data_hash, form_id)
+          end.not_to raise_error
+        end
       end
     end
   end
