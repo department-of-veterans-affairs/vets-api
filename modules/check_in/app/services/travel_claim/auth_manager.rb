@@ -202,7 +202,9 @@ module TravelClaim
 
     ##
     # Determines if the error warrants an authentication retry.
-    # Retries on any 4xx client error as these may indicate stale tokens.
+    # Only retries on auth-related status codes:
+    # - 401: Token expired or invalid
+    # - 409: Contact ID mismatch (stale BTSSS token)
     #
     # @param error [Common::Exceptions::BackendServiceException] the error
     # @return [Boolean] true if retry should be attempted
@@ -210,8 +212,7 @@ module TravelClaim
     def should_retry_auth?(error)
       return false if @auth_retry_attempted
 
-      status = error.original_status
-      status.present? && status >= 400 && status < 500
+      [401, 409].include?(error.original_status)
     end
 
     ##
