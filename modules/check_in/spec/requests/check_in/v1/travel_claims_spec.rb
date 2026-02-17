@@ -326,10 +326,10 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
 
       context 'when claim already exists for appointment' do
         it 'returns specific error message from Travel Pay API' do
-          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
-            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200', allow_playback_repeats: true do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200', allow_playback_repeats: true do
               VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_200' do
-                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate' do
+                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate', allow_playback_repeats: true do
                   post '/check_in/v1/travel_claims', params: valid_params,
                                                      headers: { 'Authorization' => "Bearer #{low_auth_token}" }
                 end
@@ -351,10 +351,10 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_log_api_error_details)
                                               .and_return(true)
 
-          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
-            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200', allow_playback_repeats: true do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200', allow_playback_repeats: true do
               VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_200' do
-                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate' do
+                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate', allow_playback_repeats: true do
                   post '/check_in/v1/travel_claims', params: valid_params,
                                                      headers: { 'Authorization' => "Bearer #{low_auth_token}" }
                 end
@@ -363,6 +363,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           end
 
           # Verify client-level logging: external API error with details
+          # Note: With auth retry on 4xx errors, this may be logged twice (initial + retry)
           expect(Rails.logger).to have_received(:error).with(
             hash_including(
               message: 'TravelPayClient: BTSSS API Error',
@@ -370,7 +371,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
               http_status: 400,
               api_error_message: 'Validation failed: A claim has already been created for this appointment.'
             )
-          )
+          ).at_least(:once)
 
           # Verify service-level logging: step failure with context
           expect(Rails.logger).to have_received(:error).with(
@@ -384,9 +385,9 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
 
       context 'when service raises an error' do
         it 'returns bad request status' do
-          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
-            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
-              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_400' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200', allow_playback_repeats: true do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200', allow_playback_repeats: true do
+              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_400', allow_playback_repeats: true do
                 post '/check_in/v1/travel_claims', params: valid_params,
                                                    headers: { 'Authorization' => "Bearer #{low_auth_token}" }
               end
