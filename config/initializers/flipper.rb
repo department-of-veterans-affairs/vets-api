@@ -63,8 +63,11 @@ Rails.application.reloader.to_prepare do
           Flipper.add(feature)
           added_flippers.push(feature)
 
-          # Default features to enabled for test and those explicitly set for development
-          if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
+          # Default features to enabled for test (unless explicitly disabled) and those explicitly set for development
+          if Rails.env.test?
+            # In test, only enable if enable_in_test is not explicitly false
+            Flipper.enable(feature) unless feature_config['enable_in_test'] == false
+          elsif Rails.env.development? && feature_config['enable_in_development']
             Flipper.enable(feature)
           end
         end
