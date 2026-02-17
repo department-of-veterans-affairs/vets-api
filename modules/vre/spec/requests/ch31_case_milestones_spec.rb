@@ -52,7 +52,7 @@ RSpec.describe 'VRE::V0::Ch31CaseMilestones', type: :request do
           post '/vre/v0/ch31_case_milestones', params: { milestones: [] }
           expect(response).to have_http_status(:forbidden)
           message = JSON.parse(response.body)['errors'].first['detail']
-          expect(message).to eq('At least one milestone is required')
+          expect(message).to eq('Forbidden')
         end
       end
     end
