@@ -85,7 +85,7 @@ module Mobile
             vetext_id:,
             reason: appointment[:reason_for_appointment],
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
-            is_pending: appointment[:pending],
+            is_pending: appointment_request?,
             proposed_times:,
             type_of_care: appointment[:type_of_care],
             patient_phone_number:,
