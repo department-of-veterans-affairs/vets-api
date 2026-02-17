@@ -45,14 +45,26 @@ module SurvivorsBenefits
           first_key: 'first',
           'first' => {
             limit: 12,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s First Name (additional)',
+            question_text: 'VETERAN\'S FIRST NAME (ADDITIONAL)',
             key: "form1[0].#subform[207].First_Name[#{ITERATOR}]"
           },
           'middle' => {
             limit: 1,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s Middle Initial (additional)',
+            question_text: 'VETERAN\'S MIDDLE INITIAL (ADDITIONAL)',
             key: "form1[0].#subform[207].Middle_Initial[#{ITERATOR}]"
           },
           'last' => {
             limit: 18,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: 'Veteran\'s Last Name (additional)',
+            question_text: 'VETERAN\'S LAST NAME (ADDITIONAL)',
             key: "form1[0].#subform[207].Last_Name[#{ITERATOR}]"
           }
         },
@@ -103,14 +115,26 @@ module SurvivorsBenefits
         'unitNameAndAddress' => {
           'line_one' => {
             limit: 20,
+            question_num: 3,
+            question_suffix: 'H',
+            question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+            question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
             key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[0]'
           },
           'line_two' => {
             limit: 20,
+            question_num: 3,
+            question_suffix: 'H',
+            question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 2)',
+            question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 2)',
             key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[1]'
           },
           'line_three' => {
             limit: 20,
+            question_num: 3,
+            question_suffix: 'H',
+            question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 3)',
+            question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 3)',
             key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[2]'
           }
         },
@@ -199,7 +223,9 @@ module SurvivorsBenefits
         {
           'line_one' => parts[0],
           'line_two' => parts[1],
-          'line_three' => parts[2]
+          # to ensure overflow gets triggered, line_three should be the rest of
+          # the string even if longer than 20 chars.
+          'line_three' => unit_name_and_address[40..] || ''
         }
       end
     end

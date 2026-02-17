@@ -74,6 +74,8 @@ module MyHealth
       def show
         return unless validate_feature_flag
 
+        raise Common::Exceptions::ParameterMissing, 'station_number' if params[:station_number].blank?
+
         prescriptions = service.get_prescriptions(current_only: false).compact
         prescription = prescriptions.find do |p|
           p.prescription_id.to_s == params[:id].to_s &&

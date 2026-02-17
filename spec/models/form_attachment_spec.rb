@@ -15,23 +15,54 @@ RSpec.describe FormAttachment do
       let(:bad_password) { 'bad_pw' }
 
       context 'when provided password is incorrect' do
-        it 'logs a sanitized message to Sentry and Rails' do
+        let(:tempfile) { Tempfile.new(['', "-#{file_name}"]) }
+        let(:file) do
+          ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf', tempfile:)
+        end
+
+        before do
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'logs a sanitized message to Rails logger' do
           error_message = nil
-          allow_any_instance_of(FormAttachment).to receive(:log_message_to_sentry) do |_, message, _level|
+          allow(Rails.logger).to receive(:warn) do |message|
             error_message = message
           end
-          # allow(Rails.logger).to receive(:warn)
-
-          tempfile = Tempfile.new(['', "-#{file_name}"])
-          file = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf',
-                                                        tempfile:)
 
           expect do
             preneed_attachment.set_file_data!(file, bad_password)
           end.to raise_error(Common::Exceptions::UnprocessableEntity)
           expect(error_message).not_to include(file_name)
           expect(error_message).not_to include(bad_password)
-          # expect(Rails.logger).to have_received(:warn)
+        end
+
+        it 'raises an exception without a cause to prevent leaking sensitive data' do
+          raised_error = nil
+          begin
+            preneed_attachment.set_file_data!(file, bad_password)
+          rescue Common::Exceptions::UnprocessableEntity => e
+            raised_error = e
+          end
+
+          expect(raised_error).to be_present
+          expect(raised_error.cause).to be_nil
+        end
+
+        it 'does not expose the original PdftkError with password in the exception chain' do
+          raised_error = nil
+          begin
+            preneed_attachment.set_file_data!(file, bad_password)
+          rescue Common::Exceptions::UnprocessableEntity => e
+            raised_error = e
+          end
+
+          # Walk the entire cause chain to ensure no sensitive data leaks
+          current = raised_error
+          while current
+            expect(current.message).not_to include(bad_password)
+            current = current.cause
+          end
         end
       end
     end
