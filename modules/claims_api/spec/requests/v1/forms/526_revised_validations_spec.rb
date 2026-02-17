@@ -691,7 +691,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       let(:claim_date) { 1.day.ago.to_date.iso8601 }
       let(:anticipated_separation_date) { Time.zone.today.iso8601 }
 
-      it 'does not raise an error' do
+      it 'raises an error since the date must be in the future' do
         expect { subject.validate_form_526_title10_anticipated_separation_date! }.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
