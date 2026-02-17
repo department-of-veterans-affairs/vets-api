@@ -8,6 +8,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(true)
     Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z'))
   end
 
@@ -21,7 +22,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response).to have_http_status(:success)
         end
@@ -29,7 +30,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns a PDF form' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response.content_type).to eq('application/pdf')
         end
@@ -94,7 +95,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns http success' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
           get '/v0/form1095_bs/download_txt/2024'
           expect(response).to have_http_status(:success)
         end
@@ -102,7 +103,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
 
       it 'returns a txt form' do
         VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri] }) do
+                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
           get '/v0/form1095_bs/download_txt/2024'
           expect(response.content_type).to eq('text/plain')
         end
