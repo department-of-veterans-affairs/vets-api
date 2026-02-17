@@ -7,6 +7,9 @@ require 'dependents_benefits/generators/claim686c_generator'
 require 'dependents_benefits/monitor'
 require 'dependents_benefits/user_data'
 
+require 'claims_evidence_api/uploader'
+require 'digital_forms_api/service/submissions'
+
 module DependentsBenefits
   module V0
     ###
@@ -49,17 +52,23 @@ module DependentsBenefits
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
 
         # FDF pilot
+        # TODO remove flipper and conditional and move to separate job
         forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
-        claim_info = claim.get_claim_information(current_user)
-        valid_case = claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present
-        if forms_api_enabled && claim.claim_form_type == '21-686c' && valid_case
-          begin
-            submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
-            log_submitted(in_progress_form, claim)
-            claim.send_submitted_email(current_user)
-            return render json: SavedClaimSerializer.new(claim)
-          rescue => e
-            monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
+        if forms_api_enabled
+          if claim.claim_form_type == '21-686c'
+            begin
+              claim_info = claim.get_claim_information(current_user)
+              if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
+                submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+
+                monitor.track_create_success(in_progress_form, claim, current_user)
+                DependentsBenefits::NotificationEmail.new(claim.id).send_submitted_notification
+
+                return render json: SavedClaimSerializer.new(claim)
+              end
+            rescue => e
+              monitor.track_request(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
+            end
           end
         end
 
@@ -100,7 +109,7 @@ module DependentsBenefits
         response = digital_forms_api_submission_service.submit(payload, metadata)
         raise response.to_s.to_s unless response.success?
 
-        monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
+        monitor.track_request(:info, 'success', 'dependents_controller.forms_api_submission', claim:, response:)
 
         upload_evidence_documents(claim, participant_id)
 
@@ -115,9 +124,9 @@ module DependentsBenefits
         doctype = claim.document_type
 
         folder_identifier = "VETERAN:PARTICIPANT_ID:#{participant_id}"
-        ClaimsEvidenceApi::Uploader.new(folder_identifier)
+        claims_evidence_uploader = ClaimsEvidenceApi::Uploader.new(folder_identifier)
 
-        file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+        file_path = claim.to_pdf(form_id:, created_at: claim.created_at)
         claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
 
         stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
@@ -126,8 +135,8 @@ module DependentsBenefits
           file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
           claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
         end
-      rescue
-        monitor.track_event(:error, 'Evidence submission during Forms API processing failed',
+      rescue => e
+        monitor.track_request(:error, 'Evidence submission during Forms API processing failed',
                             "#{STATS_KEY}.submit_pdf.failure", error: e.message)
       end
 
@@ -181,7 +190,7 @@ module DependentsBenefits
 
       # Creates a new monitor instance for tracking events
       def monitor
-        DependentsBenefits::Monitor.new
+        @monitor ||= DependentsBenefits::Monitor.new
       end
     end
   end
