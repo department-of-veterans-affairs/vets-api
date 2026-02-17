@@ -289,7 +289,7 @@ module TravelClaim
         icn:,
         station_number:,
         facility_type: @facility_type,
-        correlation_id: @correlation_id
+        correlation_id:
       )
     end
 
