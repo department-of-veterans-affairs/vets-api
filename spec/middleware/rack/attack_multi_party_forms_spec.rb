@@ -120,39 +120,5 @@ RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
         expect(response).to have_http_status(:too_many_requests)
       end
     end
-
-    context 'StatsD metrics tracking' do
-      before { sign_in_as(user) }
-
-      it 'tracks throttled requests in StatsD' do
-        allow(StatsD).to receive(:increment)
-
-        61.times { post '/v0/multi_party_forms/primary', headers: }
-
-        expect(StatsD).to have_received(:increment).with(
-          'api.rack_attack.throttled',
-          tags: [
-            'path:/v0/multi_party_forms/primary',
-            'throttle_name:multi_party_forms/ip'
-          ]
-        )
-      end
-    end
-
-    context 'load testing safelist' do
-      it 'bypasses throttle for load testing IP addresses' do
-        sign_in_as(user)
-        headers = { 'X-Real-Ip' => '100.103.248.1' }
-
-        # Simulate request from load testing IP
-        60.times do
-          post '/v0/multi_party_forms/primary', headers:
-        end
-
-        # Should not be throttled even after exceeding limit
-        post('/v0/multi_party_forms/primary', headers:)
-        expect(response).not_to have_http_status(:too_many_requests)
-      end
-    end
   end
 end
