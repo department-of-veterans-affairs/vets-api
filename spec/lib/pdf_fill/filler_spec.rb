@@ -67,14 +67,6 @@ describe PdfFill::Filler, type: :model do
 
   # there are approx. 46 tests here which is deceptive.
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    # Disable PDF field validation for existing form tests
-    # These forms have pre-existing field name mismatches that would cause test failures
-    before do
-      allow(Flipper).to receive(:enabled?).and_call_original
-      allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
-    end
-
     def overflow_file_suffix(extras_redesign, show_jumplinks)
       return '_extras.pdf' unless extras_redesign
 
@@ -268,23 +260,9 @@ describe PdfFill::Filler, type: :model do
     context 'when all field names match the template' do
       let(:data_hash) { { 'field1' => 'value1', 'field2' => 'value2', 'field3' => 'value3' } }
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
-      end
-
-      it 'does not raise an exception' do
-        expect do
-          described_class.validate_field_names!(template_path, data_hash, form_id)
-        end.not_to raise_error
-      end
-
-      it 'logs success message when logging flag is enabled' do
-        expect(Rails.logger).to receive(:info).with(
-          'PDF field validation passed',
-          form_id:,
-          field_count: 3
-        )
+      it 'increments StatsD success metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.success',
+                                                    tags: ["form_id:#{form_id}"])
 
         described_class.validate_field_names!(template_path, data_hash, form_id)
       end
@@ -293,51 +271,11 @@ describe PdfFill::Filler, type: :model do
     context 'when some field names do not match the template' do
       let(:data_hash) { { 'field1' => 'value1', 'wrong_field' => 'value2', 'another_wrong' => 'value3' } }
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
-      end
-
-      it 'logs error with field details' do
-        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
-
-        expect(Rails.logger).to receive(:error).with(
-          'PDF field name mismatch detected',
-          hash_including(
-            form_id:,
-            unmatched_count: 2,
-            total_data_fields: 3,
-            total_template_fields: 3
-          )
-        )
+      it 'increments StatsD mismatch metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                    tags: ["form_id:#{form_id}"])
 
         described_class.validate_field_names!(template_path, data_hash, form_id)
-      end
-
-      context 'when enforcement flag is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(true)
-        end
-
-        it 'raises PdfFillerException' do
-          expect do
-            described_class.validate_field_names!(template_path, data_hash, form_id)
-          end.to raise_error(
-            PdfFill::Filler::PdfFillerException,
-            /Form 28-1900: 2 field name\(s\) in data do not match PDF template fields/
-          )
-        end
-      end
-
-      context 'when enforcement flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
-        end
-
-        it 'does not raise an exception' do
-          expect do
-            described_class.validate_field_names!(template_path, data_hash, form_id)
-          end.not_to raise_error
-        end
       end
     end
 
@@ -346,41 +284,13 @@ describe PdfFill::Filler, type: :model do
 
       before do
         allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return([])
-        allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_logging).and_return(true)
       end
 
-      context 'when enforcement is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(true)
-        end
+      it 'increments StatsD mismatch metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                    tags: ["form_id:#{form_id}"])
 
-        it 'logs error and raises exception' do
-          expect(Rails.logger).to receive(:error).with(
-            'PDF field name mismatch detected',
-            hash_including(form_id:, total_template_fields: 0)
-          )
-
-          expect do
-            described_class.validate_field_names!(template_path, data_hash, form_id)
-          end.to raise_error(PdfFill::Filler::PdfFillerException)
-        end
-      end
-
-      context 'when enforcement is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:pdf_fill_field_validation_enforcement).and_return(false)
-        end
-
-        it 'logs error but does not raise exception' do
-          expect(Rails.logger).to receive(:error).with(
-            'PDF field name mismatch detected',
-            hash_including(form_id:, total_template_fields: 0)
-          )
-
-          expect do
-            described_class.validate_field_names!(template_path, data_hash, form_id)
-          end.not_to raise_error
-        end
+        described_class.validate_field_names!(template_path, data_hash, form_id)
       end
     end
   end

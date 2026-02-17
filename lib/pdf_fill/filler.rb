@@ -52,6 +52,8 @@ module PdfFill
     class PdfFillerException < StandardError; end
     module_function
 
+    STATSD_KEY_PREFIX = 'api.pdf_fill'
+
     # A PdfForms instance for handling standard PDF forms.
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
 
@@ -279,9 +281,8 @@ module PdfFill
                       end
 
       # Validate that field names in data match the PDF template fields
-      # Only run validation if either logging or enforcement flag is enabled
-      if Flipper.enabled?(:pdf_fill_field_validation_logging) ||
-         Flipper.enabled?(:pdf_fill_field_validation_enforcement)
+      # Track mismatches via StatsD for monitoring blank/partial PDFs
+      if Flipper.enabled?(:pdf_fill_field_validation)
         validate_field_names!(template_path, new_hash, form_id)
       end
 
@@ -400,19 +401,9 @@ module PdfFill
       unmatched_fields = data_field_names - template_fields
 
       if unmatched_fields.any?
-        Rails.logger.error('PDF field name mismatch detected',
-                           form_id:, unmatched_count: unmatched_fields.size, total_data_fields: data_field_names.size,
-                           total_template_fields: template_fields.size, unmatched_fields: unmatched_fields.first(20))
-
-        if Flipper.enabled?(:pdf_fill_field_validation_enforcement)
-          raise PdfFillerException,
-                "Form #{form_id}: #{unmatched_fields.size} field name(s) in data do not match PDF template fields. " \
-                'This will result in a blank or partially filled PDF. ' \
-                "Unmatched fields: #{unmatched_fields.first(10).join(', ')}#{unmatched_fields.size > 10 ? '...' : ''}"
-        end
-      elsif Flipper.enabled?(:pdf_fill_field_validation_logging)
-        Rails.logger.info('PDF field validation passed',
-                          form_id:, field_count: data_field_names.size)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.mismatch", tags: ["form_id:#{form_id}"])
+      else
+        StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.success", tags: ["form_id:#{form_id}"])
       end
     end
 
