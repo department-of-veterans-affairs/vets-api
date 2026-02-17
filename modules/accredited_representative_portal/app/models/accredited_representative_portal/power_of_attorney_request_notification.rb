@@ -53,20 +53,20 @@ module AccreditedRepresentativePortal
     def template_id
       static_templates = {
         'requested' => Settings.vanotify.services.va_gov.template_id
-                               .appoint_a_representative_digital_submit_confirmation_email,
+                       .appoint_a_representative_digital_submit_confirmation_email,
         'declined' => Settings.vanotify.services.va_gov.template_id
-                              .appoint_a_representative_digital_submit_decline_email,
+                      .appoint_a_representative_digital_submit_decline_email,
         'expiring' => Settings.vanotify.services.va_gov.template_id
-                              .appoint_a_representative_digital_expiration_warning_email,
+                      .appoint_a_representative_digital_expiration_warning_email,
         'expired' => Settings.vanotify.services.va_gov.template_id
-                             .appoint_a_representative_digital_expiration_confirmation_email
+                     .appoint_a_representative_digital_expiration_confirmation_email
       }.freeze
 
       failure_templates = {
         'claimant' => Settings.vanotify.services.va_gov.template_id
-                              .accredited_representative_portal_poa_request_failure_claimant_email,
+                      .accredited_representative_portal_poa_request_failure_claimant_email,
         'resolver' => Settings.vanotify.services.va_gov.template_id
-                              .accredited_representative_portal_poa_request_failure_rep_email
+                      .accredited_representative_portal_poa_request_failure_rep_email
       }.freeze
 
       if static_templates.key?(type)

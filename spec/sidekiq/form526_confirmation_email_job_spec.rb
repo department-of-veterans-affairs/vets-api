@@ -65,9 +65,9 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           email_address:,
           template_id: Settings.vanotify
                        .services
-                               .va_gov
-                               .template_id
-                               .form526_confirmation_email,
+                       .va_gov
+                       .template_id
+                       .form526_confirmation_email,
           personalisation: {
             'claim_id' => '600191990',
             'date_submitted' => 'July 12, 2020',

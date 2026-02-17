@@ -80,7 +80,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
             id_type: 'ICN'
           },
           template_id: Settings.vanotify.services.benefits_management_tools
-                               .template_id.evidence_submission_failure_email,
+                       .template_id.evidence_submission_failure_email,
           personalisation:
         }
       end
@@ -143,7 +143,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
             id_type: 'ICN'
           },
           template_id: Settings.vanotify.services.benefits_management_tools
-                               .template_id.evidence_submission_failure_email,
+                       .template_id.evidence_submission_failure_email,
           personalisation:
         }
       end
@@ -208,7 +208,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
             id_type: 'ICN'
           },
           template_id: Settings.vanotify.services.benefits_management_tools
-                               .template_id.evidence_submission_failure_email,
+                       .template_id.evidence_submission_failure_email,
           personalisation:
         }
       end

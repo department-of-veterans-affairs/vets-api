@@ -12,7 +12,7 @@ class Device < ApplicationRecord
     {
       active:,
       inactive: Device.where.not(name: active.pluck(:name))
-                      .select(:key, :name)
+                .select(:key, :name)
     }
   end
 end

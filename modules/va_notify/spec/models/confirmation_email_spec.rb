@@ -26,7 +26,7 @@ RSpec.describe VANotify::ConfirmationEmail, type: :model do
                                                                          'date' => Time.now.in_time_zone(
                                                                            'Eastern Time (US & Canada)'
                                                                          )
-                                                                                       .strftime('%B %d, %Y'),
+                                                                                   .strftime('%B %d, %Y'),
                                                                          'first_name' => 'FIRST_NAME'
                                                                        })
     end
