@@ -158,4 +158,121 @@ RSpec.describe 'V0::MultiPartyForms::Primary', type: :request do
       # end
     end
   end
+
+  describe 'POST /v0/multi_party_forms/primary/:id/complete' do
+    let(:submission) { create(:multi_party_form_submission, primary_user_uuid: user.uuid) }
+    let(:complete_params) do
+      {
+        multi_party_form: {
+          secondary_email: 'physician@example.com'
+        }
+      }.to_json
+    end
+
+    context 'when user is not authenticated' do
+      it 'returns unauthorized' do
+        post "/v0/multi_party_forms/primary/#{submission.id}/complete",
+             params: complete_params,
+             headers: { 'Content-Type' => 'application/json' }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).and_return(false)
+      end
+
+      it 'returns not found' do
+        post "/v0/multi_party_forms/primary/#{submission.id}/complete",
+             params: complete_params,
+             headers: { 'Content-Type' => 'application/json' }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when authenticated and feature flag enabled' do
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).and_return(true)
+      end
+
+      context 'with valid params and correct state' do
+        it 'completes the primary submission and transitions state' do
+          metrics = capture_statsd_calls do
+            post "/v0/multi_party_forms/primary/#{submission.id}/complete",
+                 params: complete_params,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(response).to have_http_status(:ok)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to eq(submission.id.to_s)
+          expect(json_response['data']['type']).to eq('multi_party_form_submission')
+          expect(json_response['data']['attributes']['status']).to eq('awaiting_secondary_start')
+          expect(json_response['data']['attributes']['secondary_email']).to eq('physician@example.com')
+          expect(json_response['data']['attributes']['primary_completed_at']).to be_present
+
+          expect(metrics.collect(&:source)).to include(
+            'multi_party_form.primary_completed:1|c|#form_type:21-2680'
+          )
+        end
+      end
+
+      context 'when submission is in wrong state' do
+        before { submission.update!(status: 'awaiting_secondary_start') }
+
+        it 'returns 422 unprocessable entity' do
+          post "/v0/multi_party_forms/primary/#{submission.id}/complete",
+               params: complete_params,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors'].first['title']).to eq('Invalid state transition')
+        end
+      end
+
+      context 'when secondary_email is missing' do
+        let(:complete_params) do
+          { multi_party_form: { secondary_email: '' } }.to_json
+        end
+
+        it 'returns 422 unprocessable entity' do
+          post "/v0/multi_party_forms/primary/#{submission.id}/complete",
+               params: complete_params,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when submission belongs to another user' do
+        let(:other_submission) { create(:multi_party_form_submission) }
+
+        it 'returns not found' do
+          post "/v0/multi_party_forms/primary/#{other_submission.id}/complete",
+               params: complete_params,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      context 'when submission does not exist' do
+        it 'returns not found' do
+          post "/v0/multi_party_forms/primary/#{SecureRandom.uuid}/complete",
+               params: complete_params,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
 end
