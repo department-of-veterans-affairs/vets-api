@@ -70,7 +70,7 @@ module SM
 
       private
 
-      # Updates blocked_status and migrating_to_oh for teams in p3-p6 migration phases
+      # Updates blocked_status and migrating_to_oh for teams in p3-p5 migration phases
       def update_teams_migration_status(teams)
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
         station_numbers = teams.map(&:station_number).compact.uniq
@@ -78,7 +78,7 @@ module SM
 
         teams.each do |team|
           phase = phases_map[team.station_number.to_s]
-          if %w[p3 p4 p5 p6].include?(phase)
+          if %w[p3 p4 p5].include?(phase)
             team.blocked_status = true
             team.migrating_to_oh = true
           else
