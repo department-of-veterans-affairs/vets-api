@@ -145,7 +145,6 @@ module TravelClaim
         race_condition_ttl: VEIS_RACE_CONDITION_TTL
       ) do
         log_auth_event('Minting new VEIS token')
-        StatsD.increment('api.check_in.travel_claim.veis_token.mint')
         mint_veis_token
       end
     end
@@ -157,20 +156,22 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] If token request fails
     #
     def mint_veis_token
-      body = URI.encode_www_form({
-                                   client_id: @veis_client_id,
-                                   client_secret: @veis_client_secret,
-                                   client_type: '1',
-                                   grant_type: 'client_credentials',
-                                   resource: @veis_resource
-                                 })
+      with_monitoring do
+        body = URI.encode_www_form({
+                                     client_id: @veis_client_id,
+                                     client_secret: @veis_client_secret,
+                                     client_type: '1',
+                                     grant_type: 'client_credentials',
+                                     resource: @veis_resource
+                                   })
 
-      headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      response = config.connection(server_url: @veis_auth_url).post("#{@veis_tenant_id}/oauth2/token", body, headers)
+        headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
+        response = config.connection(server_url: @veis_auth_url).post("#{@veis_tenant_id}/oauth2/token", body, headers)
 
-      token = response.body['access_token']
-      raise_token_error('VEIS', 'access_token') if token.blank?
-      token
+        token = response.body['access_token']
+        raise_token_error('VEIS', 'access_token') if token.blank?
+        token
+      end
     end
 
     ##
@@ -181,23 +182,25 @@ module TravelClaim
       fetch_veis_token! if @current_veis_token.blank?
 
       log_auth_event('Fetching BTSSS token')
-      client_secret = if @facility_type.to_s.strip.downcase == 'oh'
-                        @btsss_client_secret_oh
-                      else
-                        @btsss_client_secret_standard
-                      end
-      body = { secret: client_secret, icn: @icn }
-      headers = {
-        'X-Correlation-ID' => @correlation_id,
-        'BTSSS-API-Client-Number' => @btsss_client_number,
-        'Authorization' => "Bearer #{@current_veis_token}"
-      }.merge(subscription_key_headers)
+      with_monitoring do
+        client_secret = if @facility_type.to_s.strip.downcase == 'oh'
+                          @btsss_client_secret_oh
+                        else
+                          @btsss_client_secret_standard
+                        end
+        body = { secret: client_secret, icn: @icn }
+        headers = {
+          'X-Correlation-ID' => @correlation_id,
+          'BTSSS-API-Client-Number' => @btsss_client_number,
+          'Authorization' => "Bearer #{@current_veis_token}"
+        }.merge(subscription_key_headers)
 
-      response = config.connection.post('api/v4/auth/system-access-token', body, headers)
+        response = config.connection.post('api/v4/auth/system-access-token', body, headers)
 
-      token = response.body.dig('data', 'accessToken')
-      raise_token_error('BTSSS', 'accessToken') if token.blank?
-      @current_btsss_token = token
+        token = response.body.dig('data', 'accessToken')
+        raise_token_error('BTSSS', 'accessToken') if token.blank?
+        @current_btsss_token = token
+      end
     end
 
     ##

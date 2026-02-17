@@ -181,8 +181,8 @@ module TravelClaim
     ##
     # Unified logging method for all external API errors (BTSSS).
     #
-    # @param endpoint [String] 'BTSSS'
-    # @param operation [String] what step failed
+    # @param operation [String] what step failed (e.g., 'find_or_add_appointment')
+    # @param api_path [String] the API endpoint path (e.g., 'api/v3/appointments/find-or-add')
     # @param error [Exception] the exception object
     # @param context [Hash] additional context to include in logs
     #
