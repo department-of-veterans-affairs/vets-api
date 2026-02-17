@@ -259,7 +259,7 @@ claims_api:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
-claims_evidence_api:
+claims_evidence_api: &claims_evidence_api
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
   include_request: false
@@ -299,6 +299,14 @@ covid_vaccine:
 database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  appealable_issues:
+    auth:
+      aud_claim_url: ~
+      client_id: ~
+      rsa_key: ~
+      token_url: ~
+    mock: false
+    url: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0
   benchmark_performance: true
   delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
@@ -356,6 +364,7 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
+digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
 directory:
   apikey: "<fake_api_key>"
   health_server_id: ~
@@ -576,6 +585,10 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
+  accreditation_xlsx:
+    password: ~
+    url: ~
+    username: ~
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
@@ -1116,6 +1129,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: ~
   apim_url: ~
+  mock: false
   open_timeout: 15
   read_timeout: 55
   url: https://some.fakesite.com
@@ -1147,6 +1161,23 @@ reports:
     bucket: bucket
     region: region
     secret_access_key: secret
+  bio_submission_status:
+    emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+      - '21-4192'
+      - '21-0779'
+      - '21P-530a'
+      - '21-2680'
+    staging_emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:
