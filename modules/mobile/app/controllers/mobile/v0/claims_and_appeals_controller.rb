@@ -213,7 +213,7 @@ module Mobile
       end
 
       def lighthouse_claims_adapter
-        Mobile::V0::Adapters::LighthouseIndividualClaims.new
+        Mobile::V0::Adapters::LighthouseIndividualClaims.new(@current_user)
       end
 
       def appeal_adapter
