@@ -36,23 +36,19 @@ module DebtsApi
     end
 
     def perform(args)
-      submission_type = args['submission_type'] || 'fsr'
-      cache_key = args['cache_key']
-      pii = fetch_pii(cache_key, args)
+      submission_type = args['submission_type'] || 'fsr' # TODO: make this file not fsr specific
+      pii = args['user_pii']
 
       submissions_data = find_submissions(args['user_uuid'], submission_type)
-
       if submissions_data.blank?
         Rails.logger.warn(
           "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
           "No submissions found for user_uuid: #{args['user_uuid']}"
         )
-        Sidekiq::AttrPackage.delete(cache_key) if cache_key
         return
       end
 
       send_vanotify_email(args['template_id'], pii, submissions_data, submission_type)
-      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue Sidekiq::AttrPackageError => e
       # Log AttrPackage errors as application logic errors (no retries)
       Rails.logger.error('V0::Form5655::SendConfirmationEmailJob', { error: e.message })
@@ -65,24 +61,10 @@ module DebtsApi
     private
 
     def send_vanotify_email(template_id, pii, submissions_data, submission_type)
-      cache_key = Sidekiq::AttrPackage.create(
-        email: pii[:email],
-        personalisation: email_personalization_info(pii, submissions_data, submission_type)
-      )
+      personalisation = email_personalization_info(pii, submissions_data, submission_type)
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         nil, template_id, nil, { id_type: 'email', cache_key: }
       )
-    end
-
-    # Temporary fallback, after all pre-migration jobs have processed we will remove
-    def fetch_pii(cache_key, args)
-        attributes = Sidekiq::AttrPackage.find(cache_key)
-        attributes ?
-        { email: attributes[:email], first_name: attributes[:first_name] }:
-        args['user_pii']
-      end
-
-      { email: args['email'], first_name: args['first_name'] }
     end
 
     def email_personalization_info(pii, submissions_data, submission_type)
