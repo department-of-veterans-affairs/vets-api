@@ -9,7 +9,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(true)
-    Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z'))
+    Timecop.freeze(Time.zone.parse('2026-03-05T08:00:00Z'))
   end
 
   after { Timecop.return }
@@ -161,6 +161,8 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   end
 
   describe 'GET /available_forms' do
+    before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
+
     context 'with valid user' do
       before do
         sign_in_as(user)
