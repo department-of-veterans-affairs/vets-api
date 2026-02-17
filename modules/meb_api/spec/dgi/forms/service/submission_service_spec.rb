@@ -118,4 +118,84 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
       end
     end
   end
+
+  describe '#submit_claim' do
+    let(:dd_params_lighthouse) do
+      OpenStruct.new(
+        payment_account: {
+          account_number: '1234567890',
+          routing_number: '031000503'
+        }
+      )
+    end
+
+    context 'Feature vettec' do
+      let(:vettec_params) do
+        ActionController::Parameters.new(
+          {
+            '@type' => 'vettec',
+            form: {
+              '@type' => 'vettec',
+              form_id: '22-10297',
+              claimant: {
+                claimant_id: '12345',
+                first_name: 'JOHN',
+                last_name: 'DOE',
+                date_of_birth: '1990-01-15',
+                contact_info: {
+                  address_line1: '123 Main St',
+                  city: 'Washington',
+                  state_code: 'DC',
+                  zipcode: '20001',
+                  country_code: 'US',
+                  email_address: 'john.doe@example.com',
+                  mobile_phone_number: '+1 5551234567'
+                }
+              },
+              military_info: {
+                date_released_from_active_duty: '2020-06-15',
+                active_duty_during_hitech_vets: true
+              },
+              direct_deposit: {
+                direct_deposit_account_type: 'checking',
+                direct_deposit_account_number: '1234567890',
+                direct_deposit_routing_number: '021000021'
+              },
+              training_providers: {
+                providers: [
+                  {
+                    provider_name: 'Tech Academy',
+                    provider_address: {
+                      street: '456 Tech Blvd',
+                      city: 'San Francisco',
+                      state: 'CA',
+                      postal_code: '94102',
+                      country: 'US'
+                    }
+                  }
+                ],
+                planned_start_date: '2024-09-01'
+              },
+              employment_info: {
+                is_employed: true,
+                is_in_technology_industry: false,
+                current_occupation: 'Retail Manager',
+                current_annual_salary: '45000',
+                highest_education_level: 'Some College'
+              },
+              attestation_agreement_accepted: true,
+              date_signed: '2024-07-15'
+            }
+          }
+        )
+      end
+
+      it 'returns a status of 200 for vettec submission' do
+        VCR.use_cassette('dgi/forms/submit_vettec_claim') do
+          response = service.submit_claim(vettec_params, dd_params_lighthouse)
+          expect(response.status).to eq(200)
+        end
+      end
+    end
+  end
 end
