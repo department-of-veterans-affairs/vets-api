@@ -226,4 +226,6 @@ C4Deployment
 ## For More Details
 
 - **ADRs**: See `adrs/` folder for architectural decisions
-- **Integration Guide**: See `SIMPLE-FORMS-INTEGRATION.md`
+- **Integration Guides**:
+  - Simple Forms: `SIMPLE-FORMS-INTEGRATION.md`
+  - Non-Simple Forms: `NON-SIMPLE-FORMS-INTEGRATION.md`
