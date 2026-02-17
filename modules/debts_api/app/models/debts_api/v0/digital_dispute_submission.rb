@@ -120,8 +120,8 @@ module DebtsApi
         return if user&.email.blank?
 
         user_pii = {
-          first_name: EncryptionService.encrypt(user.first_name),
-          email: EncryptionService.encrypt(user.email)
+          first_name: DebtsApi::EncryptionService.encrypt(user.first_name),
+          email: DebtsApi::EncryptionService.encrypt(user.email)
         }
 
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(

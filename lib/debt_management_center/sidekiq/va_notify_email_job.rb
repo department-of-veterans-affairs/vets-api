@@ -31,9 +31,10 @@ module DebtManagementCenter
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure")
         StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:sidekiq_retries_exhausted])
       end
+      # Do not log ex.message - it may contain PII (email, personalisation)
       Rails.logger.error <<~LOG
         VANotifyEmailJob retries exhausted:
-        Exception: #{ex.class} - #{ex.message}
+        Exception: #{ex.class}
         Backtrace: #{ex.backtrace.join("\n")}
       LOG
 
@@ -43,14 +44,13 @@ module DebtManagementCenter
     def perform(identifier, template_id, personalisation = nil, options = {})
       options = (options || {}).transform_keys(&:to_s)
       cache_key = options['cache_key']
-      identifier, personalisation = retrieve_pii_from_cache(cache_key, identifier, personalisation)
 
       send_email(identifier, template_id, personalisation, options)
       cleanup_and_record_success(cache_key, options['failure_mailer'])
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue Sidekiq::AttrPackageError => e
-      # Log AttrPackage errors as application logic errors (no retries)
-      Rails.logger.error('VANotifyEmailJob AttrPackage error', { error: e.message })
+      # Log without e.message to avoid any risk of PII (email, personalisation)
+      Rails.logger.error('VANotifyEmailJob AttrPackage error', { error_class: e.class.name })
       raise ArgumentError, e.message
     rescue => e
       handle_error(e, template_id)
@@ -58,20 +58,9 @@ module DebtManagementCenter
 
     private
 
-    def retrieve_pii_from_cache(cache_key, identifier, personalisation)
-      return [identifier, personalisation] unless cache_key
-
-      attributes = Sidekiq::AttrPackage.find(cache_key)
-      return [identifier, personalisation] unless attributes
-
-      [attributes[:email], attributes[:personalisation]]
-    end
-
     def send_email(identifier, template_id, personalisation, options)
-      id_type = options['id_type'] || 'email'
       notify_client = va_notify_client(options['failure_mailer'])
-      # TODO: decrypt email here
-      notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
+      notify_client.send_email(email_params(identifier, template_id, personalisation, options))
     end
 
     def cleanup_and_record_success(_cache_key, use_failure_mailer)
@@ -84,12 +73,16 @@ module DebtManagementCenter
 
     def handle_error(error, template_id)
       StatsD.increment("#{STATS_KEY}.failure")
-      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{error.message}")
+      # Do not log error.message - it may contain PII (email, personalisation) from API responses
+      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{error.class}")
       log_exception_to_sentry(error, { args: { template_id: } }, { error: :dmc_va_notify_email_job })
       raise error
     end
 
-    def email_params(identifier, template_id, personalisation, id_type)
+    def email_params(identifier, template_id, personalisation, options)
+      id_type = options['id_type'] || 'email'
+      identifier, personalisation = plain_pii(identifier, personalisation, options)
+
       case id_type.downcase
       when 'email'
         {
@@ -106,6 +99,32 @@ module DebtManagementCenter
       else
         raise UnrecognizedIdentifier, id_type
       end
+    end
+
+    def plain_pii(identifier, personalisation, options)
+      cache_key = options['cache_key']
+      if cache_key.present?
+        attributes = Sidekiq::AttrPackage.find(cache_key)
+        raise Sidekiq::AttrPackageError.new('find', 'cache miss') unless attributes
+
+        [attributes[:email], attributes[:personalisation]]
+      else
+        [plain_value(identifier), plain_personalisation(personalisation)]
+      end
+    end
+
+    def plain_personalisation(personalisation)
+      return personalisation if personalisation.blank? || personalisation['first_name'].blank?
+
+      personalisation.merge('first_name' => plain_value(personalisation['first_name']))
+    end
+
+    def plain_value(value)
+      return value if value.blank?
+
+      DebtsApi::EncryptionService.decrypt(value)
+    rescue ActiveSupport::MessageEncryptor::InvalidMessage
+      value
     end
 
     def va_notify_client(use_failure_mailer)

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EncryptionService do
+RSpec.describe DebtsApi::EncryptionService do
   describe '.encrypt' do
     it 'returns an encrypted string different from the original value' do
       value = 'sensitive data'
