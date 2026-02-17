@@ -427,8 +427,8 @@ module Veteran
       Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
     end
 
-    # Creates/upserts join records for representative <-> organization relationships.
-    # Seeds acceptance_mode based on veteran_organizations.can_accept_digital_poa_requests (status quo behavior).
+    # Inserts missing join rows for representative <-> organization relationships.
+    # Seeds acceptance_mode from Organization.can_accept_digital_poa_requests (status quo behavior).
     def populate_org_representative_joins!(rep_org_pairs:, poa_codes:)
       pairs = rep_org_pairs.compact.uniq
       return if pairs.empty? || poa_codes.blank?
@@ -437,7 +437,7 @@ module Veteran
       rows = build_org_rep_rows(pairs, org_accept_map)
       return if rows.empty?
 
-      upsert_org_rep_rows(rows)
+      insert_missing_org_rep_rows(rows)
     end
 
     def organization_accept_map(poa_codes)
@@ -463,7 +463,7 @@ module Veteran
     # `acceptance_mode` once it has been explicitly set.
 
     # rubocop:disable Rails/SkipsModelValidations
-    def upsert_org_rep_rows(rows)
+    def insert_missing_org_rep_rows(rows)
       Veteran::Service::OrganizationRepresentative.insert_all(
         rows,
         unique_by: %i[organization_poa representative_id]

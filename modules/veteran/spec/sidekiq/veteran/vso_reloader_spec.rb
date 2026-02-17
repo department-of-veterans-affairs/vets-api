@@ -80,6 +80,17 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
 
     context 'join table acceptance_mode (status quo)' do
+      it 'seeds acceptance_mode to any_request when org accepts digital POA' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          create(:organization, poa: '095', can_accept_digital_poa_requests: true)
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          org_rep = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '095')
+          expect(org_rep.acceptance_mode).to eq('any_request')
+        end
+      end
+
       it 'seeds acceptance_mode but does not overwrite join rows or create duplicates' do
         VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
           create(:organization, poa: '095', can_accept_digital_poa_requests: false)
@@ -101,7 +112,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           org_rep.update!(acceptance_mode: 'self_only')
 
           # Even if org-wide flag changes later, ingestion should NOT clobber the join row
-          Veteran::Service::Organization.find_by!(poa: '095').update!(can_accept_digital_poa_requests: true)
+          Veteran::Service::Organization.find_by!(poa: '095')
+                                        .update!(can_accept_digital_poa_requests: true)
 
           Veteran::VSOReloader.new.reload_vso_reps
 
