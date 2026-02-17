@@ -24,6 +24,7 @@ module DebtManagementCenter
 
     sidekiq_retries_exhausted do |job, ex|
       options = (job['args'][3] || {}).transform_keys(&:to_s)
+      cache_key = options['cache_key']
 
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       if options['failure_mailer'] == true
@@ -35,13 +36,18 @@ module DebtManagementCenter
         Exception: #{ex.class} - #{ex.message}
         Backtrace: #{ex.backtrace.join("\n")}
       LOG
+
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
     def perform(identifier, template_id, personalisation = nil, options = {})
       options = (options || {}).transform_keys(&:to_s)
+      cache_key = options['cache_key']
+      identifier, personalisation = retrieve_pii_from_cache(cache_key, identifier, personalisation)
 
       send_email(identifier, template_id, personalisation, options)
-      cleanup_and_record_success(options['failure_mailer'])
+      cleanup_and_record_success(cache_key, options['failure_mailer'])
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     rescue Sidekiq::AttrPackageError => e
       # Log AttrPackage errors as application logic errors (no retries)
       Rails.logger.error('VANotifyEmailJob AttrPackage error', { error: e.message })
@@ -52,13 +58,23 @@ module DebtManagementCenter
 
     private
 
+    def retrieve_pii_from_cache(cache_key, identifier, personalisation)
+      return [identifier, personalisation] unless cache_key
+
+      attributes = Sidekiq::AttrPackage.find(cache_key)
+      return [identifier, personalisation] unless attributes
+
+      [attributes[:email], attributes[:personalisation]]
+    end
+
     def send_email(identifier, template_id, personalisation, options)
       id_type = options['id_type'] || 'email'
       notify_client = va_notify_client(options['failure_mailer'])
+      # TODO: decrypt email here
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
     end
 
-    def cleanup_and_record_success(use_failure_mailer)
+    def cleanup_and_record_success(_cache_key, use_failure_mailer)
       if use_failure_mailer == true
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
       end

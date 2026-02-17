@@ -32,21 +32,24 @@ module DebtsApi
         Backtrace: #{ex.backtrace.join("\n")}
       LOG
 
-      Sidekiq::AttrPackage.delete(cache_key) if cache_key
+      delete_cache_key(cache_key)
     end
 
     def perform(args)
       submission_type = args['submission_type'] || 'fsr' # TODO: make this file not fsr specific
-      pii = args['user_pii']
-
       submissions_data = find_submissions(args['user_uuid'], submission_type)
+      
       if submissions_data.blank?
         Rails.logger.warn(
           "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
           "No submissions found for user_uuid: #{args['user_uuid']}"
         )
+        delete_cache_key(cache_key)
         return
       end
+  
+      is_retry = args['cache_key'].present?
+      pii = is_retry ? fetch_pii_from_cache(args['cache_key']) : args['user_pii']
 
       send_vanotify_email(args['template_id'], pii, submissions_data, submission_type)
     rescue Sidekiq::AttrPackageError => e
@@ -62,9 +65,23 @@ module DebtsApi
 
     def send_vanotify_email(template_id, pii, submissions_data, submission_type)
       personalisation = email_personalization_info(pii, submissions_data, submission_type)
+      cache_key = unless pii.present?
+        Sidekiq::AttrPackage.create(
+          email: pii[:email],
+          personalisation,
+        )
+      end
+      identifier = pii&.dig(:email)
+      options = cache_key ? { id_type: 'email', cache_key: } || {}
+
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        nil, template_id, nil, { id_type: 'email', cache_key: }
+        identifier, template_id, personalisation, options
       )
+    end
+    
+    def fetch_pii_from_cache(cache_key)
+      attributes = Sidekiq::AttrPackage.find(cache_key)
+      { email: attributes[:email], first_name: attributes[:first_name] } if attributes
     end
 
     def email_personalization_info(pii, submissions_data, submission_type)
@@ -84,12 +101,15 @@ module DebtsApi
     def find_submissions(user_uuid, submission_type)
       case submission_type
       when 'digital_dispute'
-        # Fix: Add explicit ordering to get most recent submission
         DebtsApi::V0::DigitalDisputeSubmission.where(user_uuid:, state: 1)
                                               .order(created_at: :desc).first
       else
         DebtsApi::V0::Form5655Submission.where(user_uuid:, state: 1)
       end
+    end
+
+    def delete_cache_key(cache_key)
+      Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
   end
 end
