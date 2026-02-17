@@ -115,19 +115,21 @@ module IvcChampva
           end
 
           # if the response is successful, submit the VES request
-          if response[:status] == 200
-            if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user)
-              submit_ves_request_with_subforms(ves_request, metadata)
-            else
-              submit_ves_request(ves_request, metadata)
-            end
-          end
+          submit_to_ves(ves_request, metadata) if response[:status] == 200
 
           response
         else
           statuses, error_messages = call_handle_file_uploads(form_id, parsed_form_data)
 
           build_json(statuses, error_messages)
+        end
+      end
+
+      def submit_to_ves(ves_request, metadata)
+        if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user)
+          submit_ves_request_with_subforms(ves_request, metadata)
+        else
+          submit_ves_request(ves_request, metadata)
         end
       end
 
