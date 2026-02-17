@@ -26,6 +26,27 @@ RSpec.describe TravelPay::BaseClient do
       expect(handlers).to include('Faraday::Multipart::Middleware')
       expect(handlers).to include('Faraday::Request::UrlEncoded')
     end
+
+    it 'sets timeout options on the connection' do
+      conn = client.connection(server_url:)
+
+      expect(conn.options.open_timeout).to eq(15)
+      expect(conn.options.timeout).to eq(90)
+    end
+
+    context 'with custom timeout settings' do
+      before do
+        allow(Settings.travel_pay).to receive(:open_timeout).and_return(20)
+        allow(Settings.travel_pay).to receive(:timeout).and_return(120)
+      end
+
+      it 'uses the custom timeout values' do
+        conn = client.connection(server_url:)
+
+        expect(conn.options.open_timeout).to eq(20)
+        expect(conn.options.timeout).to eq(120)
+      end
+    end
   end
 
   describe '#mock_enabled?' do
