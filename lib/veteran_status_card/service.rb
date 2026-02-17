@@ -13,6 +13,7 @@ module VeteranStatusCard
     STATSD_FAILURE = 'failure'
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
+    STATSD_SUCCESS = 'success'
 
     # Default value in case SSC codes are never checked
     NO_SSC_CHECK_MESSAGE = 'no_ssc_check'
@@ -250,6 +251,8 @@ module VeteranStatusCard
 
       # confirmation_status will always be present - it defaults to NO_SSC_CHECK_MESSAGE
       log_statsd(@confirmation_status)
+
+      log_statsd(STATSD_SUCCESS)
 
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
