@@ -164,7 +164,7 @@ module RepresentationManagement
       address = build_organization_address(row, column_map)
       {
         ogc_id: get_value(row, column_map, ogc_id_column),
-        poa_code: row[column_map['POA']]&.to_s&.strip,
+        poa_code: row[column_map['POA']]&.to_s&.strip&.rjust(3, '0'),
         name: get_value(row, column_map, 'OrganizationName'),
         phone: get_value(row, column_map, 'OrganizationPhoneNumber'),
         address:,
