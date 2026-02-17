@@ -221,7 +221,7 @@ module VBADocuments
                 property :errors do
                   key :type, :array
                   items do
-                    key :$ref, :ErrorModel
+                    key :$ref, :UploadsReportBadRequestErrorModel
                   end
                 end
               end

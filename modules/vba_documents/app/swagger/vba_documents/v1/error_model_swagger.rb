@@ -23,6 +23,32 @@ module VBADocuments
             key :description, 'A more detailed message about why an error occurred'
           end
         end
+
+        schema :UploadsReportBadRequestErrorModel do
+          key :description, 'Validation error for uploads/report request payload'
+
+          key :required, %i[title detail code status]
+
+          property :title do
+            key :type, :string
+            key :example, 'Too many items submitted'
+          end
+
+          property :detail do
+            key :type, :string
+            key :example, '"ids" cannot exceed 1000 items (submitted 1001)'
+          end
+
+          property :code do
+            key :type, :string
+            key :example, '108'
+          end
+
+          property :status do
+            key :type, :string
+            key :example, '400'
+          end
+        end
       end
     end
   end
