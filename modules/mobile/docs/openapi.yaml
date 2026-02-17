@@ -245,6 +245,58 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments
+  "/v0/appointments/avs_binaries/{appointment-id}":
+    get:
+      description: Retrieve appointment AVS binary by id
+      parameters:
+        - in: path
+          required: true
+          name: "appointment-id"
+          schema:
+            type: string
+            example: "52499028"
+        - in: query
+          name: doc_ids
+          required: true
+          schema:
+            type: string
+          description: A comma-separated list of document IDs.
+          example: '20875041789,20875041790'
+      responses:
+        "200":
+          description: AVS binary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AvsBinaries.yml
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          content:
+            application/json:
+              examples:
+                No VAOS Access:
+                  value:
+                    $ref: ./examples/appointments/forbidden_no_vaos_access_error.yml
+                No ICN:
+                  value:
+                    $ref: ./examples/appointments/forbidden_no_icn_error.yml
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '418':
+          $ref: '#/components/responses/418'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
   /v0/appointments/cancel/{cancelId}:
     put:
       description: Cancel an appointment by cancelId. Note only VA appointments can
