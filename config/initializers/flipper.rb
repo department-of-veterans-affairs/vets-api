@@ -73,6 +73,19 @@ Rails.application.reloader.to_prepare do
         Flipper.enable(feature) if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
       end
 
+      if FLIPPER_FEATURE_CONFIG['groups'].present?
+        FLIPPER_FEATURE_CONFIG['groups'].each do |group_name, group_config|
+          next if Flipper.group_exists?(group_name.to_sym)
+
+          settings_path = group_config['members']
+
+          Flipper.register(group_name.to_sym) do |actor, _context|
+            members = Set.new(Settings.dig(*settings_path.split('.')) || [])
+            actor.respond_to?(:flipper_id) && members.include?(actor.flipper_id)
+          end
+        end
+      end
+
       Rails.logger.info "The following feature flippers were added: #{added_flippers}" unless added_flippers.empty?
       removed_features = Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys
       unless removed_features.empty?
