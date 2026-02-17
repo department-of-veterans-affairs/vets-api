@@ -402,8 +402,8 @@ RSpec.describe TravelClaim::TravelPayClient do
           expect(Rails.logger).to have_received(:error).with(
             hash_including(
               message: 'TravelPayClient: BTSSS API Error',
-              endpoint: 'BTSSS',
               operation: 'find_or_add_appointment',
+              api_path: 'api/v3/appointments/find-or-add',
               http_status: 500,
               error_class: 'Common::Exceptions::BackendServiceException'
             )

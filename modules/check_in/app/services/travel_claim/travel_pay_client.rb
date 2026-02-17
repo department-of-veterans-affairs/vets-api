@@ -57,7 +57,8 @@ module TravelClaim
                 build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(endpoint: 'BTSSS', operation: 'find_or_add_appointment', error: e)
+      log_external_api_error(operation: 'find_or_add_appointment',
+                             api_path: 'api/v3/appointments/find-or-add', error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -76,7 +77,7 @@ module TravelClaim
                 build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(endpoint: 'BTSSS', operation: 'create_claim', error: e)
+      log_external_api_error(operation: 'create_claim', api_path: 'api/v3/claims', error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -97,7 +98,7 @@ module TravelClaim
                 build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(endpoint: 'BTSSS', operation: 'add_mileage_expense', error: e)
+      log_external_api_error(operation: 'add_mileage_expense', api_path: 'api/v3/expenses/mileage', error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -114,7 +115,7 @@ module TravelClaim
         perform(:get, "api/v3/claims/#{claim_id}", nil, build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(endpoint: 'BTSSS', operation: 'get_claim', error: e)
+      log_external_api_error(operation: 'get_claim', api_path: 'api/v3/claims/{claim_id}', error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -131,7 +132,7 @@ module TravelClaim
         perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(endpoint: 'BTSSS', operation: 'submit_claim', error: e)
+      log_external_api_error(operation: 'submit_claim', api_path: 'api/v3/claims/{claim_id}/submit', error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -185,19 +186,19 @@ module TravelClaim
     # @param error [Exception] the exception object
     # @param context [Hash] additional context to include in logs
     #
-    def log_external_api_error(endpoint:, operation:, error: nil, **context)
-      log_data = build_base_log_data(endpoint, operation)
+    def log_external_api_error(operation:, api_path:, error: nil, **context)
+      log_data = build_base_log_data(operation, api_path)
       log_data.merge!(extract_error_details(error)) if error.present?
       log_data.merge!(context)
 
       Rails.logger.error(log_data)
     end
 
-    def build_base_log_data(endpoint, operation)
+    def build_base_log_data(operation, api_path)
       {
-        message: "TravelPayClient: #{endpoint} API Error",
-        endpoint:,
+        message: 'TravelPayClient: BTSSS API Error',
         operation:,
+        api_path:,
         correlation_id: @correlation_id,
         check_in_uuid: @check_in_uuid,
         facility_type: @facility_type
