@@ -1748,9 +1748,11 @@ features:
   pdf_fill_field_validation_logging:
     actor_type: user
     description: Log PDF field name mismatches without blocking form submission. Safe to enable for monitoring.
+    enable_in_test: false
   pdf_fill_field_validation_enforcement:
     actor_type: user
     description: Raise exceptions when PDF field names don't match template. Prevents blank PDFs but will fail form submission.
+    enable_in_test: false
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
