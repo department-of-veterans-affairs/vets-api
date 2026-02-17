@@ -800,6 +800,7 @@ config/initializers/veteran_facing_services_notification_callbacks.rb @departmen
 config/initializers/warden_github.rb @department-of-veterans-affairs/backend-review-group
 config/locales @department-of-veterans-affairs/backend-review-group
 config/mpi_schema @department-of-veterans-affairs/octo-identity
+config/openapi/ @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 config/preneeds @department-of-veterans-affairs/bah-mbs-selfserv @department-of-veterans-affairs/backend-review-group
 config/puma.rb @department-of-veterans-affairs/backend-review-group
 config/redis.yml @department-of-veterans-affairs/backend-review-group
