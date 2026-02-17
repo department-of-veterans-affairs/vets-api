@@ -189,7 +189,7 @@ module DependentsBenefits
     #
     # @return [String] Sidekiq job ID
     def send_backup_job
-      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id)
+      DependentsBenefits::Sidekiq::BenefitsIntakeJob.perform_async(parent_claim_id)
     end
 
     # Returns a notification email handler for the claim
