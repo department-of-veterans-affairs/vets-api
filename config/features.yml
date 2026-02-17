@@ -268,6 +268,9 @@ features:
   champva_vanotify_custom_confirmation_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
+  champva_vanotify_custom_pega_alert_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending missing Pega status alert emails with VA Notify
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
