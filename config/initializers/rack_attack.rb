@@ -152,12 +152,4 @@ class Rack::Attack
     [429, headers, ['throttled']]
   end
 
-  # Track throttling events for monitoring and alerting
-  ActiveSupport::Notifications.subscribe('throttle.rack_attack') do |_name, _start, _finish, _id, payload|
-    req = payload[:request]
-    if req.path.starts_with?('/v0/multi_party_forms')
-      StatsD.increment('api.rack_attack.throttled',
-                       tags: ["path:#{req.path}", "throttle_name:#{payload[:matched]}"])
-    end
-  end
 end
