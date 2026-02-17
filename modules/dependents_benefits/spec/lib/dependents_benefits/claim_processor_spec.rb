@@ -338,7 +338,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '#send_backup_job' do
     it 'enqueues backup submission job' do
-      expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim_id)
+      expect(DependentsBenefits::Sidekiq::BenefitsIntakeJob).to receive(:perform_async).with(parent_claim_id)
       processor.send(:send_backup_job)
     end
   end
