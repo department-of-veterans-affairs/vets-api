@@ -84,7 +84,7 @@ module IncreaseCompensation
       'FORM_TYPE_1' => ->(_) { FORM_TYPE_LABEL },
       'FORM_TYPE_2' => ->(_) { FORM_TYPE_LABEL },
       'FORM_TYPE_3' => ->(_) { FORM_TYPE_LABEL }
-    }
+    }.freeze
 
     ##
     # Converts claim.parsed_form to a hash using IBM keys and formats.
