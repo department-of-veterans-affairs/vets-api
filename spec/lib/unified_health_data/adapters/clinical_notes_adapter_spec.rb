@@ -25,7 +25,8 @@ RSpec.describe 'ClinicalNotesAdapter' do
 
   describe '#parse' do
     it 'returns the expected fields for happy path for vista note with all fields' do
-      parsed_note = adapter.parse(notes_sample_response['vista']['entry'][0])
+      note = notes_sample_response['vista']['entry'][0].merge('source' => 'vista')
+      parsed_note = adapter.parse(note)
 
       expect(parsed_note).to have_attributes(
         {
@@ -39,13 +40,15 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'signed_by' => 'MARCI P MCGUIRE',
           'discharge_date' => nil, # vista records do not have the context.period.end field
           'location' => 'CHYSHR TEST LAB',
-          'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
+          'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i,
+          'source' => 'vista'
         }
       )
     end
 
     it 'returns the expected fields for happy path for OH note with all fields' do
-      parsed_note = adapter.parse(notes_sample_response['oracle-health']['entry'][1])
+      note = notes_sample_response['oracle-health']['entry'][1].merge('source' => 'oracle-health')
+      parsed_note = adapter.parse(note)
 
       expect(parsed_note).to have_attributes(
         {
@@ -60,7 +63,8 @@ RSpec.describe 'ClinicalNotesAdapter' do
           'admission_date' => nil,
           'discharge_date' => '2025-07-29T17:48:41Z',
           'location' => '668 Mann-Grandstaff WA VA Medical Center',
-          'note' => /Q2xpbmljYWwgU3VtbWFyeSAqIEZpbmFsIFJlcG9/i
+          'note' => /Q2xpbmljYWwgU3VtbWFyeSAqIEZpbmFsIFJlcG9/i,
+          'source' => 'oracle-health'
         }
       )
     end
