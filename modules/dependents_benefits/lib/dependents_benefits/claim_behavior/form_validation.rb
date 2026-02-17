@@ -7,6 +7,18 @@ module DependentsBenefits
     #
     module FormValidation
       extend ActiveSupport::Concern
+      include DependentsBenefits::DependentsHelper
+
+      # @see ::SavedClaim#form_schema
+      def form_schema(form_id)
+        # Remove V2 tag (handle for backwards compatibility)
+        path = "#{DependentsBenefits::FORM_SCHEMA_BASE}/#{form_id.sub('-V2', '')}.json"
+        MultiJson.load(File.read(path))
+      rescue => e
+        monitor.track_error_event('Dependents Benefits form schema could not be loaded.',
+                                  action: 'schema_load_error', component:, form_id:, error: e.message)
+        nil
+      end
 
       ##
       # Validates whether the form matches the expected VetsJsonSchema::JSON schema
@@ -15,11 +27,12 @@ module DependentsBenefits
       def form_matches_schema
         return unless form_is_string
 
-        schema = VetsJsonSchema::SCHEMAS["#{self.class::FORM}-V2"]
+        schema = form_schema(form_id)
 
         schema_errors = validate_schema(schema)
         unless schema_errors.empty?
-          monitor.track_error_event('Dependents Benefits schema failed validation.', "#{stats_key}.schema_error",
+          monitor.track_error_event('Dependents Benefits schema failed validation.',
+                                    action: 'schema_error', component:,
                                     form_id:, errors: schema_errors)
         end
 
@@ -31,7 +44,7 @@ module DependentsBenefits
 
         unless validation_errors.empty?
           monitor.track_error_event('Dependents Benefits form did not pass validation.',
-                                    "#{stats_key}.validation_error",
+                                    action: 'validation_error', component:,
                                     form_id:, guid:, errors: validation_errors)
         end
 

@@ -20,10 +20,10 @@ graph TD
     Return -.Async.-> ParallelJobs[2 Parallel Jobs:<br/>BGSFormJob + ClaimsEvidenceFormJob]
     ParallelJobs --> DB3[(DB: BGS::Submission<br/>BGS::SubmissionAttempt<br/>ClaimsEvidenceApi::Submission<br/>ClaimsEvidenceApi::SubmissionAttempt)]
     
-    DB3 --> BGSFlow[BGSFormJob:<br/>Generate proc_id<br/>Submit all child claims to BGSV2]
+    DB3 --> BGSFlow[BGSFormJob:<br/>Generate proc_id<br/>Submit all child claims to BGS]
     DB3 --> ClaimsFlow[ClaimsEvidenceFormJob:<br/>Submit all child claims to<br/>Lighthouse Benefits Intake]
     
-    BGSFlow --> BGSService[Service: BGSV2<br/>Form686c/Form674.submit]
+    BGSFlow --> BGSService[Service: BGS<br/>Form686c/Form674.submit]
     ClaimsFlow --> ClaimsService[Service: Claims Evidence API<br/>Upload PDFs to Lighthouse]
     
     BGSService -->|Any Permanent Failure| JobFail[Mark Parent Group FAILED]
@@ -34,7 +34,7 @@ graph TD
     
     Coordinate --> MarkSuccess[Mark Parent Group SUCCESS<br/>Send Confirmation Email]
     
-    JobFail --> Backup[DependentBackupJob]
+    JobFail --> Backup[BenefitsIntakeJob]
     Backup --> DB5[(DB: Lighthouse::Submission<br/>Lighthouse::SubmissionAttempt)]
     DB5 --> BackupService[Service: Lighthouse<br/>Benefits Intake API<br/>Submit all child claims as package]
     BackupService -->|Failure| BackupFail[Send Error Notification<br/>End]
@@ -70,10 +70,10 @@ Each step in the simplified diagram above has a detailed flow diagram:
    - Error handling
 
 3. **[Submission Jobs](./submission_jobs_flow.md)** - Two parallel jobs that each process all child claims
-   - **BGSFormJob**: Generates proc_id, then submits all child claims (686c and/or 674s) to BGSV2
+   - **BGSFormJob**: Generates proc_id, then submits all child claims (686c and/or 674s) to BGS
    - **ClaimsEvidenceFormJob**: Submits all child claims (686c and/or 674s) to Lighthouse Benefits Intake
    - Database: BGS::Submission, BGS::SubmissionAttempt, ClaimsEvidenceApi::Submission, ClaimsEvidenceApi::SubmissionAttempt
-   - Services: BGSV2::Form686c/Form674.submit, ClaimsEvidenceApi::Uploader
+   - Services: BGS::Form686c/Form674.submit, ClaimsEvidenceApi::Uploader
    - Coordination patterns for success and failure
    - Pessimistic locking for claim completion coordination
 

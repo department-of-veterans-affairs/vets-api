@@ -12,7 +12,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     end
 
     let(:serialized_data) do
-      described_class.new(response_data, status: true)
+      described_class.new(response_data, status: 'unverified')
     end
 
     let(:serialized_hash) { serialized_data.serializable_hash }
@@ -28,6 +28,10 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
 
     it 'includes needs_verification attribute' do
       expect(serialized_hash[:data][:attributes][:needs_verification]).to be true
+    end
+
+    it 'includes status attribute' do
+      expect(serialized_hash[:data][:attributes][:status]).to eq('unverified')
     end
 
     it 'excludes other response type attributes' do
@@ -47,7 +51,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
       end
 
       let(:serialized_data) do
-        described_class.new(response_data, status: true)
+        described_class.new(response_data, status: 'verified')
       end
 
       it 'returns false for needs_verification' do
@@ -57,6 +61,10 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
       it 'includes needs_verification key even when false' do
         expect(serialized_hash[:data][:attributes]).to have_key(:needs_verification)
         expect(serialized_hash[:data][:attributes][:needs_verification]).to be false
+      end
+
+      it 'includes status attribute' do
+        expect(serialized_hash[:data][:attributes][:status]).to eq('verified')
       end
     end
   end
@@ -210,7 +218,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     context 'when resource is nil' do
       it 'raises ArgumentError' do
         expect do
-          described_class.new(nil, status: true)
+          described_class.new(nil, status: 'verified')
         end.to raise_error(ArgumentError, 'Resource cannot be nil')
       end
     end
@@ -224,7 +232,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
 
       it 'raises ArgumentError' do
         expect do
-          described_class.new(resource_without_id, status: true)
+          described_class.new(resource_without_id, status: 'verified')
         end.to raise_error(ArgumentError, 'Resource must respond to :id method for serialization')
       end
     end
@@ -236,7 +244,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
 
       it 'raises ArgumentError with method list' do
         expect do
-          described_class.new(invalid_resource, status: true)
+          described_class.new(invalid_resource, status: 'verified')
         end.to raise_error(ArgumentError, /Resource must respond to at least one email verification method:/)
       end
     end
@@ -248,7 +256,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
 
       it 'does not raise error' do
         expect do
-          described_class.new(minimal_valid_resource, status: true)
+          described_class.new(minimal_valid_resource, status: 'verified')
         end.not_to raise_error
       end
     end
@@ -267,7 +275,7 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
 
       it 'does not raise error' do
         expect do
-          described_class.new(full_resource, status: true)
+          described_class.new(full_resource, status: 'verified')
         end.not_to raise_error
       end
     end
@@ -285,33 +293,42 @@ RSpec.describe EmailVerificationSerializer, type: :serializer do
     context 'when multiple flags are provided' do
       it 'raises ArgumentError when two flags are provided' do
         expect do
-          described_class.new(response_data, status: true, sent: true).serializable_hash
+          described_class.new(response_data, status: 'verified', sent: true).serializable_hash
         end.to raise_error(ArgumentError,
-                           /EmailVerificationSerializer expects exactly one of.*got:.*status.*sent/)
+                           /EmailVerificationSerializer expects exactly one of.*to be set/)
       end
 
       it 'raises ArgumentError when all three flags are provided' do
         expect do
-          described_class.new(response_data, status: true, sent: true, verified: true).serializable_hash
+          described_class.new(response_data, status: 'verified', sent: true, verified: true).serializable_hash
         end.to raise_error(ArgumentError,
-                           /EmailVerificationSerializer expects exactly one of.*got:.*status.*sent.*verified/)
+                           /EmailVerificationSerializer expects exactly one of.*to be set/)
       end
     end
 
     context 'when non-boolean values are provided' do
-      it 'ignores non-boolean truthy values' do
-        serialized_data = described_class.new(response_data, status: 'true', sent: 1)
-        attributes = serialized_data.serializable_hash[:data][:attributes]
-
-        # Should be empty since no actual boolean true was provided
-        expect(attributes).to be_empty
-      end
-
-      it 'only recognizes explicit boolean true' do
-        serialized_data = described_class.new(response_data, status: true)
+      it 'accepts present string values' do
+        serialized_data = described_class.new(response_data, status: 'verified')
         attributes = serialized_data.serializable_hash[:data][:attributes]
 
         expect(attributes).to have_key(:needs_verification)
+        expect(attributes).to have_key(:status)
+      end
+
+      it 'accepts any present value for mode detection' do
+        serialized_data = described_class.new(response_data, status: 'unverified')
+        attributes = serialized_data.serializable_hash[:data][:attributes]
+
+        expect(attributes).to have_key(:needs_verification)
+        expect(attributes).to have_key(:status)
+      end
+
+      it 'ignores nil status (no mode selected)' do
+        serialized_data = described_class.new(response_data, status: nil)
+        attributes = serialized_data.serializable_hash[:data][:attributes]
+
+        expect(attributes).not_to have_key(:needs_verification)
+        expect(attributes).not_to have_key(:status)
       end
     end
   end

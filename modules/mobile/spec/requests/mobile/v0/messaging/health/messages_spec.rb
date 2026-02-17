@@ -38,6 +38,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
@@ -75,6 +76,30 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                                                    'attachmentSize' => 210_000 },
                                  'links' => { 'download' => 'http://www.example.com/mobile/v0/messaging' \
                                                             '/health/messages/573059/attachments/674847' } })
+      end
+
+      it 'responds to GET #show with reply_disabled' do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_reply_disabled') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+            get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+          end
+        end
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(true)
+        expect(response).to match_camelized_response_schema('message', strict: false)
+      end
+
+      it 'responds to GET #show with reply_disabled false' do
+        VCR.use_cassette('mobile/messages/gets_a_message_with_reply_not_disabled') do
+          VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+            get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
+          end
+        end
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response.parsed_body['data']['attributes']['replyDisabled']).to be(false)
+        expect(response).to match_camelized_response_schema('message', strict: false)
       end
 
       it 'responds to GET #show with active triage group' do
@@ -125,13 +150,16 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         end
         let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
         let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
+        let(:params_with_station) { params.merge(station_number: '979') }
         let(:params_with_attachments) { { message: params }.merge(uploads:) }
 
         context 'message' do
           it 'without attachments' do
             allow(UniqueUserEvents).to receive(:log_event)
+
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-              post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: { message: params }
+              post '/mobile/v0/messaging/health/messages', headers: sis_headers,
+                                                           params: { message: params_with_station }
             end
 
             expect(response).to be_successful
@@ -142,10 +170,11 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             included = response.parsed_body.dig('included', 0)
             expect(included).to be_nil
 
-            # Verify event logging was called
+            # Verify event logging was called with facility ID from station_number param
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+              event_facility_ids: ['979']
             )
           end
 
@@ -161,6 +190,24 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(response).to match_camelized_response_schema('message_with_attachment')
             link = response.parsed_body.dig('data', 'links', 'self')
             expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/674852')
+          end
+
+          it 'without station_number omits facility tracking' do
+            allow(UniqueUserEvents).to receive(:log_event)
+
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages', headers: sis_headers,
+                                                           params: { message: params }
+            end
+
+            expect(response).to be_successful
+
+            # Verify event logging was called with empty facility IDs when station_number not provided
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+              event_facility_ids: []
+            )
           end
 
           it 'logs and re-raises serialization errors on create with attachments' do
@@ -185,9 +232,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           it 'without attachments' do
             allow(UniqueUserEvents).to receive(:log_event)
+
             VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
               post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
-                   headers: sis_headers, params: { message: params }
+                   headers: sis_headers, params: { message: params_with_station }
             end
 
             expect(response).to be_successful
@@ -196,10 +244,11 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
             expect(response).to match_camelized_response_schema('message', strict: false)
 
-            # Verify event logging was called
+            # Verify event logging was called with facility ID from station_number param
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT
+              event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+              event_facility_ids: ['979']
             )
           end
 

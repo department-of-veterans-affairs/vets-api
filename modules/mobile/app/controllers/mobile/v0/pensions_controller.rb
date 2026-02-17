@@ -7,6 +7,7 @@ module Mobile
     class PensionsController < ApplicationController
       def index
         pension_data = pension_award_service.get_awards_pension
+        validate_response_schema(current_user, pension_data, 'get_awards_pension')
         extracted_data = pension_data.try(:body)&.dig('awards_pension')&.transform_keys(&:to_sym)
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless extracted_data
 
@@ -18,6 +19,10 @@ module Mobile
 
       def pension_award_service
         @pension_award_service ||= BID::Awards::Service.new(current_user)
+      end
+
+      def validate_response_schema(user, response, contract_name)
+        SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
     end
   end

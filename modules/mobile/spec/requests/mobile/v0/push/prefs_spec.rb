@@ -41,7 +41,7 @@ RSpec.describe 'Mobile::V0::Push::Prefs', type: :request do
       context 'when :event_bus_gateway_letter_ready_push_notifications is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_letter_ready_push_notifications,
-                                                    instance_of(User)).and_return(true)
+                                                    instance_of(Flipper::Actor)).and_return(true)
         end
 
         it 'matches the get_prefs schema' do
@@ -55,7 +55,7 @@ RSpec.describe 'Mobile::V0::Push::Prefs', type: :request do
       context 'when :event_bus_gateway_letter_ready_push_notifications is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:event_bus_gateway_letter_ready_push_notifications,
-                                                    instance_of(User)).and_return(false)
+                                                    instance_of(Flipper::Actor)).and_return(false)
         end
 
         it 'matches the get_prefs schema' do

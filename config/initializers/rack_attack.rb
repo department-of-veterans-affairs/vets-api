@@ -56,6 +56,22 @@ class Rack::Attack
     req.remote_ip if req.path.starts_with?('/v0/education_benefits_claims') && req.post?
   end
 
+  throttle('form214192/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form214192') && req.post?
+  end
+
+  throttle('form21p530a/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form21p530a') && req.post?
+  end
+
+  throttle('form210779/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form210779') && req.post?
+  end
+
+  throttle('form212680/ip', limit: 30, period: 1.minute) do |req|
+    req.remote_ip if req.path.starts_with?('/v0/form212680') && req.post?
+  end
+
   # VAOS Request Limits
   throttle('appointments/post', limit: 30, period: 1.minute) do |req|
     req.remote_ip if req.path.starts_with?('/vaos/v2/appointments') && req.post?

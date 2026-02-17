@@ -23,10 +23,18 @@ module SurvivorsBenefits
           'bankName' => {
             'line_one' => {
               limit: 17,
+              question_num: 11,
+              question_suffix: 'A',
+              question_label: 'Name of Financial Institution - Line 1',
+              question_text: 'NAME OF FINANCIAL INSTITUTION - LINE 1',
               key: 'form1[0].#subform[217].Name_Of_Financial_Institution[0]'
             },
             'line_two' => {
               limit: 17,
+              question_num: 11,
+              question_suffix: 'A',
+              question_label: 'Name of Financial Institution - Line 2',
+              question_text: 'NAME OF FINANCIAL INSTITUTION - LINE 2',
               key: 'form1[0].#subform[217].Name_Of_Financial_Institution[1]'
             }
           },
@@ -39,6 +47,10 @@ module SurvivorsBenefits
           },
           'accountNumber' => {
             limit: 10,
+            question_num: 11,
+            question_suffix: 'C',
+            question_label: 'Account Number',
+            question_text: 'ACCOUNT NUMBER',
             key: 'form1[0].#subform[217].Account_Number[0]'
           }
         }
@@ -65,7 +77,7 @@ module SurvivorsBenefits
         chunks = bank_name.to_s.scan(/.{1,17}/)
         {
           'line_one' => chunks[0],
-          'line_two' => chunks[1]
+          'line_two' => bank_name[17..]
         }.compact
       end
 

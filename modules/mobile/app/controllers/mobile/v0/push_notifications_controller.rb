@@ -33,7 +33,7 @@ module Mobile
       def get_prefs
         response = service.get_preferences(params[:endpoint_sid]).body
         # Remove Benefits Documents push notification preference if the feature flag is disabled
-        unless Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, @current_user)
+        unless Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(@current_user.icn))
           response.reject! { |pref| pref[:preference_id] == BENEFITS_DOC_PUSH_ID }
         end
         render json: Mobile::V0::PushGetPrefsSerializer.new(params[:endpoint_sid],

@@ -81,6 +81,96 @@ RSpec.describe AccreditedIndividual, type: :model do
     end
   end
 
+  describe '.address_quality_counts' do
+    before do
+      # No location (no location, no lat/long)
+      create(:accredited_individual,
+             registration_number: 'AQ001',
+             individual_type: 'attorney',
+             location: nil,
+             lat: nil,
+             long: nil,
+             address_line1: nil,
+             city: nil,
+             state_code: nil,
+             zip_code: nil)
+
+      # Full address + location
+      create(:accredited_individual,
+             registration_number: 'AQ002',
+             individual_type: 'attorney',
+             location: 'POINT(-77.0365 38.8977)',
+             lat: 38.8977,
+             long: -77.0365,
+             address_line1: '1600 Pennsylvania Ave NW',
+             city: 'Washington',
+             state_code: 'DC',
+             zip_code: '20500')
+
+      # Partial (zip-only) + location
+      create(:accredited_individual,
+             registration_number: 'AQ003',
+             individual_type: 'claims_agent',
+             location: 'POINT(-73.9649 40.7170)',
+             lat: 40.7170,
+             long: -73.9649,
+             address_line1: nil,
+             city: nil,
+             state_code: nil,
+             zip_code: '11249')
+
+      # Partial (city/state-only) + location
+      create(:accredited_individual,
+             registration_number: 'AQ004',
+             individual_type: 'representative',
+             location: 'POINT(-89.6501 39.7817)',
+             lat: 39.7817,
+             long: -89.6501,
+             address_line1: nil,
+             city: 'Springfield',
+             state_code: 'IL',
+             zip_code: nil)
+
+      # Other w/ location (has location but doesn't meet full/partial definitions)
+      create(:accredited_individual,
+             registration_number: 'AQ005',
+             individual_type: 'attorney',
+             location: 'POINT(-77.0000 38.9000)',
+             lat: 38.9000,
+             long: -77.0000,
+             address_line1: nil,
+             city: 'Washington',
+             state_code: nil,
+             zip_code: nil)
+    end
+
+    it 'returns overall counts including partial breakdown and other' do
+      counts = described_class.address_quality_counts
+
+      expect(counts).to include(
+        no_location: 1,
+        full: 1,
+        partial_zip_only: 1,
+        partial_city_state_only: 1
+      )
+      expect(counts[:partial]).to eq(2)
+      expect(counts[:other]).to eq(1)
+    end
+
+    it 'works when called on a scoped relation (e.g., attorneys)' do
+      counts = described_class.attorneys.address_quality_counts
+
+      expect(counts).to include(
+        no_location: 1,            # AQ001
+        full: 1,                   # AQ002
+        partial_zip_only: 0,
+        partial_city_state_only: 0
+      )
+      expect(counts[:partial]).to eq(0)
+      expect(counts[:other]).to eq(1) # AQ005
+    end
+  end
+
   describe '.find_with_full_name_similar_to' do
     before do
       # word similarity to Bob Law value = 1

@@ -8,6 +8,7 @@ require 'lighthouse/healthcare_cost_and_coverage/medication_dispense/service'
 require 'lighthouse/healthcare_cost_and_coverage/medication/service'
 require 'lighthouse/healthcare_cost_and_coverage/payment_reconciliation/service'
 require 'lighthouse/healthcare_cost_and_coverage/organization/service'
+require 'lighthouse/healthcare_cost_and_coverage/patient/service'
 require 'concurrent-ruby'
 
 module MedicalCopays
@@ -18,10 +19,12 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
+      MAX_SUMMARY_PAGES = 20
 
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
       class MissingCityError < StandardError; end
+      class ServiceError < StandardError; end
 
       def initialize(icn)
         @icn = icn
@@ -37,8 +40,63 @@ module MedicalCopays
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.list.failure")
-        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}: #{e.message}")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#list error: #{e.class}")
         raise
+      end
+
+      def summary(month_count: 6)
+        from = month_count.months.ago.utc
+        page = 1
+        total_amount = 0.to_d
+        count = 0
+
+        loop do
+          break if page > MAX_SUMMARY_PAGES
+
+          raw = invoice_service.list(count: 50, page:)
+          entries = raw['entry'] || []
+          break if entries.empty?
+
+          stop, total_amount, count =
+            process_entries(entries, from, total_amount, count)
+
+          break if stop
+
+          page += 1
+        end
+
+        summary_output(total_amount, count, month_count)
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.summary.failure")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#summary error: #{e.class}: #{e.message}")
+        raise ServiceError, 'External service error'
+      end
+
+      def process_entries(entries, from, total_amount, count)
+        entries.each do |entry|
+          date_str = entry.dig('resource', 'date')
+          next unless date_str
+
+          invoice_date = Time.iso8601(date_str)
+          return [true, total_amount, count] if invoice_date < from
+
+          invoice = Lighthouse::HCC::Invoice.new(entry)
+          total_amount += invoice.current_balance.to_d
+          count += 1
+        end
+
+        [false, total_amount, count]
+      end
+
+      def summary_output(total_amount, count, month_count)
+        {
+          entries: [],
+          meta: {
+            total_amount_due: total_amount.to_f,
+            total_copays: count,
+            month_window: month_count
+          }
+        }
       end
 
       def get_detail(id:)
@@ -50,7 +108,7 @@ module MedicalCopays
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.detail.failure")
         Rails.logger.error(
-          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.message}"
+          "MedicalCopays::LighthouseIntegration::Service#get_detail error for invoice #{id}: #{e.class}"
         )
         raise e
       end
@@ -67,8 +125,12 @@ module MedicalCopays
 
       def build_copay_detail(id)
         invoice_data = invoice_service.read(id)
+
+        patient_future = Concurrent::Promises.future { fetch_patient_data }
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
         org_address = fetch_organization_address(invoice_data)
+        patient_data = patient_future.value!
+
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
 
@@ -80,7 +142,8 @@ module MedicalCopays
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
           payments: invoice_deps[:payments],
-          facility_address: org_address
+          facility_address: org_address,
+          patient_data:
         )
       end
 
@@ -155,7 +218,7 @@ module MedicalCopays
         response = account_service.list(id: account_id)
         response.dig('entry', 0, 'resource')
       rescue => e
-        Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.class}" }
         nil
       end
 
@@ -168,7 +231,14 @@ module MedicalCopays
 
         retrieve_organization_address(org_id)
       rescue => e
-        Rails.logger.warn { "Failed to fetch organization address: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch organization address: #{e.class}" }
+        nil
+      end
+
+      def fetch_patient_data
+        patient_service.read(@icn)
+      rescue => e
+        Rails.logger.warn { "Failed to fetch patient data: #{e.class}" }
         nil
       end
 
@@ -183,7 +253,7 @@ module MedicalCopays
           hash[resource['id']] = resource if resource && charge_item_ids.include?(resource['id'])
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch charge items: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch charge items: #{e.class}" }
         {}
       end
 
@@ -201,7 +271,7 @@ module MedicalCopays
           hash[resource['id']] = resource if resource && encounter_ids.include?(resource['id'])
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch encounters: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch encounters: #{e.class}" }
         {}
       end
 
@@ -235,7 +305,7 @@ module MedicalCopays
           hash[resource['id']] = resource if resource && resource['id']
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch #{data_type}: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch #{data_type}: #{e.class}" }
         {}
       end
 
@@ -251,7 +321,7 @@ module MedicalCopays
           resource if invoice_ref == invoice_id
         end
       rescue => e
-        Rails.logger.warn { "Failed to fetch payments: #{e.message}" }
+        Rails.logger.warn { "Failed to fetch payments: #{e.class}" }
         []
       end
 
@@ -280,6 +350,10 @@ module MedicalCopays
 
       def organization_service
         @organization_service ||= ::Lighthouse::HealthcareCostAndCoverage::Organization::Service.new(@icn)
+      end
+
+      def patient_service
+        @patient_service ||= ::Lighthouse::HealthcareCostAndCoverage::Patient::Service.new(@icn)
       end
 
       def invoice_service

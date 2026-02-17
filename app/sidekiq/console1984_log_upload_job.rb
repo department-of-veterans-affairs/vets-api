@@ -2,10 +2,10 @@
 
 require 'logging/helper/data_scrubber'
 require 'fileutils'
+require 'common/s3_helpers'
 
 class Console1984LogUploadJob
   include Sidekiq::Job
-  include Logging::Helper::DataScrubber
 
   CONSOLE_LOGS_S3_BUCKET = 'vets-api-console-access-logs'
   AWS_REGION = 'us-gov-west-1'
@@ -26,7 +26,7 @@ class Console1984LogUploadJob
   private
 
   def valid_environment?
-    Rails.env.development? || Settings.vsp_environment == 'development' || Settings.vsp_environment == 'staging'
+    Rails.env.production?
   end
 
   def create_log_file
@@ -35,10 +35,11 @@ class Console1984LogUploadJob
   end
 
   def upload_to_s3
-    transfer_manager.upload_file(
-      file_path,
+    Common::S3Helpers.upload_file(
+      s3_resource:,
       bucket: CONSOLE_LOGS_S3_BUCKET,
-      key: "#{Settings.vsp_environment}/#{filename}",
+      key: "#{bucket_folder}/#{filename}",
+      file_path:,
       content_type: 'application/json',
       server_side_encryption: 'AES256'
     )
@@ -47,10 +48,23 @@ class Console1984LogUploadJob
     raise
   end
 
-  def transfer_manager
-    @manager ||= Aws::S3::TransferManager.new(
+  def s3_resource
+    @s3_resource ||= Aws::S3::Resource.new(
       client: Aws::S3::Client.new(region: AWS_REGION)
     )
+  end
+
+  # Shorthand environment names are required for S3 bucket & policies
+  # Staging and sandbox don't have shorthand names
+  def bucket_folder
+    case Settings.vsp_environment
+    when 'development'
+      'dev'
+    when 'production'
+      'prod'
+    else
+      Settings.vsp_environment
+    end
   end
 
   def yesterday
@@ -98,7 +112,7 @@ class Console1984LogUploadJob
     {
       id: command.id,
       timestamp: command.created_at,
-      statements: scrub(command.statements),
+      statements: command.statements,
       sensitive: command.sensitive_access_id.present?,
       sensitive_access: sensitive_access_for_command(command)
     }
