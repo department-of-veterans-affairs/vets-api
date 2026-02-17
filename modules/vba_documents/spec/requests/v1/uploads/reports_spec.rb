@@ -101,6 +101,19 @@ RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
           'status' => '400'
         )
       end
+
+      it 'returns legacy InvalidFieldValue error when too many elements and flipper disabled' do
+        allow(Flipper).to receive(:enabled?).with(:vba_documents_uploads_report_uuid_limit).and_return(false)
+        params = Array.new(1001, 'abcd-1234')
+        post '/services/vba_documents/v1/uploads/report', params: { ids: params }
+        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an(Array)
+        expect(json['errors'].size).to eq(1)
+        error = json['errors'].first
+        # Ensure the legacy InvalidFieldValue-style error is still returned for backward compatibility
+        expect(error['detail'].to_s).to include('InvalidFieldValue')
+      end
     end
 
     context 'with uploaded pdf data' do
