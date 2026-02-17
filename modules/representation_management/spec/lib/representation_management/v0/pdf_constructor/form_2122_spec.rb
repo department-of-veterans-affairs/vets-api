@@ -6,6 +6,8 @@ require_relative '../../../../support/pdf_fill_helper'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122 do
   include PdfFillHelper
+
+  let(:field_16a_name) { 'form1[0].#subform[0].Name_Of_Official_Representative[0]' }
   let(:accredited_organization) { create(:accredited_organization, name: 'Best VSO') }
   let(:representative) do
     create(:accredited_individual,
@@ -57,6 +59,12 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       consent_limits: %w[DRUG_ABUSE HIV SICKLE_CELL],
       consent_address_change: true
     }
+  end
+
+  def field_value(path, field_name)
+    pdf_forms = PdfForms.new(Settings.binaries.pdftk)
+    fields = pdf_forms.get_fields(path)
+    fields.find { |f| f.name == field_name }&.value
   end
 
   it 'constructs the pdf with conditions present' do
@@ -150,11 +158,39 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       tempfile.binmode
       described_class.new(tempfile).construct(form, flatten: false)
 
-      pdf_forms = PdfForms.new(Settings.binaries.pdftk)
-      fields = pdf_forms.get_fields(tempfile.path)
+      value = field_value(tempfile.path, field_16a_name)
+      expect(value).to be_blank
+    end
+  end
 
-      field_16a = fields.find { |f| f.name == 'form1[0].#subform[0].Name_Of_Official_Representative[0]' }
-      expect(field_16a&.value).to be_blank
+  it 'truncates Item 16A to MAX_16A_LEN when representative name is too long (unflattened)' do
+    # Build a rep whose formatted name will definitely exceed the limit
+    long_first = 'A' * 30
+    long_last  = 'B' * 30
+
+    long_rep = create(
+      :accredited_individual,
+      first_name: long_first,
+      middle_initial: 'M',
+      last_name: long_last,
+      address_line1: '123 Fake Representative St',
+      city: 'Portland',
+      state_code: 'OR',
+      zip_code: '12345',
+      phone: '5555555555',
+      email: 'representative@example.com'
+    )
+
+    form = RepresentationManagement::Form2122Data.new(data.merge(representative_id: long_rep.id))
+
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      described_class.new(tempfile).construct(form, flatten: false)
+
+      value = field_value(tempfile.path, field_16a_name)
+      expected = "#{long_first} M #{long_last}".truncate(described_class::MAX_16A_LEN, omission: '')
+
+      expect(value).to eq(expected)
     end
   end
 end

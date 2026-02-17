@@ -7,6 +7,9 @@ module RepresentationManagement
         PAGE1_KEY = 'form1[0].#subform[0]'
         PAGE2_KEY = 'form1[0].#subform[1]'
 
+        # Prevent PDF field overflow; hard truncate to avoid pdftk/Lighthouse failures
+        MAX_16A_LEN = 50
+
         protected
 
         def next_steps_page?
@@ -15,8 +18,9 @@ module RepresentationManagement
 
         def next_steps_part1(pdf)
           add_text_with_spacing(pdf,
-                                'Request help from a VA accredited representative or VSO', size: 20,
-                                                                                           style: :bold)
+                                'Request help from a VA accredited representative or VSO',
+                                size: 20,
+                                style: :bold)
           add_text_with_spacing(pdf, 'VA Form 21-22')
           add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
           str = <<~HEREDOC.squish
@@ -177,7 +181,7 @@ module RepresentationManagement
           rep = data.representative
           return nil unless rep
 
-          format_name(rep)
+          format_name(rep).truncate(MAX_16A_LEN, omission: '') # hard truncate, no ellipsis
         end
 
         def add_representative_contact(pdf, data)
