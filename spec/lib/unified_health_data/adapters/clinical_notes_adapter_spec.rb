@@ -114,10 +114,22 @@ RSpec.describe 'ClinicalNotesAdapter' do
       )
     end
 
-    it 'returns nil if there is no note data' do
+    it 'returns a parsed note with nil note field when there is no note data' do
       parsed_note = adapter.parse(notes_methods_fallback_response['vista']['entry'][1])
 
-      expect(parsed_note).to be_nil
+      expect(parsed_note).not_to be_nil
+      expect(parsed_note.note).to be_nil
+    end
+
+    it 'returns a parsed note with nil note field for oracle-health records without binary content' do
+      note = notes_sample_response['oracle-health']['entry'][1].deep_dup.merge('source' => 'oracle-health')
+      note['resource']['content'].each { |c| c['attachment'].delete('data') }
+      parsed_note = adapter.parse(note)
+
+      expect(parsed_note).not_to be_nil
+      expect(parsed_note.note).to be_nil
+      expect(parsed_note.source).to eq('oracle-health')
+      expect(parsed_note.id).to eq('15249697279')
     end
 
     context 'docStatus filtering' do

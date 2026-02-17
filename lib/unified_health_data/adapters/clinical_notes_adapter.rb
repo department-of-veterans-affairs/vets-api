@@ -49,7 +49,6 @@ module UnifiedHealthData
         end
 
         note_content = get_note(record)
-        return nil unless note_content
 
         UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record, note_content,
                                                                             source: note['source']))
