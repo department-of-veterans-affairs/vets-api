@@ -7,6 +7,7 @@ RSpec.shared_context 'shared data' do
         question: 'fasfdas',
         phone_number: '3039751100',
         email_address: 'test@test.com',
+        business_email: 'business@example.gov',
         contact_preference: 'Email',
         preferred_name: 'Submitter',
         your_health_facility: 'vha_554',
