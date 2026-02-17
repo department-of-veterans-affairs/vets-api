@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   generate-sbom:
+    # TODO: Update for GHEC migration
     uses: department-of-veterans-affairs/vsp-github-actions/.github/workflows/library-sbom-generation.yml@main
     with:
       artifact_name: sbom

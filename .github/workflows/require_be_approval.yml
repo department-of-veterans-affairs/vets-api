@@ -142,6 +142,7 @@ jobs:
 
             file_is_exempt=false
             for team in "${EXEMPT_TEAM_ARRAY[@]}"; do
+              # TODO: Update for GHEC migration
               if echo "$owners" | grep -q "@department-of-veterans-affairs/${team}"; then
                 echo "  Status: [OK] EXEMPT (via team: $team)"
                 file_is_exempt=true
@@ -207,6 +208,7 @@ jobs:
             echo "Checking for backend-review-group approval..."
 
             # Fetch backend-review-group members
+            # TODO: Update for GHEC migration
             BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
             BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
             echo "  Backend reviewers: ${BACKEND_REVIEWERS}"

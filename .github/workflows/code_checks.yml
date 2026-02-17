@@ -401,6 +401,7 @@ jobs:
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: us-gov-west-1
 
+      # TODO: Update for GHEC migration
       - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         if: needs.tests.result == 'success' && github.event_name != 'pull_request'
         with:
@@ -411,18 +412,21 @@ jobs:
         if: needs.tests.result == 'success' && github.event_name != 'pull_request'
         uses: actions/checkout@v6
         with:
+          # TODO: Update for GHEC migration
           repository: department-of-veterans-affairs/vsp-github-actions
           ref: refs/heads/main
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           persist-credentials: false
           path: ./.github/actions/vsp-github-actions
 
+      # TODO: Update for GHEC migration
       - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         if: needs.tests.result == 'success' && github.event_name != 'pull_request'
         with:
           ssm_parameter: /devops/github_actions_slack_socket_token
           env_variable_name: SLACK_APP_TOKEN
 
+      # TODO: Update for GHEC migration
       - uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
         if: needs.tests.result == 'success' && github.event_name != 'pull_request'
         with:

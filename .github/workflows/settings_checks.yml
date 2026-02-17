@@ -60,6 +60,7 @@ jobs:
           aws-region: us-gov-west-1
 
       - name: Obtain GitHub Token
+        # TODO: Update for GHEC migration
         uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN

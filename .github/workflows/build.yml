@@ -78,6 +78,7 @@ jobs:
   deploy:
     needs: build_and_push
     if: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}
+    # TODO: Update for GHEC migration
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"

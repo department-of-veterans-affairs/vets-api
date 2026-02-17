@@ -23,6 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Get bot token from Parameter Store
+        # TODO: Update for GHEC migration
         uses: department-of-veterans-affairs/action-inject-ssm-secrets@latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
@@ -42,6 +43,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
         with:
           source_file: '.github/CODEOWNERS'
+          # TODO: Update for GHEC migration
           destination_repo: 'department-of-veterans-affairs/platform-atlas'
           destination_folder: '/lib/codeowners/vets-api'
           destination_branch: 'master'

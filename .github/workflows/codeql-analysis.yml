@@ -26,6 +26,7 @@ jobs:
         language: [ruby, javascript]
     steps:
       - name: Run Code Scanning
+        # TODO: Update for GHEC migration
         uses: department-of-veterans-affairs/codeql-tools/codeql-analysis@main
         with:
           language: ${{ matrix.language }}

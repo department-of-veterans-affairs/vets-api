@@ -70,6 +70,7 @@ jobs:
       - name: Check out Manifest Repo
         uses: actions/checkout@v6
         with:
+          # TODO: Update for GHEC migration
           repository: department-of-veterans-affairs/vsp-infra-application-manifests
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           fetch-depth: 1
