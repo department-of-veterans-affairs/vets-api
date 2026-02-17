@@ -16,7 +16,7 @@ plugins:
 
 AllCops:
   NewCops: disable
-  TargetRailsVersion: 6.1
+  TargetRailsVersion: 7.2
   Include:
     - '**/Dangerfile'
     - '**/Gemfile'
