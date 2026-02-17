@@ -2927,3 +2927,7 @@ features:
   discover_your_benefits_results_page_update:
     actor_type: cookie_id
     description: "If enabled, displays new results page features and designs"
+  va_online_scheduling_log_mobile:
+    actor_type: user
+    description: If enabled, logs additional information about mobile appointments for debugging purposes
+    enable_in_development: false
