@@ -251,7 +251,7 @@ describe PdfFill::Filler, type: :model do
   describe '#validate_field_names!' do
     let(:form_id) { '28-1900' }
     let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
-    let(:template_fields) { ['field1', 'field2', 'field3'] }
+    let(:template_fields) { %w[field1 field2 field3] }
 
     before do
       allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return(template_fields)
@@ -274,7 +274,7 @@ describe PdfFill::Filler, type: :model do
       it 'logs success message when logging flag is enabled' do
         expect(Rails.logger).to receive(:info).with(
           'PDF field validation passed',
-          form_id: form_id,
+          form_id:,
           field_count: 3
         )
 
@@ -295,7 +295,7 @@ describe PdfFill::Filler, type: :model do
         expect(Rails.logger).to receive(:error).with(
           'PDF field name mismatch detected',
           hash_including(
-            form_id: form_id,
+            form_id:,
             unmatched_count: 2,
             total_data_fields: 3,
             total_template_fields: 3
@@ -349,7 +349,7 @@ describe PdfFill::Filler, type: :model do
         it 'logs error and raises exception' do
           expect(Rails.logger).to receive(:error).with(
             'PDF field name mismatch detected',
-            hash_including(form_id: form_id, total_template_fields: 0)
+            hash_including(form_id:, total_template_fields: 0)
           )
 
           expect do
@@ -366,7 +366,7 @@ describe PdfFill::Filler, type: :model do
         it 'logs error but does not raise exception' do
           expect(Rails.logger).to receive(:error).with(
             'PDF field name mismatch detected',
-            hash_including(form_id: form_id, total_template_fields: 0)
+            hash_including(form_id:, total_template_fields: 0)
           )
 
           expect do
