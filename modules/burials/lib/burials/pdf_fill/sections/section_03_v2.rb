@@ -151,7 +151,7 @@ module Burials
           'powPeriodOverflow' => {
             question_num: 20,
             question_label: 'POW Confinement Period',
-            question_text: 'POW CONFINMENT PERIOD'
+            question_text: 'POW CONFINEMENT PERIOD'
           },
           'powDateRange' => {
             'from' => {
