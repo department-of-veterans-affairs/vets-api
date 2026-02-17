@@ -19,9 +19,9 @@ module RepresentationManagement
 
     # @param types [Array<String>] Entity types to process (defaults to all)
     def perform(types = VALID_TYPES)
-      @types = validate_types(types)
       @report = []
       @start_time = Time.current
+      @types = validate_types(types)
 
       log_info("Starting AccreditationQueueUpdates for types: #{@types.join(', ')}")
 
@@ -32,6 +32,8 @@ module RepresentationManagement
       download_and_process_xlsx
 
       finalize_report
+    rescue ArgumentError
+      raise
     rescue => e
       log_error("AccreditationQueueUpdates failed: #{e.message}")
       @report << "ERROR: #{e.message}"
@@ -89,6 +91,16 @@ module RepresentationManagement
         return
       end
 
+      individual_updates, organization_updates = compute_all_diffs(parsed_data)
+
+      queue_individual_updates(individual_updates)
+      queue_organization_updates(organization_updates)
+    end
+
+    # Computes diffs for all entity types from parsed XLSX data
+    # @param parsed_data [Hash] Parsed XLSX data keyed by entity type
+    # @return [Array<Array<Hash>, Array<Hash>>] Individual and organization updates
+    def compute_all_diffs(parsed_data)
       individual_updates = []
       organization_updates = []
 
@@ -96,16 +108,13 @@ module RepresentationManagement
         @report << "XLSX Parsed: #{type} - #{records.size} rows"
 
         if INDIVIDUAL_TYPES.include?(type)
-          updates = compute_individual_diffs(type, records)
-          individual_updates.concat(updates)
+          individual_updates.concat(compute_individual_diffs(type, records))
         elsif type == 'organization'
-          updates = compute_organization_diffs(records)
-          organization_updates.concat(updates)
+          organization_updates.concat(compute_organization_diffs(records))
         end
       end
 
-      queue_individual_updates(individual_updates)
-      queue_organization_updates(organization_updates)
+      [individual_updates, organization_updates]
     end
 
     # Computes diffs for individual entities (attorneys, claims agents, representatives)
