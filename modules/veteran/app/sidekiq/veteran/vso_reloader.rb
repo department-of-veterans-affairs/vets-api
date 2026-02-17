@@ -447,6 +447,21 @@ module Veteran
         .to_h
     end
 
+    # NOTE: We intentionally use `insert_all` with a unique constraint on
+    # [:organization_poa, :representative_id] so ingestion is idempotent.
+    #
+    # This behaves like `INSERT ... ON CONFLICT DO NOTHING`:
+    # - If a (organization, representative) join row does NOT exist yet,
+    #   it is inserted and `acceptance_mode` is seeded from the
+    #   organization-wide `can_accept_digital_poa_requests` flag.
+    #
+    # - If the join row already exists (including cases where
+    #   `acceptance_mode` was manually changed later),
+    #   the insert conflicts and does nothing.
+    #
+    # This prevents ingestion from overwriting per-representative
+    # `acceptance_mode` once it has been explicitly set.
+
     # rubocop:disable Rails/SkipsModelValidations
     def upsert_org_rep_rows(rows)
       Veteran::Service::OrganizationRepresentative.insert_all(
