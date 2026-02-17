@@ -59,4 +59,19 @@ RSpec.describe IncreaseCompensation::IbmConverter do
       expect(described_class.full_name({})).to eq('')
     end
   end
+
+  describe '#disability_to_s' do
+    it 'converts to a string or blank' do
+      list_of_disabilities = []
+      expect(described_class.disability_to_s(list_of_disabilities)).to eq('')
+      list_of_disabilities = nil
+      expect(described_class.disability_to_s(list_of_disabilities)).to eq('')
+      list_of_disabilities = 'PTSD'
+      expect(described_class.disability_to_s(list_of_disabilities)).to eq('PTSD')
+      list_of_disabilities = ['PTSD']
+      expect(described_class.disability_to_s(list_of_disabilities)).to eq('PTSD')
+      list_of_disabilities = ['PTSD', 'Below the knee amputation']
+      expect(described_class.disability_to_s(list_of_disabilities)).to eq('PTSD, Below the knee amputation')
+    end
+  end
 end

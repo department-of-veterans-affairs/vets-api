@@ -2,22 +2,23 @@
 
 module IncreaseCompensation
   module IbmConverter
+    FORM_TYPE_LABEL = IncreaseCompensation::FORM_TYPE_LABEL
     # IBM Key Map
     MAPPINGS = {
       'VETERAN_FIRST_NAME' => ->(data) { data.dig('veteranFullName', 'first') || '' },
-      'VETERAN_INITIAL' => ->(data) { extract_first_char(data.dig('veteranFullName', 'middleinitial')) || '' },
+      'VETERAN_INITIAL' => ->(data) { extract_first_char(data.dig('veteranFullName', 'middleinitial')) },
       'VETERAN_LAST_NAME' => ->(data) { data.dig('veteranFullName', 'last') || '' },
-      'VETERAN_NAME' => ->(data) { full_name(data['veteranFullName']) || '' },
+      'VETERAN_NAME' => ->(data) { full_name(data['veteranFullName']) },
       'VETERAN_SSN' => ->(data) { data['veteranSocialSecurityNumber'] || '' },
       'VA_FILE_NUMBER' => ->(data) { data['vaFileNumber'] || '' },
-      'VETERAN_DOB' => ->(data) { format_date(data['dateOfBirth']) || '' },
+      'VETERAN_DOB' => ->(data) { format_date(data['dateOfBirth']) },
       'VETERAN_ADDRESS_LINE1' => ->(data) { data.dig('veteranAddress', 'street') || '' },
       'VETERAN_ADDRESS_LINE2' => ->(data) { data.dig('veteranAddress', 'street2') || '' },
       'VETERAN_ADDRESS_CITY' => ->(data) { data.dig('veteranAddress', 'city') || '' },
       'VETERAN_ADDRESS_STATE' => ->(data) { data.dig('veteranAddress', 'state') || '' },
       'VETERAN_ADDRESS_COUNTRY' => ->(data) { data.dig('veteranAddress', 'country') || '' },
       'VETERAN_ADDRESS_ZIP5' => ->(data) { data.dig('veteranAddress', 'postalCode') || '' },
-      'SERVICE_CONNECTED_DISABILITY' => ->(data) { data['listOfDisabilities'] || '' },
+      'SERVICE_CONNECTED_DISABILITY' => ->(data) { disability_to_s(data['listOfDisabilities']) },
       'VETERAN_SSN_1' => ->(data) { data['veteranSocialSecurityNumber'] || '' },
 
       # Employers Section
@@ -30,7 +31,6 @@ module IncreaseCompensation
       'DATE_OF_EMPLOYMENT_TO_1' => lambda { |data|
         format_date(data.dig('previousEmployers', 0, 'datesOfEmployment', 'to'))
       },
-
       # Employer From From #2
       'EMPLOYER_NAME_ADDRESS_2' => ->(data) { data.dig('previousEmployers', 1, 'nameAndAddress') || '' },
       'WORK_TYPE_2' => ->(data) { data.dig('previousEmployers', 1, 'typeOfWork') || '' },
@@ -79,8 +79,12 @@ module IncreaseCompensation
       'WITNESS_1_ADDRESS' => ->(data) { data.dig('witnessSignature1', 'address') || '' },
       'WITNESS_2_SIGNATURE' => ->(data) { data.dig('witnessSignature2', 'signature') || '' },
       'WITNESS_2_ADDRESS' => ->(data) { data.dig('witnessSignature2', 'address') || '' },
-      'VETERAN_BENEFICIARY_REMARKS' => ->(data) { data['remarks'] || '' }
-    }.freeze
+      'VETERAN_BENEFICIARY_REMARKS' => ->(data) { data['remarks'] || '' },
+      'FORM_TYPE' => ->(_) { FORM_TYPE_LABEL },
+      'FORM_TYPE_1' => ->(_) { FORM_TYPE_LABEL },
+      'FORM_TYPE_2' => ->(_) { FORM_TYPE_LABEL },
+      'FORM_TYPE_3' => ->(_) { FORM_TYPE_LABEL }
+    }
 
     ##
     # Converts claim.parsed_form to a hash using IBM keys and formats.
@@ -122,6 +126,13 @@ module IncreaseCompensation
         name_obj['middleinitial'],
         name_obj['last']
       ].compact.join(' ')
+    end
+
+    def self.disability_to_s(disability_array)
+      return '' if disability_array.blank?
+      return disability_array if disability_array.is_a?(String)
+
+      disability_array.compact.join(', ')
     end
   end
 end

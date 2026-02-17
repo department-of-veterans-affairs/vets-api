@@ -21,12 +21,11 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
     let(:omit_esign_stamp) { true }
-    let(:extras_redesign) { true }
 
     before do
       job.instance_variable_set(:@claim, claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
-      allow(claim).to receive(:to_pdf).with(claim.guid, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      allow(claim).to receive(:to_pdf).with(claim.guid, { omit_esign_stamp: }).and_return(pdf_path)
       allow(claim).to receive(:persistent_attachments).and_return([])
 
       job.instance_variable_set(:@intake_service, service)
