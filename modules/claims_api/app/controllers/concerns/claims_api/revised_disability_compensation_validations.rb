@@ -192,8 +192,8 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
 
-      # validate anticipated_separation_date is within 180 days of claimDate or current date if claimDate is not provided
-      # in line with v2 validation in revised_disability_compensation_validations.rb
+      # validate anticipated_separation_date is within 180 days of claimDate or current date if
+      # claimDate is not providedn line with v2 validation in revised_disability_compensation_validations.rb
       start_date = parse_date_safely(form_attributes['claimDate'] || Time.zone.today.to_s)
 
       if parse_date_safely(anticipated_separation_date) > (start_date + 180.days)
@@ -399,7 +399,7 @@ module ClaimsApi
       value[0] + ('*' * (value.length - 1))
     end
 
-    # utility method from v2 validations to parse dates without raising exceptions. 
+    # utility method from v2 validations to parse dates without raising exceptions.
     def parse_date_safely(date_string)
       Date.parse(date_string)
     rescue
