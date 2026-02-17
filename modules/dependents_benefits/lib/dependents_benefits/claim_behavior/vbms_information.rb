@@ -3,7 +3,7 @@
 module DependentsBenefits
   module ClaimBehavior
     # Methods for determining vbms types
-    module VbmsInformation
+    module VBMSInformation
       extend ActiveSupport::Concern
 
       # flagged options for chile removal

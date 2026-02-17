@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents_benefits/claim_behavior'
+require 'dependents_benefits/claim_behavior/vbms_information'
 
 module DependentsBenefits
   ##
@@ -10,7 +11,7 @@ module DependentsBenefits
   # @todo: migrate encryption to DependentsBenefits::PrimaryDependencyClaim, remove inheritance and encryption shim
   class PrimaryDependencyClaim < ::SavedClaim
     include DependentsBenefits::ClaimBehavior
-    include DependentsBenefits::ClaimBehavior::VbmsInformation
+    include DependentsBenefits::ClaimBehavior::VBMSInformation
 
     # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
     self.inheritance_column = :_type_disabled

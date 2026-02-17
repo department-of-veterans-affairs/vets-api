@@ -10,7 +10,7 @@ require 'dependents_benefits/claim_behavior/vbms_information'
 
 class SavedClaim::DependencyClaim < CentralMailClaim
   include DependentsBenefits::ClaimBehavior::FormTypeChecking
-  include DependentsBenefits::ClaimBehavior::VbmsInformation
+  include DependentsBenefits::ClaimBehavior::VBMSInformation
 
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
