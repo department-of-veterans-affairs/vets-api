@@ -1388,6 +1388,7 @@ travel_pay:
   client_number: '12345'
   mobile_client_number: '56789'
   mock: false
+  open_timeout: 15
   service_name: BTSSS-API
   sts:
     scope: ~
@@ -1395,6 +1396,7 @@ travel_pay:
   subscription_key: api_key
   subscription_key_e: ~
   subscription_key_s: ~
+  timeout: 90
   veis:
     auth_url: https://auth.veis.gov
     client_id: client_id

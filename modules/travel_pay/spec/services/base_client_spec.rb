@@ -36,8 +36,7 @@ RSpec.describe TravelPay::BaseClient do
 
     context 'with custom timeout settings' do
       before do
-        allow(Settings.travel_pay).to receive(:open_timeout).and_return(20)
-        allow(Settings.travel_pay).to receive(:timeout).and_return(120)
+        allow(Settings.travel_pay).to receive_messages(open_timeout: 20, timeout: 120)
       end
 
       it 'uses the custom timeout values' do

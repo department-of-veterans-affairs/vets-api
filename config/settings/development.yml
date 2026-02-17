@@ -1389,6 +1389,7 @@ travel_pay:
   client_number: ~
   mobile_client_number: ~
   mock: true
+  open_timeout: 15
   service_name: BTSSS-API
   sts:
     scope: ~
@@ -1396,6 +1397,7 @@ travel_pay:
   subscription_key: ~
   subscription_key_e: ~
   subscription_key_s: ~
+  timeout: 90
   veis:
     auth_url: https://login.microsoftonline.us
     client_id: ~
