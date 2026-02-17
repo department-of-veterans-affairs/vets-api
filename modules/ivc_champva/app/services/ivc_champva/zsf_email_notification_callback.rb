@@ -13,7 +13,7 @@ module IvcChampva
       # as defined under callback_metadata.additional_context when the email was sent
       #   (e.g.: {})
       ac = notification.callback_metadata['additional_context']
-      # TODO add form_id to the additional_context when sending the email since we're looking for it below
+      # TODO: add form_id to the additional_context when sending the email since we're looking for it below
       case notification.status
       when 'delivered'
         # success
@@ -31,7 +31,7 @@ module IvcChampva
       when 'temporary-failure'
         # the api will continue attempting to deliver - success is still possible
         StatsD.increment('api.vanotify.notifications.permanent_failure')
-        # TODO looks like this should be temporary_failure instead of permanent_failure
+        # TODO: looks like this should be temporary_failure instead of permanent_failure
         Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
                            status: notification.status, status_reason: notification.status_reason)
       else

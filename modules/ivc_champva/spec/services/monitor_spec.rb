@@ -170,7 +170,7 @@ RSpec.describe IvcChampva::Monitor do
       expect(monitor).to receive(:track_request).with(
         'warn',
         "IVC ChampVA Forms - #{form_id} missing pega status alert failed to send, " \
-          "status: #{status}, reason: #{status_reason}",
+        "status: #{status}, reason: #{status_reason}",
         "#{IvcChampva::Monitor::STATS_KEY}.form_missing_pega_status_alert_email_failed",
         call_location: anything,
         **additional_context

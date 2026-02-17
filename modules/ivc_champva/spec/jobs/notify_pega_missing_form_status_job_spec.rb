@@ -15,7 +15,8 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
 
   before do
     allow(Settings.ivc_forms.sidekiq.missing_form_status_job).to receive(:enabled).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback, @current_user).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback,
+                                              @current_user).and_return(false)
     allow(StatsD).to receive(:increment)
 
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: true))
@@ -116,7 +117,8 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
 
   context 'when send_zsf_notification_to_pega is successful while callbacks are used' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback,
+                                                @current_user).and_return(true)
     end
 
     it 'does not log a successful notification send to Pega' do
@@ -147,7 +149,8 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
     let(:template_id) { 'PEGA-TEAM_MISSING_STATUS' }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback, @current_user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback,
+                                                @current_user).and_return(true)
     end
 
     it 'calls callback_hash with proper form data and passes callback data to Email.new' do
