@@ -38,7 +38,7 @@ class Console1984LogUploadJob
     Common::S3Helpers.upload_file(
       s3_resource:,
       bucket: CONSOLE_LOGS_S3_BUCKET,
-      key: "#{Settings.vsp_environment}/#{filename}",
+      key: "#{bucket_folder}/#{filename}",
       file_path:,
       content_type: 'application/json',
       server_side_encryption: 'AES256'
@@ -52,6 +52,19 @@ class Console1984LogUploadJob
     @s3_resource ||= Aws::S3::Resource.new(
       client: Aws::S3::Client.new(region: AWS_REGION)
     )
+  end
+
+  # Shorthand environment names are required for S3 bucket & policies
+  # Staging and sandbox don't have shorthand names
+  def bucket_folder
+    case Settings.vsp_environment
+    when 'development'
+      'dev'
+    when 'production'
+      'prod'
+    else
+      Settings.vsp_environment
+    end
   end
 
   def yesterday

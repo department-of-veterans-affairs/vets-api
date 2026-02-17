@@ -18,6 +18,10 @@ module FacilitiesApi
           'PPMS'
         end
 
+        def mock_enabled?
+          ActiveModel::Type::Boolean.new.cast(Settings.ppms.mock)
+        end
+
         def base_request_headers
           super.merge(Settings.ppms.api_keys.to_h.stringify_keys)
         end
@@ -33,6 +37,7 @@ module FacilitiesApi
 
             conn.response :raise_custom_error, error_prefix: service_name
             conn.use FacilitiesApi::V2::PPMS::Middleware::PPMSParser
+            conn.response :betamocks if mock_enabled?
 
             conn.adapter Faraday.default_adapter
           end

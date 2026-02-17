@@ -63,5 +63,11 @@ RSpec.describe RepresentationManagement::Form2122aData, type: :model do
       subject.representative_id = representative.id
       expect(subject.representative_zip_code_expanded).to eq(%w[12345 6789])
     end
+
+    it 'returns an empty string if zip code is nil' do
+      representative = create(:accredited_individual, zip_code: nil)
+      subject.representative_id = representative.id
+      expect(subject.representative_zip_code_expanded).to eq('')
+    end
   end
 end

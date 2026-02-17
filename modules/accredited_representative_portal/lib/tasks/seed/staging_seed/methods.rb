@@ -126,22 +126,8 @@ module AccreditedRepresentativePortal
                         end
 
         matching_reps.each do |rep|
-          create_user_account_if_needed(rep, options)
           create_requests_for_rep(org, rep, options)
         end
-      end
-
-      def create_user_account_if_needed(rep, options)
-        return if AccreditedRepresentativePortal::UserAccountAccreditedIndividual
-                  .exists?(accredited_individual_registration_number: rep.representative_id)
-
-        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
-          accredited_individual_registration_number: rep.representative_id,
-          power_of_attorney_holder_type: 'veteran_service_organization',
-          user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
-        )
-        options[:totals][:user_accounts] += 1
-        options[:email_counter] += 1
       end
 
       def create_requests_for_rep(org, rep, options)
@@ -247,7 +233,6 @@ module AccreditedRepresentativePortal
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
-        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.destroy_all
       end
     end
   end

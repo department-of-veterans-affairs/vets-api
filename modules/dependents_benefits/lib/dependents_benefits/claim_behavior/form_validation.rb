@@ -7,6 +7,7 @@ module DependentsBenefits
     #
     module FormValidation
       extend ActiveSupport::Concern
+      include DependentsBenefits::DependentsHelper
 
       # @see ::SavedClaim#form_schema
       def form_schema(form_id)
@@ -15,7 +16,7 @@ module DependentsBenefits
         MultiJson.load(File.read(path))
       rescue => e
         monitor.track_error_event('Dependents Benefits form schema could not be loaded.',
-                                  "#{stats_key}.schema_load_error", form_id:, error: e.message)
+                                  action: 'schema_load_error', component:, form_id:, error: e.message)
         nil
       end
 
@@ -30,7 +31,8 @@ module DependentsBenefits
 
         schema_errors = validate_schema(schema)
         unless schema_errors.empty?
-          monitor.track_error_event('Dependents Benefits schema failed validation.', "#{stats_key}.schema_error",
+          monitor.track_error_event('Dependents Benefits schema failed validation.',
+                                    action: 'schema_error', component:,
                                     form_id:, errors: schema_errors)
         end
 
@@ -42,7 +44,7 @@ module DependentsBenefits
 
         unless validation_errors.empty?
           monitor.track_error_event('Dependents Benefits form did not pass validation.',
-                                    "#{stats_key}.validation_error",
+                                    action: 'validation_error', component:,
                                     form_id:, guid:, errors: validation_errors)
         end
 
