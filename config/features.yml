@@ -3,6 +3,9 @@
 #
 # Features are enabled by default in the test environment and disabled by default in other environments.
 # To default a feature to enabled in development, set the `enable_in_development` key to true.
+# To default a feature to disabled in test, set the `enable_in_test` key to false.
+#   Note: By default, all feature toggles are enabled in test. Use `enable_in_test: false`
+#   only when a new feature would interfere with existing test suites.
 #
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
