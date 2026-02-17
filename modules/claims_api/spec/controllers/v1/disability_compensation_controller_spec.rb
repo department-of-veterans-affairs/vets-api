@@ -75,7 +75,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
       end
 
       it 'calls the PDF Generator Sidekiq job with the expected params when the flipper is enabled' do
-        subject.send(:submit_form_526)
+        subject.send(:submit_form_526) # rubocop:disable Naming/VariableNumber
 
         expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async)
           .with(claim.id, middle_initial)
@@ -97,7 +97,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
       end
 
       it 'when the flipper is enabled' do
-        subject.send(:validate_form_526)
+        subject.send(:validate_form_526) # rubocop:disable Naming/VariableNumber
 
         expect(fes_service).to have_received(:validate)
       end

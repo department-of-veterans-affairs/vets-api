@@ -41,7 +41,7 @@ module DecisionReviews
         }
       end
 
-      def handle_4142(request_body:, form4142:, appeal_submission_id:, submitted_appeal_uuid:)
+      def handle_4142(request_body:, form4142:, appeal_submission_id:, submitted_appeal_uuid:) # rubocop:disable Naming/VariableNumber
         return if form4142.blank?
 
         rejiggered_payload = get_and_rejigger_required_info(request_body:, form4142:, user: @current_user)

@@ -230,7 +230,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
 
   describe '#get_form0781_pdf' do
     context 'generates a 0781 version 1 pdf' do
-      let(:submission) { create(:form526_submission, :with_0781, submit_endpoint: 'benefits_intake_api') }
+      let(:submission) { create(:form526_submission, :with_0781, submit_endpoint: 'benefits_intake_api') } # rubocop:disable Naming/VariableNumber
 
       it 'generates a 0781 v1 pdf and a 0781a pdf' do
         form0781_pdfs = subject

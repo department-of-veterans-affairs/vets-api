@@ -132,6 +132,7 @@ module AppealsApi
             higher_level_review.informal_conference ? 1 : 'Off'
           end
 
+          # rubocop:disable Naming/VariableNumber
           def conference_8_to_12
             informal_conference_time('veteran', '800-1200 ET')
           end
@@ -147,6 +148,7 @@ module AppealsApi
           def conference_rep_12_to_1630
             informal_conference_time('representative', '1200-1630 ET')
           end
+          # rubocop:enable Naming/VariableNumber
 
           def rep_first_name
             higher_level_review.informal_conference_rep&.dig('firstName')

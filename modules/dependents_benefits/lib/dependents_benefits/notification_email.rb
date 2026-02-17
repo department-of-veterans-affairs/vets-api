@@ -25,7 +25,7 @@ module DependentsBenefits
     # @return [void]
     def send_received_notification
       deliver_status_email_by_claim_type('received', {
-                                           FORM_ID => :received_686c_674,
+                                           FORM_ID => :received_686c_674, # rubocop:disable Naming/VariableNumber
                                            ADD_REMOVE_DEPENDENT => :received_686c_only,
                                            SCHOOL_ATTENDANCE_APPROVAL => :received_674_only
                                          })
@@ -41,7 +41,7 @@ module DependentsBenefits
     # @return [void]
     def send_error_notification
       deliver_status_email_by_claim_type('error', {
-                                           FORM_ID => :error_686c_674,
+                                           FORM_ID => :error_686c_674, # rubocop:disable Naming/VariableNumber
                                            ADD_REMOVE_DEPENDENT => :error_686c_only,
                                            SCHOOL_ATTENDANCE_APPROVAL => :error_674_only
                                          })

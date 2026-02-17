@@ -910,7 +910,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     before do
       allow(Form526Submission).to receive(:find_by).with(id: submission_id).and_return(submission)
       allow_any_instance_of(described_class).to receive(:parsed_forms).and_return(parsed_forms)
-      allow_any_instance_of(described_class).to receive(:process_0781).and_return('file_path')
+      allow_any_instance_of(described_class).to receive(:process_0781).and_return('file_path') # rubocop:disable Naming/VariableNumber
     end
 
     it 'returns the correct file type and file objects' do
@@ -932,11 +932,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     end
 
     it 'correctly discerns whether to process a 0781 or 0781a' do
-      expect_any_instance_of(described_class).to receive(:process_0781).with(uuid, described_class::FORM_ID_0781,
+      expect_any_instance_of(described_class).to receive(:process_0781).with(uuid, described_class::FORM_ID_0781, # rubocop:disable Naming/VariableNumber
                                                                              parsed_forms['form0781'], upload: false)
-      expect_any_instance_of(described_class).to receive(:process_0781).with(uuid, described_class::FORM_ID_0781A,
+      expect_any_instance_of(described_class).to receive(:process_0781).with(uuid, described_class::FORM_ID_0781A, # rubocop:disable Naming/VariableNumber
                                                                              parsed_forms['form0781a'], upload: false)
-      expect_any_instance_of(described_class).not_to receive(:process_0781).with(uuid,
+      expect_any_instance_of(described_class).not_to receive(:process_0781).with(uuid, # rubocop:disable Naming/VariableNumber
                                                                                  described_class::FORM_ID_0781V2,
                                                                                  parsed_forms['form0781v2'],
                                                                                  upload: false)

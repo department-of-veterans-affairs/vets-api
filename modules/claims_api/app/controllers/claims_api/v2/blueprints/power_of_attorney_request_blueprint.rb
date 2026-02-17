@@ -45,6 +45,7 @@ module ClaimsApi
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
 
+        # rubocop:disable Naming/VariableNumber
         view :create do
           field :id do |request|
             request['id']
@@ -104,6 +105,7 @@ module ClaimsApi
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
+        # rubocop:enable Naming/VariableNumber
       end
     end
   end

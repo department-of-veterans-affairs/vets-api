@@ -27,9 +27,11 @@ module Requests
   class MailingAddress
     include Vets::Model
 
+    # rubocop:disable Naming/VariableNumber
     attribute :address_line_1, String
     attribute :address_line_2, String
     attribute :address_line_3, String
+    # rubocop:enable Naming/VariableNumber
     attribute :city, String
     attribute :country, String
     attribute :zip_first_five, String
@@ -252,9 +254,11 @@ module Requests
 
     attribute :dates, Dates
     attribute :type_of_address_change, String
+    # rubocop:disable Naming/VariableNumber
     attribute :address_line_1, String
     attribute :address_line_2, String
     attribute :address_line_3, String
+    # rubocop:enable Naming/VariableNumber
     attribute :city, String
     attribute :zip_first_five, String
     attribute :zip_last_four, String

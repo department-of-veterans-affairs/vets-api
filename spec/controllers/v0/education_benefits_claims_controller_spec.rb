@@ -119,7 +119,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
     end
 
     context 'with a non-1990 form' do
-      let(:education_benefits_claim) { create(:education_benefits_claim_10203) }
+      let(:education_benefits_claim) { create(:education_benefits_claim_10203) } # rubocop:disable Naming/VariableNumber
 
       it 'increments the StatsD metric with the correct name' do
         get :download_pdf, params: { id: education_benefits_claim.token }

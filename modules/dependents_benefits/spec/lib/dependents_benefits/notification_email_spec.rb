@@ -41,7 +41,7 @@ RSpec.describe DependentsBenefits::NotificationEmail do
     context 'when both 686c and 674 are submitted' do
       it 'sends the combined received notification email' do
         email_service = described_class.new(saved_claim.id)
-        expect(email_service).to receive(:deliver).with(:received_686c_674)
+        expect(email_service).to receive(:deliver).with(:received_686c_674) # rubocop:disable Naming/VariableNumber
         email_service.send_received_notification
       end
     end
@@ -81,7 +81,7 @@ RSpec.describe DependentsBenefits::NotificationEmail do
     context 'when both 686c and 674 are submitted' do
       it 'sends the combined error notification email' do
         email_service = described_class.new(saved_claim.id)
-        expect(email_service).to receive(:deliver).with(:error_686c_674)
+        expect(email_service).to receive(:deliver).with(:error_686c_674) # rubocop:disable Naming/VariableNumber
         email_service.send_error_notification
       end
     end

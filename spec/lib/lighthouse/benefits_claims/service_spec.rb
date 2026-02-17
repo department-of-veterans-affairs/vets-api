@@ -78,6 +78,7 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
+        # rubocop:disable Naming/VariableNumber
         context 'EP code filtering' do
           # Test with both flags enabled
           it 'filters out claims with both EP codes when both flags are enabled' do
@@ -228,6 +229,7 @@ RSpec.describe BenefitsClaims::Service do
             end
           end
         end
+        # rubocop:enable Naming/VariableNumber
       end
 
       describe 'when requesting one single benefit claim' do

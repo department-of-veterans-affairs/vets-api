@@ -143,9 +143,11 @@ Rspec.describe Requests do
     let(:address) { Requests::MailingAddress.new }
 
     it 'has address lines 1 2 3 attributes' do
+      # rubocop:disable Naming/VariableNumber
       expect(address).to respond_to(:address_line_1)
       expect(address).to respond_to(:address_line_2)
       expect(address).to respond_to(:address_line_3)
+      # rubocop:enable Naming/VariableNumber
     end
 
     it 'has city attribute' do
