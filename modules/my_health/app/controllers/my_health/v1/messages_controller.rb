@@ -82,9 +82,15 @@ module MyHealth
       def renewal
         raise Common::Exceptions::ParameterMissing, 'prescription_id' if renewal_message_params[:prescription_id].blank?
 
+        if params[:uploads].present?
+          raise Common::Exceptions::InvalidFieldValue.new('uploads',
+                                                          'Attachments are not supported for renewal messages')
+        end
+
         # Validate standard message fields (prescription_id excluded from message_params by design)
-        message = Message.new(message_params.merge(upload_params)
-                  .merge(is_large_attachment_upload: use_large_attachment_upload))
+        # .dup is required because Vets::Model#initialize uses select! which mutates the params in-place,
+        # stripping keys like station_number that are not Message attributes but are needed later.
+        message = Message.new(message_params.dup)
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
         message_params_h = prepare_renewal_params_h

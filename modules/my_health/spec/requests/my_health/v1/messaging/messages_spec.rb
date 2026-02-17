@@ -412,6 +412,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       context 'message' do
         it 'creates a renewal message' do
           allow(UniqueUserEvents).to receive(:log_event)
+          # VCR matches on :method + :uri only (no body matching), so verify prescription_id
+          # actually reaches the SM client rather than being silently stripped.
+          expect_any_instance_of(SM::Client).to receive(:post_create_renewal_message)
+            .with(hash_including('prescription_id' => '24654491'), is_oh: anything)
+            .and_call_original
 
           VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
             post '/my_health/v1/messaging/messages/renewal', params: { message: params_with_station }
@@ -475,6 +480,15 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
                params: { message: params_with_prescription.merge(body: nil) }
 
           expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'rejects requests that include uploads' do
+          upload = Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg')
+          post '/my_health/v1/messaging/messages/renewal',
+               params: { message: params_with_prescription, uploads: [upload] }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail']).to include('not supported for renewal')
         end
       end
     end

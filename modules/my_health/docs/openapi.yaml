@@ -1352,6 +1352,14 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: |
+            Unprocessable Entity - Validation failed for one or more standard message fields
+            (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages/renewal
   /v1/messaging/messages/categories:
     get:
