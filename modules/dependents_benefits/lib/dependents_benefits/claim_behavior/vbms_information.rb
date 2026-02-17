@@ -25,7 +25,7 @@ module DependentsBenefits
         set_proc_state(selectable_options, dependents_app)
         set_claim_type(selectable_options, user)
 
-        { proc_state: @proc_state, claim_label: @claim_label }
+        { proc_state: @proc_state, claim_label: @claim_label, participant_id: user&.participant_id }
       end
 
       private

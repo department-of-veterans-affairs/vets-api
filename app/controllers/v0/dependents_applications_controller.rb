@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
 require 'digital_forms_api/service/submissions'
 
@@ -33,10 +34,13 @@ module V0
 
       claim.process_attachments!
 
+      # FDF pilot
+      forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
       claim_info = claim.get_claim_information(current_user)
-      if claim.claim_form_type == '21-686c' && claim_info[:proc_state] == 'MANUAL_VAGOV'
+      valid_case = claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present
+      if forms_api_enabled && claim.claim_form_type == '21-686c' && valid_case
         begin
-          submit_via_forms_api(claim, claim_info[:claim_label])
+          submission_id = submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
           log_submitted(in_progress_form, claim)
           claim.send_submitted_email(current_user)
           return render json: SavedClaimSerializer.new(claim)
@@ -61,16 +65,15 @@ module V0
 
     private
 
-    def submit_via_forms_api(claim, claim_label)
-      return unless Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
-
+    # submit claim to forms api - temp for FDF pilot
+    def submit_via_forms_api(claim, claim_label, participant_id)
       digital_forms_api_submission_service ||= DigitalFormsApi::Service::Submissions.new
 
       payload = claim.parsed_form
       metadata = {
         formId: claim.claim_form_type,
-        veteranId: current_user.participant_id,
-        claimantId: current_user.participant_id,
+        veteranId: participant_id,
+        claimantId: participant_id,
         epCode: claim_label[/^\d+/],
         claimLabel: claim_label
       }
@@ -80,8 +83,31 @@ module V0
 
       monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
 
+      upload_evidence_documents(claim, participant_id)
+
       # TODO parse the response body and pass back the identifier to be used by the form viewer (future)
-      'submission-id'
+      submission_id = 'submission-id'
+    end
+
+    # upload evidence documents - temp for FDF pilot
+    def upload_evidence_documents(claim, participant_id)
+      form_id = claim.claim_form_type
+      doctype = claim.document_type
+
+      folder_identifier = "VETERAN:PARTICIPANT_ID:#{participant_id}"
+      ce_uploader = ClaimsEvidenceApi::Uploader.new(folder_identifier)
+
+      file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+      claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
+
+      stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
+      claim.persistent_attachments.each do |pa|
+        doctype = pa.document_type
+        file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+        claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
+      end
+    rescue
+      monitor.track_event(:error, 'Evidence submission during Forms API processing failed', "#{STATS_KEY}.submit_pdf.failure", error: e.message)
     end
 
     def dependent_params
