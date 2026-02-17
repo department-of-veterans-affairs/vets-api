@@ -367,8 +367,11 @@ module Veteran
 
       current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
 
+       # Always import organizations when processing VSO data to maintain referential integrity
       import_vso_organizations(vso_orgs)
       populate_org_representative_joins!(rep_org_pairs:, poa_codes: current_poa_codes)
+
+      # Remove stale organizations that are no longer in the OGC data
       remove_stale_organizations(current_poa_codes)
 
       vso_reps
