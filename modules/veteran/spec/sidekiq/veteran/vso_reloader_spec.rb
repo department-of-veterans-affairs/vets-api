@@ -80,13 +80,22 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
 
     context 'join table acceptance_mode (status quo)' do
-      it 'seeds acceptance_mode from can_accept_digital_poa_requests but does not overwrite existing join rows' do
+      it 'seeds acceptance_mode but does not overwrite join rows or create duplicates' do
         VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
           create(:organization, poa: '095', can_accept_digital_poa_requests: false)
 
           Veteran::VSOReloader.new.reload_vso_reps
           org_rep = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '095')
           expect(org_rep.acceptance_mode).to eq('no_acceptance')
+
+          # Capture the natural key so we can assert no duplicates on rerun
+          rep_id = org_rep.representative_id
+          expect(
+            Veteran::Service::OrganizationRepresentative.where(
+              organization_poa: '095',
+              representative_id: rep_id
+            ).count
+          ).to eq(1)
 
           # Simulate a later change that should be preserved
           org_rep.update!(acceptance_mode: 'self_only')
@@ -95,7 +104,17 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           Veteran::Service::Organization.find_by!(poa: '095').update!(can_accept_digital_poa_requests: true)
 
           Veteran::VSOReloader.new.reload_vso_reps
+
+          # Still not overwritten
           expect(org_rep.reload.acceptance_mode).to eq('self_only')
+
+          # Still no duplicates for that same (org, rep)
+          expect(
+            Veteran::Service::OrganizationRepresentative.where(
+              organization_poa: '095',
+              representative_id: rep_id
+            ).count
+          ).to eq(1)
         end
       end
     end
