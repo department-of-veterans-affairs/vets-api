@@ -260,9 +260,8 @@ describe PdfFill::Filler, type: :model do
     context 'when all field names match the template' do
       let(:data_hash) { { 'field1' => 'value1', 'field2' => 'value2', 'field3' => 'value3' } }
 
-      it 'increments StatsD success metric' do
-        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.success',
-                                                    tags: ["form_id:#{form_id}"])
+      it 'does not increment any StatsD metrics' do
+        expect(StatsD).not_to receive(:increment)
 
         described_class.validate_field_names!(template_path, data_hash, form_id)
       end

@@ -402,8 +402,6 @@ module PdfFill
 
       if unmatched_fields.any?
         StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.mismatch", tags: ["form_id:#{form_id}"])
-      else
-        StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.success", tags: ["form_id:#{form_id}"])
       end
     end
 
