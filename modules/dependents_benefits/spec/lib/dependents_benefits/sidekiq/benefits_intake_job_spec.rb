@@ -1,23 +1,25 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dependents_benefits/sidekiq/dependent_backup_job'
+require 'dependents_benefits/sidekiq/benefits_intake_job'
 
-RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
+RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
   before do
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(pdf_stamper_instance).at_least(:once)
     allow(pdf_stamper_instance).to receive(:run).and_return('/tmp/stamped_1.pdf', '/tmp/stamped_2.pdf',
                                                             '/tmp/final_stamped.pdf')
 
-    allow(BenefitsIntakeService::Service).to receive(:new).and_return(lighthouse_mock)
+    allow(BenefitsIntake::Service).to receive(:new).and_return(lighthouse_mock)
     allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
     allow(claim_processor).to receive(:collect_child_claims).and_return([claim686c, claim674])
   end
 
   let(:pdf_stamper_instance) { instance_double(PDFUtilities::DatestampPdf) }
   let(:lighthouse_mock) do
-    double(:lighthouse_service, uuid: 'uuid', upload_form: OpenStruct.new(success?: true, data: {}))
+    double(:lighthouse_service, uuid: 'uuid', location: 'https://mock.va.gov/upload',
+                                request_upload: ['https://mock.va.gov/upload', 'uuid'],
+                                perform_upload: OpenStruct.new(success?: true, data: {}))
   end
   let(:parent_claim) { create(:dependents_claim) }
   let(:job) { described_class.new }
@@ -44,6 +46,22 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
         expect(lh_submission).to receive(:cleanup_file_paths)
 
         expect { job.perform(parent_claim.id) }.not_to raise_error
+      end
+
+      it 'creates a pending submission attempt linked to the parent claim' do
+        allow(lh_submission).to receive_messages({ initialize_service: 'uuid-1', upload_to_lh: successful_response })
+        allow(lh_submission).to receive(:prepare_submission)
+        allow(lh_submission).to receive(:cleanup_file_paths)
+
+        expect { job.perform(parent_claim.id) }
+          .to change(Lighthouse::SubmissionAttempt, :count).by(1)
+
+        submission = Lighthouse::Submission.find_by(saved_claim_id: parent_claim.id)
+        attempt = submission.submission_attempts.order(created_at: :desc).first
+
+        expect(submission.form_id).to eq(parent_claim.form_id)
+        expect(attempt.submission.saved_claim_id).to eq(parent_claim.id)
+        expect(attempt.status).to eq('pending')
       end
     end
 
@@ -115,7 +133,6 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       it 'performs all success operations within transaction' do
         expect(job).to receive(:mark_parent_group_processing)
-        expect(job).to receive(:mark_submission_attempt_succeeded)
         expect(ActiveRecord::Base).to receive(:transaction).and_yield
         expect(failed_parent_group).to receive(:with_lock).and_yield
         job.handle_job_success
@@ -127,7 +144,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
 
       before do
         allow(job).to receive(:monitor).and_return(monitor_instance)
-        allow(job).to receive(:mark_submission_attempt_succeeded).and_raise(test_error)
+        allow(job).to receive(:mark_parent_group_processing).and_raise(test_error)
         job.instance_variable_set(:@claim_id, parent_claim.id)
       end
 
