@@ -103,6 +103,22 @@ module AccreditedRepresentativePortal
           expect(resolved_scope).to contain_exactly(matching_rep)
         end
       end
+
+      context 'orphaned records exist' do
+        let!(:orphaned_record) do
+          create(:saved_claim_claimant_representative,
+                 saved_claim: matching_saved_claim2,
+                 accredited_individual_registration_number: 'AIRN-MATCH')
+        end
+        let!(:matching_saved_claim2) { create(:saved_claim_benefits_intake) }
+
+        it 'does not return records without saved claim data' do
+          # rubocop:disable Rails/SkipsModelValidations
+          orphaned_record.update_columns(saved_claim_id: 2489)
+          # rubocop:enable Rails/SkipsModelValidations
+          expect(resolved_scope).not_to include(orphaned_record)
+        end
+      end
     end
   end
 end

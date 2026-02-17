@@ -10,9 +10,6 @@ module SurvivorsBenefits
       include ::PdfFill::Forms::FormHelper::PhoneNumberFormatting
       include Helpers
 
-      # The Index Iterator Key
-      ITERATOR = ::PdfFill::HashConverter::ITERATOR
-
       SERVICE_BRANCH_MAPPING = {
         'army' => 'ARMY',
         'navy' => 'NAVY',
@@ -40,20 +37,58 @@ module SurvivorsBenefits
         'veteranHasPreviousNames' => {
           key: 'form1[0].#subform[207].RadioButtonList[4]'
         },
-        'veteranPreviousNames' => {
-          limit: 2,
+        'veteranPreviousNameOne' => {
           first_key: 'first',
           'first' => {
             limit: 12,
-            key: "form1[0].#subform[207].First_Name[#{ITERATOR}]"
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: '1st (addt\'l) Veteran\'s First Name',
+            question_text: '1ST (ADDT\'l) VETERAN\'S FIRST NAME',
+            key: 'form1[0].#subform[207].First_Name[0]'
           },
           'middle' => {
             limit: 1,
-            key: "form1[0].#subform[207].Middle_Initial[#{ITERATOR}]"
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: '1st (addt\'l) Veteran\'s MI',
+            question_text: '1ST (ADDT\'l) VETERAN\'S MI',
+            key: 'form1[0].#subform[207].Middle_Initial[0]'
           },
           'last' => {
             limit: 18,
-            key: "form1[0].#subform[207].Last_Name[#{ITERATOR}]"
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: '1st (addt\'l)Veteran\'s Last Name',
+            question_text: '1ST (ADDT\'l) VETERAN\'S LAST NAME',
+            key: 'form1[0].#subform[207].Last_Name[0]'
+          }
+        },
+        'veteranPreviousNameTwo' => {
+          first_key: 'first',
+          'first' => {
+            limit: 12,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: '2nd (addt\'l) Veteran\'s First Name',
+            question_text: '2ND (ADDT\'l) VETERAN\'S FIRST NAME',
+            key: 'form1[0].#subform[207].First_Name[1]'
+          },
+          'middle' => {
+            limit: 1,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: '2nd (addt\'l) Veteran\'s Middle Initial',
+            question_text: '2ND (ADDT\'l) VETERAN\'S MIDDLE INITIAL',
+            key: 'form1[0].#subform[207].Middle_Initial[1]'
+          },
+          'last' => {
+            limit: 18,
+            question_num: 3,
+            question_suffix: 'A',
+            question_label: '2nd (addt\'l) Veteran\'s Last Name',
+            question_text: '2ND (ADDT\'l) VETERAN\'S LAST NAME',
+            key: 'form1[0].#subform[207].Last_Name[1]'
           }
         },
         'activeServiceDateRange' => {
@@ -84,6 +119,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[208].RadioButtonList[16]'
         },
         'placeOfSeparation' => {
+          limit: 32,
+          question_num: 3,
+          question_suffix: 'E',
+          question_label: 'Place of Last Separation',
+          question_text: 'PLACE OF LAST SEPARATION',
           key: 'form1[0].#subform[208].Place_Of_Last_Separation[0]'
         },
         'nationalGuardActivated' => {
@@ -100,19 +140,29 @@ module SurvivorsBenefits
             key: 'form1[0].#subform[208].Date_Of_Activation_Year[0]'
           }
         },
-        'unitNameAndAddress' => {
-          'line_one' => {
-            limit: 20,
-            key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[0]'
-          },
-          'line_two' => {
-            limit: 20,
-            key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[1]'
-          },
-          'line_three' => {
-            limit: 20,
-            key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[2]'
-          }
+        'unitNameAndAddressLineOne' => {
+          limit: 20,
+          question_num: 3,
+          question_suffix: 'H',
+          question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+          question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
+          key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[0]'
+        },
+        'unitNameAndAddressLineTwo' => {
+          limit: 20,
+          question_num: 3,
+          question_suffix: 'H',
+          question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+          question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
+          key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[1]'
+        },
+        'unitNameAndAddressLineThree' => {
+          limit: 20,
+          question_num: 3,
+          question_suffix: 'H',
+          question_label: 'Veteran\'s Reserve/National Guard Unit Name and Address (Line 1)',
+          question_text: 'VETERAN\'S RESERVE/NATIONAL GUARD UNIT NAME AND ADDRESS (LINE 1)',
+          key: 'form1[0].#subform[208].Name_And_Address_Of_Veterans_Reserve_National_Guard_Unit[2]'
         },
         'unitPhone' => {
           'phone_area_code' => {
@@ -165,7 +215,6 @@ module SurvivorsBenefits
         form_data['serviceBranch'] = service_to_radio(form_data['serviceBranch'])
         form_data['nationalGuardActivated'] = to_radio_yes_no(form_data['nationalGuardActivated'])
         form_data['nationalGuardActivationDate'] = split_date(form_data['nationalGuardActivationDate'])
-        form_data['unitNameAndAddress'] = split_unit_into_lines(form_data['unitNameAndAddress'])
         unit_phone = form_data['unitPhone']
         unit_phone = unit_phone['contact'] if unit_phone.is_a?(Hash)
         form_data['unitPhone'] = expand_phone_number(unit_phone.to_s)
@@ -174,7 +223,8 @@ module SurvivorsBenefits
           'from' => split_date(form_data.dig('powDateRange', 'from')),
           'to' => split_date(form_data.dig('powDateRange', 'to'))
         }
-        form_data
+        form_data.merge!(expand_previous_names(form_data))
+        form_data.merge!(expand_unit_info_lines(form_data['unitNameAndAddress']))
       end
 
       def to_radio_yes_no(obj)
@@ -193,14 +243,29 @@ module SurvivorsBenefits
         end
       end
 
-      def split_unit_into_lines(unit_name_and_address)
-        unit_name_and_address ||= ''
-        parts = unit_name_and_address.scan(/.{1,20}/)
+      def expand_previous_names(form_data)
         {
-          'line_one' => parts[0],
-          'line_two' => parts[1],
-          'line_three' => parts[2]
+          'veteranPreviousNameOne' => form_data['veteranPreviousNames']&.first || '',
+          'veteranPreviousNameTwo' => form_data['veteranPreviousNames']&.second || ''
         }
+      end
+
+      def expand_unit_info_lines(unit_name_and_address)
+        if unit_name_and_address&.length.to_i <= 60
+          unit_name_and_address ||= ''
+          parts = unit_name_and_address.scan(/.{1,20}/)
+          {
+            'unitNameAndAddressLineOne' => parts[0] || '',
+            'unitNameAndAddressLineTwo' => parts[1] || '',
+            'unitNameAndAddressLineThree' => parts[2] || ''
+          }
+        else
+          {
+            'unitNameAndAddressLineOne' => unit_name_and_address,
+            'unitNameAndAddressLineTwo' => '',
+            'unitNameAndAddressLineThree' => ''
+          }
+        end
       end
     end
   end

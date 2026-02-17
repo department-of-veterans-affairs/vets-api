@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -30,8 +30,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
   create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "saved_claim_group_status", ["pending", "accepted", "failure", "processing", "success"]
   create_enum "user_action_status", ["initial", "success", "error"]
-
-  execute "CREATE SEQUENCE IF NOT EXISTS digital_dispute_submissions_new_id_seq"
 
   create_table "accreditation_api_entity_counts", force: :cascade do |t|
     t.integer "agents"
@@ -382,16 +380,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
     t.string "accredited_individual_registration_number", null: false
     t.datetime "created_at", null: false
     t.index ["saved_claim_id"], name: "idx_on_saved_claim_id_f4f27623c2", unique: true
-  end
-
-  create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "accredited_individual_registration_number", null: false
-    t.string "power_of_attorney_holder_type", null: false
-    t.string "user_account_email", null: false
-    t.string "user_account_icn"
-    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
-    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
-    t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -824,7 +812,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
     t.index ["key"], name: "index_devices_on_key", unique: true
   end
 
-  create_table "digital_dispute_submissions", id: :bigint, default: -> { "nextval('digital_dispute_submissions_new_id_seq'::regclass)" }, force: :cascade do |t|
+  create_table "digital_dispute_submissions", force: :cascade do |t|
     t.uuid "old_uuid_id", default: -> { "gen_random_uuid()" }, null: false
     t.uuid "user_uuid", null: false
     t.uuid "user_account_id"
@@ -840,7 +828,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "guid", default: -> { "gen_random_uuid()" }, null: false
-    t.bigint "new_id"
     t.index ["debt_identifiers"], name: "index_digital_dispute_submissions_on_debt_identifiers", using: :gin
     t.index ["guid"], name: "index_digital_dispute_submissions_on_guid", unique: true
     t.index ["needs_kms_rotation"], name: "index_digital_dispute_submissions_on_needs_kms_rotation"
@@ -1443,6 +1430,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
   end
 
+  create_table "multi_party_form_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "form_type", null: false
+    t.string "status", default: "primary_in_progress", null: false
+    t.uuid "primary_user_uuid", null: false
+    t.bigint "primary_in_progress_form_id"
+    t.datetime "primary_completed_at"
+    t.string "secondary_email"
+    t.uuid "secondary_user_uuid"
+    t.bigint "secondary_in_progress_form_id"
+    t.datetime "secondary_completed_at"
+    t.datetime "secondary_notified_at"
+    t.text "secondary_access_token_digest"
+    t.datetime "secondary_access_token_expires_at"
+    t.bigint "saved_claim_id"
+    t.datetime "submitted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "nod_notifications", force: :cascade do |t|
     t.text "payload_ciphertext"
     t.text "encrypted_kms_key"
@@ -1484,6 +1490,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
+  end
+
+  create_table "organization_representatives", force: :cascade do |t|
+    t.string "representative_id", null: false
+    t.string "organization_poa", limit: 3, null: false
+    t.string "acceptance_mode", default: "no_acceptance", null: false
+    t.datetime "deactivated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_poa", "representative_id"], name: "idx_org_reps_on_org_poa_and_rep_id", unique: true
+    t.check_constraint "acceptance_mode::text = ANY (ARRAY['any_request'::character varying, 'self_only'::character varying, 'no_acceptance'::character varying]::text[])", name: "org_reps_acceptance_mode_check"
   end
 
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
@@ -2261,6 +2278,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_26_173802) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "organization_representatives", "veteran_organizations", column: "organization_poa", primary_key: "poa"
+  add_foreign_key "organization_representatives", "veteran_representatives", column: "representative_id", primary_key: "representative_id"
   add_foreign_key "saved_claim_groups", "saved_claims", column: "parent_claim_id", validate: false
   add_foreign_key "saved_claim_groups", "saved_claims", validate: false
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false

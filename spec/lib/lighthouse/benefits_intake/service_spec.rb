@@ -69,6 +69,7 @@ RSpec.describe BenefitsIntake::Service do
     it 'performs the upload' do
       allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
 
+      expect(service).to receive(:check_upload_size)
       expect(Common::FileHelpers).to receive(:generate_random_file).once.with(metadata.to_json)
 
       expect(Faraday::UploadIO).to receive(:new).once.with('a-temp-file', mime_json, 'metadata.json')
@@ -84,6 +85,7 @@ RSpec.describe BenefitsIntake::Service do
       args[:upload_url] = 'another-location'
       allow(Faraday::UploadIO).to receive(:new).and_return 'a-file-io-object'
 
+      expect(service).to receive(:check_upload_size)
       expect(service).not_to receive(:request_upload)
       expect(service).to receive(:perform).with(:put, 'another-location', expected_params, headers)
       service.perform_upload(**args)
@@ -264,23 +266,36 @@ RSpec.describe BenefitsIntake::Service do
   end
 
   describe '#valid_upload?' do
-    it 'returns valid upload parameters' do
+    it 'returns valid upload parameters when only claim' do
       allow(service).to receive(:valid_document?).and_return('valid-doc-path')
 
       # no attachments included
       expected = { metadata:, document: 'valid-doc-path', attachments: [] }
       expect(service).to receive(:valid_document?).once
 
+      allow(File).to receive(:size).and_return(1)
+      expect(File).to receive(:size).twice
+
+      expect(Common::FileHelpers).to receive(:delete_file_if_exists).once
+
       response = service.valid_upload?(metadata:, document: 'file-path')
       expect(response).to eq(expected)
+    end
 
-      # with 2 attachments
+    it 'returns valid upload parameters with attachments' do
+      allow(service).to receive(:valid_document?).and_return('valid-doc-path')
+
       expected = {
         metadata:,
         document: 'valid-doc-path',
         attachments: %w[valid-doc-path valid-doc-path]
       }
       expect(service).to receive(:valid_document?).exactly(3).times
+
+      allow(File).to receive(:size).and_return(1)
+      expect(File).to receive(:size).exactly(4).times
+
+      expect(Common::FileHelpers).to receive(:delete_file_if_exists).once
 
       response = service.valid_upload?(metadata:, document: 'file-path', attachments: %w[1 2])
       expect(response).to eq(expected)
@@ -296,6 +311,16 @@ RSpec.describe BenefitsIntake::Service do
       expect do
         service.valid_upload?(metadata:, document: 'file-path')
       end.to raise_error SystemCallError
+    end
+
+    it 'errors if total file size exceeds limit' do
+      allow(service).to receive(:valid_document?).and_return('valid-doc-path')
+      allow(File).to receive(:size).and_return(10.gigabytes)
+
+      expect do
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).once
+        service.valid_upload?(metadata:, document: 'file-path')
+      end.to raise_error BenefitsIntake::Service::UploadSizeExceeded
     end
   end
 
