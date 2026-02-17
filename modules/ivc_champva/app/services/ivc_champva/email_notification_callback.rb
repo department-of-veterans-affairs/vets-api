@@ -9,7 +9,7 @@ module IvcChampva
 
   class EmailNotificationCallback
     def self.call(notification)
-      # @param ac [hash] contains properties form_id, form_uuid, and confirmation_type
+      # @param ac [hash] contains properties form_id, form_uuid, and notification_type
       # as defined under callback_metadata.additional_context when the email was sent
       #   (e.g.: {form_id: '10-10d', form_uuid: '12345678-1234-5678-1234-567812345678',
       #   notification_type: 'confirmation'})
