@@ -48,13 +48,17 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
     it 'handles auth error' do
       VCR.use_cassette('lighthouse/hcc/auth_error') do
-        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+        allow_any_instance_of(Auth::ClientCredentials::Service)
+          .to receive(:get_token).and_call_original
+        allow(Auth::ClientCredentials::JWTGenerator)
+          .to receive(:generate_token).and_return('fake-jwt')
+
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)
         errors = response_body['errors']
 
-        expect(errors.first.keys).to eq(%w[title detail code status meta])
+        expect(errors.first.keys).to eq(%w[error error_description status code title detail])
       end
     end
 
