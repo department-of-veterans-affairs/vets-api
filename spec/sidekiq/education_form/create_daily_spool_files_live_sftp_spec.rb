@@ -18,11 +18,9 @@ if ENV['RUN_SFTP_TEST'] == 'true'
   RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, type: :model do
     subject { described_class.new }
 
-    # rubocop:disable Naming/VariableNumber
     let!(:application_1606) do
       create(:va1990).education_benefits_claim
     end
-    # rubocop:enable Naming/VariableNumber
 
     let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
 

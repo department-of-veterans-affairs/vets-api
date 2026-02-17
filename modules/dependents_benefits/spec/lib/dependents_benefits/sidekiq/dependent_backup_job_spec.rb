@@ -152,7 +152,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentBackupJob, type: :job do
     end
 
     it 'sends failure notification and logs silent failure avoided' do
-      expect(notification_email).to receive(:deliver).with(:error_686c_674) # rubocop:disable Naming/VariableNumber
+      expect(notification_email).to receive(:deliver).with(:error_686c_674)
       expect(monitor_instance).to receive(:log_silent_failure_avoided)
         .with({ claim_id: parent_claim.id, error: test_error })
       job.handle_permanent_failure(parent_claim.id, test_error)

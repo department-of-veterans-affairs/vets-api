@@ -5,7 +5,6 @@ module AppealsApi
     module HigherLevelReview
       module V4
         class FormFields
-          # rubocop:disable Naming/VariableNumber
           # rubocop:disable Layout/LineLength
           FIELD_NAMES = {
             veteran_middle_initial: 'form1[0].#subform[2].Veterans_Middle_Initial1[0]',
@@ -47,7 +46,6 @@ module AppealsApi
             veteran_claimant_date_signed_year: 'form1[0].#subform[4].Date_Signed_Year[0]'
             # NOTE: rep signature not yet supported
           }.freeze
-          # rubocop:enable Naming/VariableNumber
           # rubocop:enable Layout/LineLength
 
           def initialize

@@ -28,9 +28,7 @@ describe ClaimsApi::VeteranRepresentativeService do
           vdc_status: 'Submitted',
           representative_type: 'Recognized Veterans Service Organization',
           claimant_ptcpnt_id: '182358',
-          # rubocop:disable Naming/VariableNumber
           address_line_1: '76 Crowther Ave',
-          # rubocop:enable Naming/VariableNumber
           city: 'Bridgeport',
           postal_code: '06605',
           state: 'CT',
@@ -110,9 +108,7 @@ describe ClaimsApi::VeteranRepresentativeService do
             vdc_status: 'Submitted',
             representative_type: 'Recognized Veterans Service Organization',
             claimant_ptcpnt_id: '182358',
-            # rubocop:disable Naming/VariableNumber
             address_line_1: '76 Crowther Ave',
-            # rubocop:enable Naming/VariableNumber
             city: 'Bridgeport',
             postal_code: '06605',
             state: 'CT',

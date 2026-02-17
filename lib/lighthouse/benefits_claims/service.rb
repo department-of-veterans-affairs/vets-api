@@ -17,12 +17,10 @@ module BenefitsClaims
     # #90936 - according to the research done here,
     # the 960 and 290 EP Codes were flagged as a claim groups that
     # should be filtered out before they are sent to VA.gov and Mobile
-    # rubocop:disable Naming/VariableNumber
     EP_CODE_FILTER_FLAGS = {
       '960' => :cst_filter_ep_960,
       '290' => :cst_filter_ep_290
     }.freeze
-    # rubocop:enable Naming/VariableNumber
 
     # Accepts either a user object or an ICN string for backwards compatibility
     # @param user_or_icn [User, String] A user object with an ICN or an ICN string

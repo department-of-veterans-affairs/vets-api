@@ -5,7 +5,6 @@ module AppealsApi
     module HigherLevelReview
       module V3
         class FormFields
-          # rubocop:disable Naming/VariableNumber
           FIELD_NAMES = {
             veteran_middle_initial: 'form1[0].#subform[2].Veteran_Middle_Initial1[0]',
             veteran_ssn_first_three: 'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]',
@@ -47,7 +46,6 @@ module AppealsApi
             veteran_claimant_date_signed_year: 'form1[0].#subform[4].DOByear[15]'
             # NOTE: rep signature not yet supported
           }.freeze
-          # rubocop:enable Naming/VariableNumber
 
           def initialize
             FIELD_NAMES.each { |field, name| define_singleton_method(field) { name } }

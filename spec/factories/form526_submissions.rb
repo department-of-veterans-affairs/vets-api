@@ -45,7 +45,7 @@ FactoryBot.define do
     end
   end
 
-  trait :with_0781 do # rubocop:disable Naming/VariableNumber
+  trait :with_0781 do
     form_json do
       File.read("#{submissions_path}/with_0781.json")
     end

@@ -103,7 +103,6 @@ RSpec.describe IvcChampva::VHA107959f2 do
     end
   end
 
-  # rubocop:disable Naming/VariableNumber
   describe '#track_email_usage' do
     let(:statsd_key) { 'api.ivc_champva_form.10_7959f_2' }
     let(:vha_10_7959f_2) { described_class.new(data) }
@@ -128,7 +127,6 @@ RSpec.describe IvcChampva::VHA107959f2 do
       end
     end
   end
-  # rubocop:enable Naming/VariableNumber
 
   it 'is not past OMB expiration date' do
     # Update this date string to match the current PDF OMB expiration date:
