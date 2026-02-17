@@ -24,6 +24,7 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
       'messages' => [] }
   end
   let(:form1095b) { build(:enrollment_system_form1095_b) }
+  let(:user) { build(:user) }
 
   describe '.parse' do
     it 'returns an instance of model with expected attributes' do
@@ -96,38 +97,81 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
     after { Timecop.return }
 
-    context 'with start and end dates' do
-      it 'returns all currently available years during which the user had coverage' do
-        periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2025-03-05' }]
-        result = described_class.available_years(periods)
-        expect(result).to eq([2024])
+    context 'with form1095b_multiple_years feature enabled' do
+      before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(true) }
+
+      context 'with start and end dates' do
+        it 'returns all currently available years during which the user had coverage' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2025-03-05' }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([2022, 2023, 2024])
+        end
+      end
+
+      context 'when end date is nil' do
+        it 'infers that the user is still covered and returns all currently available years' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => nil }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([2022, 2023, 2024])
+        end
+      end
+
+      context 'with multiple periods' do
+        it 'returns all currently available years during which the user had coverage' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
+                     { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
+                     { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
+                     { 'startDate' => '2024-03-05', 'endDate' => nil }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([2022, 2024])
+        end
+      end
+
+      context 'when user was not covered during available years' do
+        it 'returns an empty array' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2020-03-05' }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([])
+        end
       end
     end
 
-    context 'when end date is nil' do
-      it 'infers that the user is still covered and returns all currently available years' do
-        periods = [{ 'startDate' => '2015-03-05', 'endDate' => nil }]
-        result = described_class.available_years(periods)
-        expect(result).to eq([2024])
-      end
-    end
+    context 'with form1095b_multiple_years feature disabled' do
+      before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(false) }
 
-    context 'with multiple periods' do
-      it 'returns all currently available years during which the user had coverage' do
-        periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
-                   { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
-                   { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
-                   { 'startDate' => '2024-03-05', 'endDate' => nil }]
-        result = described_class.available_years(periods)
-        expect(result).to eq([2024])
+      context 'with start and end dates' do
+        it 'returns all currently available years during which the user had coverage' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2025-03-05' }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([2024])
+        end
       end
-    end
 
-    context 'when user was not covered during available years' do
-      it 'returns an empty array' do
-        periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2020-03-05' }]
-        result = described_class.available_years(periods)
-        expect(result).to eq([])
+      context 'when end date is nil' do
+        it 'infers that the user is still covered and returns all currently available years' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => nil }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([2024])
+        end
+      end
+
+      context 'with multiple periods' do
+        it 'returns all currently available years during which the user had coverage' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2017-03-05' },
+                     { 'startDate' => '2020-03-05', 'endDate' => '2021-03-05' },
+                     { 'startDate' => '2022-03-05', 'endDate' => '2022-04-05' },
+                     { 'startDate' => '2024-03-05', 'endDate' => nil }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([2024])
+        end
+      end
+
+      context 'when user was not covered during available years' do
+        it 'returns an empty array' do
+          periods = [{ 'startDate' => '2015-03-05', 'endDate' => '2020-03-05' }]
+          result = described_class.available_years(user, periods)
+          expect(result).to eq([])
+        end
       end
     end
   end
@@ -136,9 +180,22 @@ RSpec.describe VeteranEnrollmentSystem::Form1095B::Form1095B, type: :model do
     before { Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z')) }
     after { Timecop.return }
 
-    it 'returns an array containing first and last years of accessible 1095-B data' do
-      result = described_class.available_years_range
-      expect(result).to eq([2024, 2024])
+    context 'with form1095b_multiple_years feature enabled' do
+      before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(true) }
+
+      it 'returns an array containing first and last years of accessible 1095-B data' do
+        result = described_class.available_years_range(user)
+        expect(result).to eq([2022, 2024])
+      end
+    end
+
+    context 'with form1095b_multiple_years feature disabled' do
+      before { allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, user).and_return(false) }
+
+      it 'returns an array containing first and last years of accessible 1095-B data' do
+        result = described_class.available_years_range(user)
+        expect(result).to eq([2024, 2024])
+      end
     end
   end
 

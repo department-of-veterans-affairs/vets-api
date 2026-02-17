@@ -142,6 +142,15 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
+    context 'form_id 20-10208' do
+      before { instance.form_id = '20-10208' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
     context 'default' do
       it 'returns 1' do
         expect(instance.min_pages).to eq 1
