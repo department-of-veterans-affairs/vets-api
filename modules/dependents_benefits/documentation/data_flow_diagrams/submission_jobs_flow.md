@@ -58,7 +58,7 @@ graph TD
         PermFailureClaims -->|No| RetryClaims{Retries<br/>< 16?}
         RetryClaims -->|Yes| RetryJobClaims[Sidekiq Retry<br/>Returns to Job Start]
         RetryClaims -->|No| MarkFailedClaims
-        MarkFailedClaims --> BackupClaims[Trigger DependentBackupJob]
+        MarkFailedClaims --> BackupClaims[Trigger BenefitsIntakeJob]
     end
     
     SuccessClaims -->|No| UpdateFailedClaims
