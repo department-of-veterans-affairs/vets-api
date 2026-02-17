@@ -55,19 +55,10 @@ module TravelClaim
       ensure_tokens!
       yield
     rescue Common::Exceptions::BackendServiceException => e
-      if should_retry_auth?(e)
-        handle_auth_retry(e)
-        begin
-          result = yield
-          log_auth_event('Retry succeeded after token refresh', is_retry: true)
-          result
-        rescue Common::Exceptions::BackendServiceException => retry_error
-          log_auth_event("Retry failed: #{retry_error.original_status} error", is_retry: true)
-          raise
-        end
-      else
-        raise
-      end
+      raise unless should_retry_auth?(e)
+
+      handle_auth_retry(e)
+      yield
     end
 
     ##
@@ -272,11 +263,11 @@ module TravelClaim
 
     ##
     # Logs authentication events when logging is enabled.
+    # Automatically includes is_retry based on @auth_retry_attempted state.
     #
     # @param message [String] the message to log
-    # @param is_retry [Boolean] whether this is a retry attempt
     #
-    def log_auth_event(message, is_retry: false)
+    def log_auth_event(message)
       return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
 
       log_data = {
@@ -284,7 +275,7 @@ module TravelClaim
         correlation_id: @correlation_id,
         station_number: @station_number,
         facility_type: @facility_type,
-        is_retry:,
+        is_retry: @auth_retry_attempted,
         veis_token_present: @current_veis_token.present?,
         btsss_token_present: @current_btsss_token.present?
       }
