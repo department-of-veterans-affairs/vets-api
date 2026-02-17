@@ -1028,9 +1028,10 @@
             "required": true,
             "name": "appointment-id",
             "schema": {
-              "type": "string",
-              "example": "52499028"
-            }
+              "type": "string"
+            },
+            "description": "The cerner appointment id to retrieve AVS binaries for. This value comes from the `avsPdf` field in the initial appointment response.",
+            "example": "52499028"
           },
           {
             "in": "query",
