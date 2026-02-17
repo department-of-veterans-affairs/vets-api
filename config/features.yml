@@ -14,7 +14,7 @@ groups:
   backend_cop_team:
     description: backend_cop
     members:
-      backend_cop.members # Add emails in an array in the paramter store, ["rachal.cassity@va.gov", "foo@va.gov"]
+      backend_cop.members # Add emails as an array in the paramter store, ["rachal.cassity@va.gov", "foo@va.gov"]
 
 features:
   backend_cop:
