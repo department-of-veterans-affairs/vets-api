@@ -54,7 +54,8 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 
-  config.filter_run focus: true
+  # Optional: set `:focus` on examples to run a subset locally.
+  # config.filter_run focus: true
   config.filter_run_excluding skip: true unless ENV['PENDING'] == 'true'
   config.run_all_when_everything_filtered = true
   config.example_status_persistence_file_path = 'tmp/specs.txt'

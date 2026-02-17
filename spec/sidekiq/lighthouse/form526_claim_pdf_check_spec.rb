@@ -9,6 +9,7 @@ require 'rails_helper'
 RSpec.describe Lighthouse::Form526ClaimPdfCheck, type: :job do
   let(:submission) { create(:form526_submission, submitted_claim_id: 123_456) }
   let(:service) { double('BenefitsClaims::Service') }
+  let(:limiter) { double('limiter') }
   let(:response_body) do
     {
       'data' => {
@@ -24,6 +25,8 @@ RSpec.describe Lighthouse::Form526ClaimPdfCheck, type: :job do
   before do
     allow(BenefitsClaims::Service).to receive(:new).and_return(service)
     allow(service).to receive(:get_claim).and_return(response_body)
+    allow(Sidekiq::Limiter).to receive(:concurrent).and_return(limiter)
+    allow(limiter).to receive(:within_limit).and_yield
   end
 
   describe '#perform' do
@@ -59,6 +62,22 @@ RSpec.describe Lighthouse::Form526ClaimPdfCheck, type: :job do
           form526_submission_id: submission.id,
           submitted_claim_id: 123_456,
           has_pdf_in_claim: false
+        }
+      )
+
+      described_class.new.perform(submission.id)
+    end
+
+    it 'logs the result when the limiter is unavailable' do
+      allow(Sidekiq::Limiter).to receive(:respond_to?).with(:concurrent).and_return(false)
+      allow(Sidekiq::Limiter).to receive(:concurrent)
+
+      expect(Rails.logger).to receive(:info).with(
+        'Form526ClaimPdfCheck result',
+        {
+          form526_submission_id: submission.id,
+          submitted_claim_id: 123_456,
+          has_pdf_in_claim: true
         }
       )
 

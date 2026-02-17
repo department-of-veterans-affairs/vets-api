@@ -35,19 +35,21 @@ module Lighthouse
     # @return [void]
     # @raise [ActiveRecord::RecordNotFound] if the submission doesn't exist
     def perform(submission_id)
-      submission = Form526Submission.find(submission_id)
-      submitted_claim_id = submission.submitted_claim_id
+      limiter.within_limit do
+        submission = Form526Submission.find(submission_id)
+        submitted_claim_id = submission.submitted_claim_id
 
-      has_pdf = claim_has_526_pdf?(submission, submitted_claim_id)
+        has_pdf = claim_has_526_pdf?(submission, submitted_claim_id)
 
-      Rails.logger.info(
-        'Form526ClaimPdfCheck result',
-        {
-          form526_submission_id: submission_id,
-          submitted_claim_id:,
-          has_pdf_in_claim: has_pdf
-        }
-      )
+        Rails.logger.info(
+          'Form526ClaimPdfCheck result',
+          {
+            form526_submission_id: submission_id,
+            submitted_claim_id:,
+            has_pdf_in_claim: has_pdf
+          }
+        )
+      end
     end
 
     private
@@ -69,6 +71,21 @@ module Lighthouse
 
       supporting_documents = raw_response_body.dig('data', 'attributes', 'supportingDocuments') || []
       supporting_documents.any? { |doc| FORM_526_DOC_LABELS.include?(doc['documentTypeLabel']) }
+    end
+
+    def limiter
+      # Sidekiq::Limiter is an Enterprise feature; fall back in non-Ent environments.
+      if defined?(Sidekiq::Limiter) && Sidekiq::Limiter.respond_to?(:concurrent)
+        Sidekiq::Limiter.concurrent('Form526ClaimPdfCheck', 32, wait_timeout: 120, lock_timeout: 60)
+      else
+        NullLimiter.new
+      end
+    end
+
+    class NullLimiter
+      def within_limit
+        yield
+      end
     end
   end
 end
