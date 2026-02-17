@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents/error_classes'
+require 'pdf_fill/forms/formatters/va686c674v2'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -9,6 +10,7 @@ module PdfFill
     class Va686c674v2 < FormBase
       include FormHelper
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      FORMATTER = PdfFill::Forms::Formatters::Va686c674v2
 
       KEY = {
         'veteran_information' => {
@@ -1583,6 +1585,7 @@ module PdfFill
 
         expand_remarks
         expand_veteran_ssn
+        expand_no_ssn_cases if Flipper.enabled?(:va_dependents_no_ssn)
 
         @form_data
       end
@@ -1976,6 +1979,14 @@ module PdfFill
           'spouse_does_live_with_veteran_yes' => select_radio_button(does_live_with_spouse),
           'spouse_does_live_with_veteran_no' => select_radio_button(!does_live_with_spouse)
         }
+      end
+
+      ##
+      # Expands no SSN cases into remarks for PDF form
+      #
+      # @return [void]
+      def expand_no_ssn_cases
+        FORMATTER.expand_no_ssn_cases(@form_data)
       end
 
       def expand_remarks

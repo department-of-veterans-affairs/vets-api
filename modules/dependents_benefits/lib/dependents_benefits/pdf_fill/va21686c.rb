@@ -3,6 +3,7 @@
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/formatters/va686c674v2'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -19,6 +20,9 @@ module DependentsBenefits
 
       # Iterator constant from PdfFill::HashConverter
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      # Formatter class for shared logic
+      FORMATTER = ::PdfFill::Forms::Formatters::Va686c674v2
 
       # Path to the 21-686c PDF template
       TEMPLATE = DependentsBenefits::PDF_PATH_21_686C
@@ -1606,6 +1610,7 @@ module DependentsBenefits
 
         expand_remarks
         expand_veteran_ssn
+        expand_no_ssn_cases if Flipper.enabled?(:va_dependents_no_ssn)
 
         @form_data
       end
@@ -2052,6 +2057,16 @@ module DependentsBenefits
           'spouse_does_live_with_veteran_yes' => select_radio_button(does_live_with_spouse),
           'spouse_does_live_with_veteran_no' => select_radio_button(!does_live_with_spouse)
         }
+      end
+
+      # Expands cases where dependents have no SSN
+      #
+      # When dependents have no SSN, replaces SSN fields with "See ad d'l "
+      # placeholder text and adds the no-SSN reason to the remarks section.
+      #
+      # @return [void]
+      def expand_no_ssn_cases
+        FORMATTER.expand_no_ssn_cases(@form_data)
       end
 
       ##
