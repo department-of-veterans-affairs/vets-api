@@ -43,7 +43,7 @@ module IncreaseCompensation
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.guid, { extras_redesign: true, omit_esign_stamp: true }))
+        @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
@@ -146,7 +146,7 @@ module IncreaseCompensation
       # Insert submission polling entries
       def lighthouse_submission_polling
         lighthouse_submission = {
-          form_id: @claim.form_id,
+          form_id: IncreaseCompensation::FORM_REAL_ID,
           reference_data: @claim.to_json,
           saved_claim: @claim
         }
