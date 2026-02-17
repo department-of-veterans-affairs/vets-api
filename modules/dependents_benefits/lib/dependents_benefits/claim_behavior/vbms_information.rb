@@ -6,14 +6,18 @@ module DependentsBenefits
     module VbmsInformation
       extend ActiveSupport::Concern
 
+      # flagged options for chile removal
       REMOVE_CHILD_OPTIONS = %w[
         report_child18_or_older_is_not_attending_school
         report_stepchild_not_in_household
         report_marriage_of_child_under18
       ].freeze
+      # marraige type list
       MARRIAGE_TYPES = %w[COMMON-LAW TRIBAL PROXY OTHER].freeze
+      # relationship list
       RELATIONSHIPS = %w[CHILD DEPENDENT_PARENT].freeze
 
+      # parse vbms claim information for submission to FormsAPI and other systems
       def get_claim_information(user = nil)
         dependents_app = parsed_form['dependents_application']
         selectable_options = parsed_form['view:selectable686_options']
@@ -25,11 +29,18 @@ module DependentsBenefits
         set_proc_state(selectable_options, dependents_app)
         set_claim_type(selectable_options, user)
 
-        { proc_state: @proc_state, claim_label: @claim_label, participant_id: user&.participant_id }
+        {
+          proc_state: @proc_state,
+          note_text: @note_text,
+          claim_name: @claim_name,
+          claim_label: @claim_label,
+          participant_id: user&.participant_id
+        }
       end
 
       private
 
+      # determine if the claim needs to be processed as MANUAL
       def set_proc_state(selectable_options, dependents_app)
         # search through the "selectable_options" hash and check if any of the "REMOVE_CHILD_OPTIONS" are set to true
         if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
@@ -39,7 +50,7 @@ module DependentsBenefits
           end
         end
 
-        # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
+        # if the user is adding a spouse and the marriage type !== CEREMONIAL, set the status to manual
         if selectable_options['add_spouse'] && MARRIAGE_TYPES.any? do |m|
              current_marriage_info = dependents_app['current_marriage_information']
              m == current_marriage_info['type_of_marriage']
@@ -59,6 +70,7 @@ module DependentsBenefits
         @proc_state = 'Started'
       end
 
+      # set the proc state to MANUAL_VAGOV and populate note text
       def set_to_manual_vagov(reason_code)
         @note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '
 
