@@ -28,8 +28,8 @@ module SM
       # Look up the station_number for a given recipient_id using cached triage teams.
       # Returns 'unknown' if the lookup fails or no match is found.
       #
-      # @param recipient_id [Integer] the triage team id the message was sent to
-      # @return [String, nil] the station_number or nil if not found
+      # @param recipient_id [Integer, String, nil] the triage team id the message was sent to
+      # @return [String] the station_number or 'unknown' if not found
       #
       def resolve_station_number(recipient_id)
         return 'unknown' if recipient_id.blank?
