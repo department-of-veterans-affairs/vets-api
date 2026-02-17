@@ -80,19 +80,22 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
 
     context 'join table acceptance_mode (status quo)' do
-      it 'sets acceptance_mode based on can_accept_digital_poa_requests and updates on rerun' do
+      it 'seeds acceptance_mode from can_accept_digital_poa_requests but does not overwrite existing join rows' do
         VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
-          org = create(:organization, poa: '095', can_accept_digital_poa_requests: false)
-          Veteran::VSOReloader.new.reload_vso_reps
+          create(:organization, poa: '095', can_accept_digital_poa_requests: false)
 
+          Veteran::VSOReloader.new.reload_vso_reps
           org_rep = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '095')
           expect(org_rep.acceptance_mode).to eq('no_acceptance')
 
-          org.update!(can_accept_digital_poa_requests: true)
+          # Simulate a later change that should be preserved
+          org_rep.update!(acceptance_mode: 'self_only')
+
+          # Even if org-wide flag changes later, ingestion should NOT clobber the join row
+          Veteran::Service::Organization.find_by!(poa: '095').update!(can_accept_digital_poa_requests: true)
 
           Veteran::VSOReloader.new.reload_vso_reps
-          org_rep.reload
-          expect(org_rep.acceptance_mode).to eq('any_request')
+          expect(org_rep.reload.acceptance_mode).to eq('self_only')
         end
       end
     end

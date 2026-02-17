@@ -449,10 +449,9 @@ module Veteran
 
     # rubocop:disable Rails/SkipsModelValidations
     def upsert_org_rep_rows(rows)
-      Veteran::Service::OrganizationRepresentative.upsert_all(
+      Veteran::Service::OrganizationRepresentative.insert_all(
         rows,
-        unique_by: %i[organization_poa representative_id],
-        update_only: %i[acceptance_mode]
+        unique_by: %i[organization_poa representative_id]
       )
     end
     # rubocop:enable Rails/SkipsModelValidations
