@@ -10,58 +10,42 @@ RSpec.describe UniqueUserEvents do
   describe '.log_event' do
     before do
       allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_async_buffering, user).and_return(false)
-      allow(UniqueUserEvents::Service).to receive(:log_event)
+      allow(UniqueUserEvents::Service).to receive(:buffer_events).and_return([event_name])
       allow(StatsD).to receive(:measure)
     end
 
-    context 'when async buffering is disabled' do
-      it 'routes to synchronous processing' do
-        expected_result = [{ event_name:, status: 'created', new_event: true }]
-        allow(UniqueUserEvents::Service).to receive(:log_event).and_return(expected_result)
+    it 'buffers event via Service and returns event names' do
+      result = described_class.log_event(user:, event_name:)
 
-        result = described_class.log_event(user:, event_name:)
-
-        expect(result).to eq(expected_result)
-        expect(UniqueUserEvents::Service).to have_received(:log_event).with(user:, event_name:)
-      end
+      expect(result).to eq([event_name])
+      expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(
+        user:, event_names: [event_name], event_facility_ids: nil
+      )
     end
 
-    context 'when async buffering is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_async_buffering, user).and_return(true)
-        allow(UniqueUserEvents::EventRegistry).to receive(:validate_event!)
-        allow(UniqueUserEvents::Service).to receive_messages(
-          extract_user_id: user.user_account_uuid,
-          get_all_events_to_log: [event_name],
-          build_buffered_result: { event_name:, status: 'buffered', new_event: false }
-        )
-        allow(UniqueUserEvents::Buffer).to receive(:push)
-      end
+    context 'with event_facility_ids' do
+      let(:event_facility_ids) { %w[757 688] }
 
-      it 'routes to asynchronous processing' do
-        result = described_class.log_event(user:, event_name:)
+      it 'passes facility IDs to Service' do
+        result = described_class.log_event(user:, event_name:, event_facility_ids:)
 
-        expect(result).to eq([{ event_name:, status: 'buffered', new_event: false }])
-        expect(UniqueUserEvents::Buffer).to have_received(:push).with(
-          user_id: user.user_account_uuid,
-          event_name:
+        expect(result).to eq([event_name])
+        expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(
+          user:, event_names: [event_name], event_facility_ids:
         )
-        expect(UniqueUserEvents::Service).not_to have_received(:log_event)
       end
     end
 
     context 'when feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(false)
-        allow(UniqueUserEvents::Service).to receive(:log_event)
       end
 
-      it 'returns disabled result without calling service' do
+      it 'returns empty array without buffering' do
         result = described_class.log_event(user:, event_name:)
 
-        expect(result).to eq([{ event_name:, status: 'disabled', new_event: false }])
-        expect(UniqueUserEvents::Service).not_to have_received(:log_event)
+        expect(result).to eq([])
+        expect(UniqueUserEvents::Service).not_to have_received(:buffer_events)
       end
 
       it 'does not measure performance metrics when disabled' do
@@ -73,7 +57,7 @@ RSpec.describe UniqueUserEvents do
 
     context 'when ArgumentError is raised' do
       before do
-        allow(UniqueUserEvents::Service).to receive(:log_event).and_raise(ArgumentError, 'Invalid event')
+        allow(UniqueUserEvents::Service).to receive(:buffer_events).and_raise(ArgumentError, 'Invalid event')
       end
 
       it 're-raises the error' do
@@ -83,131 +67,20 @@ RSpec.describe UniqueUserEvents do
 
     context 'when other errors occur' do
       before do
-        allow(UniqueUserEvents::Service).to receive(:log_event).and_raise(StandardError, 'Service error')
+        allow(UniqueUserEvents::Service).to receive(:buffer_events).and_raise(StandardError, 'Service error')
         allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns error result' do
+      it 'returns empty array' do
         result = described_class.log_event(user:, event_name:)
 
-        expect(result).to eq([{ event_name:, status: 'error', new_event: false, error: 'Failed to process event' }])
+        expect(result).to eq([])
       end
 
       it 'logs the error' do
         described_class.log_event(user:, event_name:)
 
-        expect(Rails.logger).to have_received(:error).with(/UUM: Failed during log_event/)
-      end
-    end
-  end
-
-  describe '.log_event_sync' do
-    let(:expected_result) { [{ event_name:, status: 'created', new_event: true }] }
-
-    before do
-      allow(UniqueUserEvents::Service).to receive(:log_event).and_return(expected_result)
-      allow(StatsD).to receive(:measure)
-    end
-
-    it 'calls Service.log_event and returns result' do
-      result = described_class.log_event_sync(user:, event_name:)
-
-      expect(result).to eq(expected_result)
-      expect(UniqueUserEvents::Service).to have_received(:log_event).with(user:, event_name:)
-    end
-
-    it 'measures duration with StatsD' do
-      described_class.log_event_sync(user:, event_name:)
-
-      expect(StatsD).to have_received(:measure).with(
-        'uum.unique_user_metrics.log_event.duration',
-        kind_of(Numeric),
-        tags: ["event_name:#{event_name}"]
-      )
-    end
-  end
-
-  describe '.log_event_async' do
-    let(:user_id) { user.user_account_uuid }
-
-    before do
-      allow(UniqueUserEvents::EventRegistry).to receive(:validate_event!)
-      allow(UniqueUserEvents::Service).to receive(:extract_user_id).and_return(user_id)
-      allow(UniqueUserEvents::Buffer).to receive(:push)
-      allow(StatsD).to receive(:measure)
-    end
-
-    context 'with single event' do
-      before do
-        allow(UniqueUserEvents::Service).to receive(:get_all_events_to_log).and_return([event_name])
-        allow(UniqueUserEvents::Service).to receive(:build_buffered_result)
-          .with(event_name)
-          .and_return({ event_name:, status: 'buffered', new_event: false })
-      end
-
-      it 'validates the event' do
-        described_class.log_event_async(user:, event_name:)
-
-        expect(UniqueUserEvents::EventRegistry).to have_received(:validate_event!).with(event_name)
-      end
-
-      it 'extracts user_id from user' do
-        described_class.log_event_async(user:, event_name:)
-
-        expect(UniqueUserEvents::Service).to have_received(:extract_user_id).with(user)
-      end
-
-      it 'pushes event to buffer' do
-        described_class.log_event_async(user:, event_name:)
-
-        expect(UniqueUserEvents::Buffer).to have_received(:push).with(user_id:, event_name:)
-      end
-
-      it 'returns buffered result' do
-        result = described_class.log_event_async(user:, event_name:)
-
-        expect(result).to eq([{ event_name:, status: 'buffered', new_event: false }])
-      end
-
-      it 'measures async duration with StatsD' do
-        described_class.log_event_async(user:, event_name:)
-
-        expect(StatsD).to have_received(:measure).with(
-          'uum.unique_user_metrics.log_event_async.duration',
-          kind_of(Numeric),
-          tags: ["event_name:#{event_name}"]
-        )
-      end
-    end
-
-    context 'with Oracle Health events' do
-      let(:oh_event_name) { 'oh_984_prescriptions_accessed' }
-
-      before do
-        allow(UniqueUserEvents::Service).to receive(:get_all_events_to_log).and_return([event_name, oh_event_name])
-        allow(UniqueUserEvents::Service).to receive(:build_buffered_result)
-          .with(event_name)
-          .and_return({ event_name:, status: 'buffered', new_event: false })
-        allow(UniqueUserEvents::Service).to receive(:build_buffered_result)
-          .with(oh_event_name)
-          .and_return({ event_name: oh_event_name, status: 'buffered', new_event: false })
-      end
-
-      it 'pushes all events to buffer' do
-        described_class.log_event_async(user:, event_name:)
-
-        expect(UniqueUserEvents::Buffer).to have_received(:push).with(user_id:, event_name:)
-        expect(UniqueUserEvents::Buffer).to have_received(:push).with(user_id:, event_name: oh_event_name)
-      end
-
-      it 'returns results for all events' do
-        result = described_class.log_event_async(user:, event_name:)
-
-        expect(result.length).to eq(2)
-        expect(result).to include(
-          { event_name:, status: 'buffered', new_event: false },
-          { event_name: oh_event_name, status: 'buffered', new_event: false }
-        )
+        expect(Rails.logger).to have_received(:error).with(/UUM: Failed during log_events/)
       end
     end
   end
@@ -217,58 +90,106 @@ RSpec.describe UniqueUserEvents do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_async_buffering, user).and_return(false)
-      allow(UniqueUserEvents::Service).to receive(:log_event)
+      allow(UniqueUserEvents::Service).to receive(:buffer_events).and_return([event_name, event_name2])
       allow(StatsD).to receive(:measure)
     end
 
-    it 'logs multiple events and merges results' do
-      result1 = [{ event_name:, status: 'created', new_event: true }]
-      result2 = [{ event_name: event_name2, status: 'exists', new_event: false }]
-
-      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name:).and_return(result1)
-      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name: event_name2).and_return(result2)
-
+    it 'buffers multiple events and returns all event names' do
       result = described_class.log_events(user:, event_names: [event_name, event_name2])
 
-      expect(result).to eq(result1 + result2)
-      expect(UniqueUserEvents::Service).to have_received(:log_event).with(user:, event_name:)
-      expect(UniqueUserEvents::Service).to have_received(:log_event).with(user:, event_name: event_name2)
+      expect(result).to eq([event_name, event_name2])
+      expect(UniqueUserEvents::Service).to have_received(:buffer_events)
+        .with(user:, event_names: [event_name, event_name2], event_facility_ids: nil)
     end
 
     it 'handles empty array' do
+      allow(UniqueUserEvents::Service).to receive(:buffer_events).and_return([])
+
       result = described_class.log_events(user:, event_names: [])
 
       expect(result).to eq([])
-      expect(UniqueUserEvents::Service).not_to have_received(:log_event)
     end
 
-    it 'handles single event' do
-      result1 = [{ event_name:, status: 'created', new_event: true }]
-      allow(UniqueUserEvents::Service).to receive(:log_event).and_return(result1)
+    it 'measures duration' do
+      described_class.log_events(user:, event_names: [event_name])
 
-      result = described_class.log_events(user:, event_names: [event_name])
-
-      expect(result).to eq(result1)
-      expect(UniqueUserEvents::Service).to have_received(:log_event).once
+      expect(StatsD).to have_received(:measure).with('uum.unique_user_metrics.log_events.duration', kind_of(Numeric))
     end
 
-    it 'flattens results from events that generate OH events' do
-      # First event returns multiple results (original + OH events)
-      result1 = [
-        { event_name:, status: 'created', new_event: true },
-        { event_name: 'oh_983_event', status: 'created', new_event: true }
-      ]
-      # Second event returns single result
-      result2 = [{ event_name: event_name2, status: 'exists', new_event: false }]
+    context 'with event_facility_ids' do
+      let(:event_facility_ids) { %w[757 688] }
 
-      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name:).and_return(result1)
-      allow(UniqueUserEvents::Service).to receive(:log_event).with(user:, event_name: event_name2).and_return(result2)
+      it 'passes facility IDs to Service' do
+        result = described_class.log_events(user:, event_names: [event_name, event_name2], event_facility_ids:)
 
-      result = described_class.log_events(user:, event_names: [event_name, event_name2])
+        expect(result).to eq([event_name, event_name2])
+        expect(UniqueUserEvents::Service).to have_received(:buffer_events)
+          .with(user:, event_names: [event_name, event_name2], event_facility_ids:)
+      end
+    end
 
-      expect(result).to eq(result1 + result2)
-      expect(result.length).to eq(3)
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:unique_user_metrics_logging).and_return(false)
+      end
+
+      it 'returns empty array without buffering' do
+        result = described_class.log_events(user:, event_names: [event_name])
+
+        expect(result).to eq([])
+        expect(UniqueUserEvents::Service).not_to have_received(:buffer_events)
+      end
+    end
+
+    context 'when ArgumentError is raised' do
+      before do
+        allow(UniqueUserEvents::Service).to receive(:buffer_events).and_raise(ArgumentError, 'Invalid event')
+      end
+
+      it 're-raises the error' do
+        expect do
+          described_class.log_events(user:, event_names: [event_name])
+        end.to raise_error(ArgumentError, 'Invalid event')
+      end
+    end
+
+    context 'when other errors occur' do
+      before do
+        allow(UniqueUserEvents::Service).to receive(:buffer_events).and_raise(StandardError, 'Service error')
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'returns empty array and logs the error' do
+        result = described_class.log_events(user:, event_names: [event_name])
+
+        expect(result).to eq([])
+        expect(Rails.logger).to have_received(:error).with(/UUM: Failed during log_events/)
+      end
+    end
+
+    context 'with empty facility IDs' do
+      let(:event_facility_ids) { [] }
+
+      it 'still calls Service with empty array' do
+        described_class.log_events(user:, event_names: [event_name], event_facility_ids:)
+
+        expect(UniqueUserEvents::Service).to have_received(:buffer_events).with(
+          user:, event_names: [event_name], event_facility_ids: []
+        )
+      end
+    end
+
+    context 'with nil-containing facility IDs after compacting' do
+      let(:event_facility_ids) { %w[757] }
+
+      it 'handles facility IDs correctly' do
+        allow(UniqueUserEvents::Service).to receive(:buffer_events)
+          .and_return([event_name, "#{event_name}_oh_site_757"])
+
+        result = described_class.log_events(user:, event_names: [event_name], event_facility_ids:)
+
+        expect(result).to include("#{event_name}_oh_site_757")
+      end
     end
   end
 
@@ -292,7 +213,6 @@ RSpec.describe UniqueUserEvents do
       result = described_class.event_logged?(user:, event_name:)
 
       expect(result).to be(false)
-      expect(UniqueUserEvents::Service).to have_received(:event_logged?).with(user:, event_name:)
     end
   end
 end

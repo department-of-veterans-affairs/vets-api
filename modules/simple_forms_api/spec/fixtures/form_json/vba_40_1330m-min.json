@@ -1,0 +1,47 @@
+{
+  "form_number": "40-1330M",
+  "request_type": "INITIAL REQUEST (First Time)",
+  "replacement_reason": "",
+  "remains_location": "CEMETERY (where remains are buried)",
+  "grave_marked": "YES",
+  "medallion_size": "SMALL (M1)",
+  "veteran_full_name": {
+    "first": "J",
+    "last": "S"
+  },
+  "veteran_date_of_birth": "1945-03-15",
+  "veteran_date_of_death": "2020-08-22",
+  "veteran_place_of_birth": "City, ST",
+  "veteran_sex": "MALE",
+  "military_service_completed": "YES",
+  "veteran_race": {
+    "is_white": true
+  },
+  "veteran_id": {
+    "ssn": "123456789"
+  },
+  "applicant_full_name": {
+    "first": "A",
+    "last": "B"
+  },
+  "applicant_address": {
+    "country": "USA",
+    "street": "123 St",
+    "city": "City",
+    "state": "OR",
+    "postal_code": "97201"
+  },
+  "applicant_phone": "5035551234",
+  "applicant_email": "a@b.com",
+  "applicant_type": "Family Member",
+  "applicant_relationship_to_veteran": "Spouse",
+  "veteran_service_periods": [
+    {
+      "branch": "Army",
+      "date_entered": "1965-06-15",
+      "date_separated": "1969-08-22"
+    }
+  ],
+  "statement_of_truth_signature": "A B",
+  "statement_of_truth_certified": true
+}

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vre/notification_email'
 
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#perform' do
@@ -288,6 +289,114 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
                                                                  time_to_transition: nil))
 
       BenefitsIntakeStatusJob.new.send(:log_result, 'RESULT', 'FORM_ID', 'UUID')
+    end
+  end
+
+  describe '#monitor_failure' do
+    let(:benefits_intake_uuid) { SecureRandom.uuid }
+
+    context 'when form is VRE 28-1900' do
+      let(:form_id) { '28-1900' }
+      let(:claim) { create(:veteran_readiness_employment_claim) }
+
+      context 'when claim and email are present' do
+        it 'sends error email via VRE::NotificationEmail and logs silent failure avoided' do
+          expect_any_instance_of(VRE::NotificationEmail).to receive(:deliver).with(:error)
+
+          monitor = instance_double(VRE::VREMonitor)
+          allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
+          expect(monitor).to receive(:log_silent_failure_avoided)
+
+          BenefitsIntakeStatusJob.new.send(:monitor_failure, form_id, claim.id, benefits_intake_uuid)
+        end
+      end
+
+      context 'when claim is present but email is blank' do
+        let(:claim) do
+          create(:veteran_readiness_employment_claim).tap do |c|
+            form = JSON.parse(c.form)
+            form['email'] = ''
+            c.update(form: form.to_json)
+          end
+        end
+
+        it 'logs silent failure without sending email' do
+          monitor = instance_double(VRE::VREMonitor)
+          allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
+          expect(monitor).to receive(:log_silent_failure)
+
+          BenefitsIntakeStatusJob.new.send(:monitor_failure, form_id, claim.id, benefits_intake_uuid)
+        end
+      end
+    end
+
+    context 'when form is PCPG 28-8832' do
+      let(:form_id) { '28-8832' }
+      let(:claim) { create(:education_career_counseling_claim) }
+
+      context 'when claim and email are present' do
+        it 'sends failure email via VANotify and logs silent failure no confirmation' do
+          expect(VANotify::EmailJob).to receive(:perform_async)
+
+          monitor = instance_double(PCPG::Monitor)
+          allow(PCPG::Monitor).to receive(:new).and_return(monitor)
+          expect(monitor).to receive(:log_silent_failure_no_confirmation)
+
+          BenefitsIntakeStatusJob.new.send(:monitor_failure, form_id, claim.id, benefits_intake_uuid)
+        end
+      end
+
+      context 'when email is missing' do
+        let(:claim) do
+          create(:education_career_counseling_claim).tap do |c|
+            form = JSON.parse(c.form)
+            form['claimantInformation']['emailAddress'] = nil
+            c.update(form: form.to_json)
+          end
+        end
+
+        it 'logs silent failure without sending email' do
+          monitor = instance_double(PCPG::Monitor)
+          allow(PCPG::Monitor).to receive(:new).and_return(monitor)
+          expect(monitor).to receive(:log_silent_failure)
+
+          BenefitsIntakeStatusJob.new.send(:monitor_failure, form_id, claim.id, benefits_intake_uuid)
+        end
+      end
+    end
+
+    context 'when form is Dependents 686C-674' do
+      let(:form_id) { '686C-674' }
+      let(:claim) { create(:dependency_claim) }
+
+      context 'when claim and email are present' do
+        it 'sends failure email via Sidekiq job and logs silent failure no confirmation' do
+          expect(Dependents::Form686c674FailureEmailJob).to receive(:perform_async)
+
+          # The monitor method is called on the claim, so we need to stub it before the method runs
+          allow_any_instance_of(Dependents::Monitor).to receive(:log_silent_failure_no_confirmation)
+
+          BenefitsIntakeStatusJob.new.send(:monitor_failure, form_id, claim.id, benefits_intake_uuid)
+        end
+      end
+
+      context 'when email is missing' do
+        let(:claim) { create(:dependency_claim) }
+
+        before do
+          form = JSON.parse(claim.form)
+          form['dependents_application']['veteran_contact_information']['email_address'] = nil
+          claim.update(form: form.to_json)
+        end
+
+        it 'logs silent failure without sending email' do
+          monitor = instance_double(Dependents::Monitor)
+          allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+          expect(monitor).to receive(:log_silent_failure)
+
+          BenefitsIntakeStatusJob.new.send(:monitor_failure, form_id, claim.id, benefits_intake_uuid)
+        end
+      end
     end
   end
 

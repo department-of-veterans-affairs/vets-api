@@ -9,6 +9,8 @@ RSpec.describe BGS::Service do
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
   let(:first_name) { 'abraham.lincoln@vets.gov' }
+  let(:mock_services) { instance_double(BGS::Services) }
+  let(:mock_claims_service) { double('benefit_claims') }
 
   describe '#find_rating_data' do
     let(:user_object) { build(:ch33_dd_user) }
@@ -182,6 +184,26 @@ RSpec.describe BGS::Service do
           }
         )
       end
+    end
+  end
+
+  describe '#find_active_benefit_claim_type_increments' do
+    it 'returns an array of active benefit claim type increments' do
+      allow(BGS::Services).to receive(:new).and_return(mock_services)
+      allow(mock_services).to receive(:benefit_claims).and_return(mock_claims_service)
+      allow(mock_claims_service).to receive(:find_claims_details_by_participant_id).and_return(
+        { bnft_claim_detail: [
+          { status_type_cd: 'PEND', cp_claim_end_prdct_type_cd: '130' },
+          { status_type_cd: 'PEND', cp_claim_end_prdct_type_cd: '131' },
+          { status_type_cd: 'CAN', cp_claim_end_prdct_type_cd: '134' },
+          { status_type_cd: 'CLR', cp_claim_end_prdct_type_cd: '136' }
+        ] }
+      )
+
+      response = bgs_service.find_active_benefit_claim_type_increments
+
+      expect(response).to be_an_instance_of(Array)
+      expect(response).to include('130', '131')
     end
   end
 end

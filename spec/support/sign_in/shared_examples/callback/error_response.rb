@@ -5,7 +5,7 @@ RSpec.shared_examples 'callback_error_response' do
   let(:expected_error_status) { :bad_request }
   let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
   let(:expected_statsd_tags) do
-    ["type:#{type || ''}", "client_id:#{client_id || ''}", "acr:#{acr || ''}"]
+    ["type:#{type || ''}", "client_id:#{client_id || ''}", "acr:#{acr || ''}", "operation:#{operation || ''}"]
   end
 
   context 'and client_id maps to a web based configuration' do
@@ -13,7 +13,7 @@ RSpec.shared_examples 'callback_error_response' do
     let(:expected_error_status) { :ok }
     let(:auth_param) { 'fail' }
     let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
-    let(:expected_error_message) { { errors: expected_error, client_id:, type:, acr: } }
+    let(:expected_error_message) { { errors: expected_error, client_id:, type:, acr:, operation: } }
     let(:request_id) { SecureRandom.uuid }
     let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 

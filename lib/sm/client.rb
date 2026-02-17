@@ -31,11 +31,7 @@ module SM
     client_session SM::ClientSession
 
     MHV_MAXIMUM_PER_PAGE = 250
-    STATSD_KEY_PREFIX = if instance_of? SM::Client
-                          'api.sm'
-                        else
-                          'mobile.sm'
-                        end
+    STATSD_KEY_PREFIX = 'mhv.sm.api.client'
 
     def current_user
       @current_user ||= User.find(session.user_uuid)
@@ -66,11 +62,11 @@ module SM
 
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
-        statsd_cache_hit
+        track_metric('cache.hit')
         Vets::Collection.new(data, model)
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
-        statsd_cache_miss
+        track_metric('cache.miss')
         yield
       end
     end
@@ -117,13 +113,36 @@ module SM
     ##
     # Report stats of secure messaging events
     #
+    #
 
-    def statsd_cache_hit
-      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.hit")
+    ##
+    #
+    # @param key [String] the metric key (will be prefixed with STATSD_KEY_PREFIX)
+    # @param additional_tags [Hash] optional tags as key-value pairs (e.g., ehr_source: 'vista')
+    #
+    def track_metric(key, is_oh: false, **additional_tags)
+      tags = ["platform:#{mobile_client? ? 'mobile' : 'web'}"]
+      tags << "ehr_source:#{is_oh ? 'oracle_health' : 'vista'}"
+      additional_tags.each { |k, v| tags << "#{k}:#{v}" }
+      StatsD.increment("#{STATSD_KEY_PREFIX}.#{key}", tags:)
     end
 
-    def statsd_cache_miss
-      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
+    ##
+    # Track a StatsD metric with status (success/failure) based on block execution
+    #
+    # @param key [String] the metric key (will be prefixed with STATSD_KEY_PREFIX)
+    # @param is_oh [Boolean] whether this is an Oracle Health request
+    # @param additional_tags [Hash] optional tags as key-value pairs
+    # @yield the operation to track
+    # @return the result of the block
+    #
+    def track_with_status(key, is_oh: false, **additional_tags)
+      result = yield
+      track_metric(key, is_oh:, status: 'success', **additional_tags)
+      result
+    rescue => e
+      track_metric(key, is_oh:, status: 'failure', **additional_tags)
+      raise e
     end
 
     # @!endgroup

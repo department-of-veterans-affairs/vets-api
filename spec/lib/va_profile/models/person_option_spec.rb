@@ -49,6 +49,41 @@ describe VAProfile::Models::PersonOption, type: :model do
     }
   end
 
+  describe 'validations' do
+    describe 'item_id validation' do
+      it 'is invalid without item_id' do
+        option = described_class.new(option_id: 5)
+        expect(option).not_to be_valid
+        expect(option.errors[:item_id]).to include("can't be blank")
+      end
+
+      it 'is invalid with non-positive item_id' do
+        option = described_class.new(item_id: 0, option_id: 5)
+        expect(option).not_to be_valid
+        expect(option.errors[:item_id]).to include('must be greater than 0')
+      end
+    end
+
+    describe 'option_id validation' do
+      it 'is invalid without option_id' do
+        option = described_class.new(item_id: 1)
+        expect(option).not_to be_valid
+        expect(option.errors[:option_id]).to include("can't be blank")
+      end
+
+      it 'is invalid with non-positive option_id' do
+        option = described_class.new(item_id: 1, option_id: -1)
+        expect(option).not_to be_valid
+        expect(option.errors[:option_id]).to include('must be greater than 0')
+      end
+    end
+
+    it 'is valid with positive item_id and option_id' do
+      option = described_class.new(item_id: 1, option_id: 5)
+      expect(option).to be_valid
+    end
+  end
+
   describe '#mark_for_deletion' do
     it 'sets effective_end_date to current time' do
       freeze_time = Time.parse('2025-12-02T12:00:00Z')

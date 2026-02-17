@@ -117,6 +117,7 @@ module SimpleFormsApi
 
       File.open(pdf_path, 'rb') do |pdf_file|
         attachment.file = pdf_file
+        validate_attachment!
         attachment.save!
       end
     rescue ActiveRecord::RecordInvalid => e
@@ -126,10 +127,19 @@ module SimpleFormsApi
         resolved_persistence_errors(e, preexisting_error_details)
       )
     rescue => e
-      raise if e.is_a?(PersistenceError)
+      raise if e.is_a?(PersistenceError) || e.is_a?(ValidationError)
 
       Rails.logger.error("Attachment persistence failed: #{e.message}")
       raise PersistenceError.new('File upload failed', default_persistence_errors)
+    end
+
+    def validate_attachment!
+      attacher = attachment.file_attacher
+      attacher.validate
+      return if attacher.errors.empty?
+
+      formatted = attacher.errors.map { |e| { title: 'File validation error', detail: e } }
+      raise ValidationError.new('File validation failed', formatted)
     end
 
     def resolved_persistence_errors(exception, preexisting_error_details)

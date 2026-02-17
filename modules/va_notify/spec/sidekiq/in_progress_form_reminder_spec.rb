@@ -10,6 +10,12 @@ describe VANotify::InProgressFormReminder, type: :worker do
     create(:in_progress_686c_form, user_account: create(:user_account))
   end
 
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:va_notify_v2_in_progress_form_reminder).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_in_progress_metadata).and_return(true)
+  end
+
   describe '#perform' do
     it 'skips sending reminder email if there is no first name' do
       veteran_double = double('VaNotify::Veteran')

@@ -94,9 +94,19 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
   end
 
   describe '#to_pdf' do
-    it 'does not fail' do
-      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(child_claim, nil).and_call_original
-      expect { child_claim.to_pdf }.not_to raise_error
+    it 'works with legacy string filename argument' do
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, 'custom_filename', {})
+      child_claim.to_pdf('custom_filename')
+    end
+
+    it 'works with keyword arguments and uses claim ID as filename' do
+      student_data = { name: 'Test Student' }
+
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, child_claim.id.to_s, hash_including(form_id: '21-674', student: student_data))
+
+      child_claim.to_pdf(form_id: '21-674', student: student_data)
     end
 
     context 'when veteran_information is missing' do
@@ -118,7 +128,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       end
 
       it 'builds the pdf correctly' do
-        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil).and_call_original
+        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil,
+                                                                                {}).and_call_original
         expect { student_claim.to_pdf }.not_to raise_error
       end
 
@@ -163,10 +174,36 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         expect(claim.form_matches_schema).to be false
         expect(monitor_double).to have_received(:track_error_event).with(
           'Dependents Benefits schema failed validation.',
-          'api.dependents_claim.schema_error',
+          action: 'schema_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
           form_id: claim.form_id,
           errors: [{ fragment: '#/veteran_information', message: 'is missing' }]
         ).at_least(:once)
+      end
+    end
+  end
+
+  describe '#form_schema' do
+    context 'when the schema file cannot be loaded' do
+      let(:monitor_double) { instance_double(DependentsBenefits::Monitor) }
+      let(:error_message) { 'No such file or directory' }
+      let(:form_id) { '21-686C' }
+
+      before do
+        allow(claim).to receive(:monitor).and_return(monitor_double)
+        allow(monitor_double).to receive(:track_error_event)
+        allow(File).to receive(:read).and_raise(Errno::ENOENT, error_message)
+      end
+
+      it 'returns nil and tracks the error' do
+        expect(claim.form_schema(form_id)).to be_nil
+        expect(monitor_double).to have_received(:track_error_event).with(
+          'Dependents Benefits form schema could not be loaded.',
+          action: 'schema_load_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
+          form_id:,
+          error: "No such file or directory - #{error_message}"
+        )
       end
     end
   end
@@ -268,12 +305,12 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       before do
         allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor_double)
         allow(claim).to receive(:submittable_686?).and_raise(StandardError.new('Unknown form type'))
-        allow(monitor_double).to receive(:track_unknown_claim_type)
+        allow(monitor_double).to receive(:track_warning_event)
       end
 
       it 'returns nil and tracks the unknown claim type' do
         expect(claim.claim_form_type).to be_nil
-        expect(monitor_double).to have_received(:track_unknown_claim_type)
+        expect(monitor_double).to have_received(:track_warning_event)
       end
     end
   end

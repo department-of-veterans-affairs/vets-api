@@ -83,6 +83,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
         expect(result.prescription_name).to eq('Test Medication')
+        expect(result.source_ehr).to eq('vista')
       end
 
       it 'maps cmopDivisionPhone to cmop_division_phone' do

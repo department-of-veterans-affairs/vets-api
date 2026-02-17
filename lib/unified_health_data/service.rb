@@ -6,6 +6,7 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
+require_relative 'adapters/imaging_study_adapter'
 require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
@@ -31,12 +32,29 @@ module UnifiedHealthData
         body = response.body
 
         combined_records = fetch_combined_records(body)
+
+        # Pre-warm facility cache to avoid N+1 API calls during parsing
+        # Each unique station number is fetched once and cached for 12 hours
+        prewarm_facility_cache(combined_records)
+
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
 
         # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
         parsed_records
+      end
+    end
+
+    def get_imaging_studies(start_date:, end_date:, imaging_study_type: 'ALL')
+      with_monitoring do
+        response = uhd_client.get_imaging_studies(
+          patient_id: @user.icn,
+          start_date:,
+          end_date:,
+          imaging_study_type:
+        )
+        imaging_study_adapter.parse(response.body)
       end
     end
 
@@ -102,6 +120,7 @@ module UnifiedHealthData
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         result = parse_refill_response(response)
         validate_refill_response_count(normalized_orders, result)
+        increment_refill(result[:success].size) if result[:success].present?
         result
       end
     rescue Common::Exceptions::BackendServiceException => e
@@ -113,6 +132,9 @@ module UnifiedHealthData
 
     def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
+        # Treat blank as "use default" so filtering still runs with a valid range
+        start_date = nil if start_date.blank?
+        end_date = nil if end_date.blank?
         # Validate user-provided dates BEFORE applying defaults
         validate_date_param(start_date, 'start_date') if start_date
         validate_date_param(end_date, 'end_date') if end_date
@@ -126,11 +148,15 @@ module UnifiedHealthData
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        doc_ref_records = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        parsed_notes = parse_notes(doc_ref_records)
 
-        parsed_notes = parse_notes(filtered)
+        # Filter by date range on parsed notes (single source of truth for what we return).
+        # SCDF may return notes outside the requested range; this ensures only in-range notes are returned.
+        parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
+        clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
 
         parsed_notes
       end
@@ -388,6 +414,30 @@ module UnifiedHealthData
     end
 
     # Care Summaries and Notes methods
+    # Keeps only parsed notes whose date falls within [start_date, end_date] (inclusive).
+    # Filtering on parsed notes (same objects we return) so the response is guaranteed correct.
+    def filter_parsed_notes_by_date_range(notes, start_date, end_date)
+      return notes if notes.blank?
+      return notes if start_date.blank? || end_date.blank?
+
+      start_d = DateTime.parse(start_date.to_s).to_date
+      end_d = DateTime.parse(end_date.to_s).to_date
+
+      notes.select do |note|
+        next false if note.blank? || note.date.blank?
+
+        note_date = DateTime.parse(note.date.to_s).to_date
+        note_date >= start_d && note_date <= end_d
+      rescue ArgumentError, TypeError
+        Rails.logger.warn(
+          'UnifiedHealthData::Service#filter_parsed_notes_by_date_range ' \
+          "excluding note due to invalid date. note_id=#{note&.id.inspect} " \
+          "note_date=#{note&.date.inspect}"
+        )
+        false
+      end
+    end
+
     def remap_vista_uid(records)
       records['vista']['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }
@@ -408,11 +458,26 @@ module UnifiedHealthData
     def parse_single_note(record)
       return nil if record.blank?
 
-      clinical_notes_adapter.parse(record)
+      clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
     end
 
     def log_loinc_codes_enabled?
       Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    end
+
+    def clinical_notes_logging_enabled?
+      Flipper.enabled?(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, @user)
+    end
+
+    def log_notes_response_count(total, returned)
+      Rails.logger.info(
+        "Clinical Notes response: total_doc_refs=#{total}, returned=#{returned}, filtered=#{total - returned}",
+        { service: 'unified_health_data' }
+      )
+    end
+
+    def increment_refill(count = 1)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count)
     end
 
     # Instantiate client, adapters, etc. once per service instance
@@ -429,12 +494,49 @@ module UnifiedHealthData
       @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
     end
 
+    # Pre-warms facility cache to avoid N+1 API calls during record parsing.
+    # Extracts unique station numbers and fetches each facility once.
+    def prewarm_facility_cache(records)
+      return if records.blank?
+
+      all_station_numbers = records.map { |r| lab_or_test_adapter.extract_station_number_from_record(r) }
+      station_numbers = all_station_numbers.compact.uniq
+
+      log_facility_cache_metrics(records.size, all_station_numbers, station_numbers)
+
+      facility_service = UnifiedHealthData::FacilityService.new
+      station_numbers.each { |sn| facility_service.get_facility_with_cache(sn) }
+    end
+
+    def log_facility_cache_metrics(total_records, all_station_numbers, station_numbers)
+      records_with_station = all_station_numbers.count(&:present?)
+
+      Rails.logger.info(
+        'UHD FacilityService: Pre-warming cache for facility timezones',
+        {
+          service: 'unified_health_data',
+          total_records:,
+          records_with_station_number: records_with_station,
+          records_without_station_number: total_records - records_with_station,
+          unique_station_numbers: station_numbers.size
+        }
+      )
+
+      StatsD.gauge('api.uhd.facility.station_number_coverage',
+                   (records_with_station.to_f / total_records * 100).round(1),
+                   tags: ['source:labs'])
+    end
+
     def clinical_notes_adapter
       @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
     end
 
     def conditions_adapter
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
+    end
+
+    def imaging_study_adapter
+      @imaging_study_adapter ||= UnifiedHealthData::Adapters::ImagingStudyAdapter.new
     end
 
     def vitals_adapter

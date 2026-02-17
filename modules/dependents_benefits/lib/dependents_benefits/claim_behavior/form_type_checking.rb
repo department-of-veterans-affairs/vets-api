@@ -62,8 +62,9 @@ module DependentsBenefits
 
         FORM674 if submittable_674?
       rescue => e
-        monitor.track_unknown_claim_type(
+        monitor.track_warning_event(
           'Unknown Dependents form type for claim',
+          action: 'unknown_type', component: 'SavedClaim',
           claim_id: id,
           error: e
         )

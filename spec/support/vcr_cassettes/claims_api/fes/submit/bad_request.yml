@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: <CLAIMS_API_BD_URL>/oauth2/benefits-documents/system/v1/token
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/oauth2/benefits-documents/system/v1/token"
     body:
       encoding: US-ASCII
-      string: grant_type=< vald data >
+      string: grant_type=valid
     headers:
       Accept:
       - application/json
@@ -21,21 +21,21 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 19 Aug 2025 17:54:15 GMT
+      - Thu, 15 Jan 2026 21:43:23 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
-      X-Ratelimit-Limit-Minute:
-      - '240'
-      Ratelimit-Reset:
-      - '45'
       X-Ratelimit-Remaining-Minute:
       - '239'
       Ratelimit-Limit:
       - '240'
       Ratelimit-Remaining:
       - '239'
+      Ratelimit-Reset:
+      - '37'
+      X-Ratelimit-Limit-Minute:
+      - '240'
       Vary:
       - Origin
       Cache-Control:
@@ -43,31 +43,30 @@ http_interactions:
       Pragma:
       - no-cache
       Etag:
-      - W/"408-AEKUWIidyyD+5AsRwK1xasBo7aE:dtagent10317250630095842XDWE"
+      - W/"420-VteZmkrrYNGhbaCw7tk7A5T3hNU:dtagent10323250822043923XVuO"
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="60099677"
+      - dtSInfo;desc="0", dtRpid;desc="-727713858"
       X-Envoy-Upstream-Service-Time:
-      - '346'
+      - '409'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 0625aa56-2142-4d4b-864b-17c3ebdbd255#446181
+      - a2b5103b-72ba-444b-9f53-fde2f7fbb41e#1616970
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"token","token_type":"Bearer","scope":"documents.write
-        documents.read","expires_in":600,"state":null}'
-  recorded_at: Tue, 19 Aug 2025 17:54:15 GMT
+      string: '{"access_token":"fake_token_here","token_type":"Bearer","scope":"system/Form526.read
+        system/Form526.write","expires_in":300,"state":null}'
+  recorded_at: Thu, 15 Jan 2026 21:43:24 GMT
 - request:
     method: post
     uri: "<FES_BASE_URL>/form526-establishment-service/v1/submit"
     body:
       encoding: UTF-8
-      string: '{"form526":{"veteran":{"firstName":"John","lastName":"Doe"},"disabilities":[{"name":"Hearing
-        Loss"}]}}'
+      string: '{"form526":{"disabilities":[{"name":"Hearing Loss"}]}}'
     headers:
       Va-Eauth-Pid:
       - '600043201'
@@ -86,7 +85,7 @@ http_interactions:
       message: Bad Request
     headers:
       Date:
-      - Tue, 19 Aug 2025 17:54:15 GMT
+      - Thu, 15 Jan 2026 21:43:23 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -94,18 +93,18 @@ http_interactions:
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-396928734", dtSInfo;desc="0"
+      - dtRpid;desc="1019705069", dtSInfo;desc="0"
       Pragma:
       - no-cache
       Cache-Control:
       - no-cache, no-store
       X-Envoy-Upstream-Service-Time:
-      - '65'
+      - '61'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: '{"errors":[{"detail":"Http Message Not Readable (Unrecognized Property)","status":400,"title":"Bad
-        Request","instance":"27df98fa-1fc7-40dc-9e58-0e71904e5672","diagnostics":"UGu2xW7Ik3qukXT9PJwXilCIrlfL0sVfE9X03z2zqxKdtF5/gmXeD3d4+dLcRxpGlmws9ermCmU9wc6eUAHQxEHrhwbeUImE6dzBMRwIpZYyYNNTYvpBYQu5qG7vsaOMBwFbycLxtwGpaRcHgsjEY9T3fVwlLIV9k2I+Woh1SvM2w0QLnGXYRxXa+lqUV5BCIufefWdb0urJPHggiDIQBIX+g7GVRB2NwrZnG4fAIxLPXYYZ3M9t0qJMij59eUaSFvfmW0tdZnGs7ATI407IvL06kIvGypyyPVpSTt8u2+0MVXI6O46MRH4wDzG/cMb6vYrGfrN6yGwDgXRxuUGGRVBPhzWqdJN6L0rHNA23i25+xMVueLrMEJNa3fU06rlIy30qrycIR8VmP5T4kl56gh79ch5flfPMz9G85H/qI+LWgjobDTsexhD6PRucPmJE4btiemFkSC69+BHoSt/WG28sUdNjYJ6i6H654p3szlO6AXL6lpeqb3N/mp9dcF3/AuQpst7aQwkP7hs82Yk51/BbolDu8i6XEzK5MOOw6MawdI47JoglU9Nf0I5Uh/m8FRDyNmpdLr2SNoh1rJGITf/Q2gaxdx8k2nWXWDFIc7uhqwQHJU6lDBurMQu4CZ+5ODU/O+LfCuboxzf/k15CSD1hBmn/1Av/bu6RRdAUTvYE9iFT2pQWPyAmM7f1IdZO/Y03G+ywpQ8ZYZzoBsPBWhec2GzUegFvT54Oj8R1Wknqoa3+8xyNj8Jl5Pk0yJzN+wJwlGTJUjrC1vdNmUOzeYHBT/D3O7VOk1Et0MbRbdgsL9gl3UBY8zMU8/8OtaiBCRM0Egi3QYk6o4hkjtg4NWVppvSqmBBRQsXhGcmpH+bLGJ+88IT5+wqVGchE13rOJAu34sMb92+DTYpjDeQ0408gQqTJ+f39kxsJg8hL/eR8W0CcoJ1/+rBHQGoNkTtD4mx2dvDxe4oITiTx6ULYt1zHzVgNWXwhsNO2LA7I4NVhD4TZA4ZORTpfecBnaNuWRmmwPBevj5QVeoBdW2opDlKCdHj0jgVmAbGIEO+EgdS2DlR/+9tySC4xdjd3BhiL9uMJ3GJA/6KwGNMYCsCP3QJlMXK3zadkaOl6i/Hlloh3V+8yWADsYKrBhR7DcSosA3XdYi+6qq4rIAsGm7ydUwm/bimjSS+oHEqalLu6rm2ZvhOPFMY="}]}'
-  recorded_at: Tue, 19 Aug 2025 17:54:15 GMT
-recorded_with: VCR 6.3.1
+        Request","instance":"8f9b2bc5-3d1f-4858-af64-97c9addbe709","diagnostics":"JgCo4ZYNy3KgqM8eybRya6zN6JTl9y64w6nLxHvsi0wvhYnPse33dMtSIlbejq1aarvu29mT0TM+92Z7dRikXLMJ7pOCWL9eCC5z80zEuhbMdrsVAREjw4Rxk+L4RnUb1FkFhPMQicVaRU7PLg7YDq3KCmE8+xJ8eFaB/1nWgNPpgAPJPKcpVrmqMI1f1/CamoKSHEasQxLj7rSIrMCamP+6hVgEk/warKrOD0FANqqhdNibknboMIe5AiThkQcSBjSCwJcVsgkb2lMqmpZW0iIDILcRcKopHz30mD6BdhK/wqiU3RVCtKdH3cGRiHst5tRP12H1nPHTHNXP02Nefg5c7liEtZsCxvUz8q1Hr5by6tEHUiifLtULttZOSiwX7OZ8NA9wN7o/1PCGh0l4Ft33kDH/jh9eJFo8qbkmrn6M0ZflYW85Sv+SFUOkbTxkZFKgFPhvMYr7imCaK5jcx9bw4IbpqcGL8ySRotpPJlGUfk8/u5HJPgL/DwnjBaU4/UG8ow/jU0OBb7G9eMtOLVQI/+UWwPLbBD7fAmPnvHXH23AD/YYS2T1//aUVHt+08xsDEAD0OgXLkktkHxNexafal4wspGbJ8NfsgmEN6Maj7e0S0aUhXysLM7gyrvcZiNeoOCOE4oVYbbaCS7A2BakzIt2wsVLoBsLJ5d4FJqFCLkc4lULJf81m2RdsWtDsx+efKuam/hW4RHmiTzqZfVWr9H/BCyzQFUDtjutWfGUOmjC7a9UDk5oG06B8/vEA9pm1FrXMB9GYKvRzB6DRLtr9943/e1KoFR7lTzX8itURiSn8zc0QlE8ravFMaeH5KVelKrhfFRizPIpz2ScKLyeNrox2Ln7abFTv83kCNKvHSOHV3XlGHRBamb8pSrxPiP2l/2Dpb4utNStKXUVi4Bvq5p+UAauGfsCM6l4JgF9+o9COQXKp3w2BDaj0pN3ufzB25quY6xiLXTK0NS1oXLqvCm8fL/oryHkG9MmfKZjN8KB3eGFzEZ04Rsa/FagGBuJ3cSJ7GwO3a/hsHhExWmBfXLnPBmV68HoRXY0CufdIn3qX3VKA4t6hc2pHHTTUcno7TbM7o7SPcm+mK8fJf9QV2uFvrzcJ/9fjHNcHlqswK5yz+YGnX1Trp/0CUk9TzJQJZImnaI3hBW4h7YCb9CzCH8Ub7daxvC/GyawWUkJmGkR1QEU="}]}'
+  recorded_at: Thu, 15 Jan 2026 21:43:24 GMT
+recorded_with: VCR 6.4.0
