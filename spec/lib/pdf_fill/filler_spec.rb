@@ -416,7 +416,7 @@ describe PdfFill::Filler, type: :model do
       it 'logs warning message' do
         expect(Rails.logger).to receive(:warn).with(
           'Failed to extract fields from PDF template',
-          template_path: template_path,
+          template_path:,
           error: 'Error: file not found'
         )
 
