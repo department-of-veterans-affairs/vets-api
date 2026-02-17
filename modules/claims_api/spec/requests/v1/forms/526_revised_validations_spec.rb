@@ -677,7 +677,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
-    
+
     context 'when anticipatedSeparationDate is exactly 180 days from claimDate' do
       let(:claim_date) { Time.zone.today.iso8601 }
       let(:anticipated_separation_date) { 180.days.from_now.to_date.iso8601 }
