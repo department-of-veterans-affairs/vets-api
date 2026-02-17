@@ -121,14 +121,12 @@ module DebtsApi
 
         user_pii = {
           first_name: EncryptionService.encrypt(user.first_name),
-          email: => EncryptionService.encrypt(user.email)
+          email: EncryptionService.encrypt(user.email)
         }
 
-        # cache_key = Sidekiq::AttrPackage.create(email: user.email, first_name: user.first_name)
         DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_async(
           {
             'submission_type' => 'digital_dispute',
-            # 'cache_key' => cache_key,
             'user_uuid' => user.uuid,
             'user_pii' => user_pii,
             'template_id' => CONFIRMATION_TEMPLATE
