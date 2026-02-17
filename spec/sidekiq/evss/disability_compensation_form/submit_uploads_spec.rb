@@ -220,7 +220,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         context 'when the SupportingEvidenceAttachment returns a converted_filename' do
           before do
             attachment.update!(file_data: JSON.parse(attachment.file_data)
-                      .merge('converted_filename' => 'converted_filename.pdf').to_json)
+                                          .merge('converted_filename' => 'converted_filename.pdf').to_json)
           end
 
           let(:expected_lighthouse_document_with_converted_file_name) do

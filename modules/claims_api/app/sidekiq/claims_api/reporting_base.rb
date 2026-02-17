@@ -59,7 +59,7 @@ module ClaimsApi
             consumer_name => counts.merge(totals:,
                                           percentage_with_flashes: percentage_with_flashes.to_s,
                                           percentage_with_special_issues: percentage_with_special_issues.to_s)
-                                   .deep_symbolize_keys
+                             .deep_symbolize_keys
           }
         end
       end
@@ -75,7 +75,7 @@ module ClaimsApi
           consumer_name = ClaimsApi::CidMapper.new(cid:).name
           {
             consumer_name => counts.merge(totals:)
-                                   .deep_symbolize_keys
+                             .deep_symbolize_keys
           }
         end
       end
@@ -104,7 +104,7 @@ module ClaimsApi
           consumer_name = ClaimsApi::CidMapper.new(cid:).name
           {
             consumer_name => counts.merge(totals:)
-                                   .deep_symbolize_keys
+                             .deep_symbolize_keys
           }
         end
       end
@@ -120,7 +120,7 @@ module ClaimsApi
           consumer_name = ClaimsApi::CidMapper.new(cid:).name
           {
             consumer_name => counts.merge(totals:)
-                                   .deep_symbolize_keys
+                             .deep_symbolize_keys
           }
         end
       end

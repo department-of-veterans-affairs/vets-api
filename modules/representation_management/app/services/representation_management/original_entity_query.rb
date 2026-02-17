@@ -43,7 +43,7 @@ module RepresentationManagement
     #   organizations that have a name similar to the query string, using the Levenshtein distance
     #   for sorting results.
     def sql_query_to_select_and_sort_original_entities
-      <<-SQL.squish
+      <<~SQL.squish
         WITH combined AS (
           SELECT
             representative_id AS id,

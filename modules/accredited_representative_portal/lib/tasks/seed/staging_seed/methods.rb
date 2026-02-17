@@ -92,12 +92,12 @@ module AccreditedRepresentativePortal
         {
           ct: Veteran::Service::Organization.find_by(poa: '008'),
           digital: Veteran::Service::Organization
-            .where(can_accept_digital_poa_requests: true)
-            .where.not(poa: '008')
-            .limit(2),
+                   .where(can_accept_digital_poa_requests: true)
+                   .where.not(poa: '008')
+                   .limit(2),
           non_digital: Veteran::Service::Organization
-            .where(can_accept_digital_poa_requests: false)
-            .limit(2)
+                       .where(can_accept_digital_poa_requests: false)
+                       .limit(2)
         }
       end
 

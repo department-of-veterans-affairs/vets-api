@@ -3384,9 +3384,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
       { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                     .split('/')).to_s),
+                                                                   .split('/')).to_s),
         attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                     .split('/')).to_s) }
+                                                                   .split('/')).to_s) }
     end
 
     let(:base64_params) do

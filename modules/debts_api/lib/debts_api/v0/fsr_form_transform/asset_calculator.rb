@@ -67,9 +67,9 @@ module DebtsApi
                          sum_values(@assets['monetary_assets'], 'amount')
                        else
                          @assets.values.select { |item| item.is_a?(Array) }
-                                .flatten
-                                .map { |value| value.to_s.gsub(/[^0-9.-]/, '').to_f }
-                                .sum
+                                       .flatten
+                                       .map { |value| value.to_s.gsub(/[^0-9.-]/, '').to_f }
+                                       .sum
                        end
 
           tot_vehicles + tot_rec_vehicles + tot_other_assets + real_estate + tot_assets

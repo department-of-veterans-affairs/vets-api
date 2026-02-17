@@ -7,7 +7,7 @@ module V0
 
     def get_data
       render json: benefits_reference_data_service
-        .get_data(path: params[:path], params: request.query_parameters).body
+                   .get_data(path: params[:path], params: request.query_parameters).body
     end
 
     private

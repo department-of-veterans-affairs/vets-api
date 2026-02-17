@@ -64,7 +64,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         requirements = {
           email_address:,
           template_id: Settings.vanotify
-                               .services
+                       .services
                                .va_gov
                                .template_id
                                .form526_confirmation_email,

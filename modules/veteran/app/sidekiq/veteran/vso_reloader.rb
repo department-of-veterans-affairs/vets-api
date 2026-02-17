@@ -264,7 +264,7 @@ module Veteran
         attorneys: Veteran::Service::Representative.where("'#{USER_TYPE_ATTORNEY}' = ANY(user_types)").count,
         claims_agents: Veteran::Service::Representative.where("'#{USER_TYPE_CLAIM_AGENT}' = ANY(user_types)").count,
         vso_representatives: Veteran::Service::Representative
-          .where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
+                             .where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
         vso_organizations: Veteran::Service::Organization.count
       }
     end

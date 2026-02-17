@@ -267,7 +267,7 @@ module RepresentationManagement
         attorneys: AccreditedIndividual.where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_ATTORNEY).count,
         claims_agents: AccreditedIndividual.where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_CLAIM_AGENT).count,
         vso_representatives: AccreditedIndividual
-          .where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE).count,
+                             .where(individual_type: AccreditedIndividual::INDIVIDUAL_TYPE_VSO_REPRESENTATIVE).count,
         vso_organizations: AccreditedOrganization.count
       }
     end

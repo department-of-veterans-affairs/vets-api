@@ -105,7 +105,7 @@ class FeatureTogglesService
   #
   # @return [Array<Hash>] - Database results with feature gates
   def feature_gates
-    ActiveRecord::Base.connection.select_all(<<-SQL.squish)
+    ActiveRecord::Base.connection.select_all(<<~SQL.squish)
       SELECT flipper_features.key AS feature_name, flipper_gates.key AS gate_key, flipper_gates.value
       FROM flipper_features
       LEFT JOIN flipper_gates ON flipper_features.key = flipper_gates.feature_key

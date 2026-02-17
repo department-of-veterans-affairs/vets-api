@@ -8,8 +8,8 @@ shared_examples 'rated disabilities provider' do
     described_class.new(
       {
         auth_headers: EVSS::DisabilityCompensationAuthHeaders
-                        .new(current_user)
-                        .add_headers(EVSS::AuthHeaders.new(current_user).to_h),
+                      .new(current_user)
+                      .add_headers(EVSS::AuthHeaders.new(current_user).to_h),
         icn: ''
       }
     )
