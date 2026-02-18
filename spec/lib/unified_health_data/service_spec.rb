@@ -1072,33 +1072,84 @@ describe UnifiedHealthData::Service, type: :service do
       )
     end
 
-    before do
-      allow_any_instance_of(UnifiedHealthData::Client)
-        .to receive(:get_notes_by_date)
-        .and_return(sample_client_response)
+    context 'when source is not provided (Vista fallback)' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+      end
+
+      it 'fetches all notes and returns the matching Vista note' do
+        note = service.get_single_summary_or_note('F253-7227761-1834074')
+        expect(note).to have_attributes(
+          {
+            'id' => 'F253-7227761-1834074',
+            'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
+            'loinc_codes' => ['11506-3'],
+            'note_type' => 'physician_procedure_note',
+            'date' => '2025-01-14T09:18:00.000+00:00',
+            'date_signed' => '2025-01-14T09:29:26+00:00',
+            'written_by' => 'MARCI P MCGUIRE',
+            'signed_by' => 'MARCI P MCGUIRE',
+            'admission_date' => nil,
+            'discharge_date' => nil,
+            'location' => 'CHYSHR TEST LAB',
+            'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i,
+            'source' => 'vista'
+          }
+        )
+      end
+
+      it 'returns nil when note is not found' do
+        note = service.get_single_summary_or_note('nonexistent-id')
+        expect(note).to be_nil
+      end
     end
 
-    context 'happy path' do
-      context 'when data exists for both VistA + OH' do
-        it 'returns care summaries and notes' do
-          note = service.get_single_summary_or_note('F253-7227761-1834074')
-          expect(note).to have_attributes(
-            {
-              'id' => 'F253-7227761-1834074',
-              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-              'loinc_codes' => ['11506-3'],
-              'note_type' => 'physician_procedure_note',
-              'date' => '2025-01-14T09:18:00.000+00:00',
-              'date_signed' => '2025-01-14T09:29:26+00:00',
-              'written_by' => 'MARCI P MCGUIRE',
-              'signed_by' => 'MARCI P MCGUIRE',
-              'admission_date' => nil,
-              'discharge_date' => nil,
-              'location' => 'CHYSHR TEST LAB',
-              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
-            }
-          )
-        end
+    context 'when source is oracle-health' do
+      let(:oh_note_response_body) do
+        notes_sample_response['oracle-health']['entry'][1]
+      end
+
+      let(:oh_client_response) do
+        Faraday::Response.new(body: oh_note_response_body)
+      end
+
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(oh_client_response)
+      end
+
+      it 'calls the source-specific endpoint and returns the note' do
+        note = service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+        expect(note).not_to be_nil
+        expect(note.source).to eq('oracle-health')
+      end
+
+      it 'calls get_note_by_source with the correct params' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .with(patient_id: user.icn, source: 'oracle-health', record_id: '15249697279')
+          .and_return(oh_client_response)
+
+        service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+      end
+
+      it 'does not call get_notes_by_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .not_to receive(:get_notes_by_date)
+
+        service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+      end
+
+      it 'returns nil when the response body is blank' do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(Faraday::Response.new(body: nil))
+
+        note = service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+        expect(note).to be_nil
       end
     end
 

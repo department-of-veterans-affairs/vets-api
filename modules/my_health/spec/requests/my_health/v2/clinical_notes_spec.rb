@@ -64,6 +64,11 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           'note',
           'source'
         )
+        valid_sources = [UnifiedHealthData::SourceConstants::VISTA,
+                         UnifiedHealthData::SourceConstants::ORACLE_HEALTH]
+        json_response['data'].each do |note|
+          expect(valid_sources).to include(note['attributes']['source'])
+        end
 
         # Verify event logging was called
         expect(UniqueUserEvents).to have_received(:log_events).with(
@@ -179,6 +184,39 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           'location',
           'note'
         )
+      end
+
+      it 'passes source param to the service when provided' do
+        expect_any_instance_of(UnifiedHealthData::Service)
+          .to receive(:get_single_summary_or_note)
+          .with('15249697279', source: 'oracle-health')
+          .and_return(UnifiedHealthData::ClinicalNotes.new(
+                        id: '15249697279', name: 'Test Note', note_type: 'discharge_summary',
+                        source: 'oracle-health'
+                      ))
+
+        get '/my_health/v2/medical_records/clinical_notes/15249697279',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: 'oracle-health' }
+
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']['attributes']['source']).to eq('oracle-health')
+      end
+
+      it 'calls service without source when source param is not provided' do
+        expect_any_instance_of(UnifiedHealthData::Service)
+          .to receive(:get_single_summary_or_note)
+          .with('15249697279', source: nil)
+          .and_return(UnifiedHealthData::ClinicalNotes.new(
+                        id: '15249697279', name: 'Test Note', note_type: 'physician_procedure_note',
+                        source: 'vista'
+                      ))
+
+        get '/my_health/v2/medical_records/clinical_notes/15249697279',
+            headers: { 'X-Key-Inflection' => 'camel' }
+
+        expect(response).to be_successful
       end
 
       # TODO: Probably this should return a 404? Maybe?
