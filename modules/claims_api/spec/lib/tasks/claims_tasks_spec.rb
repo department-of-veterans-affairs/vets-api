@@ -2,18 +2,21 @@
 
 require 'rails_helper'
 require 'rake'
+
 describe 'rake claims', type: :task do
-  describe 'rake claims:export', type: :task do
+  let(:tasks) { Rake::Task }
+
+  before do
+    Rake::Task.clear if Rake::Task.task_defined?('claims:export')
+    Rake::Task.clear if Rake::Task.task_defined?('claims:fix_failed_claims')
+    load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
+    Rake::Task.define_task(:environment)
+  end
+
+  describe 'claims:export' do
     subject(:task) { tasks[task_name] }
 
     let(:task_name) { 'claims:export' }
-    let(:tasks) { Rake::Task }
-
-    before do
-      Rake::Task.clear if Rake::Task.task_defined?('claims:export')
-      load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
-      Rake::Task.define_task(:environment)
-    end
 
     it 'preloads the Rails environment' do
       expect(task.prerequisites).to include 'environment'
@@ -42,17 +45,10 @@ describe 'rake claims', type: :task do
     end
   end
 
-  describe 'rake claims:fix_failed_claims', type: :task do
+  describe 'claims:fix_failed_claims' do
     subject(:task) { tasks[task_name] }
 
     let(:task_name) { 'claims:fix_failed_claims' }
-    let(:tasks) { Rake::Task }
-
-    before do
-      Rake::Task.clear if Rake::Task.task_defined?('claims:fix_failed_claims')
-      load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
-      Rake::Task.define_task(:environment)
-    end
 
     after do
       task.reenable
