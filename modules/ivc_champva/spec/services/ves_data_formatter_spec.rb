@@ -556,4 +556,228 @@ describe IvcChampva::VesDataFormatter do
       end
     end
   end
+
+  describe 'OHI subform attachment' do
+    let(:extended_form_data) do
+      # Load fixture and patch with valid data for VES validation
+      data = JSON.parse(File.read('modules/ivc_champva/spec/fixtures/form_json/vha_10_10d_extended.json'))
+      data['veteran']['ssn_or_tin'] = '123456789'
+      data['veteran']['address'] = {
+        'street_combined' => '123 Main St',
+        'city' => 'Anytown',
+        'state' => 'VA',
+        'postal_code' => '12345'
+      }
+      data
+    end
+
+    describe '.format_for_request' do
+      it 'returns a VesRequest without subforms' do
+        regular_form = extended_form_data.merge('form_number' => '10-10D')
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(regular_form)
+
+        expect(ves_request).to be_a(IvcChampva::VesRequest)
+        expect(ves_request.subforms?).to be false
+      end
+    end
+
+    describe '.format_for_extended_request' do
+      it 'attaches OHI subforms for applicants with health insurance data' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(extended_form_data)
+
+        expect(ves_request.subforms?).to be true
+        expect(ves_request.subforms.length).to eq(1)
+        expect(ves_request.subforms.first[:form_type]).to eq('vha_10_7959c')
+      end
+
+      it 'propagates application_uuid to subforms' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(extended_form_data)
+        ohi_request = ves_request.subforms.first[:request]
+
+        expect(ohi_request.application_uuid).to eq(ves_request.application_uuid)
+      end
+
+      it 'propagates person_uuid from matching beneficiary by SSN and name' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(extended_form_data)
+        ohi_request = ves_request.subforms.first[:request]
+        first_beneficiary = ves_request.beneficiaries.first
+
+        expect(ohi_request.person_uuid).to eq(first_beneficiary.person_uuid)
+        expect(ohi_request.beneficiary.person_uuid).to eq(first_beneficiary.person_uuid)
+      end
+    end
+
+    describe '.applicant_has_ohi_data?' do
+      it 'returns true when applicant has health_insurance' do
+        applicant = { 'health_insurance' => [{ 'provider' => 'Aetna' }] }
+        expect(IvcChampva::VesDataFormatter.applicant_has_ohi_data?(applicant)).to be true
+      end
+
+      it 'returns true when applicant has medicare' do
+        applicant = { 'medicare' => [{ 'medicare_plan_type' => 'ab' }] }
+        expect(IvcChampva::VesDataFormatter.applicant_has_ohi_data?(applicant)).to be true
+      end
+
+      it 'returns false when applicant has neither' do
+        applicant = { 'applicant_name' => { 'first' => 'John' } }
+        expect(IvcChampva::VesDataFormatter.applicant_has_ohi_data?(applicant)).to be false
+      end
+
+      it 'returns false when arrays are empty' do
+        applicant = { 'health_insurance' => [], 'medicare' => [] }
+        expect(IvcChampva::VesDataFormatter.applicant_has_ohi_data?(applicant)).to be false
+      end
+    end
+
+    describe '.format_for_ohi_request' do
+      it 'returns an array of VesOhiRequests' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
+        expect(ohi_requests).to be_an(Array)
+        expect(ohi_requests.first).to be_a(IvcChampva::VesOhiRequest)
+      end
+
+      it 'only builds requests for applicants with OHI data' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
+        expect(ohi_requests.length).to eq(1)
+      end
+
+      it 'generates fresh UUIDs for standalone submissions' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
+        expect(ohi_requests.first.application_uuid).to match(/\A[0-9a-f-]{36}\z/)
+        expect(ohi_requests.first.person_uuid).to match(/\A[0-9a-f-]{36}\z/)
+      end
+    end
+
+    describe '.find_matching_beneficiary' do
+      let(:ves_request) { IvcChampva::VesDataFormatter.format_for_request(extended_form_data.merge('form_number' => '10-10D')) }
+
+      it 'finds beneficiary by SSN and name' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
+        ohi_beneficiary = ohi_requests.first.beneficiary
+
+        match = IvcChampva::VesDataFormatter.find_matching_beneficiary(ves_request.beneficiaries, ohi_beneficiary)
+
+        expect(match).not_to be_nil
+        expect(match.ssn).to eq(ohi_beneficiary.ssn)
+      end
+
+      it 'returns nil when no match found' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
+        ohi_beneficiary = ohi_requests.first.beneficiary
+        ohi_beneficiary.ssn = '999999999' # Different SSN
+
+        match = IvcChampva::VesDataFormatter.find_matching_beneficiary(ves_request.beneficiaries, ohi_beneficiary)
+
+        expect(match).to be_nil
+      end
+    end
+
+    describe '.map_ohi_beneficiary' do
+      let(:applicant_data) { extended_form_data['applicants'].first }
+
+      it 'maps applicant name fields' do
+        result = IvcChampva::VesDataFormatter.map_ohi_beneficiary(applicant_data)
+
+        expect(result[:first_name]).to eq('Johnny')
+        expect(result[:last_name]).to eq('Alvin')
+        expect(result[:middle_initial]).to eq('T')
+        expect(result[:suffix]).to eq('Jr.')
+      end
+
+      it 'maps contact info' do
+        result = IvcChampva::VesDataFormatter.map_ohi_beneficiary(applicant_data)
+
+        expect(result[:email_address]).to eq('johnny@alvin.gov')
+        expect(result[:phone_number]).to eq('5555551234')
+      end
+    end
+
+    describe '.map_medicare' do
+      let(:medicare_data) { extended_form_data['applicants'].first['medicare'] }
+
+      it 'maps medicare fields' do
+        result = IvcChampva::VesDataFormatter.map_medicare(medicare_data)
+
+        expect(result.length).to eq(1)
+        expect(result.first[:plan_type]).to eq('c')
+        expect(result.first[:part_c_carrier]).to eq('Advantage Health Solutions')
+        expect(result.first[:has_part_d]).to be true
+        expect(result.first[:part_d_carrier]).to eq('PharmaCare Plus')
+      end
+
+      it 'returns empty array for nil input' do
+        expect(IvcChampva::VesDataFormatter.map_medicare(nil)).to eq([])
+      end
+    end
+
+    describe '.map_health_insurance' do
+      let(:insurance_data) { extended_form_data['applicants'].first['health_insurance'] }
+
+      it 'maps health insurance fields' do
+        result = IvcChampva::VesDataFormatter.map_health_insurance(insurance_data)
+
+        expect(result.length).to eq(1)
+        expect(result.first[:insurance_type]).to eq('medigap')
+        expect(result.first[:medigap_plan]).to eq('K')
+        expect(result.first[:provider]).to eq('Blue Cross Blue Shield')
+        expect(result.first[:through_employer]).to be true
+      end
+
+      it 'returns empty array for nil input' do
+        expect(IvcChampva::VesDataFormatter.map_health_insurance(nil)).to eq([])
+      end
+    end
+
+    describe '.map_ohi_certification' do
+      it 'maps certification from form data' do
+        result = IvcChampva::VesDataFormatter.map_ohi_certification(extended_form_data)
+
+        expect(result[:signature]).to eq('Certifier Jones')
+        expect(result[:first_name]).to eq('Certifier')
+        expect(result[:last_name]).to eq('Jones')
+        expect(result[:phone_number]).to eq('1231231234')
+      end
+
+      it 'returns empty hash for nil input' do
+        expect(IvcChampva::VesDataFormatter.map_ohi_certification(nil)).to eq({})
+      end
+    end
+
+    describe 'multiple applicants with OHI' do
+      let(:multi_applicant_data) do
+        # Deep copy to avoid mutating shared fixture
+        data = Marshal.load(Marshal.dump(extended_form_data))
+        data['applicants'] << {
+          'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
+          'ssn_or_tin' => '987654321',
+          'applicant_address' => {
+            'country' => 'USA', 'street_combined' => '789 Oak St',
+            'city' => 'Townville', 'state' => 'CA', 'postal_code' => '90210'
+          },
+          'applicant_dob' => '1990-05-15',
+          'applicant_gender' => { 'gender' => 'female' },
+          'vet_relationship' => 'spouse',
+          'medicare' => [{ 'medicare_plan_type' => 'ab', 'medicare_number' => 'ABC123' }]
+        }
+        data
+      end
+
+      it 'creates subforms for each applicant with OHI data' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(multi_applicant_data)
+
+        expect(ves_request.subforms.length).to eq(2)
+      end
+
+      it 'matches correct person_uuid for each subform by SSN and name' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(multi_applicant_data)
+
+        ves_request.subforms.each do |subform|
+          ohi_beneficiary = subform[:request].beneficiary
+          # Find the matching beneficiary by SSN
+          matching_ben = ves_request.beneficiaries.find { |b| b.ssn == ohi_beneficiary.ssn }
+          expect(subform[:request].person_uuid).to eq(matching_ben.person_uuid)
+        end
+      end
+    end
+  end
 end

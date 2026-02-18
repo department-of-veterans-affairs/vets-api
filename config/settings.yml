@@ -260,7 +260,7 @@ claims_api:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
         notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
-claims_evidence_api: &claims_evidence_api
+claims_evidence_api:
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
   breakers_error_threshold: 80
   include_request: false
@@ -365,7 +365,16 @@ dhp:
     aws_secret_access_key: <%= ENV['dhp__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['dhp__s3__bucket'] %>
     region: us-gov-west-1
-digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
+digital_forms_api:
+  base_url: <%= ENV['digital_forms_api__base_url'] %>
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: <%= ENV['digital_forms_api__jwt_secret'] %>
+  mock: false
+  ssl: true
+  timeout:
+    open: 30
+    read: 30
 directory:
   apikey: fake_apikey
   health_server_id: <%= ENV['directory__health_server_id'] %>
