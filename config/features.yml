@@ -1748,7 +1748,6 @@ features:
   pdf_fill_field_validation:
     actor_type: user
     description: Monitor PDF field name mismatches via StatsD metrics. Tracks mismatches to detect blank/partial PDFs without blocking submissions.
-    enable_in_test: false
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
