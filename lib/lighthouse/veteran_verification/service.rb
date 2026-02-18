@@ -33,6 +33,20 @@ module VeteranVerification
       handle_error(e, lighthouse_client_id, endpoint, options)
     end
 
+    def get_service_history(icn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      endpoint = 'service_history'
+      config
+        .get(
+          "#{endpoint}/#{icn}",
+          lighthouse_client_id,
+          lighthouse_rsa_key_path,
+          options
+        )
+        .body
+    rescue => e
+      handle_error(e, lighthouse_client_id, endpoint, options)
+    end
+
     ##
     # Request a veteran's Title 38 status
     #   see https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/docs

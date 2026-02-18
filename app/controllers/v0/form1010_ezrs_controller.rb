@@ -38,6 +38,17 @@ module V0
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
+    def service_history
+      p "~~~~~ ezr#service_history w/ icn? #{@current_user.icn}"
+      response = service.get_service_history(@current_user.icn)
+
+      # LH returns the ICN of the Veteran in the data.id field
+      # We want to scrub it out before sending to the FE
+      # response["data']['id'] = ''
+
+      render json: response
+    end
+
     private
 
     def record_submission_attempt

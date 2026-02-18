@@ -375,6 +375,7 @@ Rails.application.routes.draw do
 
     resources :form1010_ezrs, only: %i[create]
     post '/form1010_ezrs/download_pdf', to: 'form1010_ezrs#download_pdf'
+    get '/form1010_ezrs/service_history', to: 'form1010_ezrs#service_history'
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 
