@@ -248,7 +248,7 @@ describe PdfFill::Filler, type: :model do
     end
   end
 
-  describe '#validate_field_names!' do
+  describe '#validate_field_names' do
     let(:form_id) { '28-1900' }
     let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
     let(:template_fields) { %w[field1 field2 field3] }
@@ -263,7 +263,7 @@ describe PdfFill::Filler, type: :model do
       it 'does not increment any StatsD metrics' do
         expect(StatsD).not_to receive(:increment)
 
-        described_class.validate_field_names!(template_path, data_hash, form_id)
+        described_class.validate_field_names(template_path, data_hash, form_id)
       end
     end
 
@@ -274,7 +274,7 @@ describe PdfFill::Filler, type: :model do
         expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
                                                     tags: ["form_id:#{form_id}"])
 
-        described_class.validate_field_names!(template_path, data_hash, form_id)
+        described_class.validate_field_names(template_path, data_hash, form_id)
       end
     end
 
@@ -289,7 +289,7 @@ describe PdfFill::Filler, type: :model do
         expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
                                                     tags: ["form_id:#{form_id}"])
 
-        described_class.validate_field_names!(template_path, data_hash, form_id)
+        described_class.validate_field_names(template_path, data_hash, form_id)
       end
     end
   end

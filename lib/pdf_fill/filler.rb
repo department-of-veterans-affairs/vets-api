@@ -283,7 +283,7 @@ module PdfFill
       # Validate that field names in data match the PDF template fields
       # Track mismatches via StatsD for monitoring blank/partial PDFs
       if Flipper.enabled?(:pdf_fill_field_validation)
-        validate_field_names!(template_path, new_hash, form_id)
+        validate_field_names(template_path, new_hash, form_id)
       end
 
       if fill_options.fetch(:use_hexapdf, false)
@@ -387,14 +387,14 @@ module PdfFill
     ##
     # Validates that field names in the data hash match the PDF template fields.
     # This prevents generating blank PDFs when field names don't match the template.
+    # Validates that field names in data match the PDF template fields.
+    # Tracks mismatches via StatsD for monitoring blank/partial PDFs.
     #
     # @param template_path [String] Path to the PDF template file.
     # @param data_hash [Hash] Hash of field names and values to fill.
-    # @param form_id [String] The form ID for error messages.
+    # @param form_id [String] The form ID for StatsD tagging.
     #
-    # @raise [PdfFillerException] If field names don't match template.
-    #
-    def validate_field_names!(template_path, data_hash, form_id)
+    def validate_field_names(template_path, data_hash, form_id)
       template_fields = extract_template_field_names(template_path)
 
       data_field_names = data_hash.keys.map(&:to_s)
@@ -402,6 +402,15 @@ module PdfFill
 
       if unmatched_fields.any?
         StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.mismatch", tags: ["form_id:#{form_id}"])
+        Rails.logger.warn(
+          "PDF field validation mismatch for form #{form_id}",
+          {
+            unmatched_fields_count: unmatched_fields.size,
+            unmatched_fields:,
+            data_fields_count: data_field_names.size,
+            template_fields_count: template_fields.size
+          }
+        )
       end
     end
 
