@@ -115,8 +115,14 @@ class SavedClaim::Form214192 < SavedClaim
     vet_info = form['veteranInformation'] || {}
 
     # Use VETERAN_INITIAL instead of VETERAN_MIDDLE_INITIAL for this form
-    basic_fields = build_veteran_basic_fields(vet_info)
+    # Also exclude VETERAN_NAME (not in VBA Data Dictionary for 21-4192)
+    basic_fields = build_veteran_basic_fields(vet_info, full_name_field: nil)
     basic_fields['VETERAN_INITIAL'] = basic_fields.delete('VETERAN_MIDDLE_INITIAL')
+
+    # Add VA_FILE_NUMBER (required by VBA Data Dictionary AUG2024-Table 1)
+    # Set to empty string if not provided (does not fall back to SSN)
+    basic_fields['VA_FILE_NUMBER'] ||= ''
+
     basic_fields
   end
 
