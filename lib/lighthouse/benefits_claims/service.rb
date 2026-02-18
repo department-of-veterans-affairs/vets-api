@@ -371,17 +371,9 @@ module BenefitsClaims
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      use_content_overrides = Flipper.enabled?(:cst_evidence_requests_content_override, @user)
-
       tracked_items.each do |item|
         display_name = item['displayName']
-
-        if use_content_overrides
-          apply_content_overrides(item, display_name)
-        else
-          apply_legacy_content_overrides(item, display_name)
-        end
-
+        apply_content_overrides(item, display_name)
         track_tracked_item_metrics(item, display_name)
       end
 
@@ -402,16 +394,6 @@ module BenefitsClaims
       end
     end
 
-    def apply_legacy_content_overrides(item, display_name)
-      item['canUploadFile'] =
-        BenefitsClaims::Constants::UPLOADER_MAPPING[display_name].nil? ||
-        BenefitsClaims::Constants::UPLOADER_MAPPING[display_name]
-      item['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[display_name]
-      item['activityDescription'] = BenefitsClaims::Constants::ACTIVITY_DESCRIPTION_MAPPING[display_name]
-      item['shortDescription'] = BenefitsClaims::Constants::SHORT_DESCRIPTION_MAPPING[display_name]
-      item['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING[display_name] || []
-    end
-
     def apply_content_overrides(item, display_name)
       content = BenefitsClaims::TrackedItemContent.find_by_display_name(display_name) # rubocop:disable Rails/DynamicFindBy
 
@@ -430,8 +412,9 @@ module BenefitsClaims
         item['isSensitive'] = content[:isSensitive]
         item['noProvidePrefix'] = content[:noProvidePrefix]
       else
-        # Fall back to legacy overrides for display names with no content overrides
-        apply_legacy_content_overrides(item, display_name)
+        Rails.logger.warn(
+          "BenefitsClaims::Service#apply_content_overrides no content for display_name=#{display_name}"
+        )
       end
     end
 

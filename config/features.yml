@@ -526,12 +526,6 @@ features:
     actor_type: user
     description: When enabled, claims status tool displays a filter on the claims list
     enable_in_development: true
-  cst_evidence_requests_content_override:
-    actor_type: user
-    description: >
-      When enabled, tracked items in claims status tool use content dictionary
-      overrides for display names, descriptions, and structured content blocks.
-    enable_in_development: true
   cst_evidence_requests_content_override_mobile:
     actor_type: user
     description: >
