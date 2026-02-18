@@ -28,12 +28,6 @@ class AddMultiPartyFormIndexes < ActiveRecord::Migration[7.1]
               name: 'index_mpf_submissions_on_secondary_user_status',
               algorithm: :concurrently
 
-    # Token verification (physician clicks magic link)
-    add_index :multi_party_form_submissions,
-              %i[id secondary_access_token_expires_at],
-              name: 'index_mpf_submissions_on_id_token_expiry',
-              algorithm: :concurrently
-
     # Cleanup queries (find expired/stale submissions by status and age)
     add_index :multi_party_form_submissions,
               %i[status created_at],

@@ -1447,7 +1447,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_18_120000) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["id", "secondary_access_token_expires_at"], name: "index_mpf_submissions_on_id_token_expiry"
     t.index ["primary_in_progress_form_id"], name: "index_mpf_submissions_on_primary_form"
     t.index ["primary_user_uuid", "status", "form_type"], name: "index_mpf_submissions_on_primary_user_status_form"
     t.index ["saved_claim_id"], name: "index_mpf_submissions_on_saved_claim"
