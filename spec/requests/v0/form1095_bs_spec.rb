@@ -20,11 +20,20 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         sign_in_as(user)
       end
 
-      it 'returns http success' do
-        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
-          get '/v0/form1095_bs/download_pdf/2024'
-          expect(response).to have_http_status(:success)
+      it 'returns http success for all supported years and unprocessable_entity for unsupported years' do
+        expected_results = {
+          '2022': :unprocessable_entity,
+          '2023': :success,
+          '2024': :success,
+          '2025': :success,
+          '2026': :unprocessable_entity
+        }
+        expected_results.each_pair do |year, status|
+          VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                          { match_requests_on: %i[method uri], erb: { tax_year: year } }) do
+            get "/v0/form1095_bs/download_pdf/#{year}"
+            expect(response).to have_http_status(status)
+          end
         end
       end
 
@@ -42,23 +51,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
           get '/v0/form1095_bs/download_pdf/2024'
           expect(response).to have_http_status(:not_found)
         end
-      end
-
-      context 'when template is not available' do
-        # Changing the time is necessary for testing this because the "available years" restriction will be met first.
-        # The validation is still valuable for ensuring that we add new templates each year.
-        before { Timecop.freeze(Time.zone.parse('2020-03-05T08:00:00Z')) }
-        after { Timecop.return }
-
-        it 'returns 422' do
-          get '/v0/form1095_bs/download_pdf/2019'
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-      end
-
-      it 'returns 422 when requested year is not in supported range' do
-        get '/v0/form1095_bs/download_pdf/2021'
-        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns 422 when requested year is not a valid integer' do
@@ -93,11 +85,20 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
         sign_in_as(user)
       end
 
-      it 'returns http success' do
-        VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
-                         { match_requests_on: %i[method uri], erb: { tax_year: '2024' } }) do
-          get '/v0/form1095_bs/download_txt/2024'
-          expect(response).to have_http_status(:success)
+      it 'returns http success for all supported years and unprocessable_entity for unsupported years' do
+        expected_results = {
+          '2022': :unprocessable_entity,
+          '2023': :success,
+          '2024': :success,
+          '2025': :success,
+          '2026': :unprocessable_entity
+        }
+        expected_results.each_pair do |year, status|
+          VCR.use_cassette('veteran_enrollment_system/form1095_b/get_form_success',
+                          { match_requests_on: %i[method uri], erb: { tax_year: year } }) do
+            get "/v0/form1095_bs/download_txt/#{year}"
+            expect(response).to have_http_status(status)
+          end
         end
       end
 
@@ -115,23 +116,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
           get '/v0/form1095_bs/download_txt/2024'
           expect(response).to have_http_status(:not_found)
         end
-      end
-
-      context 'when template is not available' do
-        # Changing the time is necessary for testing this because the "available years" restriction will be met first.
-        # The validation is still valuable for ensuring that we add new templates each year.
-        before { Timecop.freeze(Time.zone.parse('2020-03-05T08:00:00Z')) }
-        after { Timecop.return }
-
-        it 'returns 422' do
-          get '/v0/form1095_bs/download_txt/2019'
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-      end
-
-      it 'returns 422 when requested year is not in supported range' do
-        get '/v0/form1095_bs/download_txt/2021'
-        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns 422 when requested year is not a valid integer' do
