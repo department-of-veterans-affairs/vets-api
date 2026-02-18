@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'digital_forms_api/service/base'
+require 'digital_forms_api/service/schema'
+require 'digital_forms_api/validation/schema'
 
 module DigitalFormsApi
   module Service
@@ -17,6 +19,8 @@ module DigitalFormsApi
       # @option metadata [String] :claimLabel the claim label; required
       # @param dry_run [Boolean] perform a dry run in which no action is taken except validation by the endpoint
       def submit(payload, metadata, dry_run: false)
+        validate_submission_payload(payload, metadata)
+
         transformed = {
           claimantId: { identifierType: 'PARTICIPANTID', value: metadata[:claimantId] || metadata[:veteranId] },
           veteranId: { identifierType: 'PARTICIPANTID', value: metadata[:veteranId] },
@@ -41,6 +45,12 @@ module DigitalFormsApi
       # @see DigitalFormsApi::Service::Base#endpoint
       def endpoint
         'submissions'
+      end
+
+      def validate_submission_payload(payload, metadata)
+        form_id = metadata[:formId]
+        form_schema = DigitalFormsApi::Service::Schema.new.fetch(form_id)
+        DigitalFormsApi::Validation.validate_against_schema(form_schema, payload)
       end
 
       # end Submissions
