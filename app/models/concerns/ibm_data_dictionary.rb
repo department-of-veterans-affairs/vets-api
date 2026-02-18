@@ -38,7 +38,7 @@ module IbmDataDictionary
       'CLAIMANT_LAST_NAME' => claimant_info.dig('fullName', 'last'),
       'CLAIMANT_SSN' => claimant_info['ssn'],
       'CLAIMANT_DOB' => format_date_for_ibm(claimant_info['dateOfBirth'])
-    }.compact
+    }
   end
 
   # Build full name from name hash components
