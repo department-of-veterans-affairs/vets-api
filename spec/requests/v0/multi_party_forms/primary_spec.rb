@@ -252,6 +252,20 @@ RSpec.describe 'V0::MultiPartyForms::Primary', type: :request do
         end
       end
 
+      context 'when secondary_email is invalid' do
+        let(:complete_params) do
+          { multi_party_form: { secondary_email: 'not-an-email' } }.to_json
+        end
+
+        it 'returns 422 unprocessable entity' do
+          post "/v0/multi_party_forms/primary/#{submission.id}/complete",
+               params: complete_params,
+               headers: { 'Content-Type' => 'application/json' }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
       context 'when submission belongs to another user' do
         let(:other_submission) { create(:multi_party_form_submission) }
 

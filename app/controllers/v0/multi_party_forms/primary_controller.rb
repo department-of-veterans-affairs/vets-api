@@ -137,7 +137,7 @@ module V0
       def render_submission_response
         render json: {
           data: {
-            id: @submission.id.to_s,
+            id: @submission.id,
             type: 'multi_party_form_submission',
             attributes: {
               form_type: @submission.form_type,
