@@ -119,12 +119,12 @@ class SavedClaim::Form21p530a < SavedClaim
 
   # Build service history fields (Boxes 8-10)
   def build_service_history_fields
-    service_periods = parsed_form.dig('veteranServicePeriods', 'periods') || []
+    service_periods = parsed_form.dig('veteranServicePeriods', 'periods') || parsed_form['periods'] || []
     fields = {}
 
-    # Map up to 3 service periods
-    service_periods.first(3).each_with_index do |period, index|
-      suffix = index + 1
+    # Always create all 3 service period slots (Box 8-9)
+    (1..3).each do |suffix|
+      period = service_periods[suffix - 1] || {}
       fields["BRANCH_OF_SERVICE_#{suffix}"] = period['serviceBranch']
       fields["DATE_ENTERED_TO_SERVICE_#{suffix}"] = format_date_for_ibm(period['dateEnteredService'])
       fields["PLACE_ENTERED_TO_SERVICE_#{suffix}"] = period['placeEnteredService']
@@ -184,7 +184,8 @@ class SavedClaim::Form21p530a < SavedClaim
   def build_form_metadata_fields
     {
       'FORM_TYPE' => FORM,
-      'FORM_TYPE_1' => FORM
+      'FORM_TYPE_1' => FORM,
+      'SUPERSEDES VA FORM 21P-530A, AUG 2022' => 'SUPERSEDES VA FORM 21P-530A, AUG 2022'
     }
   end
 

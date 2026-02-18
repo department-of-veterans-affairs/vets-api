@@ -420,6 +420,77 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(ibm_data['FORM_TYPE_1']).to eq('21P-530a')
       end
     end
+
+    it 'returns complete VBA Data Dictionary payload with all 49 required fields' do
+      ibm_payload = claim.to_ibm
+
+      expect(ibm_payload.keys.length).to eq(49)
+
+      # Veteran fields (10 - includes VETERAN_FULL_NAME for this form)
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME' => 'John',
+        'VETERAN_MIDDLE_INITIAL' => 'A',
+        'VETERAN_LAST_NAME' => 'Doe',
+        'VETERAN_FULL_NAME' => 'John A Doe',
+        'VETERAN_SSN' => '123456789',
+        'VETERAN_DOB' => '01/15/1940'
+      )
+      expect(ibm_payload).to have_key('VETERAN_SERVICE_NUMBER')
+      expect(ibm_payload).to have_key('VA_FILE_NUMBER')
+      expect(ibm_payload).to have_key('VETERAN_PLACE_OF_BIRTH')
+      expect(ibm_payload).to have_key('VETERAN_DATE_OF_DEATH')
+
+      # Service history fields (19: 3 periods x 6 fields + 1 other name)
+      expect(ibm_payload).to have_key('BRANCH_OF_SERVICE_1')
+      expect(ibm_payload).to have_key('BRANCH_OF_SERVICE_2')
+      expect(ibm_payload).to have_key('BRANCH_OF_SERVICE_3')
+      expect(ibm_payload).to have_key('DATE_ENTERED_TO_SERVICE_1')
+      expect(ibm_payload).to have_key('DATE_ENTERED_TO_SERVICE_2')
+      expect(ibm_payload).to have_key('DATE_ENTERED_TO_SERVICE_3')
+      expect(ibm_payload).to have_key('PLACE_ENTERED_TO_SERVICE_1')
+      expect(ibm_payload).to have_key('PLACE_ENTERED_TO_SERVICE_2')
+      expect(ibm_payload).to have_key('PLACE_ENTERED_TO_SERVICE_3')
+      expect(ibm_payload).to have_key('GRADE_RANK_1')
+      expect(ibm_payload).to have_key('GRADE_RANK_2')
+      expect(ibm_payload).to have_key('GRADE_RANK_3')
+      expect(ibm_payload).to have_key('SEPARATION_DATE_1')
+      expect(ibm_payload).to have_key('SEPARATION_DATE_2')
+      expect(ibm_payload).to have_key('SEPARATION_DATE_3')
+      expect(ibm_payload).to have_key('SEPARATION_PLACE_1')
+      expect(ibm_payload).to have_key('SEPARATION_PLACE_2')
+      expect(ibm_payload).to have_key('SEPARATION_PLACE_3')
+      expect(ibm_payload).to have_key('VET_NAME_OTHER')
+
+      # Burial information fields (4)
+      expect(ibm_payload).to have_key('ORG_CLAIMING_ALLOWANCE')
+      expect(ibm_payload).to have_key('CEMETERY_NAME')
+      expect(ibm_payload).to have_key('CEMETERY_LOCATION')
+      expect(ibm_payload).to have_key('VETERAN_DATE_OF_BURIAL')
+
+      # Recipient organization fields (8)
+      expect(ibm_payload).to have_key('REP_NAME')
+      expect(ibm_payload).to have_key('REP_PHONE_NUMBER')
+      expect(ibm_payload).to have_key('REP_ADDRESS_LINE1')
+      expect(ibm_payload).to have_key('REP_ADDRESS_LINE2')
+      expect(ibm_payload).to have_key('REP_ADDRESS_CITY')
+      expect(ibm_payload).to have_key('REP_ADDRESS_STATE')
+      expect(ibm_payload).to have_key('REP_ADDRESS_ZIP5')
+      expect(ibm_payload).to have_key('REP_ADDRESS')
+
+      # Signature and remarks fields (5)
+      expect(ibm_payload).to have_key('VETERAN_SSN_1')
+      expect(ibm_payload).to have_key('OFFICIAL_SIGNATURE')
+      expect(ibm_payload).to have_key('OFFICIAL_TITLE')
+      expect(ibm_payload).to have_key('DATE_SIGNED')
+      expect(ibm_payload).to have_key('REMARKS')
+
+      # Form metadata (3)
+      expect(ibm_payload).to include(
+        'FORM_TYPE' => '21P-530a',
+        'FORM_TYPE_1' => '21P-530a',
+        'SUPERSEDES VA FORM 21P-530A, AUG 2022' => 'SUPERSEDES VA FORM 21P-530A, AUG 2022'
+      )
+    end
   end
 
   describe 'private methods' do
