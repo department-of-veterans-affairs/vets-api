@@ -111,6 +111,67 @@ describe TravelClaim::RedisClient do
     end
   end
 
+  describe '#fetch_veis_token' do
+    let(:expires_in) { 54.minutes }
+    let(:race_condition_ttl) { 5.minutes }
+
+    context 'when cache is empty' do
+      it 'executes the block and caches the result' do
+        result = redis_client.fetch_veis_token(expires_in:, race_condition_ttl:) do
+          'new-token'
+        end
+
+        expect(result).to eq('new-token')
+
+        cached = Rails.cache.read('token', namespace: 'check-in-veis-token-cache-v1')
+        expect(cached).to eq('new-token')
+      end
+    end
+
+    context 'when cache exists' do
+      before do
+        Rails.cache.write(
+          'token',
+          'cached-token',
+          namespace: 'check-in-veis-token-cache-v1',
+          expires_in:
+        )
+      end
+
+      it 'returns cached value without executing block' do
+        block_called = false
+        result = redis_client.fetch_veis_token(expires_in:, race_condition_ttl:) do
+          block_called = true
+          'new-token'
+        end
+
+        expect(result).to eq('cached-token')
+        expect(block_called).to be(false)
+      end
+    end
+
+    context 'when cache has expired' do
+      before do
+        Rails.cache.write(
+          'token',
+          'old-token',
+          namespace: 'check-in-veis-token-cache-v1',
+          expires_in:
+        )
+      end
+
+      it 'executes the block and caches the new result' do
+        Timecop.travel(expires_in.from_now + 1.minute) do
+          result = redis_client.fetch_veis_token(expires_in:, race_condition_ttl:) do
+            'refreshed-token'
+          end
+
+          expect(result).to eq('refreshed-token')
+        end
+      end
+    end
+  end
+
   describe '#icn' do
     context 'when cache does not exist' do
       it 'returns nil' do
