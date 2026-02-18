@@ -277,6 +277,23 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
             .to eq('PowerOfAttorneyRequestDeclination')
           expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
         end
+
+        it 'sends tracking count to monitoring' do
+          allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
+            .to receive(:perform_async)
+          monitor = stub_ar_monitoring
+          expect(monitor).to receive(:track_count).with('ar.poa.request.decision.decline', tags: ['org:x23'])
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+            .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
+
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: {
+                 type: 'declination',
+                 key: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
+               } }
+
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 
