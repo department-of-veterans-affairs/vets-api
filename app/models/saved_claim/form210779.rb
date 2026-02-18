@@ -84,7 +84,8 @@ class SavedClaim::Form210779 < SavedClaim
     vet_info = form['veteranInformation'] || {}
     vet_id = vet_info['veteranId'] || {}
 
-    build_veteran_basic_fields(vet_info)
+    # Exclude VETERAN_NAME field (not in VBA Data Dictionary for 21-0779)
+    build_veteran_basic_fields(vet_info, full_name_field: nil)
       .merge({
         'VETERAN_SSN' => vet_id['ssn'],
         'VA_FILE_NUMBER' => vet_id['vaFileNumber']
