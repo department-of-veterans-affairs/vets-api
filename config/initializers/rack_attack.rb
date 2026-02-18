@@ -151,5 +151,4 @@ class Rack::Attack
 
     [429, headers, ['throttled']]
   end
-
 end
