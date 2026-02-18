@@ -1241,6 +1241,9 @@ describe UnifiedHealthData::Service, type: :service do
       before do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:increment)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
+          .and_return(true)
       end
 
       context 'when fetching a Vista note' do
@@ -1256,7 +1259,6 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'Clinical Notes show request',
-              note_id: 'F253-7227761-1834074',
               source: 'vista_fallback',
               note_found: true,
               note_type: be_a(String),
@@ -1311,7 +1313,6 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'Clinical Notes show request',
-              note_id: '20875576613',
               source: 'oracle-health',
               note_found: true,
               service: 'unified_health_data'

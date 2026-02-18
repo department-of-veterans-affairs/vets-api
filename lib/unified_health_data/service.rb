@@ -145,7 +145,7 @@ module UnifiedHealthData
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
         clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
-        log_notes_index_metrics(parsed_notes, start_date, end_date)
+        clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
 
         parsed_notes
       end
@@ -158,7 +158,7 @@ module UnifiedHealthData
                  else
                    fetch_note_from_all(note_id)
                  end
-        log_notes_show_metrics(note_id, source, result)
+        clinical_notes_logging_enabled? && log_notes_show_metrics(note_id, source, result)
         result
       end
     end
@@ -469,11 +469,11 @@ module UnifiedHealthData
     end
 
     # Extracts the DocumentReference resource from a FHIR Bundle response.
+    # The SCDF API always returns a Bundle, so we only look for entries within it.
     def extract_document_reference(body)
       return nil unless body.is_a?(Hash)
 
       entries = body['entry']
-      return body if body['resourceType'] == 'DocumentReference'
       return nil unless entries.is_a?(Array)
 
       doc_entry = entries.find do |entry|
