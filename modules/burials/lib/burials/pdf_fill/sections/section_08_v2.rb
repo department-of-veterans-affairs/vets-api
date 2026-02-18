@@ -9,12 +9,10 @@ module Burials
       # Section configuration hash
       KEY = {
         'signature' => {
-          key: 'form1[0].#subform[83].CLAIMANT_SIGNATURE[0]',
-          limit: 45,
-          question_num: 32,
-          question_label: 'Signature Of Claimant',
-          question_text: 'SIGNATURE OF CLAIMANT',
-          question_suffix: 'A'
+          key: 'form1[0].#subform[83].CLAIMANT_SIGNATURE[0]'
+        },
+        'signatureDate' => {
+          key: 'form1[0].#subform[96].Date_Signed[0]'
         }
       }.freeze
 
