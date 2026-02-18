@@ -123,69 +123,71 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
     let(:dd_params_lighthouse) do
       OpenStruct.new(
         payment_account: {
-          account_number: '1234567890',
-          routing_number: '031000503'
+          account_number: '0000000001234',
+          routing_number: '021000021'
         }
       )
     end
 
-    context 'Feature vettec' do
+    context 'when form type is vettec' do
+      let(:vettec_claimant) do
+        {
+          claimant_id: '00000',
+          first_name: 'JOHN',
+          last_name: 'DOE',
+          date_of_birth: '1990-01-15',
+          contact_info: {
+            address_line1: '123 Any St',
+            city: 'Anytown',
+            state_code: 'DC',
+            zipcode: '00000',
+            country_code: 'US',
+            email_address: 'test@example.com',
+            mobile_phone_number: '+1 5550000000'
+          }
+        }
+      end
+
       let(:vettec_params) do
         ActionController::Parameters.new(
-          {
+          '@type' => 'vettec',
+          form: {
             '@type' => 'vettec',
-            form: {
-              '@type' => 'vettec',
-              form_id: '22-10297',
-              claimant: {
-                claimant_id: '12345',
-                first_name: 'JOHN',
-                last_name: 'DOE',
-                date_of_birth: '1990-01-15',
-                contact_info: {
-                  address_line1: '123 Main St',
-                  city: 'Washington',
-                  state_code: 'DC',
-                  zipcode: '20001',
-                  country_code: 'US',
-                  email_address: 'john.doe@example.com',
-                  mobile_phone_number: '+1 5551234567'
-                }
-              },
-              military_info: {
-                date_released_from_active_duty: '2020-06-15',
-                active_duty_during_hitech_vets: true
-              },
-              direct_deposit: {
-                direct_deposit_account_type: 'checking',
-                direct_deposit_account_number: '1234567890',
-                direct_deposit_routing_number: '021000021'
-              },
-              training_providers: {
-                providers: [
-                  {
-                    provider_name: 'Tech Academy',
-                    provider_address: {
-                      street: '456 Tech Blvd',
-                      city: 'San Francisco',
-                      state: 'CA',
-                      postal_code: '94102',
-                      country: 'US'
-                    }
+            form_id: '22-10297',
+            claimant: vettec_claimant,
+            military_info: {
+              date_released_from_active_duty: '2020-06-15',
+              active_duty_during_hitech_vets: true
+            },
+            direct_deposit: {
+              direct_deposit_account_type: 'checking',
+              direct_deposit_account_number: '0000000001234',
+              direct_deposit_routing_number: '021000021'
+            },
+            training_providers: {
+              providers: [
+                {
+                  provider_name: 'Test Academy',
+                  provider_address: {
+                    street: '456 Test Blvd',
+                    city: 'Test City',
+                    state: 'CA',
+                    postal_code: '00000',
+                    country: 'US'
                   }
-                ],
-                planned_start_date: '2024-09-01'
-              },
-              employment_info: {
-                is_employed: true,
-                is_in_technology_industry: false,
-                current_occupation: 'Retail Manager',
-                current_annual_salary: '45000',
-                highest_education_level: 'Some College'
-              },
-              attestation_agreement_accepted: true,
-              date_signed: '2024-07-15'
-            }
+                }
+              ],
+              planned_start_date: '2024-09-01'
+            },
+            employment_info: {
+              is_employed: true,
+              is_in_technology_industry: false,
+              current_occupation: 'Test Occupation',
+              current_annual_salary: '45000',
+              highest_education_level: 'Some College'
+            },
+            attestation_agreement_accepted: true,
+            date_signed: '2024-07-15'
           }
         )
       end
