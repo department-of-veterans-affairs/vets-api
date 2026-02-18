@@ -158,7 +158,7 @@ module UnifiedHealthData
                  else
                    fetch_note_from_all(note_id)
                  end
-        clinical_notes_logging_enabled? && log_notes_show_metrics(note_id, source, result)
+        clinical_notes_logging_enabled? && log_notes_show_metrics(source, result)
         result
       end
     end
@@ -541,7 +541,7 @@ module UnifiedHealthData
       StatsD.gauge("#{STATSD_KEY_PREFIX}.clinical_notes.index.oracle_health", oracle_health_count)
     end
 
-    def log_notes_show_metrics(note_id, source, result)
+    def log_notes_show_metrics(source, result)
       source_used = source || 'vista_fallback'
       found = result.present?
 
