@@ -5,6 +5,7 @@ require 'lighthouse/benefits_intake/metadata'
 require 'increase_compensation/notification_email'
 require 'increase_compensation/monitor'
 require 'pdf_utilities/datestamp_pdf'
+require 'ibm/service'
 
 module IncreaseCompensation
   module BenefitsIntake
@@ -47,6 +48,7 @@ module IncreaseCompensation
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
+        @ibm_payload = @claim.to_ibm
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -137,10 +139,24 @@ module IncreaseCompensation
           metadata: @metadata.to_json,
           attachments: @attachment_paths
         }
+        tracked_payload = payload.merge(
+          ibm_payload_present: @ibm_payload.present?,
+          ibm_payload_field_count: @ibm_payload&.keys&.count
+        )
 
-        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
+        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
+        govcio_upload if response.success?
         raise IncreaseCompensationBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      # Upload to IBM MMS if the govcio flipper is enabled
+      def govcio_upload
+        if Flipper.enabled?(:increase_compensation_govcio_mms)
+          ibm_service = Ibm::Service.new
+          Rails.logger.info('Start send to IBM service', form: @claim.form_id, guid: @intake_service.uuid)
+          ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
+        end
       end
 
       # Insert submission polling entries
