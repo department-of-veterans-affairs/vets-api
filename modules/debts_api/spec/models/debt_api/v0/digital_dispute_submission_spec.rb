@@ -6,6 +6,31 @@ require 'debt_management_center/sidekiq/va_notify_email_job'
 RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   let(:form_submission) { create(:debts_api_digital_dispute_submission) }
 
+  shared_context 'production environment' do
+    before { allow(Settings).to receive(:vsp_environment).and_return('production') }
+  end
+
+  shared_context 'non-production environment' do
+    before { allow(Settings).to receive(:vsp_environment).and_return('development') }
+  end
+
+  shared_context 'digital_dispute_email_notifications enabled' do
+    before { allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true) }
+  end
+
+  shared_context 'digital_dispute_email_notifications disabled' do
+    before { allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false) }
+  end
+
+  shared_examples 'handles email send errors with StatsD' do |method_name, stats_suffix|
+    it 'handles errors gracefully with failure StatsD tracking' do
+      allow(User).to receive(:find).and_raise(StandardError.new('User not found'))
+      expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.#{stats_suffix}.enqueue")
+      expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.#{stats_suffix}.failure")
+      expect { form_submission.send(method_name) }.not_to raise_error
+    end
+  end
+
   describe 'validations' do
     subject { form_submission }
 
@@ -114,15 +139,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     end
 
     context 'in production environment' do
-      before do
-        allow(Settings).to receive(:vsp_environment).and_return('production')
-      end
-
+      include_context 'production environment'
       context 'when digital_dispute_email_notifications is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true)
-        end
-
+        include_context 'digital_dispute_email_notifications enabled'
         it 'sends failure email' do
           expect(form_submission).to receive(:send_failure_email)
           form_submission.register_failure(message)
@@ -130,10 +149,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
       end
 
       context 'when digital_dispute_email_notifications is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
-        end
-
+        include_context 'digital_dispute_email_notifications disabled'
         it 'does not send failure email' do
           expect(form_submission).not_to receive(:send_failure_email)
           form_submission.register_failure(message)
@@ -142,10 +158,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     end
 
     context 'in non-production environment' do
-      before do
-        allow(Settings).to receive(:vsp_environment).and_return('development')
-      end
-
+      include_context 'non-production environment'
       it 'does not send failure email' do
         expect(form_submission).not_to receive(:send_failure_email)
         form_submission.register_failure(message)
@@ -160,15 +173,9 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     end
 
     context 'in production environment' do
-      before do
-        allow(Settings).to receive(:vsp_environment).and_return('production')
-      end
-
+      include_context 'production environment'
       context 'when digital_dispute_email_notifications is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(true)
-        end
-
+        include_context 'digital_dispute_email_notifications enabled'
         it 'sends success email' do
           expect(form_submission).to receive(:send_success_email)
           form_submission.register_success
@@ -176,10 +183,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
       end
 
       context 'when digital_dispute_email_notifications is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:digital_dispute_email_notifications).and_return(false)
-        end
-
+        include_context 'digital_dispute_email_notifications disabled'
         it 'does not send success email' do
           expect(form_submission).not_to receive(:send_success_email)
           form_submission.register_success
@@ -188,10 +192,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     end
 
     context 'in non-production environment' do
-      before do
-        allow(Settings).to receive(:vsp_environment).and_return('development')
-      end
-
+      include_context 'non-production environment'
       it 'does not send success email' do
         expect(form_submission).not_to receive(:send_success_email)
         form_submission.register_success
@@ -200,18 +201,10 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   end
 
   describe 'email functionality' do
-    let(:form_submission) { create(:debts_api_digital_dispute_submission) }
     let(:user) { create(:user, :loa3, uuid: form_submission.user_uuid, email: 'test@example.com', first_name: 'John') }
 
     describe '#send_failure_email' do
-      it 'handles errors gracefully with failure StatsD tracking' do
-        allow(User).to receive(:find).and_raise(StandardError.new('User not found'))
-
-        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_failed_form_email.enqueue")
-        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_failed_form_email.failure")
-
-        expect { form_submission.send(:send_failure_email) }.not_to raise_error
-      end
+      include_examples 'handles email send errors with StatsD', :send_failure_email, 'send_failed_form_email'
 
       it 'enqueues failure email when user is found' do
         allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
@@ -230,27 +223,22 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     end
 
     describe '#send_success_email' do
-      it 'handles errors gracefully with failure StatsD tracking' do
-        allow(User).to receive(:find).and_raise(StandardError.new('User not found'))
-
-        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_success_email.enqueue")
-        expect(StatsD).to receive(:increment).with("#{described_class::STATS_KEY}.send_success_email.failure")
-
-        expect { form_submission.send(:send_success_email) }.not_to raise_error
-      end
+      include_examples 'handles email send errors with StatsD', :send_success_email, 'send_success_email'
 
       it 'enqueues confirmation email when user is found' do
         allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
-        allow(Sidekiq::AttrPackage).to receive(:create).and_return('cache_key_123')
 
         expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_async).with(
           hash_including(
             'submission_type' => 'digital_dispute',
-            'cache_key' => 'cache_key_123',
             'user_uuid' => user.uuid,
             'template_id' => described_class::CONFIRMATION_TEMPLATE
           )
-        )
+        ) do |args|
+          expect(args['user_pii']).to be_a(Hash)
+          expect(args['user_pii'].keys).to contain_exactly(:first_name, :email)
+          expect(args).not_to have_key('cache_key')
+        end
 
         form_submission.send(:send_success_email)
       end
