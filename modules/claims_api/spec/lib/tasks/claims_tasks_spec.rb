@@ -60,7 +60,7 @@ describe 'rake claims:fix_failed_claims', type: :task do
     expect(task.prerequisites).to include 'environment'
   end
 
-  context 'happy path - single claim with supporting documents' do
+  context 'single claim with supporting documents' do
     let(:claim) do
       create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
@@ -83,14 +83,14 @@ describe 'rake claims:fix_failed_claims', type: :task do
       args = Rake::TaskArguments.new([:claim_ids], [claim.id])
       task.execute(args)
 
-      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).at_least(:once)
+      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
     end
 
     it 'uploads the 526EZ PDF' do
       args = Rake::TaskArguments.new([:claim_ids], [claim.id])
       task.execute(args)
 
-      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').at_least(:once)
+      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
     end
 
     it 'uploads each supporting document' do
@@ -99,7 +99,7 @@ describe 'rake claims:fix_failed_claims', type: :task do
 
       expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
         claim.supporting_documents.first.id, 'document'
-      ).at_least(:once)
+      ).once
     end
 
     it 'completes successfully' do
@@ -108,12 +108,16 @@ describe 'rake claims:fix_failed_claims', type: :task do
     end
   end
 
-  context 'happy path - multiple claims' do
+  context 'multiple claims' do
     let(:claim1) do
       create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
     end
     let(:claim2) do
-      create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+      create(
+        :auto_established_claim_with_supporting_documents,
+        supporting_documents_count: 3,
+        status: ClaimsApi::AutoEstablishedClaim::ERRORED
+      )
     end
 
     before do
@@ -134,13 +138,41 @@ describe 'rake claims:fix_failed_claims', type: :task do
       args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
       task.execute(args)
 
-      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).at_least(:once)
-      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).at_least(:once)
+      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
+      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
     end
 
     it 'completes successfully' do
       args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
       expect { task.execute(args) }.not_to raise_error
+    end
+
+    it 'runs the ClaimUploader for all claims and their supporting documents' do
+      args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+      task.execute(args)
+
+      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
+      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
+
+      claim1.supporting_documents.each do |sup|
+        expect(
+          ClaimsApi::ClaimUploader
+        ).to have_received(:perform_async).with(sup.id, 'document').once
+      end
+
+      claim2.supporting_documents.each do |sup|
+        expect(
+          ClaimsApi::ClaimUploader
+        ).to have_received(:perform_async).with(sup.id, 'document').once
+      end
+
+      # expect the claim uploader to have been called the correct number of times
+      # (1 for each claim + 1 for each supporting document)
+      total_claims = 2
+      total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
+      expect(
+        ClaimsApi::ClaimUploader
+      ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
     end
   end
 end
