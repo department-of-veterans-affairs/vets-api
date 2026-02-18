@@ -2,225 +2,226 @@
 
 require 'rails_helper'
 require 'rake'
+describe 'rake claims', type: :task do
+  describe 'rake claims:export', type: :task do
+    subject(:task) { tasks[task_name] }
 
-describe 'rake claims:export', type: :task do
-  subject(:task) { tasks[task_name] }
-
-  let(:task_name) { self.class.top_level_description.sub(/\Arake /, '') }
-  let(:tasks) { Rake::Task }
-
-  before do
-    Rake::Task.clear if Rake::Task.task_defined?('claims:export')
-    load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
-    Rake::Task.define_task(:environment)
-  end
-
-  it 'preloads the Rails environment' do
-    expect(task.prerequisites).to include 'environment'
-  end
-
-  it 'runs gracefully with no subscribers' do
-    expect { task.execute }.not_to raise_error
-  end
-
-  context 'when no matching claims are found' do
-    it 'logs to stdout' do
-      expect { task.execute }.to output(/.*id,evss_id,has_flashes,has_special_issues.*/).to_stdout
-    end
-  end
-
-  context 'when matching claims are found' do
-    let!(:claim) { create(:auto_established_claim, evss_id: 'evss-id-here') }
-
-    it 'logs to stdout' do
-      lines = [
-        'id,evss_id,has_flashes,has_special_issues',
-        "(#{claim.id}),(#{claim.evss_id}),(true|false),(true|false)"
-      ]
-      expect { task.execute }.to output(/.*#{lines.join('.*')}.*/m).to_stdout
-    end
-  end
-end
-
-describe 'rake claims:fix_failed_claims', type: :task do
-  subject(:task) { tasks[task_name] }
-
-  let(:task_name) { 'claims:fix_failed_claims' }
-  let(:tasks) { Rake::Task }
-
-  before do
-    Rake::Task.clear if Rake::Task.task_defined?('claims:fix_failed_claims')
-    load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
-    Rake::Task.define_task(:environment)
-  end
-
-  after do
-    task.reenable
-  end
-
-  it 'preloads the Rails environment' do
-    expect(task.prerequisites).to include 'environment'
-  end
-
-  context 'single claim with supporting documents' do
-    let(:claim) do
-      create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-    end
+    let(:task_name) { 'claims:export' }
+    let(:tasks) { Rake::Task }
 
     before do
-      # Mock ClaimEstablisher to update claim status
-      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-        claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-        claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+      Rake::Task.clear if Rake::Task.task_defined?('claims:export')
+      load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
+      Rake::Task.define_task(:environment)
+    end
+
+    it 'preloads the Rails environment' do
+      expect(task.prerequisites).to include 'environment'
+    end
+
+    it 'runs gracefully with no subscribers' do
+      expect { task.execute }.not_to raise_error
+    end
+
+    context 'when no matching claims are found' do
+      it 'logs to stdout' do
+        expect { task.execute }.to output(/.*id,evss_id,has_flashes,has_special_issues.*/).to_stdout
       end
-
-      # Mock ClaimUploader
-      allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
-
-      # Stub sleep to speed up tests
-      allow_any_instance_of(Kernel).to receive(:sleep)
     end
 
-    it 'reestablishes the claim' do
-      args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-      task.execute(args)
+    context 'when matching claims are found' do
+      let!(:claim) { create(:auto_established_claim, evss_id: 'evss-id-here') }
 
-      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
-    end
-
-    it 'uploads the 526EZ PDF' do
-      args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-      task.execute(args)
-
-      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
-    end
-
-    it 'uploads each supporting document' do
-      args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-      task.execute(args)
-
-      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
-        claim.supporting_documents.first.id, 'document'
-      ).once
-    end
-
-    it 'completes successfully' do
-      args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-      expect { task.execute(args) }.not_to raise_error
+      it 'logs to stdout' do
+        lines = [
+          'id,evss_id,has_flashes,has_special_issues',
+          "(#{claim.id}),(#{claim.evss_id}),(true|false),(true|false)"
+        ]
+        expect { task.execute }.to output(/.*#{lines.join('.*')}.*/m).to_stdout
+      end
     end
   end
 
-  context 'multiple claims' do
-    let(:claim1) do
-      create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-    end
-    let(:claim2) do
-      create(
-        :auto_established_claim_with_supporting_documents,
-        supporting_documents_count: 3,
-        status: ClaimsApi::AutoEstablishedClaim::ERRORED
-      )
-    end
+  describe 'rake claims:fix_failed_claims', type: :task do
+    subject(:task) { tasks[task_name] }
+
+    let(:task_name) { 'claims:fix_failed_claims' }
+    let(:tasks) { Rake::Task }
 
     before do
-      # Mock ClaimEstablisher to update claim status
-      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-        claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-        claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+      Rake::Task.clear if Rake::Task.task_defined?('claims:fix_failed_claims')
+      load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
+      Rake::Task.define_task(:environment)
+    end
+
+    after do
+      task.reenable
+    end
+
+    it 'preloads the Rails environment' do
+      expect(task.prerequisites).to include 'environment'
+    end
+
+    context 'single claim with supporting documents' do
+      let(:claim) do
+        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
       end
 
-      # Mock ClaimUploader
-      allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+      before do
+        # Mock ClaimEstablisher to update claim status
+        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+        end
 
-      # Stub sleep to speed up tests
-      allow_any_instance_of(Kernel).to receive(:sleep)
+        # Mock ClaimUploader
+        allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+
+        # Stub sleep to speed up tests
+        allow_any_instance_of(Kernel).to receive(:sleep)
+      end
+
+      it 'reestablishes the claim' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
+      end
+
+      it 'uploads the 526EZ PDF' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
+      end
+
+      it 'uploads each supporting document' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+          claim.supporting_documents.first.id, 'document'
+        ).once
+      end
+
+      it 'completes successfully' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        expect { task.execute(args) }.not_to raise_error
+      end
     end
 
-    it 'reestablishes all claims' do
-      args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-      task.execute(args)
+    context 'multiple claims' do
+      let(:claim1) do
+        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+      end
+      let(:claim2) do
+        create(
+          :auto_established_claim_with_supporting_documents,
+          supporting_documents_count: 3,
+          status: ClaimsApi::AutoEstablishedClaim::ERRORED
+        )
+      end
 
-      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
-      expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
-    end
+      before do
+        # Mock ClaimEstablisher to update claim status
+        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+        end
 
-    it 'completes successfully' do
-      args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-      expect { task.execute(args) }.not_to raise_error
-    end
+        # Mock ClaimUploader
+        allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
 
-    it 'runs the ClaimUploader for all claims and their supporting documents' do
-      args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-      task.execute(args)
+        # Stub sleep to speed up tests
+        allow_any_instance_of(Kernel).to receive(:sleep)
+      end
 
-      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
-      expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
+      it 'reestablishes all claims' do
+        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+        task.execute(args)
 
-      claim1.supporting_documents.each do |sup|
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
+      end
+
+      it 'completes successfully' do
+        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+        expect { task.execute(args) }.not_to raise_error
+      end
+
+      it 'runs the ClaimUploader for all claims and their supporting documents' do
+        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
+
+        claim1.supporting_documents.each do |sup|
+          expect(
+            ClaimsApi::ClaimUploader
+          ).to have_received(:perform_async).with(sup.id, 'document').once
+        end
+
+        claim2.supporting_documents.each do |sup|
+          expect(
+            ClaimsApi::ClaimUploader
+          ).to have_received(:perform_async).with(sup.id, 'document').once
+        end
+
+        # expect the claim uploader to have been called the correct number of times
+        # (1 for each claim + 1 for each supporting document)
+        total_claims = 2
+        total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
         expect(
           ClaimsApi::ClaimUploader
-        ).to have_received(:perform_async).with(sup.id, 'document').once
+        ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
+      end
+    end
+
+    context 'when claim is not found' do
+      before do
+        allow(Rails.logger).to receive(:warn)
       end
 
-      claim2.supporting_documents.each do |sup|
-        expect(
-          ClaimsApi::ClaimUploader
-        ).to have_received(:perform_async).with(sup.id, 'document').once
+      it 'logs a warning and skips to the next claim' do
+        args = Rake::TaskArguments.new([:claim_ids], ['non-existent-claim-id'])
+        expect { task.execute(args) }.not_to raise_error
+        expect(Rails.logger).to have_received(:warn).with('Could not find claim with id non-existent-claim-id').once
+      end
+    end
+
+    context 'when the claim is in an errored state and fails to establish again' do
+      let(:claim) do
+        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
       end
 
-      # expect the claim uploader to have been called the correct number of times
-      # (1 for each claim + 1 for each supporting document)
-      total_claims = 2
-      total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
-      expect(
-        ClaimsApi::ClaimUploader
-      ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
-    end
-  end
+      before do
+        # Mock ClaimEstablisher to keep claim in errored state
+        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ERRORED, evss_response: 'Some error')
+        end
 
-  context 'when claim is not found' do
-    before do
-      allow(Rails.logger).to receive(:warn)
-    end
+        # Stub sleep to speed up tests
+        allow_any_instance_of(Kernel).to receive(:sleep)
 
-    it 'logs a warning and skips to the next claim' do
-      args = Rake::TaskArguments.new([:claim_ids], ['non-existent-claim-id'])
-      expect { task.execute(args) }.not_to raise_error
-      expect(Rails.logger).to have_received(:warn).with('Could not find claim with id non-existent-claim-id').once
-    end
-  end
-
-  context 'when the claim is in an errored state and fails to establish again' do
-    let(:claim) do
-      create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-    end
-
-    before do
-      # Mock ClaimEstablisher to keep claim in errored state
-      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-        claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-        claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ERRORED, evss_response: 'Some error')
+        # Mock Time.current to advance quickly and trigger timeout after a few iterations
+        base_time = Time.current
+        allow(Time).to receive(:current).and_return(
+          base_time,           # Initial deadline calculation
+          base_time,           # First loop check
+          base_time + 1.second, # Second loop check
+          base_time + 11.seconds # Third loop check - exceeds 10 second timeout
+        )
       end
 
-      # Stub sleep to speed up tests
-      allow_any_instance_of(Kernel).to receive(:sleep)
-
-      # Mock Time.current to advance quickly and trigger timeout after a few iterations
-      base_time = Time.current
-      allow(Time).to receive(:current).and_return(
-        base_time,           # Initial deadline calculation
-        base_time,           # First loop check
-        base_time + 1.second, # Second loop check
-        base_time + 11.seconds # Third loop check - exceeds 10 second timeout
-      )
-    end
-
-    it 'raises an error with the claim ID and EVSS response' do
-      args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-      expect { task.execute(args) }.to raise_error(
-        StandardError,
-        /Claim establishment failed for claim ID #{claim.id} with error: Some error/
-      )
+      it 'raises an error with the claim ID and EVSS response' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        expect { task.execute(args) }.to raise_error(
+          StandardError,
+          /Claim establishment failed for claim ID #{claim.id} with error: Some error/
+        )
+      end
     end
   end
 end
