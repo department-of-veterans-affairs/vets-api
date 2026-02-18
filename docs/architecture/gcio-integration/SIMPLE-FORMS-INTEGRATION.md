@@ -25,14 +25,19 @@ The GCIO integration infrastructure is already built. You only need to create a 
 
 The GCIO integration automatically triggers via a callback on `FormSubmissionAttempt`. **You don't need to modify any controllers or services.**
 
-```
-Simple Form Submitted → FormSubmissionAttempt created
-                              ↓
-                      after_commit callback fires
-                              ↓
-                      Check: GCIO enabled for this form?
-                              ↓ YES
-                      Enqueue job → Use your mapper → Submit to GCIO
+```mermaid
+flowchart TD
+    Submit[Simple Form Submitted] --> Create[FormSubmissionAttempt created]
+    Create --> Callback[after_commit callback fires]
+    Callback --> Check{GCIO enabled<br/>for this form?}
+    Check -->|YES| Enqueue[Enqueue job]
+    Check -->|NO| Skip[Skip GCIO]
+    Enqueue --> Mapper[Use your mapper]
+    Mapper --> GCIO[Submit to GCIO]
+    
+    style Check fill:#FFD700
+    style Enqueue fill:#90EE90
+    style Skip fill:#FFB6C1
 ```
 
 **Infrastructure already in place**:

@@ -10,9 +10,11 @@ Automatically sends structured JSON form data to GCIO's digitization API immedia
 
 ## Quick Links
 
+- **[Integration Comparison](./INTEGRATION-COMPARISON.md)** - 🎯 **START HERE** - Which guide should I use?
+- **[Simple Forms Integration Guide](./SIMPLE-FORMS-INTEGRATION.md)** - How to add a simple form
+- **[Non-Simple Forms Integration Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)** - How to integrate any non-simple form
 - **[C4 Diagrams](./c4-diagrams.md)** - Architecture visualizations
 - **[ADRs](./adrs/)** - Key architectural decisions
-- **[Simple Forms Integration Guide](./SIMPLE-FORMS-INTEGRATION.md)** - How to add a form
 - **[Rollout Strategy](./ROLLOUT-STRATEGY.md)** - Deployment plan
 - **[Stories](./stories/)** - Implementation tasks
 
@@ -56,10 +58,28 @@ Automatically sends structured JSON form data to GCIO's digitization API immedia
 
 ### Trigger Points
 
-**SavedClaim forms**: `Lighthouse::SubmitBenefitsIntakeClaim` job  
-**Simple Forms**: `FormSubmissionAttempt.after_commit` callback
+**Simple Forms** (e.g., 21P-601, 21-0966): `FormSubmissionAttempt.after_commit` callback → [Simple Forms Integration Guide](./SIMPLE-FORMS-INTEGRATION.md)  
+**Non-Simple Forms** (e.g., 21-526EZ, 21P-527EZ, custom forms): Your Lighthouse upload flow → [Non-Simple Forms Integration Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)
 
 Both enqueue `FormIntake::SubmitFormDataJob` (async, non-blocking).
+
+---
+
+## Which Integration Guide Do I Use?
+
+| Your Form Uses... | Guide to Follow |
+|-------------------|-----------------|
+| `SimpleFormsApi::V1::UploadsController` | **[Simple Forms Guide](./SIMPLE-FORMS-INTEGRATION.md)** |
+| Automatic `FormSubmissionAttempt.after_commit` trigger | **[Simple Forms Guide](./SIMPLE-FORMS-INTEGRATION.md)** |
+| `SavedClaim` model | **[Non-Simple Forms Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)** |
+| Custom form implementation | **[Non-Simple Forms Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)** |
+| Module-specific controllers (e.g., `Pensions::`, `Burials::`) | **[Non-Simple Forms Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)** |
+| Custom Lighthouse job | **[Non-Simple Forms Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)** |
+| Any form NOT using Simple Forms API | **[Non-Simple Forms Guide](./NON-SIMPLE-FORMS-INTEGRATION.md)** |
+
+**Still not sure?** 
+- Uses Simple Forms API endpoint (`/simple_forms_api/v1/uploads`) → Simple Forms Guide
+- Everything else → Non-Simple Forms Guide
 
 ### Data Flow
 
