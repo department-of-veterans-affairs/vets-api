@@ -64,7 +64,7 @@ en:
         <<: *defaults
         title: Too many items submitted
         detail: "\"%{field}\" cannot exceed %{max_size} items (submitted %{actual_size})"
-        code: 108
+        code: 111
         status: 400
       invalid_pagination_params:
         <<: *defaults

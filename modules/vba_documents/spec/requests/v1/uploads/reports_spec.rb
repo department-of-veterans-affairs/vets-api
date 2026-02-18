@@ -97,7 +97,7 @@ RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
         expect(error).to include(
           'title' => 'Too many items submitted',
           'detail' => '"ids" cannot exceed 1000 items (submitted 1001)',
-          'code' => '108',
+          'code' => '111',
           'status' => '400'
         )
       end

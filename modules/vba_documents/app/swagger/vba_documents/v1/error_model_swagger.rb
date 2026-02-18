@@ -41,7 +41,7 @@ module VBADocuments
 
           property :code do
             key :type, :string
-            key :example, '108'
+            key :example, '111'
           end
 
           property :status do

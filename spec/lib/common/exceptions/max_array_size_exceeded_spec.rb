@@ -14,7 +14,7 @@ describe Common::Exceptions::MaxArraySizeExceeded do
       expect(subject.errors.first.to_hash)
         .to eq(title: 'Too many items submitted',
                detail: '"ids" cannot exceed 1000 items (submitted 1002)',
-               code: '108',
+               code: '111',
                status: '400')
     end
   end
