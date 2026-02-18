@@ -485,7 +485,7 @@ module Veteran
 
     # rubocop:disable Rails/SkipsModelValidations
     def reactivate_org_rep_pairs!(pairs)
-      now = Time.current
+      Time.current
 
       pairs.each_slice(1000) do |slice|
         conditions = slice.map { |_| '(organization_poa = ? AND representative_id = ?)' }.join(' OR ')
