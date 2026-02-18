@@ -114,7 +114,7 @@ class SavedClaim::Form214192 < SavedClaim
   def build_veteran_fields(form)
     vet_info = form['veteranInformation'] || {}
 
-    basic_fields = build_veteran_basic_fields(vet_info, full_name_field: nil)
+    basic_fields = build_veteran_basic_fields(vet_info)
     basic_fields['VETERAN_INITIAL'] = basic_fields.delete('VETERAN_MIDDLE_INITIAL')
     basic_fields['VA_FILE_NUMBER'] ||= ''
 
