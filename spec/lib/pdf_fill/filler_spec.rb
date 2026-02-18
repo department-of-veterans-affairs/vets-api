@@ -272,7 +272,7 @@ describe PdfFill::Filler, type: :model do
 
       it 'increments StatsD mismatch metric' do
         expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
-                                                    tags: ["form_id:#{form_id}"])
+                                                   tags: ["form_id:#{form_id}"])
 
         described_class.validate_field_names(template_path, data_hash, form_id)
       end
@@ -287,7 +287,7 @@ describe PdfFill::Filler, type: :model do
 
       it 'increments StatsD mismatch metric' do
         expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
-                                                    tags: ["form_id:#{form_id}"])
+                                                   tags: ["form_id:#{form_id}"])
 
         described_class.validate_field_names(template_path, data_hash, form_id)
       end
