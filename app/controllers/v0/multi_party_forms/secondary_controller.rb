@@ -159,7 +159,7 @@ module V0
         render json: {
           errors: [{
             title: 'Validation failed',
-            detail: error.message,
+            detail: 'Unable to process the request due to invalid data',
             status: '422'
           }]
         }, status: :unprocessable_entity
