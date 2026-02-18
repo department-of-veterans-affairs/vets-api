@@ -178,7 +178,7 @@ RSpec.describe UnifiedHealthData::Client do
     before do
       stub_request(:post, "#{security_host}/mhvapi/security/v1/login")
         .to_return(status: 200, headers: { 'authorization' => 'Bearer test-token' })
-      stub_request(:get, /#{Regexp.escape(host)}\/v1\/medicalrecords\/notes/)
+      stub_request(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/notes})
         .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
     end
 
