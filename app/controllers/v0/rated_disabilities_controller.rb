@@ -62,7 +62,7 @@ module V0
     end
 
     # Logs detailed error information for troubleshooting.
-    # Includes error class, message, user context, and backtrace.
+    # Includes error class, message, user context
     #
     # @param exception [Exception] The exception to log
     # @return [void]
