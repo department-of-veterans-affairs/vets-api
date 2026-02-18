@@ -368,11 +368,13 @@ module Veteran
       current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
 
       # Always import organizations when processing VSO data to maintain referential integrity
-      import_vso_organizations(vso_orgs)
-      populate_org_representative_joins!(rep_org_pairs:, poa_codes: current_poa_codes)
+      Veteran::Service::Organization.transaction do
+        import_vso_organizations(vso_orgs)
+        populate_org_representative_joins!(rep_org_pairs:, poa_codes: current_poa_codes)
 
-      # Remove stale organizations that are no longer in the OGC data
-      remove_stale_organizations(current_poa_codes)
+        # Remove stale organizations that are no longer in the OGC data
+        remove_stale_organizations(current_poa_codes)
+      end
 
       vso_reps
     end
@@ -485,8 +487,6 @@ module Veteran
 
     # rubocop:disable Rails/SkipsModelValidations
     def reactivate_org_rep_pairs!(pairs)
-      Time.current
-
       pairs.each_slice(1000) do |slice|
         conditions = slice.map { |_| '(organization_poa = ? AND representative_id = ?)' }.join(' OR ')
         binds = slice.flat_map { |rep_id, poa| [poa, rep_id] }
@@ -499,19 +499,30 @@ module Veteran
     end
     # rubocop:enable Rails/SkipsModelValidations
 
+    # rubocop:disable Rails/SkipsModelValidations
     def deactivate_missing_org_rep_pairs!(pairs, poa_codes)
       expected = pairs.to_set { |rep_id, poa| [poa, rep_id] }
       now = Time.current
 
+      ids_to_deactivate = []
+
       Veteran::Service::OrganizationRepresentative
         .where(organization_poa: poa_codes, deactivated_at: nil)
+        .select(:id, :organization_poa, :representative_id)
         .find_each do |join|
           key = [join.organization_poa, join.representative_id]
-          next if expected.include?(key)
-
-          join.update!(deactivated_at: now)
+          ids_to_deactivate << join.id unless expected.include?(key)
         end
+
+      return if ids_to_deactivate.empty?
+
+      ids_to_deactivate.each_slice(1000) do |slice|
+        Veteran::Service::OrganizationRepresentative
+          .where(id: slice)
+          .update_all(deactivated_at: now)
+      end
     end
+    # rubocop:enable Rails/SkipsModelValidations
 
     def build_org_rep_rows(pairs, org_accept_map)
       pairs.filter_map do |rep_id, poa|

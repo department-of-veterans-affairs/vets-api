@@ -47,11 +47,11 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
         expect(rep.poa_codes).to include('091')
         expect(
-          Veteran::Service::OrganizationRepresentative.exists?(
-            representative_id: rep.representative_id,
-            organization_poa: '091'
-          )
-        ).to be(true)
+          Veteran::Service::OrganizationRepresentative
+        ).to exist(
+          representative_id: rep.representative_id,
+          organization_poa: '091'
+        )
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
@@ -80,6 +80,22 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
 
     context 'join table acceptance_mode (status quo)' do
+      it 'seeds acceptance_mode to no_acceptance for freshly imported orgs with default' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          Veteran::Service::OrganizationRepresentative.where(organization_poa: '091').delete_all
+          Veteran::Service::Organization.where(poa: '091').delete_all
+          expect(Veteran::Service::Organization.find_by(poa: '091')).to be_nil
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          org = Veteran::Service::Organization.find_by!(poa: '091')
+          expect(org.can_accept_digital_poa_requests).to be(false)
+
+          join = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '091')
+          expect(join.acceptance_mode).to eq('no_acceptance')
+        end
+      end
+
       it 'seeds acceptance_mode to any_request when org accepts digital POA' do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do
           create(:organization, poa: '095', can_accept_digital_poa_requests: true)
