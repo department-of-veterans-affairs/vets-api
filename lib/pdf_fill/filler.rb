@@ -282,9 +282,7 @@ module PdfFill
 
       # Validate that field names in data match the PDF template fields
       # Track mismatches via StatsD for monitoring blank/partial PDFs
-      if Flipper.enabled?(:pdf_fill_field_validation)
-        validate_field_names(template_path, new_hash, form_id)
-      end
+      validate_field_names(template_path, new_hash, form_id) if Flipper.enabled?(:pdf_fill_field_validation)
 
       if fill_options.fetch(:use_hexapdf, false)
         fill_form_with_hexapdf(template_path, file_path, new_hash)
