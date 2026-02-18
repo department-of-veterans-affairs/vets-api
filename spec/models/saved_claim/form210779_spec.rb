@@ -155,5 +155,67 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       expect(ibm_payload['FORM_TYPE']).to eq('21-0779')
       expect(ibm_payload['FORM_TYPE_1']).to eq('21-0779')
     end
+
+    it 'returns complete VBA Data Dictionary payload with all 38 required fields' do
+      ibm_payload = claim.to_ibm
+
+      expect(ibm_payload.keys.length).to eq(38)
+
+      # Veteran fields (6)
+      expect(ibm_payload).to include(
+        'VETERAN_FIRST_NAME' => 'John',
+        'VETERAN_MIDDLE_INITIAL' => 'A',
+        'VETERAN_LAST_NAME' => 'Doe',
+        'VETERAN_DOB' => '01/01/1990',
+        'VETERAN_SSN' => '123456789',
+        'VA_FILE_NUMBER' => '987654321'
+      )
+
+      # Claimant fields (6)
+      expect(ibm_payload).to include(
+        'CLAIMANT_FIRST_NAME' => 'Jane',
+        'CLAIMANT_MIDDLE_INITIAL' => 'B',
+        'CLAIMANT_LAST_NAME' => 'Doe',
+        'CLAIMANT_DOB' => '05/15/1992',
+        'CLAIMANT_SSN' => '987654321'
+      )
+      expect(ibm_payload).to have_key('CL_FILE_NUMER')
+
+      # Facility fields (7 address fields)
+      expect(ibm_payload).to include(
+        'NAME_FACILITY_C' => 'Sunrise Senior Living',
+        'FACILITY_ADDRESS_LINE1_C' => '123 Care Lane',
+        'FACILITY_ADDRESS_LINE2_C' => 'apt 1',
+        'FACILITY_ADDRESS_CITY_C' => 'Springfield',
+        'FACILITY_ADDRESS_STATE_C' => 'IL',
+        'FACILITY_ADDRESS_COUNTRY_C' => 'USA',
+        'FACILITY_ADDRESS_ZIP_C' => '62701'
+      )
+
+      # Medicaid and care fields (16)
+      expect(ibm_payload).to have_key('DATE_ADMISSION_TO_FACILITY_C')
+      expect(ibm_payload).to have_key('MEDICAID_APPROVED_Y')
+      expect(ibm_payload).to have_key('MEDICAID_APPROVED_N')
+      expect(ibm_payload).to have_key('MEDICAID_APPLIED_Y')
+      expect(ibm_payload).to have_key('MEDICAID_APPLIED_N')
+      expect(ibm_payload).to have_key('MEDICAID_COVERAGE_Y')
+      expect(ibm_payload).to have_key('MEDICAID_COVERAGE_N')
+      expect(ibm_payload).to have_key('MEDICAID_START')
+      expect(ibm_payload).to have_key('OUT_OF_POCKET')
+      expect(ibm_payload).to have_key('SKILLED_CARE')
+      expect(ibm_payload).to have_key('INTERMEDIATE_CARE')
+      expect(ibm_payload).to have_key('NAME_COMPLETING_WORKSHEET_C')
+      expect(ibm_payload).to have_key('ROLE_PERFORM_AT_FACILITY_C')
+      expect(ibm_payload).to have_key('FACILITY_TELEPHONE_NUMBER_C')
+      expect(ibm_payload).to have_key('INT_PHONE_NUMBER')
+      expect(ibm_payload).to have_key('SIGNATURE_OF_PROVIDER_C')
+      expect(ibm_payload).to have_key('SIGNATURE_DATE_PROVIDER_C')
+
+      # Form metadata (2)
+      expect(ibm_payload).to include(
+        'FORM_TYPE' => '21-0779',
+        'FORM_TYPE_1' => '21-0779'
+      )
+    end
   end
 end

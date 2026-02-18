@@ -84,12 +84,11 @@ class SavedClaim::Form210779 < SavedClaim
     vet_info = form['veteranInformation'] || {}
     vet_id = vet_info['veteranId'] || {}
 
-    # Exclude VETERAN_NAME field (not in VBA Data Dictionary for 21-0779)
-    build_veteran_basic_fields(vet_info, full_name_field: nil)
+    build_veteran_basic_fields(vet_info)
       .merge({
-        'VETERAN_SSN' => vet_id['ssn'],
-        'VA_FILE_NUMBER' => vet_id['vaFileNumber']
-      }.compact)
+               'VETERAN_SSN' => vet_id['ssn'],
+               'VA_FILE_NUMBER' => vet_id['vaFileNumber']
+             })
   end
 
   # Build claimant information fields (Section II - Boxes 5-8)
@@ -97,11 +96,15 @@ class SavedClaim::Form210779 < SavedClaim
   # @return [Hash]
   def build_claimant_fields_section(form)
     claimant_info = form['claimantInformation'] || {}
+    claimant_id = claimant_info['veteranId'] || {}
 
     fields = build_claimant_fields(claimant_info)
 
+    # Override SSN with correct path (from veteranId object)
+    fields['CLAIMANT_SSN'] = claimant_id['ssn']
+
     # Box 7: VA File Number (note the typo from the spec: CL_FILE_NUMER)
-    fields['CL_FILE_NUMER'] = claimant_info['vaFileNumber'] if claimant_info['vaFileNumber']
+    fields['CL_FILE_NUMER'] = claimant_id['vaFileNumber']
 
     fields
   end
@@ -128,43 +131,29 @@ class SavedClaim::Form210779 < SavedClaim
     fields['FACILITY_ADDRESS_ZIP_C'] = nursing_address['postalCode']
 
     # Box 11: Date admitted to nursing home (MM/DD/YYYY format)
-    if nursing_home['admissionDate']
-      fields['DATE_ADMISSION_TO_FACILITY_C'] =
-        format_date_for_ibm(nursing_home['admissionDate'])
-    end
+    fields['DATE_ADMISSION_TO_FACILITY_C'] = format_date_for_ibm(nursing_home['admissionDate'])
 
-    # Box 12: Is the nursing home a Medicaid approved facility?
-    if nursing_home['medicaidApproved'].present?
-      fields['MEDICAID_APPROVED_Y'] = build_checkbox_value(nursing_home['medicaidApproved'] == true)
-      fields['MEDICAID_APPROVED_N'] = build_checkbox_value(nursing_home['medicaidApproved'] == false)
-    end
+    # Box 12: Is the nursing home a Medicaid approved facility? (always include both Y/N)
+    fields['MEDICAID_APPROVED_Y'] = build_checkbox_value(nursing_home['medicaidApproved'] == true)
+    fields['MEDICAID_APPROVED_N'] = build_checkbox_value(nursing_home['medicaidApproved'] == false)
 
-    # Box 13: Has the patient applied for Medicaid?
-    if nursing_home['medicaidApplied'].present?
-      fields['MEDICAID_APPLIED_Y'] = build_checkbox_value(nursing_home['medicaidApplied'] == true)
-      fields['MEDICAID_APPLIED_N'] = build_checkbox_value(nursing_home['medicaidApplied'] == false)
-    end
+    # Box 13: Has the patient applied for Medicaid? (always include both Y/N)
+    fields['MEDICAID_APPLIED_Y'] = build_checkbox_value(nursing_home['medicaidApplied'] == true)
+    fields['MEDICAID_APPLIED_N'] = build_checkbox_value(nursing_home['medicaidApplied'] == false)
 
-    # Box 14A: Is the patient covered by Medicaid?
-    if nursing_home['medicaidCoverage'].present?
-      fields['MEDICAID_COVERAGE_Y'] = build_checkbox_value(nursing_home['medicaidCoverage'] == true)
-      fields['MEDICAID_COVERAGE_N'] = build_checkbox_value(nursing_home['medicaidCoverage'] == false)
-    end
+    # Box 14A: Is the patient covered by Medicaid? (always include both Y/N)
+    fields['MEDICAID_COVERAGE_Y'] = build_checkbox_value(nursing_home['medicaidCoverage'] == true)
+    fields['MEDICAID_COVERAGE_N'] = build_checkbox_value(nursing_home['medicaidCoverage'] == false)
 
     # Box 14B: Date Medicaid plan began (MM/DD/YYYY format)
-    if nursing_home['medicaidStartDate']
-      fields['MEDICAID_START'] =
-        format_date_for_ibm(nursing_home['medicaidStartDate'])
-    end
+    fields['MEDICAID_START'] = format_date_for_ibm(nursing_home['medicaidStartDate'])
 
     # Box 15: Monthly amount patient is responsible for out of pocket
     fields['OUT_OF_POCKET'] = nursing_home['monthlyOutOfPocket']
 
-    # Box 16: Type of care (skilled or intermediate)
-    if nursing_home['typeOfCare'].present?
-      fields['SKILLED_CARE'] = build_checkbox_value(nursing_home['typeOfCare'] == 'skilled')
-      fields['INTERMEDIATE_CARE'] = build_checkbox_value(nursing_home['typeOfCare'] == 'intermediate')
-    end
+    # Box 16: Type of care (skilled or intermediate - always include both)
+    fields['SKILLED_CARE'] = build_checkbox_value(nursing_home['typeOfCare'] == 'skilled')
+    fields['INTERMEDIATE_CARE'] = build_checkbox_value(nursing_home['typeOfCare'] == 'intermediate')
 
     # Box 17: Nursing home official's name
     fields['NAME_COMPLETING_WORKSHEET_C'] = nursing_home['officialName']
@@ -174,21 +163,15 @@ class SavedClaim::Form210779 < SavedClaim
 
     # Box 19: Nursing home official's office telephone number
     fields['FACILITY_TELEPHONE_NUMBER_C'] = format_phone_for_ibm(nursing_home['officialPhone'])
-    if nursing_home['internationalPhone']
-      fields['INT_PHONE_NUMBER'] =
-        format_phone_for_ibm(nursing_home['internationalPhone'])
-    end
+    fields['INT_PHONE_NUMBER'] = format_phone_for_ibm(nursing_home['internationalPhone'])
 
     # Box 20: Signature of nursing home official (handled in PDF stamping)
     fields['SIGNATURE_OF_PROVIDER_C'] = nursing_home['officialSignature']
 
     # Box 21: Date signed (MM/DD/YYYY format)
-    if nursing_home['signatureDate']
-      fields['SIGNATURE_DATE_PROVIDER_C'] =
-        format_date_for_ibm(nursing_home['signatureDate'])
-    end
+    fields['SIGNATURE_DATE_PROVIDER_C'] = format_date_for_ibm(nursing_home['signatureDate'])
 
-    fields.compact
+    fields
   end
   # rubocop:enable Metrics/MethodLength
 
