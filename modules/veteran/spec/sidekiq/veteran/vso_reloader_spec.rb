@@ -131,6 +131,91 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
+    context 'join table active/deactivated lifecycle' do
+      it 'deactivates stale rep<->org joins for orgs present in the latest feed run' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          # Ensure org is present (it will be imported/updated during reload)
+          create(:organization, poa: '091')
+
+          # Create a join that should NOT be in the feed
+          stale_rep = create(
+            :veteran_representative,
+            representative_id: 'STALE001',
+            first_name: 'Stale',
+            last_name: 'Rep',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO],
+            poa_codes: ['091']
+          )
+
+          stale_join = Veteran::Service::OrganizationRepresentative.create!(
+            representative_id: stale_rep.representative_id,
+            organization_poa: '091',
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          expect(stale_join.reload.deactivated_at).to be_present
+        end
+      end
+
+      it 'reactivates a previously-deactivated join when the pair reappears in the feed' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
+          # First run creates the join from the feed
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          rep = Veteran::Service::Representative.find_by!(first_name: 'Edgar', last_name: 'Anderson')
+          join = Veteran::Service::OrganizationRepresentative.find_by!(
+            representative_id: rep.representative_id,
+            organization_poa: '091'
+          )
+
+          # Simulate it being deactivated previously
+          join.update!(deactivated_at: 2.days.ago)
+          expect(join.reload.deactivated_at).to be_present
+
+          # Second run should reactivate it
+          Veteran::VSOReloader.new.reload_vso_reps
+          expect(join.reload.deactivated_at).to be_nil
+        end
+      end
+
+      it 'does not deactivate joins when VSO validation fails (processing is skipped)' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          create(:organization, poa: '091')
+
+          rep = create(
+            :veteran_representative,
+            representative_id: 'STAYS001',
+            first_name: 'Should',
+            last_name: 'StayActive',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO],
+            poa_codes: ['091']
+          )
+
+          join = Veteran::Service::OrganizationRepresentative.create!(
+            representative_id: rep.representative_id,
+            organization_poa: '091',
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
+
+          # Force VSO rep/org validation failure so process_vso_data is skipped
+          Veteran::AccreditationTotal.create!(
+            attorneys: 100,
+            claims_agents: 50,
+            vso_representatives: 1000,
+            vso_organizations: 1000,
+            created_at: 1.day.ago
+          )
+
+          Veteran::VSOReloader.new.reload_vso_reps
+          expect(join.reload.deactivated_at).to be_nil
+        end
+      end
+    end
+
     context 'stale organization removal' do
       it 'removes organizations whose POA is not in the vso_data' do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do

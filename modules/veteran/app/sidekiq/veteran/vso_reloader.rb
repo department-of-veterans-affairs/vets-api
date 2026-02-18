@@ -427,8 +427,12 @@ module Veteran
       Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
     end
 
-    # Inserts missing join rows for representative <-> organization relationships.
-    # Seeds acceptance_mode from Organization.can_accept_digital_poa_requests (status quo behavior).
+    # Syncs representative <-> organization relationships to the latest feed:
+    # - Inserts missing joins (seeding acceptance_mode from org.can_accept_digital_poa_requests).
+    # - Reactivates joins that re-appear in the feed.
+    # - Deactivates joins for orgs in this feed that are missing from the latest run.
+    #
+    # acceptance_mode is never overwritten by ingestion.
     def populate_org_representative_joins!(rep_org_pairs:, poa_codes:)
       pairs = rep_org_pairs.compact.uniq
       return if pairs.empty? || poa_codes.blank?
@@ -438,6 +442,7 @@ module Veteran
       return if rows.empty?
 
       insert_missing_org_rep_rows(rows)
+      sync_org_rep_active_status!(pairs:, poa_codes:)
     end
 
     def organization_accept_map(poa_codes)
@@ -461,7 +466,7 @@ module Veteran
     #
     # This prevents ingestion from overwriting per-representative
     # `acceptance_mode` once it has been explicitly set.
-
+    #
     # rubocop:disable Rails/SkipsModelValidations
     def insert_missing_org_rep_rows(rows)
       Veteran::Service::OrganizationRepresentative.insert_all(
@@ -470,6 +475,43 @@ module Veteran
       )
     end
     # rubocop:enable Rails/SkipsModelValidations
+
+    # Reactivate joins that re-appear in the feed, and deactivate joins for orgs in this
+    # feed that are missing from the latest run.
+    def sync_org_rep_active_status!(pairs:, poa_codes:)
+      reactivate_org_rep_pairs!(pairs)
+      deactivate_missing_org_rep_pairs!(pairs, poa_codes)
+    end
+
+    # rubocop:disable Rails/SkipsModelValidations
+    def reactivate_org_rep_pairs!(pairs)
+      now = Time.current
+
+      pairs.each_slice(1000) do |slice|
+        conditions = slice.map { |_| '(organization_poa = ? AND representative_id = ?)' }.join(' OR ')
+        binds = slice.flat_map { |rep_id, poa| [poa, rep_id] }
+
+        Veteran::Service::OrganizationRepresentative
+          .where.not(deactivated_at: nil)
+          .where(conditions, *binds)
+          .update_all(deactivated_at: nil)
+      end
+    end
+    # rubocop:enable Rails/SkipsModelValidations
+
+    def deactivate_missing_org_rep_pairs!(pairs, poa_codes)
+      expected = pairs.to_set { |rep_id, poa| [poa, rep_id] }
+      now = Time.current
+
+      Veteran::Service::OrganizationRepresentative
+        .where(organization_poa: poa_codes, deactivated_at: nil)
+        .find_each do |join|
+          key = [join.organization_poa, join.representative_id]
+          next if expected.include?(key)
+
+          join.update!(deactivated_at: now)
+        end
+    end
 
     def build_org_rep_rows(pairs, org_accept_map)
       pairs.filter_map do |rep_id, poa|
