@@ -26,9 +26,9 @@ module BGSDependents
         other_asset_amt: student_networth_information&.dig('other_assets'),
         rmks: @student&.dig('remarks'),
         marage_dt: format_date(@student&.dig('marriage_date')),
-        agency_paying_tuitn_nm: nil,
+        agency_paying_tuitn_nm: @student['type_of_program_or_benefit'],
         stock_bond_amt: student_networth_information&.dig('securities'),
-        govt_paid_tuitn_ind: convert_boolean(@student&.dig('tuition_is_paid_by_gov_agency')),
+        govt_paid_tuitn_ind: convert_boolean(@student['tuition_is_paid_by_gov_agency']),
         govt_paid_tuitn_start_dt: format_date(@student&.dig('benefit_payment_date')),
         term_year_emplmt_income_amt: student_earnings_from_school_year&.dig('earnings_from_all_employment'),
         term_year_other_income_amt: student_earnings_from_school_year&.dig('all_other_income'),
@@ -51,12 +51,35 @@ module BGSDependents
       bool == true ? 'Y' : 'N'
     end
 
+    def get_program(parent_object)
+      return nil if parent_object.blank?
+
+      type_mapping = {
+        'ch35' => 'Chapter 35',
+        'fry' => 'Fry Scholarship',
+        'feca' => 'FECA',
+      }
+      # sanitize object of false values
+      parent_object.compact_blank!
+      return nil if parent_object.blank?
+      # concat and sanitize values not in type_mapping
+      parent_object.map { |key, _value| type_mapping[key] }.reject(&:blank?).join(', ')
+    end
+
+    def assign_program_and_govt_paid_tuitn_ind
+      program = get_program(@student&.dig('type_of_program_or_benefit'))
+      if program.present?
+        @student['type_of_program_or_benefit'] = [program, @student&.dig('school_information', 'name')].reject(&:blank?).join(", ")
+        @student['tuition_is_paid_by_gov_agency'] = true
+      end
+    end
+
     def assign_attributes(data)
       @student_address_marriage_tuition = data['student_address_marriage_tuition']
       @student_earnings_from_school_year = data['student_earnings_from_school_year']
       @student_networth_information = data['student_networth_information']
       @student_expected_earnings_next_year = data['student_expected_earnings_next_year']
-      @student_information = data['student_information']
+      assign_program_and_govt_paid_tuitn_ind
     end
   end
 end

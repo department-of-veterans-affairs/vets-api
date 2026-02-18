@@ -54,11 +54,34 @@ module BGSDependents
 
     private
 
+    def get_program(parent_object)
+      return nil if parent_object.blank?
+
+      type_mapping = {
+        'ch35' => 'Chapter 35',
+        'fry' => 'Fry Scholarship',
+        'feca' => 'FECA',
+      }
+      # sanitize object of false values
+      parent_object.compact_blank!
+      return nil if parent_object.blank?
+      # concat and sanitize values not in type_mapping
+      parent_object.map { |key, _value| type_mapping[key] }.reject(&:blank?).join(', ')
+    end
+
+    def assign_school_name
+      if @student['type_of_program_or_benefit'].present?
+        program = get_program(@student['type_of_program_or_benefit'])
+        @school_information['name'] = [program, @school_information&.dig('name')].reject(&:blank?).join(", ") 
+      end
+    end
+
     def assign_attributes(data)
       @last_term_school_information = data['last_term_school_information']
       @school_information = data['school_information']
       @program_information = data['program_information']
       @current_term_dates = data['current_term_dates']
+      assign_school_name
     end
   end
 end
