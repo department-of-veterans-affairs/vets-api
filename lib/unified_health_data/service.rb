@@ -548,7 +548,6 @@ module UnifiedHealthData
       Rails.logger.info(
         {
           message: 'Clinical Notes show request',
-          note_id:,
           source: source_used,
           note_found: found,
           note_type: result&.note_type,
