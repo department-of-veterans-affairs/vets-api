@@ -444,18 +444,39 @@ module UnifiedHealthData
     end
 
     # Fetches a single Oracle Health note directly via the SCDF source-specific endpoint.
+    # The SCDF response is a FHIR Bundle containing Patient, DocumentReference, and
+    # OperationOutcome entries. We extract the DocumentReference for parsing.
     def fetch_oracle_health_note(note_id, source)
       response = uhd_client.get_note_by_source(
         patient_id: @user.icn,
         source:,
-        record_id: note_id
+        record_id: note_id,
+        start_date: default_start_date,
+        end_date: default_end_date
       )
       body = response.body
       return nil if body.blank?
 
-      record = body.is_a?(Hash) && body['resource'] ? body : { 'resource' => body }
+      doc_ref = extract_document_reference(body)
+      return nil unless doc_ref
+
+      record = { 'resource' => doc_ref }
       record['source'] = source
       parse_single_note(record)
+    end
+
+    # Extracts the DocumentReference resource from a FHIR Bundle response.
+    def extract_document_reference(body)
+      return nil unless body.is_a?(Hash)
+
+      entries = body['entry']
+      return body if body['resourceType'] == 'DocumentReference'
+      return nil unless entries.is_a?(Array)
+
+      doc_entry = entries.find do |entry|
+        entry.dig('resource', 'resourceType') == 'DocumentReference'
+      end
+      doc_entry&.dig('resource')
     end
 
     # Falls back to fetching all notes and filtering by ID (Vista path).

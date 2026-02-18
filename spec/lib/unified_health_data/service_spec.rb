@@ -1107,12 +1107,14 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     context 'when source is oracle-health' do
-      let(:oh_note_response_body) do
-        notes_sample_response['oracle-health']['entry'][1]
+      let(:single_oh_note_response) do
+        JSON.parse(Rails.root.join(
+          'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+        ).read)
       end
 
       let(:oh_client_response) do
-        Faraday::Response.new(body: oh_note_response_body)
+        Faraday::Response.new(body: single_oh_note_response)
       end
 
       before do
@@ -1122,25 +1124,36 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'calls the source-specific endpoint and returns the note' do
-        note = service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
         expect(note).not_to be_nil
+        expect(note.id).to eq('20875576613')
         expect(note.source).to eq('oracle-health')
+      end
+
+      it 'parses the DocumentReference fields correctly' do
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+        expect(note.name).to eq('Abbreviated Visit Summary')
+        expect(note.date).to eq('2026-02-02T21:13:27Z')
+        expect(note.signed_by).to eq('Victoria A Borland')
+        expect(note.location).to eq('668 Mann-Grandstaff WA VA Medical Center')
+        expect(note.note).to be_present
       end
 
       it 'calls get_note_by_source with the correct params' do
         expect_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_note_by_source)
-          .with(patient_id: user.icn, source: 'oracle-health', record_id: '15249697279')
+          .with(patient_id: user.icn, source: 'oracle-health', record_id: '20875576613',
+                start_date: '1900-01-01', end_date: Time.zone.today.to_s)
           .and_return(oh_client_response)
 
-        service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+        service.get_single_summary_or_note('20875576613', source: 'oracle-health')
       end
 
       it 'does not call get_notes_by_date' do
         expect_any_instance_of(UnifiedHealthData::Client)
           .not_to receive(:get_notes_by_date)
 
-        service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+        service.get_single_summary_or_note('20875576613', source: 'oracle-health')
       end
 
       it 'returns nil when the response body is blank' do
@@ -1148,7 +1161,22 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_note_by_source)
           .and_return(Faraday::Response.new(body: nil))
 
-        note = service.get_single_summary_or_note('15249697279', source: 'oracle-health')
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+        expect(note).to be_nil
+      end
+
+      it 'returns nil when the Bundle has no DocumentReference entry' do
+        bundle_without_doc_ref = {
+          'resourceType' => 'Bundle',
+          'entry' => [
+            { 'resource' => { 'resourceType' => 'Patient', 'id' => '123' } }
+          ]
+        }
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(Faraday::Response.new(body: bundle_without_doc_ref))
+
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
         expect(note).to be_nil
       end
     end

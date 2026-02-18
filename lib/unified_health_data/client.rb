@@ -35,9 +35,10 @@ module UnifiedHealthData
       perform(:get, path, nil, request_headers)
     end
 
-    def get_note_by_source(patient_id:, source:, record_id:)
+    def get_note_by_source(patient_id:, source:, record_id:, start_date:, end_date:)
       path = "#{config.base_path}notes/#{source}/#{record_id}" \
-             "?patientId=#{patient_id}"
+             "?patientId=#{patient_id}" \
+             "&startDate=#{start_date}&endDate=#{end_date}"
       perform(:get, path, nil, request_headers)
     end
 
