@@ -12,6 +12,12 @@ require 'datadog/statsd' # gem 'dogstatsd-ruby'
 require 'admin/redis_health_checker'
 require 'kafka/producer_manager'
 
+# Job classes whose args may contain PII (email/first_name); we redact these in error logs only.
+SIDEKIQ_PII_REDACT_JOB_CLASSES = [
+  'DebtManagementCenter::VANotifyEmailJob',
+  'DebtsApi::V0::Form5655::SendConfirmationEmailJob'
+].freeze
+
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
@@ -49,11 +55,12 @@ Rails.application.reloader.to_prepare do
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
 
-    # Redact PII from job in exception context before any handler logs it.
-    # (Middleware redacts when the job runs; this redacts again at log time so logs stay safe
-    # even if this process was started before the middleware was loaded.)
+    # Redact PII from job in exception context before any handler logs it (only for job classes that carry PII).
     config.error_handlers.unshift(lambda do |ex, ctx, _config = nil|
-      Sidekiq::FilterArgsMiddleware.filter_job!(ctx[:job]) if ctx.is_a?(Hash) && ctx[:job]
+      job = ctx.is_a?(Hash) && ctx[:job]
+      next unless job && SIDEKIQ_PII_REDACT_JOB_CLASSES.include?(job['class'].to_s)
+
+      Sidekiq::FilterArgsMiddleware.filter_job!(job)
     end)
 
     config.death_handlers << lambda do |job, ex|
