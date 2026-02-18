@@ -204,6 +204,15 @@ describe 'rake claims:fix_failed_claims', type: :task do
 
       # Stub sleep to speed up tests
       allow_any_instance_of(Kernel).to receive(:sleep)
+
+      # Mock Time.current to advance quickly and trigger timeout after a few iterations
+      base_time = Time.current
+      allow(Time).to receive(:current).and_return(
+        base_time,           # Initial deadline calculation
+        base_time,           # First loop check
+        base_time + 1.second, # Second loop check
+        base_time + 11.seconds # Third loop check - exceeds 10 second timeout
+      )
     end
 
     it 'raises an error with the claim ID and EVSS response' do
