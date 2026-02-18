@@ -8,7 +8,7 @@ module BioHeartApi
   class FormMapperRegistry
     MAPPERS = {
       '21P-0537' => BioHeartApi::FormMappers::Form21p0537Mapper,
-      '21P-601' => BioHeartApi::FormMappers::Form21p0601Mapper
+      '21P-601' => BioHeartApi::FormMappers::Form21p601Mapper
     }.freeze
 
     def self.mapper_for(form_number)

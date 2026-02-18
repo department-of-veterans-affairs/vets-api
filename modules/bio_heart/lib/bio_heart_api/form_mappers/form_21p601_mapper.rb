@@ -4,7 +4,7 @@ require 'bio_heart_api/form_mappers/base_mapper'
 
 module BioHeartApi
   module FormMappers
-    class Form21p0601Mapper < BioHeartApi::FormMappers::BaseMapper
+    class Form21p601Mapper < BioHeartApi::FormMappers::BaseMapper
       FORM_TYPE = '21P-601'
 
       # rubocop:disable Metrics/MethodLength

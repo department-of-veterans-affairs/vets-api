@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'bio_heart_api/form_mappers/form_21p601_mapper'
 
-RSpec.describe BioHeartApi::FormMappers::Form21p0601Mapper do
+RSpec.describe BioHeartApi::FormMappers::Form21p601Mapper do
   let(:form_data) do
     # JSON sent from the FE gets converted to a hash with
     # snake_case keynames, so emulating that here:
