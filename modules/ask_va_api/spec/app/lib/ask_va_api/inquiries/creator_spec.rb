@@ -303,6 +303,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     context 'telemetry and tracing' do
       before do
         setup_successful_service_response
+        allow(Rails.logger).to receive(:info)
       end
 
       it 'sets correct authentication tags' do
@@ -322,6 +323,22 @@ RSpec.describe AskVAApi::Inquiries::Creator do
           expect(value.keys & unsafe_fields).to be_empty
         end
         allow(span).to receive(:set_tag)
+
+        creator.call(inquiry_params: inquiry_params[:inquiry])
+      end
+
+      it 'logs inquiry result context with inquiry_number' do
+        expect(Rails.logger).to receive(:info).with(
+          'Inquiry Submission Result Context',
+          hash_including(inquiry_number: anything)
+        )
+
+        creator.call(inquiry_params: inquiry_params[:inquiry])
+      end
+
+      it 'does not log inquiry result context when handled data is blank' do
+        allow(service).to receive(:call).and_return(crm_failure_response)
+        expect(Rails.logger).not_to receive(:info).with('Inquiry Submission Result Context', anything)
 
         creator.call(inquiry_params: inquiry_params[:inquiry])
       end
