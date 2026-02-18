@@ -17,15 +17,19 @@ module IbmDataDictionary
 
     full_name_field = options[:full_name_field] || 'VETERAN_NAME'
 
-    {
+    fields = {
       'VETERAN_FIRST_NAME' => vet_info.dig('fullName', 'first'),
       'VETERAN_MIDDLE_INITIAL' => extract_middle_initial(vet_info.dig('fullName', 'middle')),
       'VETERAN_LAST_NAME' => vet_info.dig('fullName', 'last'),
-      full_name_field => build_full_name(vet_info['fullName']),
       'VETERAN_SSN' => vet_info['ssn'],
       'VA_FILE_NUMBER' => vet_info['vaFileNumber'],
       'VETERAN_DOB' => format_date_for_ibm(vet_info['dateOfBirth'])
-    }.compact
+    }
+
+    # Only include full name field if explicitly requested (prevents nil key)
+    fields[full_name_field] = build_full_name(vet_info['fullName']) if full_name_field
+
+    fields
   end
 
   # Build claimant identification fields
