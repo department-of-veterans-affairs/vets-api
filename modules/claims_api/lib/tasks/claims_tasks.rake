@@ -26,7 +26,10 @@ namespace :claims do
         claim.reload
         break if claim.status != ClaimsApi::AutoEstablishedClaim::ERRORED
 
-        raise "Timed out waiting for claim #{claim.id} to establish" if Time.current >= deadline
+        # if the claim is still errored, raise since the job likely failed
+        if Time.current >= deadline
+          raise StandardError, "Claim establishment failed for claim ID #{claim.id} with error: #{claim.evss_response}"
+        end
 
         sleep interval
       end
@@ -51,14 +54,8 @@ namespace :claims do
       ClaimsApi::ClaimEstablisher.perform_async(claim.id)
 
       # wait for the claim to be established or errored before proceeding
+      # if the claim is still errored, it will fail here
       wait_for_establishment.call(claim)
-
-      # validate claim is established or raise an error if still errored
-      if claim.status == ClaimsApi::AutoEstablishedClaim::ERRORED
-        raise ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
-          detail: "Claim establishment failed for claim ID #{claim.id} with error: #{claim.evss_response}"
-        )
-      end
 
       # upload 526EZ PDF per claim
       ClaimsApi::ClaimUploader.perform_async(claim.id, 'claim')

@@ -10,6 +10,7 @@ describe 'rake claims:export', type: :task do
   let(:tasks) { Rake::Task }
 
   before do
+    Rake::Task.clear if Rake::Task.task_defined?('claims:export')
     load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
     Rake::Task.define_task(:environment)
   end
@@ -48,6 +49,7 @@ describe 'rake claims:fix_failed_claims', type: :task do
   let(:tasks) { Rake::Task }
 
   before do
+    Rake::Task.clear if Rake::Task.task_defined?('claims:fix_failed_claims')
     load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
     Rake::Task.define_task(:environment)
   end
@@ -173,6 +175,43 @@ describe 'rake claims:fix_failed_claims', type: :task do
       expect(
         ClaimsApi::ClaimUploader
       ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
+    end
+  end
+
+  context 'when claim is not found' do
+    before do
+      allow(Rails.logger).to receive(:warn)
+    end
+
+    it 'logs a warning and skips to the next claim' do
+      args = Rake::TaskArguments.new([:claim_ids], ['non-existent-claim-id'])
+      expect { task.execute(args) }.not_to raise_error
+      expect(Rails.logger).to have_received(:warn).with('Could not find claim with id non-existent-claim-id').once
+    end
+  end
+
+  context 'when the claim is in an errored state and fails to establish again' do
+    let(:claim) do
+      create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+    end
+
+    before do
+      # Mock ClaimEstablisher to keep claim in errored state
+      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+        claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+        claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ERRORED, evss_response: 'Some error')
+      end
+
+      # Stub sleep to speed up tests
+      allow_any_instance_of(Kernel).to receive(:sleep)
+    end
+
+    it 'raises an error with the claim ID and EVSS response' do
+      args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+      expect { task.execute(args) }.to raise_error(
+        StandardError,
+        /Claim establishment failed for claim ID #{claim.id} with error: Some error/
+      )
     end
   end
 end
