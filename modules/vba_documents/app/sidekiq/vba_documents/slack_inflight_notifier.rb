@@ -12,6 +12,11 @@ module VBADocuments
 
     AGED_PROCESSING_QUERY_LIMIT = 10
     INVALID_PARTS_QUERY_LIMIT = 10
+    SUMMARY_THRESHOLDS = {
+      'uploaded' => { time: 26, unit: :hours },
+      'received' => { time: 4, unit: :days },
+      'processing' => { time: 8, unit: :days }
+    }.freeze
 
     def perform
       return unless Settings.vba_documents.slack.enabled
@@ -39,13 +44,8 @@ module VBADocuments
 
     def summary_notification
       results = ''
-      thresholds = {
-        'uploaded' => { time: 26, unit: :hours },
-        'received' => { time: 4, unit: :days },
-        'processing' => { time: 8, unit: :days }
-      }
 
-      thresholds.each do |status, config|
+      SUMMARY_THRESHOLDS.each do |status, config|
         uploads = filter_uploads_for_status(status)
         # only look at submissions from the last 9 days, to cover the longest threshold (8 days) plus a buffer day
         aged_uploads = uploads.aged_processing(config[:time], config[:unit], status)
