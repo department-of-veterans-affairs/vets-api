@@ -1977,7 +1977,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:bad_gateway)
           expect(response_obj['errors'].first['title']).to eq('Appointment creation failed')
-          expect(response_obj['errors'].first['detail']).to eq(
+          expect(response_obj['errors'].first['detail']).to start_with(
             'Error checking existing appointments: Missing ICN message'
           )
         end

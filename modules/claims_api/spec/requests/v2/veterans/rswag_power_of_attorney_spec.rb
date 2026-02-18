@@ -658,7 +658,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 200 response' do
         response '200', 'Submit decision' do
-          schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
+          schema JSON.load_file(File.expand_path('rswag/decide/200.json', __dir__))
 
           let(:data) { body_schema[:example] }
           let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Decide) }

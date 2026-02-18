@@ -7,6 +7,7 @@ module MyHealth
 
       set_id :message_id
 
+      attribute :reply_disabled
       attribute :message_id, &:id
       attribute :body, &:message_body
       attribute :message_id

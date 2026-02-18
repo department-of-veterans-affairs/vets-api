@@ -18,6 +18,7 @@ module UnifiedHealthData
                :admission_date,
                :discharge_date,
                :location,
-               :note # base64 encoded
+               :note, # base64 encoded
+               :source
   end
 end

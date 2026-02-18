@@ -20,6 +20,10 @@ describe Shrine::Plugins::ValidateCorrectForm do
       def warnings
         @warnings ||= []
       end
+
+      def errors
+        @errors ||= []
+      end
     end
   end
 
