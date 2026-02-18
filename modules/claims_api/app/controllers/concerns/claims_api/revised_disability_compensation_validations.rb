@@ -188,13 +188,13 @@ module ClaimsApi
       return if anticipated_separation_date.blank?
 
       # validate anticipated_separation_date is in the future
-      if parse_date_safely(anticipated_separation_date) <= Time.zone.today
+      if parse_date_safely(anticipated_separation_date) <= Date.current
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
       end
 
       # validate anticipated_separation_date is within 180 days of claimDate or current date if
       # claimDate is not provided. In line with v2 validation in revised_disability_compensation_validations.rb
-      start_date = parse_date_safely(form_attributes['claimDate'] || Time.zone.today.to_s)
+      start_date = parse_date_safely(form_attributes['claimDate'] || Date.current.to_s)
 
       if parse_date_safely(anticipated_separation_date) > (start_date + 180.days)
         raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
