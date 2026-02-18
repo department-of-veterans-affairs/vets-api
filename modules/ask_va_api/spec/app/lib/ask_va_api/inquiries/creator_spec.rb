@@ -83,7 +83,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   describe '#call' do
     context 'when the API call is successful' do
       before do
-        allow(service).to receive(:call).and_return(crm_success_response)
+        setup_successful_service_response
       end
 
       it 'assigns VeteranICN and posts data to the service' do
