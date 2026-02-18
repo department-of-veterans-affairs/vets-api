@@ -55,7 +55,8 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
+                                                  instance_of(User)).and_return(false)
 
         allow(BGS::Services).to receive(:new).and_return(bgs_service)
         allow(bgs_service).to receive(:people).and_return(bgs_people)
@@ -164,7 +165,8 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       let(:response) { double('response', success?: true) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
+                                                  instance_of(User)).and_return(true)
         allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:new).and_return(claim)
         allow(DigitalFormsApi::Service::Submissions).to receive(:new).and_return(dfa)
         allow(ClaimsEvidenceApi::Uploader).to receive(:new).and_return(uploader)

@@ -36,19 +36,17 @@ module V0
 
       # FDF pilot
       forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
-      if forms_api_enabled
-        if claim.claim_form_type == '21-686c'
-          begin
-            claim_info = claim.get_claim_information(current_user)
-            if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
-              submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
-              log_submitted(in_progress_form, claim)
-              claim.send_submitted_email(current_user)
-              return render json: SavedClaimSerializer.new(claim)
-            end
-          rescue => e
-            monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
+      if forms_api_enabled && (claim.claim_form_type == '21-686c')
+        begin
+          claim_info = claim.get_claim_information(current_user)
+          if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
+            submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+            log_submitted(in_progress_form, claim)
+            claim.send_submitted_email(current_user)
+            return render json: SavedClaimSerializer.new(claim)
           end
+        rescue => e
+          monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
         end
       end
 

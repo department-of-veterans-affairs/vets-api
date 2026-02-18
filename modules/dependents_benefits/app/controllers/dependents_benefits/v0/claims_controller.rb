@@ -52,23 +52,21 @@ module DependentsBenefits
         raise Common::Exceptions::ValidationErrors if !claim.submittable_686? && !claim.submittable_674?
 
         # FDF pilot
-        # TODO remove flipper and conditional and move to separate job
+        # TODO move to separate job (future)
         forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
-        if forms_api_enabled
-          if claim.claim_form_type == '21-686c'
-            begin
-              claim_info = claim.get_claim_information(current_user)
-              if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
-                submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+        if forms_api_enabled && (claim.claim_form_type == '21-686c')
+          begin
+            claim_info = claim.get_claim_information(current_user)
+            if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
+              submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
 
-                monitor.track_create_success(in_progress_form, claim, current_user)
-                DependentsBenefits::NotificationEmail.new(claim.id).send_submitted_notification
+              monitor.track_create_success(in_progress_form, claim, current_user)
+              DependentsBenefits::NotificationEmail.new(claim.id).send_submitted_notification
 
-                return render json: SavedClaimSerializer.new(claim)
-              end
-            rescue => e
-              monitor.track_request(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
+              return render json: SavedClaimSerializer.new(claim)
             end
+          rescue => e
+            monitor.track_request(:error, e.message, 'dependents_controller.forms_api_submission')
           end
         end
 
@@ -137,7 +135,7 @@ module DependentsBenefits
         end
       rescue => e
         monitor.track_request(:error, 'Evidence submission during Forms API processing failed',
-                            "#{STATS_KEY}.submit_pdf.failure", error: e.message)
+                              "#{STATS_KEY}.submit_pdf.failure", error: e.message)
       end
 
       # Limits the allowed parameters for dependents benefits claim submissions
