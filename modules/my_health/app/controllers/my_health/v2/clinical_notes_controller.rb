@@ -37,7 +37,7 @@ module MyHealth
       end
 
       def show
-        care_note = service.get_single_summary_or_note(params['id'])
+        care_note = service.get_single_summary_or_note(params['id'], source: params['source'])
         unless care_note
           render_error('Record Not Found',
                        'The requested record was not found',

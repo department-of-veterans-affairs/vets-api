@@ -14,6 +14,7 @@ require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
+require_relative 'source_constants'
 
 module UnifiedHealthData
   class Service
@@ -149,21 +150,13 @@ module UnifiedHealthData
       end
     end
 
-    def get_single_summary_or_note(note_id)
+    def get_single_summary_or_note(note_id, source: nil)
       with_monitoring do
-        # TODO: we will replace this with a direct call to the API once available
-        start_date = default_start_date
-        end_date = default_end_date
-
-        response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = response.body
-
-        remap_vista_uid(body)
-        combined_records = fetch_combined_records(body)
-        filtered = combined_records.find { |record| record['resource']['id'] == note_id }
-        return nil unless filtered
-
-        parse_single_note(filtered)
+        if source == SourceConstants::ORACLE_HEALTH
+          fetch_oracle_health_note(note_id, source)
+        else
+          fetch_note_from_all(note_id)
+        end
       end
     end
 
@@ -292,9 +285,11 @@ module UnifiedHealthData
     def fetch_combined_records(body)
       return [] if body.nil?
 
-      vista_records = (body.dig('vista', 'entry') || []).map { |r| r.merge('source' => 'vista') }
-      oracle_health_records = (body.dig('oracle-health', 'entry') || []).map do |r|
-        r.merge('source' => 'oracle-health')
+      vista_records = (body.dig(SourceConstants::VISTA, 'entry') || []).map do |r|
+        r.merge('source' => SourceConstants::VISTA)
+      end
+      oracle_health_records = (body.dig(SourceConstants::ORACLE_HEALTH, 'entry') || []).map do |r|
+        r.merge('source' => SourceConstants::ORACLE_HEALTH)
       end
       vista_records + oracle_health_records
     end
@@ -390,7 +385,7 @@ module UnifiedHealthData
     # Allergies methods
     def remap_vista_identifier(records)
       # TODO: Placeholder; will transition to a vista_uid
-      records['vista']['entry']&.each do |allergy|
+      records[SourceConstants::VISTA]['entry']&.each do |allergy|
         vista_identifier = allergy['resource']['identifier']&.find do |id|
           id['system'].starts_with?('https://va.gov/systems/')
         end
@@ -426,7 +421,7 @@ module UnifiedHealthData
     end
 
     def remap_vista_uid(records)
-      records['vista']['entry']&.each do |note|
+      records[SourceConstants::VISTA]['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']
 
@@ -446,6 +441,43 @@ module UnifiedHealthData
       return nil if record.blank?
 
       clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
+    end
+
+    # Fetches a single Oracle Health note directly via the SCDF source-specific endpoint.
+    def fetch_oracle_health_note(note_id, source)
+      response = uhd_client.get_note_by_source(
+        patient_id: @user.icn,
+        source:,
+        record_id: note_id
+      )
+      body = response.body
+      return nil if body.blank?
+
+      record = body.is_a?(Hash) && body['resource'] ? body : { 'resource' => body }
+      record['source'] = source
+      parse_single_note(record)
+    end
+
+    # Falls back to fetching all notes and filtering by ID (Vista path).
+    def fetch_note_from_all(note_id)
+      # TODO: we will replace this with a direct call to the API once available
+
+      start_date = default_start_date
+      end_date = default_end_date
+
+      response = uhd_client.get_notes_by_date(
+        patient_id: @user.icn, start_date:, end_date:
+      )
+      body = response.body
+
+      remap_vista_uid(body)
+      combined_records = fetch_combined_records(body)
+      filtered = combined_records.find do |record|
+        record['resource']['id'] == note_id
+      end
+      return nil unless filtered
+
+      parse_single_note(filtered)
     end
 
     def log_loinc_codes_enabled?
