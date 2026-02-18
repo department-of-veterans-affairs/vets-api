@@ -6,7 +6,7 @@ FactoryBot.define do
     primary_user_uuid { SecureRandom.uuid }
 
     primary_in_progress_form do
-      association :in_progress_form, form_id: '21-2680-PRIMARY'
+      association :in_progress_form, form_id: "#{form_type}-PRIMARY"
     end
 
     trait :with_secondary do

@@ -16,6 +16,8 @@ module V0
         render json: { data: show_response_data }
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, params[:id]
+      rescue Common::Exceptions::BaseError
+        raise
       rescue => e
         handle_show_error(e)
       end
@@ -31,11 +33,7 @@ module V0
           @submission.secondary_start!
         end
 
-        StatsD.increment(
-          'multi_party_form.secondary_started',
-          tags: ["form_type:#{@submission.form_type}"]
-        )
-
+        track_metric('secondary_started')
         render json: { data: start_response_data }
       rescue AASM::InvalidTransition => e
         handle_state_transition_error(e)
@@ -43,6 +41,8 @@ module V0
         handle_validation_error(e)
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, params[:id]
+      rescue Common::Exceptions::BaseError
+        raise
       rescue => e
         handle_start_error(e)
       end
@@ -129,6 +129,13 @@ module V0
         {}
       end
 
+      def track_metric(event)
+        StatsD.increment(
+          "multi_party_form.#{event}",
+          tags: ["form_type:#{@submission.form_type}"]
+        )
+      end
+
       def handle_state_transition_error(error)
         Rails.logger.warn(
           'MultiPartyForms::SecondaryController: Invalid state transition on start',
@@ -175,7 +182,7 @@ module V0
             backtrace: error.backtrace&.first(5)
           }
         )
-        StatsD.increment('multi_party_form.secondary.start.failure')
+        track_metric('secondary.start.failure')
         raise
       end
 
@@ -190,7 +197,7 @@ module V0
           }
         )
 
-        StatsD.increment('multi_party_form.secondary.show.failure')
+        track_metric('secondary.show.failure')
         raise
       end
     end
