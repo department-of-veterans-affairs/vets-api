@@ -51,16 +51,24 @@ module VBADocuments
         aged_uploads = uploads.aged_processing(config[:time], config[:unit], status)
                               .where('created_at > ?', 9.days.ago)
 
-        aged_uploads.each { |upload| results += format_violation(upload, status) }
+        total_aged_uploads = aged_uploads.count
+        next unless total_aged_uploads.positive?
+
+        limited_uploads = aged_uploads.limit(AGED_PROCESSING_QUERY_LIMIT)
+        results += "\nStatus '#{status}': #{total_aged_uploads} submissions exceed thresholds " \
+                   "(showing up to #{AGED_PROCESSING_QUERY_LIMIT}).\n"
+
+        limited_uploads.each { |upload| results += format_violation(upload, status) }
       end
 
       if results.present?
         notify_slack('Submissions Exceeding Thresholds', results)
-        true
       else
         Rails.logger.info('VBADocuments::SlackInflightNotifier: No submissions exceed thresholds')
-        false
+        notify_slack('Submissions Exceeding Thresholds', "\nNo submissions exceed thresholds.")
       end
+
+      true
     end
 
     def filter_uploads_for_status(status)
