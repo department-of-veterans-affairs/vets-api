@@ -27,34 +27,34 @@ module Mobile
           status: WARNING_STATUS
         }.freeze
 
-        UNKNOWN_SERVICE_RESPONSE = {
-          title: STANDARD_ERROR_TITLE,
-          message: ::VeteranStatusCard::Constants::UNKNOWN_SERVICE_MESSAGE,
-          status: WARNING_STATUS
-        }.freeze
-
-        EDIPI_NO_PNL_RESPONSE = {
-          title: STANDARD_ERROR_TITLE,
-          message: ::VeteranStatusCard::Constants::EDIPI_NO_PNL_MESSAGE,
+        UNKNOWN_ELIGIBILITY_RESPONSE = {
+          title: ::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_TITLE,
+          message: ::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_MESSAGE,
           status: WARNING_STATUS
         }.freeze
 
         CURRENTLY_SERVING_RESPONSE = {
           title: STANDARD_ERROR_TITLE,
-          message: STANDARD_ERROR_MESSAGE,
+          message: ::VeteranStatusCard::Constants::CURRENTLY_SERVING_MESSAGE,
           status: WARNING_STATUS
         }.freeze
 
-        ERROR_RESPONSE = {
-          title: STANDARD_ERROR_TITLE,
-          message: STANDARD_ERROR_MESSAGE,
-          status: ERROR_STATUS
+        UNCAUGHT_ERROR_RESPONSE = {
+          title: ::VeteranStatusCard::Constants::UNCAUGHT_ERROR_TITLE,
+          message: ::VeteranStatusCard::Constants::UNCAUGHT_ERROR_MESSAGE,
+          status: WARNING_STATUS
         }.freeze
 
         SOMETHING_WENT_WRONG_RESPONSE = {
           title: ::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_TITLE,
           message: ::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_MESSAGE,
           status: ERROR_STATUS
+        }.freeze
+
+        PERSON_NOT_FOUND_RESPONSE = {
+          title: STANDARD_ERROR_TITLE,
+          message: ::VeteranStatusCard::Constants::PERSON_NOT_FOUND_MESSAGE,
+          status: WARNING_STATUS
         }.freeze
       end
     end
