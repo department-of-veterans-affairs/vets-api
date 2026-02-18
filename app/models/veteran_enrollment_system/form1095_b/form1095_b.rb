@@ -12,7 +12,7 @@ module VeteranEnrollmentSystem
         '2023': :pdf_attributes_v1,
         '2024': :pdf_attributes_v1,
         '2025': :pdf_attributes_v2
-        }.freeze
+      }.freeze
 
       attribute :first_name, String
       attribute :middle_name, String
