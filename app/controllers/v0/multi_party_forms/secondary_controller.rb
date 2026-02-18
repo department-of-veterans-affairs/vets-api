@@ -37,8 +37,14 @@ module V0
         )
 
         render json: { data: start_response_data }
+      rescue AASM::InvalidTransition => e
+        handle_state_transition_error(e)
+      rescue ActiveRecord::RecordInvalid => e
+        handle_validation_error(e)
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, params[:id]
+      rescue => e
+        handle_start_error(e)
       end
 
       private
@@ -51,10 +57,6 @@ module V0
         unless @submission.verify_secondary_token(params[:token])
           raise Common::Exceptions::Forbidden,
                 detail: 'The access token is invalid or has expired'
-        end
-        unless @submission.may_secondary_start?
-          raise Common::Exceptions::UnprocessableEntity,
-                detail: 'Submission cannot be started in its current state'
         end
       end
 
@@ -125,6 +127,56 @@ module V0
           }
         )
         {}
+      end
+
+      def handle_state_transition_error(error)
+        Rails.logger.warn(
+          'MultiPartyForms::SecondaryController: Invalid state transition on start',
+          {
+            submission_id: params[:id],
+            user_id: current_user&.uuid,
+            error: error.message
+          }
+        )
+        render json: {
+          errors: [{
+            title: 'Invalid state transition',
+            detail: 'The submission cannot be started in its current state',
+            status: '422'
+          }]
+        }, status: :unprocessable_entity
+      end
+
+      def handle_validation_error(error)
+        Rails.logger.warn(
+          'MultiPartyForms::SecondaryController: Validation error on start',
+          {
+            submission_id: params[:id],
+            user_id: current_user&.uuid,
+            error: error.message
+          }
+        )
+        render json: {
+          errors: [{
+            title: 'Validation failed',
+            detail: error.message,
+            status: '422'
+          }]
+        }, status: :unprocessable_entity
+      end
+
+      def handle_start_error(error)
+        Rails.logger.error(
+          'MultiPartyForms::SecondaryController: Error starting submission',
+          {
+            submission_id: params[:id],
+            user_id: current_user&.uuid,
+            error: error.message,
+            backtrace: error.backtrace&.first(5)
+          }
+        )
+        StatsD.increment('multi_party_form.secondary.start.failure')
+        raise
       end
 
       def handle_show_error(error)
