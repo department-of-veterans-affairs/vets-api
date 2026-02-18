@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_claimant_details:
+    actor_type: user
+    description: Enables the claimant details page on the frontend
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -2553,6 +2557,10 @@ features:
   income_and_assets_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Income and Assets
+  increase_compensation_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-8940"
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user

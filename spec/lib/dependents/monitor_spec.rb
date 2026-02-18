@@ -378,8 +378,18 @@ RSpec.describe Dependents::Monitor do
 
       # Allow any StatsD calls to happen for test setup or the test will fail
       allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
 
       expect(StatsD).to receive(:increment).with(metric, tags: ["form_id:#{form_id}"])
+      expect(Rails.logger).to receive(:info).with('Pension-related claim submitted: 686c-674', {
+                                                    service: 'dependents-application',
+                                                    claim: claim_v2,
+                                                    user_account_uuid: nil,
+                                                    tags: ["form_id:#{form_id}", 'service:dependents-application'],
+                                                    statsd: metric,
+                                                    form_id:,
+                                                    form_type: claim_v2.claim_form_type
+                                                  })
 
       monitor_v2.track_pension_related_submission(form_id:, form_type: '686c-674')
     end
