@@ -40,10 +40,54 @@ describe Sidekiq::FilterArgsMiddleware do
       expect(job['args']).to eq(['template_123', 42, true, nil])
     end
 
+    it 'redacts string args that look like email (contain @) so exception logs do not contain PII' do
+      job = {
+        'class' => 'VANotifyEmailJob',
+        'args' => ['user@va.gov', 'template_id', { 'first_name' => 'Jane' }, {}]
+      }
+      middleware.call(worker, job, queue) {}
+
+      expect(job['args'][0]).to eq('[REDACTED]')
+      expect(job['args'][1]).to eq('template_id')
+      expect(job['args'][2]).to eq({}) # first_name stripped from hash
+      expect(job['args'][0]).not_to include('user@va.gov')
+    end
+
     it 'leaves args filtered when the block raises so error handlers do not log PII' do
       job = { 'class' => 'SomeJob', 'args' => [{ email: 'pii@va.gov', id: 1 }] }
       expect { middleware.call(worker, job, queue) { raise 'boom' } }.to raise_error('boom')
       expect(job['args'][0]).to eq({ id: 1 })
+    end
+
+    it 'FilterArgsMiddleware.filter_job! filters a job hash in place for use in error handlers' do
+      job = {
+        'class' => 'DebtManagementCenter::VANotifyEmailJob',
+        'args' => ['pii@va.gov', 'template_id', { 'first_name' => 'Jane' }, {}]
+      }
+      Sidekiq::FilterArgsMiddleware.filter_job!(job)
+      expect(job['args'][0]).to eq('[REDACTED]')
+      expect(job['args'][2]).to eq({})
+      expect(job.inspect).not_to include('pii@va.gov', 'Jane')
+    end
+
+    it 'ensures hash args never contain email or first_name so logging job never logs those PII keys' do
+      # Middleware strips :email and :first_name from any Hash in args (e.g. user_pii, personalisation)
+      pii_email = 'never-log-me@va.gov'
+      pii_first_name = 'NeverLogMe'
+      job = {
+        'class' => 'SomeJob',
+        'jid' => 'abc123',
+        'args' => [
+          { 'email' => pii_email, 'first_name' => pii_first_name, 'id' => 1 }
+        ]
+      }
+      middleware.call(worker, job, queue) {}
+
+      # Simulate what gets logged when job is inspected (e.g. death handler, SemanticLogging)
+      logged_content = job.inspect + job['args'].inspect
+
+      expect(logged_content).not_to include(pii_email), 'email must not appear in job after middleware'
+      expect(logged_content).not_to include(pii_first_name), 'first_name must not appear in job after middleware'
     end
   end
 end

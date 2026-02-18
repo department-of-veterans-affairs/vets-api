@@ -49,6 +49,13 @@ Rails.application.reloader.to_prepare do
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
 
+    # Redact PII from job in exception context before any handler logs it.
+    # (Middleware redacts when the job runs; this redacts again at log time so logs stay safe
+    # even if this process was started before the middleware was loaded.)
+    config.error_handlers.unshift(lambda do |ex, ctx, _config = nil|
+      Sidekiq::FilterArgsMiddleware.filter_job!(ctx[:job]) if ctx.is_a?(Hash) && ctx[:job]
+    end)
+
     config.death_handlers << lambda do |job, ex|
       Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
     end

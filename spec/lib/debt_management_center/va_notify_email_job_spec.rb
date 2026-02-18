@@ -15,6 +15,29 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
   end
 
   describe '#perform' do
+    describe 'PII never logged' do
+      it 'does not log email or first_name when retries exhausted' do
+        pii_email = 'pii-no-log@example.com'
+        pii_first_name = 'NoLogFirst'
+        log_calls = []
+        allow(Rails.logger).to receive(:error) do |*args|
+          log_calls << args.map(&:to_s).join(' ')
+          nil
+        end
+
+        job = { 'args' => [pii_email, 'template_id', { 'first_name' => pii_first_name }, {}] }
+        exception = StandardError.new('fail')
+        allow(exception).to receive(:backtrace).and_return([])
+        allow(StatsD).to receive(:increment)
+
+        described_class.sidekiq_retries_exhausted_block.call(job, exception)
+
+        logged = log_calls.join(' ')
+        expect(logged).not_to include(pii_email), 'email must not appear in any log'
+        expect(logged).not_to include(pii_first_name), 'first_name must not appear in any log'
+      end
+    end
+
     describe 'cache_key and plain_pii' do
       context 'when options have no cache_key (not using cache)' do
         it 'decrypts identifier and personalisation first_name before sending to VaNotify' do
