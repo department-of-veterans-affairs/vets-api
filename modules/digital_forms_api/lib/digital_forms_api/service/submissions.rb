@@ -47,6 +47,11 @@ module DigitalFormsApi
         'submissions'
       end
 
+      # Validate submission payload data using the current Forms API schema.
+      # @param payload [Hash]
+      # @param metadata [Hash]
+      # @return [Hash] validated payload
+      # @raise [JSON::Schema::ValidationError]
       def validate_submission_payload(payload, metadata)
         form_id = metadata[:formId]
         form_schema = DigitalFormsApi::Service::Schema.new.fetch(form_id)

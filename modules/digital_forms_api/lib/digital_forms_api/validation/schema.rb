@@ -3,6 +3,7 @@
 require 'json-schema'
 
 module DigitalFormsApi
+  # Shared JSON schema validation helpers.
   module Validation
     module_function
 
