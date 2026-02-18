@@ -9,19 +9,20 @@ module Burials
       # Section configuration hash
       KEY = {
         'previousNames' => {
+          limit: 1,
+          item_label: 'Other Name',
+          first_key: 'last',
           'first' => {
             key: 'form1[0].#subform[94].Other_Name_You_Served_Under_First_Name[0]',
-            limit: 12,
             question_num: 14,
-            question_label: 'Other Name You Served Under - First Name',
-            question_text: 'OTHER NAME YOU SERVED UNDER - FIRST NAME'
+            question_label: 'First',
+            question_text: 'FIRST'
           },
           'last' => {
             key: 'form1[0].#subform[94].Other_Name_You_Served_Under_Last_Name[0]',
-            limit: 18,
             question_num: 14,
-            question_label: 'Other Name You Served Under - Last Name',
-            question_text: 'OTHER NAME YOU SERVED UNDER - LAST NAME'
+            question_label: 'Last',
+            question_text: 'LAST'
           }
         },
         'serviceDateRange' => {
@@ -145,57 +146,34 @@ module Burials
         },
         'powPeriods' => {
           limit: 2,
+          label_all: true,
+          item_label: 'POW Confinement Period',
+          'powPeriodOverflow' => {
+            question_num: 20,
+            question_label: 'POW Confinement Period',
+            question_text: 'POW CONFINEMENT PERIOD'
+          },
           'powDateRange' => {
             'from' => {
               'month' => {
-                key: "form1[0].#subform[94].Date_Confinement_Started_Month[#{ITERATOR}]",
-                limit: 2,
-                question_num: 20,
-                question_suffix: 'B',
-                question_label: 'Date Confinement Started - Month',
-                question_text: 'DATE CONFINEMENT STARTED - MONTH'
+                key: "form1[0].#subform[94].Date_Confinement_Started_Month[#{ITERATOR}]"
               },
               'day' => {
-                key: "form1[0].#subform[94].Date_Confinement_Started_Day[#{ITERATOR}]",
-                limit: 2,
-                question_num: 20,
-                question_suffix: 'B',
-                question_label: 'Date Confinement Started - Day',
-                question_text: 'DATE CONFINEMENT STARTED - DAY'
+                key: "form1[0].#subform[94].Date_Confinement_Started_Day[#{ITERATOR}]"
               },
               'year' => {
-                key: "form1[0].#subform[94].Date_Confinement_Started_Year[#{ITERATOR}]",
-                limit: 4,
-                question_num: 20,
-                question_suffix: 'B',
-                question_label: 'Date Confinement Started - Year',
-                question_text: 'DATE CONFINEMENT STARTED - YEAR'
+                key: "form1[0].#subform[94].Date_Confinement_Started_Year[#{ITERATOR}]"
               }
             },
             'to' => {
               'month' => {
-                key: "form1[0].#subform[94].Date_Confinement_Ended_Month[#{ITERATOR}]",
-                limit: 2,
-                question_num: 20,
-                question_suffix: 'C',
-                question_label: 'Date Confinement Ended - Month',
-                question_text: 'DATE CONFINEMENT ENDED - MONTH'
+                key: "form1[0].#subform[94].Date_Confinement_Ended_Month[#{ITERATOR}]"
               },
               'day' => {
-                key: "form1[0].#subform[94].Date_Confinement_Ended_Day[#{ITERATOR}]",
-                limit: 2,
-                question_num: 20,
-                question_suffix: 'C',
-                question_label: 'Date Confinement Ended - Day',
-                question_text: 'DATE CONFINEMENT ENDED - DAY'
+                key: "form1[0].#subform[94].Date_Confinement_Ended_Day[#{ITERATOR}]"
               },
               'year' => {
-                key: "form1[0].#subform[94].Date_Confinement_Ended_Year[#{ITERATOR}]",
-                limit: 4,
-                question_num: 20,
-                question_suffix: 'C',
-                question_label: 'Date Confinement Ended - Year',
-                question_text: 'DATE CONFINEMENT ENDED - YEAR'
+                key: "form1[0].#subform[94].Date_Confinement_Ended_Year[#{ITERATOR}]"
               }
             }
           }
@@ -226,19 +204,14 @@ module Burials
         previous_names = form_data['previousNames']
         return if previous_names.blank?
 
-        # Take the first previous name from the array
-        name = previous_names.first
-        return if name.blank?
-
-        # First field: just first name
-        # Last field: middle initial + last name + suffix
-        middle_initial = name['middle'].present? ? name['middle'][0] : nil
-        full_last = [middle_initial, name['last'], name['suffix']].compact.join(' ')
-
-        form_data['previousNames'] = {
-          'first' => name['first'],
-          'last' => full_last
-        }
+        form_data['previousNames'] = previous_names.map do |name|
+          middle_initial = name['middle'].present? ? name['middle'][0] : nil
+          full_last = [middle_initial, name['last'], name['suffix']].compact.join(' ')
+          {
+            'first' => name['first'],
+            'last' => full_last
+          }
+        end
       end
 
       ##
@@ -297,6 +270,7 @@ module Burials
 
       ##
       # Expands POW periods into month/day/year fields
+      # First 2 periods fit on PDF, additional periods overflow
       #
       # @param form_data [Hash]
       #
@@ -306,11 +280,15 @@ module Burials
         return if pow_periods.blank?
 
         form_data['powPeriods'] = pow_periods.map do |period|
+          from_date = period.dig('powDateRange', 'from')
+          to_date = period.dig('powDateRange', 'to')
+
           {
             'powDateRange' => {
-              'from' => split_date(period.dig('powDateRange', 'from')),
-              'to' => split_date(period.dig('powDateRange', 'to'))
-            }
+              'from' => split_date(from_date),
+              'to' => split_date(to_date)
+            },
+            'powPeriodOverflow' => "#{from_date} to #{to_date}"
           }
         end
       end

@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_claimant_details:
+    actor_type: user
+    description: Enables the claimant details page on the frontend
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -1925,6 +1929,9 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  schema_contract_get_awards_pension:
+    actor_type: user
+    description: Enables schema validation for the pensions service get awards pension fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -2331,6 +2338,15 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging on payment history controller and enable drop off tracking.
+  payment_history_exception_logging:
+    actor_type: user
+    description: Enables exception logging on payment history controller and enables exception drop off tracking.
+  payment_history_validation_logging:
+    actor_type: user
+    description: Enables logging used to check inputs for required attributes for payment history services.
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2542,6 +2558,10 @@ features:
   income_and_assets_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Income and Assets
+  increase_compensation_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-8940"
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user

@@ -176,7 +176,10 @@ module Dependents
     def track_pension_related_submission(form_id:, form_type:)
       tags = ["form_id:#{form_id}"]
       metric = "#{PENSION_SUBMISSION_STATS_KEY}.#{form_type}.submitted"
+      payload = default_payload.merge({ statsd: metric, form_id:, form_type: })
+
       StatsD.increment(metric, tags:)
+      Rails.logger.info("Pension-related claim submitted: #{form_type}", payload)
     end
 
     def track_event(level, message, stats_key, payload = {})

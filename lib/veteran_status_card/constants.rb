@@ -28,12 +28,11 @@ module VeteranStatusCard
     DISHONORABLE_MESSAGE = [
       {
         type: 'text',
-        value: 'To get a Veteran Status Card, you must have received an honorable discharge for at least ' \
-               'one period of service.'
+        value: "Your service history and discharge status don't meet the requirements for a Veteran Status Card."
       },
       {
         type: 'text',
-        value: "If you think this is incorrect, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+        value: "If you think this is incorrect, call us. We're open #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -50,11 +49,11 @@ module VeteranStatusCard
     INELIGIBLE_SERVICE_MESSAGE = [
       {
         type: 'text',
-        value: 'Your service history does not indicate an eligible period of service.'
+        value: "Your service doesn't meet the requirements for a Veteran Status Card."
       },
       {
         type: 'text',
-        value: "If you think this is incorrect, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+        value: "If you think this is incorrect, call us. We're open #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -68,14 +67,15 @@ module VeteranStatusCard
       status: WARNING_STATUS
     }.freeze
 
-    UNKNOWN_SERVICE_MESSAGE = [
+    UNKNOWN_ELIGIBILITY_TITLE = "We don't know if you're eligible for this card"
+    UNKNOWN_ELIGIBILITY_MESSAGE = [
       {
         type: 'text',
         value: 'Your record is missing information about your service history or discharge status.'
       },
       {
         type: 'text',
-        value: "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+        value: "To fix the problem, call us. We're open #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -83,20 +83,20 @@ module VeteranStatusCard
         tty: true
       }
     ].freeze
-    UNKNOWN_SERVICE_RESPONSE = {
-      title: STANDARD_ERROR_TITLE,
-      message: UNKNOWN_SERVICE_MESSAGE,
+    UNKNOWN_ELIGIBILITY_RESPONSE = {
+      title: UNKNOWN_ELIGIBILITY_TITLE,
+      message: UNKNOWN_ELIGIBILITY_MESSAGE,
       status: WARNING_STATUS
     }.freeze
 
-    EDIPI_NO_PNL_MESSAGE = [
+    CURRENTLY_SERVING_MESSAGE = [
       {
         type: 'text',
-        value: "There's a problem with your records."
+        value: "You can't get a Veteran Status Card if you're currently serving."
       },
       {
         type: 'text',
-        value: "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+        value: "If you have a previous period of service, call us. We're open #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -104,44 +104,57 @@ module VeteranStatusCard
         tty: true
       }
     ].freeze
-    EDIPI_NO_PNL_RESPONSE = {
-      title: STANDARD_ERROR_TITLE,
-      message: EDIPI_NO_PNL_MESSAGE,
-      status: WARNING_STATUS
-    }.freeze
-
     CURRENTLY_SERVING_RESPONSE = {
       title: STANDARD_ERROR_TITLE,
-      message: STANDARD_ERROR_MESSAGE,
+      message: CURRENTLY_SERVING_MESSAGE,
       status: WARNING_STATUS
     }.freeze
 
-    ERROR_RESPONSE = {
-      title: STANDARD_ERROR_TITLE,
-      message: STANDARD_ERROR_MESSAGE,
-      status: ERROR_STATUS
+    UNCAUGHT_ERROR_TITLE = "This page isn't working right now"
+    UNCAUGHT_ERROR_MESSAGE = [
+      {
+        type: 'text',
+        value: "We're sorry. Something went wrong on our end. Refresh this page or try again later."
+      }
+    ].freeze
+    UNCAUGHT_ERROR_RESPONSE = {
+      title: UNCAUGHT_ERROR_TITLE,
+      message: UNCAUGHT_ERROR_MESSAGE,
+      status: WARNING_STATUS
     }.freeze
 
-    SOMETHING_WENT_WRONG_TITLE = "We're sorry, something went wrong"
+    SOMETHING_WENT_WRONG_TITLE = 'Something went wrong'
     SOMETHING_WENT_WRONG_MESSAGE = [
       {
         type: 'text',
-        value: 'Something went wrong on our end. Please try again later.'
-      },
-      {
-        type: 'text',
-        value: "If this problem persists, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
-      },
-      {
-        type: 'phone',
-        value: SUPPORT_PHONE,
-        tty: true
+        value: "We're sorry. Something went wrong on our end. Try again later."
       }
     ].freeze
     SOMETHING_WENT_WRONG_RESPONSE = {
       title: SOMETHING_WENT_WRONG_TITLE,
       message: SOMETHING_WENT_WRONG_MESSAGE,
       status: ERROR_STATUS
+    }.freeze
+
+    PERSON_NOT_FOUND_MESSAGE = [
+      {
+        type: 'text',
+        value: 'Your records are missing from the system.'
+      },
+      {
+        type: 'text',
+        value: "To fix the issue, call us. We're open #{SUPPORT_HOURS}"
+      },
+      {
+        type: 'phone',
+        value: SUPPORT_PHONE,
+        tty: true
+      }
+    ].freeze
+    PERSON_NOT_FOUND_RESPONSE = {
+      title: STANDARD_ERROR_TITLE,
+      message: PERSON_NOT_FOUND_MESSAGE,
+      status: WARNING_STATUS
     }.freeze
   end
 end

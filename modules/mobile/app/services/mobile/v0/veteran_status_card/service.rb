@@ -55,19 +55,11 @@ module Mobile
         end
 
         ##
-        # @see VeteranStatusCard::Service#unknown_service_response
-        # @return [Hash] mobile-specific unknown service response
+        # @see VeteranStatusCard::Service#unknown_eligibility_response
+        # @return [Hash] mobile-specific unknown eligibility response
         #
-        def unknown_service_response
-          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
-        end
-
-        ##
-        # @see VeteranStatusCard::Service#edipi_no_pnl_response
-        # @return [Hash] mobile-specific EDIPI no PNL response
-        #
-        def edipi_no_pnl_response
-          Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+        def unknown_eligibility_response
+          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
         end
 
         ##
@@ -79,11 +71,19 @@ module Mobile
         end
 
         ##
-        # @see VeteranStatusCard::Service#error_response
-        # @return [Hash] mobile-specific error response
+        # @see VeteranStatusCard::Service#uncaught_error_response
+        # @return [Hash] mobile-specific uncaught error response
         #
-        def error_response
-          Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE
+        def uncaught_error_response
+          Mobile::V0::VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+        end
+
+        ##
+        # @see VeteranStatusCard::Service#person_not_found_response
+        # @return [Hash] mobile-specific person not found response
+        #
+        def person_not_found_response
+          Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
         end
       end
     end

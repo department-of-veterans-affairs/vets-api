@@ -248,10 +248,10 @@ RSpec.describe DependentsBenefits::Monitor do
     it 'calls submit_event with info level using action' do
       message = 'Test info message'
       action = 'test_action'
-      context = { test: 'context' }
+      context = { test: 'context', module_stats_key: described_class::PENSION_SUBMISSION_STATS_KEY }
       expected_context = { test: 'context', tags: ["action:#{action}"] }
 
-      expect(monitor).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
+      expect(monitor).to receive(:submit_event).with(:info, message, described_class::PENSION_SUBMISSION_STATS_KEY,
                                                      **expected_context)
       monitor.track_info_event(message, action:, **context)
     end
