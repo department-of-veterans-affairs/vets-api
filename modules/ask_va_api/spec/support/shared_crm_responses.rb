@@ -22,4 +22,14 @@ RSpec.shared_context 'shared crm responses' do
       MessageId: '00000000-0000-0000-0000-000000000000'
     }
   end
+
+  let(:crm_failure_response) do
+    {
+      Data: nil,
+      Message: 'Data Validation: missing InquiryCategory',
+      ExceptionOccurred: true,
+      ExceptionMessage: 'Data Validation: missing InquiryCategory',
+      MessageId: 'cb0dd954-ef25-4e56-b0d9-41925e5a190c'
+    }
+  end
 end
