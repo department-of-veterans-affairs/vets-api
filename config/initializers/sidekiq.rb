@@ -56,7 +56,7 @@ Rails.application.reloader.to_prepare do
     end
 
     # Redact PII from job in exception context before any handler logs it (only for job classes that carry PII).
-    config.error_handlers.unshift(lambda do |ex, ctx, _config = nil|
+    config.error_handlers.unshift(lambda do |_ex, ctx, _config = nil|
       job = ctx.is_a?(Hash) && ctx[:job]
       next unless job && SIDEKIQ_PII_REDACT_JOB_CLASSES.include?(job['class'].to_s)
 

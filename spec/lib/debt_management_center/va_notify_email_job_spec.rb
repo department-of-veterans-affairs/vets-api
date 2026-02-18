@@ -25,7 +25,10 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
         pii_email = 'pii-no-log@example.com'
         pii_first_name = 'NoLogFirst'
         log_calls = []
-        allow(Rails.logger).to receive(:error) { |*args| log_calls << args.map(&:to_s).join(' '); nil }
+        allow(Rails.logger).to receive(:error) { |*args|
+          log_calls << args.map(&:to_s).join(' ')
+          nil
+        }
         allow(StatsD).to receive(:increment)
         exception = StandardError.new('fail')
         allow(exception).to receive(:backtrace).and_return([])
@@ -193,7 +196,7 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
       it 'does not use the callback options when failure_mailer is not set' do
         allow(va_notify_client).to receive(:send_email)
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key)
-          .and_return(va_notify_client)
+                                                  .and_return(va_notify_client)
         config.new.perform(email, template_id, personalisation)
       end
     end

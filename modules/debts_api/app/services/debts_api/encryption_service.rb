@@ -10,8 +10,6 @@ module DebtsApi
       encryptor.decrypt_and_verify(encrypted_value)
     end
 
-    private
-
     def self.encryptor
       key = Rails.application.key_generator.generate_key('pii_data', 32)
       ActiveSupport::MessageEncryptor.new(key)

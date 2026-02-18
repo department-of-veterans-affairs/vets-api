@@ -21,12 +21,12 @@ require 'debt_management_center/sidekiq/va_notify_email_job'
 TEST_EMAIL = 'pii-test-no-log@example.com'
 TEST_FIRST_NAME = 'PiiTestFirst'
 
-puts "Enqueuing DebtManagementCenter::VANotifyEmailJob with test PII..."
+puts 'Enqueuing DebtManagementCenter::VANotifyEmailJob with test PII...'
 puts "  email: #{TEST_EMAIL}"
 puts "  first_name: #{TEST_FIRST_NAME}"
-puts ""
-puts "Watch your Sidekiq terminal. These values should NOT appear in any log line."
-puts ""
+puts ''
+puts 'Watch your Sidekiq terminal. These values should NOT appear in any log line.'
+puts ''
 
 DebtManagementCenter::VANotifyEmailJob.perform_async(
   TEST_EMAIL,
@@ -35,8 +35,8 @@ DebtManagementCenter::VANotifyEmailJob.perform_async(
   { 'id_type' => 'email' }
 )
 
-puts "Job enqueued. Check Sidekiq output and log files (log/development.log) for any occurrence of:"
+puts 'Job enqueued. Check Sidekiq output and log files (log/development.log) for any occurrence of:'
 puts "  - #{TEST_EMAIL}"
 puts "  - #{TEST_FIRST_NAME}"
-puts ""
-puts "If you see them in logs, the middleware or job logging needs to be fixed."
+puts ''
+puts 'If you see them in logs, the middleware or job logging needs to be fixed.'

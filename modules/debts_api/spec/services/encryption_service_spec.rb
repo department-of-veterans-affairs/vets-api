@@ -45,8 +45,8 @@ RSpec.describe DebtsApi::EncryptionService do
         .to raise_error(ActiveSupport::MessageEncryptor::InvalidMessage)
     end
 
-    it 'raises for nil or invalid input' do
-      expect { described_class.decrypt(nil) }.to raise_error
+    it 'raises for nil input' do
+      expect { described_class.decrypt(nil) }.to raise_error(NoMethodError)
     end
   end
 end

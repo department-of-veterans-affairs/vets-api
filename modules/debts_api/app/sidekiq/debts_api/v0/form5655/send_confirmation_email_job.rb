@@ -38,7 +38,7 @@ module DebtsApi
     def perform(args)
       submission_type = args['submission_type'] || 'fsr' # TODO: make this file not fsr specific
       submissions_data = find_submissions(args['user_uuid'], submission_type)
-      
+
       if submissions_data.blank?
         Rails.logger.warn(
           "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
@@ -47,8 +47,8 @@ module DebtsApi
         Sidekiq::AttrPackage.delete(args['cache_key']) if args['cache_key']
         return
       end
-  
-      should_use_cache = !args['user_pii'].present?
+
+      should_use_cache = args['user_pii'].blank?
       is_retry = args['cache_key'].present?
       pii = resolve_pii(args, should_use_cache, is_retry)
 
@@ -66,12 +66,12 @@ module DebtsApi
 
     def send_vanotify_email(template_id, pii, should_use_cache, submissions_data, submission_type)
       personalisation = email_personalization_info(pii, submissions_data, submission_type)
-      cache_key = unless pii.present?
-        Sidekiq::AttrPackage.create(
-          email: pii&.dig(:email),
-          personalisation: personalisation
-        )
-      end
+      cache_key = if pii.blank?
+                    Sidekiq::AttrPackage.create(
+                      email: pii&.dig(:email),
+                      personalisation:
+                    )
+                  end
       identifier = should_use_cache ? pii&.dig(:email) : nil
       options = should_use_cache ? { id_type: 'email', cache_key: } : {}
 
@@ -79,14 +79,14 @@ module DebtsApi
         identifier, template_id, personalisation, options
       )
     end
-    
+
     def fetch_pii_from_cache(cache_key)
       attributes = Sidekiq::AttrPackage.find(cache_key)
       { email: attributes[:email], first_name: attributes[:first_name] } if attributes
     end
 
     def resolve_pii(args, should_use_cache, is_retry)
-      (is_retry && should_use_cache) ? fetch_pii_from_cache(args['cache_key']) : args['user_pii']
+      is_retry && should_use_cache ? fetch_pii_from_cache(args['cache_key']) : args['user_pii']
     end
 
     def email_personalization_info(pii, submissions_data, submission_type)
