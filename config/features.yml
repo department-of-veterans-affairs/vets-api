@@ -28,9 +28,6 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
-  accredited_representative_portal_email_delivery_callback:
-    actor_type: user
-    description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
@@ -286,6 +283,9 @@ features:
   champva_send_to_ves:
     actor_type: user
     description: Enables sending form submission data to the VES API.
+  champva_send_7959c_to_ves:
+    actor_type: user
+    description: Enables sending 10-7959c OHI form data to the VES API. Requires champva_send_to_ves to also be enabled.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
@@ -738,6 +738,9 @@ features:
     actor_type: user
     description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
     enable_in_development: true
+  decision_review_use_new_appealable_issues_service:
+    actor_type: user
+    description: Enables use of the new Appealable Issues service for fetching appealable issues.
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -1918,6 +1921,9 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  schema_contract_get_awards_pension:
+    actor_type: user
+    description: Enables schema validation for the pensions service get awards pension fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -2324,6 +2330,15 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging on payment history controller and enable drop off tracking.
+  payment_history_exception_logging:
+    actor_type: user
+    description: Enables exception logging on payment history controller and enables exception drop off tracking.
+  payment_history_validation_logging:
+    actor_type: user
+    description: Enables logging used to check inputs for required attributes for payment history services.
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2846,6 +2861,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-0779 on vets-website
+  form_21_0779_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-0779 (Request for Nursing Home Information)"
   vre_eligibility_status_phase_2_updates:
     actor_type: user
     description: If enabled, show VRE eligibility content and status updates for phase 2
@@ -2853,10 +2872,18 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21P-530a on vets-website
+  form_21p_530a_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21P-530A (Application for Burial Allowance) - Deferred until VBA Data Dictionary is created"
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-4192 on vets-website
+  form_21_4192_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-4192 (Request for Employment Information)"
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
@@ -2865,6 +2892,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables multi-party forms feature for form 21-2680
+  form_21_2680_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
