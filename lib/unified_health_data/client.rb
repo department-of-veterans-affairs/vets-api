@@ -36,10 +36,11 @@ module UnifiedHealthData
     end
 
     def get_note_by_source(patient_id:, source:, record_id:, start_date:, end_date:)
-      path = "#{config.base_path}notes/#{source}/#{record_id}" \
-             "?patientId=#{patient_id}" \
-             "&startDate=#{start_date}&endDate=#{end_date}"
-      perform(:get, path, nil, request_headers)
+      encoded_source = ERB::Util.url_encode(source)
+      encoded_record_id = ERB::Util.url_encode(record_id)
+      path = "#{config.base_path}notes/#{encoded_source}/#{encoded_record_id}"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date }
+      perform(:get, path, params, request_headers)
     end
 
     def get_vitals_by_date(patient_id:, start_date:, end_date:)

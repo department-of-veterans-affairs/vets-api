@@ -2426,9 +2426,10 @@ paths:
   /v2/medical_records/clinical_notes/{id}:
     get:
       description: |
-        Get a single clinical note by ID. When the `source` query parameter is provided as `oracle-health`,
-        the note is fetched directly from the Oracle Health source-specific endpoint for faster retrieval.
-        When `source` is omitted, all notes are fetched and filtered by ID (VistA fallback path).
+        Get a single clinical note by ID. The optional `source` query parameter controls the retrieval strategy:
+        - `oracle-health`: fetches the note directly from the Oracle Health source-specific endpoint for faster retrieval.
+        - `vista`: fetches all notes from VistA and filters by ID (equivalent to omitting the parameter).
+        - Omitted: defaults to the VistA fallback path, fetching all notes and filtering by ID.
       operationId: getClinicalNoteV2
       parameters:
         - name: id
@@ -2441,12 +2442,14 @@ paths:
           in: query
           description: >
             The data source of the note. When set to `oracle-health`, the note is retrieved directly
-            from the Oracle Health endpoint. When omitted, falls back to fetching all notes and filtering.
+            from the Oracle Health endpoint. When set to `vista` or omitted, all notes are fetched
+            and the matching note is returned (VistA fallback path).
           required: false
           schema:
             type: string
             enum:
               - oracle-health
+              - vista
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         "200":

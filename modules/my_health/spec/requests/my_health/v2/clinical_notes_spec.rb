@@ -189,19 +189,19 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
       it 'passes source param to the service when provided' do
         expect_any_instance_of(UnifiedHealthData::Service)
           .to receive(:get_single_summary_or_note)
-          .with('15249697279', source: 'oracle-health')
+          .with('15249697279', source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH)
           .and_return(UnifiedHealthData::ClinicalNotes.new(
                         id: '15249697279', name: 'Test Note', note_type: 'discharge_summary',
-                        source: 'oracle-health'
+                        source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH
                       ))
 
         get '/my_health/v2/medical_records/clinical_notes/15249697279',
             headers: { 'X-Key-Inflection' => 'camel' },
-            params: { source: 'oracle-health' }
+            params: { source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
 
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
-        expect(json_response['data']['attributes']['source']).to eq('oracle-health')
+        expect(json_response['data']['attributes']['source']).to eq(UnifiedHealthData::SourceConstants::ORACLE_HEALTH)
       end
 
       it 'calls service without source when source param is not provided' do
@@ -210,7 +210,7 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           .with('15249697279', source: nil)
           .and_return(UnifiedHealthData::ClinicalNotes.new(
                         id: '15249697279', name: 'Test Note', note_type: 'physician_procedure_note',
-                        source: 'vista'
+                        source: UnifiedHealthData::SourceConstants::VISTA
                       ))
 
         get '/my_health/v2/medical_records/clinical_notes/15249697279',
@@ -226,6 +226,17 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
               headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns a 400 when source param is invalid' do
+        get '/my_health/v2/medical_records/clinical_notes/15249697279',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: 'invalid-source' }
+
+        expect(response).to have_http_status(:bad_request)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+        expect(json_response['errors'].first['detail']).to include("Invalid source: 'invalid-source'")
       end
     end
 

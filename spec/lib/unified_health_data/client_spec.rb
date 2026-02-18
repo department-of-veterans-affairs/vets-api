@@ -162,6 +162,82 @@ RSpec.describe UnifiedHealthData::Client do
     end
   end
 
+  describe '#get_note_by_source' do
+    let(:patient_id) { '12345V67890' }
+    let(:source) { UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+    let(:record_id) { '20875576613' }
+    let(:start_date) { '2024-01-01' }
+    let(:end_date) { '2025-06-01' }
+
+    before do
+      allow(client).to receive(:perform).and_return(Faraday::Response.new(body: {}))
+      allow(client).to receive(:request_headers).and_return({})
+    end
+
+    it 'constructs the correct path and passes query params as a hash' do
+      client.get_note_by_source(patient_id:, source:, record_id:, start_date:, end_date:)
+
+      expect(client).to have_received(:perform).with(
+        :get,
+        a_string_matching(%r{/v1/medicalrecords/notes/oracle-health/20875576613\z}),
+        { patientId: patient_id, startDate: start_date, endDate: end_date },
+        anything
+      )
+    end
+
+    it 'constructs the correct path for a vista source' do
+      vista_source = UnifiedHealthData::SourceConstants::VISTA
+
+      client.get_note_by_source(patient_id:, source: vista_source, record_id:, start_date:, end_date:)
+
+      expect(client).to have_received(:perform).with(
+        :get,
+        a_string_matching(%r{/notes/vista/20875576613\z}),
+        hash_including(patientId: patient_id),
+        anything
+      )
+    end
+
+    it 'URL-encodes special characters in record_id' do
+      special_record_id = 'F253/7227761#1834074'
+
+      client.get_note_by_source(patient_id:, source:, record_id: special_record_id, start_date:, end_date:)
+
+      expect(client).to have_received(:perform).with(
+        :get,
+        a_string_matching(%r{/notes/oracle-health/F253%2F7227761%231834074\z}),
+        hash_including(patientId: patient_id),
+        anything
+      )
+    end
+
+    it 'URL-encodes spaces in record_id' do
+      spaced_record_id = 'note 123'
+
+      client.get_note_by_source(patient_id:, source:, record_id: spaced_record_id, start_date:, end_date:)
+
+      expect(client).to have_received(:perform).with(
+        :get,
+        a_string_matching(%r{/notes/oracle-health/note%20123\z}),
+        hash_including(patientId: patient_id),
+        anything
+      )
+    end
+
+    it 'URL-encodes special characters in source' do
+      weird_source = 'oracle/health'
+
+      client.get_note_by_source(patient_id:, source: weird_source, record_id:, start_date:, end_date:)
+
+      expect(client).to have_received(:perform).with(
+        :get,
+        a_string_matching(%r{/notes/oracle%2Fhealth/20875576613\z}),
+        hash_including(patientId: patient_id),
+        anything
+      )
+    end
+  end
+
   describe '#extract_resource_type' do
     it 'extracts allergies from path' do
       path = '/uhd/v1/allergies?patientId=123'

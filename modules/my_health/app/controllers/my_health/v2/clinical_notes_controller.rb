@@ -37,7 +37,15 @@ module MyHealth
       end
 
       def show
-        care_note = service.get_single_summary_or_note(params['id'], source: params['source'])
+        source = params['source']
+        if source.present? && !valid_source?(source)
+          render_error('Invalid Parameter',
+                       "Invalid source: '#{source}'. Must be one of: #{valid_sources.join(', ')}",
+                       '400', 400, :bad_request)
+          return
+        end
+
+        care_note = service.get_single_summary_or_note(params['id'], source:)
         unless care_note
           render_error('Record Not Found',
                        'The requested record was not found',
@@ -57,6 +65,14 @@ module MyHealth
 
       def service
         @service ||= UnifiedHealthData::Service.new(@current_user)
+      end
+
+      def valid_sources
+        [UnifiedHealthData::SourceConstants::ORACLE_HEALTH, UnifiedHealthData::SourceConstants::VISTA]
+      end
+
+      def valid_source?(source)
+        valid_sources.include?(source)
       end
     end
   end
