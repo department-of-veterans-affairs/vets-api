@@ -6,6 +6,7 @@ require 'unified_health_data/serializers/imaging_study_serializer'
 module MyHealth
   module V2
     class ImagingController < ApplicationController
+      include ActionController::Live
       include MyHealth::V2::Concerns::ErrorHandler
       include SortableRecords
       service_tag 'mhv-medical-records'
@@ -94,12 +95,11 @@ module MyHealth
         uri = URI.parse(url)
         validate_s3_url!(uri)
 
-        image_data = fetch_image_from_s3(uri)
+        response.headers['Content-Type'] = 'image/jpeg'
+        response.headers['Content-Disposition'] = 'inline'
+        response.headers['Cache-Control'] = 'private, max-age=3600'
 
-        send_data image_data,
-                  type: 'image/jpeg',
-                  disposition: 'inline',
-                  status: :ok
+        stream_from_s3(uri)
       rescue URI::InvalidURIError
         render json: { error: 'Invalid URL format' }, status: :bad_request
       rescue Common::Exceptions::ParameterMissing => e
@@ -131,25 +131,32 @@ module MyHealth
       end
 
       ##
-      # Fetches image data from an S3 presigned URL.
+      # Streams image data from a presigned URL directly to the client.
+      # Each chunk is written to the response stream as it arrives, so the full
+      # image is never held in process memory.
       #
-      # @param uri [URI] the parsed S3 presigned URL
-      # @return [String] binary image data
-      # @raise [Common::Exceptions::BackendServiceException] if the S3 request fails
+      # @param uri [URI] the parsed presigned URL
       #
-      def fetch_image_from_s3(uri)
-        http_response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 30) do |http|
-          http.get(uri.request_uri)
-        end
+      def stream_from_s3(uri)
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10,
+                                            read_timeout: 30) do |http|
+          request = Net::HTTP::Get.new(uri.request_uri)
 
-        unless http_response.is_a?(Net::HTTPSuccess)
-          Rails.logger.error("Failed to fetch thumbnail from S3: HTTP #{http_response.code}")
-          raise Common::Exceptions::BackendServiceException.new(
-            'MR_THUMBNAIL_FETCH_ERROR', {}, http_response.code.to_i
-          )
-        end
+          http.request(request) do |http_response|
+            unless http_response.is_a?(Net::HTTPSuccess)
+              Rails.logger.error("Failed to fetch thumbnail: HTTP #{http_response.code}")
+              raise Common::Exceptions::BackendServiceException.new(
+                'MR_THUMBNAIL_FETCH_ERROR', {}, http_response.code.to_i
+              )
+            end
 
-        http_response.body
+            http_response.read_body do |chunk|
+              response.stream.write(chunk)
+            end
+          end
+        end
+      ensure
+        response.stream.close
       end
 
       def service
