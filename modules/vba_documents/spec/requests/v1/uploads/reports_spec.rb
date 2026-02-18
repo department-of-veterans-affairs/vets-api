@@ -111,8 +111,11 @@ RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
         expect(json['errors']).to be_an(Array)
         expect(json['errors'].size).to eq(1)
         error = json['errors'].first
-        # Ensure the legacy InvalidFieldValue-style error is still returned for backward compatibility
-        expect(error['detail'].to_s).to include('InvalidFieldValue')
+        expect(error).to include(
+          'title' => 'Invalid field value',
+          'code' => '103',
+          'status' => '400'
+        )
       end
     end
 
