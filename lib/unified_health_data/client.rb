@@ -28,7 +28,9 @@ module UnifiedHealthData
     end
 
     def get_notes_by_date(patient_id:, start_date:, end_date:)
-      path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      path = "#{config.base_path}notes?" \
+             "patientId=#{patient_id}&startDate=#{start_date}" \
+             "&endDate=#{end_date}&includeBinary=false"
       perform(:get, path, nil, request_headers)
     end
 

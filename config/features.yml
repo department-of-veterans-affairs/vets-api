@@ -283,6 +283,9 @@ features:
   champva_send_to_ves:
     actor_type: user
     description: Enables sending form submission data to the VES API.
+  champva_send_7959c_to_ves:
+    actor_type: user
+    description: Enables sending 10-7959c OHI form data to the VES API. Requires champva_send_to_ves to also be enabled.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
@@ -1918,6 +1921,9 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  schema_contract_get_awards_pension:
+    actor_type: user
+    description: Enables schema validation for the pensions service get awards pension fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -2324,6 +2330,15 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging on payment history controller and enable drop off tracking.
+  payment_history_exception_logging:
+    actor_type: user
+    description: Enables exception logging on payment history controller and enables exception drop off tracking.
+  payment_history_validation_logging:
+    actor_type: user
+    description: Enables logging used to check inputs for required attributes for payment history services.
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2535,6 +2550,10 @@ features:
   income_and_assets_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Income and Assets
+  increase_compensation_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-8940"
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user
@@ -2846,6 +2865,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-0779 on vets-website
+  form_21_0779_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-0779 (Request for Nursing Home Information)"
   vre_eligibility_status_phase_2_updates:
     actor_type: user
     description: If enabled, show VRE eligibility content and status updates for phase 2
@@ -2853,10 +2876,18 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21P-530a on vets-website
+  form_21p_530a_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21P-530A (Application for Burial Allowance) - Deferred until VBA Data Dictionary is created"
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-4192 on vets-website
+  form_21_4192_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-4192 (Request for Employment Information)"
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
@@ -2865,6 +2896,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables multi-party forms feature for form 21-2680
+  form_21_2680_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
