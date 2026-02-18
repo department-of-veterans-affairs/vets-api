@@ -3191,7 +3191,7 @@
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -4545,7 +4545,6 @@
                         "veteran",
                         "serviceInformation",
                         "disabilities",
-                        "claimantCertification",
                         "standardClaim",
                         "autoCestPDFGenerationDisabled"
                       ],
@@ -6407,7 +6406,6 @@
                           "veteran",
                           "serviceInformation",
                           "disabilities",
-                          "claimantCertification",
                           "standardClaim",
                           "autoCestPDFGenerationDisabled"
                         ],
@@ -8530,11 +8528,6 @@
                     },
                     {
                       "status": 422,
-                      "detail": "The property / did not contain the required key claimantCertification",
-                      "source": "/"
-                    },
-                    {
-                      "status": 422,
                       "detail": "The property / did not contain the required key standardClaim",
                       "source": "/"
                     },
@@ -8658,7 +8651,6 @@
                           "veteran",
                           "serviceInformation",
                           "disabilities",
-                          "claimantCertification",
                           "standardClaim",
                           "autoCestPDFGenerationDisabled"
                         ],

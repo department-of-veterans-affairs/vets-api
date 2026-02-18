@@ -833,7 +833,6 @@
                           "type": "object",
                           "additionalProperties": false,
                           "required": [
-                            "claimantCertification",
                             "claimProcessType",
                             "disabilities",
                             "serviceInformation",
@@ -2276,7 +2275,6 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "claimantCertification",
                           "claimProcessType",
                           "disabilities",
                           "serviceInformation",
@@ -4455,7 +4453,6 @@
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "claimantCertification",
                           "claimProcessType",
                           "disabilities",
                           "serviceInformation",
