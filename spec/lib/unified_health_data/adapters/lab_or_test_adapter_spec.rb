@@ -218,6 +218,190 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
     end
   end
 
+  describe '#extract_comments' do
+    context 'when extension is blank and no basedOn/contained' do
+      it 'returns nil' do
+        record = { 'resource' => {} }
+        expect(adapter.send(:extract_comments, record)).to be_nil
+      end
+    end
+
+    context 'when extension has valueString comments (VistA labComment)' do
+      it 'returns array of extension comments' do
+        record = { 'resource' => {
+          'extension' => [
+            { 'url' => 'https://example.com/labComment', 'valueString' => 'comment on specimen for release ' },
+            { 'url' => 'https://example.com/labComment', 'valueString' => '~Test ' }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq(['comment on specimen for release ', '~Test '])
+      end
+    end
+
+    context 'when extension has non-valueString entries' do
+      it 'filters out entries without valueString' do
+        record = { 'resource' => {
+          'extension' => [
+            { 'url' => 'https://example.com/labComment', 'valueString' => 'real comment' },
+            { 'url' => 'https://example.com/otherExtension', 'valueBoolean' => true }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq(['real comment'])
+      end
+    end
+
+    context 'when ServiceRequest has note array (Oracle Health)' do
+      it 'returns array of ServiceRequest note text values' do
+        record = { 'resource' => {
+          'basedOn' => [{ 'reference' => 'ServiceRequest/sr-123' }],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-123',
+              'note' => [{ 'text' => 'order comment' }]
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq(['order comment'])
+      end
+    end
+
+    context 'when ServiceRequest has multiple notes' do
+      it 'returns all note text values' do
+        record = { 'resource' => {
+          'basedOn' => [{ 'reference' => 'ServiceRequest/sr-456' }],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-456',
+              'note' => [
+                { 'text' => 'Order added by Discern Expert system.' },
+                { 'text' => 'Comment on the ORDER (not on the result) for testing' }
+              ]
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq([
+                               'Order added by Discern Expert system.',
+                               'Comment on the ORDER (not on the result) for testing'
+                             ])
+      end
+    end
+
+    context 'when both extension comments and ServiceRequest notes exist' do
+      it 'returns combined comments from both sources' do
+        record = { 'resource' => {
+          'extension' => [
+            { 'url' => 'https://example.com/labComment', 'valueString' => 'VistA comment' }
+          ],
+          'basedOn' => [{ 'reference' => 'ServiceRequest/sr-789' }],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-789',
+              'note' => [{ 'text' => 'OH order comment' }]
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq(['VistA comment', 'OH order comment'])
+      end
+    end
+
+    context 'when basedOn references multiple ServiceRequests' do
+      it 'collects notes from all matched ServiceRequests' do
+        record = { 'resource' => {
+          'basedOn' => [
+            { 'reference' => 'ServiceRequest/sr-a' },
+            { 'reference' => 'ServiceRequest/sr-b' }
+          ],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-a',
+              'note' => [{ 'text' => 'first order comment' }]
+            },
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-b',
+              'note' => [{ 'text' => 'second order comment' }]
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq(['first order comment', 'second order comment'])
+      end
+    end
+
+    context 'when basedOn reference does not match any contained ServiceRequest' do
+      it 'returns nil when no other comments exist' do
+        record = { 'resource' => {
+          'basedOn' => [{ 'reference' => 'ServiceRequest/nonexistent' }],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-different',
+              'note' => [{ 'text' => 'should not be found' }]
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when ServiceRequest exists but has no note field' do
+      it 'returns nil when no other comments exist' do
+        record = { 'resource' => {
+          'basedOn' => [{ 'reference' => 'ServiceRequest/sr-no-note' }],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-no-note',
+              'status' => 'completed'
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when ServiceRequest note has entries with nil text' do
+      it 'filters out nil text values' do
+        record = { 'resource' => {
+          'basedOn' => [{ 'reference' => 'ServiceRequest/sr-nil-note' }],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'id' => 'sr-nil-note',
+              'note' => [
+                { 'text' => 'valid comment' },
+                { 'authorReference' => { 'reference' => 'Practitioner/123' } }
+              ]
+            }
+          ]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to eq(['valid comment'])
+      end
+    end
+
+    context 'when basedOn is present but contained is nil' do
+      it 'returns nil when no extension comments exist' do
+        record = { 'resource' => {
+          'basedOn' => [{ 'reference' => 'ServiceRequest/sr-123' }]
+        } }
+        result = adapter.send(:extract_comments, record)
+        expect(result).to be_nil
+      end
+    end
+  end
+
   describe '#get_body_site' do
     context 'when contained is nil' do
       it 'returns an empty string' do
@@ -318,6 +502,114 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         }]
         resource = { 'basedOn' => [{ 'reference' => nil }, { 'reference' => 'ServiceRequest/sr-1' }] }
         expect(adapter.send(:get_body_site, resource, contained)).to eq('SERUM')
+      end
+    end
+  end
+
+  describe '#get_reason' do
+    context 'when contained is nil' do
+      it 'returns an empty string' do
+        expect(adapter.send(:get_reason, nil)).to eq('')
+      end
+    end
+
+    context 'when no ServiceRequests exist in contained' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'Organization', 'name' => 'Lab' }]
+        expect(adapter.send(:get_reason, contained)).to eq('')
+      end
+    end
+
+    context 'when ServiceRequest has no reasonCode' do
+      it 'returns an empty string' do
+        contained = [{ 'resourceType' => 'ServiceRequest', 'id' => 'sr-1' }]
+        expect(adapter.send(:get_reason, contained)).to eq('')
+      end
+    end
+
+    context 'when ServiceRequest reasonCode has text' do
+      it 'returns the text value' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'reasonCode' => [{ 'text' => 'Lethargy' }]
+        }]
+        expect(adapter.send(:get_reason, contained)).to eq('Lethargy')
+      end
+    end
+
+    context 'when ServiceRequest reasonCode has coding display but no text' do
+      it 'falls back to coding display' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'reasonCode' => [{
+            'coding' => [{ 'system' => 'http://hl7.org/fhir/sid/icd-10-cm', 'code' => 'R53.83',
+                           'display' => 'Other fatigue' }]
+          }]
+        }]
+        expect(adapter.send(:get_reason, contained)).to eq('Other fatigue')
+      end
+    end
+
+    context 'when ServiceRequest reasonCode has both text and coding display' do
+      it 'prefers text over coding display' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'reasonCode' => [{
+            'coding' => [{ 'display' => 'Other fatigue' }],
+            'text' => 'Lethargy'
+          }]
+        }]
+        expect(adapter.send(:get_reason, contained)).to eq('Lethargy')
+      end
+    end
+
+    context 'when ServiceRequest has multiple reasonCodes' do
+      it 'joins them with commas' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'reasonCode' => [
+            { 'text' => 'Lethargy' },
+            { 'text' => 'Fatigue' }
+          ]
+        }]
+        expect(adapter.send(:get_reason, contained)).to eq('Lethargy, Fatigue')
+      end
+    end
+
+    context 'when multiple ServiceRequests have reasonCodes' do
+      it 'collects reasons from all ServiceRequests' do
+        contained = [
+          {
+            'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+            'reasonCode' => [{ 'text' => 'Lethargy' }]
+          },
+          {
+            'resourceType' => 'ServiceRequest', 'id' => 'sr-2',
+            'reasonCode' => [{ 'text' => 'Chest pain' }]
+          }
+        ]
+        expect(adapter.send(:get_reason, contained)).to eq('Lethargy, Chest pain')
+      end
+    end
+
+    context 'when reasonCode has coding with no display and no text' do
+      it 'returns an empty string' do
+        contained = [{
+          'resourceType' => 'ServiceRequest', 'id' => 'sr-1',
+          'reasonCode' => [{ 'coding' => [{ 'code' => 'R53.83' }] }]
+        }]
+        expect(adapter.send(:get_reason, contained)).to eq('')
+      end
+    end
+
+    context 'with fixture data' do
+      it 'extracts reason from Oracle Health ServiceRequest' do
+        oh_record = labs_response['oracle-health']['entry'][1]
+        contained = oh_record['resource']['contained']
+
+        result = adapter.send(:get_reason, contained)
+
+        expect(result).to eq('Lethargy')
       end
     end
   end
@@ -1179,6 +1471,121 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         result = adapter.send(:parse_single_record, record)
         expect(result).not_to be_nil
+      end
+    end
+  end
+
+  describe '#format_display' do
+    context 'when presentedForm has a title on the text/plain entry' do
+      it 'returns the title' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'title' => 'CT ABDOMEN W/CONTRAST', 'data' => 'encoded' }
+          ],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'code' => { 'text' => 'ServiceRequest Name' }
+            }
+          ],
+          'code' => { 'text' => 'Resource Code Name' }
+        }
+
+        result = adapter.send(:format_display, resource)
+
+        expect(result).to eq('CT ABDOMEN W/CONTRAST')
+      end
+    end
+
+    context 'when presentedForm has title on non-text/plain entry only' do
+      it 'falls back to ServiceRequest code text' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'application/pdf', 'title' => 'PDF Title' }
+          ],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'code' => { 'text' => 'ServiceRequest Name' }
+            }
+          ]
+        }
+
+        result = adapter.send(:format_display, resource)
+
+        expect(result).to eq('ServiceRequest Name')
+      end
+    end
+
+    context 'when no presentedForm title exists' do
+      it 'falls back to ServiceRequest code text' do
+        resource = {
+          'presentedForm' => [
+            { 'contentType' => 'text/plain', 'data' => 'encoded' }
+          ],
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'code' => { 'text' => 'HEPATIC FUNCTION PANEL' }
+            }
+          ]
+        }
+
+        result = adapter.send(:format_display, resource)
+
+        expect(result).to eq('HEPATIC FUNCTION PANEL')
+      end
+    end
+
+    context 'when ServiceRequest has no code text but has category coding display' do
+      it 'falls back to category coding display' do
+        resource = {
+          'contained' => [
+            {
+              'resourceType' => 'ServiceRequest',
+              'category' => [{ 'coding' => [{ 'display' => 'Chemistry' }] }]
+            }
+          ]
+        }
+
+        result = adapter.send(:format_display, resource)
+
+        expect(result).to eq('Chemistry')
+      end
+    end
+
+    context 'when no ServiceRequest exists' do
+      it 'falls back to resource code text' do
+        resource = {
+          'contained' => [],
+          'code' => { 'text' => 'Blood Panel' }
+        }
+
+        result = adapter.send(:format_display, resource)
+
+        expect(result).to eq('Blood Panel')
+      end
+    end
+
+    context 'when no display information is available at all' do
+      it 'returns an empty string' do
+        resource = {
+          'contained' => []
+        }
+
+        result = adapter.send(:format_display, resource)
+
+        expect(result).to eq('')
+      end
+    end
+
+    context 'when presentedForm is nil and contained is nil' do
+      it 'returns an empty string' do
+        record = { 'resource' => {} }
+
+        result = adapter.send(:format_display, record)
+
+        expect(result).to eq('')
       end
     end
   end

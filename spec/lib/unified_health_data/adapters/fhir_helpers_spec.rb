@@ -463,4 +463,90 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
       expect(subject.prescription_expired?(resource)).to be false
     end
   end
+
+  describe '#extract_codeable_concept_display' do
+    context 'when codeable_concept is nil' do
+      it 'returns nil' do
+        expect(subject.extract_codeable_concept_display(nil)).to be_nil
+      end
+    end
+
+    context 'with default prefer: :text' do
+      it 'returns text when both text and coding display are present' do
+        concept = { 'text' => 'Free text', 'coding' => [{ 'display' => 'Coded display' }] }
+        expect(subject.extract_codeable_concept_display(concept)).to eq('Free text')
+      end
+
+      it 'falls back to coding display when text is absent' do
+        concept = { 'coding' => [{ 'display' => 'Coded display' }] }
+        expect(subject.extract_codeable_concept_display(concept)).to eq('Coded display')
+      end
+
+      it 'falls back to coding display when text is blank' do
+        concept = { 'text' => '', 'coding' => [{ 'display' => 'Coded display' }] }
+        expect(subject.extract_codeable_concept_display(concept)).to eq('Coded display')
+      end
+
+      it 'returns nil when both text and coding display are missing' do
+        concept = { 'coding' => [{ 'code' => '12345' }] }
+        expect(subject.extract_codeable_concept_display(concept)).to be_nil
+      end
+
+      it 'returns nil for empty hash' do
+        expect(subject.extract_codeable_concept_display({})).to be_nil
+      end
+
+      it 'skips codings without display and returns one that has it' do
+        concept = { 'coding' => [{ 'code' => 'A' }, { 'display' => 'Second' }] }
+        expect(subject.extract_codeable_concept_display(concept)).to eq('Second')
+      end
+    end
+
+    context 'with prefer: :coding' do
+      it 'returns coding display when both text and coding display are present' do
+        concept = { 'text' => 'Free text', 'coding' => [{ 'display' => 'Coded display' }] }
+        expect(subject.extract_codeable_concept_display(concept, prefer: :coding)).to eq('Coded display')
+      end
+
+      it 'falls back to text when coding display is absent' do
+        concept = { 'text' => 'Free text', 'coding' => [{ 'code' => '12345' }] }
+        expect(subject.extract_codeable_concept_display(concept, prefer: :coding)).to eq('Free text')
+      end
+
+      it 'falls back to text when coding is nil' do
+        concept = { 'text' => 'Free text' }
+        expect(subject.extract_codeable_concept_display(concept, prefer: :coding)).to eq('Free text')
+      end
+
+      it 'returns nil when both are missing' do
+        concept = { 'coding' => [{ 'code' => '12345' }] }
+        expect(subject.extract_codeable_concept_display(concept, prefer: :coding)).to be_nil
+      end
+    end
+  end
+
+  describe '#first_coding_display' do
+    it 'returns the first coding display' do
+      concept = { 'coding' => [{ 'display' => 'First' }, { 'display' => 'Second' }] }
+      expect(subject.first_coding_display(concept)).to eq('First')
+    end
+
+    it 'skips codings without display' do
+      concept = { 'coding' => [{ 'code' => 'A' }, { 'display' => 'Found' }] }
+      expect(subject.first_coding_display(concept)).to eq('Found')
+    end
+
+    it 'returns nil when no coding has display' do
+      concept = { 'coding' => [{ 'code' => 'A' }] }
+      expect(subject.first_coding_display(concept)).to be_nil
+    end
+
+    it 'returns nil when coding is nil' do
+      expect(subject.first_coding_display({})).to be_nil
+    end
+
+    it 'returns nil when coding is empty' do
+      expect(subject.first_coding_display({ 'coding' => [] })).to be_nil
+    end
+  end
 end
