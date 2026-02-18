@@ -38,7 +38,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
-      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
+      allow_any_instance_of(Mobile::V0::Messaging::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
@@ -65,6 +65,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response.parsed_body['meta']['userInTriageTeam']).to be(false)
+        expect(response.parsed_body['meta']['stationNumber']).to be_nil
         expect(response).to match_camelized_response_schema('message', strict: false)
         link = response.parsed_body.dig('data', 'links', 'self')
         expect(link).to eq('http://www.example.com/mobile/v0/messaging/health/messages/573059')
@@ -111,6 +112,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response.parsed_body['meta']['userInTriageTeam']).to be(true)
+        expect(response.parsed_body['meta']['stationNumber']).to eq('979')
         expect(response).to match_camelized_response_schema('message', strict: false)
       end
 

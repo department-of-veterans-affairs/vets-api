@@ -107,18 +107,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
       end
     end
 
-    describe '#unknown_service_response' do
+    describe '#unknown_eligibility_response' do
       it 'returns Mobile constants' do
-        expect(subject.send(:unknown_service_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
-        )
-      end
-    end
-
-    describe '#edipi_no_pnl_response' do
-      it 'returns Mobile constants' do
-        expect(subject.send(:edipi_no_pnl_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+        expect(subject.send(:unknown_eligibility_response)).to eq(
+          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
         )
       end
     end
@@ -131,10 +123,18 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
       end
     end
 
-    describe '#error_response' do
+    describe '#uncaught_error_response' do
       it 'returns Mobile constants' do
-        expect(subject.send(:error_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE
+        expect(subject.send(:uncaught_error_response)).to eq(
+          Mobile::V0::VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+        )
+      end
+    end
+
+    describe '#person_not_found_response' do
+      it 'returns Mobile constants' do
+        expect(subject.send(:person_not_found_response)).to eq(
+          Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
         )
       end
     end
@@ -425,13 +425,13 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
         let(:ssc_code) { 'U' }
 
-        it 'returns veteran_status_alert with Mobile unknown service constants' do
+        it 'returns veteran_status_alert with Mobile unknown eligibility constants' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
 
@@ -439,13 +439,13 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
         let(:ssc_code) { 'X' }
 
-        it 'returns veteran_status_alert with Mobile EDIPI no PNL constants' do
+        it 'returns veteran_status_alert with Mobile unknown eligibility constants' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
 
@@ -467,13 +467,13 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
         let(:ssc_code) { 'VNA' }
 
-        it 'returns veteran_status_alert with Mobile error constants' do
+        it 'returns veteran_status_alert with Mobile unknown eligibility constants' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
     end
