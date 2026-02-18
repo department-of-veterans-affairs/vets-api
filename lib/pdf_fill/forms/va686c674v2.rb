@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dependents/error_classes'
+require 'pdf_fill/forms/formatters/va686c674v2'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -9,6 +10,7 @@ module PdfFill
     class Va686c674v2 < FormBase
       include FormHelper
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      FORMATTER = PdfFill::Forms::Formatters::Va686c674v2
 
       KEY = {
         'veteran_information' => {
@@ -1170,6 +1172,29 @@ module PdfFill
               } # end of zip_code
             }, # end of address
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
+            'date_stepchild_left_household' => {
+              'month' => {
+                key: 'step_children.left_household.month[%iterator%]',
+                limit: 2,
+                question_num: 21,
+                question_suffix: 'F',
+                question_text: 'INFORMATION NEEDED TO REPORT DATE STEPCHILD LEFT HOUSEHOLD > DATE > MONTH'
+              },
+              'day' => {
+                key: 'step_children.left_household.day[%iterator%]',
+                limit: 2,
+                question_num: 21,
+                question_suffix: 'F',
+                question_text: 'INFORMATION NEEDED TO REPORT DATE STEPCHILD LEFT HOUSEHOLD > DATE > DAY'
+              },
+              'year' => {
+                key: 'step_children.left_household.year[%iterator%]',
+                limit: 4,
+                question_num: 21,
+                question_suffix: 'F',
+                question_text: 'INFORMATION NEEDED TO REPORT DATE STEPCHILD LEFT HOUSEHOLD > DATE > YEAR'
+              }
+            }, # end of date stepchild left household
             'living_expenses_paid' => {
               'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
               'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]' },
@@ -1560,6 +1585,7 @@ module PdfFill
 
         expand_remarks
         expand_veteran_ssn
+        expand_no_ssn_cases if Flipper.enabled?(:va_dependents_no_ssn)
 
         @form_data
       end
@@ -1837,6 +1863,9 @@ module PdfFill
             'less_than_half' => select_radio_button(living_expenses_paid == 'Less than half')
           }
 
+          # extract date
+          stepchild['date_stepchild_left_household'] = split_date(stepchild['date_stepchild_left_household'])
+
           # if any stepchild is present then this should be checked as yes
           stepchild['biological_adopted_stepchild'] = {
             'biological_adopted_stepchild_yes' => select_radio_button(true),
@@ -1950,6 +1979,14 @@ module PdfFill
           'spouse_does_live_with_veteran_yes' => select_radio_button(does_live_with_spouse),
           'spouse_does_live_with_veteran_no' => select_radio_button(!does_live_with_spouse)
         }
+      end
+
+      ##
+      # Expands no SSN cases into remarks for PDF form
+      #
+      # @return [void]
+      def expand_no_ssn_cases
+        FORMATTER.expand_no_ssn_cases(@form_data)
       end
 
       def expand_remarks

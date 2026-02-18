@@ -21,7 +21,7 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
             'modality' => [{ 'code' => 'CT' }],
             'started' => '2025-01-15T10:30:00Z',
             'description' => 'CT Scan of Chest',
-            'subject' => { 'reference' => 'Patient/1012740414V122180' },
+            'subject' => { 'reference' => 'Patient/1234567890V012345' },
             'note' => [
               { 'text' => 'Routine follow-up scan' }
             ],
@@ -79,7 +79,7 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
       it 'extracts patient_id from subject reference' do
         result = adapter.parse(imaging_study_response).first
 
-        expect(result.patient_id).to eq('1012740414V122180')
+        expect(result.patient_id).to eq('1234567890V012345')
       end
 
       it 'extracts notes correctly' do
@@ -107,6 +107,94 @@ RSpec.describe UnifiedHealthData::Adapters::ImagingStudyAdapter do
         expect(result.series.length).to eq(2)
         expect(result.series.first[:uid]).to eq('series-uid-1')
         expect(result.series.first[:modality]).to eq('CT')
+      end
+    end
+
+    context 'with presigned thumbnail URLs' do
+      let(:response_with_thumbnails) do
+        {
+          'entry' => [
+            {
+              'resource' => {
+                'resourceType' => 'ImagingStudy',
+                'id' => 'study-with-thumbnails',
+                'status' => 'available',
+                'series' => [
+                  {
+                    'number' => 1,
+                    'modality' => { 'code' => 'CT' },
+                    'instance' => [
+                      {
+                        'number' => 0,
+                        'title' => 'JPEG',
+                        'extension' => [
+                          {
+                            'url' => 'http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid',
+                            'valueString' => 'urn:vaimage:test-image-id'
+                          },
+                          {
+                            'url' => 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url',
+                            'valueUrl' => 'https://test-bucket.s3.amazonaws.com/thumb.jpg?sig=abc123'
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      end
+
+      it 'extracts the presigned thumbnail URL from instance extensions' do
+        result = adapter.parse(response_with_thumbnails).first
+
+        instance = result.series.first[:instances].first
+        expect(instance[:thumbnail_url]).to eq('https://test-bucket.s3.amazonaws.com/thumb.jpg?sig=abc123')
+        expect(instance[:image_id]).to eq('urn:vaimage:test-image-id')
+      end
+
+      it 'returns nil thumbnail_url when presigned-url extension is absent' do
+        result = adapter.parse(imaging_study_response).first
+
+        instance = result.series.first[:instances].first
+        expect(instance[:thumbnail_url]).to be_nil
+      end
+    end
+
+    context 'with study-level presigned DICOM zip URL' do
+      let(:response_with_dicom_zip) do
+        {
+          'entry' => [
+            {
+              'resource' => {
+                'resourceType' => 'ImagingStudy',
+                'id' => 'study-with-dicom-zip',
+                'status' => 'available',
+                'extension' => [
+                  {
+                    'url' => 'http://va.gov/mhv/fhir/StructureDefinition/presigned-url',
+                    'valueUrl' => 'https://test-cvix-zips.s3.amazonaws.com/hashed-abc/hashed-def.zip?sig=xyz'
+                  }
+                ],
+                'series' => []
+              }
+            }
+          ]
+        }
+      end
+
+      it 'extracts the presigned DICOM zip URL from study-level extensions' do
+        result = adapter.parse(response_with_dicom_zip).first
+
+        expect(result.dicom_zip_url).to eq('https://test-cvix-zips.s3.amazonaws.com/hashed-abc/hashed-def.zip?sig=xyz')
+      end
+
+      it 'returns nil dicom_zip_url when study-level extension is absent' do
+        result = adapter.parse(imaging_study_response).first
+
+        expect(result.dicom_zip_url).to be_nil
       end
     end
 

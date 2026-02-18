@@ -6,7 +6,6 @@ require_relative 'configuration'
 require_relative 'models/prescription'
 require_relative 'adapters/allergy_adapter'
 require_relative 'adapters/clinical_notes_adapter'
-require_relative 'adapters/imaging_study_adapter'
 require_relative 'adapters/immunization_adapter'
 require_relative 'adapters/prescriptions_adapter'
 require_relative 'adapters/conditions_adapter'
@@ -32,24 +31,17 @@ module UnifiedHealthData
         body = response.body
 
         combined_records = fetch_combined_records(body)
+
+        # Pre-warm facility cache to avoid N+1 API calls during parsing
+        # Each unique station number is fetched once and cached for 12 hours
+        prewarm_facility_cache(combined_records)
+
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
 
         # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
         parsed_records
-      end
-    end
-
-    def get_imaging_studies(start_date:, end_date:, imaging_study_type: 'ALL')
-      with_monitoring do
-        response = uhd_client.get_imaging_studies(
-          patient_id: @user.icn,
-          start_date:,
-          end_date:,
-          imaging_study_type:
-        )
-        imaging_study_adapter.parse(response.body)
       end
     end
 
@@ -489,16 +481,45 @@ module UnifiedHealthData
       @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
     end
 
+    # Pre-warms facility cache to avoid N+1 API calls during record parsing.
+    # Extracts unique station numbers and fetches each facility once.
+    def prewarm_facility_cache(records)
+      return if records.blank?
+
+      all_station_numbers = records.map { |r| lab_or_test_adapter.extract_station_number_from_record(r) }
+      station_numbers = all_station_numbers.compact.uniq
+
+      log_facility_cache_metrics(records.size, all_station_numbers, station_numbers)
+
+      facility_service = UnifiedHealthData::FacilityService.new
+      station_numbers.each { |sn| facility_service.get_facility_with_cache(sn) }
+    end
+
+    def log_facility_cache_metrics(total_records, all_station_numbers, station_numbers)
+      records_with_station = all_station_numbers.count(&:present?)
+
+      Rails.logger.info(
+        'UHD FacilityService: Pre-warming cache for facility timezones',
+        {
+          service: 'unified_health_data',
+          total_records:,
+          records_with_station_number: records_with_station,
+          records_without_station_number: total_records - records_with_station,
+          unique_station_numbers: station_numbers.size
+        }
+      )
+
+      StatsD.gauge('api.uhd.facility.station_number_coverage',
+                   (records_with_station.to_f / total_records * 100).round(1),
+                   tags: ['source:labs'])
+    end
+
     def clinical_notes_adapter
       @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
     end
 
     def conditions_adapter
       @conditions_adapter ||= UnifiedHealthData::Adapters::ConditionsAdapter.new
-    end
-
-    def imaging_study_adapter
-      @imaging_study_adapter ||= UnifiedHealthData::Adapters::ImagingStudyAdapter.new
     end
 
     def vitals_adapter
