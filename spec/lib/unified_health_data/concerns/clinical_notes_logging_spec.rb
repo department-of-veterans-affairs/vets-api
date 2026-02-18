@@ -11,13 +11,15 @@ RSpec.describe UnifiedHealthData::Concerns::ClinicalNotesLogging do
 
   # Create a lightweight test class that includes the concern
   let(:test_class) do
-    Class.new do
+    klass = Class.new do
       include UnifiedHealthData::Concerns::ClinicalNotesLogging
 
       def initialize(user)
         @user = user
       end
-    end.tap { |klass| klass.const_set(:STATSD_KEY_PREFIX, 'api.uhd') }
+    end
+    klass.const_set(:STATSD_KEY_PREFIX, 'api.uhd')
+    klass
   end
 
   before do

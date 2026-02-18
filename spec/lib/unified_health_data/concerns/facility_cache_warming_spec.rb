@@ -5,20 +5,22 @@ require 'unified_health_data/concerns/facility_cache_warming'
 require 'unified_health_data/facility_service'
 
 RSpec.describe UnifiedHealthData::Concerns::FacilityCacheWarming do
-  subject(:instance) { test_class.new }
+  subject(:instance) { test_class.new(adapter) }
+
+  let(:adapter) { double('LabOrTestAdapter') }
+  let(:facility_service) { instance_double(UnifiedHealthData::FacilityService) }
 
   let(:test_class) do
     Class.new do
       include UnifiedHealthData::Concerns::FacilityCacheWarming
 
-      # Stub the adapter dependency that the concern relies on
-      def lab_or_test_adapter
-        @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
+      attr_reader :lab_or_test_adapter
+
+      def initialize(adapter)
+        @lab_or_test_adapter = adapter
       end
     end
   end
-
-  let(:facility_service) { instance_double(UnifiedHealthData::FacilityService) }
 
   before do
     allow(Rails.logger).to receive(:info)
@@ -28,12 +30,6 @@ RSpec.describe UnifiedHealthData::Concerns::FacilityCacheWarming do
   end
 
   describe '#prewarm_facility_cache' do
-    let(:adapter) { double('LabOrTestAdapter') }
-
-    before do
-      allow(instance).to receive(:lab_or_test_adapter).and_return(adapter)
-    end
-
     context 'when records are blank' do
       it 'returns early without logging or fetching' do
         instance.send(:prewarm_facility_cache, [])
