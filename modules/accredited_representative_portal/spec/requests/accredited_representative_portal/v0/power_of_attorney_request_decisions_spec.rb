@@ -58,6 +58,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         default_tags: array_including("controller:#{controller}", "action:#{action}")
       ).and_return(monitor)
     allow(monitor).to receive(:trace) { |_, &blk| blk&.call(span_double) }
+    allow(monitor).to receive(:track_count)
     monitor
   end
 
@@ -145,182 +146,137 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         allow(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob).to receive(:perform_async)
       end
 
-      it 'creates an acceptance decision' do
-        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
-        monitor = stub_ar_monitoring
+      describe 'acceptance decision' do
+        let(:accept_service) { instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept) }
 
-        # Mock the service to handle the acceptance
-        accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
-        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
-          .to receive(:new)
-          .with(poa_request, anything, anything)
-          .and_return(accept_service)
+        before do
+          # Mock the service to handle the acceptance
+          allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
+            .to receive(:new)
+            .with(poa_request, anything, anything)
+            .and_return(accept_service)
 
-        memberships =
-          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
-            icn: '1234', emails: []
-          )
-
-        allow(memberships).to(
-          receive(:all).and_return(
-            [
-              AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
-                registration_number: '1234',
-                power_of_attorney_holder:
-                  AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
-                    poa_code: poa_request.power_of_attorney_holder_poa_code,
-                    type: poa_request.power_of_attorney_holder_type,
-                    can_accept_digital_poa_requests: false,
-                    name: 'Org Name'
-                  )
-              )
-            ]
-          )
-        )
-
-        allow(accept_service).to receive(:call) do
-          # Create the decision directly as a side effect
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator_id: test_user.user_account_uuid,
-            power_of_attorney_holder_memberships: memberships,
-            power_of_attorney_request: poa_request
-          )
-        end
-
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
-             params: { decision: { type: 'acceptance' } }
-
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq({})
-
-        poa_request.reload
-        expect(poa_request.resolution).to be_present
-        expect(poa_request.resolution.resolving.type)
-          .to eq('PowerOfAttorneyRequestAcceptance')
-        expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
-      end
-
-      it 'creates a declination decision with both key and no free-form reason' do
-        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
-          .to receive(:perform_async)
-        monitor = stub_ar_monitoring
-        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
-          .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
-
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
-             params: { decision: {
-               type: 'declination',
-               key: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
-             } }
-
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq({})
-
-        poa_request.reload
-        expect(poa_request.resolution.resolving.type)
-          .to eq('PowerOfAttorneyRequestDeclination')
-        expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
-      end
-
-      it 'creates a declination decision when no reason param is passed (declination only)' do
-        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
-          .to receive(:perform_async)
-        monitor = stub_ar_monitoring
-        allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
-          .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
-
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
-             params: { decision: {
-               type: 'declination',
-               key: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
-             } }
-
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq({})
-
-        poa_request.reload
-        expect(poa_request.resolution.resolving.type)
-          .to eq('PowerOfAttorneyRequestDeclination')
-        expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
-      end
-
-      it 'creates an acceptance decision and enqueues SendPoaRequestToCorpDbJob if feature flag enabled' do
-        monitor = stub_ar_monitoring
-
-        accept_service = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
-        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
-          .to receive(:new)
-          .with(poa_request, anything, anything)
-          .and_return(accept_service)
-
-        allow(accept_service).to receive(:call) do
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator_id: test_user.user_account_uuid,
-            power_of_attorney_holder_memberships: test_user.power_of_attorney_holder_memberships,
-            power_of_attorney_request: poa_request
-          )
-        end
-
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
-             params: { decision: { type: 'acceptance' } }
-
-        expect(response).to have_http_status(:ok)
-        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
-          .to have_received(:perform_async)
-          .with(poa_request.id)
-
-        poa_request.reload
-        expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
-        expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
-      end
-
-      it 'does not enqueue SendPoaRequestToCorpDbJob if feature flag disabled' do
-        Flipper.disable(:send_poa_to_corpdb)
-
-        accept_service = instance_double(
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept
-        )
-
-        allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Accept)
-          .to receive(:new)
-          .and_return(accept_service)
-
-        memberships =
-          AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships.new(
-            icn: '1234',
-            emails: []
-          )
-
-        allow(memberships).to receive(:all).and_return(
-          [
-            AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships::Membership.new(
-              registration_number: '1234',
-              power_of_attorney_holder:
-                AccreditedRepresentativePortal::PowerOfAttorneyHolder.new(
-                  poa_code: poa_request.power_of_attorney_holder_poa_code,
-                  type: poa_request.power_of_attorney_holder_type,
-                  can_accept_digital_poa_requests: false,
-                  name: 'Stub Org'
-                )
+          allow(accept_service).to receive(:call) do
+            AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
+              creator_id: test_user.user_account_uuid,
+              power_of_attorney_holder_memberships: test_user.power_of_attorney_holder_memberships,
+              power_of_attorney_request: poa_request
             )
-          ]
-        )
-
-        allow(accept_service).to receive(:call) do
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator_id: test_user.user_account_uuid,
-            power_of_attorney_holder_memberships: memberships,
-            power_of_attorney_request: poa_request
-          )
+          end
         end
 
-        expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
-          .not_to receive(:perform_async)
+        it 'creates an acceptance decision' do
+          expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
+          monitor = stub_ar_monitoring
 
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
-             params: { decision: { type: 'acceptance' } }
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance' } }
 
-        expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq({})
+
+          poa_request.reload
+          expect(poa_request.resolution).to be_present
+          expect(poa_request.resolution.resolving.type)
+            .to eq('PowerOfAttorneyRequestAcceptance')
+          expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
+        end
+
+        it 'enqueues SendPoaRequestToCorpDbJob if feature flag enabled' do
+          monitor = stub_ar_monitoring
+
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance' } }
+
+          expect(response).to have_http_status(:ok)
+          expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
+            .to have_received(:perform_async)
+            .with(poa_request.id)
+
+          poa_request.reload
+          expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
+          expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
+        end
+
+        it 'sends trace to monitoring' do
+          monitor = stub_ar_monitoring
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance' } }
+
+          expect(response).to have_http_status(:ok)
+
+          poa_request.reload
+          expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
+          expect_poa_metrics(monitor:, decision: 'accepted', request: poa_request)
+        end
+
+        it 'does not enqueue SendPoaRequestToCorpDbJob if feature flag disabled' do
+          Flipper.disable(:send_poa_to_corpdb)
+
+          expect(AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob)
+            .not_to receive(:perform_async)
+
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance' } }
+
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'sends tracking count to monitoring' do
+          monitor = stub_ar_monitoring
+          expect(monitor).to receive(:track_count).with('ar.poa.request.decision.accept', tags: ['org:x23'])
+
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance' } }
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      describe 'declination decision' do
+        it 'creates a declination decision with both key and no free-form reason' do
+          expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
+            .to receive(:perform_async)
+          monitor = stub_ar_monitoring
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+            .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
+
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: {
+                 type: 'declination',
+                 key: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
+               } }
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq({})
+
+          poa_request.reload
+          expect(poa_request.resolution.resolving.type)
+            .to eq('PowerOfAttorneyRequestDeclination')
+          expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
+        end
+
+        it 'creates a declination decision when no reason param is passed (declination only)' do
+          expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
+            .to receive(:perform_async)
+          monitor = stub_ar_monitoring
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
+            .to receive(:power_of_attorney_holder_poa_code).and_return(poa_code)
+
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: {
+                 type: 'declination',
+                 key: 'DECLINATION_NOT_ACCEPTING_CLIENTS'
+               } }
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response).to eq({})
+
+          poa_request.reload
+          expect(poa_request.resolution.resolving.type)
+            .to eq('PowerOfAttorneyRequestDeclination')
+          expect_poa_metrics(monitor:, decision: 'declined', request: poa_request)
+        end
       end
     end
 
