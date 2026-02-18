@@ -26,6 +26,24 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     JSON.parse(data, symbolize_names: true)
   end
   let(:span) { instance_double(Datadog::Tracing::Span) }
+  let(:crm_success_response) do
+    {
+      Data: { InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1', ListOfAttachments: [
+        {
+          FileId: 'string',
+          FileName: 'string',
+          ErrorMessage: 'string'
+        }
+      ] },
+      Message: 'string',
+      ExceptionOccurred: false,
+      ExceptionMessage: 'string',
+      StatusCode: 0,
+      AssociatedRecordId: 'string',
+      IntegrationResultId: '00000000-0000-0000-0000-000000000000',
+      MessageId: '00000000-0000-0000-0000-000000000000'
+    }
+  end
 
   before do
     allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
@@ -44,8 +62,9 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     allow(span).to receive(:set_error)
   end
 
-  def setup_successful_service_response(inquiry_number = 'test-123')
-    allow(service).to receive(:call).and_return({ Data: { InquiryNumber: inquiry_number } })
+  def setup_successful_service_response
+    response = crm_success_response.deep_dup
+    allow(service).to receive(:call).and_return(response)
   end
 
   describe '#initialize' do
@@ -80,15 +99,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   describe '#call' do
     context 'when the API call is successful' do
       before do
-        allow(service).to receive(:call).and_return({
-                                                      Data: {
-                                                        InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
-                                                      },
-                                                      Message: '',
-                                                      ExceptionOccurred: false,
-                                                      ExceptionMessage: '',
-                                                      MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
-                                                    })
+        allow(service).to receive(:call).and_return(crm_success_response)
       end
 
       it 'assigns VeteranICN and posts data to the service' do
@@ -96,7 +107,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         allow(span).to receive(:set_tag)
 
         response = creator.call(inquiry_params: inquiry_params[:inquiry])
-        expect(response).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
+        expect(response).to include({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
 
       it 'does not include ICN or other PII in Datadog tags' do
@@ -180,9 +191,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'only includes SAFE_INQUIRY_FIELDS in inquiry tag' do
-        allow(service).to receive(:call).and_return({
-                                                      Data: { InquiryNumber: 'test-123' }
-                                                    })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', {
@@ -196,9 +205,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'filters out all unsafe fields from inquiry tag' do
-        allow(service).to receive(:call).and_return({
-                                                      Data: { InquiryNumber: 'test-123' }
-                                                    })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
@@ -266,7 +273,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
       it 'handles empty inquiry_params' do
         empty_params = { files: [{ file_name: nil, file_content: nil }] }
-        allow(service).to receive(:call).and_return({ Data: { InquiryNumber: 'test-123' } })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', {})
@@ -282,7 +289,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
           ssn: '456',
           files: [{ file_name: nil, file_content: nil }]
         }
-        allow(service).to receive(:call).and_return({ Data: { InquiryNumber: 'test-123' } })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', {})
@@ -304,7 +311,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         result = creator.call(inquiry_params: inquiry_params[:inquiry])
 
         expect(service).to have_received(:call)
-        expect(result).to eq({ InquiryNumber: 'test-123' })
+        expect(result).to include({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
     end
 
