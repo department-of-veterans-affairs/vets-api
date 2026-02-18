@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_18_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1447,6 +1447,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["id", "secondary_access_token_expires_at"], name: "index_mpf_submissions_on_id_token_expiry"
+    t.index ["primary_in_progress_form_id"], name: "index_mpf_submissions_on_primary_form"
+    t.index ["primary_user_uuid", "status", "form_type"], name: "index_mpf_submissions_on_primary_user_status_form"
+    t.index ["saved_claim_id"], name: "index_mpf_submissions_on_saved_claim"
+    t.index ["secondary_email", "status"], name: "index_mpf_submissions_on_secondary_email_status"
+    t.index ["secondary_in_progress_form_id"], name: "index_mpf_submissions_on_secondary_form"
+    t.index ["secondary_user_uuid", "status"], name: "index_mpf_submissions_on_secondary_user_status"
+    t.index ["status", "created_at"], name: "index_mpf_submissions_on_status_created"
   end
 
   create_table "nod_notifications", force: :cascade do |t|
@@ -1500,6 +1508,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["organization_poa", "representative_id"], name: "idx_org_reps_on_org_poa_and_rep_id", unique: true
+    t.index ["representative_id"], name: "index_organization_representatives_on_representative_id"
     t.check_constraint "acceptance_mode::text = ANY (ARRAY['any_request'::character varying, 'self_only'::character varying, 'no_acceptance'::character varying]::text[])", name: "org_reps_acceptance_mode_check"
   end
 
