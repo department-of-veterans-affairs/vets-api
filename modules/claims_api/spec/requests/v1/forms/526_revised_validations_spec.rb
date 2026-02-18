@@ -615,6 +615,117 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
   end
 
+  describe '#validate_form_526_title10_anticipated_separation_date!' do
+    let(:service_periods) do
+      [
+        { 'activeDutyBeginDate' => '2000-01-01', 'activeDutyEndDate' => '2005-01-01' },
+        { 'activeDutyBeginDate' => '2010-01-01', 'activeDutyEndDate' => '2015-01-01' }
+      ]
+    end
+
+    let(:form_attributes) do
+      {
+        'claimDate' => claim_date,
+        'serviceInformation' => {
+          'servicePeriods' => service_periods,
+          'reservesNationalGuardService' => {
+            'title10Activation' => {
+              'anticipatedSeparationDate' => anticipated_separation_date
+            }
+          }
+        }
+      }
+    end
+
+    # happy path test
+    context 'when anticipatedSeparationDate is within 180 days of claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
+      let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
+    # sad path test
+    context 'when anticipatedSeparationDate is more than 180 days from claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
+      let(:anticipated_separation_date) { 200.days.from_now.to_date.iso8601 }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    # edge case tests
+    context 'when claimDate is missing and anticipatedSeparationDate is within 180 days of current date' do
+      let(:claim_date) { nil }
+      let(:anticipated_separation_date) { 90.days.from_now.to_date.iso8601 }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
+    context 'when claimDate is missing and anticipatedSeparationDate is more than 180 days from current date' do
+      let(:claim_date) { nil }
+      let(:anticipated_separation_date) { 200.days.from_now.to_date.iso8601 }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when anticipatedSeparationDate is exactly 180 days from claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
+      let(:anticipated_separation_date) { 180.days.from_now.to_date.iso8601 }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
+    context 'when anticipatedSeparationDate is exactly today' do
+      let(:claim_date) { 1.day.ago.to_date.iso8601 }
+      let(:anticipated_separation_date) { Time.zone.today.iso8601 }
+
+      it 'raises an error since the date must be in the future' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when anticipatedSeparationDate is 181 days from claimDate' do
+      let(:claim_date) { Time.zone.today.iso8601 }
+      let(:anticipated_separation_date) { 181.days.from_now.to_date.iso8601 }
+
+      it 'raises an InvalidFieldValue error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when anticipatedSeparationDate is tomorrow' do
+      let(:claim_date) { Time.zone.today.iso8601 }
+      let(:anticipated_separation_date) { 1.day.from_now.to_date.iso8601 }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }.not_to raise_error
+      end
+    end
+
+    context 'when anticipatedSeparationDate is in the past' do
+      let(:claim_date) { 1.year.ago.to_date.iso8601 }
+      let(:anticipated_separation_date) { 6.months.ago.to_date.iso8601 }
+
+      it 'raises an error because anticipatedSeparationDate cannot be in the past' do
+        expect { subject.validate_form_526_title10_anticipated_separation_date! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+  end
+
   describe '#validate_form_526_current_mailing_address_country!' do
     # These country values are the example ones displayed in the API documentation
     # at https://developer.va.gov/explore/api/benefits-reference-data/docs?version=current
