@@ -173,4 +173,85 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
       end
     end
   end
+
+  describe 'GET /my_health/v2/medical_records/imaging/thumbnail_proxy' do
+    let(:proxy_path) { '/my_health/v2/medical_records/imaging/thumbnail_proxy' }
+    let(:valid_s3_url) do
+      'https://mhv-sysb-cvix-thumbnails.s3.us-gov-west-1.amazonaws.com/hashed-abc123/thumb.jpg' \
+        '?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=1800&X-Amz-Signature=abc123'
+    end
+    let(:image_binary) { "\xFF\xD8\xFF\xE0".b + ('x' * 100) }
+
+    context 'happy path' do
+      it 'proxies the image from S3 and returns JPEG binary' do
+        stub_request(:get, /mhv-sysb-cvix-thumbnails\.s3\.us-gov-west-1\.amazonaws\.com/)
+          .to_return(status: 200, body: image_binary, headers: { 'Content-Type' => 'image/jpeg' })
+
+        get proxy_path, params: { url: valid_s3_url }
+
+        expect(response).to be_successful
+        expect(response.headers['Content-Type']).to include('image/jpeg')
+        expect(response.body.bytes).to eq(image_binary.bytes)
+      end
+    end
+
+    context 'when url param is missing' do
+      it 'returns a 400 error' do
+        get proxy_path
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when URL host is not an allowed S3 domain' do
+      it 'returns a 403 error for non-S3 hosts' do
+        get proxy_path, params: { url: 'https://evil-site.com/malicious.jpg' }
+
+        expect(response).to have_http_status(:forbidden)
+        json = JSON.parse(response.body)
+        expect(json['error']).to eq('URL not allowed')
+      end
+
+      it 'returns a 403 error for non-HTTPS URLs' do
+        get proxy_path, params: { url: 'http://mhv-sysb-cvix-thumbnails.s3.us-gov-west-1.amazonaws.com/thumb.jpg' }
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when URL is malformed' do
+      it 'returns a 400 error' do
+        get proxy_path, params: { url: ':::not-a-url' }
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when S3 returns an error' do
+      it 'returns an error response' do
+        stub_request(:get, /mhv-sysb-cvix-thumbnails\.s3\.us-gov-west-1\.amazonaws\.com/)
+          .to_return(status: 403, body: 'Access Denied')
+
+        get proxy_path, params: { url: valid_s3_url }
+
+        expect(response).not_to be_successful
+      end
+    end
+
+    context 'when S3 host uses dash-style region format' do
+      let(:dash_style_url) do
+        'https://mhv-cvix-thumbnails.s3-us-gov-west-1.amazonaws.com/thumb.jpg?X-Amz-Signature=abc'
+      end
+
+      it 'accepts the URL and proxies successfully' do
+        stub_request(:get, /mhv-cvix-thumbnails\.s3-us-gov-west-1\.amazonaws\.com/)
+          .to_return(status: 200, body: image_binary, headers: { 'Content-Type' => 'image/jpeg' })
+
+        get proxy_path, params: { url: dash_style_url }
+
+        expect(response).to be_successful
+        expect(response.headers['Content-Type']).to include('image/jpeg')
+      end
+    end
+  end
 end
