@@ -1,13 +1,13 @@
 {
   "submissionReasons": {
-      "initialApplication": true,
-      "approvalOfNewPrograms": false,
-      "reapproval": false,
-      "updateInformation": false,
-      "other": false,
-      "updateInformationText": "lorem ipsum update",
-      "otherText": "lorem ipsum other"
-    },
+    "initialApplication": true,
+    "approvalOfNewPrograms": false,
+    "reapproval": false,
+    "updateInformation": false,
+    "other": false,
+    "updateInformationText": "lorem ipsum update",
+    "otherText": "lorem ipsum other"
+  },
   "institutionClassification": "public",
   "institutionProfile": {
     "isIHL": true,
@@ -20,13 +20,6 @@
       "institutionName": "Test University",
       "vaFacilityCode": "12345678",
       "isForeignCountry": false,
-      "physicalAddress": {
-        "country": "USA",
-        "street": "123 Main St",
-        "city": "Anytown",
-        "state": "CA",
-        "postalCode": "12345"
-      },
       "mailingAddress": {
         "country": "USA",
         "street": "123 Main St",

@@ -271,6 +271,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Redact expired POA request records every night at 1 AM (staggered to avoid resource contention)
   mgr.register('0 1 * * *', 'AccreditedRepresentativePortal::RedactPowerOfAttorneyRequestsJob')
 
+  # Mark old BenefitsIntake records for deletion in 60 days
+  mgr.register('0 2 * * *', 'AccreditedRepresentativePortal::SetDeleteDateOnBenefitsIntakeRecordsJob')
+
   # Delete old BenefitsIntake records 60 days or older
   mgr.register('0 0 * * *', 'AccreditedRepresentativePortal::DeleteOldBenefitsIntakeRecordsJob')
 

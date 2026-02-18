@@ -34,7 +34,7 @@ graph TD
     
     Coordinate --> MarkSuccess[Mark Parent Group SUCCESS<br/>Send Confirmation Email]
     
-    JobFail --> Backup[DependentBackupJob]
+    JobFail --> Backup[BenefitsIntakeJob]
     Backup --> DB5[(DB: Lighthouse::Submission<br/>Lighthouse::SubmissionAttempt)]
     DB5 --> BackupService[Service: Lighthouse<br/>Benefits Intake API<br/>Submit all child claims as package]
     BackupService -->|Failure| BackupFail[Send Error Notification<br/>End]

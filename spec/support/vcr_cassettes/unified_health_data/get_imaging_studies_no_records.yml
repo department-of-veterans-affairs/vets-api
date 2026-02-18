@@ -1,0 +1,68 @@
+# @format
+---
+http_interactions:
+  - request:
+      method: post
+      uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+      body:
+        encoding: UTF-8
+        string: '{"appId":"test-app","appToken":"test-token","subject":"test-subject","userType":"test-user-type"}'
+      headers:
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Faraday v2.13.4
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - "*/*"
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-access-token-12345
+      body:
+        encoding: UTF-8
+        string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
+    recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+  - request:
+      method: get
+      uri: "<MHV_UHD_HOST>/v1/medicalrecords/imaging-studies/oracle-health?patientId=1234567890V012345&startDate=2024-01-01&endDate=2025-05-31"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Authorization:
+          - Bearer test-access-token-12345
+        X-Api-Key:
+          - test-api-key
+        User-Agent:
+          - Faraday v2.13.4
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - "*/*"
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |
+          {
+              "outcome": {
+                  "severity": "INFORMATION",
+                  "type": "INFORMATIONAL",
+                  "details": "Success"
+              },
+              "data": "{\"studies\":[]}"
+          }
+    recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+recorded_with: VCR 6.3.1

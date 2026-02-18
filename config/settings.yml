@@ -260,7 +260,7 @@ claims_api:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
         notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
-claims_evidence_api:
+claims_evidence_api: &claims_evidence_api
   base_url: <%= ENV['claims_evidence_api__base_url'] %>
   breakers_error_threshold: 80
   include_request: false
@@ -300,6 +300,14 @@ covid_vaccine:
 database_url: <%= ENV['database_url'] %>
 decision_review:
   api_key: <%= ENV['decision_review__api_key'] %>
+  appealable_issues:
+    auth:
+      aud_claim_url: <%= ENV['decision_review__appealable_issues__auth__aud_claim_url'] %>
+      client_id: <%= ENV['decision_review__appealable_issues__auth__client_id'] %>
+      rsa_key: /srv/vets-api/secret/decision_review_appealable_issues.key
+      token_url: <%= ENV['decision_review__appealable_issues__auth__token_url'] %>
+    mock: <%= ENV['decision_review__appealable_issues__mock'] %>
+    url: <%= ENV['decision_review__appealable_issues__url'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
   delete_saved_claim_records_job_enabled: <%= ENV['decision_review__delete_saved_claim_records_job_enabled'] %>
   email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>
@@ -357,6 +365,7 @@ dhp:
     aws_secret_access_key: <%= ENV['dhp__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['dhp__s3__bucket'] %>
     region: us-gov-west-1
+digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
 directory:
   apikey: fake_apikey
   health_server_id: <%= ENV['directory__health_server_id'] %>
@@ -1299,6 +1308,7 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  get_awards_pension: modules/mobile/app/schemas/get_awards_pension.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: <%= ENV['search__access_key'] %>
