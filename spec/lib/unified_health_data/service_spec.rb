@@ -695,6 +695,8 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     before do
+      allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:gauge)
       allow_any_instance_of(UnifiedHealthData::Client)
         .to receive(:get_notes_by_date)
         .and_return(sample_client_response)
@@ -907,13 +909,13 @@ describe UnifiedHealthData::Service, type: :service do
 
         # Create mock notes with various date conditions
         note_with_blank_date = instance_double(
-          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil
+          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil, source: 'vista'
         )
         note_with_invalid_date = instance_double(
-          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date'
+          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date', source: 'vista'
         )
         note_with_valid_date = instance_double(
-          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z'
+          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z', source: 'oracle-health'
         )
 
         # Stub the service to return our test notes
@@ -993,6 +995,7 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
         allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:gauge)
         allow(Flipper).to receive(:enabled?)
           .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
           .and_return(false)
@@ -1020,6 +1023,7 @@ describe UnifiedHealthData::Service, type: :service do
                                                   user).and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
+          .with(hash_including(message: 'Clinical Notes LOINC code distribution'))
         service.get_care_summaries_and_notes
       end
     end
@@ -1030,6 +1034,7 @@ describe UnifiedHealthData::Service, type: :service do
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
         allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:gauge)
         allow(Flipper).to receive(:enabled?)
           .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, user)
           .and_return(false)
@@ -1054,7 +1059,37 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
+          .with(/Clinical Notes response:/, anything)
         service.get_care_summaries_and_notes
+      end
+    end
+
+    context 'index metrics and logging' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:gauge)
+      end
+
+      it 'logs source breakdown for the index response' do
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            message: 'Clinical Notes index response',
+            total_notes: 6,
+            vista_count: be_a(Integer),
+            oracle_health_count: be_a(Integer),
+            service: 'unified_health_data'
+          )
+        )
+      end
+
+      it 'emits StatsD gauges for note counts by source' do
+        service.get_care_summaries_and_notes
+
+        expect(StatsD).to have_received(:gauge).with('api.uhd.clinical_notes.index.total', 6)
+        expect(StatsD).to have_received(:gauge).with('api.uhd.clinical_notes.index.vista', be_a(Integer))
+        expect(StatsD).to have_received(:gauge).with('api.uhd.clinical_notes.index.oracle_health', be_a(Integer))
       end
     end
   end
@@ -1074,6 +1109,8 @@ describe UnifiedHealthData::Service, type: :service do
 
     context 'when source is not provided (Vista fallback)' do
       before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
@@ -1118,6 +1155,8 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_note_by_source)
           .and_return(oh_client_response)
@@ -1182,6 +1221,11 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     context 'error handling' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+      end
+
       it 'handles unknown errors' do
         uhd_service = double
         allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
@@ -1190,6 +1234,97 @@ describe UnifiedHealthData::Service, type: :service do
         expect do
           uhd_service.get_single_summary_or_note('banana')
         end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+
+    context 'show metrics and logging' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+      end
+
+      context 'when fetching a Vista note' do
+        before do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_notes_by_date)
+            .and_return(sample_client_response)
+        end
+
+        it 'logs with source vista_fallback and note_found true' do
+          service.get_single_summary_or_note('F253-7227761-1834074')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'Clinical Notes show request',
+              note_id: 'F253-7227761-1834074',
+              source: 'vista_fallback',
+              note_found: true,
+              note_type: be_a(String),
+              service: 'unified_health_data'
+            )
+          )
+        end
+
+        it 'emits StatsD increment with source tag vista_fallback' do
+          service.get_single_summary_or_note('F253-7227761-1834074')
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.uhd.clinical_notes.show.source', tags: ['source:vista_fallback'])
+        end
+
+        it 'emits StatsD not_found increment when note is missing' do
+          service.get_single_summary_or_note('nonexistent-id')
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.uhd.clinical_notes.show.not_found')
+        end
+
+        it 'logs note_found false when note is not found' do
+          service.get_single_summary_or_note('nonexistent-id')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'Clinical Notes show request',
+              note_found: false,
+              note_type: nil
+            )
+          )
+        end
+      end
+
+      context 'when fetching an Oracle Health note' do
+        let(:single_oh_note_response) do
+          JSON.parse(Rails.root.join(
+            'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+          ).read)
+        end
+
+        before do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: single_oh_note_response))
+        end
+
+        it 'logs with source oracle-health and note_found true' do
+          service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              message: 'Clinical Notes show request',
+              note_id: '20875576613',
+              source: 'oracle-health',
+              note_found: true,
+              service: 'unified_health_data'
+            )
+          )
+        end
+
+        it 'emits StatsD increment with source tag oracle-health' do
+          service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.uhd.clinical_notes.show.source', tags: ['source:oracle-health'])
+        end
       end
     end
   end

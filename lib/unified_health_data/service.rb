@@ -145,6 +145,7 @@ module UnifiedHealthData
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
         clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
+        log_notes_index_metrics(parsed_notes, start_date, end_date)
 
         parsed_notes
       end
@@ -152,11 +153,13 @@ module UnifiedHealthData
 
     def get_single_summary_or_note(note_id, source: nil)
       with_monitoring do
-        if source == SourceConstants::ORACLE_HEALTH
-          fetch_oracle_health_note(note_id, source)
-        else
-          fetch_note_from_all(note_id)
-        end
+        result = if source == SourceConstants::ORACLE_HEALTH
+                   fetch_oracle_health_note(note_id, source)
+                 else
+                   fetch_note_from_all(note_id)
+                 end
+        log_notes_show_metrics(note_id, source, result)
+        result
       end
     end
 
@@ -514,6 +517,47 @@ module UnifiedHealthData
         "Clinical Notes response: total_doc_refs=#{total}, returned=#{returned}, filtered=#{total - returned}",
         { service: 'unified_health_data' }
       )
+    end
+
+    def log_notes_index_metrics(parsed_notes, start_date, end_date)
+      total_notes = parsed_notes.size
+      vista_count = parsed_notes.count { |n| n.source == SourceConstants::VISTA }
+      oracle_health_count = parsed_notes.count { |n| n.source == SourceConstants::ORACLE_HEALTH }
+
+      Rails.logger.info(
+        {
+          message: 'Clinical Notes index response',
+          total_notes:,
+          vista_count:,
+          oracle_health_count:,
+          start_date:,
+          end_date:,
+          service: 'unified_health_data'
+        }
+      )
+
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.clinical_notes.index.total", total_notes)
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.clinical_notes.index.vista", vista_count)
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.clinical_notes.index.oracle_health", oracle_health_count)
+    end
+
+    def log_notes_show_metrics(note_id, source, result)
+      source_used = source || 'vista_fallback'
+      found = result.present?
+
+      Rails.logger.info(
+        {
+          message: 'Clinical Notes show request',
+          note_id:,
+          source: source_used,
+          note_found: found,
+          note_type: result&.note_type,
+          service: 'unified_health_data'
+        }
+      )
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.clinical_notes.show.source", tags: ["source:#{source_used}"])
+      StatsD.increment("#{STATSD_KEY_PREFIX}.clinical_notes.show.not_found") unless found
     end
 
     def increment_refill(count = 1)
