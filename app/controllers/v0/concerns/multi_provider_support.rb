@@ -111,7 +111,10 @@ module V0
 
         # Add provider field to each claim
         claims_data.each do |claim|
-          claim['attributes']['provider'] = provider_type if claim.is_a?(Hash)
+          next unless claim.is_a?(Hash)
+
+          claim['attributes'] ||= {}
+          claim['attributes']['provider'] = provider_type
         end
 
         claims_data
