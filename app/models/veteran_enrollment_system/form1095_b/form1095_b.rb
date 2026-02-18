@@ -8,8 +8,7 @@ module VeteranEnrollmentSystem
       include Vets::Model
 
       NUMBER_OF_YEARS_AVAILABLE = 3
-      # maybe come up with a better name
-      PDF_FORMAT = {
+      PDF_ATTRIBUTES_FORMAT = {
         '2023': :pdf_attributes_v1,
         '2024': :pdf_attributes_v1,
         '2025': :pdf_attributes_v2
@@ -48,7 +47,7 @@ module VeteranEnrollmentSystem
 
       def pdf_file
         template_path = self.class.pdf_template_path(tax_year)
-        unless File.exist?(template_path) && PDF_FORMAT.keys.include?(tax_year.to_sym)
+        unless File.exist?(template_path) && PDF_ATTRIBUTES_FORMAT.keys.include?(tax_year.to_sym)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
@@ -170,7 +169,6 @@ module VeteranEnrollmentSystem
       end
 
       def generate_pdf(pdftk, tmp_file, template_path)
-        # template_path = self.class.pdf_template_path(tax_year)
         form_data = pdf_data
 
         pdftk.fill_form(
@@ -188,14 +186,14 @@ module VeteranEnrollmentSystem
       end
 
       def pdf_data
-        variable_attributes_function_name = PDF_FORMAT[tax_year.to_sym]
+        variable_attributes_function_name = PDF_ATTRIBUTES_FORMAT[tax_year.to_sym]
         year_specific_attributes = send(variable_attributes_function_name)
-        shared_attributes = shared_pdf_data
+        shared_attributes = shared_pdf_attributes
         shared_attributes.merge(year_specific_attributes)
       end
 
       # rubocop:disable Metrics/MethodLength
-      def shared_pdf_data
+      def shared_pdf_attributes
         {
           'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': is_corrected && 2,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_10[0]': 'C',
