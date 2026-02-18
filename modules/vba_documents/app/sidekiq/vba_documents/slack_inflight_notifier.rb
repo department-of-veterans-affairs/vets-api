@@ -12,7 +12,7 @@ module VBADocuments
 
     AGED_PROCESSING_QUERY_LIMIT = 10
     INVALID_PARTS_QUERY_LIMIT = 10
-    SUMMARY_THRESHOLDS = {
+    SUBMISSION_STATUS_THRESHOLDS = {
       'uploaded' => { time: 26, unit: :hours },
       'received' => { time: 4, unit: :days },
       'processing' => { time: 8, unit: :days }
@@ -45,7 +45,7 @@ module VBADocuments
     def summary_notification
       results = ''
 
-      SUMMARY_THRESHOLDS.each do |status, config|
+      SUBMISSION_STATUS_THRESHOLDS.each do |status, config|
         uploads = filter_uploads_for_status(status)
         # only look at submissions from the last 9 days, to cover the longest threshold (8 days) plus a buffer day
         aged_uploads = uploads.aged_processing(config[:time], config[:unit], status)
