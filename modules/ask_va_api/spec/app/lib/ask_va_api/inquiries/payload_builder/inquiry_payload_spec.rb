@@ -58,7 +58,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
             has_business_phone: true,
             has_personal_email: false,
             has_personal_phone: true,
-            is_question_about_veteran_or_someone_else: inquiry_params[:inquiry][:is_question_about_veteran_or_someone_else],
+            is_question_about_veteran_or_someone_else:
+              inquiry_params[:inquiry][:is_question_about_veteran_or_someone_else],
             level_of_authentication: inquiry_details[:level_of_authentication],
             personal_email_domain: nil,
             relationship_to_veteran: inquiry_params[:inquiry][:relationship_to_veteran],
