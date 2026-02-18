@@ -155,6 +155,10 @@ module SurvivorsBenefits
       end
 
       def self.signature_overlay_coordinates_for(pdf_path)
+        if Flipper.enabled?(:acroform_debug_logs)
+          Rails.logger.info("SurvivorsBenefits::PdfFill::Va21p534ez HexaPDF template: #{pdf_path}")
+        end
+
         HexaPDF::Document.open(pdf_path) do |doc|
           field = doc.acro_form&.field_by_name(SIGNATURE_FIELD_NAME)
           widget = field&.each_widget&.first

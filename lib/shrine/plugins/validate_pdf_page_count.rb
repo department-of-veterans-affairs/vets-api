@@ -8,6 +8,7 @@ class Shrine
         TOO_FEW_PAGES = 'too_few_pages'
 
         def validate_pdf_page_count(max_pages: nil, min_pages: 1)
+          return if errors.any?
           return unless get.mime_type == Mime[:pdf].to_s
 
           file = get.download

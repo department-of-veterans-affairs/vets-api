@@ -251,6 +251,72 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
+        context 'missing API description metric tracking' do
+          before do
+            allow(StatsD).to receive(:increment)
+          end
+
+          let(:claim_with_blank_description) do
+            {
+              'attributes' => {
+                'trackedItems' => [
+                  { 'displayName' => 'Test Item', 'description' => '' },
+                  { 'displayName' => 'Test Item 2', 'description' => nil },
+                  { 'displayName' => 'Another Item', 'description' => 'Some description' }
+                ]
+              }
+            }
+          end
+
+          it 'increments StatsD metric when a tracked item has a blank description' do
+            service.send(:apply_friendlier_language, claim_with_blank_description)
+
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item']
+            ).once
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_api_description',
+              tags: ['display_name:Test Item 2']
+            ).once
+          end
+        end
+
+        context 'missing friendly name metric tracking' do
+          before do
+            allow(StatsD).to receive(:increment)
+          end
+
+          let(:claim_with_mixed_friendly_names) do
+            {
+              'attributes' => {
+                'trackedItems' => [
+                  { 'displayName' => 'Unknown Item', 'description' => 'Some description' },
+                  { 'displayName' => '21-4142/21-4142a', 'description' => 'Some description' }
+                ]
+              }
+            }
+          end
+
+          it 'increments StatsD metric when a tracked item does not receive a friendlyName override' do
+            service.send(:apply_friendlier_language, claim_with_mixed_friendly_names)
+
+            expect(StatsD).to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_friendly_name',
+              tags: ['display_name:Unknown Item']
+            ).once
+          end
+
+          it 'does not increment StatsD metric when a tracked item receives a friendlyName override' do
+            service.send(:apply_friendlier_language, claim_with_mixed_friendly_names)
+
+            expect(StatsD).not_to have_received(:increment).with(
+              'api.benefits_claims.tracked_item.missing_friendly_name',
+              tags: ['display_name:21-4142/21-4142a']
+            )
+          end
+        end
+
         describe 'tracked item content overrides' do
           context 'when cst_evidence_requests_content_override is disabled' do
             before do

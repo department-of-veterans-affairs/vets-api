@@ -381,9 +381,25 @@ module BenefitsClaims
         else
           apply_legacy_content_overrides(item, display_name)
         end
+
+        track_tracked_item_metrics(item, display_name)
       end
 
       tracked_items
+    end
+
+    def track_tracked_item_metrics(item, display_name)
+      {
+        'description' => 'missing_api_description',
+        'friendlyName' => 'missing_friendly_name'
+      }.each do |field, metric|
+        if item[field].blank?
+          StatsD.increment(
+            "#{STATSD_KEY_PREFIX}.tracked_item.#{metric}",
+            tags: ["display_name:#{display_name}"]
+          )
+        end
+      end
     end
 
     def apply_legacy_content_overrides(item, display_name)

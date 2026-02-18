@@ -21,9 +21,6 @@ vanotify:
 ```
 puts "🚀 Setting up test data for FailureNotificationEmailJob..."
 
-puts "Making sure Flipper for creating VANotify::Notification records is on..."
-Flipper.enable(:va_notify_notification_creation) unless Flipper.enabled?(:va_notify_notification_creation)
-
 # ⚠️ UPDATE THIS EMAIL TO YOUR PERSONAL EMAIL FOR TESTING ⚠️
 TEST_EMAIL = "your-email@example.com"
 
@@ -77,7 +74,7 @@ puts "   Created #{saved_claims.count} SavedClaims"
 puts "📋 Creating AppealSubmissions..."
 type_mapping = {
   'SavedClaim::HigherLevelReview' => 'HLR',
-  'SavedClaim::NoticeOfDisagreement' => 'NOD', 
+  'SavedClaim::NoticeOfDisagreement' => 'NOD',
   'SavedClaim::SupplementalClaim' => 'SC'
 }
 
@@ -203,11 +200,11 @@ secondary_forms.each_with_index do |form, index|
     failure_notification_sent_at: nil,
     delete_date: nil
   )
-  
+
   # Update email in associated SavedClaim
   appeal_submission = form.appeal_submission
   saved_claim = SavedClaim.find_by(guid: appeal_submission.submitted_appeal_uuid)
-  
+
   if saved_claim
     form_data = JSON.parse(saved_claim.form)
     form_data['data']['attributes']['veteran']['email'] = TEST_EMAIL
@@ -230,18 +227,18 @@ begin
   submissions = job.send(:submissions)
   submission_uploads = job.send(:submission_uploads)
   errored_secondary_forms = job.send(:errored_secondary_forms)
-  
+
   puts "\n📊 Job will process:"
   puts "   - #{submissions.count} form submissions"
   puts "   - #{submission_uploads.count} evidence uploads"
   puts "   - #{errored_secondary_forms.count} secondary forms"
-  
+
   # Show email addresses
   puts "\n📧 Notification emails:"
   submissions.each { |s| puts "   Form #{s.id} #{s.type_of_appeal}: #{s.current_email_address}" }
   submission_uploads.each { |u| puts "   Upload #{u.lighthouse_upload_id} from AppealSubmission id #{u.appeal_submission.id}" }
   errored_secondary_forms.each { |f| puts "   Secondary #{f.id} from AppealSubmission id #{f.appeal_submission.id}: #{f.appeal_submission.current_email_address}" }
-  
+
   if submissions.count > 0 || submission_uploads.count > 0 || errored_secondary_forms.count > 0
     puts "\n✅ SUCCESS! Test data ready for job execution"
     puts "\nTo run the job:"
@@ -254,7 +251,7 @@ begin
   else
     puts "\n❌ ERROR: No records found for processing. Check the setup."
   end
-  
+
 rescue => e
   puts "\n❌ ERROR during verification: #{e.message}"
   puts "Check your job implementation and model relationships."
@@ -308,7 +305,7 @@ end
 14. Go back to the tab running your rails console and check the `DecisionReviewNotificationAuditLog` table. You should see 6 records corresponding to the emails. For example:
 ```
 vets-api(dev)> DecisionReviewNotificationAuditLog.all.pluck(:status, :reference)
-=> 
+=>
 [["delivered", "HLR-form-3e3c3504-497a-472f-bec0-51d61b2c4be5"],
  ["delivered", "NOD-form-5e9baa46-3d37-4f72-aa2e-cbc7e7c0dff1"],
  ["delivered", "SC-form-c1dc8745-9b0a-42a1-9dd5-c54ba3a3f635"],

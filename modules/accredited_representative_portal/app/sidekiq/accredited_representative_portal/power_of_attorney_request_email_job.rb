@@ -23,7 +23,7 @@ module AccreditedRepresentativePortal
                 personalisation = nil,
                 api_key = Settings.vanotify.services.va_gov.api_key)
       poa_request_notification = PowerOfAttorneyRequestNotification.find(poa_request_notification_id)
-      notify_client = VaNotify::Service.new(api_key, email_callback_options(poa_request_notification.type))
+      notify_client = VaNotify::Service.new(api_key, email_delivery_callback(poa_request_notification.type))
       template_id = poa_request_notification.template_id
 
       response = notify_client.send_email(
@@ -71,12 +71,6 @@ module AccreditedRepresentativePortal
       else
         raise "Unsupported notification type=#{notification.type} recipient_type=#{notification.recipient_type}"
       end.generate(notification)
-    end
-
-    def email_callback_options(type)
-      return unless Flipper.enabled?(:accredited_representative_portal_email_delivery_callback)
-
-      email_delivery_callback(type)
     end
 
     def email_delivery_callback(type)

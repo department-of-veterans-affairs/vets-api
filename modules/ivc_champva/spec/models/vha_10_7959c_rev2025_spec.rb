@@ -55,13 +55,67 @@ RSpec.describe IvcChampva::VHA107959cRev2025 do
         expect(form.data['certifier_role']).to eq('other')
       end
 
+      context 'applicant_email_address normalization' do
+        context 'when certifier_role is not applicant' do
+          it 'uses applicant_email for applicant_email_address' do
+            expect(form.data['certifier_role']).to eq('other')
+            expect(form.data['applicant_email_address']).to eq('applicant@email.gov')
+          end
+        end
+
+        context 'when certifier_role is applicant' do
+          let(:data_with_applicant_certifier) do
+            fixture_data.deep_dup.tap do |d|
+              d['certifier_role'] = 'applicant'
+              d['certifier_email'] = 'certifier@email.gov'
+            end
+          end
+          let(:form) { described_class.new(data_with_applicant_certifier) }
+
+          it 'uses certifier_email for applicant_email_address' do
+            expect(form.data['applicant_email_address']).to eq('certifier@email.gov')
+          end
+        end
+
+        context 'when certifier_role is applicant but certifier_email is missing' do
+          let(:data_with_applicant_certifier_no_email) do
+            fixture_data.deep_dup.tap do |d|
+              d['certifier_role'] = 'applicant'
+              d.delete('certifier_email')
+            end
+          end
+          let(:form) { described_class.new(data_with_applicant_certifier_no_email) }
+
+          it 'falls back to nil when certifier_email is absent' do
+            expect(form.data['applicant_email_address']).to be_nil
+          end
+        end
+
+        context 'when applicant_email_address is already set' do
+          let(:data_with_existing_email) do
+            fixture_data.deep_dup.tap do |d|
+              d['applicants'].first['applicant_email_address'] = 'existing@email.gov'
+            end
+          end
+          let(:form) { described_class.new(data_with_existing_email) }
+
+          it 'preserves existing applicant_email_address' do
+            expect(form.data['applicant_email_address']).to eq('existing@email.gov')
+          end
+        end
+      end
+
+      it 'preserves form_number from frontend submission' do
+        expect(form.data['form_number']).to eq('10-7959C')
+      end
+
       context 'with pre-flattened data' do
         let(:pre_flattened_data) do
           {
             'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
             'applicant_ssn' => '123456789',
             'applicant_primary_provider' => 'Already Flattened Insurance',
-            'form_number' => '10-7959C-REV2025'
+            'form_number' => '10-7959C'
           }
         end
         let(:form) { described_class.new(pre_flattened_data) }
