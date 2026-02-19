@@ -13,6 +13,7 @@ module VeteranStatusCard
     STATSD_FAILURE = 'failure'
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
+    STATSD_SUCCESS = 'success'
 
     # Default value in case SSC codes are never checked
     NO_SSC_CHECK_MESSAGE = 'no_ssc_check'
@@ -178,8 +179,8 @@ module VeteranStatusCard
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def unknown_service_response
-      VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
+    def unknown_eligibility_response
+      VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
     end
 
     ##
@@ -203,13 +204,23 @@ module VeteranStatusCard
     end
 
     ##
-    # Returns the generic error response
+    # Returns the uncaught error response
     # Override in subclasses to use different messaging
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def error_response
-      VeteranStatusCard::Constants::ERROR_RESPONSE
+    def uncaught_error_response
+      VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+    end
+
+    ##
+    # Returns the person not found response
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
+    def person_not_found_response
+      VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
     end
 
     private
@@ -240,6 +251,8 @@ module VeteranStatusCard
 
       # confirmation_status will always be present - it defaults to NO_SSC_CHECK_MESSAGE
       log_statsd(@confirmation_status)
+
+      log_statsd(STATSD_SUCCESS)
 
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
@@ -317,13 +330,9 @@ module VeteranStatusCard
     #
     def error_results
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
-      if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
-        return {
-          title: vet_verification_status[:title],
-          message: vet_verification_status[:message],
-          status: vet_verification_status[:status]
-        }
-      end
+      return person_not_found_response if vet_verification_status[:reason] == VET_STATUS_PERSON_NOT_FOUND_TEXT
+
+      return something_went_wrong_response if vet_verification_status[:reason] == VET_STATUS_ERROR_TEXT
 
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
       response_for_ssc_code
@@ -345,19 +354,19 @@ module VeteranStatusCard
         ineligible_service_response
       when UNKNOWN_SERVICE_SSC_CODE
         @confirmation_status = UNKNOWN_SSC_MESSAGE
-        unknown_service_response
+        unknown_eligibility_response
       when EDIPI_NO_PNL_CODE
         @confirmation_status = EDIPI_NO_PNL_SSC_MESSAGE
-        edipi_no_pnl_response
+        unknown_eligibility_response
       when *CURRENTLY_SERVING_CODES
         @confirmation_status = CURRENTLY_SERVING_SSC_MESSAGE
         currently_serving_response
       when *ERROR_SSC_CODES
         @confirmation_status = ERROR_SSC_MESSAGE
-        error_response
+        unknown_eligibility_response
       else
         @confirmation_status = UNCAUGHT_SSC_MESSAGE
-        error_response
+        uncaught_error_response
       end
     end
 
@@ -523,9 +532,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: error_response[:message],
-            title: error_response[:title],
-            status: error_response[:status]
+            message: unknown_eligibility_response[:message],
+            title: unknown_eligibility_response[:title],
+            status: unknown_eligibility_response[:status]
           }
         else
           {

@@ -2,11 +2,11 @@
 
 [← Back to Overview](./full_data_flow.md)
 
-This diagram shows what happens when `DependentBackupJob` is triggered after permanent failures in the primary submission jobs. The backup job submits claims to Lighthouse Benefits Intake API as a fallback mechanism.
+This diagram shows what happens when `BenefitsIntakeJob` is triggered after permanent failures in the primary submission jobs. The backup job submits claims to Lighthouse Benefits Intake API as a fallback mechanism.
 
 ```mermaid
 graph TD
-    Start[DependentBackupJob#perform<br/>parent_claim_id triggered] --> LoadClaim[Load SavedClaim<br/>by parent_claim_id]
+    Start[BenefitsIntakeJob#perform<br/>parent_claim_id triggered] --> LoadClaim[Load SavedClaim<br/>by parent_claim_id]
     
     LoadClaim --> CreateRecords[Create DB Records]
     CreateRecords --> DB1[(DB: Lighthouse::Submission<br/>find_or_create_by saved_claim_id)]

@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_claimant_details:
+    actor_type: user
+    description: Enables the claimant details page on the frontend
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -28,9 +32,6 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
-  accredited_representative_portal_email_delivery_callback:
-    actor_type: user
-    description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
@@ -134,6 +135,12 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
+  bio_heart_mms_submit:
+    actor_type: user
+    description: Toggle the sending of data to MMS for BIO HEART forms
+  bio_heart_mms_logging:
+    actor_type: user
+    description: Enable verbose logging in the BIO HEART MMS data submission workflow
   bio_submission_status_report_enabled:
     actor_type: user
     description: Enables periodic job that generates CSV reports tracking BIO form submission status through Lighthouse Benefits Intake and Central Mail Processing
@@ -280,6 +287,9 @@ features:
   champva_send_to_ves:
     actor_type: user
     description: Enables sending form submission data to the VES API.
+  champva_send_7959c_to_ves:
+    actor_type: user
+    description: Enables sending 10-7959c OHI form data to the VES API. Requires champva_send_to_ves to also be enabled.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
@@ -361,6 +371,9 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_bypass_metadata_json_file_for_1010d:
+    actor_type: user
+    description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
   champva_ignore_recent_missing_statuses:
     actor_type: user
     description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
@@ -512,10 +525,20 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
+  cst_claims_list_filter:
+    actor_type: user
+    description: When enabled, claims status tool displays a filter on the claims list
+    enable_in_development: true
   cst_evidence_requests_content_override:
     actor_type: user
     description: >
       When enabled, tracked items in claims status tool use content dictionary
+      overrides for display names, descriptions, and structured content blocks.
+    enable_in_development: true
+  cst_evidence_requests_content_override_mobile:
+    actor_type: user
+    description: >
+      When enabled, tracked items in mobile claims status tool use content dictionary
       overrides for display names, descriptions, and structured content blocks.
     enable_in_development: true
   cst_include_ddl_5103_letters:
@@ -722,6 +745,9 @@ features:
     actor_type: user
     description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
     enable_in_development: true
+  decision_review_use_new_appealable_issues_service:
+    actor_type: user
+    description: Enables use of the new Appealable Issues service for fetching appealable issues.
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -1902,6 +1928,9 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  schema_contract_get_awards_pension:
+    actor_type: user
+    description: Enables schema validation for the pensions service get awards pension fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -2308,6 +2337,15 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging on payment history controller and enable drop off tracking.
+  payment_history_exception_logging:
+    actor_type: user
+    description: Enables exception logging on payment history controller and enables exception drop off tracking.
+  payment_history_validation_logging:
+    actor_type: user
+    description: Enables logging used to check inputs for required attributes for payment history services.
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2495,24 +2533,6 @@ features:
     enable_in_development: true
     actor_type: user
     description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
-  employment_questionnaires_browser_monitoring_enabled:
-    actor_type: user
-    description: Employment Questionnaire form Datadog RUM monitoring
-  employment_questionnaires_content_updates:
-    actor_type: user
-    description: Implement plain language and content updates
-  employment_questionnaires_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Action Needed email notification
-  employment_questionnaires_received_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Received email notification
-  employment_questionnaires_submitted_email_notification:
-    actor_type: user
-    description: Toggle sending of the Submission in Progress email notification
-  employment_questionnaires_persistent_attachment_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2537,6 +2557,10 @@ features:
   income_and_assets_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Income and Assets
+  increase_compensation_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-8940"
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user
@@ -2681,6 +2705,9 @@ features:
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
+  va_notify_v2_form1010cg_submission:
+    actor_type: user
+    description: If enabled, Form1010cg::SubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
   va_notify_v2_in_progress_form_reminder:
     actor_type: user
     description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
@@ -2845,6 +2872,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-0779 on vets-website
+  form_21_0779_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-0779 (Request for Nursing Home Information)"
   vre_eligibility_status_phase_2_updates:
     actor_type: user
     description: If enabled, show VRE eligibility content and status updates for phase 2
@@ -2852,10 +2883,18 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21P-530a on vets-website
+  form_21p_530a_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21P-530A (Application for Burial Allowance) - Deferred until VBA Data Dictionary is created"
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-4192 on vets-website
+  form_21_4192_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-4192 (Request for Employment Information)"
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
@@ -2864,6 +2903,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables multi-party forms feature for form 21-2680
+  form_21_2680_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
