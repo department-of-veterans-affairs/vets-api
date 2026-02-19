@@ -341,10 +341,10 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       context 'when handled data is blank' do
         before do
           allow(service).to receive(:call).and_return(crm_failure_response)
-          expect(Rails.logger).not_to receive(:info).with('Inquiry Submission Result Context', anything)
         end
 
         it 'does not log inquiry result context' do
+          expect(Rails.logger).not_to receive(:info).with('Inquiry Submission Result Context', anything)
           creator.call(inquiry_params: inquiry_params[:inquiry])
         end
       end
