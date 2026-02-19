@@ -52,6 +52,9 @@ RSpec.describe 'Transformation Pega', type: :request do
           allow(Flipper).to receive(:enabled?)
             .with(:champva_send_ves_to_pega, @current_user)
             .and_return(false)
+          allow(Flipper).to receive(:enabled?)
+            .with(:champva_bypass_metadata_json_file_for_1010d, @current_user)
+            .and_return(false)
         end
 
         it 'submits the form and verifies the transformed data going to Pega/S3' do
