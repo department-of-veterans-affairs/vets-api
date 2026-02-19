@@ -21,9 +21,6 @@ module Mobile
             travel_pay_claims: include_claims
           }
 
-          Flipper.enabled?(:va_online_scheduling_log_mobile) &&
-            Rails.logger.info("VAOS:include_params: #{include_params} and statuses: #{statuses}")
-
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
           # or the upstream service does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
