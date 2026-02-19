@@ -56,6 +56,7 @@ module ClaimsApi
 
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
+        next if service_period['separationLocationCode'].blank?
         next if separation_locations.any? do |location|
           location[:id]&.to_s == service_period['separationLocationCode']
         end
