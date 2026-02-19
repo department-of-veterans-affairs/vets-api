@@ -268,7 +268,8 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
               action: 'pension.submission',
               component:,
               parent_claim_id:,
-              form_type: '686c-674'
+              form_type: '686c-674',
+              module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
             )
             processor.send(:handle_successful_submission)
           end
