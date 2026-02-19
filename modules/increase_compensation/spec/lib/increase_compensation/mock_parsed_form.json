@@ -1,0 +1,98 @@
+{
+  "veteranFullName": {
+    "first": "Johnny",
+    "middleinitial": "Juan",
+    "last": "Rico"
+  },
+  "veteranSocialSecurityNumber": "123456789",
+  "vaFileNumber": "C12345678",
+  "dateOfBirth": "1975-03-15",
+  "veteranAddress": {
+    "country": "US",
+    "state": "WY",
+    "postalCode": "82001",
+    "street": "123 Federal Starship Lane",
+    "street2": "4B",
+    "city": "Cheyenne"
+  },
+  "electronicCorrespondance": true,
+  "email": "juan.johnny.rico@example.com",
+  "listOfDisabilities": "Post-traumatic stress disorder, shrapnel wounds",
+  "doctorsCareInLastYTD": true,
+  "disabilityAffectEmployFTDate": "2023-11-01",
+  "lastWorkedFullTimeDate": "2023-10-31",
+  "becameTooDisabledToWorkDate": "2023-11-01",
+  "mostEarningsInAYear": 45000,
+  "yearOfMostEarnings": 2022,
+  "occupationDuringMostEarnings": "Moblie Infanty Private",
+  "previousEmployers": [
+    {
+      "nameAndAddress": "Federal Service, 101 Trooper Rd, Cheyenne, WY 82001",
+      "typeOfWork": "Mobile Infantry",
+      "hoursPerWeek": 40,
+      "datesOfEmployment": {
+        "from": "2020-03-01",
+        "to": "2023-10-31"
+      },
+      "timeLostFromIllness": 120,
+      "mostEarningsInAMonth": 3750
+    },
+    {
+      "nameAndAddress": "Federal Service, 101 Trooper Rd, Cheyenne, WY 82001",
+      "typeOfWork": "Mobile Infantry",
+      "hoursPerWeek": 40,
+      "datesOfEmployment": {
+        "from": "2020-03-01",
+        "to": "2023-10-31"
+      },
+      "timeLostFromIllness": 120,
+      "mostEarningsInAMonth": 3750
+    },
+    {
+      "nameAndAddress": "Starship Logistics, 202 Fleet St, Cheyenne, WY 82001",
+      "typeOfWork": "Operations Officer",
+      "hoursPerWeek": 35,
+      "datesOfEmployment": {
+        "from": "2018-06-15",
+        "to": "2020-02-28"
+      },
+      "timeLostFromIllness": 60,
+      "mostEarningsInAMonth": 3200
+    },
+    {
+      "nameAndAddress": "Klendathu Defense Corps, 303 Battle Ave, Casper, WY 82601",
+      "typeOfWork": "Tactical Training Officer",
+      "hoursPerWeek": 45,
+      "datesOfEmployment": {
+        "from": "2016-09-01",
+        "to": "2018-05-31"
+      },
+      "timeLostFromIllness": 90,
+      "mostEarningsInAMonth": 4000
+    },
+    {
+      "nameAndAddress": "United Citizen Federation, 404 Unity Blvd, Laramie, WY 82070",
+      "typeOfWork": "Recruitment Officer",
+      "hoursPerWeek": 30,
+      "datesOfEmployment": {
+        "from": "2014-01-10",
+        "to": "2016-08-31"
+      },
+      "timeLostFromIllness": 30,
+      "mostEarningsInAMonth": 2800
+    }
+  ],
+  "remarks": "Starship Troopers (1997), directed by Paul Verhoeven, is a cinematic masterpiece that brilliantly disguises razor-sharp satire as a bombastic sci-fi action flick. On the surface, it’s a thrilling tale of humanity’s war against giant arachnid aliens on distant planets, complete with jaw-dropping practical effects, explosive battles, and a cast of charismatic young actors.",
+  "signature": "Johnny Rico",
+  "signatureDate": "2025-10-09",
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "Jonny Rico",
+  "witnessSignature1": {
+    "signature": "Carmen Ibanez",
+    "address": "303 Fleet Ave, Cheyenne, WY 82001"
+  },
+  "witnessSignature2": {
+    "signature": "Carl Jenkins",
+    "address": "456 Medical St, Cheyenne, WY 82001"
+  }
+}
