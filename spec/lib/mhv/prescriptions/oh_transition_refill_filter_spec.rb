@@ -70,6 +70,17 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
             { id: '222', error: described_class::BLOCKED_ERROR_MESSAGE, station_number: '570' }
           )
         end
+
+        it 'logs a warning with blocked order count and stations' do
+          allow(Rails.logger).to receive(:warn)
+
+          filter.partition_orders(orders)
+
+          expect(Rails.logger).to have_received(:warn).with(
+            'OhTransitionRefillFilter: blocked refill orders for OH-transitioning facilities',
+            { blocked_count: 2, total_count: 2, blocked_stations: %w[556 570] }
+          )
+        end
       end
 
       context 'when some facilities are blocked and some are not' do
@@ -111,6 +122,14 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
           _allowed, blocked = filter.partition_orders(orders)
 
           expect(blocked).to be_empty
+        end
+
+        it 'does not log a warning' do
+          allow(Rails.logger).to receive(:warn)
+
+          filter.partition_orders(orders)
+
+          expect(Rails.logger).not_to have_received(:warn)
         end
       end
 

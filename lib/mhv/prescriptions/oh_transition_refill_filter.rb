@@ -28,25 +28,9 @@ module MHV
       def partition_orders(orders)
         return [orders, []] unless Flipper.enabled?(:mhv_medications_oh_transition_refill_block, @user)
 
-        station_numbers = orders.map { |o| o['stationNumber'] }.compact.uniq
-        phases_map = oh_facilities_helper.get_phases_for_station_numbers(station_numbers)
-        blocked_phases = BLOCKED_PHASES
-
-        allowed = []
-        blocked_failures = []
-
-        orders.each do |order|
-          phase = phases_map[order['stationNumber'].to_s]
-          if blocked_phases.include?(phase)
-            blocked_failures << {
-              id: order['id'],
-              error: BLOCKED_ERROR_MESSAGE,
-              station_number: order['stationNumber']
-            }
-          else
-            allowed << order
-          end
-        end
+        phases_map = fetch_phases_map(orders)
+        allowed, blocked_failures = split_orders(orders, phases_map)
+        log_blocked_orders(blocked_failures, orders.size) if blocked_failures.present?
 
         [allowed, blocked_failures]
       end
@@ -65,6 +49,33 @@ module MHV
       end
 
       private
+
+      def fetch_phases_map(orders)
+        station_numbers = orders.map { |o| o['stationNumber'] }.compact.uniq
+        oh_facilities_helper.get_phases_for_station_numbers(station_numbers)
+      end
+
+      def split_orders(orders, phases_map)
+        orders.each_with_object([[], []]) do |order, (allowed, blocked)|
+          phase = phases_map[order['stationNumber'].to_s]
+          if BLOCKED_PHASES.include?(phase)
+            blocked << { id: order['id'], error: BLOCKED_ERROR_MESSAGE, station_number: order['stationNumber'] }
+          else
+            allowed << order
+          end
+        end
+      end
+
+      def log_blocked_orders(blocked_failures, total_count)
+        Rails.logger.warn(
+          'OhTransitionRefillFilter: blocked refill orders for OH-transitioning facilities',
+          {
+            blocked_count: blocked_failures.size,
+            total_count:,
+            blocked_stations: blocked_failures.map { |f| f[:station_number] }.uniq
+          }
+        )
+      end
 
       def oh_facilities_helper
         @oh_facilities_helper ||= MHV::OhFacilitiesHelper::Service.new(@user)
