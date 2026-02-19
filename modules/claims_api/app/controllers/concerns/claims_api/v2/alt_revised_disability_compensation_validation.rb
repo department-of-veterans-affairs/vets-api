@@ -603,7 +603,6 @@ module ClaimsApi
       end
 
       def age_exception(idx)
-        Rails.logger.debug 'in the alt file?'
         collect_error_messages(
           source: "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate",
           detail: "Active Duty Begin Date (#{idx}) cannot be before Veteran's thirteenth birthday."

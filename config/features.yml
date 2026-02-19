@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_claimant_details:
+    actor_type: user
+    description: Enables the claimant details page on the frontend
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -367,6 +371,9 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_bypass_metadata_json_file_for_1010d:
+    actor_type: user
+    description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
   champva_ignore_recent_missing_statuses:
     actor_type: user
     description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
@@ -2284,6 +2291,9 @@ features:
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
+  vba_documents_uploads_report_uuid_limit:
+    actor_type: user
+    description: Enables MaxArraySizeExceeded error when uploads/report exceeds 1000 IDs
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
