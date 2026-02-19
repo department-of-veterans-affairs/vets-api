@@ -289,11 +289,11 @@ module RepresentationManagement
     end
 
     def log_to_slack(message)
-      return unless Settings.vsp_environment == 'production'
+      return unless Settings.vsp_environment.to_s.downcase == 'production'
 
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
-                                       username: 'VSOReloader')
+                                       username: 'RepresentationManagement::VSOReloader')
       client.notify(message)
     end
 
