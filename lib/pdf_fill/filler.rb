@@ -37,6 +37,7 @@ require 'pdf_fill/forms/va2210272'
 require 'pdf_fill/forms/va2210275'
 require 'pdf_fill/forms/va2210278'
 require 'pdf_fill/forms/va212680'
+require 'pdf_fill/forms/va220810'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'pdf_fill/processors/va228794_processor'
 require 'pdf_fill/processors/va220839_processor'
@@ -97,6 +98,7 @@ module PdfFill
       '5655' => PdfFill::Forms::Va5655,
       '22-0839' => PdfFill::Forms::Va220839,
       '22-0803' => PdfFill::Forms::Va220803,
+      '22-0810' => PdfFill::Forms::Va220810,
       '22-0976' => PdfFill::Forms::Va220976,
       '22-0989' => PdfFill::Forms::Va220989,
       '21-0779' => PdfFill::Forms::Va210779,
