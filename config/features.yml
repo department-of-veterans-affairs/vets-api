@@ -2939,6 +2939,9 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  survivors_benefits_idp:
+    actor_type: user
+    description: Enables IDP (Intelligent Document Processing) for survivors benefits supporting document uploads
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
