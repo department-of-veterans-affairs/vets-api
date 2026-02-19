@@ -1399,6 +1399,7 @@ unique_user_metrics:
   - '515'
   - '553'
   - '655'
+  - '692'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
