@@ -39,6 +39,7 @@ module DigitalFormsApi
         'submissions'
       end
 
+      # @return [DigitalFormsApi::Validation::SubmissionRequest] memoized validator instance
       def submission_validator
         @submission_validator ||= DigitalFormsApi::Validation::SubmissionRequest.new
       end

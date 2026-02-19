@@ -27,6 +27,8 @@ module DigitalFormsApi
         else
           DigitalFormsApi::Validation.validate_against_schema(form_schema, payload)
         end
+
+        request
       end
 
       private
