@@ -5,13 +5,6 @@ on:
       - master
     paths:
       - "datadog-service-catalog/**.yml"
-  pull_request:
-    types:
-      - opened
-    branches:
-      - master
-    paths:
-      - "datadog-service-catalog/**.yml"
 
 jobs:
   get_deleted_services:
@@ -27,7 +20,7 @@ jobs:
       - id: one
         name: 'Check for deleted DataDog service files'
         run: |
-          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only ${{ github.event.pull_request.base.sha || github.event.before }}...${{ github.sha }} -- "datadog-service-catalog/**.yml"))
+          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only ${{ github.event.before }}...${{ github.sha }} -- "datadog-service-catalog/**.yml"))
           out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.]')
           echo $out
           echo "files=$out" >> $GITHUB_OUTPUT
