@@ -228,13 +228,15 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
     end
 
     context 'when S3 returns an error' do
-      it 'returns an error response' do
+      it 'returns a 502 bad gateway with error payload' do
         stub_request(:get, /mhv-sysb-cvix-thumbnails\.s3\.us-gov-west-1\.amazonaws\.com/)
           .to_return(status: 403, body: 'Access Denied')
 
         get proxy_path, params: { url: valid_s3_url }
 
-        expect(response).not_to be_successful
+        expect(response).to have_http_status(:bad_gateway)
+        json = JSON.parse(response.body)
+        expect(json).to have_key('errors')
       end
     end
 
