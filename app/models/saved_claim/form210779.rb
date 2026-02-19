@@ -74,6 +74,7 @@ class SavedClaim::Form210779 < SavedClaim
     build_veteran_fields(form)
       .merge(build_claimant_fields_section(form))
       .merge(build_nursing_home_fields(form))
+      .merge(build_general_information_fields(form))
       .merge(build_form_metadata_fields)
   end
 
@@ -109,76 +110,71 @@ class SavedClaim::Form210779 < SavedClaim
     fields
   end
 
-  # Build nursing home information fields (Section III - Boxes 9-21)
+  # Build nursing home facility information fields (Section III - Boxes 9-10)
   # @param form [Hash]
   # @return [Hash]
-  # rubocop:disable Metrics/MethodLength
   def build_nursing_home_fields(form)
     nursing_home = form['nursingHomeInformation'] || {}
     nursing_address = nursing_home['nursingHomeAddress'] || {}
 
-    fields = {}
-
-    # Box 9: Name of nursing home
-    fields['NAME_FACILITY_C'] = nursing_home['nursingHomeName']
-
-    # Box 10: Address of nursing home
-    fields['FACILITY_ADDRESS_LINE1_C'] = nursing_address['street']
-    fields['FACILITY_ADDRESS_LINE2_C'] = nursing_address['street2']
-    fields['FACILITY_ADDRESS_CITY_C'] = nursing_address['city']
-    fields['FACILITY_ADDRESS_STATE_C'] = nursing_address['state']
-    fields['FACILITY_ADDRESS_COUNTRY_C'] = nursing_address['country']
-    fields['FACILITY_ADDRESS_ZIP_C'] = nursing_address['postalCode']
-
-    # Box 11: Date admitted to nursing home (MM/DD/YYYY format)
-    fields['DATE_ADMISSION_TO_FACILITY_C'] = format_date_for_ibm(nursing_home['admissionDate'])
-
-    # Box 12: Is the nursing home a Medicaid approved facility? (always include both Y/N)
-    fields['MEDICAID_APPROVED_Y'] = build_checkbox_value(nursing_home['medicaidApproved'] == true)
-    fields['MEDICAID_APPROVED_N'] = build_checkbox_value(nursing_home['medicaidApproved'] == false)
-
-    # Box 13: Has the patient applied for Medicaid? (always include both Y/N)
-    fields['MEDICAID_APPLIED_Y'] = build_checkbox_value(nursing_home['medicaidApplied'] == true)
-    fields['MEDICAID_APPLIED_N'] = build_checkbox_value(nursing_home['medicaidApplied'] == false)
-
-    # Box 14A: Is the patient covered by Medicaid? (always include both Y/N)
-    fields['MEDICAID_COVERAGE_Y'] = build_checkbox_value(nursing_home['medicaidCoverage'] == true)
-    fields['MEDICAID_COVERAGE_N'] = build_checkbox_value(nursing_home['medicaidCoverage'] == false)
-
-    # Box 14B: Date Medicaid plan began (MM/DD/YYYY format)
-    fields['MEDICAID_START'] = format_date_for_ibm(nursing_home['medicaidStartDate'])
-
-    # Box 15: Monthly amount patient is responsible for out of pocket
-    fields['OUT_OF_POCKET'] = nursing_home['monthlyOutOfPocket']
-
-    # Box 16: Type of care (skilled or intermediate - always include both)
-    fields['SKILLED_CARE'] = build_checkbox_value(nursing_home['typeOfCare'] == 'skilled')
-    fields['INTERMEDIATE_CARE'] = build_checkbox_value(nursing_home['typeOfCare'] == 'intermediate')
-
-    # Box 17: Nursing home official's name
-    fields['NAME_COMPLETING_WORKSHEET_C'] = nursing_home['officialName']
-
-    # Box 18: Nursing home official's title
-    fields['ROLE_PERFORM_AT_FACILITY_C'] = nursing_home['officialTitle']
-
-    # Box 19: Nursing home official's office telephone number
-    fields['FACILITY_TELEPHONE_NUMBER_C'] = format_phone_for_ibm(nursing_home['officialPhone'])
-    fields['INT_PHONE_NUMBER'] = format_phone_for_ibm(nursing_home['internationalPhone'])
-
-    # Box 20: Signature of nursing home official (handled in PDF stamping)
-    fields['SIGNATURE_OF_PROVIDER_C'] = nursing_home['officialSignature']
-
-    # Box 21: Date signed (MM/DD/YYYY format)
-    fields['SIGNATURE_DATE_PROVIDER_C'] = format_date_for_ibm(nursing_home['signatureDate'])
-
-    fields
+    {
+      # Box 9: Name of nursing home
+      'NAME_FACILITY_C' => nursing_home['nursingHomeName'],
+      # Box 10: Address of nursing home
+      'FACILITY_ADDRESS_LINE1_C' => nursing_address['street'],
+      'FACILITY_ADDRESS_LINE2_C' => nursing_address['street2'],
+      'FACILITY_ADDRESS_CITY_C' => nursing_address['city'],
+      'FACILITY_ADDRESS_STATE_C' => nursing_address['state'],
+      'FACILITY_ADDRESS_COUNTRY_C' => nursing_address['country'],
+      'FACILITY_ADDRESS_ZIP_C' => nursing_address['postalCode']
+    }
   end
-  # rubocop:enable Metrics/MethodLength
 
-  # Build form metadata
+  # Build general information fields (Section IV - Boxes 11-21)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_general_information_fields(form)
+    general_info = form['generalInformation'] || {}
+
+    {
+      # Box 11: Date admitted to nursing home (MM/DD/YYYY format)
+      'DATE_ADMISSION_TO_FACILITY_C' => format_date_for_ibm(general_info['admissionDate']),
+      # Box 12: Is the nursing home a Medicaid approved facility? (always include both Y/N)
+      'MEDICAID_APPROVED_Y' => build_checkbox_value(general_info['medicaidFacility'] == true),
+      'MEDICAID_APPROVED_N' => build_checkbox_value(general_info['medicaidFacility'] == false),
+      # Box 13: Has the patient applied for Medicaid? (always include both Y/N)
+      'MEDICAID_APPLIED_Y' => build_checkbox_value(general_info['medicaidApplication'] == true),
+      'MEDICAID_APPLIED_N' => build_checkbox_value(general_info['medicaidApplication'] == false),
+      # Box 14A: Is the patient covered by Medicaid? (always include both Y/N)
+      'MEDICAID_COVERAGE_Y' => build_checkbox_value(general_info['patientMedicaidCovered'] == true),
+      'MEDICAID_COVERAGE_N' => build_checkbox_value(general_info['patientMedicaidCovered'] == false),
+      # Box 14B: Date Medicaid plan began (MM/DD/YYYY format)
+      'MEDICAID_START' => format_date_for_ibm(general_info['medicaidStartDate']),
+      # Box 15: Monthly amount patient is responsible for out of pocket
+      'OUT_OF_POCKET' => general_info['monthlyCosts'],
+      # Box 16: Type of care (skilled or intermediate - always include both)
+      'SKILLED_CARE' => build_checkbox_value(general_info['certificationLevelOfCare'] == 'skilled'),
+      'INTERMEDIATE_CARE' => build_checkbox_value(general_info['certificationLevelOfCare'] == 'intermediate'),
+      # Box 17: Nursing home official's name
+      'NAME_COMPLETING_WORKSHEET_C' => general_info['nursingOfficialName'],
+      # Box 18: Nursing home official's title
+      'ROLE_PERFORM_AT_FACILITY_C' => general_info['nursingOfficialTitle'],
+      # Box 19: Nursing home official's office telephone number
+      'FACILITY_TELEPHONE_NUMBER_C' => format_phone_for_ibm(general_info['nursingOfficialPhoneNumber']),
+      'INT_PHONE_NUMBER' => format_phone_for_ibm(general_info['nursingOfficialInternationalPhoneNumber']),
+      # Box 20: Signature of nursing home official
+      'SIGNATURE_OF_PROVIDER_C' => general_info['signature'],
+      # Box 21: Date signed (MM/DD/YYYY format)
+      'SIGNATURE_DATE_PROVIDER_C' => format_date_for_ibm(general_info['signatureDate'])
+    }
+  end
+
+  # Build form metadata and system fields
   # @return [Hash]
   def build_form_metadata_fields
     {
+      'FLASH_TEXT' => nil,
+      'CB_VA_STAMP' => nil,
       'FORM_TYPE' => '21-0779',
       'FORM_TYPE_1' => '21-0779'
     }

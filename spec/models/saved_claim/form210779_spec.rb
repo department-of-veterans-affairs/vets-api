@@ -150,18 +150,22 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       )
     end
 
-    it 'includes form metadata' do
+    it 'includes form metadata and system fields' do
       ibm_payload = claim.to_ibm
       expect(ibm_payload['FORM_TYPE']).to eq('21-0779')
       expect(ibm_payload['FORM_TYPE_1']).to eq('21-0779')
+      expect(ibm_payload['FLASH_TEXT']).to be_nil
+      expect(ibm_payload['CB_VA_STAMP']).to be_nil
     end
 
-    it 'returns complete VBA Data Dictionary payload with all 38 required fields' do
+    it 'returns complete VBA Data Dictionary payload with all 40 required fields' do
       ibm_payload = claim.to_ibm
 
-      expect(ibm_payload.keys.length).to eq(38)
+      # NOTE: Currently returns 41 fields including VETERAN_NAME.
+      # Will be fixed to 40 when VETERAN_NAME removal PR merges
+      expect(ibm_payload.keys.length).to eq(40)
 
-      # Veteran fields (6)
+      # Veteran fields (6 - excludes VETERAN_NAME per VBA Data Dictionary)
       expect(ibm_payload).to include(
         'VETERAN_FIRST_NAME' => 'John',
         'VETERAN_MIDDLE_INITIAL' => 'A',
@@ -192,27 +196,29 @@ RSpec.describe SavedClaim::Form210779, type: :model do
         'FACILITY_ADDRESS_ZIP_C' => '62701'
       )
 
-      # Medicaid and care fields (16)
-      expect(ibm_payload).to have_key('DATE_ADMISSION_TO_FACILITY_C')
-      expect(ibm_payload).to have_key('MEDICAID_APPROVED_Y')
-      expect(ibm_payload).to have_key('MEDICAID_APPROVED_N')
-      expect(ibm_payload).to have_key('MEDICAID_APPLIED_Y')
-      expect(ibm_payload).to have_key('MEDICAID_APPLIED_N')
-      expect(ibm_payload).to have_key('MEDICAID_COVERAGE_Y')
-      expect(ibm_payload).to have_key('MEDICAID_COVERAGE_N')
-      expect(ibm_payload).to have_key('MEDICAID_START')
-      expect(ibm_payload).to have_key('OUT_OF_POCKET')
-      expect(ibm_payload).to have_key('SKILLED_CARE')
-      expect(ibm_payload).to have_key('INTERMEDIATE_CARE')
-      expect(ibm_payload).to have_key('NAME_COMPLETING_WORKSHEET_C')
-      expect(ibm_payload).to have_key('ROLE_PERFORM_AT_FACILITY_C')
-      expect(ibm_payload).to have_key('FACILITY_TELEPHONE_NUMBER_C')
-      expect(ibm_payload).to have_key('INT_PHONE_NUMBER')
-      expect(ibm_payload).to have_key('SIGNATURE_OF_PROVIDER_C')
-      expect(ibm_payload).to have_key('SIGNATURE_DATE_PROVIDER_C')
+      # General information fields (17 from generalInformation section)
+      expect(ibm_payload['DATE_ADMISSION_TO_FACILITY_C']).to eq('01/01/2024')
+      expect(ibm_payload['MEDICAID_APPROVED_Y']).to be true
+      expect(ibm_payload['MEDICAID_APPROVED_N']).to be false
+      expect(ibm_payload['MEDICAID_APPLIED_Y']).to be true
+      expect(ibm_payload['MEDICAID_APPLIED_N']).to be false
+      expect(ibm_payload['MEDICAID_COVERAGE_Y']).to be true
+      expect(ibm_payload['MEDICAID_COVERAGE_N']).to be false
+      expect(ibm_payload['MEDICAID_START']).to eq('02/01/2024')
+      expect(ibm_payload['OUT_OF_POCKET']).to eq('3000.00')
+      expect(ibm_payload['SKILLED_CARE']).to be true
+      expect(ibm_payload['INTERMEDIATE_CARE']).to be false
+      expect(ibm_payload['NAME_COMPLETING_WORKSHEET_C']).to eq('Dr. Sarah Smith')
+      expect(ibm_payload['ROLE_PERFORM_AT_FACILITY_C']).to eq('Director of Nursing')
+      expect(ibm_payload['FACILITY_TELEPHONE_NUMBER_C']).to eq('5557890123')
+      expect(ibm_payload['INT_PHONE_NUMBER']).to be_nil
+      expect(ibm_payload['SIGNATURE_OF_PROVIDER_C']).to eq('Dr. Sarah Smith')
+      expect(ibm_payload['SIGNATURE_DATE_PROVIDER_C']).to eq('01/01/2024')
 
-      # Form metadata (2)
+      # Form metadata (4 fields including system fields)
       expect(ibm_payload).to include(
+        'FLASH_TEXT' => nil,
+        'CB_VA_STAMP' => nil,
         'FORM_TYPE' => '21-0779',
         'FORM_TYPE_1' => '21-0779'
       )
