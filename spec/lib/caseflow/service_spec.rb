@@ -56,8 +56,8 @@ RSpec.describe Caseflow::Service do
         allow(Rails.logger).to receive(:warn)
       end
 
-      it 'increments a statsd metric, logs the offending appeals, ' \
-         'creates a PersonalInformationLog, and does NOT raise a JSON schema error',
+      it 'increments a statsd metric, logs a warning, creates a PersonalInformationLog, ' \
+         'and does NOT raise a JSON schema error',
          run_at: 'Wed, 20 Aug 2025 21:59:18 GMT' do
         VCR.use_cassette(
           'caseflow/appeal_with_null_issue_description',
@@ -67,8 +67,7 @@ RSpec.describe Caseflow::Service do
             'api.appeals.appeals_with_null_issue_descriptions'
           )
           expect(Rails.logger).to receive(:warn).with(
-            'Caseflow returned the following appeals with null issue descriptions: ' \
-            "#{expected_appeals_log_data}"
+            'Caseflow returned an appeal with at least one null issue description'
           )
           expect(PersonalInformationLog).to receive(:create!).with(
             data: { user:, appeals: expected_appeals_log_data },
