@@ -2,7 +2,7 @@
 
 require 'digital_forms_api/service/base'
 require 'digital_forms_api/service/schema'
-require 'digital_forms_api/validation/schema'
+require 'digital_forms_api/validation/submission_request'
 
 module DigitalFormsApi
   module Service
@@ -19,16 +19,8 @@ module DigitalFormsApi
       # @option metadata [String] :claimLabel the claim label; required
       # @param dry_run [Boolean] perform a dry run in which no action is taken except validation by the endpoint
       def submit(payload, metadata, dry_run: false)
-        validate_submission_payload(payload, metadata)
-
-        transformed = {
-          claimantId: { identifierType: 'PARTICIPANTID', value: metadata[:claimantId] || metadata[:veteranId] },
-          veteranId: { identifierType: 'PARTICIPANTID', value: metadata[:veteranId] },
-          payload:
-        }
-
-        # TODO: validate the request structure (future)
-        request = { envelope: metadata.merge(transformed) }
+        form_schema = DigitalFormsApi::Service::Schema.new.fetch(metadata[:formId])
+        request = submission_validator.validate(payload:, metadata:, form_schema:)
 
         headers = {}
 
@@ -47,15 +39,8 @@ module DigitalFormsApi
         'submissions'
       end
 
-      # Validate submission payload data using the current Forms API schema.
-      # @param payload [Hash]
-      # @param metadata [Hash]
-      # @return [Hash] validated payload
-      # @raise [JSON::Schema::ValidationError]
-      def validate_submission_payload(payload, metadata)
-        form_id = metadata[:formId]
-        form_schema = DigitalFormsApi::Service::Schema.new.fetch(form_id)
-        DigitalFormsApi::Validation.validate_against_schema(form_schema, payload)
+      def submission_validator
+        @submission_validator ||= DigitalFormsApi::Validation::SubmissionRequest.new
       end
 
       # end Submissions
