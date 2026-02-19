@@ -1008,6 +1008,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                     post path, params: par.to_json, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:bad_request)
+                    response_body = JSON.parse(response.body)
+                    expect(response_body['errors']).to be_present
+                    expect(response_body['errors'][0]['detail']).to include('anticipatedSeparationDate')
                   end
                 end
               end
@@ -1015,7 +1018,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
 
           context "when 'anticipatedSeparationDate' is today" do
-            let(:anticipated_separation_date) { 1.hour.ago.to_date.to_s }
+            let(:anticipated_separation_date) { Time.zone.now.to_date.to_s }
 
             it "raises an exception that 'anticipatedSeparationDate' is invalid" do
               mock_acg(scopes) do |auth_header|
@@ -1026,6 +1029,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:bad_request)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors']).to be_present
+                  expect(response_body['errors'][0]['detail']).to include('anticipatedSeparationDate')
                 end
               end
             end

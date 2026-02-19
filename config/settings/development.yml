@@ -260,7 +260,7 @@ claims_api:
         api_key: ~
         notification_client_secret: ~
         notify_service_id: ~
-claims_evidence_api: &claims_evidence_api
+claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
   include_request: false
@@ -365,7 +365,16 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
-digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
+digital_forms_api:
+  base_url: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
+  timeout:
+    open: 30
+    read: 30
 directory:
   apikey: fake_apikey
   health_server_id: ~
