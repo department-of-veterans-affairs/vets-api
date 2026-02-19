@@ -411,10 +411,6 @@ module BenefitsClaims
         item['isProperNoun'] = content[:isProperNoun]
         item['isSensitive'] = content[:isSensitive]
         item['noProvidePrefix'] = content[:noProvidePrefix]
-      else
-        Rails.logger.warn(
-          "BenefitsClaims::Service#apply_content_overrides no content for display_name=#{display_name}"
-        )
       end
     end
 

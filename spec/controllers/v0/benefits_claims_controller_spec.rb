@@ -983,7 +983,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      it 'returns tracked items with new content override fields as well as legacy fields' do
+      it 'returns tracked items with content override fields from TrackedItemContent' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })
         end
@@ -991,16 +991,14 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         parsed_body = JSON.parse(response.body)
         tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
         form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-        # Existing fields should still be populated
+        # Content override fields are populated from TrackedItemContent
         expect(form_item['friendlyName']).to eq('Authorization to disclose information')
         expect(form_item['canUploadFile']).to be true
         expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-        # New structured content fields should be present
         expect(form_item['longDescription']).to be_a(Hash)
         expect(form_item['longDescription']).to have_key('blocks')
         expect(form_item['nextSteps']).to be_a(Hash)
         expect(form_item['nextSteps']).to have_key('blocks')
-        # New boolean flags should be present
         expect(form_item).to have_key('noActionNeeded')
         expect(form_item).to have_key('isDBQ')
         expect(form_item).to have_key('isProperNoun')
@@ -1012,13 +1010,12 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         let(:test_display_name) { 'Submit buddy statement(s)' }
 
         before do
-          allow(Rails.logger).to receive(:warn)
           allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
           allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
             .with(test_display_name).and_return(nil)
         end
 
-        it 'logs a warning and does not add content override fields' do
+        it 'does not add content override fields' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
@@ -1028,9 +1025,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
           expect(buddy_statement_item).not_to have_key('longDescription')
           expect(buddy_statement_item).not_to have_key('nextSteps')
-          prefix = 'BenefitsClaims::Service#apply_content_overrides no content for display_name='
-          expected_warn_pattern = Regexp.new("#{prefix}#{Regexp.escape(test_display_name)}")
-          expect(Rails.logger).to have_received(:warn).with(expected_warn_pattern)
         end
       end
 
@@ -1681,7 +1675,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider, anything).and_return(false)
       end
 
-      it 'returns tracked items with new content override fields as well as legacy fields' do
+      it 'returns tracked items with content override fields from TrackedItemContent' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })
         end
@@ -1689,16 +1683,14 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         parsed_body = JSON.parse(response.body)
         tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
         form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-        # Existing fields should still be populated
+        # Content override fields are populated from TrackedItemContent
         expect(form_item['friendlyName']).to eq('Authorization to disclose information')
         expect(form_item['canUploadFile']).to be true
         expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-        # New structured content fields should be present
         expect(form_item['longDescription']).to be_a(Hash)
         expect(form_item['longDescription']).to have_key('blocks')
         expect(form_item['nextSteps']).to be_a(Hash)
         expect(form_item['nextSteps']).to have_key('blocks')
-        # New boolean flags should be present
         expect(form_item).to have_key('noActionNeeded')
         expect(form_item).to have_key('isDBQ')
         expect(form_item).to have_key('isProperNoun')
@@ -1710,13 +1702,12 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         let(:test_display_name) { 'Submit buddy statement(s)' }
 
         before do
-          allow(Rails.logger).to receive(:warn)
           allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
           allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
             .with(test_display_name).and_return(nil)
         end
 
-        it 'logs a warning and does not add content override fields' do
+        it 'does not add content override fields' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
@@ -1726,9 +1717,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
           expect(buddy_statement_item).not_to have_key('longDescription')
           expect(buddy_statement_item).not_to have_key('nextSteps')
-          prefix = 'BenefitsClaims::Service#apply_content_overrides no content for display_name='
-          expected_warn_pattern = Regexp.new("#{prefix}#{Regexp.escape(test_display_name)}")
-          expect(Rails.logger).to have_received(:warn).with(expected_warn_pattern)
         end
       end
     end

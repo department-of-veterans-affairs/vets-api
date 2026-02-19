@@ -322,18 +322,15 @@ RSpec.describe BenefitsClaims::Service do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               response = service.get_claim('600383363')
               tracked_items = response.dig('data', 'attributes', 'trackedItems')
-              # Find the 21-4142/21-4142a item
               form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-              # Existing fields should be populated from TrackedItemContent::CONTENT
+              # Content override fields are populated from TrackedItemContent::CONTENT
               expect(form_item['friendlyName']).to eq('Authorization to disclose information')
               expect(form_item['canUploadFile']).to be true
               expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-              # New structured content fields should be present
               expect(form_item['longDescription']).to be_a(Hash)
               expect(form_item['longDescription']).to have_key(:blocks)
               expect(form_item['nextSteps']).to be_a(Hash)
               expect(form_item['nextSteps']).to have_key(:blocks)
-              # New boolean flags should be present
               expect(form_item['noActionNeeded']).to be false
               expect(form_item['isDBQ']).to be false
               expect(form_item['isProperNoun']).to be false
@@ -342,20 +339,16 @@ RSpec.describe BenefitsClaims::Service do
             end
           end
 
-          it 'logs a warning and does not add content override fields for display names with no content' do
-            allow(Rails.logger).to receive(:warn)
+          it 'does not add content override fields for display names with no content' do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               response = service.get_claim('600383363')
               tracked_items = response.dig('data', 'attributes', 'trackedItems')
               # Attorney Fee is in the response but not in TrackedItemContent::CONTENT
               tracked_item_without_content_overrides = tracked_items.find { |i| i['displayName'] == 'Attorney Fee' }
-              # New content override fields should NOT be present when no content entry exists
+              # Content override fields should NOT be present when no content entry exists
               expect(tracked_item_without_content_overrides).not_to have_key('longDescription')
               expect(tracked_item_without_content_overrides).not_to have_key('nextSteps')
             end
-            expect(Rails.logger).to have_received(:warn).with(
-              /BenefitsClaims::Service#apply_content_overrides no content for display_name=Attorney Fee/
-            )
           end
         end
 
