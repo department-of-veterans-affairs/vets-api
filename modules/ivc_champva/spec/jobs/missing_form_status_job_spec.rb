@@ -278,6 +278,36 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     batch.each(&:destroy)
   end
 
+  it 'reconciles all records when combined PDF submission matches single Pega report' do
+    # For combined submissions, multiple docs are merged into a single _combined.pdf
+    # Pega only sees the combined file, but we store individual records for each original doc
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_7959f_2_combined.pdf", pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_7959f_2.pdf", pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_supporting_doc_0.pdf", pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_supporting_doc_1.pdf", pega_status: nil)
+    ]
+
+    # Pega only reports the single combined PDF
+    pega_reports = [
+      { 'UUID' => form_uuid, 'Status' => 'Processed' }
+    ]
+
+    allow(job.pega_api_client).to receive(:record_has_matching_report).and_return(pega_reports)
+    allow(job.missing_status_cleanup).to receive(:manually_process_batch)
+
+    # Should return true: 1 combined PDF locally matches 1 Pega report
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be true
+    # All 4 records should be passed for status update
+    expect(job.missing_status_cleanup).to have_received(:manually_process_batch).with(batch)
+
+    # Clean up test data
+    batch.each(&:destroy)
+  end
+
   it 'catches PegaApiError and logs error without crashing the job' do
     form_uuid = SecureRandom.uuid
     batch = [

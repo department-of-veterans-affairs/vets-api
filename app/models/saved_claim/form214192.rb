@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class SavedClaim::Form214192 < SavedClaim
+  include IbmDataDictionary
+
   FORM = '21-4192'
   DEFAULT_ZIP_CODE = '00000'
 
@@ -70,7 +72,15 @@ class SavedClaim::Form214192 < SavedClaim
       veteranLastName: parsed_form.dig('veteranInformation', 'fullName', 'last'),
       fileNumber: parsed_form.dig('veteranInformation', 'vaFileNumber') || parsed_form.dig('veteranInformation', 'ssn'),
       zipCode: zip_code_for_metadata,
-      businessLine: business_line }
+      businessLine: business_line,
+      docType: "StructuredData:#{FORM}" }
+  end
+
+  # Convert form data to IBM MMS VBA Data Dictionary format
+  # @return [Hash] VBA Data Dictionary payload for form 21-4192
+  # Reference: AUG2024-Table 1.csv
+  def to_ibm
+    build_ibm_payload(parsed_form)
   end
 
   private
@@ -87,5 +97,56 @@ class SavedClaim::Form214192 < SavedClaim
     first = parsed_form.dig('veteranInformation', 'fullName', 'first')
     last = parsed_form.dig('veteranInformation', 'fullName', 'last')
     "#{first} #{last}".strip.presence || 'Veteran'
+  end
+
+  # Build the IBM data dictionary payload from the parsed claim form
+  # @param form [Hash]
+  # @return [Hash]
+  def build_ibm_payload(form)
+    build_veteran_fields(form)
+      .merge(build_employer_fields(form))
+      .merge(build_form_metadata_fields)
+  end
+
+  # Build veteran identification fields (Section 1)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_veteran_fields(form)
+    vet_info = form['veteranInformation'] || {}
+
+    # Use VETERAN_INITIAL instead of VETERAN_MIDDLE_INITIAL for this form
+    basic_fields = build_veteran_basic_fields(vet_info)
+    basic_fields['VETERAN_INITIAL'] = basic_fields.delete('VETERAN_MIDDLE_INITIAL')
+    basic_fields
+  end
+
+  # Build employer information fields (Box 1)
+  # @param form [Hash]
+  # @return [Hash]
+  def build_employer_fields(form)
+    employment = form['employmentInformation'] || {}
+    employer_address = employment['employerAddress'] || {}
+
+    {
+      'EMPLOYER_NAME_ADDRESS' => build_employer_name_and_address(employment['employerName'], employer_address)
+    }.compact
+  end
+
+  # Build form metadata
+  # @return [Hash]
+  def build_form_metadata_fields
+    {
+      'FORM_TYPE' => '21-4192',
+      'FORM_TYPE_1' => '21-4192'
+    }
+  end
+
+  # Build employer name and address as single field
+  # @param name [String, nil]
+  # @param addr_hash [Hash, nil]
+  # @return [String, nil]
+  def build_employer_name_and_address(name, addr_hash)
+    parts = [name, build_full_address(addr_hash)].compact
+    parts.join(', ').strip.presence
   end
 end
