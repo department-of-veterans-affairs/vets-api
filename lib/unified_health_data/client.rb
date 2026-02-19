@@ -28,7 +28,9 @@ module UnifiedHealthData
     end
 
     def get_notes_by_date(patient_id:, start_date:, end_date:)
-      path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      path = "#{config.base_path}notes?" \
+             "patientId=#{patient_id}&startDate=#{start_date}" \
+             "&endDate=#{end_date}&includeBinary=false"
       perform(:get, path, nil, request_headers)
     end
 
@@ -66,6 +68,18 @@ module UnifiedHealthData
     def get_imaging_studies(patient_id:, start_date:, end_date:, imaging_study_type: 'ALL')
       path = "#{config.base_path}imaging-studies/oracle-health"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date, imagingStudyType: imaging_study_type }
+      perform(:get, path, params, request_headers)
+    end
+
+    def get_imaging_study(patient_id:, start_date:, end_date:, record_id:)
+      path = "#{config.base_path}imaging-study/oracle-health"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
+      perform(:get, path, params, request_headers)
+    end
+
+    def get_dicom_zip(patient_id:, start_date:, end_date:, record_id:)
+      path = "#{config.base_path}dicom-zip/oracle-health"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
       perform(:get, path, params, request_headers)
     end
 
