@@ -27,6 +27,23 @@ module DigitalFormsApi
         perform :post, "submissions?dry-run=#{dry_run}", request, headers
       end
 
+      # POST submit form structured data and return a portable submission context.
+      #
+      # @param payload [Hash] the validated form data; @see SavedClaim.parsed_form
+      # @param metadata [Hash] required fields in addition to payload
+      # @param dry_run [Boolean] perform a dry run in which no action is taken except validation by the endpoint
+      # @return [Hash] portable context for renderer/viewer integrations
+      def submit_with_context(payload, metadata, dry_run: false)
+        response = submit(payload, metadata, dry_run:)
+
+        {
+          submission_uuid: extract_submission_uuid(response),
+          form_id: metadata[:formId],
+          veteran_participant_id: metadata[:veteranId],
+          claimant_participant_id: metadata[:claimantId] || metadata[:veteranId]
+        }
+      end
+
       # GET get a form submission
       def retrieve(submission_id)
         perform :get, "submissions/#{submission_id}", {}, {}
@@ -47,6 +64,12 @@ module DigitalFormsApi
       # @return [DigitalFormsApi::Service::Schema] memoized schema service instance
       def schema_service
         @schema_service ||= DigitalFormsApi::Service::Schema.new
+      end
+
+      # @param response [#body] service response object
+      # @return [String, nil] submission UUID from Digital Forms response
+      def extract_submission_uuid(response)
+        response.body.dig('submission', 'submissionId') || response.body.dig(:submission, :submissionId)
       end
 
       # end Submissions

@@ -52,6 +52,52 @@ RSpec.describe DigitalFormsApi::Service::Submissions do
     end
   end
 
+  describe 'submit_with_context' do
+    it 'returns a portable context with submission UUID and veteran association' do
+      response = build(:digital_forms_service_response, :success)
+      expect(service).to receive(:submit).with(payload, metadata, dry_run: false).and_return(response)
+
+      expect(service.submit_with_context(payload, metadata)).to eq(
+        {
+          submission_uuid: 'a1ba50e4-e689-4852-bec7-2a66519f0ed3',
+          form_id: '99t-12345',
+          veteran_participant_id: '123456789v12345',
+          claimant_participant_id: 'another-identifier'
+        }
+      )
+    end
+
+    it 'falls back claimant participant id to veteran participant id when claimantId is not provided' do
+      response = build(:digital_forms_service_response, :success)
+      metadata_without_claimant = metadata.except(:claimantId)
+      expect(service).to receive(:submit).with(payload, metadata_without_claimant, dry_run: false).and_return(response)
+
+      expect(service.submit_with_context(payload, metadata_without_claimant)).to eq(
+        {
+          submission_uuid: 'a1ba50e4-e689-4852-bec7-2a66519f0ed3',
+          form_id: '99t-12345',
+          veteran_participant_id: '123456789v12345',
+          claimant_participant_id: '123456789v12345'
+        }
+      )
+    end
+
+    it 'returns nil submission_uuid when Digital Forms response does not include one' do
+      response = build(:digital_forms_service_response, :success)
+      response.body = { submission: { claimId: '123456789' } }
+      expect(service).to receive(:submit).with(payload, metadata, dry_run: false).and_return(response)
+
+      expect(service.submit_with_context(payload, metadata)).to eq(
+        {
+          submission_uuid: nil,
+          form_id: '99t-12345',
+          veteran_participant_id: '123456789v12345',
+          claimant_participant_id: 'another-identifier'
+        }
+      )
+    end
+  end
+
   describe 'retrieve' do
     it 'performs a GET' do
       expect(service).to receive(:perform).with(:get, "submissions/#{uuid}", {}, {})
