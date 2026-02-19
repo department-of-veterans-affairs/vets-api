@@ -503,6 +503,16 @@ links:
 integrations: {}
 ---
 schema-version: v2.2
+dd-service: rainbow-platform-rt-test
+team: platform
+tier: '1'
+lifecycle: pre-production
+contacts:
+  - type: slack
+    contact: https://dsva.slack.com/archives/CBU0KDSB1
+integrations: {}
+---
+schema-version: v2.2
 dd-service: vass
 team: check-in-experience
 application: VASS Appointment Scheduling

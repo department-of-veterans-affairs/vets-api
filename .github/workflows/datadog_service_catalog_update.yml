@@ -6,6 +6,13 @@ on:
       - master
     paths:
       - "datadog-service-catalog/**.yml"
+  pull_request:
+    types:
+      - opened
+    branches:
+      - master
+    paths:
+      - "datadog-service-catalog/**.yml"
 
 jobs:
   get_files:
@@ -21,7 +28,7 @@ jobs:
       - id: one
         name: 'Git diff for changes and output matrix of file names'
         run: |
-              arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=d --name-only ${{ github.event.before }}...${{ github.sha }} -- "datadog-service-catalog/**.yml"))
+              arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=d --name-only ${{ github.event.pull_request.base.sha || github.event.before }}...${{ github.sha }} -- "datadog-service-catalog/**.yml"))
               out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml")| [.]')
               echo "files=$out" >> $GITHUB_OUTPUT
   update_dd:
