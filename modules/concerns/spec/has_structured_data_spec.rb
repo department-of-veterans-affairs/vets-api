@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../has_structured_data'
 
 RSpec.describe HasStructuredData do
   subject { dummy_class.new }
