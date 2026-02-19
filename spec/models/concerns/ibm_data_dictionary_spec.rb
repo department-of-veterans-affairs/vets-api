@@ -25,24 +25,17 @@ RSpec.describe IbmDataDictionary do
       }
     end
 
-    it 'returns veteran fields with default full name field' do
+    it 'returns veteran fields without full name field' do
       result = subject.build_veteran_basic_fields(vet_info)
 
       expect(result).to include(
         'VETERAN_FIRST_NAME' => 'John',
         'VETERAN_MIDDLE_INITIAL' => 'M',
         'VETERAN_LAST_NAME' => 'Doe',
-        'VETERAN_NAME' => 'John M Doe',
         'VETERAN_SSN' => '123456789',
         'VA_FILE_NUMBER' => '987654321',
         'VETERAN_DOB' => '01/15/1950'
       )
-    end
-
-    it 'accepts custom full name field option' do
-      result = subject.build_veteran_basic_fields(vet_info, full_name_field: 'CUSTOM_NAME')
-
-      expect(result).to include('CUSTOM_NAME' => 'John M Doe')
       expect(result).not_to include('VETERAN_NAME')
     end
 
@@ -55,7 +48,7 @@ RSpec.describe IbmDataDictionary do
       result = subject.build_veteran_basic_fields(vet_info)
 
       expect(result['VETERAN_MIDDLE_INITIAL']).to be_nil
-      expect(result['VETERAN_NAME']).to eq('John Doe')
+      expect(result).not_to include('VETERAN_NAME')
     end
   end
 
