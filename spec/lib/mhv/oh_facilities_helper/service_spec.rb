@@ -418,45 +418,98 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:phases) { described_class::PHASES }
       let(:first_phase_offset) { phases.values.min }
       let(:last_phase_offset) { phases.values.max }
+      let(:p7_offset) { phases[:p7] }
 
-      context 'when before first phase' do
-        it 'returns NOT_STARTED' do
-          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
-          result = service.get_migration_schedules
-          expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:not_started])
+      context 'when mhv_oh_migration_extended_phases is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(true)
+        end
+
+        context 'when before first phase' do
+          it 'returns NOT_STARTED' do
+            allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:not_started])
+          end
+        end
+
+        context 'when at first phase' do
+          it 'returns ACTIVE' do
+            allow(Date).to receive(:current).and_return(migration_date + first_phase_offset)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+          end
+        end
+
+        context 'when in middle of active window' do
+          it 'returns ACTIVE' do
+            midpoint = (first_phase_offset + last_phase_offset) / 2
+            allow(Date).to receive(:current).and_return(migration_date + midpoint)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+          end
+        end
+
+        context 'when at last phase (p9)' do
+          it 'returns ACTIVE' do
+            allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+          end
+        end
+
+        context 'when after last phase (p9)' do
+          it 'returns COMPLETE' do
+            allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 1)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
+          end
+        end
+
+        context 'when between p7 and p9' do
+          it 'returns ACTIVE (not COMPLETE)' do
+            allow(Date).to receive(:current).and_return(migration_date + p7_offset + 1)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+          end
         end
       end
 
-      context 'when at first phase' do
-        it 'returns ACTIVE' do
-          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset)
-          result = service.get_migration_schedules
-          expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+      context 'when mhv_oh_migration_extended_phases is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(false)
         end
-      end
 
-      context 'when in middle of active window' do
-        it 'returns ACTIVE' do
-          midpoint = (first_phase_offset + last_phase_offset) / 2
-          allow(Date).to receive(:current).and_return(migration_date + midpoint)
-          result = service.get_migration_schedules
-          expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+        context 'when before first phase' do
+          it 'returns NOT_STARTED' do
+            allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:not_started])
+          end
         end
-      end
 
-      context 'when at last phase' do
-        it 'returns ACTIVE' do
-          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
-          result = service.get_migration_schedules
-          expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+        context 'when at p7' do
+          it 'returns ACTIVE' do
+            allow(Date).to receive(:current).and_return(migration_date + p7_offset)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
+          end
         end
-      end
 
-      context 'when after last phase' do
-        it 'returns COMPLETE' do
-          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 1)
-          result = service.get_migration_schedules
-          expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
+        context 'when after p7' do
+          it 'returns COMPLETE' do
+            allow(Date).to receive(:current).and_return(migration_date + p7_offset + 1)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
+          end
+        end
+
+        context 'when at p9 offset' do
+          it 'returns COMPLETE (extended phases not active)' do
+            allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
+            result = service.get_migration_schedules
+            expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
+          end
         end
       end
     end
@@ -469,6 +522,10 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:first_phase_offset) { phases.values.min }
       let(:last_phase_offset) { phases.values.max }
       let(:last_phase_key) { phases.key(last_phase_offset).to_s }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(true)
+      end
 
       context 'when migration_status is NOT_STARTED' do
         it 'current phase is nil' do
@@ -510,6 +567,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       before do
         allow(Date).to receive(:current).and_return(today)
+        allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(true)
       end
 
       it 'returns all migrations regardless of status' do

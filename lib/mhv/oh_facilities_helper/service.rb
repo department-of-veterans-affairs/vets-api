@@ -247,10 +247,20 @@ module MHV
         { current: }.merge(phase_dates)
       end
 
+      # Returns the active set of phases based on feature toggle
+      # @return [Hash] phases to use for calculations
+      def active_phases
+        if Flipper.enabled?(:mhv_oh_migration_extended_phases)
+          PHASES
+        else
+          PHASES.except(:p8, :p9)
+        end
+      end
+
       # Calculates absolute dates for each phase based on migration date
       # @return [Hash] Phase keys with formatted date strings
       def calculate_phase_dates(migration_date)
-        PHASES.transform_values do |day_offset|
+        active_phases.transform_values do |day_offset|
           "#{format_phase_date(migration_date + day_offset)} at 12:00AM ET"
         end
       end
@@ -262,9 +272,11 @@ module MHV
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
+        phases = active_phases
+
         # Find the current phase by checking from latest phase to earliest
         # Phase boundaries are inclusive - if today is day -45, we're in p1
-        sorted_phases = PHASES.sort_by { |_, offset| -offset }
+        sorted_phases = phases.sort_by { |_, offset| -offset }
 
         sorted_phases.each do |phase_name, day_offset|
           return phase_name.to_s if days_until_migration <= -day_offset
@@ -280,8 +292,9 @@ module MHV
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
-        p0_offset = PHASES[:p0]
-        last_phase_offset = PHASES.values.max
+        phases = active_phases
+        p0_offset = phases[:p0]
+        last_phase_offset = phases.values.max
 
         if days_until_migration > -p0_offset
           MIGRATION_STATUS[:not_started]
