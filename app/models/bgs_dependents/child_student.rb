@@ -69,7 +69,8 @@ module BGSDependents
     def assign_program_and_govt_paid_tuitn_ind
       program = get_program(@student&.dig('type_of_program_or_benefit'))
       if program.present?
-        @student['type_of_program_or_benefit'] = [program, @student&.dig('school_information', 'name')].reject(&:blank?).join(", ")
+        name = [program, @student&.dig('school_information', 'name')].reject(&:blank?).join(", ")
+        @student['type_of_program_or_benefit'] = name.present? ? name : nil
         @student['tuition_is_paid_by_gov_agency'] = true
       end
     end

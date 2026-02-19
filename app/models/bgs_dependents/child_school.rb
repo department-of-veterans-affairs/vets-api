@@ -72,7 +72,8 @@ module BGSDependents
     def assign_school_name
       if @student['type_of_program_or_benefit'].present?
         program = get_program(@student['type_of_program_or_benefit'])
-        @school_information['name'] = [program, @school_information&.dig('name')].reject(&:blank?).join(", ") 
+        name = [program, @school_information&.dig('name')].reject(&:blank?).join(", ") 
+        @school_information['name'] = name.present? ? name : nil
       end
     end
 
