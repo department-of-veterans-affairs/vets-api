@@ -9,7 +9,8 @@ RSpec.describe IvcChampva::PegaEmailNotificationCallback do
   let(:additional_context) do
     {
       'form_id' => '10-10d',
-      'form_uuid' => '12345678-1234-5678-1234-567812345678'
+      'form_uuid' => '12345678-1234-5678-1234-567812345678',
+      'notification_type' => 'pega_alert'
     }
   end
   let(:notification) do
@@ -93,6 +94,11 @@ RSpec.describe IvcChampva::PegaEmailNotificationCallback do
           status_reason: 'test_reason'
         )
         described_class.call(notification)
+      end
+
+      it 'does not track pega alert email failed' do
+        described_class.call(notification)
+        expect(monitor).not_to have_received(:track_pega_alert_email_failed)
       end
     end
 

@@ -124,7 +124,7 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
     it 'does not log a successful notification send to Pega' do
       job.send_zsf_notification_to_pega(forms[0], 'fake-template')
 
-      # Expect our monitor to track the successful send
+      # Expect our monitor NOT to track the successful send since callbacks handle tracking
       expect(job.monitor).not_to have_received(:track_send_zsf_notification_to_pega)
     end
   end
