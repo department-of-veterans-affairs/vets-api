@@ -3,9 +3,10 @@
 require 'sidekiq'
 
 module RepresentationManagement
-  # Processes address validation and contact updates for AccreditedOrganization records.
-  # Accepts a JSON string with an array of organization update data from AccreditationQueueUpdates.
-  # Updates name, phone, and raw_address fields, then validates addresses where changed.
+  # Processes address validation for AccreditedOrganization records by ID.
+  # This class finds AccreditedOrganization records and calls their validate_address method.
+  # Contact field updates (name, phone, raw_address) are written directly by
+  # AccreditationXlsxProcessor before this job is queued.
   class AccreditedOrganizationsUpdate
     include Sidekiq::Job
 
@@ -18,12 +19,10 @@ module RepresentationManagement
       @records_needing_geocoding = []
     end
 
-    # Processes updates for AccreditedOrganization records from XLSX data.
-    # @param organizations_json [String] JSON string containing array of org update data.
-    #   Each entry: { 'id', 'name', 'phone', 'raw_address', 'address_changed', 'phone_changed', 'name_changed' }
-    def perform(organizations_json)
-      records_data = JSON.parse(organizations_json)
-      records_data.each { |data| process_record(data) }
+    # Processes address validation for AccreditedOrganizations by ID.
+    # @param record_ids [Array<String>] Array of AccreditedOrganization IDs
+    def perform(record_ids)
+      record_ids.each { |record_id| process_record(record_id) }
       enqueue_geocoding_jobs
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
@@ -34,30 +33,24 @@ module RepresentationManagement
 
     private
 
-    # Processes an AccreditedOrganization record with contact/address updates from XLSX data.
-    # @param data [Hash] Update data with keys: 'id', 'name', 'phone', 'raw_address',
-    #   'address_changed', 'phone_changed', 'name_changed'
-    def process_record(data)
-      record = AccreditedOrganization.find_by(id: data['id'])
+    # Processes individual AccreditedOrganization record by ID.
+    # Finds the record and calls validate_address on it.
+    # If validation fails, adds the record to the geocoding queue.
+    # @param record_id [String] The AccreditedOrganization ID.
+    def process_record(record_id)
+      record = AccreditedOrganization.find_by(id: record_id)
 
       if record.nil?
-        log_error("Record not found: #{data['id']}", send_to_slack: false)
+        log_error("Record not found: #{record_id}", send_to_slack: false)
         return
       end
 
-      updates = {}
-      updates[:name] = data['name'] if data['name_changed']
-      updates[:phone] = data['phone'] if data['phone_changed']
-      updates[:raw_address] = data['raw_address'] if data['raw_address'].present?
-
-      record.update(updates) if updates.any?
-
-      if data['address_changed'] && !record.validate_address
-        log_error("Address validation failed for record #{data['id']}", send_to_slack: false)
+      unless record.validate_address
+        log_error("Address validation failed for record #{record_id}", send_to_slack: false)
         @records_needing_geocoding << record.id
       end
     rescue => e
-      log_error("Error processing record #{data['id']}: #{e.message}", send_to_slack: true)
+      log_error("Error processing record #{record_id}: #{e.message}", send_to_slack: true)
     end
 
     # Enqueues geocoding jobs for records that failed address validation.
