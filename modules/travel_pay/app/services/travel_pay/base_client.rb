@@ -50,8 +50,8 @@ module TravelPay
     #
     def request_options
       {
-        open_timeout: Settings.travel_pay.open_timeout || 15,
-        timeout: Settings.travel_pay.timeout || 90
+        open_timeout: Settings.travel_pay.open_timeout,
+        timeout: Settings.travel_pay.timeout
       }
     end
 
