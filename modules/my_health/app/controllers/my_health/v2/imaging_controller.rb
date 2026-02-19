@@ -95,20 +95,22 @@ module MyHealth
         uri = URI.parse(url)
         validate_s3_url!(uri)
 
-        response.headers['Content-Type'] = 'image/jpeg'
-        response.headers['Content-Disposition'] = 'inline'
-        response.headers['Cache-Control'] = 'private, max-age=3600'
-
         stream_from_s3(uri)
       rescue URI::InvalidURIError
         render json: { error: 'Invalid URL format' }, status: :bad_request
       rescue Common::Exceptions::ParameterMissing => e
         raise e
-      rescue SecurityError => e
-        Rails.logger.warn("Thumbnail proxy SSRF blocked: #{e.message}")
+      rescue SecurityError
+        Rails.logger.warn("Thumbnail proxy SSRF blocked for host: #{uri&.host}")
         render json: { error: 'URL not allowed' }, status: :forbidden
       rescue => e
-        handle_error(e, resource_name: 'thumbnail image', api_type: 'S3')
+        if response.committed?
+          Rails.logger.error("Error while streaming thumbnail image: #{e.class} - #{e.message}")
+        else
+          handle_error(e, resource_name: 'thumbnail image', api_type: 'S3')
+        end
+      ensure
+        response.stream.close if response.committed?
       end
 
       private
@@ -152,13 +154,17 @@ module MyHealth
               )
             end
 
+            # Set response headers only after confirming S3 returned success,
+            # so error handlers can still render a proper JSON error response.
+            response.headers['Content-Type'] = 'image/jpeg'
+            response.headers['Content-Disposition'] = 'inline'
+            response.headers['Cache-Control'] = 'private, max-age=3600'
+
             http_response.read_body do |chunk|
               response.stream.write(chunk)
             end
           end
         end
-      ensure
-        response.stream.close
       end
 
       def service
