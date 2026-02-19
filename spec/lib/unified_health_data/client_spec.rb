@@ -126,10 +126,34 @@ RSpec.describe UnifiedHealthData::Client do
       end
       let(:warning_response) { Faraday::Response.new(body: warning_body) }
 
+      before do
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:increment)
+      end
+
       it 'does not raise an exception' do
         expect do
           client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
         end.not_to raise_error
+      end
+
+      it 'injects _warnings into the response body' do
+        client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
+        expect(warning_response.body['_warnings']).to be_an(Array)
+        expect(warning_response.body['_warnings'].size).to eq(1)
+        expect(warning_response.body['_warnings'].first).to include(source: 'oracle-health', severity: 'warning')
+      end
+
+      it 'logs the warning and increments StatsD' do
+        client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
+
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(message: 'UHD upstream source returned OperationOutcome warning', resource_type: 'allergies')
+        )
+        expect(StatsD).to have_received(:increment).with(
+          'api.uhd.partial_warning',
+          tags: ['source:oracle-health', 'resource_type:allergies']
+        )
       end
     end
 
@@ -137,7 +161,7 @@ RSpec.describe UnifiedHealthData::Client do
       let(:array_response) { Faraday::Response.new(body: [{ 'success' => true }]) }
 
       it 'does not raise an exception' do
-        # Detector handles arrays gracefully - body['vista'] returns nil, so no failure detected
+        # Detector only parses when body.is_a?(Hash), so array bodies are skipped entirely
         expect do
           client.send(:check_for_operation_outcomes!, array_response, '/uhd/v1/refill')
         end.not_to raise_error
