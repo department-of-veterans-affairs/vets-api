@@ -268,7 +268,8 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
               action: 'pension.submission',
               component:,
               parent_claim_id:,
-              form_type: '686c-674'
+              form_type: '686c-674',
+              module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
             )
             processor.send(:handle_successful_submission)
           end
@@ -338,7 +339,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '#send_backup_job' do
     it 'enqueues backup submission job' do
-      expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim_id)
+      expect(DependentsBenefits::Sidekiq::BenefitsIntakeJob).to receive(:perform_async).with(parent_claim_id)
       processor.send(:send_backup_job)
     end
   end

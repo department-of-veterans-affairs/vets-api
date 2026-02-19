@@ -10,6 +10,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   let(:batch) { instance_double(Sidekiq::Batch) }
 
   before do
+    stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)
     allow(Rails.logger).to receive(:error)
     allow(Sidekiq::Batch).to receive(:new).and_return(batch)
     allow(batch).to receive(:description=)
@@ -377,6 +378,23 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       # The real implementation should add to the validation array
       expect(job.instance_variable_get(:@agent_ids_for_address_validation)).not_to be_empty
     end
+
+    context 'when an error occurs' do
+      before do
+        allow(client).to receive(:get_accredited_entities).and_raise(StandardError.new('API error'))
+      end
+
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error)
+          .with(/AccreditedEntitiesQueueUpdates error: Error updating agents?: API error/)
+        job.send(:update_agents)
+      end
+
+      it 'adds agents to processing_error_types' do
+        job.send(:update_agents)
+        expect(job.instance_variable_get(:@processing_error_types)).to include(RepresentationManagement::AGENTS)
+      end
+    end
   end
 
   describe '#update_attorneys' do
@@ -515,6 +533,23 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
       expect(job.instance_variable_get(:@attorney_ids_for_address_validation))
         .not_to be_empty
+    end
+
+    context 'when an error occurs' do
+      before do
+        allow(client).to receive(:get_accredited_entities).and_raise(StandardError.new('API error'))
+      end
+
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error)
+          .with(/AccreditedEntitiesQueueUpdates error: Error updating attorneys?: API error/)
+        job.send(:update_attorneys)
+      end
+
+      it 'adds attorneys to processing_error_types' do
+        job.send(:update_attorneys)
+        expect(job.instance_variable_get(:@processing_error_types)).to include(RepresentationManagement::ATTORNEYS)
+      end
     end
   end
 
@@ -719,6 +754,13 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       it 'does not create a batch' do
         job.send(:validate_addresses, [], description)
         expect(batch).not_to have_received(:description=)
+      end
+
+      it 'does not create a batch or queue jobs' do
+        expect(Sidekiq::Batch).not_to receive(:new)
+        expect(RepresentationManagement::AccreditedIndividualsUpdate).not_to receive(:perform_in)
+
+        job.send(:validate_addresses, [], description)
       end
     end
 
@@ -1486,6 +1528,14 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
     it 'sets the batch description to representative-specific text' do
       expect(batch).to receive(:description=)
         .with('Batching representative address updates from GCLAWS Accreditation API')
+
+      job.send(:validate_rep_addresses)
+    end
+
+    it 'does nothing when there are no representative addresses to validate' do
+      job.instance_variable_set(:@representative_ids_for_address_validation, [])
+
+      expect(Sidekiq::Batch).not_to receive(:new)
 
       job.send(:validate_rep_addresses)
     end

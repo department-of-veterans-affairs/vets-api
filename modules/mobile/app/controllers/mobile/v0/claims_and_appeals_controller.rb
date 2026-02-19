@@ -219,7 +219,7 @@ module Mobile
       end
 
       def lighthouse_claims_adapter
-        Mobile::V0::Adapters::LighthouseIndividualClaims.new
+        Mobile::V0::Adapters::LighthouseIndividualClaims.new(@current_user)
       end
 
       def adapter_for_provider(_provider_type)
