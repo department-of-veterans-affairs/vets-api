@@ -2,14 +2,12 @@
 
 require 'survivors_benefits/benefits_intake/submit_claim_job'
 require 'pdf_fill/filler'
-require_relative '../../../../concerns/has_structured_data'
 
 module SurvivorsBenefits
-  ##
   class SavedClaim < ::SavedClaim
-  # SurvivorsBenefits 21P-534EZ Active::Record
-  # @see app/model/saved_claim
-  #
+    # SurvivorsBenefits 21P-534EZ Active::Record
+    # @see app/model/saved_claim
+    #
     include HasStructuredData
 
     # Survivors Benefits Form ID
@@ -138,61 +136,124 @@ module SurvivorsBenefits
     end
 
     def build_ibm_payload(form)
-
-      build_veteran_fields(form)
-        .merge!(build_claimant_fields(form))
-
+      build_veterans_id_info(form)
+        .merge!(build_claimants_id_info(form))
+        .merge!(build_veterans_service_info(form))
     end
 
-    def build_veteran_fields(form)
-      veterans_name = build_name(form['veteranFullName'])
+    def build_veterans_id_info(form)
+      name_fields = build_name_fields(form['veteranFullName'], 'VETERAN')
+      name_fields.merge!(
+        {
+          'VETERAN_SSN' => form['veteranSocialSecurityNumber'],
+          'VETERAN_DOB' => format_date(form['veteranDateOfBirth']),
+          'VETSPCHPAR_FILECLAIM_Y' => form['vaClaimsHistory'] ? form['vaClaimsHistory'] == true : nil,
+          'VETSPCHPAR_FILECLAIM_N' => form['vaClaimsHistory'] ? form['vaClaimsHistory'] == false : nil,
+          'VA_FILE_NUMBER' => form['vaFileNumber'],
+          'VETDIED_ACTIVEDUTY_Y' => form['diedOnDuty'] ? form['diedOnDuty'] == true : nil,
+          'VETDIED_ACTIVEDUTY_N' => form['diedOnDuty'] ? form['diedOnDuty'] == false : nil,
+          'VETERANS_SERVICE_NUMBER' => form['veteranServiceNumber'],
+          'VETERAN_DATE_OF_DEATH' => format_date(form['veteranDateOfDeath'])
+        }
+      )
+    end
+
+    def build_claimants_id_info(form)
+      primary_phone = { 'contact' => form['claimantPhone'], 'countryCode' => form['claimantAddress']['country'] }
+      build_name_fields(form['claimantFullName'], 'CLAIMANT')
+        .merge!(build_claimant_address_fields(form['claimantAddress']))
+        .merge!(build_relationship(form['claimantRelationship']))
+        .merge!(build_claim_type_fields(form['claims']))
+        .merge!(
+          {
+            'CLAIMANT_SSN' => form['claimantSocialSecurityNumber'],
+            'CLAIMANT_DOB' => format_date(form['claimantDateOfBirth']),
+            'CLAIMANT_VETERAN_Y' => form['claimantIsVeteran'] ? form['claimantIsVeteran'] == true : nil,
+            'CLAIMANT_VETERAN_N' => form['claimantIsVeteran'] ? form['claimantIsVeteran'] == false : nil,
+            'PHONE_NUMBER' => primary_phone['contact'],
+            'INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
+            'EMAIL' => form['claimantEmail']
+          }
+        )
+    end
+
+    def build_veterans_service_info(form)
+      build_vet_aliases(form['veteranHasPreviousNames'], form['veteranPreviousNames'])
+      build_service_branch_fields(form['serviceBranch'])
       {
-        'VETERAN_NAME' => veterans_name[:full],
-        'VETERAN_FIRST_NAME' => veterans_name[:first],
-        'VETERAN_MIDDLE)INITIAL' => veterans_name[:middle_initial],
-        'VETERAN_LAST_NAME' => veterans_name[:last],
-        'VETERAN_SSN' => form['veteranSocialSecurityNumber'],
-        'VETERAN_DOB' => format_date(form['veteranDateOfBirth']),
-        'VETSPCHPAR_FILECLAIM_Y' => form['vaClaimsHistory'] == true,
-        'VETSPCHPAR_FILECLAIM_N' => form['vaClaimsHistory'] == false,
-        'VA_FILE_NUMBER' => form['vaFileNumber'],
-        'VETDIED_ACTIVEDUTY_Y' => form['diedOnDuty'] == true,
-        'VETDIED_ACTIVEDUTY_N' => form['diedOnDuty'] == false,
-        'VETERANS_SERVICE_NUMBER' => form['veteranServiceNumber'],
-        'VETERAN_DATE_OF_DEATH' => format_date(form['veteranDateOfDeath'])
+        'DATE_ENTERED_TO_SERVICE' => format_date(form['activeServiceDateRange']['from']),
+        'DATE_SEPARATED_FROM_SERVICE' => format_date(form['activeServiceDateRange']['to']),
+        'PLACE_SEPARATED_FROM_SERVICE_1' => form['placeOfSeparation'],
+        'ACTIVATED_TO_FED_DUTY_YES' => form['nationalGuardActivated'] ? form['nationalGuardActivated'] == true : nil,
+        'ACTIVATED_TO_FED_DUTY_NO' => form['nationalGuardActivated'] ? form['nationalGuardActivated'] == false : nil,
+        'DATE_OF_ACTIVATION' => format_date(form['nationalGuardActivationDate']),
+        'NAME_ADDRESS_RESERVE_UNIT' => form['unitNameAndAddress'],
+        'RESERVE_PHONE_NUMBER' => form['unitPhone'],
+        'POW_YES' => form['pow'] ? form['pow'] == true : nil,
+        'POW_NO' => form['pow'] ? form['pow'] == false : nil,
+        'DATE_OF_CONFINEMENT_START' => form['pow'] ? format_date(form['powDateRange']['from']) : nil,
+        'DATE_OF_CONFINEMENT_END' => form['pow'] ? format_date(form['powDateRange']['to']) : nil
       }
     end
 
-    def build_claimant_fields(form)
-      claimant_name = build_name(form['claimantFullName'])
-      claimant_phone = form['claimantPhone']
+    def build_name_fields(name, individual)
+      name = build_name(name)
       {
-        'CLAIMANT_NAME' => claimant_name[:full],
-        'CLAIMANT_FIRST_NAME' => claimant_name[:first],
-        'CLAIMANT_MIDDLE_INITIAL' => claimant_name[:middle_initial],
-        'CLAIMANT_LAST_NAME' => claimant_name[:last],
-        'RELATIONSHIP_SURVIVING_SPOUSE' => form['claimantRelationship'] == 'SURVIVING_SPOUSE',
-        'RELATIONSHIP_CHILD' => form['claimantRelationship'] == 'CHILD_18-23_IN_SCHOOL',
-        'RELATIONSHIP_CUSTODIAN' => form['claimantRelationship'] == 'CUSTODIAN_FILING_FOR_CHILD_UNDER_18',
-        'RELATIONSHIP_HELPLESSCHILD' => form['claimantRelationship'] == 'HELPLESS_ADULT_CHILD',
-        'CLAIMANT_SSN' => form['claimantSocialSecurityNumber'],
-        'CLAIMANT_DOB' => format_date(form['claimantDateOfBirth']),
-        'CLAIMANT_VETERAN_Y' => form['claimantIsVeteran'] == true,
-        'CLAIMANT_VETERAN_N' => form['claimantIsVeteran'] == false,
-        'CLAIMANT_ADDRESS_FULL_BLOCK' => build_address_block(form['claimantAddress']),
-        'CLAIMANT_ADDRESS_LINE1' => form['claimantAddress']['street'],
-        'CLAIMANT_ADDRESS_LINE2' => form['claimantAddress']['street2'],
-        'CLAIMANT_ADDRESS_CITY' => form['claimantAddress']['city'],
-        'CLAIMANT_ADDRESS_STATE' => form['claimantAddress']['state'],
-        'CLAIMANT_ADDRESS_COUNTRY' => form['claimantAddress']['country'],
-        'CLAIMANT_ADDRESS_ZIP5' => form['claimantAddress']['postalCode']['firstFive'],
-        'PHONE_NUMBER' => claimant_phone,
-        'INT_PHONE_NUMBER' => international_phone_number(form, claimant_phone),
-        'EMAIL' => form['claimantEmail'],
-        'CLAIM_TYPE_DIC' => form['claims']['DIC'],
-        'CLAIM_TYPE_SURVIVOR_PENSION' => form['claims']['survivorsPension'],
-        'CLAIM_TYPE_ACCRUED_BENEFITS' => form['claims']['accruedBenefits']
+        "#{individual}_NAME" => name[:full],
+        "#{individual}_FIRST_NAME" => name[:first],
+        "#{individual}_MIDDLE_INITIAL" => name[:middle_initial],
+        "#{individual}_LAST_NAME" => name[:last]
       }
     end
+
+    def build_claimant_address_fields(claimant_address)
+      {
+        'CLAIMANT_ADDRESS_FULL_BLOCK' => build_address_block(claimant_address),
+        'CLAIMANT_ADDRESS_LINE1' => claimant_address['street'],
+        'CLAIMANT_ADDRESS_LINE2' => claimant_address['street2'],
+        'CLAIMANT_ADDRESS_CITY' => claimant_address['city'],
+        'CLAIMANT_ADDRESS_STATE' => claimant_address['state'],
+        'CLAIMANT_ADDRESS_COUNTRY' => claimant_address['country'],
+        'CLAIMANT_ADDRESS_ZIP5' => claimant_address['postalCode']['firstFive']
+      }
+    end
+
+    def build_relationship_fields(relationship)
+      {
+        'RELATIONSHIP_SURVIVING_SPOUSE' => relationship == 'SURVIVING_SPOUSE',
+        'RELATIONSHIP_CHILD' => relationship == 'CHILD_18-23_IN_SCHOOL',
+        'RELATIONSHIP_CUSTODIAN' => relationship == 'CUSTODIAN_FILING_FOR_CHILD_UNDER_18',
+        'RELATIONSHIP_HELPLESSCHILD' => relationship == 'HELPLESS_ADULT_CHILD'
+      }
+    end
+
+    def build_claim_type_fields(claims = {})
+      {
+        'CLAIM_TYPE_DIC' => claims['DIC'],
+        'CLAIM_TYPE_SURVIVOR_PENSION' => claims['survivorsPension'],
+        'CLAIM_TYPE_ACCRUED_BENEFITS' => claims['accruedBenefits']
+      }
+    end
+
+    def build_vet_aliases(has_aliases = false, aliases = [])
+      alias_fields = {  
+        'VET_NAME_OTHER_Y' => has_aliases == true,
+        'VET_NAME_OTHER_N' => has_aliases == false,
+        'VET_NAME_OTHER_1' => aliases[0],
+        'VET_NAME_OTHER_2' => aliases[1]
+      }
+    end
+
+    def build_service_branch_fields(branch)
+      {
+        'BRANCH_OF_SERVICE_ARMY' => branch == 'army',
+        'BRANCH_OF_SERVICE_NAVY' => branch == 'navy',
+        'BRANCH_OF_SERVICE_AIR-FORCE' => branch == 'airForce',
+        'BRANCH_OF_SERVICE_MARINE' => branch == 'marineCorps',
+        'BRANCH_OF_SERVICE_COAST-GUARD' => branch == 'coastGuard',
+        'BRANCH_OF_SERVICE_SPACE' => branch == 'spaceForce',
+        'BRANCH_OF_SERVICE_NOAA' => branch == 'usphs',
+        'BRANCH_OF_SERVICE_USPHS' => branch == 'noaa',
+      }
   end
 end
