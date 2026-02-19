@@ -123,9 +123,11 @@ module UnifiedHealthData
     end
 
     def log_warning_details(user, resource_type)
+      warning_sources = @warning_details.map { |d| d[:source] }.uniq
       Rails.logger.warn(
         message: 'UHD upstream source returned OperationOutcome warning',
         resource_type:,
+        warning_sources:,
         warning_count: @warning_details.size,
         user_uuid: user&.uuid,
         details: @warning_details.map { |d| { source: d[:source], code: d[:code], diagnostics: d[:diagnostics] } }
