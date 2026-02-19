@@ -68,6 +68,20 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       )
     end
 
+    it 'monitors pension-related submissions' do
+      allow(form_686_claim).to receive(:pension_related_submission?).and_return(true)
+      allow(form_674_claim).to receive(:pension_related_submission?).and_return(false)
+      processor.enqueue_submissions
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Submitted pension-related claim',
+        action: 'pension.submission',
+        component:,
+        parent_claim_id:,
+        form_type: parent_claim.claim_form_type,
+        module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
+      )
+    end
+
     it 'handles enqueue failures' do
       error = StandardError.new('Enqueue failed')
       allow(mock_monitor).to receive(:track_info_event).and_raise(error)
@@ -264,7 +278,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           it 'tracks pension-related submission when any child claim is pension-related' do
             allow(processor).to receive(:child_claims).and_return([pension_claim, regular_claim])
             expect(mock_monitor).to receive(:track_info_event).with(
-              'Submitted pension-related claim',
+              'Successful pension-related claim submission',
               action: 'pension.submission',
               component:,
               parent_claim_id:,
@@ -277,7 +291,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           it 'does not track pension-related submission if no child is pension-related' do
             allow(processor).to receive(:child_claims).and_return([regular_claim])
             expect(mock_monitor).not_to receive(:track_info_event).with(
-              'Submitted pension-related claim',
+              'Successful pension-related claim submission',
               hash_including(action: 'submission', component: 'pension')
             )
             processor.send(:handle_successful_submission)
