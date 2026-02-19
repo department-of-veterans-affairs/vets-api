@@ -182,10 +182,13 @@ class SavedClaim::Form21p530a < SavedClaim
   # Build signature and remarks fields (Boxes 17-18)
   def build_signature_fields
     certification = parsed_form['certification'] || {}
+    # DATE_SIGNED should be extracted as written on form per VBA Data Dictionary
+    # Falls back to submission date (created_at) if not provided
+    date_signed = certification['dateSigned'] || parsed_form['dateSigned'] || created_at&.to_date&.iso8601
     {
       'OFFICIAL_SIGNATURE' => certification['signature'],
       'OFFICIAL_TITLE' => certification['titleOfStateOrTribalOfficial'],
-      'DATE_SIGNED' => format_date_for_ibm(created_at&.to_date),
+      'DATE_SIGNED' => format_date_for_ibm(date_signed),
       'REMARKS' => parsed_form['remarks'],
       'VETERAN_SSN_1' => parsed_form.dig('veteranInformation', 'ssn')
     }

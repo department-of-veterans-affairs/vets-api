@@ -207,11 +207,6 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
           docType: 'StructuredData:21P-530a'
         )
       end
-
-      it 'includes docType with correct format' do
-        metadata = claim.metadata_for_benefits_intake
-        expect(metadata[:docType]).to eq('StructuredData:21P-530a')
-      end
     end
 
     context 'when vaFileNumber is present' do
@@ -281,7 +276,12 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
   end
 
   describe '#to_ibm' do
-    let(:ibm_data) { claim.to_ibm }
+    let(:saved_claim) do
+      claim_instance = described_class.new(form: valid_form_data.to_json)
+      claim_instance.save!
+      claim_instance
+    end
+    let(:ibm_data) { saved_claim.to_ibm }
 
     it 'returns a hash with all required fields' do
       expect(ibm_data).to be_a(Hash)
@@ -301,9 +301,9 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
 
       it 'includes veteran service number and VA file number' do
-        expect(ibm_data).to have_key('VETERAN_SERVICE_NUMBER')
+        expect(ibm_data['VETERAN_SERVICE_NUMBER']).to be_nil
         expect(ibm_data).to have_key('VA_FILE_NUMBER')
-        # Fixture doesn't have vaFileNumber field
+        # Fixture doesn't have vaServiceNumber or vaFileNumber fields
       end
 
       it 'includes veteran DOB with slashes' do
@@ -311,7 +311,7 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
 
       it 'includes veteran place of birth' do
-        expect(ibm_data['VETERAN_PLACE_OF_BIRTH']).to be_present
+        expect(ibm_data['VETERAN_PLACE_OF_BIRTH']).to eq('Kansas City, MO')
       end
 
       it 'includes veteran date of death with slashes' do
@@ -402,7 +402,7 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
 
       it 'includes date signed with slashes' do
-        expect(ibm_data).to have_key('DATE_SIGNED')
+        expect(ibm_data['DATE_SIGNED']).to match(%r{\d{2}/\d{2}/\d{4}})
       end
 
       it 'includes remarks' do
