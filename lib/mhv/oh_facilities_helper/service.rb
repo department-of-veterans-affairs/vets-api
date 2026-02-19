@@ -17,7 +17,9 @@ module MHV
         p4: -3,
         p5: 0,
         p6: 2,
-        p7: 7
+        p7: 7,
+        p8: 30,
+        p9: 45
       }.freeze
 
       MIGRATION_STATUS = {
@@ -278,12 +280,12 @@ module MHV
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
-        p0_offset = PHASES[:p0] # -60
-        p7_offset = PHASES[:p7] # 7
+        p0_offset = PHASES[:p0]
+        last_phase_offset = PHASES.values.max
 
         if days_until_migration > -p0_offset
           MIGRATION_STATUS[:not_started]
-        elsif days_until_migration >= -p7_offset
+        elsif days_until_migration >= -last_phase_offset
           MIGRATION_STATUS[:active]
         else
           MIGRATION_STATUS[:complete]

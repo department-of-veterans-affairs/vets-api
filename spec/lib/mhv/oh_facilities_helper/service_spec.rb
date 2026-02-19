@@ -753,13 +753,33 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         end
       end
 
-      # After p7 (complete)
-      context 'when migration was more than 7 days ago (complete)' do
-        let(:migration_date) { Time.zone.today - 10 }
+      # p8: 30 days after migration
+      context 'when migration was 30 days ago (p8)' do
+        let(:migration_date) { Time.zone.today - 30 }
         let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
 
-        it 'returns p7 (last phase)' do
-          expect(service.get_phase_for_station_number('516')).to eq('p7')
+        it 'returns p8' do
+          expect(service.get_phase_for_station_number('516')).to eq('p8')
+        end
+      end
+
+      # p9: 45 days after migration
+      context 'when migration was 45 days ago (p9)' do
+        let(:migration_date) { Time.zone.today - 45 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p9' do
+          expect(service.get_phase_for_station_number('516')).to eq('p9')
+        end
+      end
+
+      # After p9 (complete)
+      context 'when migration was more than 45 days ago (complete)' do
+        let(:migration_date) { Time.zone.today - 50 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p9 (last phase)' do
+          expect(service.get_phase_for_station_number('516')).to eq('p9')
         end
       end
     end
