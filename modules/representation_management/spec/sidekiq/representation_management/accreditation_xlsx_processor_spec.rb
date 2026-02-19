@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepresentationManagement::AccreditationQueueUpdates do
+RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
   let(:fixture_path) { 'modules/representation_management/spec/fixtures/xlsx_files/rep-mock-data.xlsx' }
   let(:fixture_file_content) { File.read(fixture_path) }
   let(:batch) { double('Sidekiq::Batch', description: nil, 'description=': nil) }
@@ -59,16 +59,43 @@ RSpec.describe RepresentationManagement::AccreditationQueueUpdates do
                  phone: '555-000-0001')
         end
 
-        it 'queues individual update jobs for records with changes' do
+        it 'directly updates individual email and phone in the database' do
+          subject.perform(%w[attorney])
+          attorney.reload
+          expect(attorney.email).to eq('maria.glover@goodwin.test')
+          expect(attorney.phone).to eq('(367) 319-2072')
+        end
+
+        it 'directly updates individual raw_address in the database' do
+          subject.perform(%w[attorney])
+          attorney.reload
+          expect(attorney.raw_address['address_line1']).to eq('82611 Klocko Summit')
+          expect(attorney.raw_address['city']).to eq('West Rachele')
+          expect(attorney.raw_address['state_code']).to eq('MT')
+        end
+
+        it 'directly updates organization phone in the database' do
+          subject.perform(%w[organization])
+          organization.reload
+          expect(organization.phone).not_to eq('555-000-0001')
+        end
+
+        it 'directly updates organization raw_address in the database' do
+          subject.perform(%w[organization])
+          organization.reload
+          expect(organization.raw_address['address_line1']).not_to eq('Old Org Address')
+        end
+
+        it 'queues individual address validation jobs with ID arrays' do
           expect(RepresentationManagement::AccreditedIndividualsUpdate)
-            .to receive(:perform_in).with(0.minutes, anything)
+            .to receive(:perform_in).with(0.minutes, [attorney.id])
 
           subject.perform(%w[attorney])
         end
 
-        it 'queues organization update jobs for records with changes' do
+        it 'queues organization address validation jobs with ID arrays' do
           expect(RepresentationManagement::AccreditedOrganizationsUpdate)
-            .to receive(:perform_in).with(0.minutes, anything)
+            .to receive(:perform_in).with(0.minutes, [organization.id])
 
           subject.perform(%w[organization])
         end
@@ -92,6 +119,33 @@ RSpec.describe RepresentationManagement::AccreditationQueueUpdates do
             .not_to receive(:perform_in)
 
           subject.perform(%w[attorney])
+        end
+
+        context 'when only email/phone changed (no address change)' do
+          before do
+            # Match address so only contact fields differ
+            attorney.update(
+              raw_address: {
+                'address_line1' => '82611 Klocko Summit',
+                'address_line2' => nil,
+                'address_line3' => nil,
+                'city' => 'West Rachele',
+                'state_code' => 'MT',
+                'zip_code' => '59950'
+              }
+            )
+          end
+
+          it 'updates email/phone directly but does not queue address validation' do
+            expect(RepresentationManagement::AccreditedIndividualsUpdate)
+              .not_to receive(:perform_in)
+
+            subject.perform(%w[attorney])
+
+            attorney.reload
+            expect(attorney.email).to eq('maria.glover@goodwin.test')
+            expect(attorney.phone).to eq('(367) 319-2072')
+          end
         end
       end
     end
