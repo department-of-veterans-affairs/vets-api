@@ -240,17 +240,41 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
 
     context 'when S3 host uses dash-style region format' do
       let(:dash_style_url) do
-        'https://mhv-cvix-thumbnails.s3-us-gov-west-1.amazonaws.com/thumb.jpg?X-Amz-Signature=abc'
+        'https://mhv-pr-cvix-thumbnails.s3-us-gov-west-1.amazonaws.com/thumb.jpg?X-Amz-Signature=abc'
       end
 
       it 'accepts the URL and proxies successfully' do
-        stub_request(:get, /mhv-cvix-thumbnails\.s3-us-gov-west-1\.amazonaws\.com/)
+        stub_request(:get, /mhv-pr-cvix-thumbnails\.s3-us-gov-west-1\.amazonaws\.com/)
           .to_return(status: 200, body: image_binary, headers: { 'Content-Type' => 'image/jpeg' })
 
         get proxy_path, params: { url: dash_style_url }
 
         expect(response).to be_successful
         expect(response.headers['Content-Type']).to include('image/jpeg')
+      end
+    end
+
+    context 'when S3 bucket name is not in the allowlist' do
+      it 'returns a 403 error for unknown bucket names' do
+        get proxy_path, params: {
+          url: 'https://some-other-bucket.s3.us-gov-west-1.amazonaws.com/thumb.jpg'
+        }
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'with each allowed environment bucket' do
+      %w[di-5 intb sysb pr].each do |env|
+        it "accepts mhv-#{env}-cvix-thumbnails bucket" do
+          bucket_url = "https://mhv-#{env}-cvix-thumbnails.s3.us-gov-west-1.amazonaws.com/thumb.jpg?X-Amz-Signature=abc"
+          stub_request(:get, /mhv-#{Regexp.escape(env)}-cvix-thumbnails/)
+            .to_return(status: 200, body: image_binary, headers: { 'Content-Type' => 'image/jpeg' })
+
+          get proxy_path, params: { url: bucket_url }
+
+          expect(response).to be_successful
+        end
       end
     end
   end

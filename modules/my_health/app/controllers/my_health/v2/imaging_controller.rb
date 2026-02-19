@@ -114,8 +114,10 @@ module MyHealth
       private
 
       # Allowlist of S3 host patterns for thumbnail images.
-      # Matches virtual-hosted-style S3 URLs in the us-gov-west-1 region.
-      ALLOWED_S3_HOST_PATTERN = /\A[\w-]+\.s3[.-]us-gov-west-1\.amazonaws\.com\z/i
+      # Matches only known CVIX thumbnail buckets in the us-gov-west-1 region.
+      # Buckets: mhv-di-5-cvix-thumbnails, mhv-intb-cvix-thumbnails,
+      #          mhv-sysb-cvix-thumbnails, mhv-pr-cvix-thumbnails
+      ALLOWED_S3_HOST_PATTERN = /\Amhv-(?:di-5|intb|sysb|pr)-cvix-thumbnails\.s3[.-]us-gov-west-1\.amazonaws\.com\z/i
 
       ##
       # Validates that the given URI points to an allowed S3 host.
