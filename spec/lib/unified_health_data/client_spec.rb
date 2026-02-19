@@ -6,7 +6,7 @@ require 'unified_health_data/client'
 RSpec.describe UnifiedHealthData::Client do
   subject(:client) { described_class.new }
 
-  describe '#check_for_partial_failures!' do
+  describe '#check_for_operation_outcomes!' do
     let(:success_body) do
       {
         'vista' => {
@@ -53,7 +53,7 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'does not raise an exception' do
         expect do
-          client.send(:check_for_partial_failures!, success_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, success_response, '/uhd/v1/allergies?patientId=123')
         end.not_to raise_error
       end
     end
@@ -68,19 +68,19 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'raises UpstreamPartialFailure exception' do
         expect do
-          client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
         end.to raise_error(Common::Exceptions::UpstreamPartialFailure)
       end
 
       it 'includes failed_sources in the exception' do
-        client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+        client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
       rescue Common::Exceptions::UpstreamPartialFailure => e
         expect(e.failed_sources).to eq(['oracle-health'])
       end
 
       it 'logs the partial failure' do
         begin
-          client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
         rescue Common::Exceptions::UpstreamPartialFailure
           # expected
         end
@@ -96,7 +96,7 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'increments StatsD counter' do
         begin
-          client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
         rescue Common::Exceptions::UpstreamPartialFailure
           # expected
         end
@@ -128,7 +128,7 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'does not raise an exception' do
         expect do
-          client.send(:check_for_partial_failures!, warning_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
         end.not_to raise_error
       end
     end
@@ -139,7 +139,7 @@ RSpec.describe UnifiedHealthData::Client do
       it 'does not raise an exception' do
         # Detector handles arrays gracefully - body['vista'] returns nil, so no failure detected
         expect do
-          client.send(:check_for_partial_failures!, array_response, '/uhd/v1/refill')
+          client.send(:check_for_operation_outcomes!, array_response, '/uhd/v1/refill')
         end.not_to raise_error
       end
     end
@@ -156,7 +156,7 @@ RSpec.describe UnifiedHealthData::Client do
       it 'does not raise an exception' do
         # Detector looks for body['vista'] and body['oracle-health'], finds neither
         expect do
-          client.send(:check_for_partial_failures!, response, '/some/unknown/path')
+          client.send(:check_for_operation_outcomes!, response, '/some/unknown/path')
         end.not_to raise_error
       end
     end

@@ -56,9 +56,9 @@ module MyHealth
       private
 
       def build_response(data, warnings)
-        return data if warnings.blank?
-
-        { data:, meta: { warnings: } }
+        response = { data: }
+        response[:meta] = { warnings: } if warnings.present?
+        response
       end
 
       def service
