@@ -1032,7 +1032,8 @@ module DependentsBenefits
             end
             if program_information.present?
               # set 9A and 9B to a concatenated type_of_program_or_benefit + name
-              combined_name = [program_information, student_information['school_information']['name']].reject(&:blank?).join(", ")
+              combined_name = [program_information, student_information['school_information']['name']]
+                              .compact_blank.join(', ')
               # assign 9A and 9B to concatenated 3 options available + school name
               student_information['type_of_program_or_benefit'] = combined_name
               student_information['school_information']['name'] = combined_name

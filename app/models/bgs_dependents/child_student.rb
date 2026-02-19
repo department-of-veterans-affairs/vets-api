@@ -57,20 +57,21 @@ module BGSDependents
       type_mapping = {
         'ch35' => 'Chapter 35',
         'fry' => 'Fry Scholarship',
-        'feca' => 'FECA',
+        'feca' => 'FECA'
       }
       # sanitize object of false values
       parent_object.compact_blank!
       return nil if parent_object.blank?
+
       # concat and sanitize values not in type_mapping
-      parent_object.map { |key, _value| type_mapping[key] }.reject(&:blank?).join(', ')
+      parent_object.map { |key, _value| type_mapping[key] }.compact_blank.join(', ')
     end
 
     def assign_program_and_govt_paid_tuitn_ind
       program = get_program(@student&.dig('type_of_program_or_benefit'))
       if program.present?
-        name = [program, @student&.dig('school_information', 'name')].reject(&:blank?).join(", ")
-        @student['type_of_program_or_benefit'] = name.present? ? name : nil
+        name = [program, @student&.dig('school_information', 'name')].compact_blank.join(', ')
+        @student['type_of_program_or_benefit'] = name.presence
         @student['tuition_is_paid_by_gov_agency'] = true
       end
     end
