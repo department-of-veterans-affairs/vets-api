@@ -61,7 +61,8 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
           'admissionDate',
           'dischargeDate',
           'location',
-          'note'
+          'note',
+          'source'
         )
 
         # Verify event logging was called

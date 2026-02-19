@@ -15,7 +15,7 @@ RSpec.describe UnifiedHealthData::Serializers::ImagingStudySerializer do
       sort_date: '2025-01-15T10:30:00Z',
       description: 'CT Scan of Chest',
       notes: ['Routine follow-up scan'],
-      patient_id: '1012740414V122180',
+      patient_id: '1234567890V012345',
       series_count: 2,
       image_count: 15,
       series: [
@@ -38,7 +38,7 @@ RSpec.describe UnifiedHealthData::Serializers::ImagingStudySerializer do
         date: '2025-01-15T10:30:00Z',
         description: 'CT Scan of Chest',
         notes: ['Routine follow-up scan'],
-        patient_id: '1012740414V122180',
+        patient_id: '1234567890V012345',
         series_count: 2,
         image_count: 15
       )
