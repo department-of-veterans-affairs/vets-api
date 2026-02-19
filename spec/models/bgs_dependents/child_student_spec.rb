@@ -10,13 +10,6 @@ RSpec.describe BGSDependents::ChildStudent do
                         all_flows_payload_v2['dependents_application']['student_information'][0])
   end
 
-  let(:child_student_info_v2_b) do
-    all_flows_payload_v2['dependents_application']['student_information'][0]['tuition_is_paid_by_gov_agency'] = false
-    described_class.new('3829729',
-                        '149471',
-                        all_flows_payload_v2['dependents_application']['student_information'][0])
-  end
-
   let(:formatted_params_result_v2) do
     {
       vnp_proc_id: '3829729',
@@ -26,7 +19,11 @@ RSpec.describe BGSDependents::ChildStudent do
       other_asset_amt: '200',
       rmks: 'test additional information',
       marage_dt: DateTime.parse('2024-03-03 12:00:00').to_time.iso8601,
-      agency_paying_tuitn_nm: 'Chapter 35, Fry Scholarship, FECA, name of trade program',
+      agency_paying_tuitn_nm: {
+        'ch35' => true,
+        'fry' => true,
+        'feca' => true
+      },
       stock_bond_amt: '400',
       govt_paid_tuitn_ind: 'Y',
       govt_paid_tuitn_start_dt: DateTime.parse('2024-03-01 12:00:00').to_time.iso8601,
@@ -47,14 +44,6 @@ RSpec.describe BGSDependents::ChildStudent do
   describe '#params_for_686c' do
     it 'formats child student params for submission' do
       formatted_info = child_student_info_v2.params_for_686c
-
-      expect(formatted_info).to eq(formatted_params_result_v2)
-    end
-  end
-
-  describe '#params_for_686c where tuition paid is set to no, but there is a program name' do
-    it 'formats child student params for submission' do
-      formatted_info = child_student_info_v2_b.params_for_686c
 
       expect(formatted_info).to eq(formatted_params_result_v2)
     end

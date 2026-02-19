@@ -17,7 +17,6 @@ module BGSDependents
 
     # rubocop:disable Metrics/MethodLength
     def params_for_686c
-      assign_school_name
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id,
@@ -54,30 +53,6 @@ module BGSDependents
     # rubocop:enable Metrics/MethodLength
 
     private
-
-    def get_program(parent_object)
-      return nil if parent_object.blank?
-
-      type_mapping = {
-        'ch35' => 'Chapter 35',
-        'fry' => 'Fry Scholarship',
-        'feca' => 'FECA'
-      }
-      # sanitize object of false values
-      parent_object.compact_blank!
-      return nil if parent_object.blank?
-
-      # concat and sanitize values not in type_mapping
-      parent_object.map { |key, _value| type_mapping[key] }.compact_blank.join(', ')
-    end
-
-    def assign_school_name
-      if @student['type_of_program_or_benefit'].present?
-        program = get_program(@student['type_of_program_or_benefit'])
-        name = [program, @school_information&.dig('name')].compact_blank.join(', ')
-        @school_information['name'] = name.presence
-      end
-    end
 
     def assign_attributes(data)
       @last_term_school_information = data['last_term_school_information']
