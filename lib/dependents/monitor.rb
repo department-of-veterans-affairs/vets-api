@@ -26,6 +26,9 @@ module Dependents
     # statsd key for pension-related submissions
     PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
 
+    # statsd key for no SSN claims
+    NO_SSN_CLAIMS_STATS_KEY = 'dependents.no_ssn_claims'
+
     # allowed logging params
     ALLOWLIST = %w[
       tags
@@ -178,6 +181,15 @@ module Dependents
 
       StatsD.increment(metric, tags:)
       Rails.logger.info("Pension-related claim submitted: #{form_type}", payload)
+    end
+
+    def track_no_ssn_claims(form_id:, type:)
+      tags = ["form_id:#{form_id}"]
+      metric = "#{NO_SSN_CLAIMS_STATS_KEY}.#{type}"
+      payload = default_payload.merge({ statsd: metric, form_id:, claim_id: @claim_id })
+
+      StatsD.increment(metric, tags:)
+      Rails.logger.info("No-SSN claim #{type}", payload)
     end
 
     def track_event(level, message, stats_key, payload = {})
