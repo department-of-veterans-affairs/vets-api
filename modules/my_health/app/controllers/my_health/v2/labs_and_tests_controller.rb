@@ -7,7 +7,6 @@ require 'unique_user_events'
 module MyHealth
   module V2
     class LabsAndTestsController < ApplicationController
-      include MyHealth::V2::Concerns::ErrorHandler
       include SortableRecords
       service_tag 'mhv-medical-records'
 
@@ -28,10 +27,6 @@ module MyHealth
 
         render json: build_response(serialized_labs, result[:warnings]),
                status: :ok
-      rescue Common::Client::Errors::ClientError,
-             Common::Exceptions::BackendServiceException,
-             StandardError => e
-        handle_error(e, resource_name: 'labs and tests', api_type: 'FHIR')
       end
 
       private
