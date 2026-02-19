@@ -421,10 +421,10 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
     end
 
-    it 'returns complete VBA Data Dictionary payload with all 49 required fields' do
+    it 'returns complete VBA Data Dictionary payload with all 48 required fields' do
       ibm_payload = claim.to_ibm
 
-      expect(ibm_payload.keys.length).to eq(49)
+      expect(ibm_payload.keys.length).to eq(48)
 
       # Veteran fields (10 - includes VETERAN_FULL_NAME for this form)
       expect(ibm_payload).to include(
@@ -484,11 +484,10 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       expect(ibm_payload).to have_key('DATE_SIGNED')
       expect(ibm_payload).to have_key('REMARKS')
 
-      # Form metadata (3)
+      # Form metadata (2)
       expect(ibm_payload).to include(
         'FORM_TYPE' => '21P-530a',
-        'FORM_TYPE_1' => '21P-530a',
-        'SUPERSEDES VA FORM 21P-530A, AUG 2022' => 'SUPERSEDES VA FORM 21P-530A, AUG 2022'
+        'FORM_TYPE_1' => '21P-530a'
       )
     end
   end

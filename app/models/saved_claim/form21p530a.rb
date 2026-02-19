@@ -198,8 +198,7 @@ class SavedClaim::Form21p530a < SavedClaim
   def build_form_metadata_fields
     {
       'FORM_TYPE' => FORM,
-      'FORM_TYPE_1' => FORM,
-      'SUPERSEDES VA FORM 21P-530A, AUG 2022' => 'SUPERSEDES VA FORM 21P-530A, AUG 2022'
+      'FORM_TYPE_1' => FORM
     }
   end
 
