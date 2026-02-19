@@ -45,7 +45,8 @@ RSpec.describe DigitalFormsApi::Service::Submissions do
 
       expected = { envelope: expected.merge({ payload: }) }
 
-      expect(submission_validator).to receive(:validate).with(payload:, metadata:, form_schema: schema).and_return(expected)
+      expect(submission_validator).to receive(:validate).with(payload:, metadata:,
+                                                              form_schema: schema).and_return(expected)
       expect(service).to receive(:perform).with(:post, 'submissions?dry-run=false', expected, {})
       service.submit(payload, metadata)
     end
