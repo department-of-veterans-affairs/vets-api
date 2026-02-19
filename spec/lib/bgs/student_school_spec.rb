@@ -36,7 +36,7 @@ RSpec.describe BGS::StudentSchool do
       curnt_school_addrs_two_txt: nil,
       curnt_school_addrs_zip_nbr: nil,
       curnt_school_city_nm: nil,
-      curnt_school_nm: 'name of trade program',
+      curnt_school_nm: 'Chapter 35, Fry Scholarship, FECA, name of trade program',
       curnt_school_postal_cd: nil,
       curnt_sessns_per_wk_num: nil,
       vnp_proc_id: '3829729',
@@ -68,7 +68,7 @@ RSpec.describe BGS::StudentSchool do
   end
   let(:student_params_v2) do
     {
-      agency_paying_tuitn_nm: nil,
+      agency_paying_tuitn_nm: 'Chapter 35, Fry Scholarship, FECA, name of trade program',
       govt_paid_tuitn_ind: 'Y',
       next_year_annty_income_amt: '145',
       next_year_emplmt_income_amt: '56000',

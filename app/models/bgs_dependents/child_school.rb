@@ -17,6 +17,7 @@ module BGSDependents
 
     # rubocop:disable Metrics/MethodLength
     def params_for_686c
+      assign_school_name
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id,
@@ -83,7 +84,6 @@ module BGSDependents
       @school_information = data['school_information']
       @program_information = data['program_information']
       @current_term_dates = data['current_term_dates']
-      assign_school_name
     end
   end
 end

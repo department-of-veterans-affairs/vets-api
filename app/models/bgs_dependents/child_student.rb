@@ -18,6 +18,7 @@ module BGSDependents
 
     # rubocop:disable Metrics/MethodLength
     def params_for_686c
+      assign_program_and_govt_paid_tuitn_ind
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id,
@@ -81,7 +82,6 @@ module BGSDependents
       @student_earnings_from_school_year = data['student_earnings_from_school_year']
       @student_networth_information = data['student_networth_information']
       @student_expected_earnings_next_year = data['student_expected_earnings_next_year']
-      assign_program_and_govt_paid_tuitn_ind
     end
   end
 end
