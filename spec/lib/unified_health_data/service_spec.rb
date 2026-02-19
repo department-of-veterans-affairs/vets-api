@@ -38,7 +38,8 @@ describe UnifiedHealthData::Service, type: :service do
     context 'happy path' do
       context 'when data exists for both VistA + OH' do
         it 'returns all labs/tests with encodedData and/or observations' do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = result[:records]
           # 12 total records: 1 VistA filtered (nil status), 1 OH filtered (nil status) = 10 parsed
           expect(labs.size).to eq(10)
 
@@ -50,7 +51,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns labs sorted by date_completed in descending order' do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31').sort
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records].sort
 
           labs_with_dates = labs.select { |lab| lab.date_completed.present? }
           dates = labs_with_dates.map(&:sort_date)
@@ -61,7 +62,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns specific VistA lab with expected attributes' do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
           chem_lab = labs.find { |lab| lab.id == 'df64e7c7-d354-43a1-ab57-445844b59b52' }
           expect(chem_lab).to have_attributes(
@@ -77,7 +78,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns specific Oracle Health lab with expected attributes' do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
           oh_lab = labs.find { |lab| lab.id == '15248982124' }
           expect(oh_lab).to have_attributes(
@@ -92,7 +93,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns labs with expected attribute types' do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
           expect(labs).to all(have_attributes(
                                 'id' => be_a(String),
@@ -113,7 +114,7 @@ describe UnifiedHealthData::Service, type: :service do
             .to receive(:get_labs_by_date)
             .and_return(Faraday::Response.new(body: modified_response))
 
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
           # 8 VistA records, 1 filtered (nil status) = 7 parsed
           expect(labs.size).to eq(7)
           expect(labs.map(&:source)).to all(eq('vista'))
@@ -126,7 +127,7 @@ describe UnifiedHealthData::Service, type: :service do
             .to receive(:get_labs_by_date)
             .and_return(Faraday::Response.new(body: modified_response))
 
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
           # 4 OH records, 1 filtered (nil status) = 3 parsed
           expect(labs.size).to eq(3)
           expect(labs.map(&:source)).to all(eq('oracle-health'))
@@ -139,21 +140,21 @@ describe UnifiedHealthData::Service, type: :service do
             .to receive(:get_labs_by_date)
             .and_return(Faraday::Response.new(body: { 'vista' => {}, 'oracle-health' => {} }))
 
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
           expect(labs.size).to eq(0)
         end
       end
     end
 
     it 'returns labs with only encodedData' do
-      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
       labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
       expect(labs_with_encoded_only).not_to be_empty
     end
 
     it 'returns labs with only observations' do
-      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
       labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
       expect(labs_with_observations_only).not_to be_empty
@@ -703,7 +704,7 @@ describe UnifiedHealthData::Service, type: :service do
     context 'happy path' do
       context 'when data exists for both VistA + OH' do
         it 'returns care summaries and notes' do
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(6)
           expect(notes.map(&:note_type)).to contain_exactly(
             'physician_procedure_note',
@@ -750,7 +751,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns clinical notes sorted by date in descending order' do
-          notes = service.get_care_summaries_and_notes.sort
+          notes = service.get_care_summaries_and_notes[:records].sort
 
           dates = notes.map { |note| Time.zone.parse(note.date) }
           expect(dates).to eq(dates.sort.reverse)
@@ -765,7 +766,7 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(
                           body: notes_no_oh_response
                         ))
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(4)
           expect(notes.map(&:note_type)).to contain_exactly(
             'physician_procedure_note',
@@ -797,7 +798,7 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(
                           body: notes_no_vista_response
                         ))
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(2)
           expect(notes.map(&:note_type)).to contain_exactly(
             'discharge_summary',
@@ -829,7 +830,7 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(
                           body: notes_empty_response
                         ))
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(0)
         end
       end
@@ -844,10 +845,10 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Get all notes first (no date filtering applied by service when using wide range)
-        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')[:records]
 
         # Now get filtered notes for Dec 2024 only
-        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')[:records]
 
         # Verify filtering actually excluded some notes
         expect(notes.size).to be < all_notes.size
@@ -867,10 +868,10 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Get all notes first
-        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')[:records]
 
         # Now get filtered notes for 2025 only
-        notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')
+        notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
         # Verify filtering actually excluded some notes (2024 notes should be filtered out)
         expect(notes.size).to be < all_notes.size
@@ -890,10 +891,11 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Blank strings should be treated as nil and use defaults
-        notes = service.get_care_summaries_and_notes(start_date: '', end_date: '')
+        result = service.get_care_summaries_and_notes(start_date: '', end_date: '')
 
-        # Should return notes (defaults applied, no filtering errors)
-        expect(notes).to be_an(Array)
+        # Should return hash with records array (defaults applied, no filtering errors)
+        expect(result).to be_a(Hash)
+        expect(result[:records]).to be_an(Array)
       end
 
       it 'excludes notes with blank or invalid dates and logs a warning' do
@@ -929,7 +931,7 @@ describe UnifiedHealthData::Service, type: :service do
         # Expect warning to be logged for invalid date
         expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
 
-        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')[:records]
 
         # Only the valid note should be returned
         expect(notes.size).to eq(1)

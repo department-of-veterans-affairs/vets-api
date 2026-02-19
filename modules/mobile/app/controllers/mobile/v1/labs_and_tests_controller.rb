@@ -14,7 +14,8 @@ module Mobile
       def index
         start_date = params[:startDate]
         end_date = params[:endDate]
-        labs = service.get_labs(start_date:, end_date:)
+        result = service.get_labs(start_date:, end_date:)
+        labs = result[:records]
 
         # Log unique user events for labs accessed
         UniqueUserEvents.log_events(

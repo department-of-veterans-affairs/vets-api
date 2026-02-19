@@ -16,7 +16,7 @@ module MyHealth
         end_date = params[:end_date]
         result = service.get_care_summaries_and_notes(start_date:, end_date:)
         care_notes = sort_records(result[:records], params[:sort])
-        serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes)
+        serialized_notes = UnifiedHealthData::ClinicalNotesSerializer.new(care_notes).serializable_hash[:data]
 
         UniqueUserEvents.log_events(
           user: @current_user,
