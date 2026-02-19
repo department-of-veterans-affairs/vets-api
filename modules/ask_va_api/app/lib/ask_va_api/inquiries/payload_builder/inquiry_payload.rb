@@ -111,7 +111,11 @@ module AskVAApi
           return unless email.is_a?(String)
           return unless URI::MailTo::EMAIL_REGEXP.match?(email)
 
-          email.slice(email.rindex('.')..)
+          domain = email.split('@', 2).last
+          last_dot_index = domain.rindex('.')
+          return unless last_dot_index
+
+          domain.slice(last_dot_index..)
         end
 
         def validate_params!
