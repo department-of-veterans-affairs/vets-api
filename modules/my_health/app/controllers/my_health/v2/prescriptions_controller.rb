@@ -77,14 +77,25 @@ module MyHealth
         raise Common::Exceptions::ParameterMissing, 'station_number' if params[:station_number].blank?
 
         prescriptions = service.get_prescriptions(current_only: false).compact
-        prescription = prescriptions.find do |p|
-          p.prescription_id.to_s == params[:id].to_s &&
-            p.station_number.to_s == params[:station_number].to_s
+
+        matches = if params[:station_number].present?
+                    prescriptions.select do |p|
+                      p.prescription_id.to_s == params[:id].to_s &&
+                        p.station_number.to_s == params[:station_number].to_s
+                    end
+                  else
+                    prescriptions.select { |p| p.prescription_id.to_s == params[:id].to_s }
+                  end
+
+        raise Common::Exceptions::RecordNotFound, params[:id] if matches.empty?
+
+        if matches.size > 1
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Multiple prescriptions found with this ID across different stations. '
+          )
         end
 
-        raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
-
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(matches.first)
       end
 
       def list_refillable_prescriptions

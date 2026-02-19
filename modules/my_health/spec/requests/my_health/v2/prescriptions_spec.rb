@@ -1284,6 +1284,38 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         end
       end
 
+      it 'returns a successful response when station_number is omitted and prescription_id is unique' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/15214174591', params: {}, headers:)
+
+          expect(response).to have_http_status(:success)
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['attributes']['prescription_id']).to eq('15214174591')
+        end
+      end
+
+      it 'returns 404 when station_number is omitted and prescription is not found' do
+        VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
+          get('/my_health/v2/prescriptions/99999', params: {}, headers:)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      it 'returns 422 when station_number is omitted and multiple prescriptions share the same ID' do
+        duplicate_prescriptions = [
+          OpenStruct.new(prescription_id: '15214174591', station_number: '556'),
+          OpenStruct.new(prescription_id: '15214174591', station_number: '999')
+        ]
+        service_double = instance_double(UnifiedHealthData::Service)
+        allow(UnifiedHealthData::Service).to receive(:new).and_return(service_double)
+        allow(service_double).to receive(:get_prescriptions).and_return(duplicate_prescriptions)
+
+        get('/my_health/v2/prescriptions/15214174591', params: {}, headers:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
       it 'returns camelCase attributes when X-Key-Inflection: camel header is provided' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           camel_headers = headers.merge('X-Key-Inflection' => 'camel')
