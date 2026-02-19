@@ -15,6 +15,8 @@ module Mobile
         start_date = params[:startDate]
         end_date = params[:endDate]
         result = service.get_labs(start_date:, end_date:)
+        # Warnings (e.g., missing Binary attachments) are not surfaced to the mobile app.
+        # Mobile has its own release cycle; warning support can be added separately if needed.
         labs = result[:records]
 
         # Log unique user events for labs accessed

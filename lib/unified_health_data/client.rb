@@ -114,6 +114,10 @@ module UnifiedHealthData
 
       if detector.partial_failure?
         detector.log_and_track(resource_type:)
+        # NOTE: If errors and warnings co-exist (e.g., VistA times out but Oracle Health has a
+        # missing Binary warning), the error takes precedence and warnings are not surfaced.
+        # This is intentional — a source-level failure already triggers UpstreamPartialFailure
+        # handling, and the warning about a missing attachment is secondary.
         raise Common::Exceptions::UpstreamPartialFailure.new(
           failed_sources: detector.failed_sources,
           failure_details: detector.failure_details

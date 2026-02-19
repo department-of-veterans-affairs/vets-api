@@ -180,6 +180,30 @@ describe UnifiedHealthData::Service, type: :service do
         expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31') }.not_to raise_error
       end
     end
+
+    context 'warning propagation' do
+      it 'returns warnings when _warnings are present in the response body' do
+        response_with_warnings = labs_sample_response.deep_dup
+        response_with_warnings['_warnings'] = [
+          { source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }
+        ]
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_labs_by_date)
+          .and_return(Faraday::Response.new(body: response_with_warnings))
+
+        result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        expect(result[:warnings]).to eq(
+          [{ source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }]
+        )
+        expect(result[:records]).to be_an(Array)
+        expect(result[:records]).not_to be_empty
+      end
+
+      it 'returns empty warnings when no _warnings in response body' do
+        result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        expect(result[:warnings]).to eq([])
+      end
+    end
   end
 
   describe '#fetch_combined_records' do
@@ -986,6 +1010,30 @@ describe UnifiedHealthData::Service, type: :service do
         expect do
           uhd_service.get_care_summaries_and_notes
         end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+
+    context 'warning propagation' do
+      it 'returns warnings when _warnings are present in the response body' do
+        response_with_warnings = notes_sample_response.deep_dup
+        response_with_warnings['_warnings'] = [
+          { source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }
+        ]
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(Faraday::Response.new(body: response_with_warnings))
+
+        result = service.get_care_summaries_and_notes
+        expect(result[:warnings]).to eq(
+          [{ source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }]
+        )
+        expect(result[:records]).to be_an(Array)
+        expect(result[:records]).not_to be_empty
+      end
+
+      it 'returns empty warnings when no _warnings in response body' do
+        result = service.get_care_summaries_and_notes
+        expect(result[:warnings]).to eq([])
       end
     end
 
