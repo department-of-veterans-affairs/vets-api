@@ -301,46 +301,52 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
     # Focus on telemetry behavior separately
     context 'telemetry and tracing' do
-      before do
-        setup_successful_service_response
-        allow(Rails.logger).to receive(:info)
-      end
-
-      it 'sets correct authentication tags' do
-        expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
-        expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
-        expect(span).to receive(:set_tag).with('user.loa', anything)
-        allow(span).to receive(:set_tag) # for other tags
-
-        creator.call(inquiry_params: inquiry_params[:inquiry])
-      end
-
-      it 'sets inquiry context without PII' do
-        expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
-          # Focused PII validation
-          unsafe_fields = %i[icn ssn social_security_number date_of_birth]
-          expect(value.keys & unsafe_fields).to be_empty
+      context 'when the service call succeeds' do
+        before do
+          setup_successful_service_response
+          allow(Rails.logger).to receive(:info)
         end
-        allow(span).to receive(:set_tag)
 
-        creator.call(inquiry_params: inquiry_params[:inquiry])
+        it 'sets correct authentication tags' do
+          expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
+          expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
+          expect(span).to receive(:set_tag).with('user.loa', anything)
+          allow(span).to receive(:set_tag) # for other tags
+
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
+
+        it 'sets inquiry context without PII' do
+          expect(Datadog::Tracing).to receive(:trace).and_yield(span)
+          expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
+            # Focused PII validation
+            unsafe_fields = %i[icn ssn social_security_number date_of_birth]
+            expect(value.keys & unsafe_fields).to be_empty
+          end
+          allow(span).to receive(:set_tag)
+
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
+
+        it 'logs inquiry result context with inquiry_number' do
+          expect(Rails.logger).to receive(:info).with(
+            'Inquiry Submission Result Context',
+            hash_including(inquiry_number: anything)
+          )
+
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
       end
 
-      it 'logs inquiry result context with inquiry_number' do
-        expect(Rails.logger).to receive(:info).with(
-          'Inquiry Submission Result Context',
-          hash_including(inquiry_number: anything)
-        )
+      context 'when handled data is blank' do
+        before do
+          allow(service).to receive(:call).and_return(crm_failure_response)
+          expect(Rails.logger).not_to receive(:info).with('Inquiry Submission Result Context', anything)
+        end
 
-        creator.call(inquiry_params: inquiry_params[:inquiry])
-      end
-
-      it 'does not log inquiry result context when handled data is blank' do
-        allow(service).to receive(:call).and_return(crm_failure_response)
-        expect(Rails.logger).not_to receive(:info).with('Inquiry Submission Result Context', anything)
-
-        creator.call(inquiry_params: inquiry_params[:inquiry])
+        it 'does not log inquiry result context' do
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
       end
     end
   end
