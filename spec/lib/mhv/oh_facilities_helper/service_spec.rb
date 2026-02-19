@@ -17,6 +17,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       pretransitioned_oh_facilities:,
       facilities_ready_for_info_alert:
     )
+    allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled).and_return(true)
   end
 
   describe '#user_at_pretransitioned_oh_facility?' do
@@ -98,6 +99,28 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:va_treatment_facility_ids) { [553, 999] }
 
       it 'returns true' do
+        expect(service.user_facility_ready_for_info_alert?).to be true
+      end
+    end
+
+    context 'when portal_notice_interstitial_enabled feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled).and_return(false)
+      end
+
+      it 'returns false even when user has a matching facility' do
+        expect(service.user_facility_ready_for_info_alert?).to be false
+      end
+    end
+
+    context 'when portal_notice_interstitial_enabled feature flag is enabled' do
+      let(:va_treatment_facility_ids) { %w[553 999] }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled).and_return(true)
+      end
+
+      it 'returns true when user has a matching facility' do
         expect(service.user_facility_ready_for_info_alert?).to be true
       end
     end
