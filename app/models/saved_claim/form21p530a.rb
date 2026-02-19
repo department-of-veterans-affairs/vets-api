@@ -100,6 +100,17 @@ class SavedClaim::Form21p530a < SavedClaim
     parsed_form.dig('burialInformation', 'recipientOrganization', 'address', 'postalCode') || DEFAULT_ZIP_CODE
   end
 
+  # Format place of birth from object to string
+  def format_place_of_birth(place_of_birth)
+    return nil unless place_of_birth.is_a?(Hash)
+
+    city = place_of_birth['city']
+    state = place_of_birth['state']
+    return nil unless city && state
+
+    "#{city}, #{state}"
+  end
+
   # Build veteran identification fields (Boxes 1-7)
   def build_veteran_fields
     full_name = parsed_form.dig('veteranInformation', 'fullName') || {}
@@ -109,17 +120,17 @@ class SavedClaim::Form21p530a < SavedClaim
       'VETERAN_LAST_NAME' => full_name['last'],
       'VETERAN_FULL_NAME' => build_full_name(full_name),
       'VETERAN_SSN' => parsed_form.dig('veteranInformation', 'ssn'),
-      'VETERAN_SERVICE_NUMBER' => parsed_form.dig('veteranInformation', 'serviceNumber'),
+      'VETERAN_SERVICE_NUMBER' => parsed_form.dig('veteranInformation', 'vaServiceNumber'),
       'VA_FILE_NUMBER' => parsed_form.dig('veteranInformation', 'vaFileNumber'),
       'VETERAN_DOB' => format_date_for_ibm(parsed_form.dig('veteranInformation', 'dateOfBirth')),
-      'VETERAN_PLACE_OF_BIRTH' => parsed_form.dig('veteranInformation', 'placeOfBirth'),
+      'VETERAN_PLACE_OF_BIRTH' => format_place_of_birth(parsed_form.dig('veteranInformation', 'placeOfBirth')),
       'VETERAN_DATE_OF_DEATH' => format_date_for_ibm(parsed_form.dig('veteranInformation', 'dateOfDeath'))
     }
   end
 
   # Build service history fields (Boxes 8-10)
   def build_service_history_fields
-    service_periods = parsed_form.dig('veteranServicePeriods', 'periods') || parsed_form['periods'] || []
+    service_periods = parsed_form['periods'] || parsed_form.dig('veteranServicePeriods', 'periods') || []
     fields = {}
 
     # Always create all 3 service period slots (Box 8-9)
@@ -134,7 +145,7 @@ class SavedClaim::Form21p530a < SavedClaim
     end
 
     # Box 10 - Veteran served under other name
-    fields['VET_NAME_OTHER'] = parsed_form.dig('militaryServiceInformation', 'servedUnderOtherName')
+    fields['VET_NAME_OTHER'] = parsed_form.dig('veteranServicePeriods', 'servedUnderDifferentName')
 
     fields
   end
@@ -174,7 +185,7 @@ class SavedClaim::Form21p530a < SavedClaim
     {
       'OFFICIAL_SIGNATURE' => certification['signature'],
       'OFFICIAL_TITLE' => certification['titleOfStateOrTribalOfficial'],
-      'DATE_SIGNED' => format_date_for_ibm(parsed_form['dateSigned']),
+      'DATE_SIGNED' => format_date_for_ibm(created_at&.to_date),
       'REMARKS' => parsed_form['remarks'],
       'VETERAN_SSN_1' => parsed_form.dig('veteranInformation', 'ssn')
     }
