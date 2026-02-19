@@ -49,7 +49,7 @@ module EventBusGateway
       icn = ebg_noti.user_account.icn
       if icn.nil?
         Rails.logger.warn('VANotifySmsStatusCallback ICN is null')
-        return false if icn.nil?
+        return false
       end
 
       profile = get_profile_by_icn(icn)
