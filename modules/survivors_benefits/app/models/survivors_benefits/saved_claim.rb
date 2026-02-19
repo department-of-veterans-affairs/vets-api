@@ -135,41 +135,56 @@ module SurvivorsBenefits
       build_ibm_payload(parsed_form)
     end
 
+    # Build the structured data dictionary payload from the parsed claim form.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    ##
     def build_ibm_payload(form)
       build_veterans_id_info(form)
         .merge!(build_claimants_id_info(form))
         .merge!(build_veterans_service_info(form))
+        .merge!(build_marital_info(form))
     end
 
+    ##
+    # Section I
+    # Build the veteran-specific structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
     def build_veterans_id_info(form)
-      name_fields = build_name_fields(form['veteranFullName'], 'VETERAN')
-      name_fields.merge!(
-        {
-          'VETERAN_SSN' => form['veteranSocialSecurityNumber'],
-          'VETERAN_DOB' => format_date(form['veteranDateOfBirth']),
-          'VETSPCHPAR_FILECLAIM_Y' => form['vaClaimsHistory'] ? form['vaClaimsHistory'] == true : nil,
-          'VETSPCHPAR_FILECLAIM_N' => form['vaClaimsHistory'] ? form['vaClaimsHistory'] == false : nil,
-          'VA_FILE_NUMBER' => form['vaFileNumber'],
-          'VETDIED_ACTIVEDUTY_Y' => form['diedOnDuty'] ? form['diedOnDuty'] == true : nil,
-          'VETDIED_ACTIVEDUTY_N' => form['diedOnDuty'] ? form['diedOnDuty'] == false : nil,
-          'VETERANS_SERVICE_NUMBER' => form['veteranServiceNumber'],
-          'VETERAN_DATE_OF_DEATH' => format_date(form['veteranDateOfDeath'])
-        }
-      )
+      build_name_fields(form['veteranFullName'], 'VETERAN')
+        .merge!(radio_value(form['vaClaimsHistory'], 'VETSPCHPAR_FILECLAIM_Y', 'VETSPCHPAR_FILECLAIM_N'))
+        .merge!(radio_value(form['diedOnDuty'], 'VETDIED_ACTIVEDUTY_Y', 'VETDIED_ACTIVEDUTY_N'))
+        .merge!(
+          {
+            'VETERAN_SSN' => form['veteranSocialSecurityNumber'],
+            'VETERAN_DOB' => format_date(form['veteranDateOfBirth']),
+            'VA_FILE_NUMBER' => form['vaFileNumber'],
+            'VETERANS_SERVICE_NUMBER' => form['veteranServiceNumber'],
+            'VETERAN_DATE_OF_DEATH' => format_date(form['veteranDateOfDeath'])
+          }
+        )
     end
 
+    ##
+    # Section II
+    # Build the claimant-specific structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
     def build_claimants_id_info(form)
       primary_phone = { 'contact' => form['claimantPhone'], 'countryCode' => form['claimantAddress']['country'] }
       build_name_fields(form['claimantFullName'], 'CLAIMANT')
         .merge!(build_claimant_address_fields(form['claimantAddress']))
         .merge!(build_relationship(form['claimantRelationship']))
         .merge!(build_claim_type_fields(form['claims']))
+        .merge!(radio_value(form['claimantIsVeteran'], 'CLAIMANT_IS_VETERAN_YES', 'CLAIMANT_IS_VETERAN_NO'))
         .merge!(
           {
             'CLAIMANT_SSN' => form['claimantSocialSecurityNumber'],
             'CLAIMANT_DOB' => format_date(form['claimantDateOfBirth']),
-            'CLAIMANT_VETERAN_Y' => form['claimantIsVeteran'] ? form['claimantIsVeteran'] == true : nil,
-            'CLAIMANT_VETERAN_N' => form['claimantIsVeteran'] ? form['claimantIsVeteran'] == false : nil,
             'PHONE_NUMBER' => primary_phone['contact'],
             'INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
             'EMAIL' => form['claimantEmail']
@@ -177,23 +192,56 @@ module SurvivorsBenefits
         )
     end
 
+    ##
+    # Section III
+    # Build the veteran service info structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
     def build_veterans_service_info(form)
-      build_vet_aliases(form['veteranHasPreviousNames'], form['veteranPreviousNames'])
-      build_service_branch_fields(form['serviceBranch'])
-      {
-        'DATE_ENTERED_TO_SERVICE' => format_date(form['activeServiceDateRange']['from']),
-        'DATE_SEPARATED_FROM_SERVICE' => format_date(form['activeServiceDateRange']['to']),
-        'PLACE_SEPARATED_FROM_SERVICE_1' => form['placeOfSeparation'],
-        'ACTIVATED_TO_FED_DUTY_YES' => form['nationalGuardActivated'] ? form['nationalGuardActivated'] == true : nil,
-        'ACTIVATED_TO_FED_DUTY_NO' => form['nationalGuardActivated'] ? form['nationalGuardActivated'] == false : nil,
-        'DATE_OF_ACTIVATION' => format_date(form['nationalGuardActivationDate']),
-        'NAME_ADDRESS_RESERVE_UNIT' => form['unitNameAndAddress'],
-        'RESERVE_PHONE_NUMBER' => form['unitPhone'],
-        'POW_YES' => form['pow'] ? form['pow'] == true : nil,
-        'POW_NO' => form['pow'] ? form['pow'] == false : nil,
-        'DATE_OF_CONFINEMENT_START' => form['pow'] ? format_date(form['powDateRange']['from']) : nil,
-        'DATE_OF_CONFINEMENT_END' => form['pow'] ? format_date(form['powDateRange']['to']) : nil
-      }
+      build_vet_aliases(form['veteranPreviousNames'].length.positive?, form['veteranPreviousNames'])
+        .merge!(build_service_branch_fields(form['serviceBranch']))
+        .merge!(radio_value(form['nationalGuardActivated'], 'ACTIVATED_TO_FED_DUTY_YES', 'ACTIVATED_TO_FED_DUTY_NO'))
+        .merge!(radio_value(form['pow'], 'POW_YES', 'POW_NO'))
+        .merge!(
+          {
+            'DATE_ENTERED_TO_SERVICE' => format_date(form['activeServiceDateRange']['from']),
+            'DATE_SEPARATED_FROM_SERVICE' => format_date(form['activeServiceDateRange']['to']),
+            'PLACE_SEPARATED_FROM_SERVICE_1' => form['placeOfSeparation'],
+            'DATE_OF_ACTIVATION' => format_date(form['nationalGuardActivationDate']),
+            'NAME_ADDRESS_RESERVE_UNIT' => form['unitNameAndAddress'],
+            'RESERVE_PHONE_NUMBER' => form['unitPhone'],
+            'DATE_OF_CONFINEMENT_START' => form['pow'] ? format_date(form['powDateRange']['from']) : nil,
+            'DATE_OF_CONFINEMENT_END' => form['pow'] ? format_date(form['powDateRange']['to']) : nil
+          }
+        )
+    end
+
+    ##
+    # Section IV
+    # Build the marital information structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_marital_info(form)
+      build_claimant_remarriage_fields(form)
+        .merge!(radio_value(form['validMarriage'], 'AWARE_OF_MARRIAGE_VALIDITY_YES', 'AWARE_OF_MARRIAGE_VALIDITY_NO'))
+        .merge!(build_veteran_separation_fields(form))
+        .merge!(radio_value(form['childWithVeteran'], 'CHILD_DURING_MARRIAGE_YES', 'CHILD_DURING_MARRIAGE_NO'))
+        .merge!(radio_value(form['pregnantWithVeteran'], 'EXPECTING_BIRTH_VET_CHILD_YES', 'EXPECTING_BIRTH_VET_CHILD_NO'))
+        .merge!(radio_value(form['livedContinuouslyWithVeteran'], 'LIVE_WITH_VET_TILL_DEATH_YES', 'LIVED_WITH_VET_CONTINUOUSLY_NO'))
+        .merge!(radio_value(form['separationDueToAssignedReasons'], 'MARITAL_DISCORD_SEPARATION_Y', 'MARITAL_DISCORD_SEPARATION_N'))
+        .merge!(radio_value(form['marriageType'] == 'ceremonial', 'CB_CL_MARR_1_TYPE_CEREMONIAL', 'CB_CL_MARR_1_TYPE_OTHER'))
+        .merge!(
+          {
+            'VET_CLAIMANT_MARRIAGE_1_DATE' => format_date(form.dig('marriageDates', 'from')),
+            'VET_CLAIMANT_MARRIAGE_1_DATE_ENDED' => format_date(form.dig('marriageDates', 'to')),
+            'VET_CLAIMANT_MARRIAGE_1_PLACE' => form['placeOfMarriage'],
+            'VET_CLAIMANT_MARRIAGE_1_PLACE_ENDED' => form['placeOfMarriageTermination'],
+            'CL_MARR_1_TYPE_OTHEREXPLAIN' => form['marriageTypeExplanation'],
+            'MARITAL_DISCORD_SEPARATION_EXP' => form['separationExplanation']
+          }
+        )
     end
 
     def build_name_fields(name, individual)
@@ -218,7 +266,7 @@ module SurvivorsBenefits
       }
     end
 
-    def build_relationship_fields(relationship)
+    def build_relationship(relationship)
       {
         'RELATIONSHIP_SURVIVING_SPOUSE' => relationship == 'SURVIVING_SPOUSE',
         'RELATIONSHIP_CHILD' => relationship == 'CHILD_18-23_IN_SCHOOL',
@@ -235,13 +283,18 @@ module SurvivorsBenefits
       }
     end
 
-    def build_vet_aliases(has_aliases = false, aliases = [])
-      alias_fields = {  
+    def build_vet_aliases(has_aliases, aliases = [])
+      n1 = aliases[0] || {}
+      n2 = aliases[1] || {}
+      alias_fields = {
         'VET_NAME_OTHER_Y' => has_aliases == true,
         'VET_NAME_OTHER_N' => has_aliases == false,
-        'VET_NAME_OTHER_1' => aliases[0],
-        'VET_NAME_OTHER_2' => aliases[1]
+        'VET_NAME_OTHER_1' => [n1['first'], n1['middle'], n1['last'], n1['suffix']].compact.join(' ').presence,
+        'VET_NAME_OTHER_2' => [n2['first'], n2['middle'], n2['last'], n2['suffix']].compact.join(' ').presence
       }
+      radio_value(has_aliases, 'VET_NAME_OTHER_Y', 'VET_NAME_OTHER_N')
+        .merge!(alias_fields)
+
     end
 
     def build_service_branch_fields(branch)
@@ -255,5 +308,52 @@ module SurvivorsBenefits
         'BRANCH_OF_SERVICE_NOAA' => branch == 'usphs',
         'BRANCH_OF_SERVICE_USPHS' => branch == 'noaa',
       }
+    end
+
+    def build_veteran_separation_fields(form)
+      married_at_death = form['marriedToVeteranAtTimeOfDeath']
+      result = if married_at_death
+        {
+          'CB_MARR_TO_VET_ENDED_DEATH' => form['howMarriageEnded'] == 'death',
+          'CB_MARR_TO_VET_ENDED_DIVORCE' => form['howMarriageEnded'] == 'divorce',
+          'CB_MARR_TO_VET_ENDED_OTHER' => form['howMarriageEnded'] == 'other',
+          'MARR_TO_VET_ENDED_OTHEREXPLAIN' => form['howMarriageEndedExplanation'],
+        }
+      else
+        {}
+      end
+      result.merge!(radio_value(married_at_death, 'MARRIED_WHILE_VET_DEATH_Y', 'MARRIED_WHILE_VET_DEATH_N'))
+    end
+
+    def build_claimant_remarriage_fields(form)
+      has_remarried = form['remarriageAfterVeteralDeath'] 
+      expand_remarriage_end_cause(has_remarried, form['remarriageEndCause'])
+        .merge!(radio_value(has_remarried, 'REMARRIED_AFTER_VET_DEATH_YES', 'REMARRIED_AFTER_VET_DEATH_NO'))
+        .merge!(radio_value(form['claimantHasAdditionalMarriages'], 'ADDITIONAL_MARRIAGES_Y', 'ADDITIONAL_MARRIAGES_N'))
+        .merge!(
+          {
+            'CLAIMANT_REMARRIAGE_1_DATE' => format_date(form.dig('remarriageDates', 'from')),
+            'CLAIMANT_REMARRIAGE_1_DATE_ENDED' => format_date(form.dig('remarriageDates', 'to')),
+            'REMARRIAGE_OTHER_EXPLANATION' => form['remarriageEndCauseExplanation']
+          }
+        )
+    end
+
+    def expand_remarriage_end_cause(has_remarried, remarriage_end_cause)
+      {
+        'CB_REMARRIAGE_END_BY_DEATH' => has_remarried ? remarriage_end_cause == 'death' : nil,
+        'CB_REMARRIAGE_END_BY_DIVORCE' => has_remarried ? remarriage_end_cause == 'divorce' : nil,
+        'CB_MARRIAGE_DID_NOT_END' => has_remarried ? remarriage_end_cause == 'didNotEnd' : nil,
+        'CB_REMARRIAGE_END_BY_OTHER' => has_remarried ? remarriage_end_cause == 'other' : nil,
+      }
+    end
+
+    def radio_value(field, yes, no)
+      return {} if field.nil?
+      {
+        yes => field == true,
+        no => field == false
+      }
+    end
   end
 end
