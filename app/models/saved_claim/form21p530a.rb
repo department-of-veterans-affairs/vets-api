@@ -118,7 +118,7 @@ class SavedClaim::Form21p530a < SavedClaim
       'VETERAN_FIRST_NAME' => full_name['first'],
       'VETERAN_MIDDLE_INITIAL' => extract_middle_initial(full_name['middle']),
       'VETERAN_LAST_NAME' => full_name['last'],
-      'VETERAN_FULL_NAME' => build_full_name(full_name),
+      'VETERAN_NAME' => build_full_name(full_name),
       'VETERAN_SSN' => parsed_form.dig('veteranInformation', 'ssn'),
       'VETERAN_SERVICE_NUMBER' => parsed_form.dig('veteranInformation', 'vaServiceNumber'),
       'VA_FILE_NUMBER' => parsed_form.dig('veteranInformation', 'vaFileNumber'),

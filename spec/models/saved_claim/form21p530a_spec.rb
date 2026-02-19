@@ -293,7 +293,7 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         expect(ibm_data['VETERAN_FIRST_NAME']).to eq('John')
         expect(ibm_data['VETERAN_MIDDLE_INITIAL']).to eq('A')
         expect(ibm_data['VETERAN_LAST_NAME']).to eq('Doe')
-        expect(ibm_data['VETERAN_FULL_NAME']).to eq('John A Doe')
+        expect(ibm_data['VETERAN_NAME']).to eq('John A Doe')
       end
 
       it 'includes veteran SSN' do
@@ -426,12 +426,12 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
 
       expect(ibm_payload.keys.length).to eq(48)
 
-      # Veteran fields (10 - includes VETERAN_FULL_NAME for this form)
+      # Veteran fields (10 - includes VETERAN_NAME for this form)
       expect(ibm_payload).to include(
         'VETERAN_FIRST_NAME' => 'John',
         'VETERAN_MIDDLE_INITIAL' => 'A',
         'VETERAN_LAST_NAME' => 'Doe',
-        'VETERAN_FULL_NAME' => 'John A Doe',
+        'VETERAN_NAME' => 'John A Doe',
         'VETERAN_SSN' => '123456789',
         'VETERAN_DOB' => '01/15/1940'
       )
