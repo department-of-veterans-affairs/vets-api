@@ -39,12 +39,6 @@ module Mobile
           status: WARNING_STATUS
         }.freeze
 
-        UNCAUGHT_ERROR_RESPONSE = {
-          title: ::VeteranStatusCard::Constants::UNCAUGHT_ERROR_TITLE,
-          message: ::VeteranStatusCard::Constants::UNCAUGHT_ERROR_MESSAGE,
-          status: WARNING_STATUS
-        }.freeze
-
         SOMETHING_WENT_WRONG_RESPONSE = {
           title: ::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_TITLE,
           message: ::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_MESSAGE,
