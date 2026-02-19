@@ -127,11 +127,16 @@ module RepresentationManagement
       ids_needing_validation = []
       records_updated = 0
 
+      reg_numbers = xlsx_records.filter_map { |r| r[:registration_number].presence }
+      records_by_reg = AccreditedIndividual
+                       .where(registration_number: reg_numbers, individual_type: type)
+                       .index_by(&:registration_number)
+
       xlsx_records.each do |xlsx_record|
         registration_number = xlsx_record[:registration_number]
         next if registration_number.blank?
 
-        record = AccreditedIndividual.find_by(registration_number:, individual_type: type)
+        record = records_by_reg[registration_number]
         next unless record
 
         address_changed = apply_individual_updates(record, xlsx_record)
@@ -175,11 +180,16 @@ module RepresentationManagement
       ids_needing_validation = []
       records_updated = 0
 
+      poa_codes = xlsx_records.filter_map { |r| r[:poa_code].presence }
+      records_by_poa = AccreditedOrganization
+                       .where(poa_code: poa_codes)
+                       .index_by(&:poa_code)
+
       xlsx_records.each do |xlsx_record|
         poa_code = xlsx_record[:poa_code]
         next if poa_code.blank?
 
-        record = AccreditedOrganization.find_by(poa_code:)
+        record = records_by_poa[poa_code]
         next unless record
 
         address_changed = apply_organization_updates(record, xlsx_record)
