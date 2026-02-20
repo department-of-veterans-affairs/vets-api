@@ -19,6 +19,7 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
+      MAX_SUMMARY_PAGES = 20
 
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
@@ -71,7 +72,7 @@ module MedicalCopays
         new_bundle = raw_bundle.merge(
           'entry' => filtered_entries,
           'total' => filtered_entries.length,
-          'link' => [] # remove pagination
+          'link' => []
         )
 
         formatted_entries = filtered_entries.empty? ? [] : build_invoice_entries(new_bundle)
@@ -114,6 +115,8 @@ module MedicalCopays
         last_raw_bundle = nil
 
         loop do
+          break if page > MAX_SUMMARY_PAGES
+
           raw = invoice_service.list(count:, page:)
           last_raw_bundle = raw
 
