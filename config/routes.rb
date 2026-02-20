@@ -129,6 +129,14 @@ Rails.application.routes.draw do
 
     resource :upload_supporting_evidence, only: :create
 
+    resources :cave, only: [:create] do
+      member do
+        get :status
+        get :output
+        get :download
+      end
+    end
+
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
       collection do

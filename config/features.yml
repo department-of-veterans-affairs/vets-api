@@ -153,6 +153,9 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
+  cave_idp:
+    actor_type: cookie_id
+    description: Enables the CAVE (Common Attachment Validation Engine) IDP proxy endpoints
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication

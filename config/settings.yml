@@ -122,6 +122,11 @@ caseflow:
   host: <%= ENV['caseflow__host'] %>
   mock: <%= ENV['caseflow__mock'] %>
   timeout: 119
+cave:
+  idp:
+    base_url: ~
+    timeout: ~
+    mock: ~
 central_mail:
   upload:
     enabled: true
