@@ -89,7 +89,7 @@ module V0
     end
 
     # Old-flow conditions pages — all wrapped by gatePages(workflow, isNewConditionsOff),
-    # so they become inactive when the flag is true. 
+    # so they become inactive when the flag is true.
     #   /new-disabilities/follow-up  — showPagePerItem schemas never initialized → RJSF crash
     #   /new-disabilities/add        — depends returns false → redirect loop
     #   /claim-type                  — depends returns false → redirect loop
