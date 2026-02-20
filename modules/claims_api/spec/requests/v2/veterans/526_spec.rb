@@ -248,6 +248,57 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
 
+      context 'BDD claim' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+        end
+
+        it 'return a 422 when service periods is not included' do
+          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+            VCR.use_cassette('claims_api/disability_comp') do
+              temp = JSON.parse(data)
+              temp['data']['attributes']['claimProcessType'] = 'BDD_PROGRAM'
+              temp['data']['attributes']['serviceInformation'].delete('servicePeriods')
+              data = temp.to_json
+
+              post synchronous_path, params: data, headers: auth_header
+
+              parsed_res = JSON.parse(response.body)
+              parsed_errors = parsed_res['errors']
+              expect(parsed_errors.count).to eq(1)
+              expect(parsed_errors[0]['detail']).to eq(
+                'The property /serviceInformation did not contain the required key servicePeriods'
+              )
+            end
+          end
+        end
+      end
+
+      context 'Section 6: Sevice Information' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+        end
+
+        it 'return a 422 when service periods is not included' do
+          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+            VCR.use_cassette('claims_api/disability_comp') do
+              temp = JSON.parse(data)
+              temp['data']['attributes']['serviceInformation'].delete('servicePeriods')
+              data = temp.to_json
+
+              post synchronous_path, params: data, headers: auth_header
+
+              parsed_res = JSON.parse(response.body)
+              parsed_errors = parsed_res['errors']
+              expect(parsed_errors.count).to eq(1)
+              expect(parsed_errors[0]['detail']).to eq(
+                'The property /serviceInformation did not contain the required key servicePeriods'
+              )
+            end
+          end
+        end
+      end
+
       it 'returns an empty test object' do
         mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
           VCR.use_cassette('claims_api/disability_comp') do

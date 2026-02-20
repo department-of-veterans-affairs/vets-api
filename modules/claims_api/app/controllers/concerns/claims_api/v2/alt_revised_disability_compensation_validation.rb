@@ -705,7 +705,7 @@ module ClaimsApi
         return if confinements.blank?
 
         service_periods = service_information&.dig('servicePeriods')
-        return if service_periods_present?(service_information)
+        return unless service_periods_present?(service_information)
 
         confinements.each_with_index do |confinement, idx|
           approximate_begin_date = confinement&.dig('approximateBeginDate')
