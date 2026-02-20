@@ -1,4 +1,9 @@
 name: "CodeQL Configuration"
 
 paths-ignore:
-  - "modules/mobile/docs/index.html"
+  - "modules/*/docs/*"
+  - "modules/*/app/swagger/*"
+  - "modules/*/app/swagger/*"
+  - "spec/*"
+  - "modules/*/spec/*"
+  - "app/swagger/*"

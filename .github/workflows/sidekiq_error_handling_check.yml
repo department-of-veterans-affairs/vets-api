@@ -1,0 +1,157 @@
+# .github/workflows/sidekiq_error_handling_check.yml
+name: Sidekiq Job Error Handling Check
+
+on:
+  pull_request:
+    paths:
+      - 'app/sidekiq/**/*.rb'
+      - 'modules/*/app/sidekiq/**/*.rb'
+
+jobs:
+  check-error-handling:
+    name: Check Sidekiq Job Error Handling
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history to diff against base branch
+
+      - name: Get changed Sidekiq files
+        id: changed_files
+        run: |
+          # Get files changed in this PR that match sidekiq paths
+          git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            -- 'app/sidekiq/**/*.rb' 'modules/*/app/sidekiq/**/*.rb' \
+            > /tmp/changed_sidekiq_files.txt
+
+          echo "Changed Sidekiq files:"
+          cat /tmp/changed_sidekiq_files.txt
+
+          if [ ! -s /tmp/changed_sidekiq_files.txt ]; then
+            echo "no_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "no_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Skip if no Sidekiq files changed
+        if: steps.changed_files.outputs.no_changes == 'true'
+        run: |
+          echo "No Sidekiq job files changed. Skipping check."
+
+      - name: Set up Ruby
+        if: steps.changed_files.outputs.no_changes == 'false'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '.ruby-version'
+          bundler-cache: false
+
+      - name: Run Sidekiq error handling audit on changed files
+        if: steps.changed_files.outputs.no_changes == 'false'
+        id: audit
+        run: |
+          ruby .github/scripts/check_sidekiq_error_handling.rb \
+            --files /tmp/changed_sidekiq_files.txt \
+            --output /tmp/audit_results.json
+        continue-on-error: true
+
+      - name: Post PR comment with results
+        if: steps.changed_files.outputs.no_changes == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('/tmp/audit_results.json', 'utf8'));
+
+            if (results.violations.length === 0) {
+              const body = `## ✅ Sidekiq Error Handling Check Passed
+
+            All modified Sidekiq jobs have proper error handling.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+              return;
+            }
+
+            const lines = [`## ❌ Sidekiq Error Handling Check Failed`, ``];
+            lines.push(`The following modified jobs have error handling issues:\n`);
+
+            for (const v of results.violations) {
+              lines.push(`### \`${v.file}\``);
+              lines.push(`**Job:** \`${v.job_name}\``);
+              lines.push(`**Issue:** ${v.category_label}`);
+              lines.push(``);
+
+              if (v.category === 'no_rescue') {
+                lines.push(`> The \`perform\` method has no \`rescue\` block. If an exception is raised:`);
+                lines.push(`> - Sidekiq **will** retry the job per \`sidekiq_options retry:\``);
+                lines.push(`> - This may be intentional for simple idempotent jobs`);
+                lines.push(`> - This is a problem if the job has side effects (API calls, emails, file uploads)`);
+                lines.push(`> - Add a \`rescue\` block with logging + re-raise, or explicitly add \`sidekiq_options retry: false\` if retries are unwanted`);
+              } else if (v.category === 'rescue_no_raise') {
+                lines.push(`> The \`perform\` method rescues exceptions but **does not re-raise them**. This means:`);
+                lines.push(`> - Sidekiq sees the job as **succeeded** and will NOT retry`);
+                lines.push(`> - The error is silently swallowed with no retry or alerting`);
+                lines.push(`> - Veterans may not receive expected notifications/documents with no visibility`);
+                lines.push(`>`);
+                lines.push(`> **Fix:** Add \`raise\` after logging, or use \`Sidekiq::Worker::Setter\` to schedule a retry manually`);
+                for (const r of v.rescues) {
+                  lines.push(`> - \`rescue ${r.exception}\` → ✗ swallows silently`);
+                }
+              } else if (v.category === 'rescue_partial_raise') {
+                lines.push(`> Some rescued exceptions re-raise, others are swallowed. Review each:`);
+                for (const r of v.rescues) {
+                  const icon = r.raises ? '✓ re-raises' : '✗ swallows silently';
+                  lines.push(`> - \`rescue ${r.exception}\` → ${icon}`);
+                }
+              }
+
+              lines.push(``);
+              lines.push(`<details><summary>How to fix</summary>`);
+              lines.push(``);
+              lines.push(`\`\`\`ruby`);
+              lines.push(`def perform(*args)`);
+              lines.push(`  # ... your job logic ...`);
+              lines.push(`rescue SpecificError => e`);
+              lines.push(`  # Log with context before re-raising`);
+              lines.push(`  Rails.logger.error(`);
+              lines.push(`    message: 'JobName failed',`);
+              lines.push(`    error: e.class.name,`);
+              lines.push(`    detail: e.message`);
+              lines.push(`  )`);
+              lines.push(`  StatsD.increment('job_name.failure')`);
+              lines.push(`  raise # re-raise so Sidekiq retries`);
+              lines.push(`end`);
+              lines.push(`\`\`\``);
+              lines.push(`</details>`);
+              lines.push(``);
+              lines.push(`---`);
+              lines.push(``);
+            }
+
+            lines.push(`> **Note:** If a swallowed rescue is intentional (e.g. a known non-critical external service),`);
+            lines.push(`> add a comment \`# rubocop:disable Style:RescueAndRaise\` and a \`# REASON:\` explaining why.`);
+            lines.push(`> The check will skip commented exemptions.`);
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: lines.join('\n')
+            });
+
+      - name: Fail if violations found
+        if: steps.changed_files.outputs.no_changes == 'false'
+        run: |
+          VIOLATIONS=$(jq '.violations | length' /tmp/audit_results.json)
+          if [ "$VIOLATIONS" -gt "0" ]; then
+            echo "Found $VIOLATIONS error handling violation(s) in modified Sidekiq jobs."
+            echo "See PR comment for details."
+            exit 1
+          fi
+          echo "All checks passed."
+

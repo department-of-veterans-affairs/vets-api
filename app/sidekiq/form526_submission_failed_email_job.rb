@@ -23,16 +23,12 @@ class Form526SubmissionFailedEmailJob
     )
     StatsD.increment(STATSD_SUCCESS_NAME)
   rescue => e
-    handle_errors(e)
-    raise e if Flipper.enabled?(:form526_raise_e)
-  end
-
-  def handle_errors(ex)
-    Rails.logger.error('Form526SubmissionFailedEmailJob error', error: ex)
     StatsD.increment(STATSD_ERROR_NAME)
-    if !Flipper.enabled?(:form526_error_handling) && ex.respond_to?(:status_code) && ex.status_code.between?(500,
-                                                                                                             599)
-      raise ex
-    end
+    Rails.logger.error(
+      message: 'Form526SubmissionFailedEmailJob error',
+      error: e.message,
+      backtrace: e.backtrace&.first(5)
+    )
+    raise
   end
 end

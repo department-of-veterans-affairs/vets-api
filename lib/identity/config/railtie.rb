@@ -13,6 +13,7 @@ module Identity
       config.before_configuration { setup }
 
       def setup
+        current_env = 'production'
         if current_env.blank?
           raise StandardError, 'Identity::Config::Railtie current_env not set for IdentitySettings config'
         end

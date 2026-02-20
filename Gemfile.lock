@@ -754,6 +754,7 @@ GEM
     marcel (1.0.4)
     matrix (0.4.2)
     memoist (0.16.2)
+    memory_profiler (1.1.0)
     method_source (1.1.0)
     mime-types (3.6.0)
       logger
@@ -922,6 +923,8 @@ GEM
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
+    rack-mini-profiler (4.0.1)
+      rack (>= 1.2.0)
     rack-protection (4.2.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -1398,6 +1401,7 @@ DEPENDENCIES
   meb_api!
   medical_expense_reports!
   memoist
+  memory_profiler
   mimemagic
   mini_magick
   mobile!
@@ -1433,6 +1437,7 @@ DEPENDENCIES
   rack
   rack-attack
   rack-cors
+  rack-mini-profiler
   rack-test (= 2.2.0)
   rack-timeout
   rack-vcr
