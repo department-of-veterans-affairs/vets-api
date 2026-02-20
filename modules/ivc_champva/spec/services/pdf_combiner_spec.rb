@@ -14,7 +14,7 @@ describe IvcChampva::PdfCombiner do
 
   after do
     # for manual inspection, uncomment this line to see the merged PDF
-    # FileUtils.rm_f(@merged_path)
+    FileUtils.rm_f(@merged_path)
   end
 
   describe '#combine' do

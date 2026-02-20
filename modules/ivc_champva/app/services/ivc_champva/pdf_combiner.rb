@@ -16,7 +16,7 @@ module IvcChampva
       combined_pdf = CombinePDF.new
 
       file_paths.each do |file_path|
-        pdf = CombinePDF.load(file_path, allow_optional_content: allow_optional_content)
+        pdf = CombinePDF.load(file_path, allow_optional_content:)
         pdf.pages.each do |page|
           # Store the source filename directly in the page hash
           # this will not be visible in the final PDF
