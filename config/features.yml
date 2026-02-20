@@ -763,6 +763,10 @@ features:
     actor_type: user
     description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
+  dependents_digital_forms_api_submission_enabled:
+    actor_type: user
+    description: Enables submission of dependents forms via Forms API
+    enable_in_development: false
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
@@ -1455,13 +1459,13 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
-  mhv_oh_migration_extended_phases:
-    actor_type: user
-    description: Enables extended migration phases (p8, p9) for Oracle Health facility migration tracking
-    enable_in_development: true
   mhv_oh_migration_schedules:
     actor_type: user
     description: Enables fetching Oracle Health migration schedules for VAHB mobile users
+    enable_in_development: true
+  mhv_oh_migration_extended_phases:
+    actor_type: user
+    description: Enables extended migration phases (p8, p9) for Oracle Health facility migration tracking
     enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
@@ -1549,6 +1553,10 @@ features:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
     enable_in_development: true
+  mhv_medical_records_fetch_scdf_imaging_studies:
+    actor_type: user
+    description: Enables fetching imaging studies from SCDF for Medical Records
+    enable_in_development: false
   mhv_medical_records_hold_time_messaging_update:
     actor_type: user
     description: Enables updated hold time messaging
@@ -2295,6 +2303,9 @@ features:
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
+  vba_documents_uploads_report_uuid_limit:
+    actor_type: user
+    description: Enables MaxArraySizeExceeded error when uploads/report exceeds 1000 IDs
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
