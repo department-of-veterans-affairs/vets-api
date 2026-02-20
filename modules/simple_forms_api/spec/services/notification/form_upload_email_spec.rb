@@ -233,8 +233,8 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
       it_behaves_like 'sends confirmation email'
     end
 
-    context 'form 21P-4706b' do
-      let(:form_number) { '21P-4706b' }
+    context 'form 21P-4706B' do
+      let(:form_number) { '21P-4706B' }
 
       it_behaves_like 'sends confirmation email'
     end
