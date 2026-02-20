@@ -6,6 +6,98 @@ require 'rake'
 describe 'rake claims', type: :task do
   let(:tasks) { Rake::Task }
 
+  # for claims:fix_failed_claims
+  # since PUT request logic is the same regardless of FES flag, using context to DRY up code
+  shared_context 'when the claim failed to establish from a PUT request' do
+    context 'single claim with supporting documents' do
+      let(:claim) do
+        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+      end
+
+      it 'reestablishes the claim' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
+      end
+
+      it 'uploads the 526EZ PDF' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
+      end
+
+      it 'uploads each supporting document' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+          claim.supporting_documents.first.id, 'document'
+        ).once
+      end
+
+      it 'completes successfully' do
+        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+        expect { task.execute(args) }.not_to raise_error
+      end
+    end
+
+    context 'multiple claims' do
+      let(:claim1) do
+        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+      end
+      let(:claim2) do
+        create(
+          :auto_established_claim_with_supporting_documents,
+          supporting_documents_count: 3,
+          status: ClaimsApi::AutoEstablishedClaim::ERRORED
+        )
+      end
+
+      it 'reestablishes all claims' do
+        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
+      end
+
+      it 'completes successfully' do
+        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+        expect { task.execute(args) }.not_to raise_error
+      end
+
+      it 'runs the ClaimUploader for all claims and their supporting documents' do
+        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+        task.execute(args)
+
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
+
+        claim1.supporting_documents.each do |sup|
+          expect(
+            ClaimsApi::ClaimUploader
+          ).to have_received(:perform_async).with(sup.id, 'document').once
+        end
+
+        claim2.supporting_documents.each do |sup|
+          expect(
+            ClaimsApi::ClaimUploader
+          ).to have_received(:perform_async).with(sup.id, 'document').once
+        end
+
+        # expect the claim uploader to have been called the correct number of times
+        # (1 for each claim + 1 for each supporting document)
+        total_claims = 2
+        total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
+        expect(
+          ClaimsApi::ClaimUploader
+        ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
+      end
+    end
+  end
+
   before do
     Rake::Task.clear if Rake::Task.task_defined?('claims:export')
     Rake::Task.clear if Rake::Task.task_defined?('claims:fix_failed_claims')
@@ -130,93 +222,7 @@ describe 'rake claims', type: :task do
       end
 
       describe 'when the claim failed to establish from a PUT request' do
-        context 'single claim with supporting documents' do
-          let(:claim) do
-            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-          end
-
-          it 'reestablishes the claim' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
-
-            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
-          end
-
-          it 'uploads the 526EZ PDF' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
-
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
-          end
-
-          it 'uploads each supporting document' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
-
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
-              claim.supporting_documents.first.id, 'document'
-            ).once
-          end
-
-          it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            expect { task.execute(args) }.not_to raise_error
-          end
-        end
-
-        context 'multiple claims' do
-          let(:claim1) do
-            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-          end
-          let(:claim2) do
-            create(
-              :auto_established_claim_with_supporting_documents,
-              supporting_documents_count: 3,
-              status: ClaimsApi::AutoEstablishedClaim::ERRORED
-            )
-          end
-
-          it 'reestablishes all claims' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
-
-            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
-            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
-          end
-
-          it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            expect { task.execute(args) }.not_to raise_error
-          end
-
-          it 'runs the ClaimUploader for all claims and their supporting documents' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
-
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
-
-            claim1.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_async).with(sup.id, 'document').once
-            end
-
-            claim2.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_async).with(sup.id, 'document').once
-            end
-
-            # expect the claim uploader to have been called the correct number of times
-            # (1 for each claim + 1 for each supporting document)
-            total_claims = 2
-            total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
-            expect(
-              ClaimsApi::ClaimUploader
-            ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
-          end
-        end
+        include_context 'when the claim failed to establish from a PUT request'
       end
 
       describe 'when the claim failed to establish from a POST request' do
@@ -267,12 +273,14 @@ describe 'rake claims', type: :task do
       end
     end
 
-    # describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is enabled' do
-    #   before do
-    #     Flipper.enable(:lighthouse_claims_api_v1_enable_FES)
-    #   end
+    describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is enabled' do
+      before do
+        Flipper.enable(:lighthouse_claims_api_v1_enable_FES)
+      end
 
-      
-    # end
+      describe 'when the claim failed to establish from a PUT request' do
+        include_context 'when the claim failed to establish from a PUT request'
+      end
+    end
   end
 end
