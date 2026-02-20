@@ -10,7 +10,7 @@ module UnifiedHealthData
 
       # Parses imaging study records from FHIR ImagingStudy resources
       #
-      # @param records [Array<Hash>] Array of FHIR entry records, optionally tagged with 'source'
+      # @param records [Array<Hash>] Array of FHIR Bundle entry records
       # @return [Array<UnifiedHealthData::ImagingStudy>] Array of parsed imaging study objects
       def parse(records)
         return [] if records.blank?
