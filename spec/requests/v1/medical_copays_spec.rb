@@ -31,19 +31,19 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
             .to eq(%w[total page per_page copay_summary])
           expect(data_element['attributes'].keys)
             .to match_array(
-                  %w[
-              url
-              facility
-              facilityId
-              lastUpdatedAt
-              city
-              externalId
-              latestBillingRef
-              currentBalance
-              previousBalance
-              previousUnpaidBalance
-            ]
-                )
+              %w[
+                url
+                facility
+                facilityId
+                lastUpdatedAt
+                city
+                externalId
+                latestBillingRef
+                currentBalance
+                previousBalance
+                previousUnpaidBalance
+              ]
+            )
         end
       end
     end
