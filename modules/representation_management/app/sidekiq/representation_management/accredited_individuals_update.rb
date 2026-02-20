@@ -11,6 +11,14 @@ module RepresentationManagement
   class AccreditedIndividualsUpdate
     include Sidekiq::Job
 
+    sidekiq_options retry: 10 # Retry for about 21 hours
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job = new
+      job.send(:log_error, "retries exhausted: #{msg['error_message']}", send_to_slack: true)
+      job.send(:log_to_slack, job.slack_messages.join("\n")) if job.slack_messages.any?
+    end
+
     RATE_LIMIT_SECONDS = 2
 
     attr_accessor :slack_messages

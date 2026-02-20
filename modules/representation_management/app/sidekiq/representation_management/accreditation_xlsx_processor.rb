@@ -14,6 +14,14 @@ module RepresentationManagement
   class AccreditationXlsxProcessor
     include Sidekiq::Job
 
+    sidekiq_options retry: 10 # Retry for about 21 hours
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job = new
+      job.send(:log_error, "retries exhausted: #{msg['error_message']}")
+      job.send(:log_to_slack, "AccreditationXlsxProcessor retries exhausted: #{msg['error_message']}")
+    end
+
     VALID_TYPES = %w[attorney claims_agent representative organization].freeze
     INDIVIDUAL_TYPES = %w[attorney claims_agent representative].freeze
     SLICE_SIZE = 30

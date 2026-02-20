@@ -8,6 +8,14 @@ module RepresentationManagement
     include Sidekiq::Job
     include Vets::SharedLogging
 
+    sidekiq_options retry: 10 # Retry for about 21 hours
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job = new
+      job.send(:log_message_to_sentry, "VSOReloader retries exhausted: #{msg['error_message']}", :error)
+      job.send(:log_to_slack, "VSOReloader retries exhausted: #{msg['error_message']}")
+    end
+
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
