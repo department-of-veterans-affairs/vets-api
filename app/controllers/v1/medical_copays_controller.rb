@@ -4,7 +4,6 @@ module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
     before_action :authorize_icn
-    before_action :validate_pagination_params, only: :index
     rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
 
     def index
@@ -36,12 +35,6 @@ module V1
 
     def medical_copay_service
       MedicalCopays::LighthouseIntegration::Service.new(current_user.icn)
-    end
-
-    def validate_pagination_params
-      if params[:count] && params[:count].to_i <= 0
-        render json: { error: 'Invalid count parameter' }, status: :bad_request
-      end
     end
 
     def service_error
