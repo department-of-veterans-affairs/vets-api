@@ -38,46 +38,44 @@ namespace :claims do
         next
       end
 
-      # prompt the user to enter if the failed request came from POST of PUT endpoint
+      # prompt the user to enter if the failed request came from POST or PUT endpoint
       puts "Claim ID #{claim_id} is in an errored state. Did the failed request come from the PUT endpoint?"
-      puts 'i.e do you need to create and upload a 526EZ PDF (y/n)'
+      puts 'i.e., do you need to create and upload a 526EZ PDF (y/n)'
       response = $stdin.gets.chomp.downcase
       unless %w[y n].include?(response)
         puts 'Invalid response. Please enter y or n.'
         next
       end
 
-      begin
-        # DisabilityCompensationPdfGenerator is used for POST request with FES enabled.
-        if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES) && response == 'n'
-          # Attempt to get veteran middle initial from form data alternateNames
-          # alternateNames is an array, so find the first entry with a middle name and extract the initial
-          alternate_names = claim.form_data.dig('serviceInformation', 'alternateNames') || []
-          veteran_middle_initial = alternate_names.find do |name|
-            name['middleName'].present?
-          end&.dig('middleName')&.first&.upcase || ''
+      # DisabilityCompensationPdfGenerator is used for POST request with FES enabled.
+      if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES) && response == 'n'
+        # Attempt to get veteran middle initial from form data alternateNames
+        # alternateNames is an array, so find the first entry with a middle name and extract the initial
+        alternate_names = claim.form_data.dig('serviceInformation', 'alternateNames') || []
+        veteran_middle_initial = alternate_names.find do |name|
+          name['middleName'].present?
+        end&.dig('middleName')&.first&.upcase || ''
 
-          ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_inline(claim.id, veteran_middle_initial)
-        else
-          ClaimsApi::ClaimEstablisher.perform_inline(claim.id)
-        end
-
-        # reload and verify claim was established
-        claim.reload
-        raise 'Claim establishment failed' if claim.status == ClaimsApi::AutoEstablishedClaim::ERRORED
-
-        # if yes to PUT request, upload the 526EZ PDF
-        ClaimsApi::ClaimUploader.perform_inline(claim.id, 'claim') unless response == 'n'
-
-        # upload each supporting document in the claim
-        claim.supporting_documents.each do |sup|
-          ClaimsApi::ClaimUploader.perform_inline(sup.id, 'document')
-        end
-      rescue => e
-        # display error and continue
-        Rails.logger.error("Error processing claim #{claim_id}: #{e.class} - #{e.message}")
-        next
+        ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_inline(claim.id, veteran_middle_initial)
+      else
+        ClaimsApi::ClaimEstablisher.perform_inline(claim.id)
       end
+
+      # reload and verify claim was established
+      claim.reload
+      raise 'Claim establishment failed' if claim.status == ClaimsApi::AutoEstablishedClaim::ERRORED
+
+      # if yes to PUT request, upload the 526EZ PDF
+      ClaimsApi::ClaimUploader.perform_inline(claim.id, 'claim') unless response == 'n'
+
+      # upload each supporting document in the claim
+      claim.supporting_documents.each do |sup|
+        ClaimsApi::ClaimUploader.perform_inline(sup.id, 'document')
+      end
+    rescue => e
+      # display error and continue
+      Rails.logger.error("Error processing claim #{claim_id}: #{e.class} - #{e.message}")
+      next
     end
   end
 end
