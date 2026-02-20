@@ -72,10 +72,59 @@ module V0
       # for Toxic Exposure 1.1 - add indicator to In Progress Forms
       # moving forward, we don't want to change the version if it is already there
       parsed_form_data = set_started_form_version(parsed_form_data)
+
+      # Fix poisoned IPFs: if disabilityCompNewConditionsWorkflow was erroneously
+      # injected as true (by useFormFeatureToggleSync) into a form built under the
+      # old flow, the user would hit a redirect loop because old-flow pages are
+      # hidden when the flag is true. Uses combined Flipper + data detection:
+      # only keeps the flag true when the user's Flipper toggle is ON *and* they
+      # have actually filled out new-flow pages (indicated by `ratedDisability`
+      # key on any newDisabilities item). Otherwise resets to false.
+      parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
       {
         formData: parsed_form_data,
         metadata:
       }
+    end
+
+    def fix_new_conditions_workflow_flag(form_data, _metadata)
+      flag = form_data['disabilityCompNewConditionsWorkflow']
+
+      # The flag may be boolean true or string "true" depending on how it was injected
+      return form_data unless [true, 'true'].include?(flag)
+
+      # If the Flipper toggle is OFF for this user, always reset — the flag
+      # should never be true when the feature isn't enabled.
+      # If the Flipper toggle is ON, only keep the flag if the user has actually
+      # filled out new-flow pages (indicated by `ratedDisability` key on any
+      # newDisabilities item). Otherwise they have a poisoned old-flow form
+      # that was erroneously injected with true by useFormFeatureToggleSync.
+      flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
+      has_new_data = has_new_flow_data?(form_data)
+
+      return form_data if flipper_on && has_new_data
+
+      Rails.logger.info('Form526 InProgressForm: resetting disabilityCompNewConditionsWorkflow to false ' \
+                        "(flipper=#{flipper_on}, has_new_flow_data=#{has_new_data}, " \
+                        "user=#{@current_user&.uuid})")
+      corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
+
+      # Persist the fix so it survives even if auto-save doesn't fire before
+      # the next page load
+      begin
+        form_for_user.update(form_data: corrected.to_json)
+      rescue => e
+        Rails.logger.error("Form526 fix_new_conditions_workflow_flag: failed to persist - #{e.message}")
+      end
+
+      corrected
+    end
+
+    def has_new_flow_data?(form_data)
+      new_disabilities = form_data['newDisabilities']
+      return false if new_disabilities.blank?
+
+      new_disabilities.any? { |item| item&.key?('ratedDisability') }
     end
 
     def set_started_form_version(data)

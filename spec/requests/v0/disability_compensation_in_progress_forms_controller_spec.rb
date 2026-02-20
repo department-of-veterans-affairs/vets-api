@@ -314,6 +314,180 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           end
         end
 
+        context 'fix_new_conditions_workflow_flag (Flipper + data combined)' do
+          let(:flipper_toggle) { :disability_compensation_new_conditions_workflow }
+          # New-flow data: newDisabilities items with `ratedDisability` key
+          let(:new_flow_disabilities) do
+            [{ 'condition' => 'Tinnitus', 'ratedDisability' => 'Tinnitus (10%)' }]
+          end
+          # Old-flow data: newDisabilities items WITHOUT `ratedDisability` key
+          let(:old_flow_disabilities) do
+            [{ 'condition' => 'Tinnitus', 'cause' => 'NEW' }]
+          end
+
+          context 'when Flipper is OFF' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
+            end
+
+            it 'resets flag to false even with new-flow data' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['newDisabilities'] = new_flow_disabilities
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+
+            it 'resets flag to false with old-flow data' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['newDisabilities'] = old_flow_disabilities
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+
+            it 'resets flag to false with no disabilities data' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data.delete('newDisabilities')
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+
+            it 'persists the fix to the database' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['newDisabilities'] = old_flow_disabilities
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              in_progress_form_lighthouse.reload
+              persisted = JSON.parse(in_progress_form_lighthouse.form_data)
+              expect(persisted['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+          end
+
+          context 'when Flipper is ON' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
+            end
+
+            it 'keeps flag true when user has new-flow data (legitimate)' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['newDisabilities'] = new_flow_disabilities
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
+            end
+
+            it 'resets flag to false when Flipper is ON but NO new-flow data (poisoned old form)' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['newDisabilities'] = old_flow_disabilities
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+
+            it 'resets flag to false when Flipper is ON but newDisabilities is empty' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['newDisabilities'] = []
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+          end
+
+          context 'edge cases' do
+            it 'does nothing when flag is false' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = false
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+
+            it 'does nothing when flag is absent' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data.delete('disabilityCompNewConditionsWorkflow')
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be_nil
+            end
+
+            it 'handles string "true" the same as boolean true' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disabilityCompNewConditionsWorkflow'] = 'true'
+              parsed_form_data['newDisabilities'] = old_flow_disabilities
+              in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+            end
+          end
+        end
+
         context 'as_json optimization for updatedRatedDisabilities' do
           it 'returns correctly formatted updatedRatedDisabilities when disabilities change' do
             # Change form data to trigger the update path
