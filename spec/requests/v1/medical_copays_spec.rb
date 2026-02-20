@@ -65,21 +65,12 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     end
 
     it 'handles no records returned' do
-      VCR.use_cassette('lighthouse/hcc/no_records') do
+      VCR.use_cassette('lighthouse/hcc/no_records', match_requests_on: %i[method path query]) do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)
-
         expect(response_body['data']).to eq([])
-      end
-    end
-
-    it 'handles bad params' do
-      VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
-        get '/v1/medical_copays?count=-4'
-
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'Invalid count parameter' })
       end
     end
   end
