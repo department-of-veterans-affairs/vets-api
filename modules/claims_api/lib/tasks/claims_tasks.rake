@@ -21,7 +21,7 @@ namespace :claims do
   # matches PUT and POST request in disability_compensation_controller.rb (upload_form_526, and submit_form_526)
   task :fix_failed_claims, [:claim_ids] => :environment do |_task, args|
     # helper method to wait for claim to be established or errored before proceeding with next steps in the task
-    wait_for_establishment = lambda do |claim, timeout: 10.seconds, interval: 2|
+    wait_for_establishment = lambda do |claim, timeout: 30.seconds, interval: 2|
       deadline = Time.current + timeout
       loop do
         claim.reload
