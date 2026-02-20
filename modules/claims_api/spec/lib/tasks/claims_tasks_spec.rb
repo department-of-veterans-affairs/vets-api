@@ -18,21 +18,21 @@ describe 'rake claims', type: :task do
         args = Rake::TaskArguments.new([:claim_ids], [claim.id])
         task.execute(args)
 
-        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim.id).once
       end
 
       it 'uploads the 526EZ PDF' do
         args = Rake::TaskArguments.new([:claim_ids], [claim.id])
         task.execute(args)
 
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(claim.id, 'claim').once
       end
 
       it 'uploads each supporting document' do
         args = Rake::TaskArguments.new([:claim_ids], [claim.id])
         task.execute(args)
 
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
           claim.supporting_documents.first.id, 'document'
         ).once
       end
@@ -59,8 +59,8 @@ describe 'rake claims', type: :task do
         args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
         task.execute(args)
 
-        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
-        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim1.id).once
+        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim2.id).once
       end
 
       it 'completes successfully' do
@@ -72,19 +72,19 @@ describe 'rake claims', type: :task do
         args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
         task.execute(args)
 
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(claim1.id, 'claim').once
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(claim2.id, 'claim').once
 
         claim1.supporting_documents.each do |sup|
           expect(
             ClaimsApi::ClaimUploader
-          ).to have_received(:perform_async).with(sup.id, 'document').once
+          ).to have_received(:perform_inline).with(sup.id, 'document').once
         end
 
         claim2.supporting_documents.each do |sup|
           expect(
             ClaimsApi::ClaimUploader
-          ).to have_received(:perform_async).with(sup.id, 'document').once
+          ).to have_received(:perform_inline).with(sup.id, 'document').once
         end
 
         # expect the claim uploader to have been called the correct number of times
@@ -93,7 +93,7 @@ describe 'rake claims', type: :task do
         total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
         expect(
           ClaimsApi::ClaimUploader
-        ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
+        ).to have_received(:perform_inline).exactly(total_claims + total_supporting_documents).times
       end
     end
   end
@@ -144,18 +144,16 @@ describe 'rake claims', type: :task do
 
     before do
       # Mock ClaimEstablisher to update claim status
-      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_inline) do |claim_id|
         claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
         claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
       end
 
       # Mock services
-      allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+      allow(ClaimsApi::ClaimUploader).to receive(:perform_inline)
 
-      allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async)
+      allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_inline)
 
-      # Stub sleep to speed up tests
-      allow_any_instance_of(Kernel).to receive(:sleep)
       # mock inputs for user prompts and outputs.
       allow($stdin).to receive(:gets).and_return("y\n")
       allow($stdout).to receive(:puts)
@@ -189,29 +187,18 @@ describe 'rake claims', type: :task do
 
       before do
         # Mock ClaimEstablisher to keep claim in errored state
-        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_inline) do |claim_id|
           claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
           claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ERRORED, evss_response: 'Some error')
         end
-
-        # Stub sleep to speed up tests
-        allow_any_instance_of(Kernel).to receive(:sleep)
-
-        # Mock Time.current to advance quickly and trigger timeout after a few iterations
-        base_time = Time.current
-        allow(Time).to receive(:current).and_return(
-          base_time,           # Initial deadline calculation
-          base_time,           # First loop check
-          base_time + 1.second, # Second loop check
-          base_time + 11.seconds # Third loop check - exceeds 10 second timeout
-        )
       end
 
-      it 'raises an error with the claim ID and EVSS response' do
+      it 'logs the error and skips to the next claim' do
+        allow(Rails.logger).to receive(:error)
         args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        expect { task.execute(args) }.to raise_error(
-          StandardError,
-          /Claim establishment failed for claim ID #{claim.id} with error: Some error/
+        expect { task.execute(args) }.not_to raise_error
+        expect(Rails.logger).to have_received(:error).with(
+          /Error processing claim #{claim.id}/
         )
       end
     end
@@ -239,28 +226,28 @@ describe 'rake claims', type: :task do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
 
-            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
+            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim.id).once
           end
 
           it 'does NOT upload the 526EZ PDF' do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
 
-            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async).with(claim.id, 'claim')
+            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_inline).with(claim.id, 'claim')
           end
 
           it 'does NOT use the DisabilityCompensationPdfGenerator' do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
-              .not_to have_received(:perform_async).with(claim.id, '')
+              .not_to have_received(:perform_inline).with(claim.id, '')
           end
 
           it 'uploads each supporting document' do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
 
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
               claim.supporting_documents.first.id, 'document'
             ).once
           end
@@ -287,7 +274,7 @@ describe 'rake claims', type: :task do
           allow($stdin).to receive(:gets).and_return("n\n")
 
           # mock the DisabilityCompensationPdfGenerator to update the claim status to established
-          allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async) do |claim_id, _|
+          allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_inline) do |claim_id, _|
             claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
             claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
           end
@@ -302,32 +289,32 @@ describe 'rake claims', type: :task do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
 
-            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async).with(
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim.id,
               ''
             ).once
-            expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
+            expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_inline)
           end
 
           it 'does NOT upload the 526EZ PDF' do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
 
-            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async).with(claim.id, 'claim')
+            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_inline).with(claim.id, 'claim')
           end
 
           it 'uses the DisabilityCompensationPdfGenerator' do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
-              .to have_received(:perform_async).with(claim.id, '')
+              .to have_received(:perform_inline).with(claim.id, '')
           end
 
           it 'uploads each supporting document' do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
 
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
               claim.supporting_documents.first.id, 'document'
             ).once
           end
@@ -354,23 +341,23 @@ describe 'rake claims', type: :task do
             args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
             task.execute(args)
 
-            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async).with(
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim1.id,
               ''
             ).once
-            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async).with(
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim2.id,
               ''
             ).once
-            expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
+            expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_inline)
           end
 
           it 'does NOT upload the 526EZ PDF' do
             args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
             task.execute(args)
 
-            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async).with(claim1.id, 'claim')
-            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async).with(claim2.id, 'claim')
+            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_inline).with(claim1.id, 'claim')
+            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_inline).with(claim2.id, 'claim')
           end
 
           it 'completes successfully and uploads each supporting document' do
@@ -380,13 +367,13 @@ describe 'rake claims', type: :task do
             claim1.supporting_documents.each do |sup|
               expect(
                 ClaimsApi::ClaimUploader
-              ).to have_received(:perform_async).with(sup.id, 'document').once
+              ).to have_received(:perform_inline).with(sup.id, 'document').once
             end
 
             claim2.supporting_documents.each do |sup|
               expect(
                 ClaimsApi::ClaimUploader
-              ).to have_received(:perform_async).with(sup.id, 'document').once
+              ).to have_received(:perform_inline).with(sup.id, 'document').once
             end
           end
         end
