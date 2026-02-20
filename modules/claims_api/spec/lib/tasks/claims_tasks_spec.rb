@@ -205,7 +205,7 @@ describe 'rake claims', type: :task do
 
     describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is disabled' do
       before do
-        Flipper.disable(:lighthouse_claims_api_v1_enable_FES)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
       end
 
       describe 'when the claim failed to establish from a PUT request' do
@@ -262,7 +262,7 @@ describe 'rake claims', type: :task do
 
     describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is enabled' do
       before do
-        Flipper.enable(:lighthouse_claims_api_v1_enable_FES)
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
       end
 
       describe 'when the claim failed to establish from a PUT request' do
