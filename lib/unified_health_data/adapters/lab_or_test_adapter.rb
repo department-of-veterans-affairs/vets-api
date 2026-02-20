@@ -296,23 +296,6 @@ module UnifiedHealthData
         body_sites.join(', ').strip
       end
 
-      # Extracts reason(s) for the study from ServiceRequest reasonCode in contained resources.
-      # Fallback chain per CodeableConcept: text -> coding[].display
-      def get_reason(contained)
-        return '' if contained.nil?
-
-        service_requests = contained.select { |r| r['resourceType'] == 'ServiceRequest' }
-        return '' if service_requests.empty?
-
-        reasons = service_requests.flat_map do |sr|
-          next [] unless sr['reasonCode'].is_a?(Array)
-
-          sr['reasonCode'].filter_map { |reason_code| extract_codeable_concept_display(reason_code) }
-        end
-
-        reasons.join(', ')
-      end
-
       def get_sample_tested(record, contained)
         return '' unless record['specimen']
         return '' if contained.nil?

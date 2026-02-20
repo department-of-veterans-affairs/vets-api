@@ -1581,9 +1581,9 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
     context 'when presentedForm is nil and contained is nil' do
       it 'returns an empty string' do
-        record = { 'resource' => {} }
+        resource = {}
 
-        result = adapter.send(:format_display, record)
+        result = adapter.send(:format_display, resource)
 
         expect(result).to eq('')
       end
