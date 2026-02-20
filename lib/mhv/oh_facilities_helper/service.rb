@@ -35,7 +35,7 @@ module MHV
       end
 
       def user_facility_ready_for_info_alert?
-        return false unless Flipper.enabled?(:portal_notice_interstitial_enabled)
+        return false unless Flipper.enabled?(:portal_notice_interstitial_enabled, @current_user)
         return false if @current_user.va_treatment_facility_ids.blank?
 
         @current_user.va_treatment_facility_ids.any? do |facility|
