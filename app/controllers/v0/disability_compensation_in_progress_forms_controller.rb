@@ -108,9 +108,12 @@ module V0
       return form_data if !has_old_data && flipper_on
 
       # If we get here: old-flow data exists, OR no data + Flipper OFF → reset
-      Rails.logger.info('Form526 InProgressForm: resetting disabilityCompNewConditionsWorkflow to false ' \
-                        "(flipper=#{flipper_on}, has_new_flow_data=#{has_new_data}, " \
-                        "has_old_flow_data=#{has_old_data}, user=#{@current_user&.uuid})")
+      Rails.logger.info('Form526 InProgressForm: resetting disabilityCompNewConditionsWorkflow to false ',
+                        flipper: flipper_on,
+                        has_new_flow_data: has_new_data,
+                        has_old_flow_data: has_old_data,
+                        user_uuid: @current_user&.uuid)
+
       corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
 
       # Persist the fix so it survives even if auto-save doesn't fire before
