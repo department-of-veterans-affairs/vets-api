@@ -67,7 +67,7 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
           expect(json_response['data']['attributes']['physician_sections']).to include('editable' => true)
         end
 
-        it 'includes form data in veteran and physician sections' do
+        it 'includes form data in Veteran and physician sections' do
           primary_form = submission.primary_in_progress_form
           primary_form.update!(form_data: { veteran_name: 'John Doe' }.to_json)
 
@@ -76,8 +76,11 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
           expect(response).to have_http_status(:ok)
 
           json_response = JSON.parse(response.body)
-          expect(json_response['data']['attributes']['veteran_sections']['data']).to eq({ 'veteran_name' => 'John Doe' })
-          expect(json_response['data']['attributes']['physician_sections']['data']).to eq({})
+          veteran_data = json_response['data']['attributes']['veteran_sections']['data']
+          physician_data = json_response['data']['attributes']['physician_sections']['data']
+
+          expect(veteran_data).to eq({ 'veteran_name' => 'John Doe' })
+          expect(physician_data).to eq({})
         end
       end
 
@@ -276,7 +279,7 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
         expect(submission.status).to eq('secondary_in_progress')
       end
 
-      it 'returns correct JSON structure with veteran sections as read-only' do
+      it 'returns correct JSON structure with Veteran sections as read-only' do
         token = submission.generate_secondary_access_token!
 
         post "/v0/multi_party_forms/secondary/#{submission.id}/start",
