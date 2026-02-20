@@ -3352,6 +3352,26 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
     end
+
+    describe 'directDeposit fields are optional' do
+      it 'allows submission without accountType, accountNumber, or routingNumber' do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            VCR.use_cassette('claims_api/brd/countries') do
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['directDeposit'] = {
+                'bankName' => 'Some Bank'
+              }
+
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#526 without flashes or special issues' do

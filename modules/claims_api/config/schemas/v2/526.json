@@ -1051,7 +1051,7 @@
       "type": ["object", "null"],
       "nullable": true,
       "additionalProperties": false,
-      "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber.",
+      "description": "Direct deposit information.",
       "properties": {
         "noAccount": {
           "type": ["boolean", "null"],
