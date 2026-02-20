@@ -61,7 +61,7 @@ http_interactions:
           {
               "resourceType": "Bundle",
               "entry": [
-              {
+                  {
                       "resource": {
                           "resourceType": "ImagingStudy",
                           "id": "urn-vastudy-200CRNR-CM-4-ezg2LWY1LTliLTkzLWY3LTZjLTQxLTgzLTgwLWU",
