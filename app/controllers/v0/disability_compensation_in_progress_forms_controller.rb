@@ -93,40 +93,51 @@ module V0
     def fix_new_conditions_workflow_flag(form_data, _metadata)
       flag = form_data['disabilityCompNewConditionsWorkflow']
 
-      # The flag may be boolean true or string "true" depending on how it was injected
-      return form_data unless [true, 'true'].include?(flag)
+      unless [true, 'true'].include?(flag)
+        log_poisoned_ipf_decision('flag not true, skipping', flag)
+        return form_data
+      end
 
-      # Data is authoritative — it tells us which flow the user actually used.
-      # Flipper is only consulted as a tiebreaker when no conditions data exists.
+      decision = poisoned_ipf_decision(form_data)
+
+      log_poisoned_ipf_decision(decision[:message], flag, decision[:details])
+      return form_data if decision[:keep]
+
+      reset_workflow_flag(form_data)
+    end
+
+    def poisoned_ipf_decision(form_data)
       has_new_data = new_flow_data?(form_data)
       has_old_data = old_flow_data?(form_data)
       flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
+      details = { flipper: flipper_on, has_new_flow_data: has_new_data, has_old_flow_data: has_old_data }
 
-      # New-flow data exists → user is locked into new flow, keep flag regardless of Flipper
-      return form_data if has_new_data
+      if has_new_data
+        { keep: true, message: 'keeping true — new-flow data present (user locked in)', details: }
+      elsif !has_old_data && flipper_on
+        { keep: true, message: 'keeping true — no conditions data, Flipper ON', details: }
+      else
+        reason = has_old_data ? 'old-flow data detected' : 'no data + Flipper OFF'
+        { keep: false, message: "resetting to false — #{reason}", details: }
+      end
+    end
 
-      # No conditions data at all → Flipper is the tiebreaker
-      # (ON = legitimate new-flow user who hasn't reached conditions, OFF = flag was erroneously injected)
-      return form_data if !has_old_data && flipper_on
-
-      # If we get here: old-flow data exists, OR no data + Flipper OFF → reset
-      Rails.logger.info('Form526 InProgressForm: resetting disabilityCompNewConditionsWorkflow to false ',
-                        flipper: flipper_on,
-                        has_new_flow_data: has_new_data,
-                        has_old_flow_data: has_old_data,
-                        user_uuid: @current_user&.uuid)
-
+    def reset_workflow_flag(form_data)
       corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
-
-      # Persist the fix so it survives even if auto-save doesn't fire before
-      # the next page load
       begin
         form_for_user.update(form_data: corrected.to_json)
       rescue => e
-        Rails.logger.error("Form526 fix_new_conditions_workflow_flag: failed to persist - #{e.message}")
+        Rails.logger.error("Form526 fix_poisoned_ipf: failed to persist - #{e.message}")
       end
-
       corrected
+    end
+
+    def log_poisoned_ipf_decision(message, flag_value, details = {})
+      Rails.logger.info("Form526 fix_poisoned_ipf: #{message}",
+                        user_uuid: @current_user&.uuid,
+                        in_progress_form_id: form_for_user&.id,
+                        flag_ipf_value: flag_value,
+                        **details)
     end
 
     def new_flow_data?(form_data)
