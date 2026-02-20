@@ -7,6 +7,7 @@ RSpec.shared_context 'shared data' do
         question: 'fasfdas',
         phone_number: '3039751100',
         email_address: 'test@test.com',
+        business_email: 'business@example.gov',
         contact_preference: 'Email',
         preferred_name: 'Submitter',
         your_health_facility: 'vha_554',
@@ -65,6 +66,7 @@ RSpec.shared_context 'shared data' do
       }
     }
   end
+  let(:inquiry_details) { { level_of_authentication: 'Personal' } }
   let(:translated_payload) do
     { AreYouTheDependent: false,
       AttachmentPresent: true,
