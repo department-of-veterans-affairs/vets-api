@@ -35,6 +35,58 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     test_526_validation_instance.instance_variable_get('@errors')
   end
 
+  describe '#alt_rev_validate_form_526_service_information' do
+    describe '#alt_rev_validate_service_periods' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 7.years.ago.to_date.iso8601
+              }
+            ]
+          }
+        }
+      end
+
+      let(:form_attributes_with_multiple) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => 3.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 1.year.ago.to_date.iso8601
+              },
+              {
+                'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 7.years.ago.to_date.iso8601
+              }
+            ]
+          }
+        }
+      end
+
+      it 'raises an error if the end date is before the start date' do
+        subject.send(:alt_rev_validate_service_periods, form_attributes['serviceInformation'])
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          'activeDutyEndDate (0) needs to be after activeDutyBeginDate.'
+        )
+      end
+
+      it 'raises an error for the correct period with multiple service periods' do
+        subject.send(:alt_rev_validate_service_periods, form_attributes_with_multiple['serviceInformation'])
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          'activeDutyEndDate (1) needs to be after activeDutyBeginDate.'
+        )
+      end
+    end
+  end
+
   describe '#alt_rev_validate_service_after_13th_birthday!' do
     context 'when the service periods are after the 13th birthday' do
       let(:auth_headers) do

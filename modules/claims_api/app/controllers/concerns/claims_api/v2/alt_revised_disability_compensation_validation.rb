@@ -577,7 +577,7 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_service_information(target_veteran)
+      def alt_rev_validate_form_526_service_information(_target_veteran)
         service_information = form_attributes['serviceInformation']
 
         return if service_information.nil? || service_information.blank?
@@ -585,8 +585,7 @@ module ClaimsApi
         alt_rev_validate_service_after_13th_birthday!
         if service_periods_present?(service_information)
           alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-          alt_rev_validate_service_periods(service_information,
-                                           target_veteran)
+          alt_rev_validate_service_periods(service_information)
           alt_rev_validate_service_branch_names(service_information)
           alt_rev_validate_form_526_location_codes(service_information)
         end
@@ -638,17 +637,17 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_service_periods(service_information, _target_veteran)
-        return unless service_periods_present?(service_information['servicePeriods'])
+      def alt_rev_validate_service_periods(service_information)
+        return unless service_periods_present?(service_information)
 
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
             next unless date_is_valid?(sp['activeDutyBeginDate'],
-                                       'serviceInformation/servicePeriods/activeDutyBeginDate', true)
+                                       "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate", true)
 
             if sp['activeDutyEndDate']
               next unless date_is_valid?(sp['activeDutyEndDate'],
-                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
+                                         "serviceInformation/servicePeriods/#{idx}activeDutyBeginDate", true)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
@@ -1017,7 +1016,7 @@ module ClaimsApi
       end
 
       def service_periods_present?(service_information)
-        service_information[:servicePeriods].present?
+        service_information['servicePeriods'].present?
       end
 
       def collect_date_error(date, property = '/')
