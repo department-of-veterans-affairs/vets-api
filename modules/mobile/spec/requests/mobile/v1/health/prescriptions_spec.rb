@@ -478,7 +478,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             allow(UniqueUserEvents).to receive(:log_event)
           end
 
-          context 'when mhv_medications_oh_refill_block flag is enabled' do
+          context 'when mhv_medications_oh_transition_refill_block flag is enabled' do
             before do
               allow(Flipper).to receive(:enabled?).with(:mhv_medications_oh_transition_refill_block,
                                                         anything).and_return(true)
@@ -611,7 +611,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             end
           end
 
-          context 'when mhv_medications_oh_refill_block flag is disabled' do
+          context 'when mhv_medications_oh_transition_refill_block flag is disabled' do
             before do
               allow(Flipper).to receive(:enabled?).with(:mhv_medications_oh_transition_refill_block,
                                                         anything).and_return(false)
