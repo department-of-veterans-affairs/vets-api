@@ -763,6 +763,10 @@ features:
     actor_type: user
     description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
+  dependents_digital_forms_api_submission_enabled:
+    actor_type: user
+    description: Enables submission of dependents forms via Forms API
+    enable_in_development: false
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
@@ -1542,6 +1546,10 @@ features:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
     enable_in_development: true
+  mhv_medical_records_fetch_scdf_imaging_studies:
+    actor_type: user
+    description: Enables fetching imaging studies from SCDF for Medical Records
+    enable_in_development: false
   mhv_medical_records_hold_time_messaging_update:
     actor_type: user
     description: Enables updated hold time messaging
