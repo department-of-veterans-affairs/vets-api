@@ -36,15 +36,15 @@ module MHV
 
       def user_facility_ready_for_info_alert?
         return false if @current_user.va_treatment_facility_ids.blank?
-        return false unless Flipper.enabled?(:portal_notice_interstitial_enabled, @current_user)
 
-        result = @current_user.va_treatment_facility_ids.any? do |facility|
+        return false unless @current_user.va_treatment_facility_ids.any? do |facility|
           facilities_ready_for_info_alert.include?(facility.to_s)
         end
 
-        StatsD.increment('mhv.oh_facilities_helper.info_alert.success') if result
+        return false unless Flipper.enabled?(:portal_notice_interstitial_enabled, @current_user)
 
-        result
+        StatsD.increment('mhv.oh_facilities_helper.info_alert.success')
+        true
       end
 
       # Returns migration schedule information for facilities the user is associated with.
