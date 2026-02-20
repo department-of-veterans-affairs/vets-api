@@ -76,10 +76,11 @@ module V0
       # Fix poisoned IPFs: if disabilityCompNewConditionsWorkflow was erroneously
       # injected as true (by useFormFeatureToggleSync) into a form built under the
       # old flow, the user would hit a redirect loop because old-flow pages are
-      # hidden when the flag is true. Uses combined Flipper + data detection:
-      # only keeps the flag true when the user's Flipper toggle is ON *and* they
-      # have actually filled out new-flow pages (indicated by `ratedDisability`
-      # key on any newDisabilities item). Otherwise resets to false.
+      # hidden when the flag is true. Data-first detection with Flipper tiebreaker:
+      # - New-flow data exists (ratedDisability key) → keep true (user is locked in)
+      # - Old-flow data exists (items without ratedDisability) → reset (poisoned form)
+      # - No conditions data at all + Flipper ON → keep true (hasn't reached that step)
+      # - No conditions data at all + Flipper OFF → reset (flag was erroneously injected)
       parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
       {
         formData: parsed_form_data,
@@ -93,20 +94,23 @@ module V0
       # The flag may be boolean true or string "true" depending on how it was injected
       return form_data unless [true, 'true'].include?(flag)
 
-      # If the Flipper toggle is OFF for this user, always reset — the flag
-      # should never be true when the feature isn't enabled.
-      # If the Flipper toggle is ON, only keep the flag if the user has actually
-      # filled out new-flow pages (indicated by `ratedDisability` key on any
-      # newDisabilities item). Otherwise they have a poisoned old-flow form
-      # that was erroneously injected with true by useFormFeatureToggleSync.
-      flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
+      # Data is authoritative — it tells us which flow the user actually used.
+      # Flipper is only consulted as a tiebreaker when no conditions data exists.
       has_new_data = has_new_flow_data?(form_data)
+      has_old_data = has_old_flow_data?(form_data)
+      flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
 
-      return form_data if flipper_on && has_new_data
+      # New-flow data exists → user is locked into new flow, keep flag regardless of Flipper
+      return form_data if has_new_data
 
+      # No conditions data at all → Flipper is the tiebreaker
+      # (ON = legitimate new-flow user who hasn't reached conditions, OFF = flag was erroneously injected)
+      return form_data if !has_old_data && flipper_on
+
+      # If we get here: old-flow data exists, OR no data + Flipper OFF → reset
       Rails.logger.info('Form526 InProgressForm: resetting disabilityCompNewConditionsWorkflow to false ' \
                         "(flipper=#{flipper_on}, has_new_flow_data=#{has_new_data}, " \
-                        "user=#{@current_user&.uuid})")
+                        "has_old_flow_data=#{has_old_data}, user=#{@current_user&.uuid})")
       corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
 
       # Persist the fix so it survives even if auto-save doesn't fire before
@@ -125,6 +129,15 @@ module V0
       return false if new_disabilities.blank?
 
       new_disabilities.any? { |item| item&.key?('ratedDisability') }
+    end
+
+    def has_old_flow_data?(form_data)
+      new_disabilities = form_data['newDisabilities']
+      return false if new_disabilities.blank?
+
+      # Old-flow items have conditions data but NO `ratedDisability` key.
+      # If any item lacks `ratedDisability`, old-flow data is present.
+      new_disabilities.any? { |item| !item&.key?('ratedDisability') }
     end
 
     def set_started_form_version(data)
