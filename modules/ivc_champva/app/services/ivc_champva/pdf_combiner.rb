@@ -11,10 +11,12 @@ module IvcChampva
     def self.combine(merged_pdf_path, file_paths)
       return merged_pdf_path if file_paths.empty?
 
+      allow_optional_content = Flipper.enabled?(:champva_allow_pdf_optional_content)
+
       combined_pdf = CombinePDF.new
 
       file_paths.each do |file_path|
-        pdf = CombinePDF.load(file_path)
+        pdf = CombinePDF.load(file_path, allow_optional_content: allow_optional_content)
         pdf.pages.each do |page|
           # Store the source filename directly in the page hash
           # this will not be visible in the final PDF
