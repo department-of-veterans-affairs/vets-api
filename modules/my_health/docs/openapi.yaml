@@ -2475,13 +2475,13 @@ paths:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
-          description: Bad Request - invalid source parameter value
+          description: Bad Request - source parameter is missing, unsupported (e.g. vista), or invalid
         "404":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
-          description: Not Found - source is missing, source is vista, or no note matching the given ID
+          description: Not Found - no note matching the given ID
         "502":
           content:
             application/json:

@@ -1261,13 +1261,13 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(body: single_oh_note_response))
         end
 
-        it 'logs with source vista_fallback and note_found true' do
+        it 'logs with source not specified and note_found true' do
           service.get_single_summary_or_note('20875576613')
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'Clinical Notes show request',
-              source: 'vista_fallback',
+              source: 'source not specified',
               note_found: true,
               note_type: be_a(String),
               service: 'unified_health_data'
@@ -1275,11 +1275,11 @@ describe UnifiedHealthData::Service, type: :service do
           )
         end
 
-        it 'emits StatsD increment with source tag vista_fallback' do
+        it 'emits StatsD increment with source tag source not specified' do
           service.get_single_summary_or_note('20875576613')
 
           expect(StatsD).to have_received(:increment)
-            .with('api.uhd.clinical_notes.show.source', tags: ['source:vista_fallback'])
+            .with('api.uhd.clinical_notes.show.source', tags: ['source:source not specified'])
         end
 
         it 'emits StatsD not_found increment when note is missing' do

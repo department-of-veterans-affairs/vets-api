@@ -469,26 +469,6 @@ module UnifiedHealthData
       doc_entry&.dig('resource')
     end
 
-    # Falls back to fetching all notes and filtering by ID (Vista path).
-    def fetch_note_from_all(note_id)
-      start_date = default_start_date
-      end_date = default_end_date
-
-      response = uhd_client.get_notes_by_date(
-        patient_id: @user.icn, start_date:, end_date:
-      )
-      body = response.body
-
-      remap_vista_uid(body)
-      combined_records = fetch_combined_records(body)
-      filtered = combined_records.find do |record|
-        record['resource']['id'] == note_id
-      end
-      return nil unless filtered
-
-      parse_single_note(filtered)
-    end
-
     def increment_refill(count = 1)
       StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count)
     end

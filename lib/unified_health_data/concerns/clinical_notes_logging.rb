@@ -47,7 +47,7 @@ module UnifiedHealthData
       end
 
       def log_notes_show_metrics(source, result)
-        source_used = source || 'vista_fallback'
+        source_used = source || 'source not specified'
         found = result.present?
 
         Rails.logger.info(

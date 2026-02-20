@@ -70,11 +70,11 @@ module MyHealth
         if source.blank?
           render_error('Record Not Found',
                        'The requested record was not found. A source parameter is required.',
-                       '404', 404, :not_found)
+                       '400', 400, :bad_request)
         elsif source == UnifiedHealthData::SourceConstants::VISTA
-          render_error('Record Not Found',
-                       'The requested record was not found. VistA notes are not available for direct lookup.',
-                       '404', 404, :not_found)
+          render_error('Invalid Parameter',
+                       'VistA notes are not available for direct lookup. Use source=oracle-health.',
+                       '400', 400, :bad_request)
         elsif !valid_source?(source)
           render_error('Invalid Parameter',
                        "Invalid source: '#{source}'. Must be one of: #{valid_sources.join(', ')}",

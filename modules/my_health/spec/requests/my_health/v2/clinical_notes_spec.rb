@@ -216,21 +216,21 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         expect(json_response['data']['attributes']['source']).to eq(UnifiedHealthData::SourceConstants::ORACLE_HEALTH)
       end
 
-      it 'returns a 404 when source param is not provided' do
+      it 'returns a 400 when source param is not provided' do
         get '/my_health/v2/medical_records/clinical_notes/15249697279',
             headers: { 'X-Key-Inflection' => 'camel' }
 
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
       end
 
-      it 'returns a 404 when source param is vista' do
+      it 'returns a 400 when source param is vista' do
         get '/my_health/v2/medical_records/clinical_notes/15249697279',
             headers: { 'X-Key-Inflection' => 'camel' },
             params: { source: UnifiedHealthData::SourceConstants::VISTA }
 
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
         expect(json_response['errors']).to be_present
       end

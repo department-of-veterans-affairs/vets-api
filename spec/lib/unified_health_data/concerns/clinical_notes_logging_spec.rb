@@ -159,17 +159,17 @@ RSpec.describe UnifiedHealthData::Concerns::ClinicalNotesLogging do
       end
     end
 
-    context 'when source is nil (vista fallback)' do
+    context 'when source is nil (source not specified)' do
       let(:result) { double('ClinicalNotes', note_type: 'discharge_summary', present?: true) }
 
-      it 'defaults source to vista_fallback' do
+      it 'defaults source to source not specified' do
         instance.send(:log_notes_show_metrics, nil, result)
 
         expect(Rails.logger).to have_received(:info).with(
-          hash_including(source: 'vista_fallback')
+          hash_including(source: 'source not specified')
         )
         expect(StatsD).to have_received(:increment)
-          .with('api.uhd.clinical_notes.show.source', tags: ['source:vista_fallback'])
+          .with('api.uhd.clinical_notes.show.source', tags: ['source:source not specified'])
       end
     end
   end
