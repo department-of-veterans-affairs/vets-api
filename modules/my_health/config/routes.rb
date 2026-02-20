@@ -6,7 +6,10 @@ MyHealth::Engine.routes.draw do
       resources :allergies, only: %i[index show], defaults: { format: :json }
       resources :clinical_notes, only: %i[index show], defaults: { format: :json }
       resources :conditions, only: %i[index show], defaults: { format: :json }
-      resources :imaging, only: %i[index], defaults: { format: :json }
+      resources :imaging, only: %i[index], defaults: { format: :json } do
+        get :thumbnails, on: :member
+        get :dicom, on: :member
+      end
       resources :immunizations, only: %i[index show], defaults: { format: :json }
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
       resources :vitals, only: %i[index], defaults: { format: :json }
