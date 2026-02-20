@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 98bf339c609d4aba6181ca27bdbaeb986063851d
+  revision: 85c8e3f3def88f2aef09a0dae1f34c9e554baf3a
   branch: master
   specs:
-    vets_json_schema (25.2.49)
+    vets_json_schema (25.2.50)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -844,7 +844,7 @@ GEM
     ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
-    parallel_tests (5.5.0)
+    parallel_tests (5.6.0)
       parallel
     parser (3.3.10.1)
       ast (~> 2.4.1)
