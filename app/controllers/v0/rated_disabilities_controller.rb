@@ -29,7 +29,7 @@ module V0
       render json: response
     rescue => e
       log_error(e)
-      raise
+      raise e
     end
 
     private
