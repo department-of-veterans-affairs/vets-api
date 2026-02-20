@@ -49,17 +49,23 @@ module AskVAApi
 
         def log_inquiry_context
           context = {
-            level_of_authentication: inquiry_details[:level_of_authentication],
-            user_loa: user&.loa&.fetch(:current, nil),
-            user_is_authenticated: user.present?,
+            attachments: attachment_present?,
+            business_email_domain: top_level_domain(inquiry_params[:business_email]),
             category: inquiry_params[:select_category],
-            topic: inquiry_params[:select_topic],
-            subtopic: inquiry_params[:select_subtopic],
-            who: inquiry_params[:who_is_your_question_about],
-            relationship_to_veteran: inquiry_params[:relationship_to_veteran],
+            has_business_email: inquiry_params[:business_email].present?,
+            has_business_phone: inquiry_params[:business_phone].present?,
+            has_personal_email: inquiry_params[:email_address].present?,
+            has_personal_phone: inquiry_params[:phone_number].present?,
             is_question_about_veteran_or_someone_else: inquiry_params[:is_question_about_veteran_or_someone_else],
-            your_role: inquiry_params[:your_role],
-            attachments: attachment_present?
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            personal_email_domain: top_level_domain(inquiry_params[:email_address]),
+            relationship_to_veteran: inquiry_params[:relationship_to_veteran],
+            subtopic: inquiry_params[:select_subtopic],
+            topic: inquiry_params[:select_topic],
+            user_is_authenticated: user.present?,
+            user_loa: user&.loa&.fetch(:current, nil),
+            who: inquiry_params[:who_is_your_question_about],
+            your_role: inquiry_params[:your_role]
           }
           Rails.logger.info('Inquiry Context', context)
         end
@@ -99,6 +105,17 @@ module AskVAApi
             SubmitterProfile: submitter_profile.call,
             VeteranProfile: veteran_profile.call
           }
+        end
+
+        def top_level_domain(email)
+          return unless email.is_a?(String)
+          return unless URI::MailTo::EMAIL_REGEXP.match?(email)
+
+          domain = email.split('@', 2).last
+          last_dot_index = domain.rindex('.')
+          return unless last_dot_index
+
+          domain.slice(last_dot_index..)
         end
 
         def validate_params!

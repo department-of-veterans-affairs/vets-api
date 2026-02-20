@@ -39,6 +39,8 @@ module BGS
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
+      set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
+
       @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd) if @proc_id.nil?
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ', claim_type_end_product:).create
 
@@ -46,8 +48,6 @@ module BGS
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
-
-      set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
 
       benefit_claim_record = BenefitClaim.new(
         args: {

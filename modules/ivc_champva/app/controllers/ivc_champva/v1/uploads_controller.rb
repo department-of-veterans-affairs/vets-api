@@ -115,13 +115,21 @@ module IvcChampva
           end
 
           # if the response is successful, submit the VES request
-          submit_ves_request(ves_request, metadata) if response[:status] == 200
+          submit_to_ves(ves_request, metadata) if response[:status] == 200
 
           response
         else
           statuses, error_messages = call_handle_file_uploads(form_id, parsed_form_data)
 
           build_json(statuses, error_messages)
+        end
+      end
+
+      def submit_to_ves(ves_request, metadata)
+        if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user)
+          submit_ves_request_with_subforms(ves_request, metadata)
+        else
+          submit_ves_request(ves_request, metadata)
         end
       end
 
@@ -200,6 +208,79 @@ module IvcChampva
           end
 
           response
+        end
+      end
+
+      # Enhanced VES submission with subform support.
+      # Submits the primary form and any attached subforms (e.g., OHI forms).
+      # Used when champva_send_7959c_to_ves flag is enabled.
+      #
+      # @param [IvcChampva::VesRequest, nil] ves_request the formatted request data
+      # @param [Hash] metadata the metadata for the form
+      def submit_ves_request_with_subforms(ves_request, metadata)
+        return if ves_request.nil?
+
+        ves_client = IvcChampva::VesApi::Client.new
+
+        # Submit the primary form
+        parent_response = submit_ves_form(ves_client, ves_request, 'vha_10_10d', metadata)
+
+        # Only submit subforms if parent succeeded
+        return parent_response if parent_response.nil? || parent_response.status != 200 || !ves_request.subforms?
+
+        ves_request.subforms.each do |subform|
+          submit_ves_form(ves_client, subform[:request], subform[:form_type], metadata)
+        rescue => e
+          Rails.logger.error "Error submitting VES subform (#{subform[:form_type]}): #{e.message}"
+        end
+
+        parent_response
+      end
+
+      ##
+      # Submits a VES form request with retry logic (used by submit_ves_request_with_subforms).
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client the VES API client
+      # @param [Object] request the VES request object (VesRequest or VesOhiRequest)
+      # @param [String] form_type the form type identifier (e.g., 'vha_10_10d', 'vha_10_7959c')
+      # @param [Hash] metadata the metadata for the form
+      # @return [Faraday::Response, nil] the VES API response or nil on failure
+      def submit_ves_form(ves_client, request, form_type, metadata)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
+        }
+
+        response = nil
+
+        begin
+          IvcChampva::Retry.do(1, on_failure:) do
+            request.transaction_uuid = SecureRandom.uuid
+            response = send_to_ves_by_form_type(ves_client, request, form_type)
+          end
+
+          update_ves_records(metadata['uuid'], request.application_uuid, response, request.to_json)
+        rescue => e
+          Rails.logger.error "Error in VES submission for #{form_type}: #{e.message}"
+        end
+
+        response
+      end
+
+      ##
+      # Routes the VES submission to the appropriate client method based on form type.
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client the VES API client
+      # @param [Object] request the VES request object
+      # @param [String] form_type the form type identifier
+      # @return [Faraday::Response] the VES API response
+      def send_to_ves_by_form_type(ves_client, request, form_type)
+        case form_type
+        when 'vha_10_10d'
+          ves_client.submit_1010d(request.transaction_uuid, 'fake-user', request)
+        when 'vha_10_7959c'
+          ves_client.submit_7959c(request.transaction_uuid, 'fake-user', request)
+        else
+          raise ArgumentError, "Unknown VES form type: #{form_type}"
         end
       end
 
@@ -525,7 +606,7 @@ module IvcChampva
 
         health_insurance.each_slice(2) do |policies_pair|
           applicant_data = form_data.except('applicants', 'raw_data', 'medicare').merge(applicant)
-          applicant_data['form_number'] = '10-7959C-REV2025'
+          applicant_data['form_number'] = '10-7959C'
 
           if Flipper.enabled?(:champva_form_10_7959c_rev2025, @current_user)
             # NEW: Pass health_insurance array, constructor handles flattening
@@ -535,7 +616,7 @@ module IvcChampva
             # OLD: Manually map policies to applicant_primary_*/applicant_secondary_* fields
             applicant_with_mapped_policies = map_policies_to_applicant(policies_pair, applicant_data)
             form = IvcChampva::VHA107959cRev2025.new(applicant_with_mapped_policies)
-            form.data['form_number'] = '10-7959C-REV2025'
+            form.data['form_number'] = '10-7959C'
             forms << form
           end
         end

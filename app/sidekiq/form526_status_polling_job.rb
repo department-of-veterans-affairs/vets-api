@@ -41,11 +41,19 @@ class Form526StatusPollingJob
 
   def handle_response(response)
     response.body['data']&.each do |submission|
+      final_status = submission.dig('attributes', 'final_status')
       status = submission.dig('attributes', 'status')
       form_submission = Form526Submission.find_by(backup_submitted_claim_id: submission['id'])
 
-      handle_submission(status, form_submission)
-      @total_handled += 1
+      if final_status == true
+        handle_submission(status, form_submission)
+        @total_handled += 1
+      else
+        Rails.logger.info(
+          'Final status not yet available from Benefits Intake API for 526 submission',
+          status:, form_submission_id: form_submission&.id
+        )
+      end
     end
   end
 
@@ -78,7 +86,10 @@ class Form526StatusPollingJob
     StatsD.increment("#{STATS_KEY}.526.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
 
-    Rails.logger.warn('Form526StatusPollingJob submission failure', { result:, submission_id: }) if result == 'failure'
+    if result == 'failure'
+      Rails.logger.warn('Form526StatusPollingJob submission failure',
+                        { result:, submission_id: })
+    end
   end
 
   def notify_veteran(submission_id)

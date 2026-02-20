@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../app/services/vass/client'
+require_relative '../../support/vass_settings_helper'
 
 describe Vass::Client do
   subject { described_class.new }
@@ -15,6 +16,9 @@ describe Vass::Client do
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+
+    # Stub Settings.vass for token encryption
+    stub_vass_settings
   end
 
   describe '.new' do
@@ -60,7 +64,7 @@ describe Vass::Client do
     it 'makes request to get agent skills' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(
         double('response',
-               env: double('env', body: { 'success' => true, 'data' => { 'agentSkills' => [] } }, status: 200))
+               env: double('env', body: { 'success' => true, 'data' => { 'topics' => [] } }, status: 200))
       )
       subject.instance_variable_set(:@current_oauth_token, oauth_token)
 

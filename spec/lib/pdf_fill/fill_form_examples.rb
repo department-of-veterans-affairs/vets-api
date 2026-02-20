@@ -104,6 +104,8 @@ RSpec.shared_examples 'a form filler' do |options|
             allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
             # this is a temporary disabling of the pension flipper while pension work is still in progress
             allow(Flipper).to receive(:enabled?).with(:va_dependents_net_worth_and_pension).and_return(false)
+            # Defaulting this to true so that we avoid fixture issues with the no-SSN pdf filler logic
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(true)
           end
 
           it 'fills the form correctly' do
