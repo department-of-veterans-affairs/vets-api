@@ -8,18 +8,15 @@ module V0
 
       # GET /v0/multi_party_forms/secondary/:id
       def show
-        @submission = MultiPartyFormSubmission.find_by!(
-          id: params[:id],
-          secondary_user_uuid: current_user.uuid
-        )
+        @submission = find_submission_for_current_user
 
-        render json: { data: show_response_data }
+        render json: { data: response_data_show }
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, params[:id]
       rescue Common::Exceptions::BaseError
         raise
       rescue => e
-        handle_show_error(e)
+        handle_error(e, 'show')
       end
 
       # POST /v0/multi_party_forms/secondary/:id/start
@@ -33,10 +30,10 @@ module V0
           @submission.secondary_start!
         end
 
-        track_metric('secondary_started')
-        render json: { data: start_response_data }
+        track_metric('secondary.start.success')
+        render json: { data: response_data_start }
       rescue AASM::InvalidTransition => e
-        handle_state_transition_error(e)
+        handle_state_transition_error(e, 'start')
       rescue ActiveRecord::RecordInvalid => e
         handle_validation_error(e)
       rescue ActiveRecord::RecordNotFound
@@ -44,13 +41,44 @@ module V0
       rescue Common::Exceptions::BaseError
         raise
       rescue => e
-        handle_start_error(e)
+        handle_error(e, 'start')
+      end
+
+      # POST /v0/multi_party_forms/secondary/:id/complete
+      def complete
+        @submission = find_submission_for_current_user
+        validate_submission_state
+
+        ActiveRecord::Base.transaction do
+          update_secondary_form_data if secondary_params[:form_data].present?
+          @submission.secondary_complete!
+        end
+
+        track_metric('secondary.complete.success')
+        render json: { data: response_data_complete }
+      rescue AASM::InvalidTransition => e
+        handle_state_transition_error(e, 'complete')
+      rescue ActiveRecord::RecordInvalid => e
+        handle_validation_error(e)
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      rescue Common::Exceptions::BaseError
+        raise
+      rescue => e
+        handle_error(e, 'complete')
       end
 
       private
 
       def check_feature_enabled
         routing_error unless Flipper.enabled?(:form_2680_multi_party_forms_enabled, current_user)
+      end
+
+      def find_submission_for_current_user
+        MultiPartyFormSubmission.find_by!(
+          id: params[:id],
+          secondary_user_uuid: current_user.uuid
+        )
       end
 
       def validate_token_and_state
@@ -60,7 +88,18 @@ module V0
         end
       end
 
-      def show_response_data
+      def validate_submission_state
+        unless @submission.secondary_in_progress?
+          raise Common::Exceptions::UnprocessableEntity,
+                detail: 'The submission must be in secondary_in_progress state to be completed'
+        end
+      end
+
+      def secondary_params
+        params.permit(form_data: {})
+      end
+
+      def response_data_show
         {
           id: @submission.id,
           type: 'multi_party_form_submission',
@@ -82,7 +121,7 @@ module V0
         }
       end
 
-      def start_response_data
+      def response_data_start
         {
           id: @submission.id,
           type: 'multi_party_form_submission',
@@ -93,6 +132,19 @@ module V0
             secondary_form_id: @submission.secondary_form_id,
             created_at: @submission.created_at.iso8601,
             veteran_sections: { read_only: true }
+          }
+        }
+      end
+
+      def response_data_complete
+        {
+          id: @submission.id,
+          type: 'multi_party_form_submission',
+          attributes: {
+            form_type: @submission.form_type,
+            status: @submission.status,
+            secondary_completed_at: @submission.secondary_completed_at&.iso8601,
+            message: 'Secondary form completed successfully'
           }
         }
       end
@@ -111,6 +163,14 @@ module V0
         @submission.update!(
           secondary_user_uuid: current_user.uuid,
           secondary_in_progress_form: secondary_form
+        )
+      end
+
+      def update_secondary_form_data
+        raise 'Secondary form is missing!' unless @submission.secondary_in_progress_form
+
+        @submission.secondary_in_progress_form.update!(
+          form_data: secondary_params[:form_data].to_json
         )
       end
 
@@ -136,19 +196,20 @@ module V0
         )
       end
 
-      def handle_state_transition_error(error)
+      def handle_state_transition_error(error, action)
         Rails.logger.warn(
-          'MultiPartyForms::SecondaryController: Invalid state transition on start',
+          "MultiPartyForms::SecondaryController: Invalid state transition on #{action}",
           {
             submission_id: params[:id],
             user_id: current_user&.uuid,
+            current_status: @submission&.status,
             error: error.message
           }
         )
         render json: {
           errors: [{
             title: 'Invalid state transition',
-            detail: 'The submission cannot be started in its current state',
+            detail: "The submission cannot be #{action}ed in its current state",
             status: '422'
           }]
         }, status: :unprocessable_entity
@@ -156,7 +217,7 @@ module V0
 
       def handle_validation_error(error)
         Rails.logger.warn(
-          'MultiPartyForms::SecondaryController: Validation error on start',
+          'MultiPartyForms::SecondaryController: Validation error',
           {
             submission_id: params[:id],
             user_id: current_user&.uuid,
@@ -172,9 +233,9 @@ module V0
         }, status: :unprocessable_entity
       end
 
-      def handle_start_error(error)
+      def handle_error(error, action)
         Rails.logger.error(
-          'MultiPartyForms::SecondaryController: Error starting submission',
+          "MultiPartyForms::SecondaryController: Error in #{action} action",
           {
             submission_id: params[:id],
             user_id: current_user&.uuid,
@@ -182,22 +243,7 @@ module V0
             backtrace: error.backtrace&.first(5)
           }
         )
-        track_metric('secondary.start.failure')
-        raise
-      end
-
-      def handle_show_error(error)
-        Rails.logger.error(
-          'MultiPartyForms::SecondaryController: Error retrieving submission',
-          {
-            submission_id: params[:id],
-            user_id: current_user&.uuid,
-            error: error.message,
-            backtrace: error.backtrace&.first(5)
-          }
-        )
-
-        track_metric('secondary.show.failure')
+        track_metric("secondary.#{action}.failure")
         raise
       end
     end
