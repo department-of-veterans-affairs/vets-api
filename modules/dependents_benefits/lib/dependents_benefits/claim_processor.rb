@@ -238,6 +238,9 @@ module DependentsBenefits
       @child_claims ||= collect_child_claims
     end
 
+    # Tracks pension-related claim submission
+    # @param message [String] The message to log for the pension-related submission
+    # @return [void]
     def track_pension_related_submission(message)
       form_type = parent_claim&.claim_form_type
       monitor.track_info_event(message,
@@ -245,6 +248,9 @@ module DependentsBenefits
                                component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY)
     end
 
+    # Tracks no-SSN claim submission
+    # @param message [String] The message to log for the no-SSN claim submission
+    # @return [void]
     def track_no_ssn_claim_submission(message)
       form_type = parent_claim&.claim_form_type
       monitor.track_info_event(message,
