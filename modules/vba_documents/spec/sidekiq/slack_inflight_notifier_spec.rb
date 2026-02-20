@@ -52,7 +52,7 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
     end
 
     context 'when the :decision_review_delay_evidence feature is enabled' do
-      before { Flipper.enable(:decision_review_delay_evidence) }
+      before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true) }
 
       it 'excludes evidence submissions from the "uploaded" status grouping' do
         @results = @job.perform
@@ -69,7 +69,7 @@ RSpec.describe 'VBADocuments::SlackInflightNotifier', type: :job do
     end
 
     context 'when the :decision_review_delay_evidence feature is disabled' do
-      before { Flipper.disable(:decision_review_delay_evidence) }
+      before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(false) }
 
       it 'includes evidence submissions in the "uploaded" status grouping' do
         @results = @job.perform

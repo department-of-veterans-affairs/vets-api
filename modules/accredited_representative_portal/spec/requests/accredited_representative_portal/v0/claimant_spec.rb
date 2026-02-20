@@ -9,6 +9,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
   end
 
+  after do
+    travel_back
+  end
+
   let!(:poa_code) { '067' }
   let!(:other_poa_code) { 'z99' }
 

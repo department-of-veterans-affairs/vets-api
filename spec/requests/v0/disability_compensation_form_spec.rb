@@ -14,7 +14,8 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
   before do
-    Flipper.disable('disability_compensation_prevent_submission_job')
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_prevent_submission_job,
+                                              instance_of(User)).and_return(false)
     sign_in_as(user)
   end
 

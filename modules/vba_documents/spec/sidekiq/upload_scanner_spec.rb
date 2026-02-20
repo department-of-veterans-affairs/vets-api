@@ -107,7 +107,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
       end
 
       context 'and the delay evidence feature flag is enabled' do
-        before { Flipper.enable(:decision_review_delay_evidence) }
+        before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(true) }
 
         it 'updates the submission status to "uploaded"' do
           with_settings(Settings.vba_documents.s3, enabled: true) do
@@ -128,7 +128,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
       end
 
       context 'and the delay evidence feature flag is disabled' do
-        before { Flipper.disable(:decision_review_delay_evidence) }
+        before { allow(Flipper).to receive(:enabled?).with(:decision_review_delay_evidence).and_return(false) }
 
         it 'updates the submission status to "uploaded"' do
           with_settings(Settings.vba_documents.s3, enabled: true) do
