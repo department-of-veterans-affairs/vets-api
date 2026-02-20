@@ -27,7 +27,7 @@ module Dependents
     PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
 
     # statsd key for no SSN claims
-    NO_SSN_CLAIMS_STATS_KEY = 'dependents.no_ssn_claims'
+    NO_SSN_SUBMISSION_STATS_KEY = 'dependents.no_ssn_claims'
 
     # allowed logging params
     ALLOWLIST = %w[
@@ -185,7 +185,7 @@ module Dependents
 
     def track_no_ssn_claims(form_id:, type:)
       tags = ["form_id:#{form_id}"]
-      metric = "#{NO_SSN_CLAIMS_STATS_KEY}.#{type}"
+      metric = "#{NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
       payload = default_payload.merge({ statsd: metric, form_id:, claim_id: @claim_id })
 
       StatsD.increment(metric, tags:)
