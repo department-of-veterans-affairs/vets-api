@@ -39,7 +39,7 @@ module MyHealth
 
       def show
         care_note = service.get_single_summary_or_note(params['id'], source: params['source'])
-        unless care_note
+        if care_note.nil?
           render_error('Record Not Found',
                        'The requested record was not found',
                        '404', 404, :not_found)
@@ -71,21 +71,15 @@ module MyHealth
           render_error('Record Not Found',
                        'The requested record was not found. A source parameter is required.',
                        '404', 404, :not_found)
-          return
-        end
-
-        unless valid_source?(source)
+        elsif source == UnifiedHealthData::SourceConstants::VISTA
+          render_error('Record Not Found',
+                       'The requested record was not found. VistA notes are not available for direct lookup.',
+                       '404', 404, :not_found)
+        elsif !valid_source?(source)
           render_error('Invalid Parameter',
                        "Invalid source: '#{source}'. Must be one of: #{valid_sources.join(', ')}",
                        '400', 400, :bad_request)
-          return
         end
-
-        return unless source == UnifiedHealthData::SourceConstants::VISTA
-
-        render_error('Record Not Found',
-                     'The requested record was not found. VistA notes are not available for direct lookup.',
-                     '404', 404, :not_found)
       end
 
       def valid_source?(source)
