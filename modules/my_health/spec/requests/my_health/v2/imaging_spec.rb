@@ -209,7 +209,8 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
 
         expect(response).to have_http_status(:forbidden)
         json = JSON.parse(response.body)
-        expect(json['error']).to eq('URL not allowed')
+        expect(json['errors']).to be_an(Array)
+        expect(json['errors'].first).to include('detail' => 'URL not allowed')
       end
 
       it 'returns a 403 error for non-HTTPS URLs' do

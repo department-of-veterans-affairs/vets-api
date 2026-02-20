@@ -97,12 +97,12 @@ module MyHealth
 
         stream_from_s3(uri)
       rescue URI::InvalidURIError
-        render json: { error: 'Invalid URL format' }, status: :bad_request
+        render_error('Bad Request', 'Invalid URL format', '400', 400, :bad_request)
       rescue Common::Exceptions::ParameterMissing => e
         raise e
       rescue SecurityError
         Rails.logger.warn("Thumbnail proxy SSRF blocked for host: #{uri&.host}")
-        render json: { error: 'URL not allowed' }, status: :forbidden
+        render_error('Forbidden', 'URL not allowed', '403', 403, :forbidden)
       rescue => e
         if response.committed?
           Rails.logger.error("Error while streaming thumbnail image: #{e.class} - #{e.message}")
