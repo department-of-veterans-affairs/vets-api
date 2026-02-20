@@ -14,7 +14,7 @@ module MyHealth
         start_date = params[:start_date]
         end_date = params[:end_date]
         imaging_study_type = params[:imaging_study_type].presence || 'ALL'
-        site_ids = params[:site_ids].presence || []
+        site_ids = user_site_ids
 
         imaging_studies = sort_records(
           service.get_imaging_studies(
@@ -83,6 +83,14 @@ module MyHealth
 
       def service
         @service ||= UnifiedHealthData::ImagingService.new(@current_user)
+      end
+
+      # Combines the user's VistA treatment facility IDs and Cerner (Oracle Health)
+      # facility IDs to build the full list of sites for SCDF imaging queries.
+      def user_site_ids
+        vista_ids = @current_user.va_treatment_facility_ids || []
+        cerner_ids = @current_user.cerner_facility_ids || []
+        (vista_ids + cerner_ids).map(&:to_s).uniq
       end
     end
   end

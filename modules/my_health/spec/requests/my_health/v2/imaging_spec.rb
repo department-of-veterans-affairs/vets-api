@@ -7,19 +7,21 @@ require 'unified_health_data/imaging_service'
 
 RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, type: :request do
   let(:path) { '/my_health/v2/medical_records/imaging' }
-  let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31', site_ids: %w[200CRNR] } }
+  let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }
   let(:current_user) { build(:user, :mhv) }
 
   before do
     sign_in_as(current_user)
+    allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(%w[200CRNR])
+    allow_any_instance_of(User).to receive(:cerner_facility_ids).and_return([])
   end
 
-  describe 'POST /my_health/v2/medical_records/imaging' do
+  describe 'GET /my_health/v2/medical_records/imaging' do
     context 'happy path' do
       it 'returns a successful response' do
         VCR.use_cassette('unified_health_data/get_imaging_studies_200', match_requests_on: %i[method path]) do
-          post path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
-                     params: default_params.to_json
+          get path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
+                    params: default_params
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
@@ -40,8 +42,8 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
 
       it 'returns a successful response with an empty array' do
         VCR.use_cassette('unified_health_data/get_imaging_studies_no_records', match_requests_on: %i[method path]) do
-          post path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
-                     params: default_params.to_json
+          get path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
+                    params: default_params
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
@@ -54,8 +56,8 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
         allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_studies)
           .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
         VCR.use_cassette('unified_health_data/get_imaging_studies_200', match_requests_on: %i[method path]) do
-          post path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
-                     params: default_params.to_json
+          get path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
+                    params: default_params
         end
         expect(response).to have_http_status(:internal_server_error)
       end
@@ -64,8 +66,8 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
         allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_studies)
           .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
         VCR.use_cassette('unified_health_data/get_imaging_studies_200', match_requests_on: %i[method path]) do
-          post path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
-                     params: default_params.to_json
+          get path, headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' },
+                    params: default_params
         end
         expect(response).to have_http_status(:bad_gateway)
       end
