@@ -28,6 +28,14 @@ module RepresentationManagement
 
     # @param types [Array<String>] Entity types to process (defaults to all)
     def perform(types = VALID_TYPES)
+      unless Flipper.enabled?(:accredited_entity_models_populate_with_xlsx_data)
+        log_info('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
+                 'accredited_entity_models_populate_with_xlsx_data is disabled. Job skipped.')
+        log_to_slack('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
+                     'accredited_entity_models_populate_with_xlsx_data is disabled. Job skipped.')
+        return
+      end
+
       @report = []
       @start_time = Time.current
       @types = validate_types(types)
