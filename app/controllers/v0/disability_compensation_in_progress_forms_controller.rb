@@ -109,29 +109,33 @@ module V0
       reset_workflow_flag(form_data)
     end
 
-    # Data-first decision logic with Flipper as tiebreaker.
-    # Data is authoritative — it tells us which flow the user actually interacted with.
+    # Data-first decision logic with Flipper tiebreaker only for the no-data case.
     # - Definitive new-flow data (ratedDisability, conditionDate, or sideOfBody on items)
-    #   → user is locked into new flow, keep flag true regardless of Flipper
-    # - Definitive old-flow data (view:*FollowUp wrapper keys, or cause without conditionDate)
-    #   → poisoned form, reset flag to false regardless of Flipper
-    # - Ambiguous or no data (e.g. items with only 'condition' key, or no items at all)
-    #   → Flipper is the tiebreaker:
-    #   ON = legitimate new-flow user (may have no rated disabilities, skipping condition page)
-    #   OFF = flag was erroneously injected by useFormFeatureToggleSync
+    #   → user is locked into new flow, keep flag true
+    # - Definitive old-flow data (view:*FollowUp wrappers, cause without conditionDate)
+    #   → poisoned form, reset to false
+    # - Ambiguous items (condition-only, no definitive signal either way)
+    #   → reset to false (crash risk: old-flow showPagePerItem schemas uninitialized)
+    # - No newDisabilities data at all (absent or empty array)
+    #   → Flipper tiebreaker: ON = legitimate user from prefill, OFF = injected flag
+    #   (no items means no showPagePerItem crash risk, safe to keep true)
     def poisoned_ipf_decision(form_data)
       has_new_data = new_flow_data?(form_data)
       has_old_data = old_flow_data?(form_data)
+      has_items = form_data['newDisabilities'].present?
       flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
-      details = { flipper: flipper_on, has_new_flow_data: has_new_data, has_old_flow_data: has_old_data }
+      details = { flipper: flipper_on, has_new_flow_data: has_new_data, has_old_flow_data: has_old_data,
+                  has_items: }
 
       if has_new_data
         { keep: true, message: 'keeping true — new-flow data present (user locked in)', details: }
-      elsif !has_old_data && flipper_on
-        { keep: true, message: 'keeping true — no conditions data, Flipper ON', details: }
-      else
-        reason = has_old_data ? 'old-flow data detected' : 'no data + Flipper OFF'
+      elsif has_items
+        reason = has_old_data ? 'old-flow data detected' : 'ambiguous items (crash risk)'
         { keep: false, message: "resetting to false — #{reason}", details: }
+      elsif flipper_on
+        { keep: true, message: 'keeping true — no items + Flipper ON (legitimate prefill)', details: }
+      else
+        { keep: false, message: 'resetting to false — no items + Flipper OFF (injected flag)', details: }
       end
     end
 

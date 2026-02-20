@@ -315,7 +315,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         context 'fix_new_conditions_workflow_flag (data-first, Flipper tiebreaker)' do
-          let(:flipper_toggle) { :disability_compensation_new_conditions_workflow }
           let(:fix_toggle) { :disability_compensation_fix_poisoned_ipf }
           # Definitive new-flow data: items with ratedDisability key (only set by new flow)
           let(:new_flow_disabilities) do
@@ -360,24 +359,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             end
 
             context 'when new-flow data exists (ratedDisability key) — data is authoritative' do
-              it 'keeps flag true even when Flipper is OFF (user locked into new flow)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
-                parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
-                parsed_form_data['newDisabilities'] = new_flow_disabilities
-                in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
-
-                VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-                end
-
-                expect(response).to have_http_status(:ok)
-                json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
-              end
-
-              it 'keeps flag true when Flipper is ON (legitimate user)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
+              it 'keeps flag true (user locked into new flow)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = new_flow_disabilities
@@ -394,24 +376,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             end
 
             context 'when definitive old-flow data exists — poisoned form' do
-              it 'resets flag to false when Flipper is ON (poisoned despite Flipper ON)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
-                parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
-                parsed_form_data['newDisabilities'] = old_flow_disabilities
-                in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
-
-                VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-                end
-
-                expect(response).to have_http_status(:ok)
-                json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
-              end
-
-              it 'resets flag to false when Flipper is OFF' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
+              it 'resets flag to false' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = old_flow_disabilities
@@ -427,7 +392,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               end
 
               it 'persists the fix to the database' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = old_flow_disabilities
@@ -443,25 +407,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               end
             end
 
-            context 'when ambiguous data exists (condition-only items) — Flipper is the tiebreaker' do
-              it 'keeps flag true when Flipper is ON (new-flow user with no rated disabilities)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
-                parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
-                parsed_form_data['newDisabilities'] = ambiguous_disabilities
-                in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
-
-                VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-                end
-
-                expect(response).to have_http_status(:ok)
-                json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
-              end
-
-              it 'resets flag to false when Flipper is OFF (poisoned old-flow user)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
+            context 'when ambiguous data exists (condition-only items) — no definitive new-flow proof' do
+              it 'resets flag to false (safe default for ambiguous data)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = ambiguous_disabilities
@@ -477,9 +424,10 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               end
             end
 
-            context 'when no conditions data exists — Flipper is the tiebreaker' do
-              it 'keeps flag true when Flipper is ON (legitimate user, not yet at conditions)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
+            context 'when no conditions data exists — Flipper is the tiebreaker (no crash risk)' do
+              it 'keeps flag true when Flipper is ON (legitimate user from prefill)' do
+                allow(Flipper).to receive(:enabled?)
+                  .with(:disability_compensation_new_conditions_workflow, instance_of(User)).and_return(true)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data.delete('newDisabilities')
@@ -495,7 +443,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               end
 
               it 'keeps flag true when Flipper is ON and newDisabilities is empty' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
+                allow(Flipper).to receive(:enabled?)
+                  .with(:disability_compensation_new_conditions_workflow, instance_of(User)).and_return(true)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = []
@@ -510,8 +459,9 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
                 expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
               end
 
-              it 'resets flag to false when Flipper is OFF (flag was erroneously injected)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
+              it 'resets flag to false when Flipper is OFF (injected flag)' do
+                allow(Flipper).to receive(:enabled?)
+                  .with(:disability_compensation_new_conditions_workflow, instance_of(User)).and_return(false)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data.delete('newDisabilities')
@@ -527,7 +477,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               end
 
               it 'resets flag to false when Flipper is OFF and newDisabilities is empty' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
+                allow(Flipper).to receive(:enabled?)
+                  .with(:disability_compensation_new_conditions_workflow, instance_of(User)).and_return(false)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = []
@@ -588,7 +539,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               end
 
               it 'detects new-flow data via conditionDate key (no ratedDisability)' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(false)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = [{ 'condition' => 'Tinnitus', 'conditionDate' => '2024-01-15' }]
@@ -600,12 +550,11 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                # conditionDate is a definitive new-flow signal — keeps true even with Flipper OFF
+                # conditionDate is a definitive new-flow signal — keeps true
                 expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
               end
 
               it 'detects old-flow data via view:secondaryFollowUp wrapper key' do
-                allow(Flipper).to receive(:enabled?).with(flipper_toggle, instance_of(User)).and_return(true)
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
                 parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
                 parsed_form_data['newDisabilities'] = [{
@@ -621,7 +570,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                # view:secondaryFollowUp is a definitive old-flow signal — resets even with Flipper ON
+                # view:secondaryFollowUp is a definitive old-flow signal — resets to false
                 expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
               end
             end
