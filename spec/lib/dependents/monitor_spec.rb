@@ -399,7 +399,7 @@ RSpec.describe Dependents::Monitor do
     it 'tracks no SSN claims with correct tags' do
       form_id = '686C-674-V2'
       type = 'submitted'
-      metric = "#{described_class::NO_SSN_CLAIMS_STATS_KEY}.#{type}"
+      metric = "#{described_class::NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
       method_tags = ["form_id:#{form_id}"]
       payload_tags = ["form_id:#{form_id}", 'service:dependents-application']
       payload = {
