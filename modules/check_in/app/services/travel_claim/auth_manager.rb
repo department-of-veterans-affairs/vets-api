@@ -8,7 +8,10 @@ module TravelClaim
   # Provides a with_auth wrapper that automatically handles 401 (unauthorized) and
   # 409 (contact ID mismatch) errors by refreshing appropriate tokens and retrying.
   #
-  class AuthManager
+  # Inherits from V1::BaseClient for circuit breaker protection, error handling,
+  # Datadog tracing, and StatsD metrics on external API calls.
+  #
+  class AuthManager < TravelClaim::V1::BaseClient
     attr_reader :station_number, :facility_type, :correlation_id
 
     VEIS_CACHE_TTL = 54.minutes
@@ -31,7 +34,9 @@ module TravelClaim
       @current_btsss_token = nil
       @auth_retry_attempted = false
 
-      validate_required_settings!
+      validate_veis_settings!
+      validate_subscription_keys!
+      super()
     end
 
     ##
@@ -50,12 +55,10 @@ module TravelClaim
       ensure_tokens!
       yield
     rescue Common::Exceptions::BackendServiceException => e
-      if should_retry_auth?(e)
-        handle_auth_retry(e)
-        yield
-      else
-        raise
-      end
+      raise unless should_retry_auth?(e)
+
+      handle_auth_retry(e)
+      yield
     end
 
     ##
@@ -142,7 +145,6 @@ module TravelClaim
         race_condition_ttl: VEIS_RACE_CONDITION_TTL
       ) do
         log_auth_event('Minting new VEIS token')
-        StatsD.increment('api.check_in.travel_claim.veis_token.mint')
         mint_veis_token
       end
     end
@@ -154,20 +156,22 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] If token request fails
     #
     def mint_veis_token
-      body = URI.encode_www_form({
-                                   client_id: @veis_client_id,
-                                   client_secret: @veis_client_secret,
-                                   client_type: '1',
-                                   grant_type: 'client_credentials',
-                                   resource: @veis_resource
-                                 })
+      with_monitoring do
+        body = URI.encode_www_form({
+                                     client_id: @veis_client_id,
+                                     client_secret: @veis_client_secret,
+                                     client_type: '1',
+                                     grant_type: 'client_credentials',
+                                     resource: @veis_resource
+                                   })
 
-      headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      response = veis_connection.post("#{@veis_tenant_id}/oauth2/token", body, headers)
+        headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
+        response = config.connection(server_url: @veis_auth_url).post("#{@veis_tenant_id}/oauth2/token", body, headers)
 
-      token = response.body['access_token']
-      raise_token_error('VEIS', 'access_token') if token.blank?
-      token
+        token = response.body['access_token']
+        raise_token_error('VEIS', 'access_token') if token.blank?
+        token
+      end
     end
 
     ##
@@ -178,27 +182,32 @@ module TravelClaim
       fetch_veis_token! if @current_veis_token.blank?
 
       log_auth_event('Fetching BTSSS token')
-      client_secret = if @facility_type.to_s.strip.downcase == 'oh'
-                        @btsss_client_secret_oh
-                      else
-                        @btsss_client_secret_standard
-                      end
-      body = { secret: client_secret, icn: @icn }
-      headers = {
-        'X-Correlation-ID' => @correlation_id,
-        'BTSSS-API-Client-Number' => @btsss_client_number,
-        'Authorization' => "Bearer #{@current_veis_token}"
-      }.merge(subscription_key_headers)
+      with_monitoring do
+        client_secret = if @facility_type.to_s.strip.downcase == 'oh'
+                          @btsss_client_secret_oh
+                        else
+                          @btsss_client_secret_standard
+                        end
+        body = { secret: client_secret, icn: @icn }
+        headers = {
+          'X-Correlation-ID' => @correlation_id,
+          'BTSSS-API-Client-Number' => @btsss_client_number,
+          'Authorization' => "Bearer #{@current_veis_token}"
+        }.merge(subscription_key_headers)
 
-      response = TravelClaim::Configuration.instance.connection.post('api/v4/auth/system-access-token', body, headers)
+        response = config.connection.post('api/v4/auth/system-access-token', body, headers)
 
-      token = response.body.dig('data', 'accessToken')
-      raise_token_error('BTSSS', 'accessToken') if token.blank?
-      @current_btsss_token = token
+        token = response.body.dig('data', 'accessToken')
+        raise_token_error('BTSSS', 'accessToken') if token.blank?
+        @current_btsss_token = token
+      end
     end
 
     ##
     # Determines if the error warrants an authentication retry.
+    # Only retries on auth-related status codes:
+    # - 401: Token expired or invalid
+    # - 409: Contact ID mismatch (stale BTSSS token)
     #
     # @param error [Common::Exceptions::BackendServiceException] the error
     # @return [Boolean] true if retry should be attempted
@@ -211,6 +220,7 @@ module TravelClaim
 
     ##
     # Handles the authentication retry by clearing appropriate tokens and re-fetching.
+    # For 401 errors, refreshes all tokens. For 409 errors, refreshes BTSSS only.
     #
     # @param error [Common::Exceptions::BackendServiceException] the error that triggered retry
     #
@@ -221,8 +231,8 @@ module TravelClaim
       if error.original_status == 401
         log_auth_event('401 error - refreshing all tokens')
         @current_veis_token = nil
-      elsif error.original_status == 409
-        log_auth_event('409 error - refreshing BTSSS token only')
+      else
+        log_auth_event("#{error.original_status} error - refreshing BTSSS token only")
       end
 
       ensure_tokens!
@@ -256,55 +266,51 @@ module TravelClaim
     end
 
     ##
-    # Builds environment-specific subscription key headers.
-    # Raises if required subscription keys are missing.
-    #
-    # @return [Hash] Headers with appropriate subscription keys
-    # @raise [RuntimeError] if subscription keys are not configured
-    #
-    def subscription_key_headers
-      if Settings.vsp_environment == 'production'
-        {
-          'Ocp-Apim-Subscription-Key-E' => @subscription_key_e,
-          'Ocp-Apim-Subscription-Key-S' => @subscription_key_s
-        }
-      else
-        { 'Ocp-Apim-Subscription-Key' => @subscription_key }
-      end
-    end
-
-    ##
-    # Creates a Faraday connection for VEIS OAuth requests.
-    # Uses form-urlencoded content type, not JSON.
-    #
-    # @return [Faraday::Connection] configured connection
-    #
-    def veis_connection
-      @veis_connection ||= Faraday.new(url: @veis_auth_url) do |conn|
-        conn.response :json
-        conn.response :raise_error
-        conn.adapter Faraday.default_adapter
-      end
-    end
-
-    ##
     # Logs authentication events when logging is enabled.
+    # Automatically includes is_retry based on @auth_retry_attempted state.
     #
     # @param message [String] the message to log
     #
     def log_auth_event(message)
       return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
 
-      Rails.logger.info({
-                          message: "TravelClaim::AuthManager: #{message}",
-                          correlation_id: @correlation_id,
-                          facility_type: @facility_type,
-                          veis_token_present: @current_veis_token.present?,
-                          btsss_token_present: @current_btsss_token.present?
-                        })
+      log_data = {
+        message: "TravelClaim::AuthManager: #{message}",
+        correlation_id: @correlation_id,
+        station_number: @station_number,
+        facility_type: @facility_type,
+        is_retry: @auth_retry_attempted,
+        veis_token_present: @current_veis_token.present?,
+        btsss_token_present: @current_btsss_token.present?
+      }
+
+      # Only include ICN last 4 when detailed logging is enabled
+      if Flipper.enabled?(:check_in_experience_travel_claim_log_api_error_details)
+        log_data[:icn_last_four] = icn_last_four
+      end
+
+      Rails.logger.info(log_data)
     end
 
-    def validate_required_settings!
+    ##
+    # Returns the last 4 characters of the ICN for logging purposes.
+    # ICN is PII and should not be logged in full.
+    #
+    # @return [String, nil] last 4 characters of ICN or nil if ICN is blank
+    #
+    def icn_last_four
+      return nil if @icn.blank?
+
+      @icn.to_s.last(4)
+    end
+
+    ##
+    # Validates and loads VEIS and BTSSS authentication settings.
+    # Subscription keys are validated by the parent class.
+    #
+    # @raise [RuntimeError] if required settings are missing
+    #
+    def validate_veis_settings!
       settings = Settings.check_in.travel_reimbursement_api_v2
 
       # VEIS token settings
@@ -318,18 +324,6 @@ module TravelClaim
       @btsss_client_secret_oh = require_setting(settings, :travel_pay_client_secret_oh)
       @btsss_client_secret_standard = require_setting(settings, :travel_pay_client_secret)
       @btsss_client_number = require_setting(settings, :client_number)
-
-      # Environment-specific subscription keys
-      if Settings.vsp_environment == 'production'
-        @subscription_key_e = require_setting(settings, :e_subscription_key)
-        @subscription_key_s = require_setting(settings, :s_subscription_key)
-      else
-        @subscription_key = require_setting(settings, :subscription_key)
-      end
-    end
-
-    def require_setting(settings, key)
-      settings.public_send(key).to_s.presence || raise("Missing required setting: #{key}")
     end
   end
 end

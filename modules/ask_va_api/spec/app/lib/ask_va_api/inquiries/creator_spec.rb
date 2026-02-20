@@ -2,10 +2,12 @@
 
 require 'rails_helper'
 require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
+require AskVAApi::Engine.root.join('spec', 'support', 'shared_crm_responses.rb')
 
 RSpec.describe AskVAApi::Inquiries::Creator do
   # allow to have access to inquiry_params and translated_payload
   include_context 'shared data'
+  include_context 'shared crm responses'
 
   let(:icn) { '123456' }
   let(:service) { instance_double(Crm::Service) }
@@ -44,8 +46,9 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     allow(span).to receive(:set_error)
   end
 
-  def setup_successful_service_response(inquiry_number = 'test-123')
-    allow(service).to receive(:call).and_return({ Data: { InquiryNumber: inquiry_number } })
+  def setup_successful_service_response
+    response = crm_success_response.deep_dup
+    allow(service).to receive(:call).and_return(response)
   end
 
   describe '#initialize' do
@@ -80,15 +83,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
   describe '#call' do
     context 'when the API call is successful' do
       before do
-        allow(service).to receive(:call).and_return({
-                                                      Data: {
-                                                        InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
-                                                      },
-                                                      Message: '',
-                                                      ExceptionOccurred: false,
-                                                      ExceptionMessage: '',
-                                                      MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
-                                                    })
+        setup_successful_service_response
       end
 
       it 'assigns VeteranICN and posts data to the service' do
@@ -96,7 +91,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         allow(span).to receive(:set_tag)
 
         response = creator.call(inquiry_params: inquiry_params[:inquiry])
-        expect(response).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
+        expect(response).to include({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
 
       it 'does not include ICN or other PII in Datadog tags' do
@@ -180,9 +175,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'only includes SAFE_INQUIRY_FIELDS in inquiry tag' do
-        allow(service).to receive(:call).and_return({
-                                                      Data: { InquiryNumber: 'test-123' }
-                                                    })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', {
@@ -196,9 +189,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'filters out all unsafe fields from inquiry tag' do
-        allow(service).to receive(:call).and_return({
-                                                      Data: { InquiryNumber: 'test-123' }
-                                                    })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
@@ -266,7 +257,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
       it 'handles empty inquiry_params' do
         empty_params = { files: [{ file_name: nil, file_content: nil }] }
-        allow(service).to receive(:call).and_return({ Data: { InquiryNumber: 'test-123' } })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', {})
@@ -282,7 +273,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
           ssn: '456',
           files: [{ file_name: nil, file_content: nil }]
         }
-        allow(service).to receive(:call).and_return({ Data: { InquiryNumber: 'test-123' } })
+        setup_successful_service_response
 
         expect(Datadog::Tracing).to receive(:trace).and_yield(span)
         expect(span).to receive(:set_tag).with('inquiry', {})
@@ -304,35 +295,58 @@ RSpec.describe AskVAApi::Inquiries::Creator do
         result = creator.call(inquiry_params: inquiry_params[:inquiry])
 
         expect(service).to have_received(:call)
-        expect(result).to eq({ InquiryNumber: 'test-123' })
+        expect(result).to include({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
     end
 
     # Focus on telemetry behavior separately
     context 'telemetry and tracing' do
-      before do
-        setup_successful_service_response
-      end
-
-      it 'sets correct authentication tags' do
-        expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
-        expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
-        expect(span).to receive(:set_tag).with('user.loa', anything)
-        allow(span).to receive(:set_tag) # for other tags
-
-        creator.call(inquiry_params: inquiry_params[:inquiry])
-      end
-
-      it 'sets inquiry context without PII' do
-        expect(Datadog::Tracing).to receive(:trace).and_yield(span)
-        expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
-          # Focused PII validation
-          unsafe_fields = %i[icn ssn social_security_number date_of_birth]
-          expect(value.keys & unsafe_fields).to be_empty
+      context 'when the service call succeeds' do
+        before do
+          setup_successful_service_response
+          allow(Rails.logger).to receive(:info)
         end
-        allow(span).to receive(:set_tag)
 
-        creator.call(inquiry_params: inquiry_params[:inquiry])
+        it 'sets correct authentication tags' do
+          expect(Datadog::Tracing).to receive(:trace).with('ask_va_api.inquiries.creator.call').and_yield(span)
+          expect(span).to receive(:set_tag).with('user.isAuthenticated', true)
+          expect(span).to receive(:set_tag).with('user.loa', anything)
+          allow(span).to receive(:set_tag) # for other tags
+
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
+
+        it 'sets inquiry context without PII' do
+          expect(Datadog::Tracing).to receive(:trace).and_yield(span)
+          expect(span).to receive(:set_tag).with('inquiry', anything) do |_key, value|
+            # Focused PII validation
+            unsafe_fields = %i[icn ssn social_security_number date_of_birth]
+            expect(value.keys & unsafe_fields).to be_empty
+          end
+          allow(span).to receive(:set_tag)
+
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
+
+        it 'logs inquiry result context with inquiry_number' do
+          expect(Rails.logger).to receive(:info).with(
+            'Inquiry Submission Result Context',
+            hash_including(inquiry_number: anything)
+          )
+
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
+      end
+
+      context 'when handled data is blank' do
+        before do
+          allow(service).to receive(:call).and_return(crm_failure_response)
+        end
+
+        it 'does not log inquiry result context' do
+          expect(Rails.logger).not_to receive(:info).with('Inquiry Submission Result Context', anything)
+          creator.call(inquiry_params: inquiry_params[:inquiry])
+        end
       end
     end
   end
