@@ -34,6 +34,11 @@ module PdfS3Operations
       saved_claim_id: claim.id,
       user_account_id: claim.user_account_id
     )
+    ## benefits_intake_uuid: is a misnomer here as its actually the claim.guid.
+    # This is a trade-off with running submissions in a background job and having a 15 minute window
+    # where the uuid is valid. SimpleFormsApi runs in a linear pattern where the request for upload
+    # happens 1st and then they create the SubmissionAttempt so that the uuid are the same.
+    # The request for upload happens in our background jobs so no access to the UUID here.
     FormSubmissionAttempt.create!(form_submission:, benefits_intake_uuid: claim.guid)
   end
 

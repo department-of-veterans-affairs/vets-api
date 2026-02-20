@@ -28,6 +28,7 @@ module IncreaseCompensation
           claim = nil
         end
         ia_monitor.track_submission_exhaustion(msg, claim)
+        IncreaseCompensation::NotificationEmail.new(claim.id).deliver(:error) if claim
       end
 
       ##
@@ -127,7 +128,8 @@ module IncreaseCompensation
         )
       end
 
-      # Upload generated pdf to Benefits Intake API
+      ## Upload generated pdf to Benefits Intake API
+      # `@intake_service.request_upload` called in this method generating a location and uuid
       def upload_document
         @intake_service.request_upload # <- benefits_intake_uuid come from here
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
@@ -154,7 +156,12 @@ module IncreaseCompensation
       def govcio_upload
         if Flipper.enabled?(:increase_compensation_govcio_mms)
           ibm_service = Ibm::Service.new
-          Rails.logger.info('Start send to IBM service', form: @claim.form_id, guid: @intake_service.uuid)
+          Rails.logger.info(
+            'IBM MMS Upload Started',
+            form: @claim.form_id,
+            benefits_intake_uuid: @intake_service.uuid,
+            confirmation_number: @claim.confirmation_number
+          )
           ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
         end
       end
@@ -181,7 +188,7 @@ module IncreaseCompensation
 
       # VANotify job to send Submission in Progress email to veteran
       def send_submitted_email
-        IncreaseCompensation::NotificationEmail.new(@claim.id).deliver(:submitted)
+        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
       rescue => e
         monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
       end

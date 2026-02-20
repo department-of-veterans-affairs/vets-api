@@ -90,6 +90,7 @@ module IncreaseCompensation
     # @return [String] Path to the generated PDF file
     #
     def to_pdf(file_name = nil, fill_options = {})
+      fill_options[:extras_redesign] = false # <- ExtrasGeneratorV2 does not work with this form currently
       pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
       # test fails because form is nil
       if form && pdf_path.present?
