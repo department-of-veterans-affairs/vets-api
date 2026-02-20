@@ -51,6 +51,20 @@ describe 'rake claims', type: :task do
     let(:task_name) { 'claims:fix_failed_claims' }
 
     before do
+      # Mock ClaimEstablisher to update claim status
+      allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+        claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+        claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+      end
+
+      # Mock services
+      allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+
+      allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async)
+
+      # Stub sleep to speed up tests
+      allow_any_instance_of(Kernel).to receive(:sleep)
+      # mock inputs for user prompts and outputs.
       allow($stdin).to receive(:gets).and_return("y\n")
       allow($stdout).to receive(:puts)
     end
@@ -113,19 +127,6 @@ describe 'rake claims', type: :task do
     describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is disabled' do
       before do
         Flipper.disable(:lighthouse_claims_api_v1_enable_FES)
-        # Mock ClaimEstablisher to update claim status
-        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
-        end
-
-        # Mock services
-        allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
-
-        allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async)
-
-        # Stub sleep to speed up tests
-        allow_any_instance_of(Kernel).to receive(:sleep)
       end
 
       describe 'when the claim failed to establish from a PUT request' do
@@ -271,39 +272,7 @@ describe 'rake claims', type: :task do
     #     Flipper.enable(:lighthouse_claims_api_v1_enable_FES)
     #   end
 
-    #   context 'single claim with supporting documents' do
-    #     let(:claim) do
-    #       create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-    #     end
-
-    #     before do
-    #       # Mock DisabilityCompensationPdfGenerator to update claim status
-    #       allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async) do |claim_id, _|
-    #         claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-    #         claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
-    #       end
-
-    #       # Mock ClaimEstablisher to update claim status
-    #       allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-    #         claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-    #         claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
-    #       end
-
-    #       # Mock ClaimUploader
-    #       allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
-
-    #       # Stub sleep to speed up tests
-    #       allow_any_instance_of(Kernel).to receive(:sleep)
-    #     end
-
-    #     it 'uses the DisabilityCompensationPdfGenerator to reestablish the claim' do
-    #       args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-    #       task.execute(args)
-
-    #       expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async).with(claim.id, '').once
-    #       expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
-    #     end
-    #   end
+      
     # end
   end
 end
