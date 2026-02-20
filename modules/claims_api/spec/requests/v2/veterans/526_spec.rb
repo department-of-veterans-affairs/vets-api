@@ -309,9 +309,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     end
 
     context 'alternateNames validations' do
-      context 'when alternateNames contains duplicate names',
-              if: Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES) do
-        it 'allows duplicate alternate names (uniqueness not required)' do
+      context 'when alternateNames contains duplicate names' do
+        it 'allows duplicate alternate names when FES validation is enabled' do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+
           mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
             VCR.use_cassette('claims_api/disability_comp') do
               json_data = JSON.parse(data)
