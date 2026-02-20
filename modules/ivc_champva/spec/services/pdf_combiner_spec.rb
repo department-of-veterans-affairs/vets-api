@@ -50,7 +50,7 @@ describe IvcChampva::PdfCombiner do
 
       context 'when champva_allow_pdf_optional_content is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:champva_allow_pdf_optional_content).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:champva_allow_pdf_optional_content, anything).and_return(true)
         end
 
         it 'combines PDF with optional content successfully' do
@@ -64,7 +64,7 @@ describe IvcChampva::PdfCombiner do
 
       context 'when champva_allow_pdf_optional_content is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:champva_allow_pdf_optional_content).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:champva_allow_pdf_optional_content, anything).and_return(false)
         end
 
         it 'raises an error when combining PDF with optional content' do
