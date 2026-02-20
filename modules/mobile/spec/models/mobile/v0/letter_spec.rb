@@ -7,24 +7,24 @@ RSpec.describe Mobile::V0::Letter, type: :model do
     context 'for letters in VISIBLE_TYPES' do
       it 'returns true for benefit_summary' do
         letter = described_class.new(letter_type: 'benefit_summary', name: 'Benefit Summary Letter')
-        expect(letter.displayable?).to eq(true)
+        expect(letter.displayable?).to be(true)
       end
 
       it 'returns true for commissary' do
         letter = described_class.new(letter_type: 'commissary', name: 'Commissary Letter')
-        expect(letter.displayable?).to eq(true)
+        expect(letter.displayable?).to be(true)
       end
     end
 
     context 'for letters not in VISIBLE_TYPES' do
       it 'returns false for benefit_summary_dependent' do
         letter = described_class.new(letter_type: 'benefit_summary_dependent', name: 'Dependent Letter')
-        expect(letter.displayable?).to eq(false)
+        expect(letter.displayable?).to be(false)
       end
 
       it 'returns false for certificate_of_eligibility' do
         letter = described_class.new(letter_type: 'certificate_of_eligibility', name: 'COE Letter')
-        expect(letter.displayable?).to eq(false)
+        expect(letter.displayable?).to be(false)
       end
     end
 
@@ -39,7 +39,7 @@ RSpec.describe Mobile::V0::Letter, type: :model do
         end
 
         it 'returns false' do
-          expect(letter.displayable?).to eq(false)
+          expect(letter.displayable?).to be(false)
         end
       end
 
@@ -49,7 +49,7 @@ RSpec.describe Mobile::V0::Letter, type: :model do
         end
 
         it 'returns true' do
-          expect(letter.displayable?).to eq(true)
+          expect(letter.displayable?).to be(true)
         end
       end
     end

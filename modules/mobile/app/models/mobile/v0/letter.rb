@@ -52,9 +52,7 @@ module Mobile
         return false unless self.class::VISIBLE_TYPES.include?(letter_type)
 
         # Hide foreign_medical_program behind feature flag
-        if letter_type == 'foreign_medical_program'
-          return Flipper.enabled?(:fmp_benefits_authorization_letter)
-        end
+        return Flipper.enabled?(:fmp_benefits_authorization_letter) if letter_type == 'foreign_medical_program'
 
         true
       end
