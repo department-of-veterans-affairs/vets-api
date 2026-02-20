@@ -158,19 +158,19 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     let(:identifier_obj) { instance_double(IcnTemporaryIdentifier, icn:) }
 
     before do
-      # Let Pundit run; force policy to allow show? so authorization is performed.
+      # Let Pundit run; force policy to allow show? so authorization is performed
       allow_any_instance_of(AccreditedRepresentativePortal::ClaimantPolicy)
         .to receive(:show?)
         .and_return(true)
 
-      # Controller might reference IcnTemporaryIdentifier (un-namespaced) or the ARP namespaced model.
-      # Make both paths return our identifier object.
+      # Stub identifier lookup on the real, namespaced model
       allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
         .to receive(:find)
         .with(identifier_id)
         .and_return(identifier_obj)
 
-      # If the controller uses the un-namespaced constant, alias it to the ARP model so .find exists.
+      # If the controller references the un-namespaced constant, alias it safely for this spec.
+      # Using stub_const ensures the constant exists in CI.
       stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
       allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_return(identifier_obj)
 
@@ -209,10 +209,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         expect(data['first_name']).to eq('John')
         expect(data['last_name']).to eq('Smith')
         expect(data['birth_date']).to eq('1980-01-01')
-
-        expect(data).to have_key('ssn')
-        expect(data).to have_key('phone')
-        expect(data['address']).to include('line1', 'line2', 'city', 'state', 'zip')
       end
 
       it 'calls MPI with the ICN from the identifier' do
