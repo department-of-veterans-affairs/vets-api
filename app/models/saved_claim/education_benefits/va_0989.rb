@@ -22,4 +22,28 @@ class SavedClaim::EducationBenefits::VA0989 < SavedClaim::EducationBenefits
       'EDU' # busines line
     )
   end
+
+  # The `email_type` here needs to match one of the keys
+  # in config/settings.yml under vanotify.services.<some_service>
+  # By default, an `:error` email type is sent when the submit claim
+  # job is exhausted (`monitor.track_submission_exhaustion`).
+  # Otherwise, the email_types can pretty much be whatever you
+  # want. It's common to have a `:received` type also for when
+  # the sumbmission reaches VBMS state in the benefits intake API
+  def send_email(email_type)
+    EducationBenefitsClaims::NotificationEmail.new(id).deliver(email_type)
+  end
+
+  # the personalization params to send with VANotify
+  def personalisation
+    {
+      first_name: parsed_form['applicantName']['first'],
+      last_name: parsed_form['applicantName']['last']
+    }
+  end
+
+  # the email address to send VANotify success/failure emails to
+  def email
+    parsed_form['emailAddress']
+  end
 end

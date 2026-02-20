@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'logging/monitor'
 require 'logging/base_monitor'
 
 module EducationBenefitsClaims
