@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe SimpleFormsApi::Mms::Form4140IbmConverter do
+RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
   let(:form) do
     OpenStruct.new(
       first_name: 'John',

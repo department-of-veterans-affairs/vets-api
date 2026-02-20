@@ -1,6 +1,6 @@
 module SimpleFormsApi
   module Mms
-    module Form4140IbmConverter
+    module VBA214140IbmConverter
       FORM_TYPE_LABEL = '21-4140'.freeze
 
 		  MAPPINGS = {
