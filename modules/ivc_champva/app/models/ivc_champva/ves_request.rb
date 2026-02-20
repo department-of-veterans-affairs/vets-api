@@ -5,11 +5,18 @@
 # to a hash, converting names from snake_case to camelCase symbols.
 # Also runs `to_hash` on any existing top-level `address` properties.
 #
+# Note: @subforms is explicitly excluded as it should never be serialized to VES.
+#
 def instance_vars_to_hash(instance)
+  # Instance variables that should never be serialized to VES
+  excluded_vars = %i[@subforms]
+
   # Create hash where keys are the instance variables with '@' removed and
   # converted from snake_case to camelCase
   # e.g.: '@phone_number' -> :phoneNumber
   instance_vars_hash = instance.instance_variables.each_with_object({}) do |var, hash|
+    next if excluded_vars.include?(var)
+
     key = var.to_s.delete_prefix('@').camelize(:lower).to_sym
     value = instance.instance_variable_get(var)
     hash[key] = value
@@ -24,7 +31,8 @@ end
 
 module IvcChampva
   class VesRequest
-    attr_accessor :application_type, :application_uuid, :sponsor, :beneficiaries, :certification, :transaction_uuid
+    attr_accessor :application_type, :application_uuid, :sponsor, :beneficiaries, :certification, :transaction_uuid,
+                  :subforms
 
     def initialize(params = {})
       @application_type = params[:application_type] || 'CHAMPVA'
@@ -33,8 +41,29 @@ module IvcChampva
       @beneficiaries = (params[:beneficiaries] || []).map { |ben| Beneficiary.new(ben) }
       @certification = Certification.new(params[:certification] || {})
       @transaction_uuid = params[:transaction_uuid] || SecureRandom.uuid
+      @subforms = []
     end
 
+    ##
+    # Adds a subform to be submitted after this request succeeds.
+    # Subforms are NOT serialized to VES - they are submitted separately.
+    #
+    # @param form_type [String] The form type identifier (e.g., 'vha_10_7959c')
+    # @param request [Object] The subform request object (e.g., VesOhiRequest)
+    def add_subform(form_type, request)
+      @subforms << { form_type:, request: }
+    end
+
+    ##
+    # Returns true if this request has subforms to submit after the primary request.
+    #
+    # @return [Boolean]
+    def subforms?
+      @subforms.any?
+    end
+
+    # NOTE: subforms are intentionally NOT included in to_json.
+    # They are submitted separately after the primary request succeeds.
     def to_json(*_args)
       {
         applicationType: @application_type,

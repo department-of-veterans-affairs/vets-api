@@ -20,10 +20,11 @@ module Mobile
 
         build_page_metadata(page_meta_data, appointments, partial_errors)
 
-        # Log unique user event for appointments accessed
+        # Log unique user event for appointments accessed (with facility tracking for OH events)
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED
+          event_name: UniqueUserEvents::EventRegistry::APPOINTMENTS_ACCESSED,
+          event_facility_ids: appointment_facility_ids(appointments)
         )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
@@ -40,6 +41,12 @@ module Mobile
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointment')
         render json: { data: serialized }, status: :created
+      end
+
+      def get_avs_binaries
+        avs_binaries = appointments_service.fetch_avs_binaries(avs_binaries_params[:appointment_id],
+                                                               avs_binaries_params[:doc_ids].split(','))
+        render json: VAOS::V2::AvsBinarySerializer.new(avs_binaries), status: :ok
       end
 
       private
@@ -84,6 +91,12 @@ module Mobile
             include: params[:include]
           )
         end
+      end
+
+      def avs_binaries_params
+        params.require(:appointment_id)
+        params.require(:doc_ids)
+        params.permit(:appointment_id, :doc_ids)
       end
 
       def appointments_service
@@ -181,6 +194,22 @@ module Mobile
             refreshable: true
           )
         end
+      end
+
+      # Extract unique facility IDs (3-character) from user-visible appointments for OH event tracking
+      # Only includes appointments that are pending or not cancelled (shown to users in the UI)
+      # Note: facility_id may be a sta6aid (5-6 characters like "983GC") - we extract only the
+      # 3-character facility ID prefix to match against TRACKED_FACILITY_IDS
+      # Returns nil if mhv_oh_unique_user_metrics_logging_appt feature flag is disabled
+      # @param appointments [Array<Mobile::V0::Appointment>] list of appointments
+      # @return [Array<String>, nil] unique 3-character facility IDs or nil if none/disabled
+      def appointment_facility_ids(appointments)
+        return nil unless Flipper.enabled?(:mhv_oh_unique_user_metrics_logging_appt)
+
+        cancelled_status = Mobile::V0::Adapters::VAOSV2Appointment::STATUSES[:cancelled]
+        visible_appointments = appointments.select { |appt| appt.is_pending || appt.status != cancelled_status }
+        station_ids = visible_appointments.filter_map { |appt| appt.facility_id&.[](0..2) }.uniq
+        station_ids.presence
       end
     end
   end

@@ -38,6 +38,7 @@ module SignIn
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       OPERATION_TYPES = [SIGN_UP = 'sign_up',
                          AUTHORIZE = 'authorize',
+                         AUTHORIZE_SSO = 'authorize_sso',
                          INTERSTITIAL_VERIFY = 'interstitial_verify',
                          INTERSTITIAL_SIGNUP = 'interstitial_signup',
                          VERIFY_CTA_AUTHENTICATED = 'verify_cta_authenticated',

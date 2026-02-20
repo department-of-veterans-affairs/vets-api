@@ -60,6 +60,12 @@ en:
         detail: "\"%{sort_criteria}\" is not a valid sort criteria for \"%{resource}\""
         code: 106
         status: 400
+      max_array_size_exceeded:
+        <<: *defaults
+        title: Too many items submitted
+        detail: "\"%{field}\" cannot exceed %{max_size} items (submitted %{actual_size})"
+        code: 111
+        status: 400
       invalid_pagination_params:
         <<: *defaults
         title: Invalid pagination params
@@ -208,6 +214,12 @@ en:
         <<: *defaults
         title: Prescription Refill Response Mismatch
         detail: The upstream service returned an incomplete response for prescription refill orders
+        code: 502
+        status: 502
+      upstream_partial_failure:
+        <<: *defaults
+        title: Upstream Partial Failure
+        detail: Some health records could not be retrieved due to upstream service errors
         code: 502
         status: 502
       service_unavailable:

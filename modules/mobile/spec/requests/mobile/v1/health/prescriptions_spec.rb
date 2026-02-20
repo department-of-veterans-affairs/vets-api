@@ -302,10 +302,11 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
                 expect(data['attributes']).to have_key('errors')
                 expect(data['attributes']).to have_key('infoMessages')
 
-                # Verify event logging was called
+                # Verify event logging was called with station numbers from orders
                 expect(UniqueUserEvents).to have_received(:log_event).with(
                   user: anything,
-                  event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+                  event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+                  event_facility_ids: %w[556 570]
                 )
               end
             end

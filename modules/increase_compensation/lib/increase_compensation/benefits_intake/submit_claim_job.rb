@@ -5,6 +5,7 @@ require 'lighthouse/benefits_intake/metadata'
 require 'increase_compensation/notification_email'
 require 'increase_compensation/monitor'
 require 'pdf_utilities/datestamp_pdf'
+require 'ibm/service'
 
 module IncreaseCompensation
   module BenefitsIntake
@@ -23,7 +24,7 @@ module IncreaseCompensation
         ia_monitor = IncreaseCompensation::Monitor.new
         begin
           claim = IncreaseCompensation::SavedClaim.find(msg['args'].first)
-        rescue Errors::StandardError
+        rescue
           claim = nil
         end
         ia_monitor.track_submission_exhaustion(msg, claim)
@@ -43,9 +44,11 @@ module IncreaseCompensation
         init(saved_claim_id, user_account_uuid)
 
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: true, omit_esign_stamp: true }))
+        @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
-        @metadata = generate_metadata
+        form = @claim.parsed_form
+        @metadata = generate_metadata(form)
+        @ibm_payload = @claim.to_ibm
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -109,8 +112,7 @@ module IncreaseCompensation
       # @see BenefitsIntake::Metadata
       #
       # @return [Hash]
-      def generate_metadata
-        form = @claim.parsed_form
+      def generate_metadata(form)
         address = form['claimantAddress'] || form['veteranAddress']
 
         # also validates/manipulates the metadata
@@ -119,15 +121,15 @@ module IncreaseCompensation
           form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           address['postalCode'],
-          self.class.to_s,
-          @claim.form_id,
+          'va_gov_benefits_intake_pingwind',
+          IncreaseCompensation::FORM_REAL_ID,
           @claim.business_line
         )
       end
 
       # Upload generated pdf to Benefits Intake API
       def upload_document
-        @intake_service.request_upload
+        @intake_service.request_upload # <- benefits_intake_uuid come from here
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
         lighthouse_submission_polling
 
@@ -137,16 +139,30 @@ module IncreaseCompensation
           metadata: @metadata.to_json,
           attachments: @attachment_paths
         }
+        tracked_payload = payload.merge(
+          ibm_payload_present: @ibm_payload.present?,
+          ibm_payload_field_count: @ibm_payload&.keys&.count
+        )
 
-        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
+        monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
+        govcio_upload if response.success?
         raise IncreaseCompensationBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      # Upload to IBM MMS if the govcio flipper is enabled
+      def govcio_upload
+        if Flipper.enabled?(:increase_compensation_govcio_mms)
+          ibm_service = Ibm::Service.new
+          Rails.logger.info('Start send to IBM service', form: @claim.form_id, guid: @intake_service.uuid)
+          ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
+        end
       end
 
       # Insert submission polling entries
       def lighthouse_submission_polling
         lighthouse_submission = {
-          form_id: @claim.form_id,
+          form_id: IncreaseCompensation::FORM_REAL_ID,
           reference_data: @claim.to_json,
           saved_claim: @claim
         }

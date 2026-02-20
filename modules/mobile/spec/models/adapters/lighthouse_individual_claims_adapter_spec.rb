@@ -19,6 +19,18 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
     subject.parse(claim_data[2])
   end
 
+  let(:claim_without_download_eligible_documents) do
+    subject.parse(claim_data[0])
+  end
+
+  let(:claim_with_tracked_documents) do
+    subject.parse(claim_data[2])
+  end
+
+  let(:claim_with_untracked_documents) do
+    subject.parse(claim_data[1])
+  end
+
   it 'returns nil when provided nil' do
     expect(subject.parse(nil)).to be_nil
   end
@@ -76,7 +88,63 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                      file_type: nil,
                                      document_type: nil,
                                      filename: nil,
-                                     document_id: nil })
+                                     document_id: nil,
+                                     # Content override fields should be nil when the feature flag is disabled
+                                     activity_description: nil,
+                                     can_upload_file: nil,
+                                     friendly_name: nil,
+                                     is_dbq: nil,
+                                     is_proper_noun: nil,
+                                     is_sensitive: nil,
+                                     long_description: nil,
+                                     next_steps: nil,
+                                     no_action_needed: nil,
+                                     no_provide_prefix: nil,
+                                     short_description: nil,
+                                     support_aliases: nil })
+  end
+
+  describe 'download_eligible_documents' do
+    it 'does not have download_eligible_documents' do
+      download_eligible_documents = claim_without_download_eligible_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents).to be_empty
+
+      events_timeline = claim_without_download_eligible_documents[:events_timeline]
+      expect(events_timeline).to include(an_object_having_attributes(
+                                           document_id: '{798F828C-3B4A-4EB5-8883-F7C49205BD98}',
+                                           filename: nil,
+                                           documents: nil,
+                                           type: :other_documents_list
+                                         ))
+    end
+
+    it 'has download_eligible_documents with tracked documents' do
+      download_eligible_documents = claim_with_tracked_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents.size).to eq(5)
+      expect(download_eligible_documents[0][:document_id]).to eq('{883B6CC8-D726-4911-9C65-2EB360E12F52}')
+      expect(download_eligible_documents[0][:filename]).to eq('7B434B58-477C-4379-816F-05E6D3A10487.pdf')
+
+      events_timeline = claim_with_tracked_documents[:events_timeline]
+      expect(events_timeline[3][:documents]).not_to be_empty
+      expect(events_timeline[3][:document_id]).to be_nil
+      expect(events_timeline[3][:type]).not_to eq(:other_documents_list)
+    end
+
+    it 'has download_eligible_documents with only untracked documents' do
+      download_eligible_documents = claim_with_untracked_documents[:download_eligible_documents]
+      expect(download_eligible_documents).to be_a(Array)
+      expect(download_eligible_documents.size).to eq(5)
+      expect(download_eligible_documents[0][:document_id]).to eq('{0C994A8F-F2FE-4963-B013-870E420EFFD1}')
+      expect(download_eligible_documents[0][:filename]).to eq('ClaimDecisionRequest.pdf')
+      events_timeline = claim_with_untracked_documents[:events_timeline]
+      expect(events_timeline).to include(an_object_having_attributes(
+                                           document_id: '{0C994A8F-F2FE-4963-B013-870E420EFFD1}',
+                                           documents: nil,
+                                           type: :other_documents_list
+                                         ))
+    end
   end
 
   context 'with claim in phase CLAIM_RECEIVED' do
@@ -188,6 +256,90 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
       it 'does not include display_title in the response' do
         expect(test_claim[:display_title]).to be_nil
+      end
+    end
+  end
+
+  describe 'tracked item content overrides' do
+    let(:test_claim) do
+      subject.parse(claim_data[2])
+    end
+
+    let(:content_override_mock) do
+      {
+        friendlyName: 'Test Friendly Name',
+        shortDescription: 'Test short description',
+        activityDescription: 'Test activity description',
+        supportAliases: ['test-alias'],
+        canUploadFile: true,
+        noActionNeeded: true,
+        isDBQ: true,
+        isProperNoun: true,
+        isSensitive: true,
+        noProvidePrefix: true,
+        longDescription: { blocks: [{ type: 'paragraph', content: 'Test long description' }] },
+        nextSteps: { blocks: [{ type: 'paragraph', content: 'Test next steps' }] }
+      }
+    end
+
+    context "when the 'cst_evidence_requests_content_override_mobile' feature flag is enabled" do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE, anything)
+          .and_return(true)
+        allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+          .and_return(content_override_mock)
+      end
+
+      it 'maps content override fields to tracked item events' do
+        tracked_item = test_claim[:events_timeline].find do |event|
+          %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
+        end
+
+        expect(tracked_item.friendly_name).to eq(content_override_mock[:friendlyName])
+        expect(tracked_item.short_description).to eq(content_override_mock[:shortDescription])
+        expect(tracked_item.activity_description).to eq(content_override_mock[:activityDescription])
+        expect(tracked_item.support_aliases).to eq(content_override_mock[:supportAliases])
+        expect(tracked_item.can_upload_file).to eq(content_override_mock[:canUploadFile])
+        expect(tracked_item.no_action_needed).to eq(content_override_mock[:noActionNeeded])
+        expect(tracked_item.is_dbq).to eq(content_override_mock[:isDBQ])
+        expect(tracked_item.is_proper_noun).to eq(content_override_mock[:isProperNoun])
+        expect(tracked_item.is_sensitive).to eq(content_override_mock[:isSensitive])
+        expect(tracked_item.no_provide_prefix).to eq(content_override_mock[:noProvidePrefix])
+        expect(tracked_item.long_description).to eq(content_override_mock[:longDescription])
+        expect(tracked_item.next_steps).to eq(content_override_mock[:nextSteps])
+      end
+    end
+
+    context "when the 'cst_evidence_requests_content_override_mobile' feature flag is disabled" do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(Mobile::V0::Adapters::LighthouseIndividualClaims::FEATURE_EVIDENCE_REQUESTS_CONTENT_OVERRIDE, anything)
+          .and_return(false)
+      end
+
+      it 'does not include content override fields in tracked item events' do
+        tracked_item = test_claim[:events_timeline].find do |event|
+          %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
+        end
+
+        expect(tracked_item.friendly_name).to be_nil
+        expect(tracked_item.short_description).to be_nil
+        expect(tracked_item.activity_description).to be_nil
+        expect(tracked_item.support_aliases).to be_nil
+        expect(tracked_item.can_upload_file).to be_nil
+        expect(tracked_item.no_action_needed).to be_nil
+        expect(tracked_item.is_dbq).to be_nil
+        expect(tracked_item.is_proper_noun).to be_nil
+        expect(tracked_item.is_sensitive).to be_nil
+        expect(tracked_item.no_provide_prefix).to be_nil
+        expect(tracked_item.long_description).to be_nil
+        expect(tracked_item.next_steps).to be_nil
+      end
+
+      it 'does not call TrackedItemContent lookup' do
+        expect(BenefitsClaims::TrackedItemContent).not_to receive(:find_by_display_name)
+        test_claim
       end
     end
   end

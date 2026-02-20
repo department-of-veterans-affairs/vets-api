@@ -2,12 +2,12 @@
 
 module Vass
   ##
-  # Redis client for caching OAuth tokens, OTC codes, and session data.
+  # Redis client for caching OAuth tokens, OTP codes, and session data.
   #
   # Handles:
   # - OAuth access token from Microsoft identity provider (shared across requests)
-  # - One-Time Codes (OTC) for veteran verification flow
-  # - Session data (EDIPI, veteran_id) after successful OTC verification
+  # - One-Time Passwords (OTP) for veteran verification flow
+  # - Session data (EDIPI, veteran_id) after successful OTP verification
   #
   class RedisClient
     include Vass::Logging
@@ -33,112 +33,138 @@ module Vass
 
     ##
     # Delegate expiry settings to @settings
-    delegate :redis_token_expiry, :redis_otc_expiry, :redis_session_expiry, to: :@settings
+    delegate :redis_token_expiry, :redis_otp_expiry, :redis_session_expiry, to: :@settings
 
     # ------------ OAuth Token Management ------------
 
     ##
-    # Retrieves the cached OAuth access token.
+    # Retrieves the cached OAuth access token and decrypts it.
     #
-    # @return [String, nil] Cached OAuth token or nil if not present/expired
+    # @return [String, nil] Cached OAuth token (decrypted) or nil if not present/expired
     #
     def token
-      with_redis_error_handling do
+      encrypted_token = with_redis_error_handling do
         Rails.cache.read(
           'oauth_token',
           namespace: 'vass-auth-cache'
         )
       end
+
+      return nil if encrypted_token.nil?
+
+      token_encryptor.decrypt(encrypted_token)
     end
 
     ##
-    # Saves the OAuth access token to cache with expiration.
+    # Encrypts and saves the OAuth access token to cache with expiration.
     #
     # @param token [String, nil] OAuth token to cache (nil clears the cache)
     # @return [Boolean] true if write succeeds
     #
     def save_token(token:)
+      encrypted_token = token.nil? ? nil : token_encryptor.encrypt(token)
+
       with_redis_error_handling do
         Rails.cache.write(
           'oauth_token',
-          token,
+          encrypted_token,
           namespace: 'vass-auth-cache',
           expires_in: redis_token_expiry
         )
       end
     end
 
-    # ------------ One-Time Code (OTC) Management ------------
+    # ------------ One-Time Password (OTP) Management ------------
 
     ##
-    # Retrieves a stored OTC by UUID.
-    #
-    # @param uuid [String] Veteran UUID from email link
-    # @return [String, nil] OTC or nil if not found/expired
-    #
-    def otc(uuid:)
-      with_redis_error_handling do
-        Rails.cache.read(
-          otc_key(uuid),
-          namespace: 'vass-otc-cache'
-        )
-      end
-    end
-
-    ##
-    # Saves an OTC for a veteran UUID with short expiration.
+    # Saves an OTP for a veteran UUID with short expiration.
+    # Stores the code along with identity data for validation during authentication.
     #
     # @param uuid [String] Veteran UUID
-    # @param code [String] One-time code
+    # @param code [String] One-time password
+    # @param last_name [String] Veteran's last name (for identity verification)
+    # @param dob [String] Veteran's date of birth (for identity verification)
     # @return [Boolean] true if write succeeds
     #
-    def save_otc(uuid:, code:)
+    def save_otp(uuid:, code:, last_name:, dob:)
+      otp_data = {
+        code:,
+        last_name:,
+        dob:
+      }
+
       with_redis_error_handling do
         Rails.cache.write(
-          otc_key(uuid),
-          code,
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
+          otp_key(uuid),
+          Oj.dump(otp_data),
+          namespace: 'vass-otp-cache',
+          expires_in: redis_otp_expiry
         )
       end
     end
 
     ##
-    # Deletes an OTC after successful verification (one-time use).
+    # Retrieves stored OTP data (code and identity info) by UUID.
+    #
+    # @param uuid [String] Veteran UUID from email link
+    # @return [Hash, nil] Hash with :code, :last_name, :dob or nil if not found/expired
+    #
+    def otp_data(uuid:)
+      cached = with_redis_error_handling do
+        Rails.cache.read(
+          otp_key(uuid),
+          namespace: 'vass-otp-cache'
+        )
+      end
+
+      return nil if cached.nil?
+
+      begin
+        Oj.load(cached, symbol_keys: true)
+      rescue Oj::ParseError
+        log_vass_event(action: 'json_parse_failed', level: :error, key_type: 'otp_data')
+        nil
+      end
+    end
+
+    ##
+    # Deletes an OTP after successful verification (one-time use).
     #
     # @param uuid [String] Veteran UUID
     # @return [void]
     #
-    def delete_otc(uuid:)
+    def delete_otp(uuid:)
       with_redis_error_handling do
         Rails.cache.delete(
-          otc_key(uuid),
-          namespace: 'vass-otc-cache'
+          otp_key(uuid),
+          namespace: 'vass-otp-cache'
         )
       end
     end
 
     ##
-    # Saves veteran metadata (edipi, veteran_id) keyed by UUID.
+    # Saves veteran metadata (edipi, veteran_id, email) keyed by UUID.
     # Used to avoid fetching veteran data again in the show flow.
     #
     # @param uuid [String] Veteran UUID
     # @param edipi [String] Veteran EDIPI
     # @param veteran_id [String] Veteran ID
+    # @param email [String, nil] Veteran email address (optional)
     # @return [Boolean] true if write succeeds
     #
-    def save_veteran_metadata(uuid:, edipi:, veteran_id:)
+    def save_veteran_metadata(uuid:, edipi:, veteran_id:, email: nil)
       metadata = {
         edipi:,
-        veteran_id:
+        veteran_id:,
+        email:
       }
 
       with_redis_error_handling do
         Rails.cache.write(
           veteran_metadata_key(uuid),
           Oj.dump(metadata),
-          namespace: 'vass-otc-cache',
-          expires_in: redis_otc_expiry
+          namespace: 'vass-otp-cache',
+          expires_in: redis_otp_expiry
         )
       end
     end
@@ -153,7 +179,7 @@ module Vass
       cached = with_redis_error_handling do
         Rails.cache.read(
           veteran_metadata_key(uuid),
-          namespace: 'vass-otc-cache'
+          namespace: 'vass-otp-cache'
         )
       end
 
@@ -236,25 +262,27 @@ module Vass
     # ------------ Session Management ------------
 
     ##
-    # Saves session data after successful OTC verification.
-    # Stores EDIPI and veteran_id for use in subsequent VASS API calls.
+    # Saves session data after successful OTP verification.
+    # Stores EDIPI, veteran_id, and active jti for use in subsequent VASS API calls.
+    # Session is keyed by UUID (one session per veteran). Storing the jti ensures
+    # only the most recently issued token is valid - previous tokens are invalidated.
     #
-    # @param session_token [String] Session token (generated after OTC verification)
+    # @param uuid [String] Veteran UUID from email link
+    # @param jti [String] JWT ID of the currently valid token
     # @param edipi [String] Veteran EDIPI (required for VASS API headers)
     # @param veteran_id [String] Veteran ID in VASS system
-    # @param uuid [String] Original UUID from email link
     # @return [Boolean] true if write succeeds
     #
-    def save_session(session_token:, edipi:, veteran_id:, uuid:)
+    def save_session(uuid:, jti:, edipi:, veteran_id:)
       session_data = {
+        jti:,
         edipi:,
-        veteran_id:,
-        uuid:
+        veteran_id:
       }
 
       with_redis_error_handling do
         Rails.cache.write(
-          session_key(session_token),
+          session_key(uuid),
           Oj.dump(session_data),
           namespace: 'vass-session-cache',
           expires_in: redis_session_expiry
@@ -263,15 +291,15 @@ module Vass
     end
 
     ##
-    # Retrieves session data by session token.
+    # Retrieves session data by UUID.
     #
-    # @param session_token [String] Session token
-    # @return [Hash, nil] Session data hash or nil if not found/expired
+    # @param uuid [String] Veteran UUID
+    # @return [Hash, nil] Session data hash or nil if not found/expired/revoked
     #
-    def session(session_token:)
+    def session(uuid:)
       cached = with_redis_error_handling do
         Rails.cache.read(
-          session_key(session_token),
+          session_key(uuid),
           namespace: 'vass-session-cache'
         )
       end
@@ -287,37 +315,64 @@ module Vass
     end
 
     ##
+    # Checks if a session exists for the given UUID.
+    # Used to verify token has not been revoked.
+    #
+    # @param uuid [String] Veteran UUID
+    # @return [Boolean] true if session exists
+    #
+    def session_exists?(uuid:)
+      session(uuid:).present?
+    end
+
+    ##
+    # Checks if the given jti is the active token for this session.
+    # Returns false if session doesn't exist or jti doesn't match.
+    # This ensures only the most recently issued token is valid.
+    #
+    # @param uuid [String] Veteran UUID
+    # @param jti [String] JWT ID to validate
+    # @return [Boolean] true if jti matches the active session token
+    #
+    def session_valid_for_jti?(uuid:, jti:)
+      session_data = session(uuid:)
+      return false unless session_data
+
+      session_data[:jti] == jti
+    end
+
+    ##
     # Retrieves EDIPI from session for use in VASS API headers.
     #
-    # @param session_token [String] Session token
+    # @param uuid [String] Veteran UUID
     # @return [String, nil] EDIPI or nil if session not found
     #
-    def edipi(session_token:)
-      session_data = session(session_token:)
+    def edipi(uuid:)
+      session_data = session(uuid:)
       session_data&.dig(:edipi)
     end
 
     ##
     # Retrieves veteran_id from session for use in VASS API calls.
     #
-    # @param session_token [String] Session token
+    # @param uuid [String] Veteran UUID
     # @return [String, nil] Veteran ID or nil if session not found
     #
-    def veteran_id(session_token:)
-      session_data = session(session_token:)
+    def veteran_id(uuid:)
+      session_data = session(uuid:)
       session_data&.dig(:veteran_id)
     end
 
     ##
-    # Deletes session data (logout/cleanup).
+    # Deletes session data (token revocation/logout).
     #
-    # @param session_token [String] Session token
-    # @return [void]
+    # @param uuid [String] Veteran UUID
+    # @return [Boolean] true if deletion succeeds
     #
-    def delete_session(session_token:)
+    def delete_session(uuid:)
       with_redis_error_handling do
         Rails.cache.delete(
-          session_key(session_token),
+          session_key(uuid),
           namespace: 'vass-session-cache'
         )
       end
@@ -466,13 +521,13 @@ module Vass
     private
 
     ##
-    # Generates a cache key for OTC storage.
+    # Generates a cache key for OTP storage.
     #
     # @param uuid [String] Veteran UUID
     # @return [String] Cache key
     #
-    def otc_key(uuid)
-      "otc_#{uuid}"
+    def otp_key(uuid)
+      "otp_#{uuid}"
     end
 
     ##
@@ -498,11 +553,11 @@ module Vass
     ##
     # Generates a cache key for session storage.
     #
-    # @param session_token [String] Session token
+    # @param uuid [String] Veteran UUID
     # @return [String] Cache key
     #
-    def session_key(session_token)
-      "session_#{session_token}"
+    def session_key(uuid)
+      "session_#{uuid}"
     end
 
     ##
@@ -554,6 +609,15 @@ module Vass
       yield
     rescue Redis::BaseError => e
       raise Vass::Errors::RedisError, "Redis operation failed: #{e.message}"
+    end
+
+    ##
+    # Lazily initializes and returns the token encryptor for OAuth token encryption/decryption.
+    #
+    # @return [Vass::TokenEncryptor] Token encryptor instance
+    #
+    def token_encryptor
+      @token_encryptor ||= Vass::TokenEncryptor.build
     end
   end
 end

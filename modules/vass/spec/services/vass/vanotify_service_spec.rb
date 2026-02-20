@@ -7,7 +7,7 @@ RSpec.describe Vass::VANotifyService do
   let(:api_key) { 'test-api-key' }
   let(:email_template_id) { 'vass-otp-email-template-id' }
   let(:notify_client) { instance_double(VaNotify::Service) }
-  let(:otc_code) { '123456' }
+  let(:otp_code) { '123456' }
   let(:email_address) { 'veteran@example.com' }
 
   before do
@@ -48,30 +48,30 @@ RSpec.describe Vass::VANotifyService do
     end
   end
 
-  describe '#send_otc' do
+  describe '#send_otp' do
     let(:service) { described_class.build }
 
     context 'with email contact method' do
-      it 'sends OTC via email' do
+      it 'sends OTP via email' do
         expect(notify_client).to receive(:send_email).with(
           email_address:,
           template_id: email_template_id,
-          personalisation: { otc_code: }
+          personalisation: { otp_code: }
         )
 
-        service.send_otc(
+        service.send_otp(
           contact_method: 'email',
           contact_value: email_address,
-          otc_code:
+          otp_code:
         )
       end
 
       it 'raises error for invalid contact method' do
         expect do
-          service.send_otc(
+          service.send_otp(
             contact_method: 'invalid',
             contact_value: email_address,
-            otc_code:
+            otp_code:
           )
         end.to raise_error(ArgumentError, "Invalid contact_method: invalid. Must be 'email'")
       end
@@ -84,10 +84,10 @@ RSpec.describe Vass::VANotifyService do
         allow(notify_client).to receive(:send_email).and_raise(error)
 
         expect do
-          service.send_otc(
+          service.send_otp(
             contact_method: 'email',
             contact_value: email_address,
-            otc_code:
+            otp_code:
           )
         end.to raise_error(VANotify::Error)
       end
@@ -112,12 +112,12 @@ RSpec.describe Vass::VANotifyService do
         service = described_class.build
 
         expect do
-          service.send_otc(
+          service.send_otp(
             contact_method: 'email',
             contact_value: email_address,
-            otc_code:
+            otp_code:
           )
-        end.to raise_error(ArgumentError, 'VASS OTC email template ID not configured')
+        end.to raise_error(ArgumentError, 'VASS OTP email template ID not configured')
       end
     end
   end

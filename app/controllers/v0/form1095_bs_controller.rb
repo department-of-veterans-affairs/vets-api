@@ -35,7 +35,7 @@ module V0
 
     def fetch_enrollment_periods
       periods = VeteranEnrollmentSystem::EnrollmentPeriods::Service.new.get_enrollment_periods(icn: current_user.icn)
-      years = model_class.available_years(periods)
+      years = model_class.available_years(current_user, periods)
       forms = years.map { |year| { year:, last_updated: nil } } # last_updated is not used on front end.
       forms.sort_by! { |f| f[:year] }
     rescue Common::Exceptions::ResourceNotFound
@@ -68,10 +68,13 @@ module V0
     end
 
     def validate_year
-      unless Integer(tax_year).between?(*model_class.available_years_range)
+      unless Integer(tax_year).between?(*model_class.available_years_range(current_user))
         raise Common::Exceptions::UnprocessableEntity, detail: "1095-B for tax year #{tax_year} not supported",
                                                        source: self.class.name
       end
+    rescue ArgumentError, TypeError
+      raise Common::Exceptions::UnprocessableEntity, detail: "Invalid tax year: #{tax_year}",
+                                                     source: self.class.name
     end
 
     def validate_txt_template

@@ -70,6 +70,9 @@ properties:
         type: string
         nullable: true
         enum: [ READ, null]
+      replyDisabled:
+        type: boolean
+        example: false
       triageGroupName:
         type: string
         nullable: true
@@ -81,6 +84,11 @@ properties:
       isOhMessage:
         type: boolean
         example: true
+      ohMigrationPhase:
+        type: string
+        nullable: true
+        description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
+        example: null
   relationships:
     type: object
     additionalProperties: false
@@ -126,10 +134,17 @@ properties:
     additionalProperties: false
     required:
       - userInTriageTeam
+      - stationNumber
     properties:
       userInTriageTeam:
         type: boolean
         example: true
-        description: This field is only present if the user is in the triage team for this message. This can be used to
-                     determine if the user can reply to the message.
+        description: Indicates whether the user is in an active triage team for this message. Can be used to determine
+                     if the user can reply to the message.
+      stationNumber:
+        type: string
+        nullable: true
+        example: "979"
+        description: The station number of the triage group associated with this message. Null if the user is not in an
+                     active triage team for this message.
 

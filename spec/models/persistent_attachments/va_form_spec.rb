@@ -78,14 +78,78 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
+    context 'form_id 40-1330M' do
+      before { instance.form_id = '40-1330M' }
+
+      it 'returns 10' do
+        expect(instance.max_pages).to eq 10
+      end
+    end
+
     context 'default' do
       it 'returns 10' do
         expect(instance.max_pages).to eq 10
       end
     end
+
+    context 'form_id 21P-524' do
+      before { instance.form_id = '21P-524' }
+
+      it 'returns 6' do
+        expect(instance.max_pages).to eq 6
+      end
+    end
+
+    context 'form_id 21P-601' do
+      before { instance.form_id = '21P-601' }
+
+      it 'returns 5' do
+        expect(instance.max_pages).to eq 5
+      end
+    end
+
+    context 'form_id 21P-4706B' do
+      before { instance.form_id = '21P-4706B' }
+
+      it 'returns 2' do
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-4171' do
+      before { instance.form_id = '21P-4171' }
+
+      it 'returns 2' do
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-8924' do
+      before { instance.form_id = '21P-8924' }
+
+      it 'returns 3' do
+        expect(instance.max_pages).to eq 3
+      end
+    end
+
+    context 'form_id 20-10208' do
+      before { instance.form_id = '20-10208' }
+
+      it 'returns 2' do
+        expect(instance.max_pages).to eq 2
+      end
+    end
   end
 
   describe '#min_pages' do
+    context 'form_id 40-1330M' do
+      before { instance.form_id = '40-1330M' }
+
+      it 'returns 1' do
+        expect(instance.min_pages).to eq 1
+      end
+    end
+
     context 'form_id 21-0779' do
       before { instance.form_id = '21-0779' }
 
@@ -123,6 +187,55 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
 
       it 'returns 2' do
         expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 20-10208' do
+      before { instance.form_id = '20-10208' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-524' do
+      before { instance.form_id = '21P-524' }
+
+      it 'returns 6' do
+        expect(instance.min_pages).to eq 6
+      end
+    end
+
+    context 'form_id 21P-601' do
+      before { instance.form_id = '21P-601' }
+
+      it 'returns 3' do
+        expect(instance.min_pages).to eq 3
+      end
+    end
+
+    context 'form_id 21P-4706B' do
+      before { instance.form_id = '21P-4706B' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-4171' do
+      before { instance.form_id = '21P-4171' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-8924' do
+      before { instance.form_id = '21P-8924' }
+
+      it 'returns 3' do
+        expect(instance.min_pages).to eq 3
       end
     end
 

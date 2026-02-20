@@ -1,6 +1,14 @@
 {
   "confirmation_code": "123456",
   "form_number": "21-0779",
+  "supporting_documents": [
+    {
+      "confirmation_code": "23456"
+    },
+    {
+      "confirmation_code": "34567"
+    }
+  ],
   "form_data": {
     "id_number": {
       "ssn": "234232345",

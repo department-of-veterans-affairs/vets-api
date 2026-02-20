@@ -72,7 +72,7 @@ module SurvivorsBenefits
           'street' => {
             limit: 30,
             question_num: 2,
-            question_suffix: 'A',
+            question_suffix: 'F',
             question_label: 'Mailing Address Number And Street',
             question_text: 'MAILING ADDRESS NUMBER AND STREET',
             key: 'form1[0].#subform[207].NumberStreet[0]'
@@ -80,7 +80,7 @@ module SurvivorsBenefits
           'street2' => {
             limit: 5,
             question_num: 2,
-            question_suffix: 'A',
+            question_suffix: 'F',
             question_label: 'Mailing Address Apt/Unit',
             question_text: 'MAILING ADDRESS APT/UNIT',
             key: 'form1[0].#subform[207].Apt_Or_Unit_Number[0]'
@@ -88,7 +88,7 @@ module SurvivorsBenefits
           'city' => {
             limit: 18,
             question_num: 2,
-            question_suffix: 'A',
+            question_suffix: 'F',
             question_label: 'Mailing Address City',
             question_text: 'MAILING ADDRESS CITY',
             key: 'form1[0].#subform[207].City[0]'
@@ -106,7 +106,7 @@ module SurvivorsBenefits
             'lastFour' => {
               limit: 4,
               question_num: 2,
-              question_suffix: 'A',
+              question_suffix: 'F',
               question_label: 'Postal Code - Last Four',
               question_text: 'POSTAL CODE - LAST FOUR',
               key: 'form1[0].#subform[207].Zip_Postal_Code[1]'
@@ -128,6 +128,11 @@ module SurvivorsBenefits
           key: 'form1[0].#subform[207].International_Telephone_Number[0]'
         },
         'claimantEmail' => {
+          limit: 32,
+          question_num: 2,
+          question_suffix: 'H',
+          question_label: 'Claimant Email Address (Optional)',
+          question_text: 'CLAIMANT EMAIL ADDRESS (OPTIONAL)',
           key: 'form1[0].#subform[207].Email_Address_Optional[0]'
         },
         'claims' => {

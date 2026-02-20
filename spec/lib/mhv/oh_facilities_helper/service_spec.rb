@@ -232,7 +232,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         it 'only includes facilities matching user va_treatment_facility_ids' do
           result = service.get_migration_schedules
           expect(result.length).to eq(1)
-          facility_ids = result.first[:facilities].map { |f| f[:id] }
+          facility_ids = result.first[:facilities].map { |f| f[:facility_id] }
           expect(facility_ids).to contain_exactly('516', '517')
         end
       end
@@ -271,11 +271,12 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when facilities have different migration dates' do
         let(:user_facility_ids) { %w[516 517] }
-        let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA];2026-04-01:[517,Toledo VA]' }
+        let(:oh_migrations_list) { '2026-04-01:[517,Toledo VA];2026-03-03:[516,Columbus VA]' }
 
-        it 'returns separate entries' do
+        it 'returns separate entries in chronological order' do
           result = service.get_migration_schedules
           expect(result.length).to eq(2)
+          expect(result.map { |r| r[:migration_date] }).to eq(['March 3, 2026', 'April 1, 2026'])
         end
       end
     end
@@ -297,7 +298,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         phases = result.first[:phases]
 
         phases_constant.each do |phase_name, day_offset|
-          expected_date = (migration_date + day_offset).strftime('%B %-d, %Y')
+          expected_date = "#{(migration_date + day_offset).strftime('%B %-d, %Y')} at 12:00AM ET"
           expect(phases[phase_name]).to eq(expected_date),
                                         "Expected #{phase_name} to be #{expected_date}, got #{phases[phase_name]}"
         end
@@ -327,7 +328,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       it 'formats phase dates as human-readable strings' do
         result = service.get_migration_schedules
         # Check p5 (the migration date itself)
-        expect(result.first[:phases][:p5]).to eq('March 3, 2026')
+        expect(result.first[:phases][:p5]).to eq('March 3, 2026 at 12:00AM ET')
       end
 
       context 'with single-digit day' do
@@ -349,7 +350,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when today is exactly at phase boundary' do
         it 'returns correct phase when today equals each phase start date' do
           phases.each do |phase_key, day_offset|
-            allow(Time.zone).to receive(:today).and_return(migration_date + day_offset)
+            allow(Date).to receive(:current).and_return(migration_date + day_offset)
             result = service.get_migration_schedules
             current_phase = result.first[:phases][:current]
             expect(current_phase).to eq(phase_key.to_s),
@@ -361,7 +362,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when today is one day before first phase boundary' do
         it 'current phase is nil (not yet started)' do
           first_phase_offset = phases.values.min
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -373,7 +374,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
           first_offset = sorted_offsets[0]
           second_offset = sorted_offsets[1]
           midpoint = first_offset + ((second_offset - first_offset) / 2)
-          allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+          allow(Date).to receive(:current).and_return(migration_date + midpoint)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(phases.key(first_offset).to_s)
         end
@@ -400,7 +401,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
                          offset + 1
                        end
 
-            allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+            allow(Date).to receive(:current).and_return(migration_date + midpoint)
             result = service.get_migration_schedules
             current_phase = result.first[:phases][:current]
             expect(current_phase).to eq(phase_key.to_s),
@@ -420,7 +421,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when before first phase' do
         it 'returns NOT_STARTED' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:not_started])
         end
@@ -428,7 +429,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when at first phase' do
         it 'returns ACTIVE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -437,7 +438,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when in middle of active window' do
         it 'returns ACTIVE' do
           midpoint = (first_phase_offset + last_phase_offset) / 2
-          allow(Time.zone).to receive(:today).and_return(migration_date + midpoint)
+          allow(Date).to receive(:current).and_return(migration_date + midpoint)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -445,7 +446,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when at last phase' do
         it 'returns ACTIVE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:active])
         end
@@ -453,7 +454,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when after last phase' do
         it 'returns COMPLETE' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 1)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 1)
           result = service.get_migration_schedules
           expect(result.first[:migration_status]).to eq(described_class::MIGRATION_STATUS[:complete])
         end
@@ -471,7 +472,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when migration_status is NOT_STARTED' do
         it 'current phase is nil' do
-          allow(Time.zone).to receive(:today).and_return(migration_date + first_phase_offset - 1)
+          allow(Date).to receive(:current).and_return(migration_date + first_phase_offset - 1)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to be_nil
         end
@@ -480,7 +481,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       context 'when migration_status is COMPLETE' do
         it 'current phase is last phase' do
           # After last phase the current phase will be the last phase (the last phase we passed)
-          allow(Time.zone).to receive(:today).and_return(migration_date + last_phase_offset + 3)
+          allow(Date).to receive(:current).and_return(migration_date + last_phase_offset + 3)
           result = service.get_migration_schedules
           expect(result.first[:phases][:current]).to eq(last_phase_key)
         end
@@ -508,7 +509,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       end
 
       before do
-        allow(Time.zone).to receive(:today).and_return(today)
+        allow(Date).to receive(:current).and_return(today)
       end
 
       it 'returns all migrations regardless of status' do
@@ -574,7 +575,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
         it 'handles whitespace correctly' do
           result = service.get_migration_schedules
           expect(result.length).to eq(1)
-          expect(result.first[:facilities].first[:id]).to eq('516')
+          expect(result.first[:facilities].first[:facility_id]).to eq('516')
         end
       end
     end
@@ -604,6 +605,422 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
           allow(Rails.logger).to receive(:error)
           expect { service.get_migration_schedules }.not_to raise_error
         end
+      end
+    end
+  end
+
+  describe '#get_phase_for_station_number' do
+    let(:user) { build(:user, :loa3) }
+    let(:service) { described_class.new(user) }
+    let(:oh_migrations_list) { nil }
+
+    # Freeze time to noon Eastern so Time.zone.today in test setup agrees with
+    # the Eastern-timezone Date.current used by determine_current_phase,
+    # avoiding failures when tests run after 4 PM PT (next day in UTC).
+    around do |example|
+      Timecop.freeze(Time.find_zone('Eastern Time (US & Canada)').parse('2026-06-15 12:00:00')) do
+        example.run
+      end
+    end
+
+    before do
+      allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
+    end
+
+    context 'when station_number is blank' do
+      it 'returns nil for nil station_number' do
+        expect(service.get_phase_for_station_number(nil)).to be_nil
+      end
+
+      it 'returns nil for empty string station_number' do
+        expect(service.get_phase_for_station_number('')).to be_nil
+      end
+    end
+
+    context 'when oh_migrations_list is not configured' do
+      let(:oh_migrations_list) { nil }
+
+      it 'returns nil' do
+        expect(service.get_phase_for_station_number('516')).to be_nil
+      end
+    end
+
+    context 'when oh_migrations_list is empty' do
+      let(:oh_migrations_list) { '' }
+
+      it 'returns nil' do
+        expect(service.get_phase_for_station_number('516')).to be_nil
+      end
+    end
+
+    context 'when station_number is not in the migrations list' do
+      let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA],[517,Other VA]' }
+
+      it 'returns nil' do
+        expect(service.get_phase_for_station_number('999')).to be_nil
+      end
+    end
+
+    context 'when station_number is in the migrations list' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'returns the current phase for the matching facility' do
+        result = service.get_phase_for_station_number('516')
+        expect(result).to be_a(String).or be_nil
+      end
+    end
+
+    context 'phase determination based on migration date' do
+      # Migration date in the future - before p0 (more than 60 days away)
+      context 'when migration is more than 60 days away (before p0)' do
+        let(:migration_date) { Time.zone.today + 100 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns nil (NOT_STARTED)' do
+          expect(service.get_phase_for_station_number('516')).to be_nil
+        end
+      end
+
+      # p0: 60 days before migration
+      context 'when migration is 60 days away (p0)' do
+        let(:migration_date) { Time.zone.today + 60 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p0' do
+          expect(service.get_phase_for_station_number('516')).to eq('p0')
+        end
+      end
+
+      # p1: 45 days before migration
+      context 'when migration is 45 days away (p1)' do
+        let(:migration_date) { Time.zone.today + 45 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p1' do
+          expect(service.get_phase_for_station_number('516')).to eq('p1')
+        end
+      end
+
+      # p2: 30 days before migration
+      context 'when migration is 30 days away (p2)' do
+        let(:migration_date) { Time.zone.today + 30 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p2' do
+          expect(service.get_phase_for_station_number('516')).to eq('p2')
+        end
+      end
+
+      # p3: 6 days before migration
+      context 'when migration is 6 days away (p3)' do
+        let(:migration_date) { Time.zone.today + 6 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p3' do
+          expect(service.get_phase_for_station_number('516')).to eq('p3')
+        end
+      end
+
+      # p4: 3 days before migration
+      context 'when migration is 3 days away (p4)' do
+        let(:migration_date) { Time.zone.today + 3 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p4' do
+          expect(service.get_phase_for_station_number('516')).to eq('p4')
+        end
+      end
+
+      # p5: migration day
+      context 'when today is migration day (p5)' do
+        let(:migration_date) { Time.zone.today }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p5' do
+          expect(service.get_phase_for_station_number('516')).to eq('p5')
+        end
+      end
+
+      # p6: 2 days after migration
+      context 'when migration was 2 days ago (p6)' do
+        let(:migration_date) { Time.zone.today - 2 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p6' do
+          expect(service.get_phase_for_station_number('516')).to eq('p6')
+        end
+      end
+
+      # p7: 7 days after migration
+      context 'when migration was 7 days ago (p7)' do
+        let(:migration_date) { Time.zone.today - 7 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p7' do
+          expect(service.get_phase_for_station_number('516')).to eq('p7')
+        end
+      end
+
+      # After p7 (complete)
+      context 'when migration was more than 7 days ago (complete)' do
+        let(:migration_date) { Time.zone.today - 10 }
+        let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+        it 'returns p7 (last phase)' do
+          expect(service.get_phase_for_station_number('516')).to eq('p7')
+        end
+      end
+    end
+
+    context 'with multiple migrations in the list' do
+      let(:oh_migrations_list) do
+        date1 = (Time.zone.today + 30).strftime('%Y-%m-%d')
+        date2 = (Time.zone.today + 60).strftime('%Y-%m-%d')
+        "#{date1}:[516,Columbus VA];#{date2}:[517,Other VA]"
+      end
+
+      it 'returns the phase for the correct facility' do
+        expect(service.get_phase_for_station_number('516')).to eq('p2')
+        expect(service.get_phase_for_station_number('517')).to eq('p0')
+      end
+    end
+
+    context 'when station_number is numeric' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'converts to string and matches correctly' do
+        expect(service.get_phase_for_station_number(516)).to eq('p2')
+      end
+    end
+
+    context 'Error Handling' do
+      context 'when date parsing fails' do
+        let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error).with('OH Migration Phase Batch Lookup Error', anything)
+          service.get_phase_for_station_number('516')
+        end
+
+        it 'returns nil' do
+          allow(Rails.logger).to receive(:error)
+          expect(service.get_phase_for_station_number('516')).to be_nil
+        end
+
+        it 'does not raise an error' do
+          allow(Rails.logger).to receive(:error)
+          expect { service.get_phase_for_station_number('516') }.not_to raise_error
+        end
+      end
+    end
+  end
+
+  describe '#get_phases_for_station_numbers' do
+    let(:user) { build(:user, :loa3) }
+    let(:service) { described_class.new(user) }
+    let(:oh_migrations_list) { nil }
+
+    # Freeze time to noon Eastern so Time.zone.today in test setup agrees with
+    # the Eastern-timezone Date.current used by determine_current_phase,
+    # avoiding failures when tests run after 4 PM PT (next day in UTC).
+    around do |example|
+      Timecop.freeze(Time.find_zone('Eastern Time (US & Canada)').parse('2026-06-15 12:00:00')) do
+        example.run
+      end
+    end
+
+    before do
+      allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
+    end
+
+    context 'when station_numbers is blank' do
+      it 'returns empty hash for nil' do
+        expect(service.get_phases_for_station_numbers(nil)).to eq({})
+      end
+
+      it 'returns empty hash for empty array' do
+        expect(service.get_phases_for_station_numbers([])).to eq({})
+      end
+    end
+
+    context 'when oh_migrations_list is not configured' do
+      let(:oh_migrations_list) { nil }
+
+      it 'returns empty hash' do
+        expect(service.get_phases_for_station_numbers(%w[516 517])).to eq({})
+      end
+    end
+
+    context 'when oh_migrations_list is empty' do
+      let(:oh_migrations_list) { '' }
+
+      it 'returns empty hash' do
+        expect(service.get_phases_for_station_numbers(%w[516 517])).to eq({})
+      end
+    end
+
+    context 'when no station_numbers are in the migrations list' do
+      let(:oh_migrations_list) { '2026-03-03:[516,Columbus VA],[517,Other VA]' }
+
+      it 'returns empty hash' do
+        expect(service.get_phases_for_station_numbers(%w[999 888])).to eq({})
+      end
+    end
+
+    context 'when some station_numbers are in the migrations list' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'returns phases only for matching facilities' do
+        result = service.get_phases_for_station_numbers(%w[516 999])
+        expect(result).to eq({ '516' => 'p2' })
+      end
+    end
+
+    context 'when all station_numbers are in the migrations list' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'returns phases for all matching facilities' do
+        result = service.get_phases_for_station_numbers(%w[516 517])
+        expect(result).to eq({ '516' => 'p2', '517' => 'p2' })
+      end
+    end
+
+    context 'with multiple migrations in the list' do
+      let(:oh_migrations_list) do
+        date1 = (Time.zone.today + 30).strftime('%Y-%m-%d')
+        date2 = (Time.zone.today + 6).strftime('%Y-%m-%d')
+        "#{date1}:[516,Columbus VA];#{date2}:[517,Other VA]"
+      end
+
+      it 'returns correct phases for facilities in different migrations' do
+        result = service.get_phases_for_station_numbers(%w[516 517])
+        expect(result).to eq({ '516' => 'p2', '517' => 'p3' })
+      end
+    end
+
+    context 'when station_numbers are numeric' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'converts to string and matches correctly' do
+        result = service.get_phases_for_station_numbers([516, 517])
+        expect(result).to eq({ '516' => 'p2' })
+      end
+    end
+
+    context 'with duplicate station_numbers in input' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'returns unique results' do
+        result = service.get_phases_for_station_numbers(%w[516 516 516])
+        expect(result).to eq({ '516' => 'p2' })
+      end
+    end
+
+    context 'Error Handling' do
+      context 'when date parsing fails' do
+        let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error).with('OH Migration Phase Batch Lookup Error', anything)
+          service.get_phases_for_station_numbers(%w[516])
+        end
+
+        it 'returns empty hash' do
+          allow(Rails.logger).to receive(:error)
+          expect(service.get_phases_for_station_numbers(%w[516])).to eq({})
+        end
+
+        it 'does not raise an error' do
+          allow(Rails.logger).to receive(:error)
+          expect { service.get_phases_for_station_numbers(%w[516]) }.not_to raise_error
+        end
+      end
+    end
+
+    context 'performance optimization' do
+      let(:migration_date) { Time.zone.today + 30 }
+      let(:oh_migrations_list) { "#{migration_date.strftime('%Y-%m-%d')}:[516,Columbus VA],[517,Other VA]" }
+
+      it 'parses migrations list only once for multiple lookups' do
+        expect(service).to receive(:parse_oh_migrations_list).once.and_call_original
+        service.get_phases_for_station_numbers(%w[516 517])
+      end
+    end
+  end
+
+  describe '#get_soonest_migration_phase' do
+    let(:user) { build(:user, :mhv) }
+    let(:service) { described_class.new(user) }
+
+    before do
+      allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
+    end
+
+    context 'when oh_migrations_list is blank' do
+      let(:oh_migrations_list) { nil }
+
+      it 'returns nil' do
+        expect(service.get_soonest_migration_phase).to be_nil
+      end
+    end
+
+    context 'when oh_migrations_list is empty string' do
+      let(:oh_migrations_list) { '' }
+
+      it 'returns nil' do
+        expect(service.get_soonest_migration_phase).to be_nil
+      end
+    end
+
+    context 'when there is a single migration date' do
+      let(:oh_migrations_list) { "#{(Time.zone.today + 5.days).strftime('%Y-%m-%d')}:[516,Columbus VA]" }
+
+      it 'returns the current phase of that migration' do
+        expect(service.get_soonest_migration_phase).to eq('p3')
+      end
+    end
+
+    context 'when there are multiple migration dates' do
+      let(:far_date) { (Time.zone.today + 50.days).strftime('%Y-%m-%d') }
+      let(:near_date) { (Time.zone.today + 2.days).strftime('%Y-%m-%d') }
+      let(:oh_migrations_list) { "#{far_date}:[516,Columbus VA];#{near_date}:[517,Cleveland VA]" }
+
+      it 'returns the current phase of the soonest migration' do
+        # near_date is 2 days away, which is p4
+        expect(service.get_soonest_migration_phase).to eq('p4')
+      end
+    end
+
+    context 'when soonest migration is in p6 phase' do
+      let(:past_date) { (Time.zone.today - 3.days).strftime('%Y-%m-%d') }
+      let(:oh_migrations_list) { "#{past_date}:[516,Columbus VA]" }
+
+      it 'returns p6' do
+        expect(service.get_soonest_migration_phase).to eq('p6')
+      end
+    end
+
+    context 'when all migration dates have invalid format' do
+      let(:oh_migrations_list) { 'invalid-date:[516,Columbus VA]' }
+
+      it 'returns nil' do
+        allow(Rails.logger).to receive(:error)
+        expect(service.get_soonest_migration_phase).to be_nil
+      end
+    end
+
+    context 'when some migration dates are invalid but some are valid' do
+      let(:valid_date) { (Time.zone.today + 5.days).strftime('%Y-%m-%d') }
+      let(:oh_migrations_list) { "invalid-date:[516,Columbus VA];#{valid_date}:[517,Cleveland VA]" }
+
+      it 'returns the phase of the valid migration date' do
+        expect(service.get_soonest_migration_phase).to eq('p3')
       end
     end
   end
