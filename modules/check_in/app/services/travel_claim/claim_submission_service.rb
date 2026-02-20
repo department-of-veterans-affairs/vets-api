@@ -408,16 +408,7 @@ module TravelClaim
       template_id = success_template_id
       claim_number_last_four = @claim_number_last_four
 
-      if Flipper.enabled?(:check_in_experience_travel_claim_logging)
-        Rails.logger.info({
-                            message: "#{CheckIn::Constants::LOG_PREFIX}: Sending success notification",
-                            check_in_uuid: @check_in_uuid,
-                            facility_type: @facility_type,
-                            correlation_id:,
-                            template_id:,
-                            claim_last_four: claim_number_last_four
-                          })
-      end
+      log_notification('success', template_id:, claim_last_four: claim_number_last_four)
 
       CheckIn::TravelClaimNotificationJob.perform_async(
         @check_in_uuid,
@@ -439,17 +430,8 @@ module TravelClaim
       template_id = determine_error_template_id(error)
       claim_number_last_four = @claim_number_last_four || 'unknown'
 
-      if Flipper.enabled?(:check_in_experience_travel_claim_logging)
-        Rails.logger.info({
-                            message: "#{CheckIn::Constants::LOG_PREFIX}: Sending error notification",
-                            check_in_uuid: @check_in_uuid,
-                            facility_type: @facility_type,
-                            correlation_id:,
-                            failed_step: @current_step || 'unknown',
-                            template_id:,
-                            error_class: error.class.name
-                          })
-      end
+      log_notification('error', template_id:, failed_step: @current_step || 'unknown',
+                                error_class: error.class.name)
 
       CheckIn::TravelClaimNotificationJob.perform_async(
         @check_in_uuid,
@@ -457,6 +439,19 @@ module TravelClaim
         template_id,
         claim_number_last_four
       )
+    end
+
+    def log_notification(type, **extra)
+      return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
+
+      log_data = {
+        message: "#{CheckIn::Constants::LOG_PREFIX}: Sending #{type} notification",
+        check_in_uuid: @check_in_uuid,
+        facility_type: @facility_type,
+        correlation_id:
+      }.merge(extra)
+
+      Rails.logger.info(log_data)
     end
 
     ##
