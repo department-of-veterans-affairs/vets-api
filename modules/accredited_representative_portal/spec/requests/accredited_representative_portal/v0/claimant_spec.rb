@@ -148,4 +148,107 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       end
     end
   end
+
+  describe 'GET /accredited_representative_portal/v0/claimant/:id' do
+    let(:json_headers) { { 'ACCEPT' => 'application/json' } }
+    let(:icn) { '1008714701V416111' }
+    let(:identifier_id) { SecureRandom.uuid }
+
+    let(:mpi_service) { instance_double(MPI::Service) }
+    let(:identifier_obj) { instance_double(IcnTemporaryIdentifier, icn:) }
+
+    before do
+      # Let Pundit run; force policy to allow show? so authorization is performed.
+      allow_any_instance_of(AccreditedRepresentativePortal::ClaimantPolicy)
+        .to receive(:show?)
+        .and_return(true)
+
+      # Controller might reference IcnTemporaryIdentifier (un-namespaced) or the ARP namespaced model.
+      # Make both paths return our identifier object.
+      allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
+        .to receive(:find)
+        .with(identifier_id)
+        .and_return(identifier_obj)
+
+      # If the controller uses the un-namespaced constant, alias it to the ARP model so .find exists.
+      stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
+      allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_return(identifier_obj)
+
+      allow(MPI::Service).to receive(:new).and_return(mpi_service)
+    end
+
+    context 'when the claimant exists in MPI' do
+      let(:profile) do
+        OpenStruct.new(
+          given_names: ['John'],
+          family_name: 'Smith',
+          birth_date: '1980-01-01',
+          ssn: '666-66-6666',
+          home_phone: '555-555-5555',
+          address: OpenStruct.new(
+            street: '123 Main St',
+            street2: 'Apt 4',
+            city: 'Springfield',
+            state: 'VA',
+            postal_code: '12345'
+          )
+        )
+      end
+
+      let(:mpi_response) { OpenStruct.new(profile:) }
+
+      before do
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_response)
+      end
+
+      it 'returns claimant profile fields' do
+        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+
+        expect(response).to have_http_status(:ok)
+        data = parsed_response.fetch('data')
+        expect(data['first_name']).to eq('John')
+        expect(data['last_name']).to eq('Smith')
+        expect(data['birth_date']).to eq('1980-01-01')
+
+        expect(data).to have_key('ssn')
+        expect(data).to have_key('phone')
+        expect(data['address']).to include('line1', 'line2', 'city', 'state', 'zip')
+      end
+
+      it 'calls MPI with the ICN from the identifier' do
+        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+
+        expect(mpi_service).to have_received(:find_profile_by_identifier).with(
+          identifier: icn,
+          identifier_type: MPI::Constants::ICN
+        )
+      end
+    end
+
+    context 'when MPI returns no profile' do
+      before do
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile: nil))
+      end
+
+      it 'returns 404 not found' do
+        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when the temporary identifier does not exist' do
+      before do
+        allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
+          .to receive(:find)
+          .with(identifier_id)
+          .and_raise(ActiveRecord::RecordNotFound)
+        allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_raise(ActiveRecord::RecordNotFound)
+      end
+
+      it 'returns 404 not found' do
+        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end

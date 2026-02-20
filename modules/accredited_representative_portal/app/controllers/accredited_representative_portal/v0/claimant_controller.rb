@@ -5,7 +5,6 @@ module AccreditedRepresentativePortal
     class ClaimantController < ApplicationController
       def search # rubocop:disable Metrics/MethodLength
         authorize nil, policy_class: ClaimantPolicy
-
         claimant_profile =
           MPI::Service.new.find_profile_by_attributes(
             first_name: params[:first_name],
@@ -49,6 +48,51 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::BadRequest.new(
           detail: e.message
         )
+      end
+
+      def show
+        authorize nil, policy_class: ClaimantPolicy
+
+        profile = claimant_profile(params[:id])
+        raise Common::Exceptions::RecordNotFound, 'Claimant not found' if profile.blank?
+
+        render json: claimant_payload(profile)
+      rescue ActiveRecord::RecordNotFound
+        raise Common::Exceptions::RecordNotFound, 'Claimant not found'
+      end
+
+      private
+
+      def claimant_profile(id)
+        icn = IcnTemporaryIdentifier.find(id).icn
+        MPI::Service.new.find_profile_by_identifier(
+          identifier: icn,
+          identifier_type: MPI::Constants::ICN
+        )&.profile
+      end
+
+      def claimant_payload(profile)
+        {
+          data: {
+            first_name: profile.given_names&.first,
+            last_name: profile.family_name,
+            birth_date: profile.birth_date,
+            ssn: profile.ssn,
+            phone: profile.home_phone,
+            address: claimant_address(profile)
+          }
+        }
+      end
+
+      def claimant_address(profile)
+        addr = profile.address
+        {
+          line1: addr&.street,
+          line2: addr&.street2,
+          city: addr&.city,
+          state: addr&.state,
+          zip: addr&.postal_code
+        }
       end
     end
   end
