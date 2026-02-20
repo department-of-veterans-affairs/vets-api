@@ -1,35 +1,44 @@
 {
   "applicantName": {
     "first": "John",
-    "last": "Smith"
+    "last": "Doe"
   },
-  "remarks": "lorem ispum",
-  "testCost": 55,
-  "organizationName": "Acme Co.",
-  "organizationAddress": {
-    "country": "USA",
-    "street": "123 Fake St",
-    "city": "Tulsa",
-    "state": "OK",
-    "postalCode": "23456"
-  },
-  "testName": "Fake test",
-  "testDate": "2022-11-13",
-  "mobilePhone": "6665431234",
-  "homePhone": "9998765456",
-  "emailAddress": "example@example.com",
   "mailingAddress": {
-    "country": "USA",
-    "street": "123 Maple Ln",
-    "street2": "Unit B",
-    "city": "Hamilton",
-    "state": "IA",
-    "postalCode": "12345"
+    "street": "111 2nd St S",
+    "city": "Seattle",
+    "state": "WA",
+    "postalCode": "98101",
+    "country": "USA"
   },
-  "payeeNumber": "AB",
+  "emailAddress": "john@example.com",
+  "homePhone": "5557771234",
+  "mobilePhone": "5558881234",
+  "statementOfTruthSignature": "John Doe",
+  "dateSigned": "2025-01-01",
   "ssn": "123456789",
-  "vaBenefitProgram": "chapter30",
-  "hasPreviouslyApplied": true,
-  "statementOfTruthSignature": "Jackie Doe",
-  "dateSigned": "2025-01-01"
+  "schoolWasClosed": true,
+  "closedSchoolName": "Test U",
+  "closedSchoolAddress": {
+    "street": "111 2nd St S",
+    "city": "Seattle",
+    "state": "WA",
+    "postalCode": "98101",
+    "country": "USA"
+  },
+  "didCompleteProgramOfStudy": true,
+  "didReceiveCredit": true,
+  "wasEnrolledWhenSchoolClosed": true,
+  "wasOnApprovedLeave": true,
+  "withdrewPriorToClosing": true,
+  "dateOfWithdraw": "2020-01-01",
+  "enrolledAtNewSchool": true,
+  "newSchoolName": "New School",
+  "newProgramName": "Physics 2.0",
+  "isUsingTeachoutAgreement": true,
+  "newSchoolGrants12OrMoreCredits": true,
+  "schoolDidTransferCredits": true,
+  "lastDateOfAttendance": "2025-01-01",
+  "attestationName": "John Doe",
+  "attestationDate": "2025-01-01",
+  "remarks": "lorem ipsum"
 }

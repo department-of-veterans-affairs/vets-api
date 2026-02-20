@@ -1,0 +1,21 @@
+{
+  "applicantName": {
+    "first": "John",
+    "last": "Doe"
+  },
+  "mailingAddress": {
+    "street": "111 2nd St S",
+    "city": "Seattle",
+    "state": "WA",
+    "postalCode": "98101",
+    "country": "USA"
+  },
+  "emailAddress": "john@example.com",
+  "homePhone": "5557771234",
+  "mobilePhone": "5558881234",
+  "statementOfTruthSignature": "John Doe",
+  "dateSigned": "2025-01-01",
+  "ssn": "123456789",
+  "schoolWasClosed": false,
+  "remarks": "lorem ipsum"
+}
