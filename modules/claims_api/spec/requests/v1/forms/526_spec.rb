@@ -1155,6 +1155,36 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             end
           end
         end
+
+        context "when 'alternateNames' contains duplicate names" do
+          it 'allows duplicate alternate names (uniqueness not required)' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['alternateNames'] = [
+                    {
+                      'firstName' => 'John',
+                      'lastName' => 'Smith'
+                    },
+                    {
+                      'firstName' => 'John',
+                      'middleName' => 'David',
+                      'lastName' => 'Smith'
+                    },
+                    {
+                      'firstName' => 'JOHN',
+                      'lastName' => 'SMITH'
+                    }
+                  ]
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
       end
 
       context '526 submission payload validations' do
