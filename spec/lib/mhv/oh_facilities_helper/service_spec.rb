@@ -110,7 +110,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
     context 'when portal_notice_interstitial_enabled feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled, user).and_return(false)
       end
 
       it 'returns false even when user has a matching facility' do
@@ -122,7 +122,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:va_treatment_facility_ids) { %w[553 999] }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:portal_notice_interstitial_enabled, user).and_return(true)
       end
 
       it 'returns true when user has a matching facility' do
