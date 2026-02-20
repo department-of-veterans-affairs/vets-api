@@ -67,7 +67,7 @@ RSpec.describe Caseflow::Service do
             'api.appeals.appeals_with_null_issue_descriptions'
           )
           expect(Rails.logger).to receive(:warn).with(
-            'Caseflow returned an appeal with at least one null issue description'
+            'Caseflow returned at least one appeal with at least one null issue description'
           )
           expect(PersonalInformationLog).to receive(:create!).with(
             data: { user:, appeals: expected_appeals_log_data },
