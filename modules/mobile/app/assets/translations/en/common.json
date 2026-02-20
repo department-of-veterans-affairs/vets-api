@@ -896,6 +896,8 @@
   "letters.commissary.description": "If you’re a Veteran with a 100% service-connected disability rating take this letter, a copy of your DD214 or other discharge papers, and your DD2765 to a local military ID and pass office. You can schedule an appointment to get a Retiree Military ID card at the office or use the Rapid Appointments Scheduler. The Retiree Military ID card gives you access to your local base facilities, including the commissary and post exchange.",
   "letters.details.title": "Letter details",
   "letters.download.error": "Your letter could not be downloaded.",
+  "letters.foreignMedicalProgram.description": "This letter confirms your enrollment in the Foreign Medical Program (FMP). Use it to prove to health care providers in foreign countries that VA will cover your medical care for service-connected conditions.",
+  "letters.foreignMedicalProgram.title": "Foreign medical program enrollment letter",
   "letters.download.tryAgain.a11y": "Try again to download your letter",
   "letters.list.a11y": "Go to an overview of your {{letter}}",
   "letters.list.loading": "Loading your letters list...",
