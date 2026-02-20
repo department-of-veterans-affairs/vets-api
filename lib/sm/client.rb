@@ -138,7 +138,7 @@ module SM
     # @return the result of the block
     #
     def track_with_status(key, is_oh: false, **additional_tags)
-      result = yield
+      result = yield(additional_tags)
       track_metric(key, is_oh:, status: 'success', **additional_tags)
       result
     rescue => e
