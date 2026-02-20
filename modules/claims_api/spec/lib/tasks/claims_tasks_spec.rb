@@ -50,6 +50,11 @@ describe 'rake claims', type: :task do
 
     let(:task_name) { 'claims:fix_failed_claims' }
 
+    before do
+      allow($stdin).to receive(:gets).and_return("y\n")
+      allow($stdout).to receive(:puts)
+    end
+
     after do
       task.reenable
     end
@@ -58,122 +63,7 @@ describe 'rake claims', type: :task do
       expect(task.prerequisites).to include 'environment'
     end
 
-    context 'single claim with supporting documents' do
-      let(:claim) do
-        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-      end
-
-      before do
-        # Mock ClaimEstablisher to update claim status
-        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
-        end
-
-        # Mock ClaimUploader
-        allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
-
-        # Stub sleep to speed up tests
-        allow_any_instance_of(Kernel).to receive(:sleep)
-      end
-
-      it 'reestablishes the claim' do
-        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        task.execute(args)
-
-        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
-      end
-
-      it 'uploads the 526EZ PDF' do
-        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        task.execute(args)
-
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
-      end
-
-      it 'uploads each supporting document' do
-        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        task.execute(args)
-
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
-          claim.supporting_documents.first.id, 'document'
-        ).once
-      end
-
-      it 'completes successfully' do
-        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        expect { task.execute(args) }.not_to raise_error
-      end
-    end
-
-    context 'multiple claims' do
-      let(:claim1) do
-        create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
-      end
-      let(:claim2) do
-        create(
-          :auto_established_claim_with_supporting_documents,
-          supporting_documents_count: 3,
-          status: ClaimsApi::AutoEstablishedClaim::ERRORED
-        )
-      end
-
-      before do
-        # Mock ClaimEstablisher to update claim status
-        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
-          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
-        end
-
-        # Mock ClaimUploader
-        allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
-
-        # Stub sleep to speed up tests
-        allow_any_instance_of(Kernel).to receive(:sleep)
-      end
-
-      it 'reestablishes all claims' do
-        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-        task.execute(args)
-
-        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
-        expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
-      end
-
-      it 'completes successfully' do
-        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-        expect { task.execute(args) }.not_to raise_error
-      end
-
-      it 'runs the ClaimUploader for all claims and their supporting documents' do
-        args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-        task.execute(args)
-
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
-        expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
-
-        claim1.supporting_documents.each do |sup|
-          expect(
-            ClaimsApi::ClaimUploader
-          ).to have_received(:perform_async).with(sup.id, 'document').once
-        end
-
-        claim2.supporting_documents.each do |sup|
-          expect(
-            ClaimsApi::ClaimUploader
-          ).to have_received(:perform_async).with(sup.id, 'document').once
-        end
-
-        # expect the claim uploader to have been called the correct number of times
-        # (1 for each claim + 1 for each supporting document)
-        total_claims = 2
-        total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
-        expect(
-          ClaimsApi::ClaimUploader
-        ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
-      end
-    end
-
+    # sad path edge cases
     context 'when claim is not found' do
       before do
         allow(Rails.logger).to receive(:warn)
@@ -219,5 +109,154 @@ describe 'rake claims', type: :task do
         )
       end
     end
+
+    describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is disabled' do
+      before do
+        Flipper.disable(:lighthouse_claims_api_v1_enable_FES)
+        # Mock ClaimEstablisher to update claim status
+        allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+          claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+          claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+        end
+
+        # Mock services
+        allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+
+        allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async)
+
+        # Stub sleep to speed up tests
+        allow_any_instance_of(Kernel).to receive(:sleep)
+      end
+
+      describe 'when the claim failed to establish from a PUT request' do
+        context 'single claim with supporting documents' do
+          let(:claim) do
+            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+          end
+
+          it 'reestablishes the claim' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim.id).once
+          end
+
+          it 'uploads the 526EZ PDF' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim.id, 'claim').once
+          end
+
+          it 'uploads each supporting document' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+              claim.supporting_documents.first.id, 'document'
+            ).once
+          end
+
+          it 'completes successfully' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            expect { task.execute(args) }.not_to raise_error
+          end
+        end
+
+        context 'multiple claims' do
+          let(:claim1) do
+            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+          end
+          let(:claim2) do
+            create(
+              :auto_established_claim_with_supporting_documents,
+              supporting_documents_count: 3,
+              status: ClaimsApi::AutoEstablishedClaim::ERRORED
+            )
+          end
+
+          it 'reestablishes all claims' do
+            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim1.id).once
+            expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_async).with(claim2.id).once
+          end
+
+          it 'completes successfully' do
+            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+            expect { task.execute(args) }.not_to raise_error
+          end
+
+          it 'runs the ClaimUploader for all claims and their supporting documents' do
+            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim1.id, 'claim').once
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(claim2.id, 'claim').once
+
+            claim1.supporting_documents.each do |sup|
+              expect(
+                ClaimsApi::ClaimUploader
+              ).to have_received(:perform_async).with(sup.id, 'document').once
+            end
+
+            claim2.supporting_documents.each do |sup|
+              expect(
+                ClaimsApi::ClaimUploader
+              ).to have_received(:perform_async).with(sup.id, 'document').once
+            end
+
+            # expect the claim uploader to have been called the correct number of times
+            # (1 for each claim + 1 for each supporting document)
+            total_claims = 2
+            total_supporting_documents = claim1.supporting_documents.count + claim2.supporting_documents.count
+            expect(
+              ClaimsApi::ClaimUploader
+            ).to have_received(:perform_async).exactly(total_claims + total_supporting_documents).times
+          end
+        end
+      end
+    end
+
+    # describe 'when the lighthouse_claims_api_v1_enable_FES feature flag is enabled' do
+    #   before do
+    #     Flipper.enable(:lighthouse_claims_api_v1_enable_FES)
+    #   end
+
+    #   context 'single claim with supporting documents' do
+    #     let(:claim) do
+    #       create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+    #     end
+
+    #     before do
+    #       # Mock DisabilityCompensationPdfGenerator to update claim status
+    #       allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async) do |claim_id, _|
+    #         claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+    #         claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+    #       end
+
+    #       # Mock ClaimEstablisher to update claim status
+    #       allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async) do |claim_id|
+    #         claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+    #         claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+    #       end
+
+    #       # Mock ClaimUploader
+    #       allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+
+    #       # Stub sleep to speed up tests
+    #       allow_any_instance_of(Kernel).to receive(:sleep)
+    #     end
+
+    #     it 'uses the DisabilityCompensationPdfGenerator to reestablish the claim' do
+    #       args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+    #       task.execute(args)
+
+    #       expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async).with(claim.id, '').once
+    #       expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
+    #     end
+    #   end
+    # end
   end
 end
