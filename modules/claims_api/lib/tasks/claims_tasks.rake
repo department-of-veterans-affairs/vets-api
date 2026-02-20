@@ -49,7 +49,9 @@ namespace :claims do
       end
 
       # guard clause to skip claims that are not in an errored state
-      next if claim.status != ClaimsApi::AutoEstablishedClaim::ERRORED
+      if claim.status != ClaimsApi::AutoEstablishedClaim::ERRORED
+        Rails.logger.info("skipping claim #{claim_id} due to status #{claim.status}")
+      end
 
       # prompt the user to enter if the failed request came from POST of PUT endpoint
       puts "Claim ID #{claim_id} is in an errored state. Did the failed request come from the PUT endpoint?"
