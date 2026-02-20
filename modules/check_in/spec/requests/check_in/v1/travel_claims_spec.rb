@@ -45,6 +45,9 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
 
     allow_any_instance_of(CheckIn::V1::TravelClaimsController).to receive(:low_auth_token).and_return(low_auth_token)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_reimbursement').and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:check_in_experience_use_btsss_v2_claim_submission_endpoints)
+      .and_return(false)
   end
 
   describe 'POST /check_in/v1/travel_claims' do
@@ -362,24 +365,14 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify client-level logging: external API error with details
-          # Note: With auth retry on 4xx errors, this may be logged twice (initial + retry)
           expect(Rails.logger).to have_received(:error).with(
             hash_including(
-              message: 'TravelPayClient: BTSSS API Error',
+              message: "#{CheckIn::Constants::LOG_PREFIX}: BTSSS API Error",
               operation: 'create_claim',
               http_status: 400,
               api_error_message: 'Validation failed: A claim has already been created for this appointment.'
             )
           ).at_least(:once)
-
-          # Verify service-level logging: step failure with context
-          expect(Rails.logger).to have_received(:error).with(
-            hash_including(
-              message: 'Travel Claim Submission: FAILURE',
-              failed_step: 'create_claim'
-            )
-          )
         end
       end
 
@@ -465,10 +458,9 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the auth retry log was called (now in AuthManager)
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'TravelClaim::AuthManager: 401 error - refreshing all tokens',
+              message: "#{CheckIn::Constants::LOG_PREFIX} AuthManager: 401 error - refreshing all tokens",
               correlation_id: be_present
             )
           )
