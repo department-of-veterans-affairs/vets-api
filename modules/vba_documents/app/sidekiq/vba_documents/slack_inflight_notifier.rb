@@ -12,6 +12,11 @@ module VBADocuments
 
     AGED_PROCESSING_QUERY_LIMIT = 10
     INVALID_PARTS_QUERY_LIMIT = 10
+    SUBMISSION_STATUS_THRESHOLDS = {
+      'uploaded' => { time: 26, unit: :hours },
+      'received' => { time: 4, unit: :days },
+      'processing' => { time: 8, unit: :days }
+    }.freeze
 
     def perform
       return unless Settings.vba_documents.slack.enabled
@@ -39,25 +44,43 @@ module VBADocuments
 
     def summary_notification
       results = ''
-      statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded'] - ['success']
-      statuses.each do |status|
-        uploads = if status == 'uploaded' && delay_appeals_evidence_enabled?
-                    UploadSubmission.not_from_appeals_api
-                  else
-                    UploadSubmission.all
-                  end
 
-        upload = uploads.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
+      SUBMISSION_STATUS_THRESHOLDS.each do |status, config|
+        uploads = filter_uploads_for_status(status)
+        # only look at submissions from the last 9 days, to cover the longest threshold (8 days) plus a buffer day
+        aged_uploads = uploads.aged_processing(config[:time], config[:unit], status)
+                              .where('created_at > ?', 9.days.ago)
 
-        next unless upload
+        total_aged_uploads = aged_uploads.count
+        next unless total_aged_uploads.positive?
 
-        start_time = upload.metadata['status'][status]['start']
-        duration = distance_of_time_in_words(Time.now.to_i - start_time)
-        results += "\n\tStatus '#{status}' for #{duration} (GUID: #{upload.guid})"
+        limited_uploads = aged_uploads.limit(AGED_PROCESSING_QUERY_LIMIT)
+        results += "\nStatus '#{status}': #{total_aged_uploads} submissions exceed thresholds " \
+                   "(showing up to #{AGED_PROCESSING_QUERY_LIMIT}).\n"
+
+        limited_uploads.each { |upload| results += format_violation(upload, status) }
       end
 
-      notify_slack('Status Report (worst offenders over past week)', results)
+      if results.present?
+        notify_slack('Submissions Exceeding Thresholds', results)
+      else
+        Rails.logger.info('VBADocuments::SlackInflightNotifier: No submissions exceed thresholds')
+        notify_slack('Submissions Exceeding Thresholds', "\nNo submissions exceed thresholds.")
+      end
+
       true
+    end
+
+    def filter_uploads_for_status(status)
+      return UploadSubmission.not_from_appeals_api if status == 'uploaded' && delay_appeals_evidence_enabled?
+
+      UploadSubmission.all
+    end
+
+    def format_violation(upload, status)
+      start_time = upload.metadata['status'][status]['start']
+      duration = distance_of_time_in_words(Time.now.to_i - start_time)
+      "\n\tGUID: #{upload.guid} | Status: #{status} | Duration: #{duration}"
     end
 
     def upload_stalled_alert
