@@ -96,8 +96,8 @@ module V0
 
       # Data is authoritative — it tells us which flow the user actually used.
       # Flipper is only consulted as a tiebreaker when no conditions data exists.
-      has_new_data = has_new_flow_data?(form_data)
-      has_old_data = has_old_flow_data?(form_data)
+      has_new_data = new_flow_data?(form_data)
+      has_old_data = old_flow_data?(form_data)
       flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
 
       # New-flow data exists → user is locked into new flow, keep flag regardless of Flipper
@@ -124,14 +124,14 @@ module V0
       corrected
     end
 
-    def has_new_flow_data?(form_data)
+    def new_flow_data?(form_data)
       new_disabilities = form_data['newDisabilities']
       return false if new_disabilities.blank?
 
       new_disabilities.any? { |item| item&.key?('ratedDisability') }
     end
 
-    def has_old_flow_data?(form_data)
+    def old_flow_data?(form_data)
       new_disabilities = form_data['newDisabilities']
       return false if new_disabilities.blank?
 
