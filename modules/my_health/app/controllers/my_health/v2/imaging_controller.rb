@@ -14,12 +14,14 @@ module MyHealth
         start_date = params[:start_date]
         end_date = params[:end_date]
         imaging_study_type = params[:imaging_study_type].presence || 'ALL'
+        site_ids = params[:site_ids].presence || []
 
         imaging_studies = sort_records(
           service.get_imaging_studies(
             start_date:,
             end_date:,
-            imaging_study_type:
+            imaging_study_type:,
+            site_ids:
           ),
           params[:sort]
         )

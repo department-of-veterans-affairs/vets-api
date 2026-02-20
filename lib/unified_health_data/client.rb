@@ -65,20 +65,21 @@ module UnifiedHealthData
       perform(:get, path, params, request_headers)
     end
 
-    def get_imaging_studies(patient_id:, start_date:, end_date:, imaging_study_type: 'ALL')
-      path = "#{config.base_path}imaging-studies/oracle-health"
-      params = { patientId: patient_id, startDate: start_date, endDate: end_date, imagingStudyType: imaging_study_type }
-      perform(:get, path, params, request_headers)
+    def get_imaging_studies(patient_id:, start_date:, end_date:, imaging_study_type: 'ALL', site_ids: [])
+      path = "#{config.base_path}imaging-studies?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      body = { siteIds: site_ids }
+      body[:imagingStudyType] = imaging_study_type if imaging_study_type != 'ALL'
+      perform(:post, path, body.to_json, request_headers(include_content_type: true))
     end
 
     def get_imaging_study(patient_id:, start_date:, end_date:, record_id:)
-      path = "#{config.base_path}imaging-study/oracle-health"
+      path = "#{config.base_path}imaging-study"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
       perform(:get, path, params, request_headers)
     end
 
     def get_dicom_zip(patient_id:, start_date:, end_date:, record_id:)
-      path = "#{config.base_path}dicom-zip/oracle-health"
+      path = "#{config.base_path}dicom-zip"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
       perform(:get, path, params, request_headers)
     end
