@@ -214,5 +214,41 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
 
       it_behaves_like 'sends confirmation email'
     end
+
+    context 'form 21-4170' do
+      let(:form_number) { '21-4170' }
+
+      it_behaves_like 'sends confirmation email'
+    end
+
+    context 'form 21P-524' do
+      let(:form_number) { '21P-524' }
+
+      it_behaves_like 'sends confirmation email'
+    end
+
+    context 'form 21P-601' do
+      let(:form_number) { '21P-601' }
+
+      it_behaves_like 'sends confirmation email'
+    end
+
+    context 'form 21P-4706b' do
+      let(:form_number) { '21P-4706b' }
+
+      it_behaves_like 'sends confirmation email'
+    end
+
+    context 'form 21P-4171' do
+      let(:form_number) { '21P-4171' }
+
+      it_behaves_like 'sends confirmation email'
+    end
+
+    context 'form 21P-8924' do
+      let(:form_number) { '21P-8924' }
+
+      it_behaves_like 'sends confirmation email'
+    end
   end
 end
