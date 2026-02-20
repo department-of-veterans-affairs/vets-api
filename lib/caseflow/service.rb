@@ -118,9 +118,7 @@ module Caseflow
       appeals.each do |appeal|
         next unless appeal.dig('attributes', 'issues')
 
-        issues_with_null_description = appeal['attributes']['issues'].select { |issue| issue['description'].nil? }
-
-        if issues_with_null_description.any?
+        if appeal['attributes']['issues'].any? { |issue| issue['description'].nil? }
           StatsD.increment("#{STATSD_KEY_PREFIX}.appeals_with_null_issue_descriptions")
           appeals_with_null_issue_descriptions << appeal
         end
