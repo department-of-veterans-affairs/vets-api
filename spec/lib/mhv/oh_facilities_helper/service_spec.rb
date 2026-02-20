@@ -422,7 +422,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when mhv_oh_migration_extended_phases is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases).and_return(true)
         end
 
         context 'when before first phase' do
@@ -477,7 +477,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       context 'when mhv_oh_migration_extended_phases is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases).and_return(false)
         end
 
         context 'when before first phase' do
@@ -524,7 +524,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       let(:last_phase_key) { phases.key(last_phase_offset).to_s }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases).and_return(true)
       end
 
       context 'when migration_status is NOT_STARTED' do
@@ -567,7 +567,7 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
 
       before do
         allow(Date).to receive(:current).and_return(today)
-        allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases, anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_oh_migration_extended_phases).and_return(true)
       end
 
       it 'returns all migrations regardless of status' do
