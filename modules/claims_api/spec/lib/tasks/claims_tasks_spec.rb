@@ -281,6 +281,63 @@ describe 'rake claims', type: :task do
       describe 'when the claim failed to establish from a PUT request' do
         include_context 'when the claim failed to establish from a PUT request'
       end
+
+      describe 'when the claim failed to establish from a POST request' do
+        context 'for a single claim' do
+          let(:claim) do
+            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+          end
+
+          before do
+            allow($stdin).to receive(:gets).and_return("n\n")
+
+            # mock the DisabilityCompensationPdfGenerator to update the claim status to established
+            allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_async) do |claim_id, _|
+              claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+            end
+          end
+
+          it 'reestablishes the claim' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_async).with(
+              claim.id,
+              ''
+            ).once
+            expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
+          end
+
+          it 'does NOT upload the 526EZ PDF' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async).with(claim.id, 'claim')
+          end
+
+          it 'uses the DisabilityCompensationPdfGenerator' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
+              .to have_received(:perform_async).with(claim.id, '')
+          end
+
+          it 'uploads each supporting document' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+
+            expect(ClaimsApi::ClaimUploader).to have_received(:perform_async).with(
+              claim.supporting_documents.first.id, 'document'
+            ).once
+          end
+
+          it 'completes successfully' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            expect { task.execute(args) }.not_to raise_error
+          end
+        end
+      end
     end
   end
 end
