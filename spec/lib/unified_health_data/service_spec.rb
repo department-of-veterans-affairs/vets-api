@@ -1107,39 +1107,41 @@ describe UnifiedHealthData::Service, type: :service do
       )
     end
 
-    context 'when source is not provided (Vista fallback)' do
+    context 'when source is not provided (defaults to oracle-health)' do
+      let(:single_oh_note_response) do
+        JSON.parse(Rails.root.join(
+          'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+        ).read)
+      end
+
+      let(:oh_client_response) do
+        Faraday::Response.new(body: single_oh_note_response)
+      end
+
       before do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:increment)
         allow_any_instance_of(UnifiedHealthData::Client)
-          .to receive(:get_notes_by_date)
-          .and_return(sample_client_response)
+          .to receive(:get_note_by_source)
+          .and_return(oh_client_response)
       end
 
-      it 'fetches all notes and returns the matching Vista note' do
-        note = service.get_single_summary_or_note('F253-7227761-1834074')
-        expect(note).to have_attributes(
-          {
-            'id' => 'F253-7227761-1834074',
-            'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-            'loinc_codes' => ['11506-3'],
-            'note_type' => 'physician_procedure_note',
-            'date' => '2025-01-14T09:18:00.000+00:00',
-            'date_signed' => '2025-01-14T09:29:26+00:00',
-            'written_by' => 'MARCI P MCGUIRE',
-            'signed_by' => 'MARCI P MCGUIRE',
-            'admission_date' => nil,
-            'discharge_date' => nil,
-            'location' => 'CHYSHR TEST LAB',
-            'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i,
-            'source' => 'vista'
-          }
-        )
+      it 'fetches the note via get_note_by_source defaulting to oracle-health' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .with(hash_including(source: 'oracle-health'))
+          .and_return(oh_client_response)
+
+        note = service.get_single_summary_or_note('20875576613')
+        expect(note).not_to be_nil
+        expect(note.id).to eq('20875576613')
       end
 
-      it 'returns nil when note is not found' do
-        note = service.get_single_summary_or_note('nonexistent-id')
-        expect(note).to be_nil
+      it 'does not call get_notes_by_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .not_to receive(:get_notes_by_date)
+
+        service.get_single_summary_or_note('20875576613')
       end
     end
 
@@ -1246,15 +1248,21 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(true)
       end
 
-      context 'when fetching a Vista note' do
+      context 'when fetching a note without source (defaults to oracle-health)' do
+        let(:single_oh_note_response) do
+          JSON.parse(Rails.root.join(
+            'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+          ).read)
+        end
+
         before do
           allow_any_instance_of(UnifiedHealthData::Client)
-            .to receive(:get_notes_by_date)
-            .and_return(sample_client_response)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: single_oh_note_response))
         end
 
         it 'logs with source vista_fallback and note_found true' do
-          service.get_single_summary_or_note('F253-7227761-1834074')
+          service.get_single_summary_or_note('20875576613')
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
@@ -1268,13 +1276,17 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'emits StatsD increment with source tag vista_fallback' do
-          service.get_single_summary_or_note('F253-7227761-1834074')
+          service.get_single_summary_or_note('20875576613')
 
           expect(StatsD).to have_received(:increment)
             .with('api.uhd.clinical_notes.show.source', tags: ['source:vista_fallback'])
         end
 
         it 'emits StatsD not_found increment when note is missing' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: nil))
+
           service.get_single_summary_or_note('nonexistent-id')
 
           expect(StatsD).to have_received(:increment)
@@ -1282,6 +1294,10 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'logs note_found false when note is not found' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: nil))
+
           service.get_single_summary_or_note('nonexistent-id')
 
           expect(Rails.logger).to have_received(:info).with(

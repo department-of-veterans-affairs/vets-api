@@ -157,11 +157,7 @@ module UnifiedHealthData
 
     def get_single_summary_or_note(note_id, source: nil)
       with_monitoring do
-        result = if source == SourceConstants::ORACLE_HEALTH
-                   fetch_oracle_health_note(note_id, source)
-                 else
-                   fetch_note_from_all(note_id)
-                 end
+        result = fetch_oracle_health_note(note_id, source || SourceConstants::ORACLE_HEALTH)
         clinical_notes_logging_enabled? && log_notes_show_metrics(source, result)
         result
       end

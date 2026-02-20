@@ -2426,10 +2426,9 @@ paths:
   /v2/medical_records/clinical_notes/{id}:
     get:
       description: |
-        Get a single clinical note by ID. The optional `source` query parameter controls the retrieval strategy:
-        - `oracle-health`: fetches the note directly from the Oracle Health source-specific endpoint for faster retrieval.
-        - `vista`: fetches all notes from VistA and filters by ID (equivalent to omitting the parameter).
-        - Omitted: defaults to the VistA fallback path, fetching all notes and filtering by ID.
+        Get a single clinical note by ID. The `source` query parameter is required and must be set
+        to `oracle-health` to retrieve the note directly from the Oracle Health source-specific endpoint.
+        Requests with `source=vista` or without a `source` parameter will receive a 404 response.
       operationId: getClinicalNoteV2
       parameters:
         - name: id
@@ -2441,15 +2440,13 @@ paths:
         - name: source
           in: query
           description: >
-            The data source of the note. When set to `oracle-health`, the note is retrieved directly
-            from the Oracle Health endpoint. When set to `vista` or omitted, all notes are fetched
-            and the matching note is returned (VistA fallback path).
-          required: false
+            The data source of the note. Must be `oracle-health` for direct retrieval from the
+            Oracle Health endpoint. Requests with `vista` or without this parameter return 404.
+          required: true
           schema:
             type: string
             enum:
               - oracle-health
-              - vista
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         "200":
@@ -2473,12 +2470,18 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request - invalid source parameter value
         "404":
           content:
             application/json:
               schema:
                 $ref: ./schemas/Errors.yml
-          description: Not Found - no note matching the given ID
+          description: Not Found - source is missing, source is vista, or no note matching the given ID
         "502":
           content:
             application/json:

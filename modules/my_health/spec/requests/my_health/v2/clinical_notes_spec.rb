@@ -159,9 +159,21 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
   describe 'GET /my_health/v2/medical_records/notes#show' do
     context 'happy path' do
       it 'returns a successful response for a single note' do
-        VCR.use_cassette('unified_health_data/get_clinical_notes_200', match_requests_on: %i[method path]) do
-          get '/my_health/v2/medical_records/clinical_notes/15249697279', headers: { 'X-Key-Inflection' => 'camel' }
-        end
+        expect_any_instance_of(UnifiedHealthData::Service)
+          .to receive(:get_single_summary_or_note)
+          .with('15249697279', source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH)
+          .and_return(UnifiedHealthData::ClinicalNotes.new(
+                        id: '15249697279', name: 'Test Note', note_type: 'discharge_summary',
+                        loinc_codes: ['11506-3'], date: '2026-02-02T21:13:27Z',
+                        date_signed: '2026-02-02T21:13:27Z', written_by: 'Borland, Victoria A',
+                        signed_by: 'Victoria A Borland', location: 'Test Location',
+                        note: 'VGVzdA==', source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH
+                      ))
+
+        get '/my_health/v2/medical_records/clinical_notes/15249697279',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
         expect(json_response['data']['type']).to eq('clinical_note')
@@ -204,27 +216,35 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
         expect(json_response['data']['attributes']['source']).to eq(UnifiedHealthData::SourceConstants::ORACLE_HEALTH)
       end
 
-      it 'calls service without source when source param is not provided' do
-        expect_any_instance_of(UnifiedHealthData::Service)
-          .to receive(:get_single_summary_or_note)
-          .with('15249697279', source: nil)
-          .and_return(UnifiedHealthData::ClinicalNotes.new(
-                        id: '15249697279', name: 'Test Note', note_type: 'physician_procedure_note',
-                        source: UnifiedHealthData::SourceConstants::VISTA
-                      ))
-
+      it 'returns a 404 when source param is not provided' do
         get '/my_health/v2/medical_records/clinical_notes/15249697279',
             headers: { 'X-Key-Inflection' => 'camel' }
 
-        expect(response).to be_successful
+        expect(response).to have_http_status(:not_found)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
       end
 
-      # TODO: Probably this should return a 404? Maybe?
-      it 'returns a 404 not found' do
-        VCR.use_cassette('unified_health_data/get_clinical_notes_no_records', match_requests_on: %i[method path]) do
-          get '/my_health/v2/medical_records/clinical_notes/12345',
-              headers: { 'X-Key-Inflection' => 'camel' }
-        end
+      it 'returns a 404 when source param is vista' do
+        get '/my_health/v2/medical_records/clinical_notes/15249697279',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: UnifiedHealthData::SourceConstants::VISTA }
+
+        expect(response).to have_http_status(:not_found)
+        json_response = JSON.parse(response.body)
+        expect(json_response['errors']).to be_present
+      end
+
+      it 'returns a 404 when note is not found in source' do
+        expect_any_instance_of(UnifiedHealthData::Service)
+          .to receive(:get_single_summary_or_note)
+          .with('12345', source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH)
+          .and_return(nil)
+
+        get '/my_health/v2/medical_records/clinical_notes/12345',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+
         expect(response).to have_http_status(:not_found)
       end
 
@@ -244,22 +264,22 @@ RSpec.describe 'MyHealth::V2::ClinicalNotesController', :skip_json_api_validatio
       it 'returns a 500 response when there is a server error' do
         allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_single_summary_or_note)
           .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
-        # This cassette doesn't matter since we're stubbing the service call to raise an error
-        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
-          get '/my_health/v2/medical_records/clinical_notes/12345',
-              headers: { 'X-Key-Inflection' => 'camel' }
-        end
+
+        get '/my_health/v2/medical_records/clinical_notes/12345',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+
         expect(response).to have_http_status(:internal_server_error)
       end
 
       it 'returns an error response when there is a client error' do
         allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_single_summary_or_note)
           .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
-        # This cassette doesn't matter since we're stubbing the service call to raise an error
-        VCR.use_cassette('unified_health_data/get_clinical_notes_200') do
-          get '/my_health/v2/medical_records/clinical_notes/12345',
-              headers: { 'X-Key-Inflection' => 'camel' }
-        end
+
+        get '/my_health/v2/medical_records/clinical_notes/12345',
+            headers: { 'X-Key-Inflection' => 'camel' },
+            params: { source: UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+
         expect(response).to have_http_status(:bad_gateway)
       end
     end

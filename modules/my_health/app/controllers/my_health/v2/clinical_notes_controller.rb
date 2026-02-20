@@ -66,11 +66,26 @@ module MyHealth
 
       def validate_source_param
         source = params['source']
-        return unless source.present? && !valid_source?(source)
 
-        render_error('Invalid Parameter',
-                     "Invalid source: '#{source}'. Must be one of: #{valid_sources.join(', ')}",
-                     '400', 400, :bad_request)
+        if source.blank?
+          render_error('Record Not Found',
+                       'The requested record was not found. A source parameter is required.',
+                       '404', 404, :not_found)
+          return
+        end
+
+        unless valid_source?(source)
+          render_error('Invalid Parameter',
+                       "Invalid source: '#{source}'. Must be one of: #{valid_sources.join(', ')}",
+                       '400', 400, :bad_request)
+          return
+        end
+
+        return unless source == UnifiedHealthData::SourceConstants::VISTA
+
+        render_error('Record Not Found',
+                     'The requested record was not found. VistA notes are not available for direct lookup.',
+                     '404', 404, :not_found)
       end
 
       def valid_source?(source)
