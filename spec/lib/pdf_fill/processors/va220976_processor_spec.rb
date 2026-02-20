@@ -40,6 +40,8 @@ describe PdfFill::Processors::VA220976Processor do
         expect(get_field_value(fields, 'authorizing_initials_1')).to eq 'JH'
         expect(get_field_value(fields, 'faculty_0_name')).to eq 'John A Doe'
         expect(get_field_value(fields, 'sco_name')).to eq 'John A Doe'
+        expect(get_field_value(fields, 'institution_mailing_address')).to eq '123 Main St, Anytown, CA, 12345, USA'
+        expect(get_field_value(fields, 'institution_physical_address')).to eq '123 Main St, Anytown, CA, 12345, USA'
         expect(get_field_value(fields, 'authorizing_official_signature')).to eq 'John Doe'
       end
     end

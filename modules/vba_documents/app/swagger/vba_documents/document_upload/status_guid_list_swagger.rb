@@ -10,7 +10,7 @@ module VBADocuments
           key :required, %i[ids]
 
           property :ids do
-            key :description, 'List of IDs for previous document upload submissions'
+            key :description, 'List of IDs for previous document upload submissions (max 1000)'
             key :type, :array
             items do
               key :type, :string
