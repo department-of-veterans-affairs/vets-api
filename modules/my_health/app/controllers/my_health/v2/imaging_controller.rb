@@ -86,7 +86,7 @@ module MyHealth
       end
 
       def default_end_date
-        1.year.from_now.strftime('%Y-%m-%d')
+        Time.zone.today.strftime('%Y-%m-%d')
       end
 
       # Combines the user's VistA treatment facility IDs and Cerner (Oracle Health)
@@ -94,7 +94,16 @@ module MyHealth
       def user_site_ids
         vista_ids = @current_user.va_treatment_facility_ids || []
         cerner_ids = @current_user.cerner_facility_ids || []
-        (vista_ids + cerner_ids).map(&:to_s).uniq
+        site_ids = (vista_ids + cerner_ids).map(&:to_s).uniq
+
+        if site_ids.empty?
+          Rails.logger.warn(
+            message: 'ImagingController#user_site_ids resolved to empty site_ids',
+            icn: @current_user.icn
+          )
+        end
+
+        site_ids
       end
     end
   end
