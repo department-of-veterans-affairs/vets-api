@@ -65,4 +65,46 @@ describe PdfFill::Forms::Va220989 do
       expect(merged_data['dateSigned']).to eq('01,01,2025')
     end
   end
+
+  describe 'filling out pdf' do
+    # let(:file_path) { 'tmp/pdfs/10278_test' }
+
+    after do
+      FileUtils.rm_rf('tmp/pdfs')
+    end
+
+    def get_field_value(fields, name)
+      fields.find { |f| f.name == name }&.value
+    end
+
+    context 'with a normal set of responses' do
+      let(:claim) { create(:va0989) }
+
+      it 'fills in the correct field values' do
+        file_path = claim.to_pdf
+        fields = PdfForms.new(Settings.binaries.pdftk).get_fields(file_path)
+
+        expect(get_field_value(fields, 'applicant_name')).to eq 'John Doe'
+        expect(get_field_value(fields, 'va_file_number')).to eq '123456789'
+        expect(get_field_value(fields, 'signature')).to eq 'John Doe'
+        expect(get_field_value(fields,
+                               'closed_school_name_and_address')).to eq "Test U\r111 2nd St S\rSeattle, WA, 98101\rUSA"
+      end
+    end
+
+    context 'with a non-closed set of responses' do
+      let(:claim) { create(:va0989_not_closed) }
+
+      it 'fills in the correct field values' do
+        file_path = claim.to_pdf
+        fields = PdfForms.new(Settings.binaries.pdftk).get_fields(file_path)
+
+        expect(get_field_value(fields, 'applicant_name')).to eq 'John Doe'
+        expect(get_field_value(fields, 'va_file_number')).to eq '123456789'
+        expect(get_field_value(fields, 'signature')).to eq 'John Doe'
+        expect(get_field_value(fields, 'closed_school_name_and_address')).to eq ''
+        expect(get_field_value(fields, 'remarks')).to eq 'lorem ipsum'
+      end
+    end
+  end
 end
