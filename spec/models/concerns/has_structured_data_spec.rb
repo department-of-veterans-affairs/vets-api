@@ -301,7 +301,7 @@ RSpec.describe HasStructuredData do
 
   describe '#format_currency' do
     it 'formats a number as currency with two decimal places' do
-      result = subject.format_currency(123456.789)
+      result = subject.format_currency(123_456.789)
       expect(result).to eq('123,456.79')
     end
 
