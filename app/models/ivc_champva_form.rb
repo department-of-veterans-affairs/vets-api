@@ -5,4 +5,5 @@ class IvcChampvaForm < ApplicationRecord
 
   has_kms_key
   has_encrypted :ves_request_data, key: :kms_key, **lockbox_options
+  has_encrypted :request_json, key: :kms_key, **lockbox_options
 end

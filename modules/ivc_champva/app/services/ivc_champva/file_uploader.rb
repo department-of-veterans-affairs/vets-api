@@ -14,15 +14,19 @@ module IvcChampva
     # @param [Array] file_paths List of local file paths of all attachments to be uploaded
     # @param [Boolean] insert_db_row whether or not to record the uploads and S3 responses in the database
     # @param [User] current_user The current user, used for feature flags
+    # @param [Hash] parsed_form_data Optional original form data for storage (when feature flag enabled)
     #
     # @return [IvcChampva::FileUploader]
     #
-    def initialize(form_id, metadata, file_paths, insert_db_row = false, current_user = nil) # rubocop:disable Style/OptionalBooleanParameter
+    def initialize(form_id, metadata, file_paths, insert_db_row = false, current_user = nil, parsed_form_data = nil) # rubocop:disable Style/OptionalBooleanParameter, Metrics/ParameterLists
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
       @insert_db_row = insert_db_row
       @current_user = current_user
+      @parsed_form_data = if parsed_form_data && Flipper.enabled?(:champva_store_request_json, current_user)
+                            parsed_form_data
+                          end
     end
 
     ##
@@ -166,7 +170,8 @@ module IvcChampva
         form_number: @metadata['docType'],
         file_name:,
         s3_status: response_status,
-        pega_status:
+        pega_status:,
+        request_json: @parsed_form_data&.to_json
       )
 
       monitor.track_insert_form(@metadata['uuid'], @form_id)
