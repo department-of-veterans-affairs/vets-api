@@ -77,12 +77,11 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
   describe 'GET /my_health/v2/medical_records/imaging/:id/thumbnails' do
     let(:record_id) { 'urn-vastudy-200CRNR-CM-6-ezJjLWI2LWQwLWVkLWE0LTQ0LTQwLWVlLWI0LWR' }
     let(:thumbnails_path) { "/my_health/v2/medical_records/imaging/#{record_id}/thumbnails" }
-    let(:thumbnails_params) { { start_date: '2026-01-01', end_date: '2027-01-01' } }
 
     context 'happy path' do
       it 'returns a successful response with imaging study data' do
         VCR.use_cassette('unified_health_data/get_imaging_study_200', match_requests_on: %i[method path]) do
-          get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }, params: thumbnails_params
+          get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
@@ -115,7 +114,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
         allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_study)
           .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
         VCR.use_cassette('unified_health_data/get_imaging_study_200', match_requests_on: %i[method path]) do
-          get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }, params: thumbnails_params
+          get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to have_http_status(:internal_server_error)
       end
@@ -124,7 +123,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
         allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_imaging_study)
           .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
         VCR.use_cassette('unified_health_data/get_imaging_study_200', match_requests_on: %i[method path]) do
-          get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }, params: thumbnails_params
+          get thumbnails_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to have_http_status(:bad_gateway)
       end
@@ -134,12 +133,11 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
   describe 'GET /my_health/v2/medical_records/imaging/:id/dicom' do
     let(:record_id) { 'urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ' }
     let(:dicom_path) { "/my_health/v2/medical_records/imaging/#{record_id}/dicom" }
-    let(:dicom_params) { { start_date: '2026-01-01', end_date: '2027-01-01' } }
 
     context 'happy path' do
       it 'returns a successful response with DICOM zip URL' do
         VCR.use_cassette('unified_health_data/get_dicom_zip_200', match_requests_on: %i[method path]) do
-          get dicom_path, headers: { 'X-Key-Inflection' => 'camel' }, params: dicom_params
+          get dicom_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
@@ -164,7 +162,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
         allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_dicom_zip)
           .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
         VCR.use_cassette('unified_health_data/get_dicom_zip_200', match_requests_on: %i[method path]) do
-          get dicom_path, headers: { 'X-Key-Inflection' => 'camel' }, params: dicom_params
+          get dicom_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to have_http_status(:internal_server_error)
       end
@@ -173,7 +171,7 @@ RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, typ
         allow_any_instance_of(UnifiedHealthData::ImagingService).to receive(:get_dicom_zip)
           .and_raise(Common::Client::Errors::ClientError.new(Faraday::ClientError.new))
         VCR.use_cassette('unified_health_data/get_dicom_zip_200', match_requests_on: %i[method path]) do
-          get dicom_path, headers: { 'X-Key-Inflection' => 'camel' }, params: dicom_params
+          get dicom_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
         expect(response).to have_http_status(:bad_gateway)
       end

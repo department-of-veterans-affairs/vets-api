@@ -36,15 +36,12 @@ module MyHealth
       end
 
       def thumbnails
-        start_date = params[:start_date]
-        end_date = params[:end_date]
-
         # NOTE: params[:id] is a FHIR imaging study identifier URN (e.g. 'urn-vastudy-...')
         record_id = params[:id]
 
         imaging_studies = service.get_imaging_study(
-          start_date:,
-          end_date:,
+          start_date: default_start_date,
+          end_date: default_end_date,
           record_id:
         )
         serialized_studies = UnifiedHealthData::Serializers::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
@@ -58,15 +55,12 @@ module MyHealth
       end
 
       def dicom
-        start_date = params[:start_date]
-        end_date = params[:end_date]
-
         # NOTE: params[:id] is a FHIR imaging study identifier URN (e.g. 'urn-vastudy-...')
         record_id = params[:id]
 
         imaging_studies = service.get_dicom_zip(
-          start_date:,
-          end_date:,
+          start_date: default_start_date,
+          end_date: default_end_date,
           record_id:
         )
         serialized_studies = UnifiedHealthData::Serializers::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
@@ -83,6 +77,16 @@ module MyHealth
 
       def service
         @service ||= UnifiedHealthData::ImagingService.new(@current_user)
+      end
+
+      # SCDF requires date params for thumbnails and DICOM but they do not
+      # affect results. Provide a wide window so every study qualifies.
+      def default_start_date
+        10.years.ago.strftime('%Y-%m-%d')
+      end
+
+      def default_end_date
+        1.year.from_now.strftime('%Y-%m-%d')
       end
 
       # Combines the user's VistA treatment facility IDs and Cerner (Oracle Health)
