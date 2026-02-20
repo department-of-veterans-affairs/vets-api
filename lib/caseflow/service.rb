@@ -130,7 +130,7 @@ module Caseflow
     end
 
     def log_appeals_with_no_issue_descriptions(user, appeals)
-      Rails.logger.warn('Caseflow returned an appeal with at least one null issue description')
+      Rails.logger.warn('Caseflow returned at least one appeal with at least one null issue description')
       PersonalInformationLog.create!(
         data: {
           user:,
