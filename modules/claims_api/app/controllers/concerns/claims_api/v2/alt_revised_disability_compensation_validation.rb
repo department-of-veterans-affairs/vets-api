@@ -647,7 +647,7 @@ module ClaimsApi
 
             if sp['activeDutyEndDate']
               next unless date_is_valid?(sp['activeDutyEndDate'],
-                                         "serviceInformation/servicePeriods/#{idx}activeDutyBeginDate", true)
+                                         "serviceInformation/servicePeriods/#{idx}/activeDutyEndDate", true)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
@@ -1016,7 +1016,7 @@ module ClaimsApi
       end
 
       def service_periods_present?(service_information)
-        service_information['servicePeriods'].present?
+        service_information&.dig('servicePeriods').present?
       end
 
       def collect_date_error(date, property = '/')

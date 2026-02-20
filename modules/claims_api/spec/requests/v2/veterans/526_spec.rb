@@ -274,7 +274,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
 
-      context 'Section 6: Sevice Information' do
+      context 'Section 6: Service Information' do
         before do
           allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
         end
