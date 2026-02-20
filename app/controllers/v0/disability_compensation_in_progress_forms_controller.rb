@@ -75,12 +75,10 @@ module V0
 
       # Fix poisoned IPFs: if disabilityCompNewConditionsWorkflow was erroneously
       # injected as true (by useFormFeatureToggleSync) into a form built under the
-      # old flow, the user would hit a redirect loop because old-flow pages are
-      # hidden when the flag is true. Data-first detection with Flipper tiebreaker:
-      # - New-flow data exists (ratedDisability key) → keep true (user is locked in)
-      # - Old-flow data exists (items without ratedDisability) → reset (poisoned form)
-      # - No conditions data at all + Flipper ON → keep true (hasn't reached that step)
-      # - No conditions data at all + Flipper OFF → reset (flag was erroneously injected)
+      # old flow, the user crashes when returnUrl navigates to an old-flow page
+      # whose schemas were never initialized (flag true = old-flow pages inactive).
+      # Simple fix: if flag is true and returnUrl is an old-flow conditions page,
+      # reset the flag to false so old-flow pages activate properly.
       if Flipper.enabled?(:disability_compensation_fix_poisoned_ipf, @current_user)
         parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
       end
@@ -90,58 +88,33 @@ module V0
       }
     end
 
-    # Entry point: checks if the disabilityCompNewConditionsWorkflow flag needs fixing.
-    # The flag may be boolean true or string "true" depending on how it was injected
-    # by useFormFeatureToggleSync. If the flag isn't truthy, no action is needed.
-    def fix_new_conditions_workflow_flag(form_data, _metadata)
+    # Old-flow conditions pages — all wrapped by gatePages(workflow, isNewConditionsOff),
+    # so they become inactive when the flag is true. Consequences:
+    #   /new-disabilities/follow-up  — showPagePerItem schemas never initialized → RJSF crash
+    #   /new-disabilities/add        — depends returns false → redirect loop
+    #   /claim-type                  — depends returns false → redirect loop
+    #   /disabilities/orientation    — depends returns false → redirect loop
+    #   /disabilities/rated-disabilities — depends returns false → redirect loop
+    OLD_FLOW_CONDITIONS_PATTERN = %r{claim-type|disabilities/orientation|disabilities/rated-disabilities|new-disabilities/(follow-up|add)}
+
+    # If disabilityCompNewConditionsWorkflow is true and returnUrl points to an
+    # old-flow conditions page, reset the flag to false. This prevents the
+    # RJSF crash (follow-up) and redirect loops (all other old-flow pages).
+    def fix_new_conditions_workflow_flag(form_data, metadata)
       flag = form_data['disabilityCompNewConditionsWorkflow']
+      return_url = metadata&.dig('returnUrl') || ''
 
       unless [true, 'true'].include?(flag)
-        log_poisoned_ipf_decision('flag not true, skipping', flag)
+        log_poisoned_ipf_fix('flag not true, skipping', flag:, return_url:)
         return form_data
       end
 
-      decision = poisoned_ipf_decision(form_data)
-
-      log_poisoned_ipf_decision(decision[:message], flag, decision[:details])
-      return form_data if decision[:keep]
-
-      reset_workflow_flag(form_data)
-    end
-
-    # Data-first decision logic with Flipper tiebreaker only for the no-data case.
-    # - Definitive new-flow data (ratedDisability, conditionDate, or sideOfBody on items)
-    #   → user is locked into new flow, keep flag true
-    # - Definitive old-flow data (view:*FollowUp wrappers, cause without conditionDate)
-    #   → poisoned form, reset to false
-    # - Ambiguous items (condition-only, no definitive signal either way)
-    #   → reset to false (crash risk: old-flow showPagePerItem schemas uninitialized)
-    # - No newDisabilities data at all (absent or empty array)
-    #   → Flipper tiebreaker: ON = legitimate user from prefill, OFF = injected flag
-    #   (no items means no showPagePerItem crash risk, safe to keep true)
-    def poisoned_ipf_decision(form_data)
-      has_new_data = new_flow_data?(form_data)
-      has_old_data = old_flow_data?(form_data)
-      has_items = form_data['newDisabilities'].present?
-      flipper_on = Flipper.enabled?(:disability_compensation_new_conditions_workflow, @current_user)
-      details = { flipper: flipper_on, has_new_flow_data: has_new_data, has_old_flow_data: has_old_data,
-                  has_items: }
-
-      if has_new_data
-        { keep: true, message: 'keeping true — new-flow data present (user locked in)', details: }
-      elsif has_items
-        reason = has_old_data ? 'old-flow data detected' : 'ambiguous items (crash risk)'
-        { keep: false, message: "resetting to false — #{reason}", details: }
-      elsif flipper_on
-        { keep: true, message: 'keeping true — no items + Flipper ON (legitimate prefill)', details: }
-      else
-        { keep: false, message: 'resetting to false — no items + Flipper OFF (injected flag)', details: }
+      unless OLD_FLOW_CONDITIONS_PATTERN.match?(return_url)
+        log_poisoned_ipf_fix('returnUrl not an old-flow conditions page, skipping', flag:, return_url:)
+        return form_data
       end
-    end
 
-    # Persist the corrected flag so it survives even if auto-save doesn't fire
-    # before the next page load
-    def reset_workflow_flag(form_data)
+      log_poisoned_ipf_fix('resetting to false — flag true + old-flow returnUrl', flag:, return_url:)
       corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
       begin
         form_for_user.update(form_data: corrected.to_json)
@@ -151,42 +124,12 @@ module V0
       corrected
     end
 
-    def log_poisoned_ipf_decision(message, flag_value, details = {})
+    def log_poisoned_ipf_fix(message, flag: nil, return_url: nil)
       Rails.logger.info("Form526 fix_poisoned_ipf: #{message}",
                         user_uuid: @current_user&.uuid,
                         in_progress_form_id: form_for_user&.id,
-                        flag_ipf_value: flag_value,
-                        **details)
-    end
-
-    # Definitive new-flow signals: keys that ONLY the new conditions workflow sets.
-    # ratedDisability — set on conditions/:index/condition page
-    # conditionDate — set on new-condition-date or rated-disability-date page
-    # sideOfBody — set on side-of-body page (conditional)
-    # Items with only 'condition' are ambiguous (both flows produce them).
-    def new_flow_data?(form_data)
-      new_disabilities = form_data['newDisabilities']
-      return false if new_disabilities.blank?
-
-      new_flow_keys = %w[ratedDisability conditionDate sideOfBody]
-      new_disabilities.any? { |item| new_flow_keys.any? { |key| item&.key?(key) } }
-    end
-
-    # Definitive old-flow signals: keys/patterns that ONLY the old conditions workflow produces.
-    # view:secondaryFollowUp, view:worsenedFollowUp, view:vaFollowUp — old flow nests
-    #   cause-specific fields in wrapper objects; new flow flattens them.
-    # cause WITHOUT conditionDate — old flow sets cause on its single follow-up page
-    #   but never sets conditionDate. New flow always sets conditionDate before cause.
-    # Items with only 'condition' are ambiguous (both flows produce them).
-    def old_flow_data?(form_data)
-      new_disabilities = form_data['newDisabilities']
-      return false if new_disabilities.blank?
-
-      old_flow_wrapper_keys = %w[view:secondaryFollowUp view:worsenedFollowUp view:vaFollowUp]
-      new_disabilities.any? do |item|
-        old_flow_wrapper_keys.any? { |key| item&.key?(key) } ||
-          (item&.key?('cause') && !item&.key?('conditionDate'))
-      end
+                        flag_ipf_value: flag,
+                        return_url:)
     end
 
     def set_started_form_version(data)
