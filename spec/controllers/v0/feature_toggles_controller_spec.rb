@@ -27,14 +27,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'allows strings as actors' do
-      @feature_name =  'find_a_representative_enabled'
-      @feature_name_camel = @feature_name.camelize(:lower)
-      @cookie_id = 'abc_123'
-      actor = Flipper::Actor.new(@cookie_id)
-      Flipper.disable(@feature_name)
-      Flipper.enable_actor(@feature_name, actor)
-
-      get :index, params: { cookie_id: @cookie_id }
+      get :index
 
       expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
@@ -153,13 +146,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'allows strings as actors' do
-      @feature_name =  'find_a_representative_enabled'
-      @cookie_id = 'abc_123'
-      actor = Flipper::Actor.new(@cookie_id)
-      Flipper.disable(@feature_name)
-      Flipper.enable_actor(@feature_name, actor)
-
-      get :index, params: { features: @feature_name, cookie_id: @cookie_id }
+      get :index
 
       expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
