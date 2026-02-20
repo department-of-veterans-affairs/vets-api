@@ -24,7 +24,7 @@ module SM
         track_with_status('post_create_message', is_oh:) do |tags|
           validate_create_context(args)
           json = perform_with_logging(:post, 'message', args)
-          tags[:station_number] = resolve_station_number(json[:data][:recipient_id])
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message')
         end
       end
@@ -42,7 +42,7 @@ module SM
           validate_create_context(args)
           Rails.logger.info('MESSAGING: post_create_message_with_attachments')
           json = perform_with_logging(:post, 'message/attach', args, headers: multipart_headers)
-          tags[:station_number] = resolve_station_number(json[:data][:recipient_id])
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_with_attachment')
         end
       end
@@ -83,7 +83,7 @@ module SM
           validate_reply_context(args)
           Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
           json = perform_with_logging(:post, "message/#{id}/reply/attach", args, headers: multipart_headers)
-          tags[:station_number] = resolve_station_number(json[:data][:recipient_id])
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_reply_with_attachment')
         end
       end
@@ -126,7 +126,7 @@ module SM
         track_with_status('post_create_message_reply', is_oh:) do |tags|
           validate_reply_context(args)
           json = perform_with_logging(:post, "message/#{id}/reply", args)
-          tags[:station_number] = resolve_station_number(json[:data][:recipient_id])
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_reply')
         end
       end
