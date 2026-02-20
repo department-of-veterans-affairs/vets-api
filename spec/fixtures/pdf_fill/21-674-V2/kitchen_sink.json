@@ -75,7 +75,8 @@
           "postal_code": "12345"
         },
         "student_income": false,
-        "ssn": "000000000",
+        "no_ssn": true,
+        "no_ssn_reason": "Nonresident Alien",
         "full_name": {
           "first": "Student",
           "middle": "",

@@ -614,6 +614,15 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     let(:service) { described_class.new(user) }
     let(:oh_migrations_list) { nil }
 
+    # Freeze time to noon Eastern so Time.zone.today in test setup agrees with
+    # the Eastern-timezone Date.current used by determine_current_phase,
+    # avoiding failures when tests run after 4 PM PT (next day in UTC).
+    around do |example|
+      Timecop.freeze(Time.find_zone('Eastern Time (US & Canada)').parse('2026-06-15 12:00:00')) do
+        example.run
+      end
+    end
+
     before do
       allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
     end
@@ -812,6 +821,15 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
     let(:user) { build(:user, :loa3) }
     let(:service) { described_class.new(user) }
     let(:oh_migrations_list) { nil }
+
+    # Freeze time to noon Eastern so Time.zone.today in test setup agrees with
+    # the Eastern-timezone Date.current used by determine_current_phase,
+    # avoiding failures when tests run after 4 PM PT (next day in UTC).
+    around do |example|
+      Timecop.freeze(Time.find_zone('Eastern Time (US & Canada)').parse('2026-06-15 12:00:00')) do
+        example.run
+      end
+    end
 
     before do
       allow(Settings.mhv.oh_facility_checks).to receive(:oh_migrations_list).and_return(oh_migrations_list)
