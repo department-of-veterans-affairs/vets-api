@@ -159,6 +159,12 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
+  disability_compensation_fix_poisoned_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that resets erroneously injected
+      disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload

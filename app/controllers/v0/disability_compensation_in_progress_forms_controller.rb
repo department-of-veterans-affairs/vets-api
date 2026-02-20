@@ -81,7 +81,9 @@ module V0
       # - Old-flow data exists (items without ratedDisability) → reset (poisoned form)
       # - No conditions data at all + Flipper ON → keep true (hasn't reached that step)
       # - No conditions data at all + Flipper OFF → reset (flag was erroneously injected)
-      parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
+      if Flipper.enabled?(:disability_compensation_fix_poisoned_ipf, @current_user)
+        parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
+      end
       {
         formData: parsed_form_data,
         metadata:
