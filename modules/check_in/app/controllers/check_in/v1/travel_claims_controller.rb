@@ -48,6 +48,7 @@ module CheckIn
       end
 
       def handle_parameter_missing_error(exception)
+        StatsD.increment(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR)
         render json: {
           errors: [{
             title: 'Bad Request',
@@ -59,6 +60,7 @@ module CheckIn
       end
 
       def handle_argument_error(exception)
+        StatsD.increment(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR)
         render json: {
           errors: [{
             title: 'Bad Request',
