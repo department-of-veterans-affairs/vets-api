@@ -78,8 +78,12 @@ Rails.application.routes.draw do
     end
 
     namespace :multi_party_forms do
-      resources :primary, only: %i[create show]
-      resources :secondary, only: [] do
+      resources :primary, only: %i[create show] do
+        member do
+          post :complete
+        end
+      end
+      resources :secondary, only: [:show] do
         member do
           post :start
         end
