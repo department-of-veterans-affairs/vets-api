@@ -95,7 +95,12 @@ module V0
     #   /claim-type                  — depends returns false → redirect loop
     #   /disabilities/orientation    — depends returns false → redirect loop
     #   /disabilities/rated-disabilities — depends returns false → redirect loop
-    OLD_FLOW_CONDITIONS_PATTERN = %r{claim-type|disabilities/orientation|disabilities/rated-disabilities|new-disabilities/(follow-up|add)}
+    OLD_FLOW_CONDITIONS_PATTERN = %r{
+      claim-type |
+      disabilities/orientation |
+      disabilities/rated-disabilities |
+      new-disabilities/(follow-up|add)
+    }x
 
     # If disabilityCompNewConditionsWorkflow is true and returnUrl points to an
     # old-flow conditions page, reset the flag to false. This prevents the
