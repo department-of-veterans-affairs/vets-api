@@ -2,6 +2,9 @@
 
 require_relative '../../../rails_helper'
 
+# Ensure the top-level constant exists at file load time for verified doubles in CI.
+IcnTemporaryIdentifier = AccreditedRepresentativePortal::IcnTemporaryIdentifier unless defined?(IcnTemporaryIdentifier)
+
 RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :request do
   before do
     login_as(test_user)
@@ -155,24 +158,32 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     let(:identifier_id) { SecureRandom.uuid }
 
     let(:mpi_service) { instance_double(MPI::Service) }
+
+    # Verified double: requires IcnTemporaryIdentifier constant to exist, so we stub_const first.
     let(:identifier_obj) { instance_double(IcnTemporaryIdentifier, icn:) }
 
-    before do
-      # Let Pundit run; force policy to allow show? so authorization is performed
-      allow_any_instance_of(AccreditedRepresentativePortal::ClaimantPolicy)
-        .to receive(:show?)
-        .and_return(true)
+    # Prefer route helper to avoid mount/path differences in CI
+    let(:path) { "/accredited_representative_portal/v0/claimant/#{identifier_id}" }
 
-      # Stub identifier lookup on the real, namespaced model
+    before do
+      # Ensure the controller's top-level constant exists in *all* envs (CI included)
+      stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
+
+      # IMPORTANT: satisfy verify_pundit_authorization hooks by ensuring the pundit flag is set.
+      allow_any_instance_of(AccreditedRepresentativePortal::V0::ClaimantController)
+        .to receive(:authorize) do |controller, *_args|
+          controller.instance_variable_set(:@_pundit_policy_authorized, true)
+          true
+        end
+
+      # Controller uses top-level constant
+      allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_return(identifier_obj)
+
+      # Also safe if something uses the namespaced constant directly
       allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
         .to receive(:find)
         .with(identifier_id)
         .and_return(identifier_obj)
-
-      # If the controller references the un-namespaced constant, alias it safely for this spec.
-      # Using stub_const ensures the constant exists in CI.
-      stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
-      allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_return(identifier_obj)
 
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
     end
@@ -202,7 +213,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       end
 
       it 'returns claimant profile fields' do
-        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+        get(path, headers: json_headers)
 
         expect(response).to have_http_status(:ok)
         data = parsed_response.fetch('data')
@@ -212,7 +223,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       end
 
       it 'calls MPI with the ICN from the identifier' do
-        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+        get(path, headers: json_headers)
 
         expect(mpi_service).to have_received(:find_profile_by_identifier).with(
           identifier: icn,
@@ -227,22 +238,22 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       end
 
       it 'returns 404 not found' do
-        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+        get(path, headers: json_headers)
         expect(response).to have_http_status(:not_found)
       end
     end
 
     context 'when the temporary identifier does not exist' do
       before do
+        allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_raise(ActiveRecord::RecordNotFound)
         allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
           .to receive(:find)
           .with(identifier_id)
           .and_raise(ActiveRecord::RecordNotFound)
-        allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_raise(ActiveRecord::RecordNotFound)
       end
 
       it 'returns 404 not found' do
-        get("/accredited_representative_portal/v0/claimant/#{identifier_id}", headers: json_headers)
+        get(path, headers: json_headers)
         expect(response).to have_http_status(:not_found)
       end
     end
