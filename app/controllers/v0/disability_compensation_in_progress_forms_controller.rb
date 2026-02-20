@@ -90,6 +90,9 @@ module V0
       }
     end
 
+    # Entry point: checks if the disabilityCompNewConditionsWorkflow flag needs fixing.
+    # The flag may be boolean true or string "true" depending on how it was injected
+    # by useFormFeatureToggleSync. If the flag isn't truthy, no action is needed.
     def fix_new_conditions_workflow_flag(form_data, _metadata)
       flag = form_data['disabilityCompNewConditionsWorkflow']
 
@@ -106,6 +109,16 @@ module V0
       reset_workflow_flag(form_data)
     end
 
+    # Data-first decision logic with Flipper as tiebreaker.
+    # Data is authoritative — it tells us which flow the user actually interacted with.
+    # - Definitive new-flow data (ratedDisability, conditionDate, or sideOfBody on items)
+    #   → user is locked into new flow, keep flag true regardless of Flipper
+    # - Definitive old-flow data (view:*FollowUp wrapper keys, or cause without conditionDate)
+    #   → poisoned form, reset flag to false regardless of Flipper
+    # - Ambiguous or no data (e.g. items with only 'condition' key, or no items at all)
+    #   → Flipper is the tiebreaker:
+    #   ON = legitimate new-flow user (may have no rated disabilities, skipping condition page)
+    #   OFF = flag was erroneously injected by useFormFeatureToggleSync
     def poisoned_ipf_decision(form_data)
       has_new_data = new_flow_data?(form_data)
       has_old_data = old_flow_data?(form_data)
@@ -122,6 +135,8 @@ module V0
       end
     end
 
+    # Persist the corrected flag so it survives even if auto-save doesn't fire
+    # before the next page load
     def reset_workflow_flag(form_data)
       corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
       begin
@@ -140,20 +155,34 @@ module V0
                         **details)
     end
 
+    # Definitive new-flow signals: keys that ONLY the new conditions workflow sets.
+    # ratedDisability — set on conditions/:index/condition page
+    # conditionDate — set on new-condition-date or rated-disability-date page
+    # sideOfBody — set on side-of-body page (conditional)
+    # Items with only 'condition' are ambiguous (both flows produce them).
     def new_flow_data?(form_data)
       new_disabilities = form_data['newDisabilities']
       return false if new_disabilities.blank?
 
-      new_disabilities.any? { |item| item&.key?('ratedDisability') }
+      new_flow_keys = %w[ratedDisability conditionDate sideOfBody]
+      new_disabilities.any? { |item| new_flow_keys.any? { |key| item&.key?(key) } }
     end
 
+    # Definitive old-flow signals: keys/patterns that ONLY the old conditions workflow produces.
+    # view:secondaryFollowUp, view:worsenedFollowUp, view:vaFollowUp — old flow nests
+    #   cause-specific fields in wrapper objects; new flow flattens them.
+    # cause WITHOUT conditionDate — old flow sets cause on its single follow-up page
+    #   but never sets conditionDate. New flow always sets conditionDate before cause.
+    # Items with only 'condition' are ambiguous (both flows produce them).
     def old_flow_data?(form_data)
       new_disabilities = form_data['newDisabilities']
       return false if new_disabilities.blank?
 
-      # Old-flow items have conditions data but NO `ratedDisability` key.
-      # If any item lacks `ratedDisability`, old-flow data is present.
-      new_disabilities.any? { |item| !item&.key?('ratedDisability') }
+      old_flow_wrapper_keys = %w[view:secondaryFollowUp view:worsenedFollowUp view:vaFollowUp]
+      new_disabilities.any? do |item|
+        old_flow_wrapper_keys.any? { |key| item&.key?(key) } ||
+          (item&.key?('cause') && !item&.key?('conditionDate'))
+      end
     end
 
     def set_started_form_version(data)
