@@ -69,6 +69,11 @@ RSpec.describe MHV::OhFacilitiesHelper::Service do
       it 'returns true' do
         expect(service.user_facility_ready_for_info_alert?).to be true
       end
+
+      it 'increments the success StatsD metric' do
+        expect { service.user_facility_ready_for_info_alert? }
+          .to trigger_statsd_increment('mhv.oh_facilities_helper.info_alert.success')
+      end
     end
 
     context 'when user has no facilities in facilities ready for info alert list' do
