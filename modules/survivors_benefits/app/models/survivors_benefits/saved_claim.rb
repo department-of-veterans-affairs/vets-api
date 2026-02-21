@@ -323,21 +323,22 @@ module SurvivorsBenefits
 
     def build_veteran_separation_fields(form)
       married_at_death = form['marriedToVeteranAtTimeOfDeath']
-      result = if married_at_death
-        {
-          'CB_MARR_TO_VET_ENDED_DEATH' => form['howMarriageEnded'] == 'death',
-          'CB_MARR_TO_VET_ENDED_DIVORCE' => form['howMarriageEnded'] == 'divorce',
-          'CB_MARR_TO_VET_ENDED_OTHER' => form['howMarriageEnded'] == 'other',
-          'MARR_TO_VET_ENDED_OTHEREXPLAIN' => form['howMarriageEndedExplanation']
-        }
-      else
-        {}
-      end
+      result =
+        if married_at_death
+          {
+            'CB_MARR_TO_VET_ENDED_DEATH' => form['howMarriageEnded'] == 'death',
+            'CB_MARR_TO_VET_ENDED_DIVORCE' => form['howMarriageEnded'] == 'divorce',
+            'CB_MARR_TO_VET_ENDED_OTHER' => form['howMarriageEnded'] == 'other',
+            'MARR_TO_VET_ENDED_OTHEREXPLAIN' => form['howMarriageEndedExplanation']
+          }
+        else
+          {}
+        end
       result.merge!(radio_value(married_at_death, 'MARRIED_WHILE_VET_DEATH_Y', 'MARRIED_WHILE_VET_DEATH_N'))
     end
 
     def build_claimant_remarriage_fields(form)
-      has_remarried = form['remarriageAfterVeteralDeath'] 
+      has_remarried = form['remarriageAfterVeteralDeath']
       expand_remarriage_end_cause(has_remarried, form['remarriageEndCause'])
         .merge!(radio_value(has_remarried, 'REMARRIED_AFTER_VET_DEATH_YES', 'REMARRIED_AFTER_VET_DEATH_NO'))
         .merge!(radio_value(form['claimantHasAdditionalMarriages'], 'ADDITIONAL_MARRIAGES_Y', 'ADDITIONAL_MARRIAGES_N'))
@@ -355,7 +356,7 @@ module SurvivorsBenefits
         'CB_REMARRIAGE_END_BY_DEATH' => has_remarried ? remarriage_end_cause == 'death' : nil,
         'CB_REMARRIAGE_END_BY_DIVORCE' => has_remarried ? remarriage_end_cause == 'divorce' : nil,
         'CB_MARRIAGE_DID_NOT_END' => has_remarried ? remarriage_end_cause == 'didNotEnd' : nil,
-        'CB_REMARRIAGE_END_BY_OTHER' => has_remarried ? remarriage_end_cause == 'other' : nil,
+        'CB_REMARRIAGE_END_BY_OTHER' => has_remarried ? remarriage_end_cause == 'other' : nil
       }
     end
 
@@ -370,9 +371,9 @@ module SurvivorsBenefits
 
     def build_previous_marriage_fields(form, marriages, individual, add_marr_field)
       indv = individuals_permutations(individual)
-      fields = radio_value(form[add_marr_field], "#{indv[:s]}_ADDITIONAL_MARRIAGES_Y", "#{indv[:s]}_ADDITIONAL_MARRIAGES_N")
+      additional_marriages_yes, additional_marriages_no = additional_marriages_boolean_fields(individual)
+      fields = radio_value(form[add_marr_field], additional_marriages_yes, additional_marriages_no)
       marriages.each_with_index do |marriage, index|
-        byebug
         fields
           .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv[:l], index + 1))
           .merge!(
@@ -405,6 +406,10 @@ module SurvivorsBenefits
           l: 'CLAIMANT'
         }
       end
+    end
+
+    def additional_marriages_boolean_fields(individual)
+      ["#{individual}_ADDITIONAL_MARRIAGES_Y", "#{individual}_ADDITIONAL_MARRIAGES_N"]
     end
 
     def build_spouse_name_fields(name, individual, marriage_num)
