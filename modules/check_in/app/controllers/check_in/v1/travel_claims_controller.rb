@@ -48,7 +48,7 @@ module CheckIn
       end
 
       def handle_parameter_missing_error(exception)
-        StatsD.increment(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR)
+        StatsD.increment(validation_error_metric)
         render json: {
           errors: [{
             title: 'Bad Request',
@@ -60,7 +60,7 @@ module CheckIn
       end
 
       def handle_argument_error(exception)
-        StatsD.increment(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR)
+        StatsD.increment(validation_error_metric)
         render json: {
           errors: [{
             title: 'Bad Request',
@@ -69,6 +69,15 @@ module CheckIn
             status: '400'
           }]
         }, status: :bad_request
+      end
+
+      def validation_error_metric
+        facility_type = params.dig(:travel_claims, :facility_type)
+        if facility_type&.casecmp?('oh')
+          CheckIn::Constants::OH_STATSD_VALIDATION_ERROR
+        else
+          CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR
+        end
       end
 
       def handle_backend_service_error(e)

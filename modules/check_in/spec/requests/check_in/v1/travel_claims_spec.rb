@@ -48,6 +48,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
     allow(Flipper).to receive(:enabled?)
       .with(:check_in_experience_use_btsss_v2_claim_submission_endpoints)
       .and_return(false)
+    allow(StatsD).to receive(:increment)
   end
 
   describe 'POST /check_in/v1/travel_claims' do
@@ -229,6 +230,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
             expect(response).to have_http_status(:bad_request)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR)
           end
 
           it 'returns error message about missing travel_claims key' do
@@ -323,6 +325,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
             expect(response).to have_http_status(:bad_request)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_VALIDATION_ERROR)
           end
         end
       end
