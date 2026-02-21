@@ -11,13 +11,15 @@ module HasStructuredData
     first = name_hash&.fetch('first', nil)
     middle = name_hash&.fetch('middle', nil)
     last = name_hash&.fetch('last', nil)
+    suffix = name_hash&.fetch('suffix', nil)
 
     {
       first:,
       last:,
       middle:,
       middle_initial: middle&.slice(0, 1),
-      full: [first, middle, last].compact.join(' ').presence
+      suffix:,
+      full: [first, middle, last, suffix].compact.join(' ').presence
     }
   end
 
