@@ -12,8 +12,8 @@ RSpec.describe HasStructuredData do
   end
 
   describe '#build_name' do
-    it 'returns a hash with first, middle, last, middle_initial, and full keys' do
-      name_hash = { 'first' => 'John', 'middle' => 'Quincy', 'last' => 'Doe' }
+    it 'returns a hash with first, middle, last, middle_initial, suffix, and full keys' do
+      name_hash = { 'first' => 'John', 'middle' => 'Quincy', 'last' => 'Doe', 'suffix' => 'Jr.' }
       result = subject.build_name(name_hash)
 
       expect(result).to eq(
@@ -21,7 +21,8 @@ RSpec.describe HasStructuredData do
         middle: 'Quincy',
         last: 'Doe',
         middle_initial: 'Q',
-        full: 'John Quincy Doe'
+        suffix: 'Jr.',
+        full: 'John Quincy Doe Jr.'
       )
     end
 
@@ -34,7 +35,22 @@ RSpec.describe HasStructuredData do
         middle: nil,
         last: 'Smith',
         middle_initial: nil,
+        suffix: nil,
         full: 'Jane Smith'
+      )
+    end
+
+    it 'handles missing suffix gracefully' do
+      name_hash = { 'first' => 'John', 'middle' => 'Quincy', 'last' => 'Doe' }
+      result = subject.build_name(name_hash)
+
+      expect(result).to eq(
+        first: 'John',
+        middle: 'Quincy',
+        last: 'Doe',
+        middle_initial: 'Q',
+        suffix: nil,
+        full: 'John Quincy Doe'
       )
     end
 
@@ -46,6 +62,7 @@ RSpec.describe HasStructuredData do
         middle: nil,
         last: nil,
         middle_initial: nil,
+        suffix: nil,
         full: nil
       )
     end

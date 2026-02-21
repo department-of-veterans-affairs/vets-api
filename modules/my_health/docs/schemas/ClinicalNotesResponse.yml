@@ -1,0 +1,93 @@
+type: object
+properties:
+  data:
+    type: array
+    items:
+      $ref: '#/definitions/ClinicalNote'
+definitions:
+  ClinicalNote:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the clinical note
+        example: "15249697279"
+      type:
+        type: string
+        description: Resource type identifier
+        example: "clinical_note"
+      attributes:
+        type: object
+        properties:
+          id:
+            type: string
+            description: Unique identifier for the clinical note
+            example: "15249697279"
+          name:
+            type: string
+            description: Title or display name of the note
+            example: "Abbreviated Visit Summary"
+          note_type:
+            type: string
+            description: >
+              Classification of the note type. Possible values include
+              physician_procedure_note, discharge_summary, and consult_result.
+            example: "physician_procedure_note"
+          loinc_codes:
+            type: array
+            description: LOINC codes associated with this note type
+            items:
+              type: string
+            example: ["11506-3"]
+          date:
+            type: string
+            format: date-time
+            description: Date the note was created or the service occurred
+            example: "2026-02-02T21:13:27Z"
+          date_signed:
+            type: string
+            format: date-time
+            nullable: true
+            description: Date the note was signed by the authenticator
+            example: "2026-02-02T21:13:27Z"
+          written_by:
+            type: string
+            nullable: true
+            description: Name of the author who wrote the note
+            example: "Borland, Victoria A"
+          signed_by:
+            type: string
+            nullable: true
+            description: Name of the practitioner who signed/authenticated the note
+            example: "Victoria A Borland"
+          admission_date:
+            type: string
+            format: date-time
+            nullable: true
+            description: Admission date (applicable for discharge summaries)
+            example: null
+          discharge_date:
+            type: string
+            format: date-time
+            nullable: true
+            description: Discharge date (applicable for discharge summaries)
+            example: null
+          location:
+            type: string
+            nullable: true
+            description: Facility or organization where the note was documented
+            example: "668 Mann-Grandstaff WA VA Medical Center"
+          note:
+            type: string
+            nullable: true
+            description: Base64-encoded plain text content of the note
+            example: "VGhpcyBpcyBhIHRlc3Qgbm90ZS4="
+          source:
+            type: string
+            description: >
+              The data source system for this note. Either 'vista' for VistA
+              records or 'oracle-health' for Oracle Health (Cerner) records.
+            enum:
+              - vista
+              - oracle-health
+            example: "oracle-health"

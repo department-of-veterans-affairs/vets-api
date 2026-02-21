@@ -1,0 +1,143 @@
+{
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "72339199"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "20875576613",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2026-02-02T21:13:27.000Z"
+        },
+        "contained": [
+          {
+            "resourceType": "Organization",
+            "id": "1938077",
+            "name": "668 Mann-Grandstaff WA VA Medical Center",
+            "active": true
+          },
+          {
+            "resourceType": "Practitioner",
+            "id": "63662034",
+            "name": [
+              {
+                "text": "Borland, Victoria A",
+                "family": "Borland",
+                "given": [
+                  "Victoria",
+                  "A"
+                ]
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://fhir.cerner.com/ceuuid",
+            "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875576613-2026020221132700"
+          }
+        ],
+        "status": "current",
+        "docStatus": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+              "code": "4189669",
+              "display": "Ambulatory Patient Summary",
+              "userSelected": true
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "96345-4",
+              "userSelected": false
+            }
+          ],
+          "text": "Ambulatory Patient Summary"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                "code": "clinical-note",
+                "display": "Clinical Note",
+                "userSelected": false
+              }
+            ],
+            "text": "Clinical Note"
+          }
+        ],
+        "subject": {
+          "reference": "Patient/72339199",
+          "display": "TEST, PATIENT"
+        },
+        "date": "2026-02-02T21:13:27Z",
+        "author": [
+          {
+            "reference": "Practitioner/63662034",
+            "display": "Borland, Victoria A"
+          }
+        ],
+        "authenticator": {
+          "reference": "Practitioner/63662034",
+          "display": "Borland, Victoria A"
+        },
+        "custodian": {
+          "reference": "Organization/1938077",
+          "display": "668 Mann-Grandstaff WA VA Medical Center"
+        },
+        "content": [
+          {
+            "attachment": {
+              "contentType": "application/pdf",
+              "url": "https://example.va.gov/Binary/XR-20875576613",
+              "title": "Abbreviated Visit Summary",
+              "creation": "2026-02-02T21:13:27.000Z"
+            },
+            "format": {
+              "system": "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
+              "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+              "display": "mimeType Sufficient"
+            }
+          },
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "data": "VGhpcyBpcyBhIHRlc3Qgbm90ZSBjb250ZW50IGZvciB0aGUgc2luZ2xlIG5vdGUgZW5kcG9pbnQu"
+            }
+          }
+        ],
+        "context": {
+          "encounter": [
+            {
+              "reference": "Encounter/322703753"
+            }
+          ],
+          "period": {
+            "end": "2026-02-02T21:13:10Z"
+          }
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "82a33322-91e2-4df3-b817-f3c6d8522367",
+        "issue": [
+          {
+            "severity": "information",
+            "code": "informational",
+            "diagnostics": "Success"
+          }
+        ]
+      }
+    }
+  ]
+}
