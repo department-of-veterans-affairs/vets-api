@@ -109,10 +109,6 @@ module SurvivorsBenefits
 
     # BEGIN IBM
 
-    # Number of previous marriages rows expected
-    VET_PREVIOUS_MARRIAGE_COUNT = 2
-    CALIMANT_PREVIOUS_MARRIAGE_COUNT = 2
-
     # Number of dependant childern rows expected
     DEPENDANT_CHILDREN_COUNT = 3
 
@@ -145,6 +141,7 @@ module SurvivorsBenefits
         .merge!(build_claimants_id_info(form))
         .merge!(build_veterans_service_info(form))
         .merge!(build_marital_info(form))
+        .merge!(build_marital_history_fields(form))
     end
 
     ##
@@ -224,14 +221,15 @@ module SurvivorsBenefits
     # @param form [Hash]
     # @return [Hash]
     def build_marital_info(form)
+      pregnant_with_veteran, lived_with_veteran, discordant_separation, marriage_type = marital_info_data(form)
       build_claimant_remarriage_fields(form)
         .merge!(radio_value(form['validMarriage'], 'AWARE_OF_MARRIAGE_VALIDITY_YES', 'AWARE_OF_MARRIAGE_VALIDITY_NO'))
         .merge!(build_veteran_separation_fields(form))
         .merge!(radio_value(form['childWithVeteran'], 'CHILD_DURING_MARRIAGE_YES', 'CHILD_DURING_MARRIAGE_NO'))
-        .merge!(radio_value(form['pregnantWithVeteran'], 'EXPECTING_BIRTH_VET_CHILD_YES', 'EXPECTING_BIRTH_VET_CHILD_NO'))
-        .merge!(radio_value(form['livedContinuouslyWithVeteran'], 'LIVE_WITH_VET_TILL_DEATH_YES', 'LIVED_WITH_VET_CONTINUOUSLY_NO'))
-        .merge!(radio_value(form['separationDueToAssignedReasons'], 'MARITAL_DISCORD_SEPARATION_Y', 'MARITAL_DISCORD_SEPARATION_N'))
-        .merge!(radio_value(form['marriageType'] == 'ceremonial', 'CB_CL_MARR_1_TYPE_CEREMONIAL', 'CB_CL_MARR_1_TYPE_OTHER'))
+        .merge!(radio_value(pregnant_with_veteran, 'EXPECTING_BIRTH_VET_CHILD_YES', 'EXPECTING_BIRTH_VET_CHILD_NO'))
+        .merge!(radio_value(lived_with_veteran, 'LIVE_WITH_VET_TILL_DEATH_YES', 'LIVED_WITH_VET_CONTINUOUSLY_NO'))
+        .merge!(radio_value(discordant_separation, 'MARITAL_DISCORD_SEPARATION_Y', 'MARITAL_DISCORD_SEPARATION_N'))
+        .merge!(radio_value(marriage_type == 'ceremonial', 'CB_CL_MARR_1_TYPE_CEREMONIAL', 'CB_CL_MARR_1_TYPE_OTHER'))
         .merge!(
           {
             'VET_CLAIMANT_MARRIAGE_1_DATE' => format_date(form.dig('marriageDates', 'from')),
@@ -242,6 +240,20 @@ module SurvivorsBenefits
             'MARITAL_DISCORD_SEPARATION_EXP' => form['separationExplanation']
           }
         )
+    end
+
+    ##
+    # Section V
+    # Build_marital_history_fields(form)
+    # Build the marital history structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_marital_history_fields(form)
+      vet_prev_marriages = form['veteranMarriages'] || []
+      spouse_prev_marriages = form['spouseMarriages'] || []
+      build_previous_marriage_fields(form, vet_prev_marriages, 'VETERAN', 'veteranHasAdditionalMarriages')
+        .merge!(build_previous_marriage_fields(form, spouse_prev_marriages, 'CLAIMANT', 'spouseHasAdditionalMarriages'))
     end
 
     def build_name_fields(name, individual)
@@ -294,7 +306,6 @@ module SurvivorsBenefits
       }
       radio_value(has_aliases, 'VET_NAME_OTHER_Y', 'VET_NAME_OTHER_N')
         .merge!(alias_fields)
-
     end
 
     def build_service_branch_fields(branch)
@@ -306,7 +317,7 @@ module SurvivorsBenefits
         'BRANCH_OF_SERVICE_COAST-GUARD' => branch == 'coastGuard',
         'BRANCH_OF_SERVICE_SPACE' => branch == 'spaceForce',
         'BRANCH_OF_SERVICE_NOAA' => branch == 'usphs',
-        'BRANCH_OF_SERVICE_USPHS' => branch == 'noaa',
+        'BRANCH_OF_SERVICE_USPHS' => branch == 'noaa'
       }
     end
 
@@ -317,7 +328,7 @@ module SurvivorsBenefits
           'CB_MARR_TO_VET_ENDED_DEATH' => form['howMarriageEnded'] == 'death',
           'CB_MARR_TO_VET_ENDED_DIVORCE' => form['howMarriageEnded'] == 'divorce',
           'CB_MARR_TO_VET_ENDED_OTHER' => form['howMarriageEnded'] == 'other',
-          'MARR_TO_VET_ENDED_OTHEREXPLAIN' => form['howMarriageEndedExplanation'],
+          'MARR_TO_VET_ENDED_OTHEREXPLAIN' => form['howMarriageEndedExplanation']
         }
       else
         {}
@@ -348,8 +359,67 @@ module SurvivorsBenefits
       }
     end
 
+    def marital_info_data(form)
+      [
+        form['pregnantWithVeteran'],
+        form['livedContinuouslyWithVeteran'],
+        form['separationDueToAssignedReasons'],
+        form['marriageType']
+      ]
+    end
+
+    def build_previous_marriage_fields(form, marriages, individual, add_marr_field)
+      indv = individuals_permutations(individual)
+      fields = radio_value(form[add_marr_field], "#{indv[:s]}_ADDITIONAL_MARRIAGES_Y", "#{indv[:s]}_ADDITIONAL_MARRIAGES_N")
+      marriages.each_with_index do |marriage, index|
+        byebug
+        fields
+          .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv[:l], index + 1))
+          .merge!(
+            {
+              "CB_#{indv[:s]}_MARR#{index + 1}_ENDED_DEATH" => marriage['reasonForSeparation'] == 'DEATH',
+              "CB_#{indv[:s]}_MARR#{index + 1}_ENDED_DIVORCE" => marriage['reasonForSeparation'] == 'DIVORCE',
+              "CB_#{indv[:s]}_MARR#{index + 1}_ENDED_OTHER" => marriage['reasonForSeparation'] == 'OTHER',
+              "#{indv[:m]}_MARR#{index + 1}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
+              "#{indv[:l]}_MARRIAGE_#{index + 1}_DATE" => format_date(marriage['dateOfMarriage']),
+              "#{indv[:l]}_MARRIAGE_#{index + 1}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
+              "#{indv[:l]}_MARRIAGE_#{index + 1}_PLACE" => marriage['locationOfMarriage'],
+              "#{indv[:l]}_MARRIAGE_#{index + 1}_PLACE_ENDED" => marriage['locationOfSeparation']
+            }
+          )
+      end
+      fields
+    end
+
+    def individuals_permutations(individual)
+      if individual == 'VETERAN'
+        {
+          s: 'VET',
+          m: 'VET',
+          l: 'VETERAN'
+        }
+      elsif individual == 'CLAIMANT'
+        {
+          s: 'CL',
+          m: 'CB_CL',
+          l: 'CLAIMANT'
+        }
+      end
+    end
+
+    def build_spouse_name_fields(name, individual, marriage_num)
+      spouse_name = build_name(name)
+      {
+        "#{individual}_MARRIAGE_#{marriage_num}_TO" => spouse_name[:full],
+        "#{individual}_MARRIAGE_#{marriage_num}_TO_FIRST_NAME" => spouse_name[:first],
+        "#{individual}_MARRIAGE_#{marriage_num}_TO_MID_INT" => spouse_name[:middle_initial],
+        "#{individual}_MARRIAGE_#{marriage_num}_TO_LAST_NAME" => spouse_name[:last]
+      }
+    end
+
     def radio_value(field, yes, no)
       return {} if field.nil?
+
       {
         yes => field == true,
         no => field == false
