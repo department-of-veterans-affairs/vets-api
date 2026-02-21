@@ -65,8 +65,7 @@ module TravelClaim
     # Validates parameters, then executes the complete claim submission flow.
     #
     # @return [Hash] success response with claim ID and notification data
-    # @raise [Common::Exceptions::BackendServiceException] for API failures
-    # @raise [ArgumentError] for validation failures
+    # @raise [Common::Exceptions::BackendServiceException] for API or validation failures
     #
     def submit_claim
       validate_parameters
