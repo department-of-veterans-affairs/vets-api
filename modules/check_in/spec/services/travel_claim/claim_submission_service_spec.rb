@@ -6,12 +6,27 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   let(:appointment_date) { '2024-01-01T12:00:00Z' }
   let(:facility_type) { 'oh' }
   let(:check_in_uuid) { 'test-uuid' }
+  let(:test_icn) { 'test-icn' }
+  let(:test_station_number) { '500' }
   let(:redis_client) { instance_double(TravelClaim::RedisClient) }
   let(:travel_pay_client) { instance_double(TravelClaim::TravelPayClient) }
+  let(:auth_manager) { instance_double(TravelClaim::AuthManager) }
+
+  let(:test_veis_token) { 'test-veis-token' }
+  let(:test_btsss_token) { 'test-btsss-token' }
 
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+    allow(TravelClaim::AuthManager).to receive(:new).and_return(auth_manager)
     allow(TravelClaim::TravelPayClient).to receive(:new).and_return(travel_pay_client)
+    allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(test_icn)
+    allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(test_station_number)
+    # Mock auth_manager methods for orchestration
+    allow(auth_manager).to receive(:with_auth).and_yield
+    allow(auth_manager).to receive_messages(
+      veis_token: test_veis_token,
+      btsss_token: test_btsss_token
+    )
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     # Enable travel claim logging for tests
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
@@ -22,17 +37,7 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
   end
 
   describe '#submit_claim' do
-    let(:icn) { 'test-icn' }
     let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
-
-    before do
-      allow(redis_client).to receive_messages(
-        icn:,
-        token: 'test_veis_token_123',
-        save_token: nil
-      )
-      allow(redis_client).to receive(:station_number).with(uuid: 'test-uuid').and_return('500')
-    end
 
     context 'when validation fails' do
       context 'when appointment_date is missing' do
@@ -364,6 +369,139 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
             Common::Exceptions::BackendServiceException
           )
         end
+      end
+    end
+  end
+
+  describe 'dependency injection' do
+    let(:service) { described_class.new(appointment_date:, facility_type:, check_in_uuid:) }
+
+    describe '#auth_manager' do
+      it 'creates an AuthManager with correct parameters' do
+        expect(TravelClaim::AuthManager).to receive(:new).with(
+          icn: test_icn,
+          station_number: test_station_number,
+          facility_type:,
+          correlation_id: anything
+        ).and_return(auth_manager)
+
+        service.send(:auth_manager)
+      end
+
+      it 'memoizes the AuthManager instance' do
+        first_call = service.send(:auth_manager)
+        second_call = service.send(:auth_manager)
+
+        expect(first_call).to eq(second_call)
+      end
+    end
+
+    describe '#client' do
+      it 'creates a TravelPayClient with correct parameters' do
+        expect(TravelClaim::TravelPayClient).to receive(:new).with(
+          appointment_date_time: '2024-01-01T12:00:00Z',
+          station_number: test_station_number,
+          check_in_uuid:,
+          facility_type:,
+          correlation_id: anything
+        ).and_return(travel_pay_client)
+
+        service.send(:client)
+      end
+
+      it 'memoizes the TravelPayClient instance' do
+        first_call = service.send(:client)
+        second_call = service.send(:client)
+
+        expect(first_call).to eq(second_call)
+      end
+    end
+
+    describe '#icn' do
+      context 'when ICN is found in Redis' do
+        it 'returns the ICN' do
+          expect(service.send(:icn)).to eq(test_icn)
+        end
+      end
+
+      context 'when ICN is not found in Redis' do
+        before do
+          allow(redis_client).to receive(:icn).with(uuid: check_in_uuid).and_return(nil)
+        end
+
+        it 'raises BackendServiceException with VA906 code' do
+          expect { service.send(:icn) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          ) do |error|
+            expect(error.key).to eq('VA906')
+            expect(error.response_values[:detail]).to include('Patient ICN not found')
+          end
+        end
+      end
+
+      it 'memoizes the ICN value' do
+        expect(redis_client).to receive(:icn).with(uuid: check_in_uuid).once.and_return(test_icn)
+
+        service.send(:icn)
+        service.send(:icn)
+      end
+    end
+
+    describe '#station_number' do
+      context 'when station number is found in Redis' do
+        it 'returns the station number' do
+          expect(service.send(:station_number)).to eq(test_station_number)
+        end
+      end
+
+      context 'when station number is not found in Redis' do
+        before do
+          allow(redis_client).to receive(:station_number).with(uuid: check_in_uuid).and_return(nil)
+        end
+
+        it 'raises BackendServiceException with VA907 code' do
+          expect { service.send(:station_number) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          ) do |error|
+            expect(error.key).to eq('VA907')
+            expect(error.response_values[:detail]).to include('Station number not found')
+          end
+        end
+      end
+
+      it 'memoizes the station number value' do
+        expect(redis_client).to receive(:station_number).with(uuid: check_in_uuid).once.and_return(test_station_number)
+
+        service.send(:station_number)
+        service.send(:station_number)
+      end
+    end
+
+    describe '#correlation_id' do
+      it 'generates a UUID' do
+        correlation_id = service.send(:correlation_id)
+        expect(correlation_id).to match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i)
+      end
+
+      it 'memoizes the correlation ID' do
+        first_call = service.send(:correlation_id)
+        second_call = service.send(:correlation_id)
+
+        expect(first_call).to eq(second_call)
+      end
+    end
+
+    describe '#redis_client' do
+      it 'builds a RedisClient instance' do
+        expect(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+        service.send(:redis_client)
+      end
+
+      it 'memoizes the RedisClient instance' do
+        first_call = service.send(:redis_client)
+        second_call = service.send(:redis_client)
+
+        expect(first_call).to eq(second_call)
       end
     end
   end
