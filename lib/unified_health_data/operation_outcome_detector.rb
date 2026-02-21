@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'source_constants'
+
 module UnifiedHealthData
   # Detects OperationOutcome resources with error severity in SCDF responses
   # Used to identify partial failures when one or more data sources fail
@@ -47,8 +49,8 @@ module UnifiedHealthData
     private
 
     def detect_failures
-      detect_failures_in_source('vista')
-      detect_failures_in_source('oracle-health')
+      detect_failures_in_source(SourceConstants::VISTA)
+      detect_failures_in_source(SourceConstants::ORACLE_HEALTH)
     end
 
     def detect_failures_in_source(source)
