@@ -319,6 +319,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                    'vha_10_10d_extended.json')
     data = JSON.parse(fixture_path.read)
 
+    before do
+      # Disable VES submission for these tests - they focus on S3/PEGA upload, not VES
+      allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(false)
+    end
+
     it 'uploads a PDF file to S3' do
       mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
       allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
