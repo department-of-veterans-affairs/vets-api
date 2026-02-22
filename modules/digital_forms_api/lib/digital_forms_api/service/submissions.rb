@@ -31,6 +31,28 @@ module DigitalFormsApi
         perform :post, "submissions?dry-run=#{dry_run}", request, headers
       end
 
+      # submit and include parsed submission uuid details from the synchronous response
+      #
+      # @return [Hash]
+      # @option return [Faraday::Response] :response
+      # @option return [String, nil] :submission_uuid
+      # @option return [Boolean] :synchronous
+      def submit_with_uuid(payload, metadata, dry_run: false)
+        response = submit(payload, metadata, dry_run:)
+        body = response&.body
+        submission_uuid = if body.is_a?(Hash)
+                            body.dig('submission', 'submissionId') || body.dig(:submission, :submissionId)
+                          end
+        submission_uuid = nil if submission_uuid.respond_to?(:blank?) && submission_uuid.blank?
+        successful_response = response&.try(:success?) || response&.status.to_i.between?(200, 299)
+
+        {
+          response:,
+          submission_uuid:,
+          synchronous: successful_response && submission_uuid.present?
+        }
+      end
+
       # GET get a form submission
       def retrieve(submission_id)
         perform :get, "submissions/#{submission_id}", {}, {}
