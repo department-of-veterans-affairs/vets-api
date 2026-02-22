@@ -247,9 +247,7 @@ module IvcChampva
         end
 
         # If any subform failed, mark the record for retry
-        if subform_failed
-          update_ves_records(metadata['uuid'], ves_request.application_uuid, nil, nil)
-        end
+        update_ves_records(metadata['uuid'], ves_request.application_uuid, nil, nil) if subform_failed
 
         parent_response
       end
@@ -303,11 +301,11 @@ module IvcChampva
 
           # Only store ves_request_data for 10-10D (primary form), not OHI subforms
           # OHI forms can be reconstructed from request_json when needed
-          if Flipper.enabled?(:champva_store_request_json, @current_user)
-            ves_request_data = form_type == 'vha_10_10d' ? request.to_json : nil
-          else
-            ves_request_data = request.to_json
-          end
+          ves_request_data = if Flipper.enabled?(:champva_store_request_json, @current_user)
+                               form_type == 'vha_10_10d' ? request.to_json : nil
+                             else
+                               request.to_json
+                             end
 
           update_ves_records(metadata['uuid'], request.application_uuid, response, ves_request_data)
         rescue => e

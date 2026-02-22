@@ -53,10 +53,8 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     allow(old_record).to receive_messages(update: true, reload: old_record)
 
     # Default: records have legacy ves_request_data but no request_json
-    allow(recent_record).to receive(:ves_request_data).and_return(legacy_request_data)
-    allow(recent_record).to receive(:request_json).and_return(nil)
-    allow(old_record).to receive(:ves_request_data).and_return(legacy_request_data)
-    allow(old_record).to receive(:request_json).and_return(nil)
+    allow(recent_record).to receive_messages(ves_request_data: legacy_request_data, request_json: nil)
+    allow(old_record).to receive_messages(ves_request_data: legacy_request_data, request_json: nil)
   end
 
   describe '#perform' do
@@ -131,14 +129,12 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     end
 
     it 'returns true when only ves_request_data is present (legacy fallback)' do
-      allow(recent_record).to receive(:request_json).and_return(nil)
-      allow(recent_record).to receive(:ves_request_data).and_return(legacy_request_data)
+      allow(recent_record).to receive_messages(request_json: nil, ves_request_data: legacy_request_data)
       expect(job.can_retry?(recent_record)).to be true
     end
 
     it 'returns false and logs warning when neither is present' do
-      allow(recent_record).to receive(:request_json).and_return(nil)
-      allow(recent_record).to receive(:ves_request_data).and_return(nil)
+      allow(recent_record).to receive_messages(request_json: nil, ves_request_data: nil)
 
       expect(Rails.logger).to receive(:warn).with(/no request_json or ves_request_data available/)
       expect(job.can_retry?(recent_record)).to be false
@@ -200,8 +196,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
     context 'with legacy ves_request_data (fallback)' do
       before do
-        allow(recent_record).to receive(:request_json).and_return(nil)
-        allow(recent_record).to receive(:ves_request_data).and_return(legacy_request_data)
+        allow(recent_record).to receive_messages(request_json: nil, ves_request_data: legacy_request_data)
       end
 
       it 'parses ves_request_data and submits directly' do
@@ -268,12 +263,12 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
     context 'with request_json for standalone 10-7959C (OHI)' do
       let(:ohi_request_json) { { 'form_number' => '10-7959C', 'applicants' => [] }.to_json }
-      let(:mock_ohi_request_1) do
+      let(:mock_ohi_request1) do
         instance_double(IvcChampva::VesOhiRequest,
                         transaction_uuid: nil,
                         'transaction_uuid=' => nil)
       end
-      let(:mock_ohi_request_2) do
+      let(:mock_ohi_request2) do
         instance_double(IvcChampva::VesOhiRequest,
                         transaction_uuid: nil,
                         'transaction_uuid=' => nil)
@@ -281,13 +276,13 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
       before do
         allow(recent_record).to receive(:request_json).and_return(ohi_request_json)
-        allow(mock_ohi_request_1).to receive(:respond_to?).with(:subforms?).and_return(false)
-        allow(mock_ohi_request_2).to receive(:respond_to?).with(:subforms?).and_return(false)
+        allow(mock_ohi_request1).to receive(:respond_to?).with(:subforms?).and_return(false)
+        allow(mock_ohi_request2).to receive(:respond_to?).with(:subforms?).and_return(false)
       end
 
       it 'submits all OHI requests when multiple beneficiaries exist' do
         allow(IvcChampva::VesDataFormatter).to receive(:format_for_ohi_request)
-          .and_return([mock_ohi_request_1, mock_ohi_request_2])
+          .and_return([mock_ohi_request1, mock_ohi_request2])
 
         expect(ves_client).to receive(:submit_7959c).twice.and_return(success_response)
 
@@ -298,7 +293,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
       it 'marks as partial_failure when one request fails' do
         allow(IvcChampva::VesDataFormatter).to receive(:format_for_ohi_request)
-          .and_return([mock_ohi_request_1, mock_ohi_request_2])
+          .and_return([mock_ohi_request1, mock_ohi_request2])
 
         expect(ves_client).to receive(:submit_7959c).and_return(success_response).ordered
         expect(ves_client).to receive(:submit_7959c).and_return(error_response).ordered
@@ -310,7 +305,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
       it 'handles single OHI request' do
         allow(IvcChampva::VesDataFormatter).to receive(:format_for_ohi_request)
-          .and_return([mock_ohi_request_1])
+          .and_return([mock_ohi_request1])
 
         expect(ves_client).to receive(:submit_7959c).once.and_return(success_response)
 

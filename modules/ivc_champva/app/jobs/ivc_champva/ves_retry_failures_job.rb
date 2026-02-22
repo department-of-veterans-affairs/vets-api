@@ -79,8 +79,6 @@ module IvcChampva
     def resubmit_from_request_json(ves_client, record)
       parsed_form_data = JSON.parse(record.request_json)
       form_number = parsed_form_data['form_number']
-
-      # Build the VES request(s) - always returns an array
       ves_requests = build_ves_requests(parsed_form_data, form_number)
 
       if ves_requests.blank?
@@ -88,7 +86,15 @@ module IvcChampva
         return
       end
 
-      # Submit all requests and track overall status
+      all_successful, last_response = submit_all_ves_requests(ves_client, ves_requests, form_number, record)
+      finalize_record_status(record, ves_requests, all_successful, last_response)
+    end
+
+    ##
+    # Submits all VES requests and tracks success status.
+    #
+    # @return [Array<Boolean, Faraday::Response>] tuple of all_successful flag and last response
+    def submit_all_ves_requests(ves_client, ves_requests, form_number, record)
       all_successful = true
       last_response = nil
 
@@ -96,18 +102,19 @@ module IvcChampva
         ves_request.transaction_uuid = SecureRandom.uuid
         last_response = send_to_ves_by_form_type(ves_client, ves_request, form_number)
         all_successful = false unless last_response&.status == 200
-
-        # Handle subforms for extended 10-10D submissions
         submit_subforms(ves_client, ves_request, record) if ves_request.respond_to?(:subforms?) && ves_request.subforms?
       rescue => e
         Rails.logger.error "Error submitting VES request for #{record.form_uuid}: #{e.message}"
         all_successful = false
       end
 
-      # Update record status based on overall result
-      if all_successful && last_response
-        update_record_status(record, last_response)
-      elsif ves_requests.size > 1
+      [all_successful, last_response]
+    end
+
+    ##
+    # Updates record status based on submission results.
+    def finalize_record_status(record, ves_requests, all_successful, last_response)
+      if !all_successful && ves_requests.size > 1
         record.update(ves_status: 'partial_failure')
       elsif last_response
         update_record_status(record, last_response)
