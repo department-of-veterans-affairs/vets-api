@@ -292,6 +292,9 @@ features:
   champva_send_7959c_to_ves:
     actor_type: user
     description: Enables sending 10-7959c OHI form data to the VES API. Requires champva_send_to_ves to also be enabled.
+  champva_store_request_json:
+    actor_type: user
+    description: Enables storing the original form request JSON in the database for debugging and VES request reconstruction.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
