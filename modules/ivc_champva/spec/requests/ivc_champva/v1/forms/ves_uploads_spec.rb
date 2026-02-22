@@ -430,6 +430,40 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
 
             controller.send(:submit_ves_request_with_subforms, ves_request, metadata)
           end
+
+          it 'marks record for retry when subform fails' do
+            allow(Rails.logger).to receive(:error)
+            mock_form = instance_double(IvcChampvaForm, update: true)
+            allow(IvcChampvaForm).to receive(:where).with(form_uuid: 'test-form-uuid').and_return([mock_form])
+
+            controller.send(:submit_ves_request_with_subforms, ves_request, metadata)
+
+            expect(mock_form).to have_received(:update).with(
+              hash_including(ves_status: 'internal_server_error')
+            )
+          end
+        end
+
+        context 'when subform returns non-200 response' do
+          before do
+            allow(ves_client).to receive(:submit_7959c)
+              .with(anything, anything, mock_ohi_request)
+              .and_return(failure_response)
+            allow(ves_client).to receive(:submit_7959c)
+              .with(anything, anything, mock_ohi_request2)
+              .and_return(success_response)
+          end
+
+          it 'marks record for retry' do
+            mock_form = instance_double(IvcChampvaForm, update: true)
+            allow(IvcChampvaForm).to receive(:where).with(form_uuid: 'test-form-uuid').and_return([mock_form])
+
+            controller.send(:submit_ves_request_with_subforms, ves_request, metadata)
+
+            expect(mock_form).to have_received(:update).with(
+              hash_including(ves_status: 'internal_server_error')
+            )
+          end
         end
       end
     end

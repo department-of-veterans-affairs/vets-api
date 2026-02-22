@@ -170,8 +170,15 @@ module IvcChampva
       # @param [Hash] parsed_form_data complete form submission data object
       # @return [IvcChampva::VesRequest, nil] the formatted request data
       def prepare_ves_request(parsed_form_data)
-        # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+        # Format data for VES submission based on form type
+        form_number = parsed_form_data['form_number']
+
+        ves_request = if form_number == '10-10D-EXTENDED'
+                        IvcChampva::VesDataFormatter.format_for_extended_request(parsed_form_data)
+                      else
+                        IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+                      end
+
         raise 'Failed to format data for VES submission' if ves_request.nil?
 
         ves_request
@@ -228,13 +235,49 @@ module IvcChampva
         # Only submit subforms if parent succeeded
         return parent_response if parent_response.nil? || parent_response.status != 200 || !ves_request.subforms?
 
+        # Track subform failures - if any fail, we need to mark for retry
+        subform_failed = false
+
         ves_request.subforms.each do |subform|
-          submit_ves_form(ves_client, subform[:request], subform[:form_type], metadata)
+          response = submit_single_ves_request(ves_client, subform[:request], subform[:form_type])
+          subform_failed = true if response.nil? || response.status != 200
         rescue => e
           Rails.logger.error "Error submitting VES subform (#{subform[:form_type]}): #{e.message}"
+          subform_failed = true
+        end
+
+        # If any subform failed, mark the record for retry
+        if subform_failed
+          update_ves_records(metadata['uuid'], ves_request.application_uuid, nil, nil)
         end
 
         parent_response
+      end
+
+      ##
+      # Submits a single VES request without updating DB records.
+      # Used for subforms where we track overall success separately.
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client the VES API client
+      # @param [Object] request the VES request object
+      # @param [String] form_type the form type identifier
+      # @return [Faraday::Response, nil] the VES API response or nil on failure
+      def submit_single_ves_request(ves_client, request, form_type)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
+        }
+
+        response = nil
+
+        IvcChampva::Retry.do(1, on_failure:) do
+          request.transaction_uuid = SecureRandom.uuid
+          response = send_to_ves_by_form_type(ves_client, request, form_type)
+        end
+
+        response
+      rescue => e
+        Rails.logger.error "Error in VES submission for #{form_type}: #{e.message}"
+        nil
       end
 
       ##
@@ -258,7 +301,15 @@ module IvcChampva
             response = send_to_ves_by_form_type(ves_client, request, form_type)
           end
 
-          update_ves_records(metadata['uuid'], request.application_uuid, response, request.to_json)
+          # Only store ves_request_data for 10-10D (primary form), not OHI subforms
+          # OHI forms can be reconstructed from request_json when needed
+          if Flipper.enabled?(:champva_store_request_json, @current_user)
+            ves_request_data = form_type == 'vha_10_10d' ? request.to_json : nil
+          else
+            ves_request_data = request.to_json
+          end
+
+          update_ves_records(metadata['uuid'], request.application_uuid, response, ves_request_data)
         rescue => e
           Rails.logger.error "Error in VES submission for #{form_type}: #{e.message}"
         end
