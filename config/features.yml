@@ -376,6 +376,9 @@ features:
   champva_bypass_metadata_json_file_for_1010d:
     actor_type: user
     description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
+  champva_allow_pdf_optional_content:
+    actor_type: user
+    description: Enables loading optional content from PDFs when combining them
   champva_ignore_recent_missing_statuses:
     actor_type: user
     description: Enables ignoring the most recent form submissions in the MissingFormStatusJob

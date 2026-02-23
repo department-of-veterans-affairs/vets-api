@@ -1,0 +1,72 @@
+%PDF-1.5
+%‚„œ”
+1 0 obj
+<< /Type /OCG /Name (Layer 1 - ON by default) >>
+endobj
+2 0 obj
+<< /Type /OCG /Name (Layer 2 - OFF by default) >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 334 >>
+stream
+BT
+/F1 18 Tf
+72 720 Td
+(Base text: always visible) Tj
+ET
+
+/OC /L1 BDC
+BT
+/F1 18 Tf
+72 680 Td
+(LAYER 1: Visible by default) Tj
+ET
+EMC
+
+/OC /L2 BDC
+BT
+/F1 18 Tf
+72 640 Td
+(LAYER 2: Hidden by default) Tj
+ET
+EMC
+
+BT
+/F1 10 Tf
+72 600 Td
+(Tip: If your renderer honors optional content, toggling OCG visibility will show/hide layers.) Tj
+ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 6 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> /Properties << /L1 1 0 R /L2 2 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Type /Pages /Kids [5 0 R] /Count 1 >>
+endobj
+7 0 obj
+<< /Type /Catalog /Pages 6 0 R /OCProperties << /OCGs [1 0 R 2 0 R] /D << /Order [1 0 R 2 0 R] /ON [1 0 R] /OFF [2 0 R] >> >> >>
+endobj
+8 0 obj
+<< /Producer (ChatGPT PDF generator) /CreationDate (D:20260220213744Z) /Title (Optional Content Test PDF) >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000079 00000 n 
+0000000144 00000 n 
+0000000214 00000 n 
+0000000599 00000 n 
+0000000763 00000 n 
+0000000820 00000 n 
+0000000964 00000 n 
+trailer
+<< /Size 9 /Root 7 0 R /Info 8 0 R >>
+startxref
+1088
+%EOF
