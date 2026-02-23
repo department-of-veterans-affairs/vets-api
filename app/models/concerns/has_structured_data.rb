@@ -37,7 +37,7 @@ module HasStructuredData
   end
 
   # Build the claimant address block, falling back to veteran address when needed.
-  # 
+  #
   # @param form [Hash]
   # @return [String, nil]
   def claimant_address_block(form)
