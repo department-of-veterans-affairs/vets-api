@@ -4,13 +4,11 @@ module FormIntake
   module Mappers
     # Registry for form-specific GCIO mappers
     class Registry
-      # Map form IDs to their GCIO mapper classes
+      # Map form IDs to their GCIO mapper class names (as strings for lazy loading)
       # Add new forms here as they're implemented
       FORM_MAPPERS = {
-        # Forms will be added here as implemented
-        # Example:
-        # '21P-601' => FormIntake::Mappers::VBA21p601Mapper,
-        # '21-0966' => FormIntake::Mappers::VBA210966Mapper,
+        '21P-0537' => 'FormIntake::Mappers::VBA21p0537Mapper',
+        '21P-601' => 'FormIntake::Mappers::VBA21p601Mapper'
       }.freeze
 
       # Get mapper class for a form type
@@ -18,7 +16,10 @@ module FormIntake
       # @return [Class] Mapper class
       # @raise [MappingNotFoundError] if form has no mapper
       def self.mapper_for(form_type)
-        FORM_MAPPERS[form_type] || raise(MappingNotFoundError, "No GCIO mapper defined for form type: #{form_type}")
+        class_name = FORM_MAPPERS[form_type]
+        raise MappingNotFoundError, "No GCIO mapper defined for form type: #{form_type}" unless class_name
+
+        class_name.constantize
       end
 
       # Check if form has a mapper
@@ -26,6 +27,13 @@ module FormIntake
       # @return [Boolean]
       def self.mapper?(form_type)
         FORM_MAPPERS.key?(form_type)
+      end
+
+      # Check if form has a mapper (alias for compatibility)
+      # @param form_type [String] Form type
+      # @return [Boolean]
+      def self.has_mapper?(form_type)
+        mapper?(form_type)
       end
 
       # List all forms with mappers
