@@ -765,7 +765,7 @@ module ClaimsApi
         tos_start_date = tos&.dig('beginDate')
         tos_end_date = tos&.dig('endDate')
 
-        form_obj_desc = '/obligationTermsOfService'
+        form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService'
 
         # if one is present both need to be present
         if tos_start_date.blank? && tos_end_date.present?
@@ -780,7 +780,7 @@ module ClaimsApi
                                                                                                           '%Y-%m-%d'))
           collect_error_messages(
             detail: 'Terms of service begin date must be before the terms of service end date.',
-            source: '/serviceInformation/reservesNationalGuardService/obligationTermsOfService'
+            source: form_obj_desc
           )
         end
       end
@@ -813,7 +813,7 @@ module ClaimsApi
 
       # rubocop:disable Metrics/MethodLength
       def alt_rev_validate_required_values_for_federal_activation(activation_date, separation_date)
-        activation_form_obj_desc = '/serviceInformation/federalActivation/'
+        activation_form_obj_desc = 'serviceInformation/federalActivation/'
         reserves_dates_form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService/'
 
         reserves = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')

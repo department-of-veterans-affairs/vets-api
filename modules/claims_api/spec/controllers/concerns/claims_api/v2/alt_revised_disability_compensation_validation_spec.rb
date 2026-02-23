@@ -501,6 +501,50 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#alt_rev_validate_reserves_tos_dates' do
+    let(:reserves) do
+      {
+        'reservesNationalGuardService' => {
+          'component' => 'National Guard',
+          'obligationTermsOfService' => {
+            'beginDate' => '1990-11-24',
+            'endDate' => '1995-11-17'
+          },
+          'unitName' => 'National Guard Unit Name',
+          'unitAddress' => '1243 Main Street',
+          'unitPhone' => {
+            'areaCode' => '555',
+            'phoneNumber' => '5555555'
+          },
+          'receivingInactiveDutyTrainingPay' => 'YES'
+        }
+      }
+    end
+    let(:base_path) do
+      'serviceInformation/reservesNationalGuardService/obligationTermsOfService'
+    end
+
+    it 'returns a 422 if the beginDate is not inlcuded' do
+      reserves['reservesNationalGuardService']['obligationTermsOfService'].delete('beginDate')
+      no_begin_reserves = reserves['reservesNationalGuardService']
+
+      test_526_validation_instance.send(:alt_rev_validate_reserves_tos_dates, no_begin_reserves)
+
+      expect(current_error_array[0][:detail]).to eq("The begin date is required for #{base_path}/beginDate.")
+      expect(current_error_array[0][:source]).to eq("#{base_path}/beginDate")
+    end
+
+    it 'returns a 422 if the endDate is not included' do
+      reserves['reservesNationalGuardService']['obligationTermsOfService'].delete('endDate')
+      no_end_reserves = reserves['reservesNationalGuardService']
+
+      test_526_validation_instance.send(:alt_rev_validate_reserves_tos_dates, no_end_reserves)
+
+      expect(current_error_array[0][:detail]).to eq("The end date is required for #{base_path}/endDate.")
+      expect(current_error_array[0][:source]).to eq("#{base_path}/endDate")
+    end
+  end
+
   describe 'validation for BDD_PROGRAM claim' do
     future_date = "#{Time.current.year + 1}-12-20"
 
@@ -564,7 +608,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'federalActivation.activationDate',
           'activationDate is missing or blank',
-          '/serviceInformation/federalActivation/'
+          'serviceInformation/federalActivation/'
         )
       end
 
@@ -572,7 +616,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'federalActivation.anticipatedSeparationDate',
           'anticipatedSeparationDate is missing or blank',
-          '/serviceInformation/federalActivation/'
+          'serviceInformation/federalActivation/'
         )
       end
 
