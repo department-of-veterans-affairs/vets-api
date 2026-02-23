@@ -140,6 +140,7 @@ module SurvivorsBenefits
         .merge!(build_marital_info(form))
         .merge!(build_marital_history(form))
         .merge!(build_child_of_veteran_info(form))
+        .merge!(build_dic_info(form))
     end
 
     ##
@@ -276,6 +277,28 @@ module SurvivorsBenefits
       fields
     end
 
+    ##
+    # Section VII
+    # Build the D.I.C. structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_dic_info(form)
+      fields = build_dic_type_fields(form['benefit'])
+      treatments = form['treatments'] || []
+      treatments.each_with_index do |treatment, index|
+        center_num = index + 1
+        fields.merge!(
+          {
+            "NAME_LOC_MED_CENTER_#{center_num}" => treatment['facility'],
+            "DATE_OF_TREATMENT_START#{center_num}" => format_date(treatment['startDate']),
+            "DATE_OF_TREATMENT_END#{center_num}" => format_date(treatment['endDate'])
+          }
+        )
+      end
+      fields
+    end
+
     def build_name_fields(name, individual)
       name = build_name(name)
       {
@@ -398,7 +421,7 @@ module SurvivorsBenefits
         fields
           .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv_l, marriage_num))
           .merge!(previous_marriage_separation_type_fields(indv_s, marriage['reasonForSeparation'], marriage_num))
-          .mrerge!(
+          .merge!(
             {
               "#{indv_m}_MARR#{marriage_num}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
               "#{indv_l}_MARRIAGE_#{marriage_num}_DATE" => format_date(marriage['dateOfMarriage']),
@@ -497,6 +520,14 @@ module SurvivorsBenefits
           custodian_name[:full],
           build_address_block(custodian_address)
         ].compact.join(', ')
+      }
+    end
+
+    def build_dic_type_fields(benefit)
+      {
+        'BENEFIT_DIC' => benefit == 'DIC',
+        'BENEFIT_DIC38' => benefit == '1151DIC',
+        'CLAIM_TYPE_DIC_PACTACT' => benefit == 'pactActDIC'
       }
     end
 
