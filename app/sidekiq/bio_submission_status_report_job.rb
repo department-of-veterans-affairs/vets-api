@@ -41,6 +41,7 @@ class BioSubmissionStatusReportJob
     attempts = FormSubmissionAttempt
                .joins(:form_submission)
                .where(form_submissions: { form_type: })
+               .where.not(form_submissions: { saved_claim_id: nil })
                .where('form_submission_attempts.created_at >= ?', 90.days.ago)
                .order(created_at: :desc)
 

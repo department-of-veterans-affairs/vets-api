@@ -30,16 +30,18 @@ http_interactions:
         string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
     recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
   - request:
-      method: get
-      uri: "<MHV_UHD_HOST>/v1/medicalrecords/imaging-studies/oracle-health?patientId=1234567890V012345&startDate=2024-01-01&endDate=2025-05-31"
+      method: post
+      uri: "<MHV_UHD_HOST>/v1/medicalrecords/imaging-studies?patientId=1234567890V012345&startDate=2024-01-01&endDate=2025-05-31"
       body:
-        encoding: US-ASCII
-        string: ""
+        encoding: UTF-8
+        string: '{"siteIds":["200CRNR"]}'
       headers:
         Authorization:
           - Bearer test-access-token-12345
         X-Api-Key:
           - test-api-key
+        Content-Type:
+          - application/json
         User-Agent:
           - Faraday v2.13.4
         Accept-Encoding:
@@ -81,6 +83,8 @@ http_interactions:
                               }
                           ],
                           "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "numberOfSeries": 2,
+                          "numberOfInstances": 2,
                           "series": [
                               {
                                   "number": 5,
