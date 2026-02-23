@@ -523,6 +523,18 @@ describe UnifiedHealthData::Adapters::FhirHelpers do
         expect(subject.extract_codeable_concept_display(concept, prefer: :coding)).to be_nil
       end
     end
+
+    context 'when prefer is passed as a string' do
+      it 'converts string to symbol and behaves like prefer: :coding' do
+        concept = { 'text' => 'Free text', 'coding' => [{ 'display' => 'Coded display' }] }
+        expect(subject.extract_codeable_concept_display(concept, prefer: 'coding')).to eq('Coded display')
+      end
+
+      it 'converts string to symbol and behaves like prefer: :text' do
+        concept = { 'text' => 'Free text', 'coding' => [{ 'display' => 'Coded display' }] }
+        expect(subject.extract_codeable_concept_display(concept, prefer: 'text')).to eq('Free text')
+      end
+    end
   end
 
   describe '#first_coding_display' do

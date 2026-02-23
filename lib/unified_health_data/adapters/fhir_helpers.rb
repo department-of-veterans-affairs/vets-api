@@ -170,7 +170,7 @@ module UnifiedHealthData
       def extract_codeable_concept_display(codeable_concept, prefer: :text)
         return nil if codeable_concept.nil?
 
-        case prefer
+        case prefer.to_sym
         when :coding
           first_coding_display(codeable_concept) || codeable_concept['text'].presence
         else
