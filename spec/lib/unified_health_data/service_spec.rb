@@ -40,8 +40,8 @@ describe UnifiedHealthData::Service, type: :service do
         it 'returns all labs/tests with encodedData and/or observations' do
           result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
           labs = result[:records]
-          # 12 total records: 1 VistA filtered (nil status), 1 OH filtered (nil status) = 10 parsed
-          expect(labs.size).to eq(10)
+          # 12 total records: 1 VistA filtered (nil status), 1 OH filtered (nil status) = 11 parsed
+          expect(labs.size).to eq(11)
 
           labs_with_encoded_data = labs.select { |lab| lab.encoded_data.present? }
           expect(labs_with_encoded_data).not_to be_empty
@@ -74,6 +74,8 @@ describe UnifiedHealthData::Service, type: :service do
             'source' => 'vista',
             'status' => 'final'
           )
+          expect(chem_lab.comments).to be_an(Array)
+          expect(chem_lab.comments.any? { |c| c.include?('TEST COMMENT') }).to be true
           expect(chem_lab.observations.size).to eq(7)
         end
 
@@ -81,15 +83,29 @@ describe UnifiedHealthData::Service, type: :service do
           labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
           oh_lab = labs.find { |lab| lab.id == '15248982124' }
+          oh_lab_with_note = labs.find { |lab| lab.id == 'a21b3621-4f42-4504-b41c-6598c8537212' }
+
           expect(oh_lab).to have_attributes(
             'id' => '15248982124',
             'display' => 'Blood Culture',
             'test_code' => 'MB',
             'date_completed' => '2025-03-13T17:28:00Z',
             'source' => 'oracle-health',
-            'status' => 'final'
+            'status' => 'final',
+            'comments' => nil
           )
           expect(oh_lab.observations.size).to eq(2)
+
+          expect(oh_lab_with_note).to have_attributes(
+            'id' => 'a21b3621-4f42-4504-b41c-6598c8537212',
+            'display' => 'CRP',
+            'test_code' => 'CH',
+            'date_completed' => '2025-12-10T01:25:00+00:00',
+            'source' => 'oracle-health',
+            'status' => 'final',
+            'comments' => ['Comment on the ORDER (not on the result) for testing']
+          )
+          expect(oh_lab_with_note.observations.size).to eq(1)
         end
 
         it 'returns labs with expected attribute types' do
@@ -97,11 +113,22 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(labs).to all(have_attributes(
                                 'id' => be_a(String),
+                                'type' => be_a(String),
                                 'display' => be_a(String),
                                 'test_code' => be_a(String),
+                                'test_code_display' => be_a(String).or(be_nil),
                                 'date_completed' => be_a(String).or(be_nil),
+                                'sort_date' => be_a(String).or(be_nil),
+                                'sample_tested' => be_a(String).or(be_nil),
+                                'encoded_data' => be_a(String).or(be_nil),
+                                'location' => be_a(String).or(be_nil),
+                                'ordered_by' => be_a(String).or(be_nil),
+                                'body_site' => be_a(String).or(be_nil),
+                                'comments' => be_an(Array).or(be_nil),
+                                'status' => be_a(String),
                                 'source' => be_a(String),
-                                'status' => be_a(String)
+                                'facility_timezone' => be_a(String).or(be_nil),
+                                'observations' => be_an(Array)
                               ))
         end
       end
@@ -128,8 +155,8 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(body: modified_response))
 
           labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
-          # 4 OH records, 1 filtered (nil status) = 3 parsed
-          expect(labs.size).to eq(3)
+          # 5 OH records, 1 filtered (nil status) = 4 parsed
+          expect(labs.size).to eq(4)
           expect(labs.map(&:source)).to all(eq('oracle-health'))
         end
       end
