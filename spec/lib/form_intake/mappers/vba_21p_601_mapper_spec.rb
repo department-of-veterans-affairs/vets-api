@@ -233,7 +233,7 @@ RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
       expect(payload).to have_key('OTHER_DEBT_CREDITOR_1')
       expect(payload).to have_key('WITNESS_1_SIGNATURE')
       expect(payload).to have_key('WITNESS_2_SIGNATURE')
-      
+
       # All should be nil
       expect(payload['ESTATE_ADMIN_YES']).to be_nil
       expect(payload['WITNESS_1_SIGNATURE']).to be_nil
