@@ -158,6 +158,25 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
+        "dates": {
+          "type": "object",
+          "properties": {
+            "beginDate": {
+              "description": "Begin date for the Veteran's new address.",
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "type": ["string", "null"],
+              "nullable": true,
+              "example": "2018-06-04"
+            },
+            "endDate": {
+              "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
+              "type": ["string", "null"],
+              "nullable": true,
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-04"
+            }
+          }
+        },
         "typeOfAddressChange": {
           "description": "Temporary or Permanent change of address. If 'TEMPORARY', 'beginDate' and 'endDate' are required.",
           "type": "string",
@@ -228,25 +247,6 @@
           "maxLength": 16,
           "nullable": true,
           "pattern": "^[a-zA-Z0-9]*$"
-        },
-        "dates": {
-          "type": "object",
-          "properties": {
-            "beginDate": {
-              "description": "Begin date for the Veteran's new address.",
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "type": ["string", "null"],
-              "nullable": true,
-              "example": "2018-06-04"
-            },
-            "endDate": {
-              "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
-              "type": ["string", "null"],
-              "nullable": true,
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "example": "2018-06-04"
-            }
-          }
         }
       }
     },

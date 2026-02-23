@@ -216,6 +216,12 @@
               "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
               "example": "Portland"
             },
+            "state": {
+              "description": "New state or province Veteran resides in.",
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "OR"
+            },
             "country": {
               "description": "New country Veteran resides in. Value must match the values returned by the \"/countries\" endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
               "type": "string",
@@ -248,12 +254,6 @@
             },
             "militaryPostOfficeTypeCode": {
               "type": "string"
-            },
-            "state": {
-              "description": "New state or province Veteran resides in.",
-              "type": "string",
-              "pattern": "^[a-z,A-Z]{2}$",
-              "example": "OR"
             }
           },
           "allOf": [
