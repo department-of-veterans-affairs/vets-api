@@ -233,18 +233,34 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     end
 
     context 'stale organization removal' do
-      it 'removes organizations whose POA is not in the vso_data' do
+      it 'deactivates joins for organizations whose POA is not in the vso_data' do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do
-          # Create a stale organization with a POA code not in the fixture data
-          # Fixture contains POA codes: 091, ZZZ, 095
-          stale_org = create(:organization, poa: 'XXX', name: 'Stale Organization')
+          # Create a stale org that won't be in the fixture feed
+          create(:organization, poa: 'XXX', name: 'Stale Organization')
 
-          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to eq(stale_org)
+          # Create an ACTIVE join against that org
+          rep = create(
+            :veteran_representative,
+            representative_id: 'STALEREP1',
+            first_name: 'Stale',
+            last_name: 'Join',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO],
+            poa_codes: ['XXX']
+          )
+
+          join = Veteran::Service::OrganizationRepresentative.create!(
+            representative_id: rep.representative_id,
+            organization_poa: 'XXX',
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
 
           Veteran::VSOReloader.new.reload_vso_reps
 
-          # Stale organization should be removed
-          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to be_nil
+          # org still exists
+          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to be_present
+          # but its join is deactivated
+          expect(join.reload.deactivated_at).to be_present
         end
       end
 

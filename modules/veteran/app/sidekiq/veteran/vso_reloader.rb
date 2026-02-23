@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'vets/shared_logging'
 
+# rubocop:disable Metrics/ClassLength
 module Veteran
   class VSOReloader < BaseReloader
     include Sidekiq::Job
@@ -425,9 +426,18 @@ module Veteran
       Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
     end
 
+    # rubocop:disable Rails/SkipsModelValidations
     def remove_stale_organizations(current_poa_codes)
-      Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
+      return if current_poa_codes.blank?
+
+      stale_poas = Veteran::Service::Organization.where.not(poa: current_poa_codes).pluck(:poa)
+      return if stale_poas.empty?
+
+      Veteran::Service::OrganizationRepresentative
+        .where(organization_poa: stale_poas, deactivated_at: nil)
+        .update_all(deactivated_at: Time.current)
     end
+    # rubocop:enable Rails/SkipsModelValidations
 
     # Syncs representative <-> organization relationships to the latest feed:
     # - Inserts missing joins (seeding acceptance_mode from org.can_accept_digital_poa_requests).
@@ -574,3 +584,4 @@ module Veteran
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
