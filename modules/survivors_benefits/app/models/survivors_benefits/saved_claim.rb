@@ -141,6 +141,8 @@ module SurvivorsBenefits
         .merge!(build_marital_history(form))
         .merge!(build_child_of_veteran_info(form))
         .merge!(build_dic_info(form))
+        .merge!(build_nursing_home_info(form))
+        .merge!(build_income_and_assets_info(form))
     end
 
     ##
@@ -297,6 +299,40 @@ module SurvivorsBenefits
         )
       end
       fields
+    end
+
+    ##
+    # Section VIII
+    # Build nursing home or increased survivors entitlement structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_nursing_home_info(form)
+      radio_value(form['claimantLivesInANursingHome'], 'CL_IN_NURSING_HOME_Y', 'CL_IN_NURSING_HOME_N')
+        .merge!(radio_value(form['claimingMonthlySpecialPension'], 'SPECIAL_ISSUE_YES', 'SPECIAL_ISSUE_NO'))
+    end
+
+    ##
+    # Section IX
+    # Build Income and Asset structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_income_and_assets_info(form)
+      build_income_fields(form['incomeEntries'])
+        .merge!(radio_value(form['landMarketable'], 'MARKETABLE_LAND_2ACR_Y', 'MARKETABLE_LAND_2ACR_N'))
+        .merge!(radio_value(form['transferredAssets'], 'TRANSFER_ASSETS_LAST3Y_Y', 'TRANSFER_ASSETS_LAST3Y_N'))
+        .merge!(radio_value(form['homeOwnership'], 'OWN_PRIMARY_RESIDENCE_Y', 'OWN_PRIMARY_RESIDENCE_N'))
+        .merge!(radio_value(form['homeAcreageMoreThanTwo'], 'RESLOT_OVER_2ACR_Y', 'RESLOT_OVER_2ACR_N'))
+        .merge!(radio_value(form['moreThanFourIncomeSources'], 'MORETHAN4_INCSOURCE_Y', 'MORETHAN4_INCSOURCE_N'))
+        .merge!(radio_value(form['otherIncome'], 'PREV_YEAR_OTHER_INCOME_YES', 'PREV_YEAR_OTHER_INCOME_NO'))
+        .merge!(radio_value(form['totalNetWorth'], 'ASSETS_OVER_25K_Y', 'ASSETS_OVER_25K_N'))
+        .merge!(
+          {
+            'AMNT_ESTIMATE_ASSETS' => form['netWorthEstimation'] || 0,
+            'AMNT_VALUE_OF_LOT' => form['homeAcreageValue'] || 0
+          }
+        )
     end
 
     def build_name_fields(name, individual)
@@ -528,6 +564,38 @@ module SurvivorsBenefits
         'BENEFIT_DIC' => benefit == 'DIC',
         'BENEFIT_DIC38' => benefit == '1151DIC',
         'CLAIM_TYPE_DIC_PACTACT' => benefit == 'pactActDIC'
+      }
+    end
+
+    def build_income_fields(incomes)
+      fields = {}
+      incomes.each_with_index do |income, index|
+        income_num = index + 1
+        fields.merge!(expand_monthly_income_fields(income_num, income['monthlyIncome']))
+        fields.merge!(
+          {
+            "CB_INC_RECIPIENT#{income_num}_SP" => income['recipient'] == 'SURVIVING_SPOUSE',
+            "CB_INC_RECIPIENT#{income_num}_CHILD" => income['recipient'] == 'CHILD',
+            "NAME_OF_CHILD_INCOMETYPE#{income_num}" => income['recipientName'] || '',
+            "CB_INCOMETYPE#{income_num}_SS" => income['incomeType'] == 'SOCIAL_SECURITY',
+            "CB_INCOMETYPE#{income_num}_PENSION" => income['incomeType'] == 'PENSION_RETIREMENT',
+            "CB_INCOMETYPE#{income_num}_CIVIL" => income['incomeType'] == 'CIVIL_SERVICE',
+            "CB_INCOMETYPE#{income_num}_INTEREST" => income['incomeType'] == 'INTEREST_DIVIDENDS',
+            "CB_INCOMETYPE#{income_num}_OTHER" => income['incomeType'] == 'OTHER',
+            "CB_INCOMETYPE#{income_num}_OTHERSPECIFY" => income['incomeTypeOther'] || '',
+            "INCOME_PAYER_#{income_num}" => income['incomePayer'] || ''
+          }
+        )
+      end
+      fields
+    end
+
+    def expand_monthly_income_fields(income_num, monthly_income)
+      {
+        "MONTHLY_GROSS_#{income_num}" => monthly_income || 0,
+        "MONTHLY_GROSS_#{income_num}_THSNDS" => monthly_income / 1000,
+        "MONTHLY_GROSS_#{income_num}_HNDRDS" => monthly_income % 1000,
+        "MONTHLY_GROSS_#{income_num}_CENTS" => 0
       }
     end
 
