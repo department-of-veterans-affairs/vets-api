@@ -31,6 +31,7 @@ module SM
 
         # Derive OH migration phase from cached triage teams
         message.oh_migration_phase = derive_oh_migration_phase_for_message(message)
+        message.migrated_to_oracle_health = derive_migrated_to_oracle_health(message)
         message
       end
 
@@ -163,6 +164,38 @@ module SM
           { error_class: e.class.name, error_message: e.message, message_id: message&.id }
         )
         nil
+      end
+
+      ##
+      # Determines if the message relates to a post-migration Oracle Health state.
+      # A message is considered post-migration when the triage group's station_number
+      # matches a facility in the veteran's VA profile that is marked as Cerner (isCerner),
+      # but the triage group itself is not yet an OH triage group (oh_triage_group is false).
+      #
+      # @param message [Message] the message to check
+      # @return [Boolean] true if the message is in a post-migration state
+      #
+      def derive_migrated_to_oracle_health(message)
+        triage_group = message&.triage_group
+        return false if triage_group.blank?
+
+        station_number = (triage_group[:station_number] || triage_group['station_number'])&.to_s
+        oh_triage_group = if triage_group.key?(:oh_triage_group)
+                            triage_group[:oh_triage_group]
+                          else
+                            triage_group['oh_triage_group']
+                          end
+        return false if station_number.blank?
+
+        # Post-migration: facility is Cerner in VA profile but triage group is not yet OH
+        cerner_facility_ids = current_user&.cerner_facility_ids || []
+        cerner_facility_ids.include?(station_number) && oh_triage_group == false
+      rescue => e
+        Rails.logger.error(
+          'Error deriving migrated_to_oracle_health',
+          { error_class: e.class.name, error_message: e.message, message_id: message&.id }
+        )
+        false
       end
 
       ##

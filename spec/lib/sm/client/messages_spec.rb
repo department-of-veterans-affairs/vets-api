@@ -123,6 +123,106 @@ describe 'sm client' do
       end
     end
 
+    describe '#get_message migrated_to_oracle_health derivation' do
+      let(:mock_user) { instance_double(User) }
+
+      before do
+        allow(client).to receive_messages(:current_user, :get_triage_teams_station_numbers).and_return(mock_user, [])
+      end
+
+      it 'sets migrated_to_oracle_health to true when oh_triage_group is false and facility is Cerner' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be true
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when facility is not Cerner' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['200'])
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when cerner_facility_ids is empty' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return([])
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when cerner_facility_ids is nil' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(nil)
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when triage_group is nil' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+          # Override triage_group to nil to test the guard clause
+          allow(message).to receive(:triage_group).and_return(nil)
+
+          result = client.send(:derive_migrated_to_oracle_health, message)
+
+          expect(result).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when station_number is blank' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+          allow(message).to receive(:triage_group).and_return({ oh_triage_group: false })
+
+          result = client.send(:derive_migrated_to_oracle_health, message)
+
+          expect(result).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when oh_triage_group is true' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+          allow(message).to receive(:triage_group).and_return(
+            { station_number: '979', oh_triage_group: true }
+          )
+
+          result = client.send(:derive_migrated_to_oracle_health, message)
+
+          expect(result).to be false
+        end
+      end
+
+      it 'logs error and returns false when an exception occurs' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_raise(StandardError.new('MPI error'))
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+    end
+
     it 'gets a message thread', :vcr do
       thread = client.get_message_history(existing_message_id)
       expect(thread).to be_a(Vets::Collection)

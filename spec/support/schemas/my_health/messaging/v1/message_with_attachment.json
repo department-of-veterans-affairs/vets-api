@@ -114,6 +114,12 @@
                 "null",
                 "string"
               ]
+            },
+            "migrated_to_oracle_health": {
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           }
         },

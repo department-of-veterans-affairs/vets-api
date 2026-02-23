@@ -100,6 +100,12 @@
             },
             "isOhMessage": {
               "type": "boolean"
+            },
+            "migratedToOracleHealth": {
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           }
         },

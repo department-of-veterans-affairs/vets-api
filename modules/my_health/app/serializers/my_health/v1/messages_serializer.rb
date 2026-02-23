@@ -22,6 +22,7 @@ module MyHealth
       attribute :suggested_name_display
       attribute :is_oh_message
       attribute :oh_migration_phase
+      attribute :migrated_to_oracle_health
 
       link :self do |object|
         MyHealth::UrlHelper.new.v1_message_url(object.id)

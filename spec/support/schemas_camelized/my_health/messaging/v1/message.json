@@ -113,6 +113,12 @@
                 "null",
                 "string"
               ]
+            },
+            "migratedToOracleHealth": {
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           }
         },
