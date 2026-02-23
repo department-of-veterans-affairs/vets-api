@@ -3,122 +3,79 @@
 module FormIntake
   module Mappers
     # Mapper for form 21P-0537 (Application for Pension Benefits - Report of Remarriage)
+    # Follows IBM Data Dictionary format (matches BioHeart implementation)
     class VBA21p0537Mapper < BaseMapper
       def to_gcio_payload
+        form = form_data.with_indifferent_access
+
         {
-          form_number: '21P-0537',
-          submission_id: form_submission_id,
-          benefits_intake_uuid:,
-          submitted_at: @form_submission.created_at.iso8601,
-          veteran: map_veteran,
-          recipient: map_recipient,
-          has_remarried: form_data['hasRemarried'],
-          remarriage: map_remarriage,
-          in_reply_refer_to: form_data['inReplyReferTo']
-        }.compact
+          # 1A - Have you remarried since the death of the veteran?
+          'REMARRIED_AFTER_VET_DEATH_YES' => remarried_yes?(form),
+          'REMARRIED_AFTER_VET_DEATH_NO' => remarried_no?(form),
+
+          # 1B - Date of Marriage
+          'DATE_OF_MARRIAGE' => map_date(form.dig('remarriage', 'dateOfMarriage')),
+
+          # 1C - Name of Spouse
+          'VETERAN_NAME' => build_full_name(form.dig('remarriage', 'spouseName')),
+          'SPOUSE_FIRST_NAME' => form.dig('remarriage', 'spouseName', 'first'),
+          'SPOUSE_MIDDLE_INITIAL' => extract_middle_initial(form.dig('remarriage', 'spouseName')),
+          'SPOUSE_LAST_NAME' => form.dig('remarriage', 'spouseName', 'last'),
+
+          # 1E - Is your spouse a Veteran?
+          'SPOUSE_VET_YES' => spouse_veteran_yes?(form),
+          'SPOUSE_VET_NO' => spouse_veteran_no?(form),
+
+          # 1F - VA Claim Number or SSN
+          'VA_CLAIM_NUMBER' => form.dig('remarriage', 'spouseVAFileNumber').presence,
+          'SSN' => map_ssn(form.dig('remarriage', 'spouseSSN')),
+
+          # 5A - Signature
+          'SIGNATURE' => form.dig('recipient', 'signature'),
+
+          # 5B - Date Signed
+          'DATE_SIGNED' => map_date(form.dig('recipient', 'signatureDate')),
+
+          # Form Type (must be prefixed with StructuredData: to be ingested)
+          'FORM_TYPE' => 'StructuredData:21P-0537'
+        }
       end
 
       private
 
-      def map_veteran
-        veteran_data = form_data['veteran']
-        return nil unless veteran_data
-
-        {
-          first_name: veteran_data.dig('fullName', 'first'),
-          middle_name: veteran_data.dig('fullName', 'middle'),
-          last_name: veteran_data.dig('fullName', 'last'),
-          ssn: map_ssn(veteran_data['ssn']),
-          va_file_number: veteran_data['vaFileNumber'].presence
-        }.compact
+      def remarried_yes?(form)
+        form['hasRemarried'] == true
       end
 
-      def map_recipient
-        recipient_data = form_data['recipient']
-        return nil unless recipient_data
-
-        {
-          first_name: recipient_data.dig('fullName', 'first'),
-          middle_name: recipient_data.dig('fullName', 'middle'),
-          last_name: recipient_data.dig('fullName', 'last'),
-          phone: map_recipient_phone(recipient_data['phone']),
-          email: recipient_data['email'],
-          signature: recipient_data['signature'],
-          signature_date: map_date(recipient_data['signatureDate'])
-        }.compact
+      def remarried_no?(form)
+        form['hasRemarried'] == false
       end
 
-      def map_recipient_phone(phone_data)
-        return nil unless phone_data
-
-        phones = {}
-
-        if phone_data['daytime']
-          daytime = map_phone_camel_case(phone_data['daytime'])
-          phones[:daytime] = daytime if daytime
-        end
-
-        if phone_data['evening']
-          evening = map_phone_camel_case(phone_data['evening'])
-          phones[:evening] = evening if evening
-        end
-
-        phones.presence
+      def spouse_veteran_yes?(form)
+        form.dig('remarriage', 'spouseIsVeteran') == true
       end
 
-      # Map phone with camelCase keys (specific to 21P-0537 format)
-      def map_phone_camel_case(phone_parts)
-        return nil unless phone_parts
-
-        area_code = phone_parts['areaCode']
-        prefix = phone_parts['prefix']
-        line_number = phone_parts['lineNumber']
-
-        return nil if area_code.blank? || prefix.blank? || line_number.blank?
-
-        "#{area_code}#{prefix}#{line_number}"
+      def spouse_veteran_no?(form)
+        form.dig('remarriage', 'spouseIsVeteran') == false
       end
 
-      def map_remarriage
-        return nil unless form_data['hasRemarried']
+      def build_full_name(name_hash)
+        return nil unless name_hash
 
-        remarriage_data = form_data['remarriage']
-        return nil unless remarriage_data
+        parts = [
+          name_hash['first'],
+          name_hash['middle'],
+          name_hash['last']
+        ].compact.compact_blank
 
-        {
-          date_of_marriage: map_date(remarriage_data['dateOfMarriage']),
-          spouse_name: map_spouse_name(remarriage_data['spouseName']),
-          spouse_date_of_birth: map_date(remarriage_data['spouseDateOfBirth']),
-          spouse_is_veteran: remarriage_data['spouseIsVeteran'],
-          age_at_marriage: remarriage_data['ageAtMarriage'],
-          spouse_ssn: map_ssn(remarriage_data['spouseSSN']),
-          spouse_va_file_number: remarriage_data['spouseVAFileNumber'].presence,
-          has_terminated: remarriage_data['hasTerminated'],
-          termination_date: map_termination_date(remarriage_data),
-          termination_reason: remarriage_data['terminationReason'].presence
-        }.compact
+        parts.any? ? parts.join(' ') : nil
       end
 
-      def map_spouse_name(name_data)
-        return nil unless name_data
+      def extract_middle_initial(name_hash)
+        return nil unless name_hash && name_hash['middle'].present?
 
-        {
-          first: name_data['first'],
-          middle: name_data['middle'],
-          last: name_data['last']
-        }.compact.presence
-      end
-
-      def map_termination_date(remarriage_data)
-        return nil unless remarriage_data['hasTerminated']
-
-        termination_date = remarriage_data['terminationDate']
-        return nil unless termination_date
-        return nil if termination_date['year'].blank?
-
-        map_date(termination_date)
+        name_hash['middle'][0]
       end
     end
   end
 end
-

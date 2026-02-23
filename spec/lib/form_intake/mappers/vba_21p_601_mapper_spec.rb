@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'form_intake/mappers/base_mapper'
 require 'form_intake/mappers/vba_21p_601_mapper'
 
+# rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
   let(:form_data) do
     {
@@ -55,6 +56,17 @@ RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
               'country' => 'USA',
               'zipCode' => { 'first5' => '22201' }
             }
+          },
+          {
+            'fullName' => { 'first' => 'Emily', 'last' => 'Thompson' },
+            'relationship' => 'child',
+            'dateOfBirth' => { 'month' => '11', 'day' => '22', 'year' => '1998' },
+            'address' => {
+              'street' => '123 Pine Avenue',
+              'city' => 'Alexandria',
+              'state' => 'VA',
+              'zipCode' => { 'first5' => '22314' }
+            }
           }
         ]
       },
@@ -66,6 +78,13 @@ RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
             'amount' => '15000',
             'isPaid' => true,
             'paidBy' => 'Sarah Thompson'
+          },
+          {
+            'provider' => 'Dr. James Mitchell',
+            'expenseType' => 'Physician services',
+            'amount' => '2500.50',
+            'isPaid' => false,
+            'paidBy' => ''
           }
         ],
         'otherDebts' => [
@@ -86,144 +105,166 @@ RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
   describe '#to_gcio_payload' do
     let(:payload) { mapper.to_gcio_payload }
 
-    it 'includes form metadata' do
-      expect(payload[:form_number]).to eq('21P-601')
-      expect(payload[:benefits_intake_uuid]).to eq('uuid-123-456')
-      expect(payload[:submission_id]).to eq(form_submission.id)
-      expect(payload[:submitted_at]).to be_present
+    it 'includes form type with StructuredData prefix' do
+      expect(payload['FORM_TYPE']).to eq('StructuredData:21P-601')
     end
 
-    it 'maps veteran information' do
-      expect(payload[:veteran][:first_name]).to eq('Robert')
-      expect(payload[:veteran][:middle_name]).to eq('James')
-      expect(payload[:veteran][:last_name]).to eq('Thompson')
-      expect(payload[:veteran][:ssn]).to eq('123456789')
-      expect(payload[:veteran][:va_file_number]).to eq('987654321')
+    it 'maps veteran name fields' do
+      expect(payload['VETERAN_NAME']).to eq('Robert James Thompson')
+      expect(payload['VETERAN_FIRST_NAME']).to eq('Robert')
+      expect(payload['VETERAN_MIDDLE_INITIAL']).to eq('J')
+      expect(payload['VETERAN_LAST_NAME']).to eq('Thompson')
+      expect(payload['VETERAN_SSN']).to eq('123456789')
+      expect(payload['VA_FILE_NUMBER']).to eq('987654321')
     end
 
-    it 'maps beneficiary information' do
-      expect(payload[:beneficiary][:first_name]).to eq('Robert')
-      expect(payload[:beneficiary][:middle_name]).to eq('James')
-      expect(payload[:beneficiary][:last_name]).to eq('Thompson')
-      expect(payload[:beneficiary][:date_of_death]).to eq('06/15/2024')
-      expect(payload[:beneficiary][:is_veteran]).to be true
+    it 'maps deceased beneficiary name and date' do
+      expect(payload['DECEDENT_NAME']).to eq('Robert James Thompson')
+      expect(payload['DECEASED_DEATH_DATE']).to eq('06/15/2024')
     end
 
-    it 'maps claimant information' do
-      expect(payload[:claimant][:first_name]).to eq('Sarah')
-      expect(payload[:claimant][:middle_name]).to eq('Anne')
-      expect(payload[:claimant][:last_name]).to eq('Thompson')
-      expect(payload[:claimant][:ssn]).to eq('555667778')
-      expect(payload[:claimant][:date_of_birth]).to eq('03/22/1970')
-      expect(payload[:claimant][:relationship_to_deceased]).to eq('spouse')
-      expect(payload[:claimant][:email]).to eq('sarah.thompson@email.com')
-      expect(payload[:claimant][:phone]).to eq('8045551234')
-      expect(payload[:claimant][:signature]).to eq('Sarah Anne Thompson')
-      expect(payload[:claimant][:signature_date]).to eq('10/01/2025')
+    it 'maps claimant name fields' do
+      expect(payload['CLAIMANT_NAME']).to eq('Sarah Anne Thompson')
+      expect(payload['CLAIMANT_FIRST_NAME']).to eq('Sarah')
+      expect(payload['CLAIMANT_MIDDLE_INITIAL']).to eq('A')
+      expect(payload['CLAIMANT_LAST_NAME']).to eq('Thompson')
     end
 
-    it 'maps claimant address as flattened string' do
-      expect(payload[:claimant][:address]).to eq('456 Memorial Drive Apt 301 Richmond VA 23220 USA')
+    it 'maps claimant identification and contact' do
+      expect(payload['CLAIMANT_SSN']).to eq('555667778')
+      expect(payload['CLAIMANT_DOB']).to eq('03/22/1970')
+      expect(payload['CLAIMANT_PHONE_NUMBER']).to eq('8045551234')
+      expect(payload['CLAIMANT_EMAIL']).to eq('sarah.thompson@email.com')
+      expect(payload['CLAIMANT_RELATIONSHIP']).to eq('spouse')
     end
 
-    it 'does not include empty va_file_number for claimant' do
-      expect(payload[:claimant]).not_to have_key(:va_file_number)
+    it 'maps claimant address fields' do
+      expect(payload['CLAIMANT_ADDRESS_FULL_BLOCK']).to eq('456 Memorial Drive, Apt 301, Richmond, VA, USA, 23220')
+      expect(payload['CLAIMANT_ADDRESS_LINE1']).to eq('456 Memorial Drive')
+      expect(payload['CLAIMANT_ADDRESS_LINE2']).to eq('Apt 301')
+      expect(payload['CLAIMANT_ADDRESS_CITY']).to eq('Richmond')
+      expect(payload['CLAIMANT_ADDRESS_STATE']).to eq('VA')
+      expect(payload['CLAIMANT_ADDRESS_COUNTRY']).to eq('USA')
+      expect(payload['CLAIMANT_ADDRESS_ZIP5']).to eq('23220')
     end
 
-    it 'maps surviving relatives' do
-      expect(payload[:surviving_relatives][:has_spouse]).to be false
-      expect(payload[:surviving_relatives][:has_children]).to be true
-      expect(payload[:surviving_relatives][:has_parents]).to be false
-      expect(payload[:surviving_relatives][:has_none]).to be false
-      expect(payload[:surviving_relatives][:wants_to_waive_substitution]).to be false
+    it 'maps surviving relatives checkboxes' do
+      expect(payload['RELATIONSHIP_SURVIVING_SPOUSE']).to be false
+      expect(payload['RELATIONSHIP_CHILD']).to be true
+      expect(payload['RELATIONSHIP_PARENT']).to be false
+      expect(payload['RELATIONSHIP_NONE']).to be false
     end
 
-    it 'maps individual relatives' do
-      relative = payload[:surviving_relatives][:relatives].first
-      expect(relative[:first_name]).to eq('Michael')
-      expect(relative[:middle_name]).to eq('Robert')
-      expect(relative[:last_name]).to eq('Thompson')
-      expect(relative[:relationship]).to eq('child')
-      expect(relative[:date_of_birth]).to eq('08/10/1995')
-      expect(relative[:address]).to eq('789 Oak Street Arlington VA 22201 USA')
+    it 'maps waive substitution checkboxes' do
+      expect(payload['WAIVE_YES']).to be false
+      expect(payload['WAIVE_NO']).to be true
     end
 
-    it 'maps expenses list' do
-      expense = payload[:expenses][:expenses_list].first
-      expect(expense[:provider]).to eq('Virginia Hospital Center')
-      expect(expense[:expense_type]).to eq('Hospital care')
-      expect(expense[:amount]).to eq('15000')
-      expect(expense[:is_paid]).to be true
-      expect(expense[:paid_by]).to eq('Sarah Thompson')
+    it 'maps first relative (numbered fields)' do
+      expect(payload['NAME_OF_RELATIVE_1']).to eq('Michael Robert Thompson')
+      expect(payload['RELATION_RELATIVE_1']).to eq('child')
+      expect(payload['DOB_RELATIVE_1']).to eq('08/10/1995')
+      expect(payload['ADDRESS_RELEATIVE_1']).to eq('789 Oak Street, Arlington, VA, USA, 22201')
     end
 
-    it 'maps other debts' do
-      debt = payload[:expenses][:other_debts].first
-      expect(debt[:debt_type]).to eq('Credit card debt')
-      expect(debt[:debt_amount]).to eq('3500')
+    it 'maps second relative' do
+      expect(payload['NAME_OF_RELATIVE_2']).to eq('Emily Thompson')
+      expect(payload['RELATION_RELATIVE_2']).to eq('child')
+      expect(payload['DOB_RELATIVE_2']).to eq('11/22/1998')
+    end
+
+    it 'fills empty relative slots with nil' do
+      expect(payload['NAME_OF_RELATIVE_3']).to be_nil
+      expect(payload['NAME_OF_RELATIVE_4']).to be_nil
+    end
+
+    it 'maps first expense' do
+      expect(payload['EXPENSE_PAID_TO_1']).to eq('Virginia Hospital Center')
+      expect(payload['EXPENSE_PAID_FOR_1']).to eq('Hospital care')
+      expect(payload['EXPENSE_AMT_1']).to eq('15000.00')
+      expect(payload['PAID_1']).to be true
+      expect(payload['UNPAID_1']).to be false
+      expect(payload['EXPENSE_PAID_BY_1']).to eq('Sarah Thompson')
+    end
+
+    it 'maps second expense' do
+      expect(payload['EXPENSE_PAID_TO_2']).to eq('Dr. James Mitchell')
+      expect(payload['EXPENSE_AMT_2']).to eq('2500.50')
+      expect(payload['PAID_2']).to be false
+      expect(payload['UNPAID_2']).to be true
+    end
+
+    it 'fills empty expense slots' do
+      expect(payload['EXPENSE_PAID_TO_3']).to be_nil
+      expect(payload['EXPENSE_PAID_TO_4']).to be_nil
+      expect(payload['PAID_3']).to be false
+      expect(payload['UNPAID_3']).to be false
+    end
+
+    it 'maps other debts checkboxes' do
+      expect(payload['OTHER_DEBTS_YES']).to be true
+      expect(payload['OTHER_DEBTS_NO']).to be false
+    end
+
+    it 'maps first other debt' do
+      expect(payload['OTHER_DEBT_1']).to eq('Credit card debt')
+      expect(payload['OTHER_DEBT_AMOUNT_1']).to eq('3500.00')
+    end
+
+    it 'fills empty debt slots' do
+      expect(payload['OTHER_DEBT_2']).to be_nil
+      expect(payload['OTHER_DEBT_3']).to be_nil
+      expect(payload['OTHER_DEBT_4']).to be_nil
+    end
+
+    it 'maps signature fields' do
+      expect(payload['CLAIMANT_SIGNATURE']).to eq('Sarah Anne Thompson')
+      expect(payload['DATE_OF_CLAIMANT_SIGNATURE']).to eq('10/01/2025')
     end
 
     it 'includes remarks' do
-      expect(payload[:remarks]).to eq('Additional information about the claim')
+      expect(payload['REMARKS']).to eq('Additional information about the claim')
     end
 
-    context 'with minimal data' do
-      let(:minimal_form_data) do
-        {
-          'formNumber' => '21P-601',
-          'veteran' => {
-            'fullName' => { 'first' => 'John', 'last' => 'Doe' }
-          },
-          'beneficiary' => {
-            'fullName' => { 'first' => 'John', 'last' => 'Doe' }
-          },
-          'claimant' => {
-            'fullName' => { 'first' => 'Jane', 'last' => 'Doe' },
-            'relationshipToDeceased' => 'spouse'
-          }
-        }.to_json
-      end
-
-      let(:form_submission) { create(:form_submission, form_type: '21P-601', form_data: minimal_form_data) }
-
-      it 'handles missing optional fields gracefully' do
-        expect { payload }.not_to raise_error
-        expect(payload[:veteran][:first_name]).to eq('John')
-        expect(payload[:veteran][:middle_name]).to be_nil
-        expect(payload[:claimant]).not_to have_key(:ssn)
-        expect(payload[:claimant]).not_to have_key(:phone)
-        expect(payload).not_to have_key(:surviving_relatives)
-        expect(payload).not_to have_key(:expenses)
-      end
-    end
-
-    context 'with missing relatives array' do
-      let(:form_data_no_relatives) do
-        data = JSON.parse(form_data)
-        data['survivingRelatives'].delete('relatives')
-        data.to_json
-      end
-
-      let(:form_submission) { create(:form_submission, form_type: '21P-601', form_data: form_data_no_relatives) }
-
-      it 'does not include relatives array' do
-        expect(payload[:surviving_relatives]).not_to have_key(:relatives)
-      end
-    end
-
-    context 'with empty expenses' do
-      let(:form_data_no_expenses) do
+    context 'with no expenses' do
+      let(:no_expenses_data) do
         data = JSON.parse(form_data)
         data.delete('expenses')
         data.to_json
       end
 
-      let(:form_submission) { create(:form_submission, form_type: '21P-601', form_data: form_data_no_expenses) }
+      let(:form_submission) { create(:form_submission, form_type: '21P-601', form_data: no_expenses_data) }
 
-      it 'does not include expenses key' do
-        expect(payload).not_to have_key(:expenses)
+      it 'fills all expense slots with nil/false' do
+        expect(payload['EXPENSE_PAID_TO_1']).to be_nil
+        expect(payload['PAID_1']).to be false
+        expect(payload['OTHER_DEBTS_YES']).to be false
+        expect(payload['OTHER_DEBTS_NO']).to be true
+      end
+    end
+
+    context 'with 5 relatives (more than 4)' do
+      let(:many_relatives_data) do
+        data = JSON.parse(form_data)
+        data['survivingRelatives']['relatives'] = [
+          { 'fullName' => { 'first' => 'Person1', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'fullName' => { 'first' => 'Person2', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'fullName' => { 'first' => 'Person3', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'fullName' => { 'first' => 'Person4', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'fullName' => { 'first' => 'Person5', 'last' => 'Rel' }, 'relationship' => 'child' }
+        ]
+        data.to_json
+      end
+
+      let(:form_submission) { create(:form_submission, form_type: '21P-601', form_data: many_relatives_data) }
+
+      it 'only includes first 4 relatives' do
+        expect(payload['NAME_OF_RELATIVE_1']).to eq('Person1 Rel')
+        expect(payload['NAME_OF_RELATIVE_2']).to eq('Person2 Rel')
+        expect(payload['NAME_OF_RELATIVE_3']).to eq('Person3 Rel')
+        expect(payload['NAME_OF_RELATIVE_4']).to eq('Person4 Rel')
       end
     end
   end
 end
-
+# rubocop:enable RSpec/SpecFilePathFormat
