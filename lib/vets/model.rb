@@ -34,6 +34,9 @@ module Vets
       self.class.attribute_set.each do |attr_name|
         instance_variable_set("@#{attr_name}", nil) unless instance_variable_defined?("@#{attr_name}")
       end
+
+      @vets_model_nested_array_enabled =
+        Flipper.enabled?(:vets_model_nested_array)
     end
 
     # Acts as ActiveRecord::Base#attributes which is needed for serialization
@@ -55,7 +58,7 @@ module Vets
     # @return [Hash] nested attributes
     def nested_attributes(values)
       values.transform_values do |value|
-        if Flipper.enabled?(:vets_model_nested_array) && value.is_a?(Array)
+        if @vets_model_nested_array_enabled && value.is_a?(Array)
           value.map do |item|
             if item.respond_to?(:attribute_values)
               nested_attributes(item.attribute_values)
