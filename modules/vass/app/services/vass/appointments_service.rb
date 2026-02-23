@@ -329,7 +329,7 @@ module Vass
 
     ##
     # Transforms agent_skills within an appointment response to topics.
-    # VASS returns AgentSkills, which becomes agent_skills after snakecase middleware.
+    # VASS returns agentSkills (camelCase), which becomes agent_skills after snakecase middleware.
     # This transforms to topics with topic_id/topic_name for the frontend.
     #
     # @param response [Hash] Parsed appointment response from VASS
