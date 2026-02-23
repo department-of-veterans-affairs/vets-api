@@ -34,21 +34,33 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     context 'when upstream returns 403' do
-      it 'renders 404' do
+      it 'logs and renders 200 with empty body' do
         VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri body] }) do
+          expect(Rails.logger).to receive(:info).with('TSA Letter Error',
+                            error_status: 403,
+                            user_account_id: user.user_account_uuid)
           get '/v0/tsa_letter'
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq({data: nil}.to_json)
         end
       end
     end
 
-    context 'when upstream renders other error' do
-      it 'renders 503' do
+    context 'when upstream returns 400' do
+      it 'logs and renders 200 with empty body' do
         VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
+          expect(Rails.logger).to receive(:info).with('TSA Letter Error',
+                            error_status: 400,
+                            user_account_id: user.user_account_uuid)
           get '/v0/tsa_letter'
-          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq({data: nil}.to_json)
         end
       end
+    end
+
+    context 'when upstream returns other error' do
+      it 'returns 503 with error status in error '
     end
 
     context 'when response contains invalid datetime' do
@@ -78,21 +90,19 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
 
       it 'logs error and renders 422' do
-        VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
-          # mocking this because I don't know if it's a real possibility
-          mocked_response = Faraday::Response.new(response_body: bad_response, status: 200)
-          mocked_env = Faraday::Env.new(response: mocked_response).tap do |e|
-            e.status = mocked_response.status
-            e.body = mocked_response.body
-          end
-          allow_any_instance_of(Faraday::Connection).to receive(:post).with('folders/files:search',
-                                                                            any_args).and_return(mocked_response)
-          allow(mocked_response).to receive(:env).and_return(mocked_env)
-          get '/v0/tsa_letter'
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.parsed_body.dig('errors', 0, 'detail'))
-            .to eq('Invalid datetime format found in TSA letters data: 2025-09-09T14:18:53, null')
+        # mocking this because I don't know if it's a real possibility
+        mocked_response = Faraday::Response.new(response_body: bad_response, status: 200)
+        mocked_env = Faraday::Env.new(response: mocked_response).tap do |e|
+          e.status = mocked_response.status
+          e.body = mocked_response.body
         end
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with('folders/files:search',
+                                                                          any_args).and_return(mocked_response)
+        allow(mocked_response).to receive(:env).and_return(mocked_env)
+        get '/v0/tsa_letter'
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body.dig('errors', 0, 'detail'))
+          .to eq('Invalid datetime format found in TSA letters data: 2025-09-09T14:18:53, null')
       end
     end
 

@@ -8,6 +8,12 @@ module V0
     service_tag 'tsa_letter'
     before_action { authorize :tsa_letter, :access? }
 
+    ERROR_MAP = {
+      401 => Common::Exceptions::Unauthorized,
+      500 => Common::Exceptions::ExternalServerInternalServerError,
+      501 => Common::Exceptions::NotImplemented,
+    }.freeze
+
     def show
       search_service = ClaimsEvidenceApi::Service::Search.new
       filters = { subject: ['VETS Safe Travel Outreach Letter'] }
@@ -18,15 +24,23 @@ module V0
       serialized = most_recent_letter(files)
       render(json: serialized)
     rescue Common::Client::Errors::ClientError => e
+      handle_error(e) #unless e.respond_to?(:status) && e.status.in?([400, 403])
+    end
+
+    def handle_error(error)
+      raise error unless error.respond_to?(:status)
+
       # 403 indicates that the API doesn't know the user.
       # 400 is a bad request, but it's unclear why this happens
-      raise e unless e.respond_to?(:status) && e.status.in?([400, 403])
-
-      Rails.logger.info('TSA Letter Error',
-                        error_status: e.status,
-                        user_account_id: current_user.user_account_uuid)
-      render(json: [])
+      if error.status.in?([400, 403])
+        Rails.logger.info('TSA Letter Error',
+                          error_status: error.status,
+                          user_account_id: current_user.user_account_uuid)
+        render(json: {data: nil}) and return
       end
+
+      error_class = ERROR_MAP[error.status]
+      raise error_class
     end
 
     def download
