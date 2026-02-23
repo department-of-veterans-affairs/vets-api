@@ -86,6 +86,9 @@ module SM
         oh_migration_phase = derive_oh_migration_phase(result)
         result.data.each { |msg| msg.oh_migration_phase = oh_migration_phase } if oh_migration_phase
 
+        # Derive migrated_to_oracle_health for each message based on its triage_group
+        result.data.each { |msg| msg.migrated_to_oracle_health = derive_migrated_to_oracle_health(msg) }
+
         track_metric('get_full_messages_for_thread', is_oh:, status: 'success')
         result
       rescue => e
@@ -170,7 +173,7 @@ module SM
       # Determines if the message relates to a post-migration Oracle Health state.
       # A message is considered post-migration when the triage group's station_number
       # matches a facility in the veteran's VA profile that is marked as Cerner (isCerner),
-      # but the triage group itself is not yet an OH triage group (oh_triage_group is false).
+      # but the triage group in a message is not an OH triage group (oh_triage_group is false).
       #
       # @param message [Message] the message to check
       # @return [Boolean] true if the message is in a post-migration state
