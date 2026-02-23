@@ -765,15 +765,15 @@ module ClaimsApi
         tos_start_date = tos&.dig('beginDate')
         tos_end_date = tos&.dig('endDate')
 
-        form_obj_desc = 'obligation terms of service'
+        form_obj_desc = '/obligationTermsOfService'
 
         # if one is present both need to be present
         if tos_start_date.blank? && tos_end_date.present?
-          collect_error_if_value_not_present('begin date', form_obj_desc)
+          collect_error_if_value_not_present('begin date', "#{form_obj_desc}/beginDate")
         end
         if tos_end_date.blank? && tos_start_date.present?
           collect_error_if_value_not_present('end date',
-                                             form_obj_desc)
+                                             "#{form_obj_desc}/endDate")
         end
         if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
                                                                               '%Y-%m-%d') > Date.strptime(tos_end_date,
