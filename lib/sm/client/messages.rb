@@ -149,17 +149,11 @@ module SM
 
         # Look up station_number from cached triage teams
         cached_teams = get_triage_teams_station_numbers
-        if cached_teams.blank?
-          # If no cached teams, return phase of soonest migration window (or nil if none exist)
-          return oh_service.get_soonest_migration_phase
-        end
+        return nil if cached_teams.blank?
 
         matching_team = cached_teams.find { |team| team.triage_team_id == triage_group_id }
         station_number = matching_team&.station_number
-        if station_number.blank?
-          # Team not found in cache, return phase of soonest migration window
-          return oh_service.get_soonest_migration_phase
-        end
+        return nil if station_number.blank?
 
         # Look up migration phase for this station number
         oh_service.get_phase_for_station_number(station_number)
