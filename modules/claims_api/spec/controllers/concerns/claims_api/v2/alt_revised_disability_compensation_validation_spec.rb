@@ -564,7 +564,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'federalActivation.activationDate',
           'activationDate is missing or blank',
-          'serviceInformation/federalActivation/'
+          '/serviceInformation/federalActivation/'
         )
       end
 
@@ -572,7 +572,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         validate_field(
           'federalActivation.anticipatedSeparationDate',
           'anticipatedSeparationDate is missing or blank',
-          'serviceInformation/federalActivation/'
+          '/serviceInformation/federalActivation/'
         )
       end
 
