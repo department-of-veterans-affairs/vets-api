@@ -24,6 +24,7 @@ module Lighthouse
       attribute :principal_paid, Float
       attribute :interest_paid, Float
       attribute :administrative_cost_paid, Float
+      attribute :associated_statements
 
       attribute :line_items, Hash, array: true
       attribute :payments, Hash, array: true
@@ -38,6 +39,7 @@ module Lighthouse
         @payments_data = attrs[:payments] || []
         @facility_address = attrs[:facility_address]
         @patient_data = attrs[:patient_data]
+        @associated_statements = attrs[:associated_statements]
         assign_attributes
       end
 
@@ -57,6 +59,11 @@ module Lighthouse
         assign_payments
         assign_facility
         assign_patient
+        assign_associated_statements
+      end
+
+      def assign_associated_statements
+        @associated_statements
       end
 
       def assign_balances

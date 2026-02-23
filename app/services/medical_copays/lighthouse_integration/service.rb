@@ -143,7 +143,7 @@ module MedicalCopays
         org_id = extract_org_id_from_invoice(invoice_data)
         org_address = retrieve_organization_address(org_id)
         patient_data = patient_future.value!
-        associated_statements = invoices_for_organization(DEFAULT_MONTH_COUNT, org_id, DEFAULT_INVOICE_COUNT)
+        associated_statements = invoices_for_organization(DEFAULT_MONTH_COUNT, DEFAULT_INVOICE_COUNT org_id, id)
 
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
@@ -162,16 +162,16 @@ module MedicalCopays
         )
       end
 
-      def invoices_for_organization(month_count, organization_id, count)
+      def invoices_for_organization(month_count, count, organization_id, current_invoice_id)
         result = collect_invoices_in_range(month_count, count)
 
         result['entries'].select do |entry|
-          issuer_ref = entry.dig('resource', 'issuer', 'reference')
-          next false unless issuer_ref
+          next if entry.dig('resource', 'id') == current_invoice_id # do not return the current invoice data
 
-          issuer_id = issuer_ref.split('/').last
-          issuer_id == organization_id
-        end
+          issuer_ref = entry.dig('resource', 'issuer', 'reference')
+          entry_org_id = issuer_ref.split('/').last
+          entry_org_id == organization_id
+        end.sort_by { |entry| entry.dig('resource', 'date') }.reverse
       end
 
       def build_invoice_entries(raw_invoices)
@@ -215,16 +215,6 @@ module MedicalCopays
       rescue => e
         Rails.logger.error { "Failed to fetch organization address: #{e.class}" }
         raise e
-      end
-
-      def extract_org_id_from_invoice(invoice_data)
-        org_ref = invoice_data.dig('issuer', 'reference')
-        raise MissingOrganizationRefError, 'No organization reference found' unless org_ref
-
-        org_id = org_ref.split('/').last
-        raise MissingOrganizationIdError, 'No organization ID found' unless org_id
-
-        org_id
       end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
@@ -374,6 +364,16 @@ module MedicalCopays
         return nil unless reference
 
         reference.split('/').last
+      end
+
+      def extract_org_id_from_invoice(invoice_data)
+        org_ref = invoice_data.dig('issuer', 'reference')
+        raise MissingOrganizationRefError, 'No organization reference found' unless org_ref
+
+        org_id = org_ref.split('/').last
+        raise MissingOrganizationIdError, 'No organization ID found' unless org_id
+
+        org_id
       end
 
       def process_entries(entries, from, total_amount, count)
