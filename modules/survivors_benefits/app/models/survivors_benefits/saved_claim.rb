@@ -390,22 +390,23 @@ module SurvivorsBenefits
     end
 
     def build_previous_marriage_fields(form, marriages, individual, add_marr_field)
-      indv = individuals_permutations(individual)
+      indv_s, indv_m, indv_l = individuals_permutations(individual)
       additional_marriages_yes, additional_marriages_no = additional_marriages_boolean_fields(individual)
       fields = radio_value(form[add_marr_field], additional_marriages_yes, additional_marriages_no)
       marriages.each_with_index do |marriage, index|
+        marriage_num = index + 1
         fields
-          .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv[:l], index + 1))
+          .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv_l, marriage_num))
           .merge!(
             {
-              "CB_#{indv[:s]}_MARR#{index + 1}_ENDED_DEATH" => marriage['reasonForSeparation'] == 'DEATH',
-              "CB_#{indv[:s]}_MARR#{index + 1}_ENDED_DIVORCE" => marriage['reasonForSeparation'] == 'DIVORCE',
-              "CB_#{indv[:s]}_MARR#{index + 1}_ENDED_OTHER" => marriage['reasonForSeparation'] == 'OTHER',
-              "#{indv[:m]}_MARR#{index + 1}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
-              "#{indv[:l]}_MARRIAGE_#{index + 1}_DATE" => format_date(marriage['dateOfMarriage']),
-              "#{indv[:l]}_MARRIAGE_#{index + 1}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
-              "#{indv[:l]}_MARRIAGE_#{index + 1}_PLACE" => marriage['locationOfMarriage'],
-              "#{indv[:l]}_MARRIAGE_#{index + 1}_PLACE_ENDED" => marriage['locationOfSeparation']
+              "CB_#{indv_s}_MARR#{marriage_num}_ENDED_DEATH" => marriage['reasonForSeparation'] == 'DEATH',
+              "CB_#{indv_s}_MARR#{marriage_num}_ENDED_DIVORCE" => marriage['reasonForSeparation'] == 'DIVORCE',
+              "CB_#{indv_s}_MARR#{marriage_num}_ENDED_OTHER" => marriage['reasonForSeparation'] == 'OTHER',
+              "#{indv_m}_MARR#{marriage_num}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
+              "#{indv_l}_MARRIAGE_#{marriage_num}_DATE" => format_date(marriage['dateOfMarriage']),
+              "#{indv_l}_MARRIAGE_#{marriage_num}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
+              "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE" => marriage['locationOfMarriage'],
+              "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE_ENDED" => marriage['locationOfSeparation']
             }
           )
       end
@@ -431,21 +432,13 @@ module SurvivorsBenefits
             "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => child['childSupport']
           }
         )
-    end 
+    end
 
     def individuals_permutations(individual)
       if individual == 'VETERAN'
-        {
-          s: 'VET',
-          m: 'VET',
-          l: 'VETERAN'
-        }
+        %w[VET VET VETERAN]
       elsif individual == 'CLAIMANT'
-        {
-          s: 'CL',
-          m: 'CB_CL',
-          l: 'CLAIMANT'
-        }
+        %w[CL CB_CL CLAIMANT]
       end
     end
 
