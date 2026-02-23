@@ -1007,7 +1007,7 @@ module PdfFill
             if type_of_program_or_benefit.present?
               program_information = FORMATTER.get_program(type_of_program_or_benefit)
             end
-            if program_information.present? && student_information['school_information'].present?
+            if program_information.present?
               # set 9A and 9B to a concatenated type_of_program_or_benefit + name
               combined_name = [program_information, student_information['school_information']['name']]
                               .compact_blank.join(', ')
