@@ -133,12 +133,12 @@ RSpec.describe RepresentationManagement::AccreditedOrganizationsUpdate do
         expect(Rails.logger).to receive(:error).with(
           /RepresentationManagement::AccreditedOrganizationsUpdate: Error processing job: Job execution error/
         )
-        subject.perform(record_ids)
+        expect { subject.perform(record_ids) }.to raise_error(StandardError, 'Job execution error')
       end
 
       it 'adds the error to slack messages' do
         allow(Rails.logger).to receive(:error)
-        subject.perform(record_ids)
+        expect { subject.perform(record_ids) }.to raise_error(StandardError)
         expect(subject.slack_messages).to include(/Error processing job/)
       end
     end
