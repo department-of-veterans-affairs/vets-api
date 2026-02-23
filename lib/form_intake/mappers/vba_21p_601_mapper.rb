@@ -76,6 +76,33 @@ module FormIntake
           'OTHER_DEBTS_YES' => other_debts_exist?(form),
           'OTHER_DEBTS_NO' => other_debts_none?(form),
 
+          # ---
+          # These additional keys are not currently provided by the frontend, but
+          # must be present in the object sent to MMS. The FE doesn't provide these
+          # because they involve 3rd party signatures which is currently not supported.
+          'ESTATE_ADMIN_YES' => nil,
+          'ESTATE_ADMIN_NO' => nil,
+          'OTHER_DEBT_CREDITOR_1' => nil,
+          'OTHER_DEBT_CREDITOR_ADDRESS_1' => nil,
+          'OTHER_DEBT_CREDITOR_SIGN_1' => nil,
+          'OTHER_DEBT_CREDITOR_TITLE_1' => nil,
+          'OTHER_DEBT_CREDITOR_DATE_1' => nil,
+          'OTHER_DEBT_CREDITOR_2' => nil,
+          'OTHER_DEBT_CREDITOR_ADDRESS_2' => nil,
+          'OTHER_DEBT_CREDITOR_SIGN_2' => nil,
+          'OTHER_DEBT_CREDITOR_TITLE_2' => nil,
+          'OTHER_DEBT_CREDITOR_DATE_2' => nil,
+          'OTHER_DEBT_CREDITOR_3' => nil,
+          'OTHER_DEBT_CREDITOR_ADDRESS_3' => nil,
+          'OTHER_DEBT_CREDITOR_SIGN_3' => nil,
+          'OTHER_DEBT_CREDITOR_TITLE_3' => nil,
+          'OTHER_DEBT_CREDITOR_DATE_3' => nil,
+          'WITNESS_1_SIGNATURE' => nil,
+          'WITNESS_1_NAME_ADDRESS' => nil,
+          'WITNESS_2_SIGNATURE' => nil,
+          'WITNESS_2_NAME_ADDRESS' => nil,
+          # ---
+
           # Box 23A - Signature of Claimant
           'CLAIMANT_SIGNATURE' => form.dig('claimant', 'signature'),
 

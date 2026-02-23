@@ -226,6 +226,19 @@ RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
       expect(payload['REMARKS']).to eq('Additional information about the claim')
     end
 
+    it 'includes required nil fields for unsupported features' do
+      # MMS requires these keys even though frontend doesn't provide them
+      expect(payload).to have_key('ESTATE_ADMIN_YES')
+      expect(payload).to have_key('ESTATE_ADMIN_NO')
+      expect(payload).to have_key('OTHER_DEBT_CREDITOR_1')
+      expect(payload).to have_key('WITNESS_1_SIGNATURE')
+      expect(payload).to have_key('WITNESS_2_SIGNATURE')
+      
+      # All should be nil
+      expect(payload['ESTATE_ADMIN_YES']).to be_nil
+      expect(payload['WITNESS_1_SIGNATURE']).to be_nil
+    end
+
     context 'with no expenses' do
       let(:no_expenses_data) do
         data = JSON.parse(form_data)
