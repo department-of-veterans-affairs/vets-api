@@ -186,6 +186,75 @@ RSpec.describe UnifiedHealthData::Client do
     end
   end
 
+  # WebMock is used instead of VCR cassettes here because these tests verify URL-encoding
+  # of path segments (slashes, spaces, `#`). VCR matches on the final URI so it cannot
+  # assert that the client correctly encodes special characters before the request is sent.
+  describe '#get_note_by_source' do
+    let(:host) { Settings.mhv.uhd.host }
+    let(:security_host) { Settings.mhv.uhd.security_host }
+    let(:patient_id) { '12345V67890' }
+    let(:source) { UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+    let(:record_id) { '20875576613' }
+    let(:start_date) { '2024-01-01' }
+    let(:end_date) { '2025-06-01' }
+    let(:expected_query) { { 'patientId' => patient_id, 'startDate' => start_date, 'endDate' => end_date } }
+
+    before do
+      stub_request(:post, "#{security_host}/mhvapi/security/v1/login")
+        .to_return(status: 200, headers: { 'authorization' => 'Bearer test-token' })
+      stub_request(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/notes})
+        .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
+    end
+
+    it 'constructs the correct URL with oracle-health source' do
+      client.get_note_by_source(patient_id:, source:, record_id:, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle-health/20875576613")
+        .with(query: expected_query)
+    end
+
+    it 'constructs the correct URL with vista source' do
+      vista_source = UnifiedHealthData::SourceConstants::VISTA
+
+      client.get_note_by_source(patient_id:, source: vista_source, record_id:, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/vista/20875576613")
+        .with(query: expected_query)
+    end
+
+    it 'URL-encodes slashes and hashes in record_id' do
+      special_record_id = 'F253/7227761#1834074'
+
+      client.get_note_by_source(patient_id:, source:, record_id: special_record_id, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle-health/F253%2F7227761%231834074")
+        .with(query: expected_query)
+    end
+
+    it 'URL-encodes spaces in record_id' do
+      spaced_record_id = 'note 123'
+
+      client.get_note_by_source(patient_id:, source:, record_id: spaced_record_id, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle-health/note%20123")
+        .with(query: expected_query)
+    end
+
+    it 'URL-encodes special characters in source' do
+      weird_source = 'oracle/health'
+
+      client.get_note_by_source(patient_id:, source: weird_source, record_id:, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle%2Fhealth/20875576613")
+        .with(query: expected_query)
+    end
+  end
+
   describe '#extract_resource_type' do
     it 'extracts allergies from path' do
       path = '/uhd/v1/allergies?patientId=123'

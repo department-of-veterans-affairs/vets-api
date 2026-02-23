@@ -10,6 +10,7 @@ module MyHealth
       include MyHealth::V2::Concerns::ErrorHandler
       include SortableRecords
       service_tag 'mhv-medical-records'
+      before_action :validate_source_param, only: :show
 
       def index
         start_date = params[:start_date]
@@ -37,8 +38,8 @@ module MyHealth
       end
 
       def show
-        care_note = service.get_single_summary_or_note(params['id'])
-        unless care_note
+        care_note = service.get_single_summary_or_note(params['id'], source: params['source'])
+        if care_note.nil?
           render_error('Record Not Found',
                        'The requested record was not found',
                        '404', 404, :not_found)
@@ -63,6 +64,32 @@ module MyHealth
 
       def service
         @service ||= UnifiedHealthData::Service.new(@current_user)
+      end
+
+      def valid_sources
+        [UnifiedHealthData::SourceConstants::ORACLE_HEALTH, UnifiedHealthData::SourceConstants::VISTA]
+      end
+
+      def validate_source_param
+        source = params['source']
+
+        if source.blank?
+          render_error('Record Not Found',
+                       'The requested record was not found. A source parameter is required.',
+                       '400', 400, :bad_request)
+        elsif source == UnifiedHealthData::SourceConstants::VISTA
+          render_error('Invalid Parameter',
+                       'VistA notes are not available for direct lookup. Use source=oracle-health.',
+                       '400', 400, :bad_request)
+        elsif !valid_source?(source)
+          render_error('Invalid Parameter',
+                       "Invalid source: '#{source}'. Must be one of: #{valid_sources.join(', ')}",
+                       '400', 400, :bad_request)
+        end
+      end
+
+      def valid_source?(source)
+        valid_sources.include?(source)
       end
     end
   end

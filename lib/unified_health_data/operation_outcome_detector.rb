@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'source_constants'
+
 module UnifiedHealthData
   # Detects OperationOutcome resources in SCDF responses, distinguishing between
   # error-level issues (partial failures) and warning-level issues (e.g., missing Binary resources).
