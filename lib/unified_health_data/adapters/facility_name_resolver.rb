@@ -6,6 +6,12 @@ module UnifiedHealthData
   module Adapters
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
+      # DoD (Department of Defense) facility identifiers typically start with:
+      # - 'zz' prefix (most common)
+      # - 'x' followed by uppercase letter (e.g., 'xNHOH')
+      # These are not valid VA station numbers and should be handled gracefully.
+      DOD_PREFIX_PATTERN = /^(zz|x[A-Z])/i
+
       # Extracts facility name from a FHIR MedicationDispense resource
       #
       # @param dispense [Hash] FHIR MedicationDispense resource
@@ -16,6 +22,7 @@ module UnifiedHealthData
         # Get .location.display from dispense
         location_display = dispense.dig('location', 'display')
         return nil unless location_display
+        return if dod_identifier?(location_display)
 
         # First try the legacy 3-digit station number
         three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
@@ -36,7 +43,7 @@ module UnifiedHealthData
           return facility_identifier_lookup
         end
 
-        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
+        Rails.logger.warn("Unable to extract valid station number from: #{location_display}")
 
         nil
       end
@@ -62,6 +69,17 @@ module UnifiedHealthData
       end
 
       private
+
+      # Checks if the location display value is a DoD facility identifier
+      #
+      # @param location_display [String] Location display value from FHIR resource
+      # @return [Boolean] true if the identifier is a DoD facility
+      def dod_identifier?(location_display)
+        return false unless location_display.match?(DOD_PREFIX_PATTERN)
+
+        Rails.logger.info("Skipping DoD facility identifier: #{location_display}")
+        true
+      end
 
       # Fetches facility name from Lighthouse API
       #
