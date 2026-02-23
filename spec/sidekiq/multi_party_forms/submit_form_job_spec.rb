@@ -29,7 +29,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
   let(:merge_service_class) { double(new: merge_service_instance) }
 
   before do
-    stub_const('MultiPartyForms::Form212680PRIMARY::MergeService', merge_service_class)
+    stub_const('MultiPartyForms::Form212680::MergeService', merge_service_class)
     allow(SavedClaim).to receive(:create!).and_return(saved_claim)
     allow(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async)
     allow(StatsD).to receive(:increment)
@@ -133,7 +133,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
 
     context 'when no MergeService exists for the form type' do
       before do
-        hide_const('MultiPartyForms::Form212680PRIMARY::MergeService')
+        hide_const('MultiPartyForms::Form212680::MergeService')
       end
 
       it 'raises NotImplementedError and increments failure metric' do

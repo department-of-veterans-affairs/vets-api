@@ -69,7 +69,8 @@ module MultiPartyForms
     end
 
     def resolve_merge_service
-      form_key = "Form#{@submission.form_type.delete('^A-Za-z0-9')}"
+      base_form_type = @submission.form_type.sub(/-(PRIMARY|SECONDARY)$/, '')
+      form_key = "Form#{base_form_type.delete('^A-Za-z0-9')}"
       "MultiPartyForms::#{form_key}::MergeService".constantize
     rescue NameError
       raise MergeServiceNotFoundError, "No MergeService found for form type: #{@submission.form_type}"
