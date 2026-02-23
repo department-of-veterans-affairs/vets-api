@@ -188,6 +188,7 @@ module SimpleFormsApi
 
           add_vsi_flash_safely(form, submission)
 
+          
           submit_to_mms_if_applicable(form, confirmation_number)
         end
 
@@ -416,34 +417,13 @@ module SimpleFormsApi
         return unless converter_class
 
         ibm_payload = converter_class.convert(form)
-
-        ibm_service = Ibm::Service.new
-        ibm_response = ibm_service.upload_form(
-          form: ibm_payload.to_json,
-          guid: confirmation_number
+        jid = SimpleFormsApi::Mms::IbmUploadJob.perform_async(ibm_payload, params[:form_number], confirmation_number)
+        Rails.logger.info(
+          'Queuing SimpleFormsAPI notification email to VaNotify completed',
+          jid:,
+          form_number: params[:form_number],
+          confirmation_number:
         )
-
-        if ibm_response
-          Rails.logger.info(
-            'Simple Forms API - MMS submission complete',
-            guid: confirmation_number,
-            form_number: params[:form_number]
-          )
-        else
-          Rails.logger.error(
-            'Simple Forms API - MMS submission failed: IBM upload returned no response',
-            guid: confirmation_number,
-            form_number: params[:form_number]
-          )
-        end
-      rescue => e
-        if Flipper.enabled?(:simple_forms_mms_logging)
-          Rails.logger.error(
-            "Simple Forms API - MMS submission failed: #{e.message}",
-            guid: confirmation_number,
-            form_number: params[:form_number]
-          )
-        end
       end
 
       def mms_converter_for(form_number)
