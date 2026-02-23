@@ -79,7 +79,11 @@ module VAOS
                            pagination_params = {},
                            include = {},
                            tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
-        raise ArgumentError, 'no ICN passed in for VAOS::V2::GetAppointments request' if user.icn.blank?                   
+        if user.icn.blank?
+          raise ArgumentError,
+                'no ICN passed in for VAOS::V2::GetAppointments request'
+        end
+
         cnp_count = 0
 
         # Determine if we should fetch travel claims in parallel
@@ -235,6 +239,7 @@ module VAOS
       # rubocop:enable Metrics/MethodLength
       def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         raise ArgumentError, 'no ICN passed in for VAOS::V2::GetAppointment request' if user.icn.blank?
+
         params = {}
         with_monitoring do
           response =  if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
@@ -261,6 +266,7 @@ module VAOS
       # rubocop:disable Metrics/MethodLength
       def post_appointment(request_object_body)
         raise ArgumentError, 'no ICN passed in for VAOS::V2::PostAppointment request' if user.icn.blank?
+
         filtered_reason_code_text = filter_reason_code_text(request_object_body)
         request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
 
@@ -313,9 +319,9 @@ module VAOS
         end
       end
 
-      # rubocop:enable Metrics/MethodLength
       def update_appointment(appt_id, status)
         raise ArgumentError, 'no ICN passed in for VAOS::V2::UpdateAppointment request' if user.icn.blank?
+
         with_monitoring do
           if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
@@ -338,6 +344,7 @@ module VAOS
           end
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Retrieves the most recent clinic appointment within the last year.
       #
