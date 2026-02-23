@@ -506,6 +506,22 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
                 json_response = JSON.parse(response.body)
                 expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
               end
+
+              it 'keeps flag true when returnUrl is new-disabilities/additional-remarks-781 (not add)' do
+                parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                raw_meta = in_progress_form_lighthouse[:metadata] || {}
+                raw_meta['returnUrl'] = '/new-disabilities/additional-remarks-781'
+                in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
+
+                VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+                end
+
+                expect(response).to have_http_status(:ok)
+                json_response = JSON.parse(response.body)
+                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
+              end
             end
 
             context 'when flag is not true' do

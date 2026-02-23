@@ -99,7 +99,7 @@ module V0
       claim-type |
       disabilities/orientation |
       disabilities/rated-disabilities |
-      new-disabilities/(follow-up|add)
+      new-disabilities/(follow-up|add\b)
     }x
 
     # If disabilityCompNewConditionsWorkflow is true and returnUrl points to an
