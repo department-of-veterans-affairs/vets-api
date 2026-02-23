@@ -11,10 +11,12 @@ module FormIntake
   ].freeze
 
   # Map each form to its feature flag for independent control
+  # rubocop:disable Naming/VariableNumber
   FORM_FEATURE_FLAGS = {
     '21P-0537' => :form_intake_integration_0537,
     '21P-601' => :form_intake_integration_601
   }.freeze
+  # rubocop:enable Naming/VariableNumber
 
   # Check if GCIO is enabled for a specific form
   # @param form_id [String] Form type ID

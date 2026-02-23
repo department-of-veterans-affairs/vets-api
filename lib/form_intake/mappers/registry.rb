@@ -29,13 +29,6 @@ module FormIntake
         FORM_MAPPERS.key?(form_type)
       end
 
-      # Check if form has a mapper (alias for compatibility)
-      # @param form_type [String] Form type
-      # @return [Boolean]
-      def self.has_mapper?(form_type)
-        mapper?(form_type)
-      end
-
       # List all forms with mappers
       # @return [Array<String>] Form type IDs
       def self.mapped_forms
