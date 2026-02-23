@@ -6,8 +6,33 @@ require 'form214192/monitor'
 RSpec.describe Form214192::Monitor do
   subject(:monitor) { described_class.new }
 
-  let(:stats_key) { described_class::STATS_KEY }
+  let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
+  let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:form_id) { described_class::FORM_ID }
+
+  describe 'BaseMonitor abstract methods' do
+    it 'implements required methods' do
+      expect(monitor.claim_stats_key).to eq('api.form214192')
+      expect(monitor.submission_stats_key).to eq('worker.lighthouse.form214192_intake_job')
+      expect(monitor.name).to eq('form214192')
+      expect(monitor.form_id).to eq('21-4192')
+    end
+
+    it 'has required tags' do
+      expect(monitor.tags).to eq(['form_id:21-4192'])
+    end
+
+    it 'responds to BaseMonitor lifecycle methods' do
+      expect(monitor).to respond_to(:track_create_attempt)
+      expect(monitor).to respond_to(:track_create_success)
+      expect(monitor).to respond_to(:track_create_error)
+      expect(monitor).to respond_to(:track_create_validation_error)
+      expect(monitor).to respond_to(:track_submission_begun)
+      expect(monitor).to respond_to(:track_submission_success)
+      expect(monitor).to respond_to(:track_submission_retry)
+      expect(monitor).to respond_to(:track_submission_exhaustion)
+    end
+  end
 
   describe '#track_request_validation_error' do
     let(:request) do
@@ -29,7 +54,7 @@ RSpec.describe Form214192::Monitor do
 
       it 'increments StatsD metric with correct tags' do
         expect(StatsD).to receive(:increment).with(
-          "#{stats_key}.validation_error",
+          "#{claim_stats_key}.validation_error",
           hash_including(tags: array_including('service:form214192'))
         )
 

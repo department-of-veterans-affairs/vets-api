@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'logging/monitor'
+require 'logging/base_monitor'
 
 module Form214192
   ##
@@ -9,19 +9,20 @@ module Form214192
   # Provides methods for tracking Committee validation failures and other
   # form-related events with StatsD metrics and structured logging.
   #
-  class Monitor < ::Logging::Monitor
+  class Monitor < ::Logging::BaseMonitor
     SERVICE_NAME = 'form214192'
     FORM_ID = '21-4192'
-    STATS_KEY = 'api.form214192'
+    CLAIM_STATS_KEY = 'api.form214192'
+    SUBMISSION_STATS_KEY = 'worker.lighthouse.form214192_intake_job'
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
       data_pointer
       error_type
-      form_id
       method
       path
       source_app
+      code
     ].freeze
 
     def initialize
@@ -44,7 +45,7 @@ module Form214192
       track_request(
         :warn,
         "#{self.class.name} #{FORM_ID} Committee validation failed",
-        "#{STATS_KEY}.validation_error",
+        "#{CLAIM_STATS_KEY}.validation_error",
         call_location:,
         form_id: FORM_ID,
         path: request.path,
@@ -53,6 +54,76 @@ module Form214192
         error_type: validation_details[:error_type],
         data_pointer: validation_details[:data_pointer]
       )
+    end
+
+    # Required BaseMonitor abstract method implementations
+    def claim_stats_key
+      CLAIM_STATS_KEY
+    end
+
+    def submission_stats_key
+      SUBMISSION_STATS_KEY
+    end
+
+    def name
+      SERVICE_NAME
+    end
+
+    def form_id
+      FORM_ID
+    end
+
+    ##
+    # Track submission begun in controller
+    # Called when claim is saved and about to be queued to Sidekiq
+    #
+    # @param claim [SavedClaim::Form214192]
+    def track_submission_begun(claim)
+      submit_event(
+        :info,
+        "#{self.class.name} #{FORM_ID} submission begun",
+        "#{CLAIM_STATS_KEY}.submission.begun",
+        claim:
+      )
+    end
+
+    ##
+    # Track successful submission in controller
+    # Called when claim is successfully saved and queued
+    #
+    # @param claim [SavedClaim::Form214192]
+    def track_submission_success(claim)
+      submit_event(
+        :info,
+        "#{self.class.name} #{FORM_ID} submission success",
+        "#{CLAIM_STATS_KEY}.submission.success",
+        claim:
+      )
+    end
+
+    ##
+    # Track submission failure in controller
+    # Called when submission fails (validation or unexpected error)
+    #
+    # @param claim [SavedClaim::Form214192]
+    # @param error [Exception]
+    def track_submission_failure(claim, error)
+      submit_event(
+        :error,
+        "#{self.class.name} #{FORM_ID} submission failure",
+        "#{CLAIM_STATS_KEY}.submission.failure",
+        claim:,
+        error: error&.message
+      )
+    end
+
+    ##
+    # Track API response code for distribution analysis
+    # Used to track HTTP response codes (200, 422, 500, etc.) for monitoring
+    #
+    # @param code [Integer] HTTP response code
+    def track_request_code(code)
+      StatsD.increment("#{CLAIM_STATS_KEY}.request", tags: ["code:#{code}"])
     end
 
     private

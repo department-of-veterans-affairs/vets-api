@@ -3,14 +3,19 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
-  before do
-    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
-  end
-
+  let(:monitor) { instance_double(Form214192::Monitor) }
   let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
-
   let(:form_data) do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
+  end
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
+    allow(Form214192::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_submission_begun)
+    allow(monitor).to receive(:track_submission_success)
+    allow(monitor).to receive(:track_submission_failure)
+    allow(monitor).to receive(:track_request_code)
   end
 
   describe 'POST #create' do
@@ -93,6 +98,75 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         end.not_to change(InProgressForm, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    describe 'monitoring' do
+      it 'tracks submission begun when claim is created' do
+        expect(monitor).to receive(:track_submission_begun) do |claim|
+          expect(claim).to be_a(SavedClaim::Form214192)
+        end
+
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks submission success when claim saves successfully' do
+        expect(monitor).to receive(:track_submission_success) do |claim|
+          expect(claim).to be_a(SavedClaim::Form214192)
+          expect(claim.persisted?).to be true
+        end
+
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks submission failure when validation fails' do
+        invalid_payload = { veteranInformation: { fullName: { first: 'OnlyFirst' } } }
+
+        expect(monitor).to receive(:track_submission_failure) do |claim, error|
+          expect(claim).to be_a(SavedClaim::Form214192)
+          expect(error.message).to eq('Validation failed')
+        end
+
+        post(:create, body: invalid_payload.to_json, as: :json)
+      end
+
+      it 'tracks request code for successful submission' do
+        expect(monitor).to receive(:track_request_code).with(200)
+
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks request code for validation errors' do
+        invalid_payload = { veteranInformation: { fullName: { first: 'OnlyFirst' } } }
+
+        expect(monitor).to receive(:track_request_code).with(422)
+
+        post(:create, body: invalid_payload.to_json, as: :json)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it 'tracks request code for PDF download success' do
+        temp_pdf = '/tmp/test.pdf'
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_pdf)
+        allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_pdf)
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(temp_pdf).and_return('PDF_CONTENT')
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(temp_pdf).and_return(true)
+        allow(File).to receive(:delete).and_call_original
+        allow(File).to receive(:delete).with(temp_pdf)
+
+        expect(monitor).to receive(:track_request_code).with(200)
+
+        post(:download_pdf, body: form_data.to_json, as: :json)
+      end
+
+      it 'tracks request code for PDF generation errors' do
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
+
+        expect(monitor).to receive(:track_request_code).with(500)
+
+        post(:download_pdf, body: form_data.to_json, as: :json)
       end
     end
   end

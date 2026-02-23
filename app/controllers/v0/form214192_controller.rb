@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'form214192/monitor'
+
 module V0
   class Form214192Controller < ApplicationController
     include RetriableConcern
@@ -14,32 +16,34 @@ module V0
 
       claim = SavedClaim::Form214192.new(form: payload)
 
+      monitor.track_submission_begun(claim)
+
       if claim.save
         claim.process_attachments!
 
-        Rails.logger.info(
-          "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        )
-        StatsD.increment("#{stats_key}.success")
+        monitor.track_submission_success(claim)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
-        StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
-    rescue => e
-      # Include validation errors when present; helpful in logs/Sentry.
-      Rails.logger.error(
-        'Form214192: error submitting claim',
-        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
+    rescue Common::Exceptions::ValidationErrors
+      monitor.track_submission_failure(claim, StandardError.new('Validation failed'))
+      monitor.track_request_code(422)
       raise
+    rescue => e
+      monitor.track_submission_failure(claim, e)
+      raise
+    ensure
+      monitor.track_request_code(response.status) if response.status
     end
 
     def download_pdf
       # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
       parsed_form = JSON.parse(request.raw_post)
+
+      pdf_start_time = Time.current
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
@@ -48,14 +52,21 @@ module V0
       # Stamp signature (SignatureStamper returns original path if signature is blank)
       source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
 
+      # Track PDF generation duration
+      pdf_duration = Time.current - pdf_start_time
+      StatsD.measure("#{stats_key}.pdf_generation.duration", pdf_duration * 1000) # milliseconds
+      StatsD.increment("#{stats_key}.pdf_generation.success")
+
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     rescue => e
+      StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
     ensure
+      monitor.track_request_code(response.status) if response.status
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
@@ -78,6 +89,10 @@ module V0
 
     def stats_key
       'api.form214192'
+    end
+
+    def monitor
+      @monitor ||= Form214192::Monitor.new
     end
   end
 end
