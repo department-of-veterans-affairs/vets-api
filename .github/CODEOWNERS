@@ -969,6 +969,8 @@ lib/form21p530a/monitor.rb @department-of-veterans-affairs/benefits-optimization
 lib/form_intake/configuration.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 lib/form_intake/mappers/base_mapper.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 lib/form_intake/mappers/registry.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
+lib/form_intake/mappers/vba_21p_0537_mapper.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
+lib/form_intake/mappers/vba_21p_601_mapper.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 lib/form_intake/service.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 lib/form_intake/service_error.rb @department-of-veterans-affairs/bio-heart-team @department-of-veterans-affairs/backend-review-group
 lib/formatters @department-of-veterans-affairs/octo-identity
