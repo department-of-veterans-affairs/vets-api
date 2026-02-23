@@ -37,7 +37,7 @@ module HasStructuredData
   end
 
   # Build the claimant address block, falling back to veteran address when needed.
-  #
+  # 
   # @param form [Hash]
   # @return [String, nil]
   def claimant_address_block(form)
@@ -163,5 +163,18 @@ module HasStructuredData
     parsed.strftime('%m/%d/%Y')
   rescue ArgumentError
     nil
+  end
+
+  # Normalize city, (state/country) for IBM.
+  #
+  # @param place [Hash]
+  # @return [String, nil]
+  def format_place(place)
+    return unless place
+
+    city = place['city']
+    state = place['state']
+    country = place['otherCountry']
+    [city, state || country].compact.join(', ')
   end
 end
