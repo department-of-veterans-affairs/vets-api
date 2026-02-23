@@ -5,13 +5,11 @@ require 'rails_helper'
 RSpec.describe BGSDependents::ChildSchool do
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:child_school_info_v2) do
-    described_class.new('3829729',
-                        '149471',
-                        all_flows_payload_v2['dependents_application']['student_information'][0])
-  end
+    # match how student_school will manipulate payload
+    student = all_flows_payload_v2['dependents_application']['student_information'][0]
+    student['type_of_program_or_benefit'] = 'Chapter 35, Fry Scholarship, FECA, name of trade program'
+    student['school_information']['name'] = 'Chapter 35, Fry Scholarship, FECA, name of trade program'
 
-  let(:child_school_info_v2_b) do
-    all_flows_payload_v2['dependents_application']['student_information'][0]['type_of_program_or_benefit'] = nil
     described_class.new('3829729',
                         '149471',
                         all_flows_payload_v2['dependents_application']['student_information'][0])
@@ -31,7 +29,7 @@ RSpec.describe BGSDependents::ChildSchool do
       prev_school_city_nm: nil,
       prev_school_postal_cd: nil,
       prev_school_addrs_zip_nbr: nil,
-      curnt_school_nm: 'name of trade program',
+      curnt_school_nm: 'Chapter 35, Fry Scholarship, FECA, name of trade program',
       curnt_school_addrs_one_txt: nil,
       curnt_school_postal_cd: nil,
       curnt_school_city_nm: nil,

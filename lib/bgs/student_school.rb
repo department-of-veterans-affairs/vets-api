@@ -32,7 +32,7 @@ module BGS
         'feca' => 'FECA'
       }
       # sanitize object of false values
-      parent_object.compact_blank!
+      parent_object = parent_object.compact_blank
       return nil if parent_object.blank?
 
       # concat and sanitize values not in type_mapping
@@ -41,7 +41,7 @@ module BGS
 
     def assign_program_and_govt_paid_tuitn_ind
       program = get_program(@student&.dig('type_of_program_or_benefit'))
-      if program.present?
+      if program.present? && @student['school_information'].present?
         name = [program, @student&.dig('school_information', 'name')].compact_blank.join(', ')
         @student['type_of_program_or_benefit'] = name.presence
         @student['school_information']['name'] = name.presence

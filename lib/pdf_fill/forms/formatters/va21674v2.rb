@@ -73,7 +73,7 @@ module PdfFill
               'feca' => 'FECA'
             }
             # sanitize object of false values
-            parent_object.compact_blank!
+            parent_object = parent_object.compact_blank
             return nil if parent_object.blank?
 
             # concat and sanitize values not in type_mapping
