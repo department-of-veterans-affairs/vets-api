@@ -442,6 +442,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_btsss_v2_claim_submission_endpoints:
+    actor_type: user
+    description: Enables using BTSSS v2 API endpoints instead of v3 for travel claim submission
+    enable_in_development: false
   check_in_experience_use_vaec_cie_endpoints:
     actor_type: user
     description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.

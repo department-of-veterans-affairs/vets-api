@@ -23,6 +23,8 @@ RSpec.describe TravelClaim::TravelPayClient do
   before do
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_log_api_error_details).and_return(false)
+    allow(Flipper).to receive(:enabled?)
+      .with(:check_in_experience_use_btsss_v2_claim_submission_endpoints).and_return(false)
   end
 
   describe 'initialization' do
@@ -323,6 +325,106 @@ RSpec.describe TravelClaim::TravelPayClient do
     end
   end
 
+  describe 'API version switching' do
+    let(:client) do
+      described_class.new(
+        appointment_date_time:,
+        station_number: test_station_number,
+        check_in_uuid:,
+        correlation_id: test_correlation_id
+      )
+    end
+
+    before do
+      allow(Rails.logger).to receive(:error)
+    end
+
+    context 'when v2 flipper is disabled (default)' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_use_btsss_v2_claim_submission_endpoints).and_return(false)
+      end
+
+      it 'uses v3 path for send_appointment_request' do
+        expect(client).to receive(:perform).with(:post, 'api/v3/appointments/find-or-add', anything, anything)
+                                           .and_return(double(status: 200, body: {}))
+        client.send_appointment_request(veis_token: test_veis_token, btsss_token: test_btsss_token)
+      end
+
+      it 'uses v3 path for send_claim_request' do
+        expect(client).to receive(:perform).with(:post, 'api/v3/claims', anything, anything)
+                                           .and_return(double(status: 200, body: {}))
+        client.send_claim_request(veis_token: test_veis_token, btsss_token: test_btsss_token,
+                                  appointment_id: test_appointment_id)
+      end
+
+      it 'uses v3 path for send_claim_submission_request' do
+        expect(client).to receive(:perform)
+          .with(:patch, "api/v3/claims/#{test_claim_id}/submit", nil, anything)
+          .and_return(double(status: 200, body: {}))
+        client.send_claim_submission_request(veis_token: test_veis_token, btsss_token: test_btsss_token,
+                                             claim_id: test_claim_id)
+      end
+    end
+
+    context 'when v2 flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:check_in_experience_use_btsss_v2_claim_submission_endpoints).and_return(true)
+      end
+
+      it 'uses v2 path for send_appointment_request' do
+        expect(client).to receive(:perform).with(:post, 'api/v2/appointments/find-or-add', anything, anything)
+                                           .and_return(double(status: 200, body: {}))
+        client.send_appointment_request(veis_token: test_veis_token, btsss_token: test_btsss_token)
+      end
+
+      it 'uses v2 path for send_claim_request' do
+        expect(client).to receive(:perform).with(:post, 'api/v2/claims', anything, anything)
+                                           .and_return(double(status: 200, body: {}))
+        client.send_claim_request(veis_token: test_veis_token, btsss_token: test_btsss_token,
+                                  appointment_id: test_appointment_id)
+      end
+
+      it 'uses v2 path for send_mileage_expense_request' do
+        expect(client).to receive(:perform).with(:post, 'api/v2/expenses/mileage', anything, anything)
+                                           .and_return(double(status: 200, body: {}))
+        client.send_mileage_expense_request(veis_token: test_veis_token, btsss_token: test_btsss_token,
+                                            claim_id: test_claim_id, date_incurred: test_date_incurred)
+      end
+
+      it 'uses v2 path for send_get_claim_request' do
+        expect(client).to receive(:perform)
+          .with(:get, "api/v2/claims/#{test_claim_id}", nil, anything)
+          .and_return(double(status: 200, body: {}))
+        client.send_get_claim_request(veis_token: test_veis_token, btsss_token: test_btsss_token,
+                                      claim_id: test_claim_id)
+      end
+
+      it 'uses v2 path for send_claim_submission_request' do
+        expect(client).to receive(:perform)
+          .with(:patch, "api/v2/claims/#{test_claim_id}/submit", nil, anything)
+          .and_return(double(status: 200, body: {}))
+        client.send_claim_submission_request(veis_token: test_veis_token, btsss_token: test_btsss_token,
+                                             claim_id: test_claim_id)
+      end
+
+      it 'logs v2 path in error context' do
+        allow(client).to receive(:perform).and_raise(
+          Common::Exceptions::BackendServiceException.new('TEST', {}, 500, 'Internal Server Error')
+        )
+
+        expect do
+          client.send_appointment_request(veis_token: test_veis_token, btsss_token: test_btsss_token)
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(Rails.logger).to have_received(:error).with(
+          hash_including(api_path: 'api/v2/appointments/find-or-add')
+        )
+      end
+    end
+  end
+
   describe '#patch method override' do
     let(:client) do
       described_class.new(
@@ -401,7 +503,7 @@ RSpec.describe TravelClaim::TravelPayClient do
 
           expect(Rails.logger).to have_received(:error).with(
             hash_including(
-              message: 'TravelPayClient: BTSSS API Error',
+              message: "#{CheckIn::Constants::LOG_PREFIX}: BTSSS API Error",
               operation: 'find_or_add_appointment',
               api_path: 'api/v3/appointments/find-or-add',
               http_status: 500,
