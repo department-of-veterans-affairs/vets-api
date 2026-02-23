@@ -23,6 +23,8 @@ module Form214192
       path
       source_app
       code
+      user_uuid
+      claim_guid
     ].freeze
 
     def initialize
@@ -78,12 +80,15 @@ module Form214192
     # Called when claim is saved and about to be queued to Sidekiq
     #
     # @param claim [SavedClaim::Form214192]
-    def track_submission_begun(claim)
+    # @param user_uuid [String, nil] Optional user UUID for tracking
+    def track_submission_begun(claim, user_uuid: nil)
       submit_event(
         :info,
         "#{self.class.name} #{FORM_ID} submission begun",
         "#{CLAIM_STATS_KEY}.submission.begun",
-        claim:
+        claim:,
+        user_uuid:,
+        claim_guid: claim&.guid
       )
     end
 
@@ -92,12 +97,15 @@ module Form214192
     # Called when claim is successfully saved and queued
     #
     # @param claim [SavedClaim::Form214192]
-    def track_submission_success(claim)
+    # @param user_uuid [String, nil] Optional user UUID for tracking
+    def track_submission_success(claim, user_uuid: nil)
       submit_event(
         :info,
         "#{self.class.name} #{FORM_ID} submission success",
         "#{CLAIM_STATS_KEY}.submission.success",
-        claim:
+        claim:,
+        user_uuid:,
+        claim_guid: claim&.guid
       )
     end
 
@@ -107,12 +115,15 @@ module Form214192
     #
     # @param claim [SavedClaim::Form214192]
     # @param error [Exception]
-    def track_submission_failure(claim, error)
+    # @param user_uuid [String, nil] Optional user UUID for tracking
+    def track_submission_failure(claim, error, user_uuid: nil)
       submit_event(
         :error,
         "#{self.class.name} #{FORM_ID} submission failure",
         "#{CLAIM_STATS_KEY}.submission.failure",
         claim:,
+        user_uuid:,
+        claim_guid: claim&.guid,
         error: error&.message
       )
     end
