@@ -118,14 +118,9 @@ module Caseflow
       appeals.each do |appeal|
         next unless appeal.dig('attributes', 'issues')
 
-        issues_with_null_description = appeal['attributes']['issues'].select { |issue| issue['description'].nil? }
-
-        if issues_with_null_description.any?
+        if appeal['attributes']['issues'].any? { |issue| issue['description'].nil? }
           StatsD.increment("#{STATSD_KEY_PREFIX}.appeals_with_null_issue_descriptions")
-          appeals_with_null_issue_descriptions << {
-            'id' => appeal['id'],
-            'issues' => issues_with_null_description
-          }
+          appeals_with_null_issue_descriptions << appeal
         end
       end
 
@@ -135,7 +130,7 @@ module Caseflow
     end
 
     def log_appeals_with_no_issue_descriptions(user, appeals)
-      Rails.logger.warn("Caseflow returned the following appeals with null issue descriptions: #{appeals}")
+      Rails.logger.warn('Caseflow returned at least one appeal with at least one null issue description')
       PersonalInformationLog.create!(
         data: {
           user:,
