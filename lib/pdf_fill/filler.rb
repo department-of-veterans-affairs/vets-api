@@ -32,8 +32,10 @@ require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
 require 'pdf_fill/forms/va220976'
+require 'pdf_fill/forms/va220989'
 require 'pdf_fill/forms/va2210272'
 require 'pdf_fill/forms/va2210275'
+require 'pdf_fill/forms/va2210278'
 require 'pdf_fill/forms/va212680'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'pdf_fill/processors/va228794_processor'
@@ -96,6 +98,7 @@ module PdfFill
       '22-0839' => PdfFill::Forms::Va220839,
       '22-0803' => PdfFill::Forms::Va220803,
       '22-0976' => PdfFill::Forms::Va220976,
+      '22-0989' => PdfFill::Forms::Va220989,
       '21-0779' => PdfFill::Forms::Va210779,
       '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
@@ -103,7 +106,8 @@ module PdfFill
       '22-10215a' => PdfFill::Forms::Va2210215a,
       '22-1919' => PdfFill::Forms::Va221919,
       '22-10272' => PdfFill::Forms::Va2210272,
-      '22-10275' => PdfFill::Forms::Va2210275
+      '22-10275' => PdfFill::Forms::Va2210275,
+      '22-10278' => PdfFill::Forms::Va2210278
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -205,13 +209,14 @@ module PdfFill
     #
     # @return [None]
     #
+
     def fill_form_with_hexapdf(template_path, output_path, hash_data)
+      Rails.logger.info("PdfFill::Filler HexaPDF template: #{template_path}") if Flipper.enabled?(:acroform_debug_logs)
       doc = HexaPDF::Document.open(template_path)
       form = doc.acro_form
       raise 'No AcroForm found in PDF template.' if form.nil?
 
       form.fill(hash_data)
-
       doc.write(output_path)
     end
 

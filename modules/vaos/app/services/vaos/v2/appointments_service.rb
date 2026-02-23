@@ -13,6 +13,8 @@ module VAOS
 
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       AVS_ERROR_MESSAGE = 'Error retrieving AVS info'
+      AVS_BINARY_ERROR_MESSAGE = 'Error retrieving AVS binary'
+      AVS_BINARY_EMPTY_MESSAGE = 'Retrieved empty AVS binary'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
@@ -43,6 +45,32 @@ module VAOS
       # Example: "Thursday, July 8, 2024 in the ..."
       OUTPUT_FORMAT_AM = '%A, %B %-d, %Y in the morning'
       OUTPUT_FORMAT_PM = '%A, %B %-d, %Y in the afternoon'
+
+      # Recognized types of care mappings from service_type to human-readable string
+      TYPE_OF_CARE_MAP = {
+        # Community Care mappings
+        'CCOPT' => 'Optometry',
+        'CCAUDHEAR' => 'Hearing aid support',
+        'CCAUDRTNE' => 'Routine hearing exam',
+        'CCNUTRN' => 'Nutrition and Food',
+        'CCPRMYRTNE' => 'Primary Care',
+        # VA mappings
+        'amputation' => 'Amputation care',
+        'audiology' => 'Audiology and speech (including hearing aid support)',
+        'clinicalPharmacyPrimaryCare' => 'Pharmacy',
+        'covid' => 'COVID-19 vaccine',
+        'cpap' => 'Continuous Positive Airway Pressure (CPAP)',
+        'foodAndNutrition' => 'Nutrition and Food',
+        'homeSleepTesting' => 'Sleep medicine and home sleep testing',
+        'individualSubstanceUseDisorder' => 'Substance use problem services',
+        'moveProgram' => 'MOVE! weight management program',
+        'ophthalmology' => 'Ophthalmology',
+        'optometry' => 'Optometry',
+        'outpatientMentalHealth' => 'Mental health care with a specialist',
+        'primaryCare' => 'Primary Care',
+        'primaryCareMentalHealth' => 'Mental health care in a primary care setting',
+        'socialWork' => 'Social Work'
+      }.freeze
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
@@ -153,9 +181,20 @@ module VAOS
         unless eps_appointments_service.config.mock_enabled?
           vaos_response = get_all_appointments(pagination_params)
           vaos_request_failures = vaos_response[:meta][:failures]
+          vaos_data = vaos_response[:data]
+
+          unless vaos_data.is_a?(Array)
+            Rails.logger.error(
+              'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
+              "Unexpected VAOS response format: data is #{vaos_data.class.name}, expected Array"
+            )
+            msg = 'Unexpected VAOS response in referral_appointment_already_exists? - data is not an Array'
+            vaos_request_failures = msg if vaos_request_failures.blank?
+          end
 
           return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-          return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+
+          return { exists: true } if vaos_data.any? { |appt| appt[:referral_id] == referral_id }
         end
 
         eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
@@ -247,6 +286,7 @@ module VAOS
           set_derived_appointment_date_fields(new_appointment)
           # Remove covid service type per GH#128004
           remove_service_type(new_appointment) if covid?(new_appointment)
+          set_type_of_care(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -289,6 +329,7 @@ module VAOS
             appointment[:show_schedule_link] = schedulable?(appointment)
             # Remove covid service type per GH#128004
             remove_service_type(appointment) if covid?(appointment)
+            set_type_of_care(appointment)
             OpenStruct.new(appointment)
           end
         end
@@ -324,10 +365,19 @@ module VAOS
 
       def get_sorted_recent_appointments
         appointments = get_appointments(1.year.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
+        unless appointments[:data].is_a?(Array)
+          Rails.logger.warn('VAOS get_sorted_recent_appointments - appointments response data is not an array')
+          return []
+        end
+
         sort_recent_appointments(appointments[:data])
       end
 
       def sort_recent_appointments(appointments)
+        unless appointments.is_a?(Array)
+          Rails.logger.warn('VAOS sort_recent_appointments - appointments is not an array')
+          return []
+        end
         filtered_appts = appointments.reject { |appt| appt&.start.nil? }
         removed_appts = appointments - filtered_appts
         if removed_appts.length.positive?
@@ -401,6 +451,28 @@ module VAOS
         end
       end
 
+      def fetch_avs_binaries(appt_id, doc_ids)
+        return nil if appt_id.nil? || doc_ids.nil? || doc_ids.empty?
+
+        responses = []
+
+        doc_ids.each do |doc_id|
+          response = get_avs_pdf_binary(doc_id, appt_id)
+          if response.nil?
+            responses.push({ doc_id:, error: AVS_BINARY_EMPTY_MESSAGE })
+          else
+            responses.push({ doc_id:, binary: response.binary })
+          end
+        rescue => e
+          err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
+          error_log = "VAOS: Error retrieving AVS binary for appt #{appt_id} doc #{doc_id}:" \
+                      "#{e.class}, #{e.message} \n   #{err_stack}"
+          Rails.logger.error(error_log)
+          responses.push({ doc_id:, error: AVS_BINARY_ERROR_MESSAGE })
+        end
+        responses
+      end
+
       private
 
       def fetch_and_normalize_eps_appointments(referral_number)
@@ -441,6 +513,11 @@ module VAOS
       end
 
       def process_vaos_appointments(appointments_data, referral_number)
+        unless appointments_data.is_a?(Array)
+          Rails.logger.warn('VAOS process_vaos_appointments - appointments_data is not an array')
+          return []
+        end
+
         filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
         normalized = filtered.map do |appt|
           {
@@ -708,7 +785,11 @@ module VAOS
       end
 
       def fetch_clinic_appointments(start_time, end_time, statuses)
-        get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+        appts_data = get_appointments(start_time, end_time, statuses)[:data]
+        return appts_data.select { |appt| appt.kind == 'clinic' } if appts_data.is_a?(Array)
+
+        Rails.logger.warn('VAOS fetch_clinic_appointments - appointments response data is not an array')
+        []
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -762,6 +843,8 @@ module VAOS
 
         # Remove covid service type per GH#128004
         remove_service_type(appointment) if covid?(appointment)
+
+        set_type_of_care(appointment)
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -906,9 +989,19 @@ module VAOS
 
         return nil if cerner_system_id.nil?
 
-        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id, include_binary: true)
+        avs_resp = unified_health_data_service.get_appt_avs(appt_id: cerner_system_id)
 
         return nil if avs_resp.empty? || avs_resp.nil?
+
+        avs_resp
+      end
+
+      def get_avs_pdf_binary(doc_id, appt_id)
+        return nil if doc_id.nil? || appt_id.nil?
+
+        avs_resp = unified_health_data_service.get_avs_binary_data(doc_id:, appt_id:)
+
+        return nil if avs_resp.nil?
 
         avs_resp
       end
@@ -1264,7 +1357,7 @@ module VAOS
         modality = nil
         if appointment[:service_type] == 'covid'
           modality = 'vaInPersonVaccine'
-        elsif appointment.dig(:service_category, 0, :text) == 'COMPENSATION & PENSION'
+        elsif cnp?(appointment)
           modality = 'claimExamAppointment'
         elsif appointment[:kind] == 'clinic'
           modality = 'vaInPerson'
@@ -1284,6 +1377,19 @@ module VAOS
         appointment[:pending] = request?(appointment)
         appointment[:past] = past?(appointment)
         appointment[:future] = future?(appointment)
+      end
+
+      def set_type_of_care(appointment)
+        # Compensation and Pension appointments
+        if cnp?(appointment)
+          appointment[:type_of_care] = 'Claim exam'
+        elsif TYPE_OF_CARE_MAP.key?(appointment[:service_type])
+          appointment[:type_of_care] = TYPE_OF_CARE_MAP[appointment[:service_type]]
+        elsif VAOS::AppointmentsHelper.cerner?(appointment)
+          appointment[:type_of_care] = appointment[:description]
+        else
+          log_type_of_care_failure(appointment)
+        end
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -1321,6 +1427,16 @@ module VAOS
           vvs_kind: appointment.dig(:telehealth, :vvs_kind)
         }.to_json
         Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", context)
+      end
+
+      def log_type_of_care_failure(appointment)
+        context = {
+          service_category_text: appointment.dig(:service_category, 0, :text),
+          service_type: appointment[:service_type],
+          cerner: VAOS::AppointmentsHelper.cerner?(appointment),
+          description: appointment[:description]
+        }.to_json
+        Rails.logger.warn("VAOS appointment id #{appointment[:id]} type of care cannot be determined", context)
       end
 
       def telehealth_modality(appointment)

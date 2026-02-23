@@ -49,6 +49,12 @@ describe VANotify::InProgressFormReminder, type: :worker do
     end
 
     describe 'single relevant in_progress_form' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_in_progress_form_reminder).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_in_progress_metadata).and_return(true)
+      end
+
       it 'delegates to VANotify::UserAccountJob' do
         user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
         allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
@@ -74,9 +80,48 @@ describe VANotify::InProgressFormReminder, type: :worker do
                   }
                 } })
       end
+
+      context 'when va_notify_v2_in_progress_form_reminder is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:va_notify_v2_in_progress_form_reminder).and_return(true)
+        end
+
+        it 'delegates to VANotify::V2::QueueUserAccountJob' do
+          user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
+          allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
+          allow(VANotify::V2::QueueUserAccountJob).to receive(:enqueue)
+          expiration_date = in_progress_form.expires_at.strftime('%B %d, %Y')
+
+          Sidekiq::Testing.inline! do
+            described_class.new.perform(in_progress_form.id)
+          end
+
+          expect(VANotify::V2::QueueUserAccountJob).to have_received(:enqueue)
+            .with(in_progress_form.user_account_id, 'fake_template_id',
+                  {
+                    'first_name' => 'FIRST_NAME',
+                    'date' => expiration_date,
+                    'form_age' => ''
+                  },
+                  'Settings.vanotify.services.va_gov.api_key',
+                  { callback_metadata: {
+                    form_number: '686C-674', notification_type: 'in_progress_reminder', statsd_tags: {
+                      'function' => '686C-674 in progress reminder', 'service' => 'va-notify'
+                    }
+                  } })
+        end
+      end
     end
 
     describe 'multiple relevant in_progress_forms' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_in_progress_form_reminder).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_notify_in_progress_metadata).and_return(true)
+      end
+
       let!(:in_progress_form_1) do
         Timecop.freeze(7.days.ago)
         in_progress_form = create(
@@ -159,6 +204,63 @@ describe VANotify::InProgressFormReminder, type: :worker do
           } }
         )
         # rubocop:enable Layout/LineLength
+      end
+
+      context 'when va_notify_v2_in_progress_form_reminder is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:va_notify_v2_in_progress_form_reminder).and_return(true)
+        end
+
+        it 'delegates to VANotify::V2::QueueUserAccountJob if its the oldest in_progress_form' do
+          user_with_icn = double('VANotify::Veteran', icn: 'icn', first_name: 'first_name', uuid: 'uuid')
+          allow(VANotify::Veteran).to receive(:new).and_return(user_with_icn)
+
+          allow(VANotify::V2::QueueUserAccountJob).to receive(:enqueue)
+          stub_const('VANotify::FindInProgressForms::RELEVANT_FORMS', %w[686C-674 form_2_id form_3_id])
+          stub_const(
+            'VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY',
+            {
+              '686C-674' => '686c something',
+              'form_2_id' => 'form_2 something',
+              'form_3_id' => 'form_3 something'
+            }
+          )
+
+          stub_const(
+            'VANotify::InProgressFormHelper::FRIENDLY_FORM_ID',
+            {
+              '686C-674' => '686C-674',
+              'form_2_id' => 'form_2_example_id',
+              'form_3_id' => 'form_3_example_id'
+            }
+          )
+
+          form_1_date = in_progress_form_1.expires_at.strftime('%B %d, %Y')
+          form_2_date = in_progress_form_2.expires_at.strftime('%B %d, %Y')
+          form_3_date = in_progress_form_3.expires_at.strftime('%B %d, %Y')
+
+          Sidekiq::Testing.inline! do
+            described_class.new.perform(in_progress_form_1.id)
+          end
+
+          # rubocop:disable Layout/LineLength
+          expect(VANotify::V2::QueueUserAccountJob).to have_received(:enqueue).with(
+            in_progress_form_1.user_account_id,
+            'fake_template_id',
+            {
+              'first_name' => 'FIRST_NAME',
+              'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_example_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_example_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
+            },
+            'Settings.vanotify.services.va_gov.api_key',
+            { callback_metadata: {
+              form_number: 'multiple', notification_type: 'in_progress_reminder', statsd_tags: {
+                'function' => 'multiple in progress reminder', 'service' => 'va-notify'
+              }
+            } }
+          )
+          # rubocop:enable Layout/LineLength
+        end
       end
     end
   end

@@ -36,12 +36,6 @@ RSpec.describe DependentsBenefits::Monitor do
     }.merge(extras))
   end
 
-  describe '#service_name' do
-    it 'returns expected name' do
-      expect(monitor.send(:service_name)).to eq('dependents-benefits-application')
-    end
-  end
-
   describe '#track_show404' do
     it 'logs a not found error' do
       log = "#{message_prefix} submission not found"
@@ -237,190 +231,42 @@ RSpec.describe DependentsBenefits::Monitor do
     end
   end
 
-  describe '#track_pension_related_submission' do
-    it 'logs pension-related submission with parent_claim_id' do
-      log = 'Submitted pension-related claim'
-      payload = { parent_claim_id: claim.id, tags: [] }
-
-      expect(monitor).to receive(:track_info_event).with(
-        log, described_class::PENSION_SUBMISSION_STATS_KEY, **payload
-      )
-      monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id: claim.id)
-    end
-  end
-
-  describe '#track_unknown_claim_type' do
-    it 'logs unknown claim type error' do
-      log = 'Unknown Dependents form type for claim'
-      payload = { claim_id: claim.id, error: monitor_error, tags: [] }
-
-      expect(monitor).to receive(:track_warning_event).with(
-        log, described_class::UNKNOWN_CLAIM_TYPE_STATS_KEY, **payload
-      )
-      monitor.track_unknown_claim_type(log, claim_id: claim.id, error: monitor_error)
-    end
-  end
-
   describe '#track_error_event' do
-    it 'calls submit_event with error level' do
+    it 'calls submit_event with error level using action' do
       message = 'Test error message'
-      stats_key = 'test.stats.key'
+      action = 'test_action'
       context = { test: 'context' }
+      expected_context = { test: 'context', tags: ["action:#{action}"] }
 
-      expect(monitor).to receive(:submit_event).with(:error, message, stats_key, **context)
-      monitor.track_error_event(message, stats_key, **context)
+      expect(monitor).to receive(:submit_event).with(:error, message, described_class::MODULE_STATS_KEY,
+                                                     **expected_context)
+      monitor.track_error_event(message, action:, **context)
     end
   end
 
   describe '#track_info_event' do
-    it 'calls submit_event with info level' do
+    it 'calls submit_event with info level using action' do
       message = 'Test info message'
-      stats_key = 'test.stats.key'
-      context = { test: 'context' }
+      action = 'test_action'
+      context = { test: 'context', module_stats_key: described_class::PENSION_SUBMISSION_STATS_KEY }
+      expected_context = { test: 'context', tags: ["action:#{action}"] }
 
-      expect(monitor).to receive(:submit_event).with(:info, message, stats_key, **context)
-      monitor.track_info_event(message, stats_key, **context)
+      expect(monitor).to receive(:submit_event).with(:info, message, described_class::PENSION_SUBMISSION_STATS_KEY,
+                                                     **expected_context)
+      monitor.track_info_event(message, action:, **context)
     end
   end
 
   describe '#track_warning_event' do
-    it 'calls submit_event with warn level' do
+    it 'calls submit_event with warn level using action' do
       message = 'Test warning message'
-      stats_key = 'test.stats.key'
+      action = 'test_action'
       context = { test: 'context' }
+      expected_context = { test: 'context', tags: ["action:#{action}"] }
 
-      expect(monitor).to receive(:submit_event).with(:warn, message, stats_key, **context)
-      monitor.track_warning_event(message, stats_key, **context)
-    end
-  end
-
-  describe '#track_processor_error' do
-    it 'logs processor error with action tag' do
-      message = 'Processor error occurred'
-      action = 'process_claim'
-      context = { form_type: '686c' }
-
-      expect(monitor).to receive(:track_error_event).with(
-        message, described_class::PROCESSOR_STATS_KEY, form_type: '686c', tags: ["action:#{action}"]
-      )
-      monitor.track_processor_error(message, action, **context)
-    end
-  end
-
-  describe '#track_processor_info' do
-    it 'logs processor info with action tag' do
-      message = 'Processor completed successfully'
-      action = 'process_claim'
-      context = { form_type: '686c' }
-
-      expect(monitor).to receive(:track_info_event).with(
-        message, described_class::PROCESSOR_STATS_KEY, form_type: '686c', tags: ["action:#{action}"]
-      )
-      monitor.track_processor_info(message, action, **context)
-    end
-  end
-
-  describe '#track_submission_info' do
-    it 'logs submission info with action tag' do
-      message = 'Submission processing started'
-      action = 'start_processing'
-      context = { submission_id: '12345' }
-
-      expect(monitor).to receive(:track_info_event).with(
-        message, described_class::SUBMISSION_STATS_KEY, submission_id: '12345', tags: ["action:#{action}"]
-      )
-      monitor.track_submission_info(message, action, **context)
-    end
-  end
-
-  describe '#track_submission_error' do
-    it 'logs submission error with action tag' do
-      message = 'Submission failed'
-      action = 'submit_to_lh'
-      context = { submission_id: '12345' }
-
-      expect(monitor).to receive(:track_error_event).with(
-        message, described_class::SUBMISSION_STATS_KEY, submission_id: '12345', tags: ["action:#{action}"]
-      )
-      monitor.track_submission_error(message, action, **context)
-    end
-  end
-
-  describe '#track_backup_job_info' do
-    it 'logs backup job info with action tag' do
-      message = 'Backup job started'
-      action = 'start_backup'
-      context = { parent_claim_id: claim.id }
-
-      expect(monitor).to receive(:track_info_event).with(
-        message, described_class::BACKUP_JOB_STATS_KEY, parent_claim_id: claim.id, tags: ["action:#{action}"]
-      )
-      monitor.track_backup_job_info(message, action, **context)
-    end
-  end
-
-  describe '#track_backup_job_warning' do
-    it 'logs backup job warning with action tag' do
-      message = 'Backup job encountered warning'
-      action = 'backup_processing'
-      context = { parent_claim_id: claim.id }
-
-      expect(monitor).to receive(:track_warning_event).with(
-        message, described_class::BACKUP_JOB_STATS_KEY, parent_claim_id: claim.id, tags: ["action:#{action}"]
-      )
-      monitor.track_backup_job_warning(message, action, **context)
-    end
-  end
-
-  describe '#track_backup_job_error' do
-    it 'logs backup job error with action tag' do
-      message = 'Backup job failed'
-      action = 'submit_backup'
-      context = { parent_claim_id: claim.id }
-
-      expect(monitor).to receive(:track_error_event).with(
-        message, described_class::BACKUP_JOB_STATS_KEY, parent_claim_id: claim.id, tags: ["action:#{action}"]
-      )
-      monitor.track_backup_job_error(message, action, **context)
-    end
-  end
-
-  describe '#track_prefill_warning' do
-    it 'logs prefill warning with action tag' do
-      message = 'Form prefill encountered warning'
-      action = 'prefill_form'
-      context = { form_type: '686c' }
-
-      expect(monitor).to receive(:track_warning_event).with(
-        message, described_class::PREFILL_STATS_KEY, form_type: '686c', tags: ["action:#{action}"]
-      )
-      monitor.track_prefill_warning(message, action, **context)
-    end
-  end
-
-  describe '#track_user_data_error' do
-    it 'logs user data error with action tag' do
-      message = 'User data extraction failed'
-      action = 'extract_user_data'
-      context = { form_type: '686c' }
-
-      expect(monitor).to receive(:track_error_event).with(
-        message, described_class::CLAIM_STATS_KEY, form_type: '686c', tags: ["action:#{action}"]
-      )
-      monitor.track_user_data_error(message, action, **context)
-    end
-  end
-
-  describe '#track_user_data_warning' do
-    it 'logs user data warning with action tag' do
-      message = 'User data extraction warning'
-      action = 'extract_user_data'
-      context = { form_type: '686c' }
-
-      expect(monitor).to receive(:track_warning_event).with(
-        message, described_class::CLAIM_STATS_KEY, form_type: '686c', tags: ["action:#{action}"]
-      )
-      monitor.track_user_data_warning(message, action, **context)
+      expect(monitor).to receive(:submit_event).with(:warn, message, described_class::MODULE_STATS_KEY,
+                                                     **expected_context)
+      monitor.track_warning_event(message, action:, **context)
     end
   end
 

@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - 'modules/mobile/**'
-    types: [opened, reopened]
+    types: [ready_for_review]
 
 jobs:
   notify_mobile_team:
@@ -22,12 +22,12 @@ jobs:
 
           if gh api \
             --method GET \
-            "orgs/department-of-veterans-affairs/teams/mobile-api-team/memberships/$PR_AUTHOR" > /dev/null 2>&1; then
-            echo "Author $PR_AUTHOR is a member of the mobile team."
+            "orgs/department-of-veterans-affairs/teams/mobile-api-team/memberships/${PR_AUTHOR}" > /dev/null 2>&1; then
+            echo "Author ${PR_AUTHOR} is a member of the mobile team."
             IS_TEAM_MEMBER=true
           fi
 
-          echo "is_team_member=$IS_TEAM_MEMBER" >> $GITHUB_OUTPUT
+          echo "is_team_member=$IS_TEAM_MEMBER" >> "$GITHUB_OUTPUT"
 
       - name: Send Slack Notification
         if: steps.check_author.outputs.is_team_member == 'false'
@@ -38,5 +38,5 @@ jobs:
           payload: |
             {
               "channel": ${{ env.SLACK_CHANNEL_ID }},
-              "text": ":party-github: Attention <!subteam^S059TUBATEY> - a new PR (<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>) has been opened that requires your review.\n*Title:* ${{ github.event.pull_request.title }}\n*Author:* <${{ github.event.pull_request.user.html_url }}|${{ github.event.pull_request.user.login }}>\n*Description:* ${{ github.event.pull_request.body }}"
+              "text": ":party-github: Attention <!subteam^S059TUBATEY> - a new PR (<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>) has been opened that requires your review.\n*Title:* ${{ github.event.pull_request.title }}\n*Author:* <${{ github.event.pull_request.user.html_url }}|${{ github.event.pull_request.user.login }}>"
             }

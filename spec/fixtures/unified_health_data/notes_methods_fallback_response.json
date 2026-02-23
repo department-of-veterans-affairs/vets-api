@@ -1,7 +1,6 @@
-
 {
     "vista": {
-                "resourceType": "Bundle",
+        "resourceType": "Bundle",
         "entry": [
             {
                 "resource": {
@@ -81,7 +80,10 @@
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1834074"
                         },
-                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1834074"}
+                        {
+                            "system": "vista-uid",
+                            "value": "urn:va:document:F253:7227761:1834074"
+                        }
                     ],
                     "status": "current",
                     "type": {},
@@ -114,10 +116,11 @@
                                 "creation": "2025-01-14T09:18:00+00:00"
                             }
                         }
-                    ]
+                    ],
+                    "docStatus": "final"
                 }
             },
-                        {
+            {
                 "resource": {
                     "resourceType": "DocumentReference",
                     "id": "76ad925b-0c2c-4401-ac0a-13542d6b6ef5",
@@ -195,7 +198,10 @@
                             "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
                             "value": "NoteTO.1834074"
                         },
-                        {"system": "vista-uid", "value": "urn:va:document:F253:7227761:1834074"}
+                        {
+                            "system": "vista-uid",
+                            "value": "urn:va:document:F253:7227761:1834074"
+                        }
                     ],
                     "status": "current",
                     "type": {},
@@ -227,7 +233,8 @@
                                 "creation": "2025-01-14T09:18:00+00:00"
                             }
                         }
-                    ]
+                    ],
+                    "docStatus": "final"
                 }
             }
         ]
