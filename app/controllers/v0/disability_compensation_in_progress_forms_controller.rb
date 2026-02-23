@@ -109,9 +109,7 @@ module V0
       flag = form_data['disabilityCompNewConditionsWorkflow']
       return_url = metadata&.dig('returnUrl') || ''
 
-      unless [true, 'true'].include?(flag)
-        return form_data
-      end
+      return form_data unless [true, 'true'].include?(flag)
 
       unless OLD_FLOW_CONDITIONS_PATTERN.match?(return_url)
         log_poisoned_ipf_fix('returnUrl not an old-flow conditions page, skipping', flag:, return_url:)
