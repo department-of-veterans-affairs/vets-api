@@ -109,9 +109,6 @@ module SurvivorsBenefits
 
     # BEGIN IBM
 
-    # Number of dependant childern rows expected
-    DEPENDANT_CHILDREN_COUNT = 3
-
     # Number of DIC treatment facility rows expected
     TREATMENT_FACILITY_COUNT = 3
 
@@ -141,7 +138,8 @@ module SurvivorsBenefits
         .merge!(build_claimants_id_info(form))
         .merge!(build_veterans_service_info(form))
         .merge!(build_marital_info(form))
-        .merge!(build_marital_history_fields(form))
+        .merge!(build_marital_history(form))
+        .merge!(build_child_of_veteran_info(form))
     end
 
     ##
@@ -244,16 +242,38 @@ module SurvivorsBenefits
 
     ##
     # Section V
-    # Build_marital_history_fields(form)
     # Build the marital history structured data entries.
     #
     # @param form [Hash]
     # @return [Hash]
-    def build_marital_history_fields(form)
+    def build_marital_history(form)
       vet_prev_marriages = form['veteranMarriages'] || []
       spouse_prev_marriages = form['spouseMarriages'] || []
       build_previous_marriage_fields(form, vet_prev_marriages, 'VETERAN', 'veteranHasAdditionalMarriages')
-        .merge!(build_previous_marriage_fields(form, spouse_prev_marriages, 'CLAIMANT', 'spouseHasAdditionalMarriages'))
+        .merge!(
+          build_previous_marriage_fields(form, spouse_prev_marriages, 'CLAIMANT', 'spouseHasAdditionalMarriages')
+        )
+    end
+
+    ##
+    # Section VI
+    # Build the child of the veteran information structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_child_of_veteran_info(form)
+      live_w_children = form['childrenLiveTogetherButNotWithSpouse']
+      children = form['veteransChildren'] || []
+      fields = { 'NUMBER_OF_DEP_CHILD' => form['veteranChildrenCount}'] }
+      fields.merge!(radio_value(live_w_children, 'CHILD_DO_NOT_LIVE_WITH_CL_Y', 'CHILD_DO_NOT_LIVE_WITH_CL_N'))
+            .merge!(build_custodian_fields(form))
+      children.each_with_index do |child, index|
+        child_num = index + 1
+        fields.merge!(
+          build_child(child, child_num)
+        )
+      end
+      fields
     end
 
     def build_name_fields(name, individual)
@@ -392,6 +412,27 @@ module SurvivorsBenefits
       fields
     end
 
+    def build_child(child, child_num)
+      child_name = build_name(child['childFullName'])
+      build_child_relationship_fields(child['relationship'], child_num)
+        .merge!(
+          {
+            "NAME_OF_CHILD_#{child_num}" => child_name[:full],
+            "FIRST_NAME_OF_CHILD_#{child_num}" => child_name[:first],
+            "MID_INT_OF_CHILD_#{child_num}" => child_name[:middle_initial],
+            "LAST_NAME_OF_CHILD_#{child_num}" => child_name[:last],
+            "DATE_OF_BIRTH_CHILD_#{child_num}" => format_date(child['childDateOfBirth']),
+            "CHILD_#{child_num}_SSN" => child['childSocialSecurityNumber'],
+            "PLACE_OF_BIRTH_CHILD_#{child_num}" => format_place(child['birthPlace']),
+            "CHILD_#{child_num}_18_TO_23" => child['inSchool'],
+            "CHILD_#{child_num}_DISABLED" => child['seriouslyDisabled'],
+            "CHILD_#{child_num}_PREV_MARRIED" => child['hasBeenMarried'],
+            "CB_CHILD#{child_num}_LIVE_WITH_OTHERS" => child['livesWith'],
+            "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => child['childSupport']
+          }
+        )
+    end 
+
     def individuals_permutations(individual)
       if individual == 'VETERAN'
         {
@@ -419,6 +460,44 @@ module SurvivorsBenefits
         "#{individual}_MARRIAGE_#{marriage_num}_TO_FIRST_NAME" => spouse_name[:first],
         "#{individual}_MARRIAGE_#{marriage_num}_TO_MID_INT" => spouse_name[:middle_initial],
         "#{individual}_MARRIAGE_#{marriage_num}_TO_LAST_NAME" => spouse_name[:last]
+      }
+    end
+
+    def build_child_relationship_fields(relationship, child_num)
+      relationship_fields = {
+        "BIOLOGICAL_CHILD_#{child_num}" => false,
+        "ADOPTED_CHILD_#{child_num}" => false,
+        "STEPCHILD_#{child_num}" => false,
+      }
+      case relationship
+      when 'BIOLOGICAL'
+        relationship_fields["BIOLOGICAL_CHILD_#{child_num}"] = true
+      when 'ADOPTED'
+        relationship_fields["ADOPTED_CHILD_#{child_num}"] = true
+      when 'STEPCHILD'
+        relationship_fields["STEPCHILD_#{child_num}"] = true
+      end
+      relationship_fields
+    end
+
+    def build_custodian_fields(form)
+      custodian_name = build_name(form['custodianFullName'])
+      custodian_address = form['custodianAddress']
+      {
+        'CUSTODIAN_CHILD1_NAME' => custodian_name[:full],
+        'CUSTODIAN_CHILD1_FIRST_NAME' => custodian_name[:first],
+        'CUSTODIAN_CHILD1_MID_INT' => custodian_name[:middle_initial],
+        'CUSTODIAN_CHILD1_LAST_NAME' => custodian_name[:last],
+        'CUSTODIAN_ADDRESS_LINE_1' => custodian_address['street'],
+        'CUSTODIAN_ADDRESS_LINE_2' => custodian_address['street2'],
+        'CUSTODIAN_ADDRESS_CITY' => custodian_address['city'],
+        'CUSTODIAN_ADDRESS_STATE' => custodian_address['state'],
+        'CUSTODIAN_ADDRESS_COUNTRY' => custodian_address['country'],
+        'CUSTODIAN_ADDRESS_ZIP' => custodian_address['zip'],
+        'CUSTODIAN_CHILD_NAME_ADDRESS' => [
+          custodian_name[:full],
+          build_address_block(custodian_address)
+        ].compact.join(', ')
       }
     end
 
