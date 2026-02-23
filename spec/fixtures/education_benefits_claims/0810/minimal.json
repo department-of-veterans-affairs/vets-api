@@ -1,0 +1,37 @@
+{
+  "applicantName": {
+    "first": "Spongebob",
+    "middle": "Xavier",
+    "last": "Squarepants"
+  },
+    "mailingAddress": {
+    "isMilitary": false,
+    "country": "USA",
+    "street": "100 First Ave",
+    "city": "Washington",
+    "state": "DC",
+    "postalCode": "20001"
+  },
+  "emailAddress": "spongebob@hotdog.gov",
+  "homePhone": "4018614700",
+  "mobilePhone": "5086773030",
+  "vaFileNumber": "123456789",
+  "payeeNumber": "12",
+  "hasPreviouslyApplied": true,
+  "previouslyAppliedBenefit": "Post-9/11 GI Bill",
+  "vaBenefitProgram": "chapter33",
+  "examName": "SAT",
+  "organizationName": "College Board",
+  "organizationAddress": {
+    "street": "250 Vesey Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10281",
+    "country": "USA"
+  },
+  "examDate": "2024-01-01",
+  "examCost": 100.00,
+  "remarks": "The Master created humans first as the lowest type, most easily formed. Gradually, he replaced them by robots, the next higher step, and finally he created me, to take the place of the last humans.",
+  "statementOfTruthSignature": "Spongebob Squarepants",
+  "dateSigned": "2024-02-02"
+}
