@@ -7,34 +7,35 @@ require 'form_intake/mappers/vba_21p_0537_mapper'
 # rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe FormIntake::Mappers::VBA21p0537Mapper do
   let(:form_data) do
+    # Form data is snake_cased by middleware before reaching mappers
     {
-      'formNumber' => '21P-0537',
+      'form_number' => '21P-0537',
       'veteran' => {
-        'fullName' => { 'first' => 'John', 'middle' => 'M', 'last' => 'Veteran' },
+        'full_name' => { 'first' => 'John', 'middle' => 'M', 'last' => 'Veteran' },
         'ssn' => { 'first3' => '987', 'middle2' => '65', 'last4' => '4321' },
-        'vaFileNumber' => '123456789'
+        'va_file_number' => '123456789'
       },
       'recipient' => {
-        'fullName' => { 'first' => 'Jane', 'middle' => 'R', 'last' => 'Recipient' },
+        'full_name' => { 'first' => 'Jane', 'middle' => 'R', 'last' => 'Recipient' },
         'phone' => {
-          'daytime' => { 'areaCode' => '123', 'prefix' => '456', 'lineNumber' => '7890' },
-          'evening' => { 'areaCode' => '321', 'prefix' => '654', 'lineNumber' => '0987' }
+          'daytime' => { 'area_code' => '123', 'prefix' => '456', 'line_number' => '7890' },
+          'evening' => { 'area_code' => '321', 'prefix' => '654', 'line_number' => '0987' }
         },
         'email' => 'jane.recipient@email.com',
         'signature' => 'Jane R Recipient',
-        'signatureDate' => { 'month' => '09', 'day' => '19', 'year' => '2025' }
+        'signature_date' => { 'month' => '09', 'day' => '19', 'year' => '2025' }
       },
-      'inReplyReferTo' => '987654321',
-      'hasRemarried' => true,
+      'in_reply_refer_to' => '987654321',
+      'has_remarried' => true,
       'remarriage' => {
-        'dateOfMarriage' => { 'month' => '01', 'day' => '20', 'year' => '2020' },
-        'spouseName' => { 'first' => 'Bob', 'middle' => 'T', 'last' => 'Spouse' },
-        'spouseDateOfBirth' => { 'month' => '01', 'day' => '17', 'year' => '1978' },
-        'spouseIsVeteran' => true,
-        'ageAtMarriage' => '50',
-        'spouseSSN' => { 'first3' => '555', 'middle2' => '66', 'last4' => '7777' },
-        'spouseVAFileNumber' => '888888888',
-        'hasTerminated' => false
+        'date_of_marriage' => { 'month' => '01', 'day' => '20', 'year' => '2020' },
+        'spouse_name' => { 'first' => 'Bob', 'middle' => 'T', 'last' => 'Spouse' },
+        'spouse_date_of_birth' => { 'month' => '01', 'day' => '17', 'year' => '1978' },
+        'spouse_is_veteran' => true,
+        'age_at_marriage' => '50',
+        'spouse_ssn' => { 'first3' => '555', 'middle2' => '66', 'last4' => '7777' },
+        'spouse_va_file_number' => '888888888',
+        'has_terminated' => false
       }
     }.to_json
   end
@@ -84,7 +85,7 @@ RSpec.describe FormIntake::Mappers::VBA21p0537Mapper do
     context 'when recipient has not remarried' do
       let(:not_remarried_data) do
         data = JSON.parse(form_data)
-        data['hasRemarried'] = false
+        data['has_remarried'] = false
         data.delete('remarriage')
         data.to_json
       end
@@ -106,7 +107,7 @@ RSpec.describe FormIntake::Mappers::VBA21p0537Mapper do
     context 'when spouse is not a veteran' do
       let(:non_veteran_spouse_data) do
         data = JSON.parse(form_data)
-        data['remarriage']['spouseIsVeteran'] = false
+        data['remarriage']['spouse_is_veteran'] = false
         data.to_json
       end
 
@@ -122,8 +123,8 @@ RSpec.describe FormIntake::Mappers::VBA21p0537Mapper do
       let(:minimal_data) do
         data = JSON.parse(form_data)
         data['remarriage'] = {
-          'dateOfMarriage' => { 'month' => '01', 'day' => '20', 'year' => '2020' },
-          'spouseName' => { 'first' => 'Bob', 'last' => 'Spouse' }
+          'date_of_marriage' => { 'month' => '01', 'day' => '20', 'year' => '2020' },
+          'spouse_name' => { 'first' => 'Bob', 'last' => 'Spouse' }
         }
         data.to_json
       end

@@ -7,90 +7,91 @@ require 'form_intake/mappers/vba_21p_601_mapper'
 # rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
   let(:form_data) do
+    # Form data is snake_cased by middleware before reaching mappers
     {
-      'formNumber' => '21P-601',
+      'form_number' => '21P-601',
       'veteran' => {
-        'fullName' => { 'first' => 'Robert', 'middle' => 'James', 'last' => 'Thompson' },
+        'full_name' => { 'first' => 'Robert', 'middle' => 'James', 'last' => 'Thompson' },
         'ssn' => { 'first3' => '123', 'middle2' => '45', 'last4' => '6789' },
-        'vaFileNumber' => '987654321'
+        'va_file_number' => '987654321'
       },
       'beneficiary' => {
-        'fullName' => { 'first' => 'Robert', 'middle' => 'James', 'last' => 'Thompson' },
-        'dateOfDeath' => { 'month' => '06', 'day' => '15', 'year' => '2024' },
-        'isVeteran' => true
+        'full_name' => { 'first' => 'Robert', 'middle' => 'James', 'last' => 'Thompson' },
+        'date_of_death' => { 'month' => '06', 'day' => '15', 'year' => '2024' },
+        'is_veteran' => true
       },
       'claimant' => {
-        'fullName' => { 'first' => 'Sarah', 'middle' => 'Anne', 'last' => 'Thompson' },
+        'full_name' => { 'first' => 'Sarah', 'middle' => 'Anne', 'last' => 'Thompson' },
         'ssn' => { 'first3' => '555', 'middle2' => '66', 'last4' => '7778' },
-        'vaFileNumber' => '',
-        'dateOfBirth' => { 'month' => '03', 'day' => '22', 'year' => '1970' },
-        'relationshipToDeceased' => 'spouse',
+        'va_file_number' => '',
+        'date_of_birth' => { 'month' => '03', 'day' => '22', 'year' => '1970' },
+        'relationship_to_deceased' => 'spouse',
         'address' => {
           'street' => '456 Memorial Drive',
           'street2' => 'Apt 301',
           'city' => 'Richmond',
           'state' => 'VA',
           'country' => 'USA',
-          'zipCode' => { 'first5' => '23220', 'last4' => '' }
+          'zip_code' => { 'first5' => '23220', 'last4' => '' }
         },
-        'phone' => { 'areaCode' => '804', 'prefix' => '555', 'lineNumber' => '1234' },
+        'phone' => { 'area_code' => '804', 'prefix' => '555', 'line_number' => '1234' },
         'email' => 'sarah.thompson@email.com',
         'signature' => 'Sarah Anne Thompson',
-        'signatureDate' => { 'month' => '10', 'day' => '01', 'year' => '2025' }
+        'signature_date' => { 'month' => '10', 'day' => '01', 'year' => '2025' }
       },
-      'survivingRelatives' => {
-        'hasSpouse' => false,
-        'hasChildren' => true,
-        'hasParents' => false,
-        'hasNone' => false,
-        'wantsToWaiveSubstitution' => false,
+      'surviving_relatives' => {
+        'has_spouse' => false,
+        'has_children' => true,
+        'has_parents' => false,
+        'has_none' => false,
+        'wants_to_waive_substitution' => false,
         'relatives' => [
           {
-            'fullName' => { 'first' => 'Michael', 'middle' => 'Robert', 'last' => 'Thompson' },
+            'full_name' => { 'first' => 'Michael', 'middle' => 'Robert', 'last' => 'Thompson' },
             'relationship' => 'child',
-            'dateOfBirth' => { 'month' => '08', 'day' => '10', 'year' => '1995' },
+            'date_of_birth' => { 'month' => '08', 'day' => '10', 'year' => '1995' },
             'address' => {
               'street' => '789 Oak Street',
               'city' => 'Arlington',
               'state' => 'VA',
               'country' => 'USA',
-              'zipCode' => { 'first5' => '22201' }
+              'zip_code' => { 'first5' => '22201' }
             }
           },
           {
-            'fullName' => { 'first' => 'Emily', 'last' => 'Thompson' },
+            'full_name' => { 'first' => 'Emily', 'last' => 'Thompson' },
             'relationship' => 'child',
-            'dateOfBirth' => { 'month' => '11', 'day' => '22', 'year' => '1998' },
+            'date_of_birth' => { 'month' => '11', 'day' => '22', 'year' => '1998' },
             'address' => {
               'street' => '123 Pine Avenue',
               'city' => 'Alexandria',
               'state' => 'VA',
-              'zipCode' => { 'first5' => '22314' }
+              'zip_code' => { 'first5' => '22314' }
             }
           }
         ]
       },
       'expenses' => {
-        'expensesList' => [
+        'expenses_list' => [
           {
             'provider' => 'Virginia Hospital Center',
-            'expenseType' => 'Hospital care',
+            'expense_type' => 'Hospital care',
             'amount' => '15000',
-            'isPaid' => true,
-            'paidBy' => 'Sarah Thompson'
+            'is_paid' => true,
+            'paid_by' => 'Sarah Thompson'
           },
           {
             'provider' => 'Dr. James Mitchell',
-            'expenseType' => 'Physician services',
+            'expense_type' => 'Physician services',
             'amount' => '2500.50',
-            'isPaid' => false,
-            'paidBy' => ''
+            'is_paid' => false,
+            'paid_by' => ''
           }
         ],
-        'otherDebts' => [
+        'other_debts' => [
           {
-            'debtType' => 'Credit card debt',
-            'debtAmount' => '3500'
+            'debt_type' => 'Credit card debt',
+            'debt_amount' => '3500'
           }
         ]
       },
@@ -259,12 +260,12 @@ RSpec.describe FormIntake::Mappers::VBA21p601Mapper do
     context 'with 5 relatives (more than 4)' do
       let(:many_relatives_data) do
         data = JSON.parse(form_data)
-        data['survivingRelatives']['relatives'] = [
-          { 'fullName' => { 'first' => 'Person1', 'last' => 'Rel' }, 'relationship' => 'child' },
-          { 'fullName' => { 'first' => 'Person2', 'last' => 'Rel' }, 'relationship' => 'child' },
-          { 'fullName' => { 'first' => 'Person3', 'last' => 'Rel' }, 'relationship' => 'child' },
-          { 'fullName' => { 'first' => 'Person4', 'last' => 'Rel' }, 'relationship' => 'child' },
-          { 'fullName' => { 'first' => 'Person5', 'last' => 'Rel' }, 'relationship' => 'child' }
+        data['surviving_relatives']['relatives'] = [
+          { 'full_name' => { 'first' => 'Person1', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'full_name' => { 'first' => 'Person2', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'full_name' => { 'first' => 'Person3', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'full_name' => { 'first' => 'Person4', 'last' => 'Rel' }, 'relationship' => 'child' },
+          { 'full_name' => { 'first' => 'Person5', 'last' => 'Rel' }, 'relationship' => 'child' }
         ]
         data.to_json
       end

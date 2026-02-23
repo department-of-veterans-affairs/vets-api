@@ -11,34 +11,34 @@ module FormIntake
 
         payload = {
           # Box 1 - Veteran's Name
-          'VETERAN_NAME' => build_full_name(form.dig('veteran', 'fullName')),
-          'VETERAN_FIRST_NAME' => form.dig('veteran', 'fullName', 'first'),
-          'VETERAN_MIDDLE_INITIAL' => extract_middle_initial(form.dig('veteran', 'fullName')),
-          'VETERAN_LAST_NAME' => form.dig('veteran', 'fullName', 'last'),
+          'VETERAN_NAME' => build_full_name(form.dig('veteran', 'full_name')),
+          'VETERAN_FIRST_NAME' => form.dig('veteran', 'full_name', 'first'),
+          'VETERAN_MIDDLE_INITIAL' => extract_middle_initial(form.dig('veteran', 'full_name')),
+          'VETERAN_LAST_NAME' => form.dig('veteran', 'full_name', 'last'),
 
           # Box 2 - Veteran's Social Security Number
           'VETERAN_SSN' => map_ssn(form.dig('veteran', 'ssn')),
 
           # Box 3 - VA File Number
-          'VA_FILE_NUMBER' => form.dig('veteran', 'vaFileNumber').presence,
+          'VA_FILE_NUMBER' => form.dig('veteran', 'va_file_number').presence,
 
           # Box 4 - Name of Deceased Beneficiary
-          'DECEDENT_NAME' => build_full_name(form.dig('beneficiary', 'fullName')),
+          'DECEDENT_NAME' => build_full_name(form.dig('beneficiary', 'full_name')),
 
           # Box 5 - Beneficiary Date of Death
-          'DECEASED_DEATH_DATE' => map_date(form.dig('beneficiary', 'dateOfDeath')),
+          'DECEASED_DEATH_DATE' => map_date(form.dig('beneficiary', 'date_of_death')),
 
           # Box 6 - Claimant Name
-          'CLAIMANT_NAME' => build_full_name(form.dig('claimant', 'fullName')),
-          'CLAIMANT_FIRST_NAME' => form.dig('claimant', 'fullName', 'first'),
-          'CLAIMANT_MIDDLE_INITIAL' => extract_middle_initial(form.dig('claimant', 'fullName')),
-          'CLAIMANT_LAST_NAME' => form.dig('claimant', 'fullName', 'last'),
+          'CLAIMANT_NAME' => build_full_name(form.dig('claimant', 'full_name')),
+          'CLAIMANT_FIRST_NAME' => form.dig('claimant', 'full_name', 'first'),
+          'CLAIMANT_MIDDLE_INITIAL' => extract_middle_initial(form.dig('claimant', 'full_name')),
+          'CLAIMANT_LAST_NAME' => form.dig('claimant', 'full_name', 'last'),
 
           # Box 7 - Claimant Social Security Number
           'CLAIMANT_SSN' => map_ssn(form.dig('claimant', 'ssn')),
 
           # Box 8 - Claimant Date of Birth
-          'CLAIMANT_DOB' => map_date(form.dig('claimant', 'dateOfBirth')),
+          'CLAIMANT_DOB' => map_date(form.dig('claimant', 'date_of_birth')),
 
           # Box 9 - Claimant Current Mailing Address
           'CLAIMANT_ADDRESS_FULL_BLOCK' => build_full_address(form.dig('claimant', 'address')),
@@ -47,22 +47,22 @@ module FormIntake
           'CLAIMANT_ADDRESS_CITY' => form.dig('claimant', 'address', 'city'),
           'CLAIMANT_ADDRESS_STATE' => form.dig('claimant', 'address', 'state'),
           'CLAIMANT_ADDRESS_COUNTRY' => form.dig('claimant', 'address', 'country'),
-          'CLAIMANT_ADDRESS_ZIP5' => extract_zip5(form.dig('claimant', 'address', 'zipCode')),
+          'CLAIMANT_ADDRESS_ZIP5' => extract_zip5(form.dig('claimant', 'address', 'zip_code')),
 
           # Box 10 - Claimant Telephone Number
-          'CLAIMANT_PHONE_NUMBER' => map_phone_camel_case(form.dig('claimant', 'phone')),
+          'CLAIMANT_PHONE_NUMBER' => map_phone(form.dig('claimant', 'phone')),
 
           # Box 11 - Preferred E-Mail Address
           'CLAIMANT_EMAIL' => form.dig('claimant', 'email'),
 
           # Box 12 - Claimant Relationship to Deceased Beneficiary
-          'CLAIMANT_RELATIONSHIP' => form.dig('claimant', 'relationshipToDeceased'),
+          'CLAIMANT_RELATIONSHIP' => form.dig('claimant', 'relationship_to_deceased'),
 
           # Box 13 - Who are the deceased beneficiary's Surviving Relatives?
-          'RELATIONSHIP_SURVIVING_SPOUSE' => surviving_relatives_has_type?(form, 'hasSpouse'),
-          'RELATIONSHIP_CHILD' => surviving_relatives_has_type?(form, 'hasChildren'),
-          'RELATIONSHIP_PARENT' => surviving_relatives_has_type?(form, 'hasParents'),
-          'RELATIONSHIP_NONE' => surviving_relatives_has_type?(form, 'hasNone'),
+          'RELATIONSHIP_SURVIVING_SPOUSE' => surviving_relatives_has_type?(form, 'has_spouse'),
+          'RELATIONSHIP_CHILD' => surviving_relatives_has_type?(form, 'has_children'),
+          'RELATIONSHIP_PARENT' => surviving_relatives_has_type?(form, 'has_parents'),
+          'RELATIONSHIP_NONE' => surviving_relatives_has_type?(form, 'has_none'),
 
           # Box 14E - Would you like to waive substitution?
           'WAIVE_YES' => waive_substitution_yes?(form),
@@ -107,7 +107,7 @@ module FormIntake
           'CLAIMANT_SIGNATURE' => form.dig('claimant', 'signature'),
 
           # Box 23B - Today's date
-          'DATE_OF_CLAIMANT_SIGNATURE' => map_date(form.dig('claimant', 'signatureDate')),
+          'DATE_OF_CLAIMANT_SIGNATURE' => map_date(form.dig('claimant', 'signature_date')),
 
           # Box 26 - Remarks
           'REMARKS' => form['remarks'],
@@ -158,7 +158,7 @@ module FormIntake
           address_hash['city'],
           address_hash['state'],
           address_hash['country'],
-          format_zip_full(address_hash['zipCode'])
+          format_zip_full(address_hash['zip_code'])
         ].compact.compact_blank
 
         parts.any? ? parts.join(', ') : nil
@@ -180,43 +180,36 @@ module FormIntake
         end
       end
 
-      def map_phone_camel_case(phone_hash)
-        return nil unless phone_hash && [phone_hash['areaCode'], phone_hash['prefix'],
-                                         phone_hash['lineNumber']].none?(&:blank?)
-
-        "#{phone_hash['areaCode']}#{phone_hash['prefix']}#{phone_hash['lineNumber']}"
-      end
-
       def surviving_relatives_has_type?(form, type)
-        form.dig('survivingRelatives', type) == true
+        form.dig('surviving_relatives', type) == true
       end
 
       def waive_substitution_yes?(form)
-        form.dig('survivingRelatives', 'wantsToWaiveSubstitution') == true
+        form.dig('surviving_relatives', 'wants_to_waive_substitution') == true
       end
 
       def waive_substitution_no?(form)
-        form.dig('survivingRelatives', 'wantsToWaiveSubstitution') == false
+        form.dig('surviving_relatives', 'wants_to_waive_substitution') == false
       end
 
       def other_debts_exist?(form)
-        other_debts = form.dig('expenses', 'otherDebts')
+        other_debts = form.dig('expenses', 'other_debts')
         other_debts.is_a?(Array) && other_debts.any?
       end
 
       def other_debts_none?(form)
-        other_debts = form.dig('expenses', 'otherDebts')
+        other_debts = form.dig('expenses', 'other_debts')
         !other_debts.is_a?(Array) || other_debts.empty?
       end
 
       def add_surviving_relatives(payload, form)
-        relatives = form.dig('survivingRelatives', 'relatives') || []
+        relatives = form.dig('surviving_relatives', 'relatives') || []
 
         relatives.take(4).each_with_index do |relative, index|
           num = index + 1
-          payload["NAME_OF_RELATIVE_#{num}"] = build_full_name(relative['fullName'])
+          payload["NAME_OF_RELATIVE_#{num}"] = build_full_name(relative['full_name'])
           payload["RELATION_RELATIVE_#{num}"] = relative['relationship']
-          payload["DOB_RELATIVE_#{num}"] = map_date(relative['dateOfBirth'])
+          payload["DOB_RELATIVE_#{num}"] = map_date(relative['date_of_birth'])
           # "RELEATIVE" is a typo that exists in the data dictionary provided by MMS.
           payload["ADDRESS_RELEATIVE_#{num}"] = build_full_address(relative['address'])
         end
@@ -231,16 +224,16 @@ module FormIntake
       end
 
       def add_expenses(payload, form)
-        expenses = form.dig('expenses', 'expensesList') || []
+        expenses = form.dig('expenses', 'expenses_list') || []
 
         expenses.take(4).each_with_index do |expense, index|
           num = index + 1
           payload["EXPENSE_PAID_TO_#{num}"] = expense['provider']
-          payload["EXPENSE_PAID_FOR_#{num}"] = expense['expenseType']
+          payload["EXPENSE_PAID_FOR_#{num}"] = expense['expense_type']
           payload["EXPENSE_AMT_#{num}"] = format_currency(expense['amount'])
-          payload["PAID_#{num}"] = expense['isPaid'] == true
-          payload["UNPAID_#{num}"] = expense['isPaid'] == false
-          payload["EXPENSE_PAID_BY_#{num}"] = expense['paidBy']
+          payload["PAID_#{num}"] = expense['is_paid'] == true
+          payload["UNPAID_#{num}"] = expense['is_paid'] == false
+          payload["EXPENSE_PAID_BY_#{num}"] = expense['paid_by']
         end
 
         # Fill remaining slots with nil/false
@@ -255,12 +248,12 @@ module FormIntake
       end
 
       def add_other_debts(payload, form)
-        other_debts = form.dig('expenses', 'otherDebts') || []
+        other_debts = form.dig('expenses', 'other_debts') || []
 
         other_debts.take(4).each_with_index do |debt, index|
           num = index + 1
-          payload["OTHER_DEBT_#{num}"] = debt['debtType']
-          payload["OTHER_DEBT_AMOUNT_#{num}"] = format_currency(debt['debtAmount'])
+          payload["OTHER_DEBT_#{num}"] = debt['debt_type']
+          payload["OTHER_DEBT_AMOUNT_#{num}"] = format_currency(debt['debt_amount'])
         end
 
         # Fill remaining slots with nil
