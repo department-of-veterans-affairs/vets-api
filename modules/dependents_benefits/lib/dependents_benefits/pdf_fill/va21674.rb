@@ -108,6 +108,7 @@ module DependentsBenefits
           'student_information' => {
             limit: 4,
             first_key: 'school_information',
+            bypass_overflow: true,
             'remarks' => {
               key: 'form1[0].#subform[0].Remarks[%iterator%]',
               limit: 1000,
@@ -608,7 +609,7 @@ module DependentsBenefits
               },
               'name' => {
                 key: 'form1[0].#subform[0].FederalAssistanceProgram[%iterator%]',
-                limit: 200,
+                limit: 50,
                 question_num: 9,
                 question_suffix: 'A',
                 question_text: 'Federally funded school or program'
@@ -1029,7 +1030,19 @@ module DependentsBenefits
             if type_of_program_or_benefit.present?
               program_information = FORMATTER.get_program(type_of_program_or_benefit)
             end
-            student_information['type_of_program_or_benefit'] = program_information if program_information.present?
+            if program_information.present?
+              # set 9A and 9B to a concatenated type_of_program_or_benefit + name
+              combined_name = [program_information, student_information['school_information']['name']]
+                              .compact_blank.join(', ')
+              # assign 9A and 9B to concatenated 3 options available + school name
+              student_information['type_of_program_or_benefit'] = combined_name
+              student_information['school_information']['name'] = combined_name
+              # set tuition_is_paid_by_gov_agency to true by default, despite what user may have selected
+              student_information['tuition_is_paid_by_gov_agency'] = true
+            else
+              # if no value for 9B we still want to populate with the free text option
+              student_information['type_of_program_or_benefit'] = student_information['school_information']['name']
+            end
             FORMATTER.split_earnings(student_expected_earnings) if student_expected_earnings.present?
             FORMATTER.split_earnings(student_earnings) if student_earnings.present?
             FORMATTER.split_networth_information(student_networth) if student_networth.present?
