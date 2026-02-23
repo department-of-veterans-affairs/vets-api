@@ -31,7 +31,7 @@ http_interactions:
     recorded_at: Thu, 13 Feb 2026 16:20:00 GMT
   - request:
       method: get
-      uri: "<MHV_UHD_HOST>/v1/medicalrecords/dicom-zip/oracle-health?patientId=1234567890V012345&startDate=2026-01-01&endDate=2027-01-01&recordId=urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ"
+      uri: "<MHV_UHD_HOST>/v1/medicalrecords/dicom-zip?patientId=1234567890V012345&startDate=2026-01-01&endDate=2027-01-01&recordId=urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ"
       body:
         encoding: US-ASCII
         string: ""
