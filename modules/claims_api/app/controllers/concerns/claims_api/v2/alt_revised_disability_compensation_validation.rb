@@ -792,23 +792,12 @@ module ClaimsApi
 
         return if federal_activation.blank?
 
-        form_obj_desc = '/serviceInformation/federalActivation'
-
         # For a valid BDD EP code to be assigned we need these values
         alt_rev_validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
-
-        alt_rev_validate_federal_activation_date(federal_activation_date, form_obj_desc)
 
         alt_rev_validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
         if anticipated_separation_date.present?
           alt_rev_validate_anticipated_separation_date_in_past(anticipated_separation_date)
-        end
-      end
-
-      def alt_rev_validate_federal_activation_date(federal_activation_date, form_obj_desc)
-        if federal_activation_date.blank?
-          collect_error_if_value_not_present('federal activation date',
-                                             form_obj_desc)
         end
       end
 
