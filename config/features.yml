@@ -159,6 +159,12 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
+  disability_compensation_fix_poisoned_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that resets erroneously injected
+      disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -376,6 +382,9 @@ features:
   champva_bypass_metadata_json_file_for_1010d:
     actor_type: user
     description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
+  champva_allow_pdf_optional_content:
+    actor_type: user
+    description: Enables loading optional content from PDFs when combining them
   champva_ignore_recent_missing_statuses:
     actor_type: user
     description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
@@ -439,6 +448,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_btsss_v2_claim_submission_endpoints:
+    actor_type: user
+    description: Enables using BTSSS v2 API endpoints instead of v3 for travel claim submission
+    enable_in_development: false
   check_in_experience_use_vaec_cie_endpoints:
     actor_type: user
     description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
@@ -1746,6 +1759,9 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
+  pdf_fill_field_validation:
+    actor_type: user
+    description: Monitor PDF field name mismatches via StatsD metrics. Tracks mismatches to detect blank/partial PDFs without blocking submissions.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2936,6 +2952,9 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  survivors_benefits_idp:
+    actor_type: user
+    description: Enables IDP (Intelligent Document Processing) for survivors benefits supporting document uploads
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
@@ -2972,3 +2991,10 @@ features:
   discover_your_benefits_results_page_update:
     actor_type: cookie_id
     description: "If enabled, displays new results page features and designs"
+  cve_veteran_status_new_service:
+    actor_type: user
+    description: "If enabled, displays new veteran status page"
+  va_online_scheduling_log_mobile:
+    actor_type: user
+    description: If enabled, logs additional information about mobile appointments for debugging purposes
+    enable_in_development: false
