@@ -154,7 +154,7 @@ class SourceAppMiddleware
     'sign-in-health-portal',
     'Survivor and Dependent Benefits 22-5490',
     'survivor-dependent-education-benefit-22-5490',
-    'survivor-benefits',
+    'survivors-benefits',
     'static-pages',
     'submitted-appeal',
     'terms-of-use',
