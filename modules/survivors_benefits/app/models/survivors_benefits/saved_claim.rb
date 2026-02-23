@@ -390,18 +390,16 @@ module SurvivorsBenefits
     end
 
     def build_previous_marriage_fields(form, marriages, individual, add_marr_field)
-      indv_s, indv_m, indv_l = individuals_permutations(individual)
+      indv_s, indv_m, indv_l = individuals_permutations(individual) # s, m, l versions of individual for field naming
       additional_marriages_yes, additional_marriages_no = additional_marriages_boolean_fields(individual)
       fields = radio_value(form[add_marr_field], additional_marriages_yes, additional_marriages_no)
       marriages.each_with_index do |marriage, index|
         marriage_num = index + 1
         fields
           .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv_l, marriage_num))
-          .merge!(
+          .merge!(previous_marriage_separation_type_fields(indv_s, marriage['reasonForSeparation'], marriage_num))
+          .mrerge!(
             {
-              "CB_#{indv_s}_MARR#{marriage_num}_ENDED_DEATH" => marriage['reasonForSeparation'] == 'DEATH',
-              "CB_#{indv_s}_MARR#{marriage_num}_ENDED_DIVORCE" => marriage['reasonForSeparation'] == 'DIVORCE',
-              "CB_#{indv_s}_MARR#{marriage_num}_ENDED_OTHER" => marriage['reasonForSeparation'] == 'OTHER',
               "#{indv_m}_MARR#{marriage_num}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
               "#{indv_l}_MARRIAGE_#{marriage_num}_DATE" => format_date(marriage['dateOfMarriage']),
               "#{indv_l}_MARRIAGE_#{marriage_num}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
@@ -444,6 +442,14 @@ module SurvivorsBenefits
 
     def additional_marriages_boolean_fields(individual)
       ["#{individual}_ADDITIONAL_MARRIAGES_Y", "#{individual}_ADDITIONAL_MARRIAGES_N"]
+    end
+
+    def previous_marriage_separation_type_fields(individual, reason, marriage_num)
+      {
+        "CB_#{individual}_MARR#{marriage_num}_ENDED_DEATH" => reason == 'DEATH',
+        "CB_#{individual}_MARR#{marriage_num}_ENDED_DIVORCE" => reason == 'DIVORCE',
+        "CB_#{individual}_MARR#{marriage_num}_ENDED_OTHER" => reason == 'OTHER'
+      }
     end
 
     def build_spouse_name_fields(name, individual, marriage_num)
