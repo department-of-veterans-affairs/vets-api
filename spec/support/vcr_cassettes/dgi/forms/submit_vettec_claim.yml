@@ -1,0 +1,33 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <DGI_VETS_URL>claimType/vettec/claimsubmission
+    body:
+      encoding: UTF-8
+      string: '{"@type":"vettec","formId":"22-10297","claimant":{"claimantId":"00000","firstName":"JOHN","lastName":"DOE","dateOfBirth":"1990-01-15","contactInfo":{"addressLine1":"123 Any St","city":"Anytown","stateCode":"DC","zipcode":"00000","countryCode":"US","emailAddress":"test@example.com","mobilePhoneNumber":"+1 5550000000"},"personCriteria":{"ssn":"000000000"}},"militaryInfo":{"dateReleasedFromActiveDuty":"2020-06-15","activeDutyDuringHitechVets":true},"directDeposit":{"directDepositAccountType":"checking","directDepositAccountNumber":"0000000001234","directDepositRoutingNumber":"021000021"},"trainingProviders":{"providers":[{"providerName":"Test Academy","providerAddress":{"street":"456 Test Blvd","city":"Test City","state":"CA","postalCode":"00000","country":"US"}}],"plannedStartDate":"2024-09-01"},"employmentInfo":{"isEmployed":true,"isInTechnologyIndustry":false,"currentOccupation":"Test Occupation","currentAnnualSalary":"45000","highestEducationLevel":"Some College"},"attestationAgreementAccepted":true,"dateSigned":"2024-07-15"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Length:
+      - '0'
+      Date:
+      - Thu, 13 Feb 2026 14:30:12 GMT
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Thu, 13 Feb 2026 14:30:12 GMT
+recorded_with: VCR 6.0.0
