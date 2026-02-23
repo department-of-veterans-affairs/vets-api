@@ -2985,3 +2985,7 @@ features:
   cve_veteran_status_new_service:
     actor_type: user
     description: "If enabled, displays new veteran status page"
+  va_online_scheduling_log_mobile:
+    actor_type: user
+    description: If enabled, logs additional information about mobile appointments for debugging purposes
+    enable_in_development: false
