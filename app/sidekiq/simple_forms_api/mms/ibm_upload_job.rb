@@ -39,6 +39,3 @@ module SimpleFormsApi
     end
   end
 end
-
-
-		
