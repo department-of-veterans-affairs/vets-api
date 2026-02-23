@@ -218,11 +218,11 @@ module ClaimsApi
         currently_homeless_info = lookup_in_auto_claim(:veteran_homelessness_currently_homeless)
         return if currently_homeless_info.blank?
 
-        currently_homeless_pdg_path = build_pdf_path(:homeless_currently)
+        currently_homeless_pdf_path = build_pdf_path(:homeless_currently)
 
-        currently_homeless_pdg_path[:homelessSituationOptions] =
+        currently_homeless_pdf_path[:homelessSituationOptions] =
           HOMELESSNESS_RISK_SITUATION_TYPES[currently_homeless_info['homelessSituationType']]
-        currently_homeless_pdg_path[:otherDescription] = currently_homeless_info['otherLivingSituation']
+        currently_homeless_pdf_path[:otherDescription] = currently_homeless_info['otherLivingSituation']
       end
 
       # if "homelessnessRisk" is on the submission "homelessnessRiskSituationType", "otherLivingSituation" are required
