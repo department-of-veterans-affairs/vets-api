@@ -255,6 +255,36 @@
       "nullable": true,
       "additionalProperties": false,
       "properties": {
+        "pointOfContact": {
+          "description": "Individual in direct contact with Veteran.",
+          "type": ["string", "null"],
+          "nullable": true,
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
+          "example": "Jane Doe"
+        },
+        "pointOfContactNumber": {
+          "type": ["object", "null"],
+          "nullable": true,
+          "additionalProperties": false,
+          "properties": {
+            "telephone": {
+              "description": "Ten digit primary phone of point of contact.",
+              "type": ["string", "null"],
+              "pattern": "^\\d{10}?$",
+              "example": "5555555",
+              "nullable": true
+            },
+            "internationalTelephone": {
+              "description": "International phone of point of contact.",
+              "type": ["string", "null"],
+              "example": "+44 20 1234 5678",
+              "maxLength": 1000,
+              "nullable": true
+            }
+          }
+        },
         "isCurrentlyHomeless": {
           "type": ["boolean", "null"],
           "nullable": true,
@@ -316,36 +346,6 @@
               "nullable": true,
               "maxLength": 500,
               "example": "other living situation"
-            }
-          }
-        },
-        "pointOfContact": {
-          "description": "Individual in direct contact with Veteran.",
-          "type": ["string", "null"],
-          "nullable": true,
-          "minLength": 1,
-          "maxLength": 100,
-          "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
-          "example": "Jane Doe"
-        },
-        "pointOfContactNumber": {
-          "type": ["object", "null"],
-          "nullable": true,
-          "additionalProperties": false,
-          "properties": {
-            "telephone": {
-              "description": "Ten digit primary phone of point of contact.",
-              "type": ["string", "null"],
-              "pattern": "^\\d{10}?$",
-              "example": "5555555",
-              "nullable": true
-            },
-            "internationalTelephone": {
-              "description": "International phone of point of contact.",
-              "type": ["string", "null"],
-              "example": "+44 20 1234 5678",
-              "maxLength": 1000,
-              "nullable": true
             }
           }
         }
