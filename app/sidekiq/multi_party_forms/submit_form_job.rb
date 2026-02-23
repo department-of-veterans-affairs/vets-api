@@ -43,6 +43,8 @@ module MultiPartyForms
     private
 
     def build_and_associate_saved_claim
+      return if @submission.saved_claim_id.present?
+
       ActiveRecord::Base.transaction do
         merged_data = merge_form_data
         @saved_claim = create_saved_claim(merged_data)
@@ -61,7 +63,7 @@ module MultiPartyForms
 
     def merge_form_data
       primary_data = @submission.primary_in_progress_form.form_data
-      secondary_data = @submission.secondary_in_progress_form&.form_data
+      secondary_data = @submission.secondary_in_progress_form.form_data
 
       resolve_merge_service.new(primary_data, secondary_data).merge
     end

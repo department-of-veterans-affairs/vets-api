@@ -10,7 +10,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
   let(:merged_data) { { 'veteran_name' => 'John Doe', 'physician_name' => 'Dr. Smith' } }
 
   let(:primary_in_progress_form) do
-    create(:in_progress_form, form_id: '21-2680', form_data: primary_form_data)
+    create(:in_progress_form, form_id: '21-2680-PRIMARY', form_data: primary_form_data)
   end
   let(:secondary_in_progress_form) do
     create(:in_progress_form, form_id: '21-2680-SECONDARY', form_data: secondary_form_data)
@@ -18,6 +18,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
   let(:submission) do
     create(
       :multi_party_form_submission,
+      form_type: '21-2680-PRIMARY',
       status: 'secondary_in_progress',
       primary_in_progress_form:,
       secondary_in_progress_form:
@@ -28,7 +29,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
   let(:merge_service_class) { double(new: merge_service_instance) }
 
   before do
-    stub_const('MultiPartyForms::Form212680::MergeService', merge_service_class)
+    stub_const('MultiPartyForms::Form212680PRIMARY::MergeService', merge_service_class)
     allow(SavedClaim).to receive(:create!).and_return(saved_claim)
     allow(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async)
     allow(StatsD).to receive(:increment)
@@ -46,7 +47,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
 
       it 'creates a SavedClaim with the merged data' do
         expect(SavedClaim).to receive(:create!).with(
-          form_id: '21-2680',
+          form_id: '21-2680-PRIMARY',
           form_data: merged_data.to_json
         ).and_return(saved_claim)
 
@@ -132,7 +133,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
 
     context 'when no MergeService exists for the form type' do
       before do
-        hide_const('MultiPartyForms::Form212680::MergeService')
+        hide_const('MultiPartyForms::Form212680PRIMARY::MergeService')
       end
 
       it 'raises NotImplementedError and increments failure metric' do
