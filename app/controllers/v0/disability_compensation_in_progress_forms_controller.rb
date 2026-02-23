@@ -110,7 +110,6 @@ module V0
       return_url = metadata&.dig('returnUrl') || ''
 
       unless [true, 'true'].include?(flag)
-        log_poisoned_ipf_fix('flag not true, skipping', flag:, return_url:)
         return form_data
       end
 
