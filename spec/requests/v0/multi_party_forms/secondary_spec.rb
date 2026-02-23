@@ -471,7 +471,11 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
 
       context 'when unexpected error occurs' do
         it 'handles error and tracks failure metric' do
-          allow_any_instance_of(MultiPartyFormSubmission).to receive(:secondary_complete!)
+          allow(MultiPartyFormSubmission).to receive(:find_by!)
+            .with(hash_including(id: submission.id))
+            .and_return(submission)
+
+          expect(submission).to receive(:secondary_complete!)
             .and_raise(StandardError, 'Unexpected error')
 
           metrics = capture_statsd_calls do
@@ -480,6 +484,12 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
           end
 
           expect(response).to have_http_status(:internal_server_error)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors']).to be_present
+          expect(json_response['errors'].first['title']).to be_present
+          expect(json_response['errors'].first['detail']).to be_present
+
           expect(metrics.collect(&:source)).to include(
             'multi_party_form.secondary.complete.failure:1|c|#form_type:21-2680'
           )

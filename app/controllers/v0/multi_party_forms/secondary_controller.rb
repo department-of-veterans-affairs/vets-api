@@ -167,7 +167,10 @@ module V0
       end
 
       def update_secondary_form_data
-        raise 'Secondary form is missing!' unless @submission.secondary_in_progress_form
+        unless @submission.secondary_in_progress_form
+          raise Common::Exceptions::InternalServerError,
+                'Secondary form is missing!'
+        end
 
         @submission.secondary_in_progress_form.update!(
           form_data: secondary_params[:form_data].to_json
