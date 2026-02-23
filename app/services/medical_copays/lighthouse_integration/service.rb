@@ -143,7 +143,7 @@ module MedicalCopays
         org_id = extract_org_id_from_invoice(invoice_data)
         org_address = retrieve_organization_address(org_id)
         patient_data = patient_future.value!
-        associated_statements = invoices_for_organization(DEFAULT_MONTH_COUNT, DEFAULT_INVOICE_COUNT org_id, id)
+        associated_statements = invoices_for_organization(DEFAULT_MONTH_COUNT, DEFAULT_INVOICE_COUNT, org_id, id)
 
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])

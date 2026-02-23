@@ -24,7 +24,7 @@ module Lighthouse
       attribute :principal_paid, Float
       attribute :interest_paid, Float
       attribute :administrative_cost_paid, Float
-      attribute :associated_statements
+      attribute :associated_statements, Array
 
       attribute :line_items, Hash, array: true
       attribute :payments, Hash, array: true
@@ -63,7 +63,15 @@ module Lighthouse
       end
 
       def assign_associated_statements
-        @associated_statements
+        # I need the following:
+        # Date
+        # ID
+        @associated_statements.map do |statement|
+          {
+            id: statement[:resource][:id],
+            date: format_date(statement[:resource][:date])
+          }
+        end
       end
 
       def assign_balances
@@ -255,6 +263,10 @@ module Lighthouse
         return nil unless reference
 
         reference.split('/').last
+      end
+
+      def format_date(time_stamp_string)
+        Date.parse(time_stamp_string).strftime('%B %-d, %Y')
       end
     end
   end
