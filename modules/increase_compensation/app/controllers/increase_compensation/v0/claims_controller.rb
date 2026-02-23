@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_intake/service'
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'increase_compensation/zsf_config'
@@ -55,7 +56,6 @@ module IncreaseCompensation
 
         # Issue with 2 8940's in the api, frontend  calls to /in_progess_form/8940 but backend uses `8940V1`
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id[..6], current_user) : nil
-
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
@@ -65,16 +65,15 @@ module IncreaseCompensation
         end
 
         process_attachments(in_progress_form, claim)
+        benefits_intake = benefits_intake_service
+        start_submission_background_job(claim.id, current_user&.user_account_uuid, benefits_intake)
 
-        IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
-        clear_saved_form(claim.form_id[..6])
-
-        # submission attempt is created in the method
-        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
+        pdf_url = upload_to_s3(claim, config: s3_config, benefits_intake_uuid: benefits_intake.uuid)
         log_success(claim, current_user&.user_account_uuid)
-        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
+        clear_saved_form(claim.form_id[..6])
+        render json: build_response(benefits_intake.uuid, pdf_url, claim)
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -105,6 +104,42 @@ module IncreaseCompensation
       # Filters out the parameters to form access.
       def filtered_params
         params.require(short_name.to_sym).permit(:form)
+      end
+
+      def s3_config
+        IncreaseCompensation::ZsfConfig.new
+      end
+
+      def benefits_intake_service
+        service = ::BenefitsIntake::Service.new
+        service.request_upload
+        service
+      end
+
+      def start_submission_background_job(claim_id, user_account_uuid, benefits_intake_service)
+        IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(
+          claim_id,
+          user_account_uuid,
+          benefits_intake_service
+        )
+      end
+
+      def build_response(confirmation_number, pdf_url, claim)
+        attributes = {
+          confirmation_number:,
+          expiration_date: 1.year.from_now,
+          form: '21-8940',
+          guid: claim.guid,
+          pdf_url: pdf_url || nil,
+          regional_office: claim_class.regional_office,
+          submitted_at: claim.submitted_at,
+          submission_api: 'benefitsIntake'
+        }
+
+        { data: {
+          id: claim.id,
+          attributes:
+        } }
       end
 
       ##
