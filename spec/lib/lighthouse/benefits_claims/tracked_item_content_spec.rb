@@ -266,6 +266,7 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
 
     it 'returns nil when CONTENT is empty' do
       stub_const("#{described_class}::CONTENT", {}.freeze)
+      stub_const("#{described_class}::CONTENT_NORMALIZED", {}.freeze)
 
       result = described_class.find_by_display_name('21-4142/21-4142a')
 
@@ -299,6 +300,31 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
       # Fields not in entry should have default values
       (described_class::DEFAULTS.keys - entry.keys).each do |key|
         expect(result[key]).to eq(described_class::DEFAULTS[key])
+      end
+    end
+
+    context 'with normalized fallback' do
+      {
+        'no spaces around hyphen' => ['AO-med evid of disab fm herbicide needed',
+                                      'Medical documentation of herbicide exposure'],
+        'hyphen-space (no leading space)' => ['AO- med evid of disab fm herbicide needed',
+                                              'Medical documentation of herbicide exposure'],
+        'space-hyphen (no trailing space)' => ['AO -med evid of disab fm herbicide needed',
+                                               'Medical documentation of herbicide exposure'],
+        'exact match (space-hyphen-space)' => ['AO - med evid of disab fm herbicide needed',
+                                               'Medical documentation of herbicide exposure'],
+        'form numbers with hyphens' => ['Unemployability-21-8940 needed and 4192(s) requested',
+                                        'Work status information'],
+        'different letter casing' => ['RADIATION - tell us how you were exposed',
+                                      'Radiation exposure information'],
+        'different casing and hyphen spacing' => ['radiation-tell us how you were exposed',
+                                                  'Radiation exposure information']
+      }.each do |description, (display_name, expected_friendly_name)|
+        it "matches with #{description}" do
+          result = described_class.find_by_display_name(display_name)
+          expect(result).not_to be_nil
+          expect(result[:friendlyName]).to eq(expected_friendly_name)
+        end
       end
     end
   end
