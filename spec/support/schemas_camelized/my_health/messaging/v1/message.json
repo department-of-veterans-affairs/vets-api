@@ -87,6 +87,12 @@
                 "string"
               ]
             },
+            "triageGroup": {
+              "type": [
+                "null",
+                "object"
+              ]
+            },
             "proxySenderName": {
               "type": [
                 "null",
@@ -99,7 +105,7 @@
                 "string"
               ]
             },
-             "isOhMessage": {
+            "isOhMessage": {
               "type": "boolean"
             },
             "ohMigrationPhase": {

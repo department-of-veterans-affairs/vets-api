@@ -17,6 +17,7 @@ module MyHealth
       attribute :recipient_name
       attribute :read_receipt
       attribute :triage_group_name
+      attribute :triage_group
       attribute :proxy_sender_name
       attribute :suggested_name_display
       attribute :is_oh_message

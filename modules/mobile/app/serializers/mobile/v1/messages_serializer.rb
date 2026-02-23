@@ -10,7 +10,7 @@ module Mobile
 
       attributes :message_id, :body, :category, :subject, :message_body, :attachment, :sent_date,
                  :sender_id, :sender_name, :recipient_id, :recipient_name, :read_receipt,
-                 :triage_group_name, :proxy_sender_name, :thread_id, :folder_id,
+                 :triage_group_name, :triage_group, :proxy_sender_name, :thread_id, :folder_id,
                  :draft_date, :to_date, :has_attachments, :reply_disabled
 
       attribute :body, &:message_body

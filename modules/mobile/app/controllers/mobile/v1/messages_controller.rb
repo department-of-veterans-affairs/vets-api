@@ -13,6 +13,7 @@ module Mobile
         if ActiveModel::Type::Boolean.new.cast(params[:excludeProvidedMessage])
           resource.records = resource.records.filter { |m| m.message_id.to_s != params[:id] }
         end
+        byebug
         resource.metadata.merge!(message_counts(resource))
         render json: Mobile::V1::MessagesSerializer.new(resource.records.sort_by do |record|
           record.sent_date || FUTURE_DATE

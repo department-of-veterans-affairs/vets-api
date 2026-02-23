@@ -87,6 +87,12 @@
                 "string"
               ]
             },
+            "triageGroup": {
+              "type": [
+                "null",
+                "object"
+              ]
+            },
             "proxySenderName": {
               "type": [
                 "null",
