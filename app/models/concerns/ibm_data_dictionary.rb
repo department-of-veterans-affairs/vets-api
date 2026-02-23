@@ -12,20 +12,17 @@ module IbmDataDictionary
   # @param vet_info [Hash] Veteran information hash from parsed form
   # @param options [Hash] Optional field mappings for form-specific variations
   # @return [Hash] VBA Data Dictionary veteran fields
-  def build_veteran_basic_fields(vet_info, options = {})
+  def build_veteran_basic_fields(vet_info, _options = {})
     return {} unless vet_info
-
-    full_name_field = options[:full_name_field] || 'VETERAN_NAME'
 
     {
       'VETERAN_FIRST_NAME' => vet_info.dig('fullName', 'first'),
       'VETERAN_MIDDLE_INITIAL' => extract_middle_initial(vet_info.dig('fullName', 'middle')),
       'VETERAN_LAST_NAME' => vet_info.dig('fullName', 'last'),
-      full_name_field => build_full_name(vet_info['fullName']),
       'VETERAN_SSN' => vet_info['ssn'],
       'VA_FILE_NUMBER' => vet_info['vaFileNumber'],
       'VETERAN_DOB' => format_date_for_ibm(vet_info['dateOfBirth'])
-    }.compact
+    }
   end
 
   # Build claimant identification fields
@@ -41,7 +38,7 @@ module IbmDataDictionary
       'CLAIMANT_LAST_NAME' => claimant_info.dig('fullName', 'last'),
       'CLAIMANT_SSN' => claimant_info['ssn'],
       'CLAIMANT_DOB' => format_date_for_ibm(claimant_info['dateOfBirth'])
-    }.compact
+    }
   end
 
   # Build full name from name hash components

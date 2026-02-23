@@ -12,6 +12,109 @@ RSpec.describe 'V0::MultiPartyForms::Secondary', type: :request do
     )
   end
 
+  describe 'GET /v0/multi_party_forms/secondary/:id' do
+    context 'when user is not authenticated' do
+      it 'returns unauthorized' do
+        get "/v0/multi_party_forms/secondary/#{submission.id}"
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when feature flag is disabled' do
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:form_2680_multi_party_forms_enabled, anything).and_return(false)
+      end
+
+      it 'returns not found' do
+        get "/v0/multi_party_forms/secondary/#{submission.id}"
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when authenticated and feature flag enabled' do
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:form_2680_multi_party_forms_enabled, anything).and_return(true)
+      end
+
+      context 'when submission belongs to the authenticated user' do
+        it 'returns the submission with Veteran and physician sections' do
+          token = submission.generate_secondary_access_token!
+          post "/v0/multi_party_forms/secondary/#{submission.id}/start",
+               params: { token: }.to_json,
+               headers: { 'CONTENT_TYPE' => 'application/json' }
+
+          expect(response).to have_http_status(:ok)
+
+          get "/v0/multi_party_forms/secondary/#{submission.id}"
+
+          expect(response).to have_http_status(:ok)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to eq(submission.id)
+          expect(json_response['data']['type']).to eq('multi_party_form_submission')
+          expect(json_response['data']['attributes']['status']).to eq('secondary_in_progress')
+          expect(json_response['data']['attributes']['veteran_sections']).to include('read_only' => true)
+          expect(json_response['data']['attributes']['physician_sections']).to include('editable' => true)
+        end
+      end
+
+      context 'when submission belongs to another user' do
+        let(:other_user_submission) do
+          create(
+            :multi_party_form_submission,
+            :with_secondary,
+            status: 'secondary_in_progress',
+            secondary_user_uuid: SecureRandom.uuid
+          )
+        end
+
+        it 'returns not found' do
+          get "/v0/multi_party_forms/secondary/#{other_user_submission.id}"
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      context 'when submission does not exist' do
+        it 'returns not found' do
+          nonexistent_id = SecureRandom.uuid
+
+          get "/v0/multi_party_forms/secondary/#{nonexistent_id}"
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      context 'when there is an error parsing form data' do
+        before do
+          token = submission.generate_secondary_access_token!
+          post "/v0/multi_party_forms/secondary/#{submission.id}/start",
+               params: { token: }.to_json,
+               headers: { 'CONTENT_TYPE' => 'application/json' }
+
+          expect(response).to have_http_status(:ok)
+
+          allow_any_instance_of(V0::MultiPartyForms::SecondaryController)
+            .to receive(:parse_form_data).and_raise(JSON::ParserError.new('Invalid JSON'))
+        end
+
+        it 'returns internal server error' do
+          get "/v0/multi_party_forms/secondary/#{submission.id}"
+
+          expect(response).to have_http_status(:internal_server_error)
+          json_response = JSON.parse(response.body)
+          expect(json_response['errors'].first['title']).to eq('Internal server error')
+        end
+      end
+    end
+  end
+
   describe 'POST /v0/multi_party_forms/secondary/:id/start' do
     context 'when user is not authenticated' do
       it 'returns unauthorized' do
