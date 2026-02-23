@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": ["awards_pension"],
+   "properties": {
+    "awards_pension": {
+      "type": "object",
+      "additionalProperties": false,
+        "required": [
+            "veteran_id",
+            "is_eligible_for_pension",
+            "is_in_receipt_of_pension",
+            "net_worth_limit"
+        ],
+      "properties": {
+        "veteran_id": { "type": "integer" },
+        "is_eligible_for_pension": { "type": "boolean" },
+        "is_in_receipt_of_pension": { "type": "boolean" },
+        "net_worth_limit": { "type": "integer" }
+      }
+    }
+  }
+}

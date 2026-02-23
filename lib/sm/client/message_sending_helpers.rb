@@ -24,6 +24,29 @@ module SM
         message
       end
 
+      ##
+      # Look up the station_number for a given recipient_id using cached triage teams.
+      # Returns 'unknown' if the lookup fails or no match is found.
+      #
+      # @param recipient_id [Integer, String, nil] the triage team id the message was sent to
+      # @return [String] the station_number or 'unknown' if not found
+      #
+      def resolve_station_number(recipient_id)
+        return 'unknown' if recipient_id.blank?
+
+        recipient_id_int = Integer(recipient_id, exception: false)
+        return 'unknown' if recipient_id_int.nil?
+
+        cached_teams = get_triage_teams_station_numbers
+        return 'unknown' if cached_teams.blank?
+
+        matching_team = cached_teams.find { |team| team.triage_team_id == recipient_id_int }
+        matching_team&.station_number || 'unknown'
+      rescue => e
+        Rails.logger.error("Error resolving station number: #{e.message}")
+        'unknown'
+      end
+
       def log_oh_pilot_message(message, method_name)
         return unless oh_pilot_user?
 
