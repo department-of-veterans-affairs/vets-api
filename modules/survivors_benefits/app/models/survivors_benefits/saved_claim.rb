@@ -460,7 +460,7 @@ module SurvivorsBenefits
       relationship_fields = {
         "BIOLOGICAL_CHILD_#{child_num}" => false,
         "ADOPTED_CHILD_#{child_num}" => false,
-        "STEPCHILD_#{child_num}" => false,
+        "STEPCHILD_#{child_num}" => false
       }
       case relationship
       when 'BIOLOGICAL'
