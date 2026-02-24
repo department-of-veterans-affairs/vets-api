@@ -35,7 +35,13 @@ module V0
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
       raise
     ensure
-      monitor.track_request_code(response.status) if response.status
+      if response.status
+        monitor.track_request_code(
+          response.status,
+          user_uuid: current_user&.uuid,
+          claim_guid: claim&.guid
+        )
+      end
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -68,7 +74,13 @@ module V0
       StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
     ensure
-      monitor.track_request_code(response.status) if response.status
+      if response.status
+        monitor.track_request_code(
+          response.status,
+          user_uuid: current_user&.uuid,
+          claim_guid: claim&.guid
+        )
+      end
       File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
     # rubocop:enable Metrics/MethodLength
