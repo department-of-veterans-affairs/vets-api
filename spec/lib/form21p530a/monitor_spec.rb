@@ -6,8 +6,60 @@ require 'form21p530a/monitor'
 RSpec.describe Form21p530a::Monitor do
   subject(:monitor) { described_class.new }
 
-  let(:stats_key) { described_class::STATS_KEY }
+  let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
+  let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:form_id) { described_class::FORM_ID }
+
+  it 'extends Logging::BaseMonitor' do
+    expect(described_class.ancestors).to include(Logging::BaseMonitor)
+  end
+
+  describe '#track_submission_begun' do
+    let(:claim) { instance_double(SavedClaim::Form21p530a, confirmation_number: 'V-TEST-12345', guid: 'abc-123') }
+
+    it 'increments StatsD metric with tags' do
+      expect(StatsD).to receive(:increment).with(
+        "#{submission_stats_key}.begun",
+        hash_including(tags: array_including('service:form21p530a'))
+      )
+      monitor.track_submission_begun(claim, user_uuid: 'user-123')
+    end
+  end
+
+  describe '#track_submission_success' do
+    let(:claim) { instance_double(SavedClaim::Form21p530a, confirmation_number: 'V-TEST-12345', guid: 'abc-123') }
+
+    it 'increments StatsD metric with tags' do
+      expect(StatsD).to receive(:increment).with(
+        "#{submission_stats_key}.success",
+        hash_including(tags: array_including('service:form21p530a'))
+      )
+      monitor.track_submission_success(claim, user_uuid: 'user-123')
+    end
+  end
+
+  describe '#track_submission_failure' do
+    let(:claim) { instance_double(SavedClaim::Form21p530a, confirmation_number: 'V-TEST-12345', guid: 'abc-123') }
+    let(:error) { StandardError.new('Test error') }
+
+    it 'increments StatsD metric with tags' do
+      expect(StatsD).to receive(:increment).with(
+        "#{submission_stats_key}.failure",
+        hash_including(tags: array_including('service:form21p530a'))
+      )
+      monitor.track_submission_failure(claim, error, user_uuid: 'user-123')
+    end
+  end
+
+  describe '#track_request_code' do
+    it 'increments StatsD metric with response code tag' do
+      expect(StatsD).to receive(:increment).with(
+        "#{claim_stats_key}.request",
+        hash_including(tags: array_including('service:form21p530a', 'form_id:21P-530A', 'function:track_request_code'))
+      )
+      monitor.track_request_code(200)
+    end
+  end
 
   describe '#track_request_validation_error' do
     let(:request) do
@@ -29,7 +81,7 @@ RSpec.describe Form21p530a::Monitor do
 
       it 'increments StatsD metric with correct tags' do
         expect(StatsD).to receive(:increment).with(
-          "#{stats_key}.validation_error",
+          "#{claim_stats_key}.validation_error",
           hash_including(tags: array_including('service:form21p530a'))
         )
 

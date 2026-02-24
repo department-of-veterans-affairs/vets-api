@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'logging/monitor'
+require 'logging/base_monitor'
 
 module Form21p530a
   ##
@@ -8,20 +8,22 @@ module Form21p530a
   #
   # Provides methods for tracking Committee validation failures and other
   # form-related events with StatsD metrics and structured logging.
-  #
-  class Monitor < ::Logging::Monitor
+  class Monitor < ::Logging::BaseMonitor
     SERVICE_NAME = 'form21p530a'
     FORM_ID = '21P-530A'
-    STATS_KEY = 'api.form21p530a'
+    CLAIM_STATS_KEY = 'api.form21p530a'
+    SUBMISSION_STATS_KEY = 'worker.lighthouse.form21p530a_intake_job'
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
       data_pointer
       error_type
-      form_id
       method
       path
       source_app
+      code
+      user_uuid
+      claim_guid
     ].freeze
 
     def initialize
@@ -33,19 +35,14 @@ module Form21p530a
     #
     # Called when Committee middleware rejects a request that doesn't conform
     # to the OpenAPI schema. Logs the field path and error type without PII.
-    #
-    # @param error [Committee::InvalidRequest] The validation error from Committee
-    # @param request [Rack::Request] The incoming request
     def track_request_validation_error(error:, request:)
-      call_location = caller_locations.first
-
       validation_details = extract_validation_details(error)
 
       track_request(
         :warn,
         "#{self.class.name} #{FORM_ID} Committee validation failed",
-        "#{STATS_KEY}.validation_error",
-        call_location:,
+        "#{CLAIM_STATS_KEY}.validation_error",
+        call_location: caller_locations.first,
         form_id: FORM_ID,
         path: request.path,
         method: request.request_method,
@@ -55,13 +52,50 @@ module Form21p530a
       )
     end
 
-    private
+    # Required BaseMonitor abstract method implementations
+    def claim_stats_key = CLAIM_STATS_KEY
+    def submission_stats_key = SUBMISSION_STATS_KEY
+    def name = SERVICE_NAME
+    def form_id = FORM_ID
 
     ##
-    # Extracts validation details from Committee error without exposing PII
-    #
-    # @param error [Committee::InvalidRequest] The validation error
-    # @return [Hash] Hash with :error_type and :data_pointer
+    # Track submission begun in controller
+    # Called when claim is saved and about to be queued to Sidekiq
+    def track_submission_begun(claim, user_uuid: nil)
+      submit_event(:info, "#{message_prefix} submission begun", "#{SUBMISSION_STATS_KEY}.begun",
+                   claim:, user_uuid:, claim_guid: claim&.guid)
+    end
+
+    ##
+    # Track successful submission in controller
+    # Called when claim is successfully saved and queued
+    def track_submission_success(claim, user_uuid: nil)
+      submit_event(:info, "#{message_prefix} submission success", "#{SUBMISSION_STATS_KEY}.success",
+                   claim:, user_uuid:, claim_guid: claim&.guid)
+    end
+
+    ##
+    # Track submission failure in controller
+    # Called when claim save or processing fails
+    def track_submission_failure(claim, error, user_uuid: nil)
+      submit_event(:error, "#{message_prefix} submission failure: #{error.class}",
+                   "#{SUBMISSION_STATS_KEY}.failure",
+                   claim:, user_uuid:, claim_guid: claim&.guid,
+                   error_class: error.class.name, error_message: error.message)
+    end
+
+    ##
+    # Track HTTP response codes for API endpoint monitoring
+    # Enables response code distribution tracking in Datadog
+    def track_request_code(code)
+      submit_event(:info, "#{message_prefix} request completed with status #{code}",
+                   "#{CLAIM_STATS_KEY}.request", code:)
+    end
+
+    private
+
+    def message_prefix = "#{SERVICE_NAME}:#{FORM_ID}"
+
     def extract_validation_details(error)
       message = error.message.to_s
 

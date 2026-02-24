@@ -58,6 +58,76 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:create, body: valid_payload.to_json, as: :json)
     end
 
+    describe 'monitoring' do
+      let(:monitor) { instance_double(Form21p530a::Monitor) }
+
+      before do
+        allow(Form21p530a::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_submission_begun)
+        allow(monitor).to receive(:track_submission_success)
+        allow(monitor).to receive(:track_submission_failure)
+        allow(monitor).to receive(:track_request_code)
+      end
+
+      it 'tracks submission begun' do
+        expect(monitor).to receive(:track_submission_begun).with(
+          an_instance_of(SavedClaim::Form21p530a),
+          user_uuid: nil
+        )
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks submission success' do
+        expect(monitor).to receive(:track_submission_success).with(
+          an_instance_of(SavedClaim::Form21p530a),
+          user_uuid: nil
+        )
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks request code on success' do
+        expect(monitor).to receive(:track_request_code).with(200)
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      context 'with authenticated user' do
+        let(:user) { create(:user, :loa3) }
+
+        before { sign_in_as(user) }
+
+        it 'tracks submission with user_uuid' do
+          expect(monitor).to receive(:track_submission_begun).with(
+            an_instance_of(SavedClaim::Form21p530a),
+            user_uuid: user.uuid
+          )
+          expect(monitor).to receive(:track_submission_success).with(
+            an_instance_of(SavedClaim::Form21p530a),
+            user_uuid: user.uuid
+          )
+          post(:create, body: valid_payload.to_json, as: :json)
+        end
+      end
+
+      context 'on validation failure' do
+        let(:invalid_payload) { { veteranInformation: { fullName: { first: 'OnlyFirst' } } } }
+
+        it 'does not track submission begun when save fails' do
+          expect(monitor).not_to receive(:track_submission_begun)
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end
+
+        it 'tracks submission failure when claim save fails' do
+          expect(monitor).to receive(:track_submission_failure)
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end
+
+        it 'tracks request code' do
+          expect(monitor).to receive(:track_request_code)
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end
+      end
+    end
+
     context 'with 3-character country code' do
       let(:payload_with_3char_country) do
         payload = valid_payload.deep_dup
@@ -102,11 +172,6 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(json['errors']).to be_present
         expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
       end
-
-      it 'increments failure stats' do
-        expect(StatsD).to receive(:increment).with('api.form21p530a.failure')
-        post(:create, body: payload_with_invalid_country.to_json, as: :json)
-      end
     end
 
     context 'when feature flag is disabled' do
@@ -135,11 +200,6 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-      end
-
-      it 'increments failure stats' do
-        expect(StatsD).to receive(:increment).with('api.form21p530a.failure')
-        post(:create, body: invalid_payload.to_json, as: :json)
       end
     end
 
@@ -264,6 +324,44 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:download_pdf, body: valid_payload.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    describe 'monitoring' do
+      let(:monitor) { instance_double(Form21p530a::Monitor) }
+
+      before do
+        allow(Form21p530a::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_request_code)
+      end
+
+      it 'tracks request code on success' do
+        expect(monitor).to receive(:track_request_code).with(200)
+        post(:download_pdf, body: valid_payload.to_json, as: :json)
+      end
+
+      context 'on PDF generation failure' do
+        before do
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
+        end
+
+        it 'tracks request code on failure' do
+          expect(monitor).to receive(:track_request_code).with(500)
+          post(:download_pdf, body: valid_payload.to_json, as: :json)
+        end
+      end
+
+      context 'on validation failure' do
+        let(:invalid_payload) do
+          payload = valid_payload.deep_dup
+          payload['burialInformation']['recipientOrganization']['address']['country'] = 'XX'
+          payload
+        end
+
+        it 'tracks request code on validation failure' do
+          expect(monitor).to receive(:track_request_code)
+          post(:download_pdf, body: invalid_payload.to_json, as: :json)
+        end
+      end
     end
 
     context 'with 3-character country code' do

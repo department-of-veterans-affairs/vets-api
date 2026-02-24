@@ -9,16 +9,25 @@ module V0
     skip_before_action :authenticate, only: %i[create download_pdf]
     before_action :load_user, :check_feature_enabled
 
+    def monitor
+      @monitor ||= Form21p530a::Monitor.new
+    end
+
     def create
       claim = build_and_save_claim!
+      monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
       handle_successful_claim(claim)
 
       clear_saved_form(claim.form_id)
       render json: SavedClaimSerializer.new(claim)
     rescue Common::Exceptions::ValidationErrors => e
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid) if defined?(claim)
       handle_validation_error(e)
     rescue => e
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid) if defined?(claim)
       handle_general_error(e, claim)
+    ensure
+      monitor.track_request_code(response.status) if response.present?
     end
 
     def download_pdf
@@ -46,6 +55,7 @@ module V0
     rescue => e
       handle_pdf_generation_error(e)
     ensure
+      monitor.track_request_code(response.status) if response.present?
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
@@ -107,6 +117,7 @@ module V0
 
     def handle_successful_claim(claim)
       claim.process_attachments!
+      monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
       Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
       StatsD.increment("#{stats_key}.success")
     end
