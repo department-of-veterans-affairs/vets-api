@@ -58,12 +58,15 @@ module DependentsBenefits
           begin
             claim_info = claim.get_claim_information(current_user)
             if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
-              submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+              submission = submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
 
               monitor.track_create_success(in_progress_form, claim, current_user)
               DependentsBenefits::NotificationEmail.new(claim.id).send_submitted_notification
 
-              return render json: SavedClaimSerializer.new(claim)
+              response = SavedClaimSerializer.new(claim).serializable_hash
+              response[:data][:digital_forms_api][:submission] = submission
+
+              return render json: response
             end
           rescue => e
             monitor.track_request(:error, e.message, 'dependents_controller.forms_api_submission')
@@ -111,8 +114,7 @@ module DependentsBenefits
 
         upload_evidence_documents(claim, participant_id)
 
-        # TODO: parse the response body and pass back the identifier to be used by the form viewer (future)
-        'submission-id'
+        respone.body['submission'] || {}
       end
 
       # upload evidence documents - temp for FDF pilot
