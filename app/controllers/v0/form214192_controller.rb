@@ -54,13 +54,13 @@ module V0
       # Track PDF generation duration
       pdf_duration = Time.current - pdf_start_time
       StatsD.measure("#{stats_key}.pdf_generation.duration", pdf_duration * 1000) # milliseconds
-      StatsD.increment("#{stats_key}.pdf_generation.success")
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+      StatsD.increment("#{stats_key}.pdf_generation.success")
     rescue => e
       StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
