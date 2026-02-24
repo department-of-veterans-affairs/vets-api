@@ -131,7 +131,7 @@ module IncreaseCompensation
           form: '21-8940',
           guid: claim.guid,
           pdf_url: pdf_url || nil,
-          regional_office: claim_class.regional_office,
+          regional_office: claim.regional_office,
           submitted_at: claim.submitted_at,
           submission_api: 'benefitsIntake'
         }
