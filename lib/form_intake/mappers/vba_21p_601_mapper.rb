@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require 'bio_heart_api/form_mappers/base_mapper'
-
-module BioHeartApi
-  module FormMappers
-    class Form21p601Mapper < BioHeartApi::FormMappers::BaseMapper
-      FORM_TYPE = '21P-601'
-
+module FormIntake
+  module Mappers
+    # Mapper for form 21P-601 (Application for Accrued Amounts Due a Deceased Beneficiary)
+    # Follows IBM Data Dictionary format (matches BioHeart implementation)
+    class VBA21p601Mapper < BaseMapper
       # rubocop:disable Metrics/MethodLength
-      def call
-        form = @params.to_h.with_indifferent_access
+      def to_gcio_payload
+        form = form_data.with_indifferent_access
 
-        # Build the IBM payload according to the data dictionary
         payload = {
           # Box 1 - Veteran's Name
           'VETERAN_NAME' => build_full_name(form.dig('veteran', 'full_name')),
@@ -20,7 +17,7 @@ module BioHeartApi
           'VETERAN_LAST_NAME' => form.dig('veteran', 'full_name', 'last'),
 
           # Box 2 - Veteran's Social Security Number
-          'VETERAN_SSN' => format_ssn(form.dig('veteran', 'ssn')),
+          'VETERAN_SSN' => map_ssn(form.dig('veteran', 'ssn')),
 
           # Box 3 - VA File Number
           'VA_FILE_NUMBER' => form.dig('veteran', 'va_file_number').presence,
@@ -29,7 +26,7 @@ module BioHeartApi
           'DECEDENT_NAME' => build_full_name(form.dig('beneficiary', 'full_name')),
 
           # Box 5 - Beneficiary Date of Death
-          'DECEASED_DEATH_DATE' => parse_date(form.dig('beneficiary', 'date_of_death')),
+          'DECEASED_DEATH_DATE' => map_date(form.dig('beneficiary', 'date_of_death')),
 
           # Box 6 - Claimant Name
           'CLAIMANT_NAME' => build_full_name(form.dig('claimant', 'full_name')),
@@ -38,10 +35,10 @@ module BioHeartApi
           'CLAIMANT_LAST_NAME' => form.dig('claimant', 'full_name', 'last'),
 
           # Box 7 - Claimant Social Security Number
-          'CLAIMANT_SSN' => format_ssn(form.dig('claimant', 'ssn')),
+          'CLAIMANT_SSN' => map_ssn(form.dig('claimant', 'ssn')),
 
           # Box 8 - Claimant Date of Birth
-          'CLAIMANT_DOB' => parse_date(form.dig('claimant', 'date_of_birth')),
+          'CLAIMANT_DOB' => map_date(form.dig('claimant', 'date_of_birth')),
 
           # Box 9 - Claimant Current Mailing Address
           'CLAIMANT_ADDRESS_FULL_BLOCK' => build_full_address(form.dig('claimant', 'address')),
@@ -53,7 +50,7 @@ module BioHeartApi
           'CLAIMANT_ADDRESS_ZIP5' => extract_zip5(form.dig('claimant', 'address', 'zip_code')),
 
           # Box 10 - Claimant Telephone Number
-          'CLAIMANT_PHONE_NUMBER' => format_phone(form.dig('claimant', 'phone')),
+          'CLAIMANT_PHONE_NUMBER' => map_phone(form.dig('claimant', 'phone')),
 
           # Box 11 - Preferred E-Mail Address
           'CLAIMANT_EMAIL' => form.dig('claimant', 'email'),
@@ -72,8 +69,8 @@ module BioHeartApi
           'WAIVE_NO' => waive_substitution_no?(form),
 
           # Box 16 - Have you been reimbursed from any source?
-          'REIMBURSED_YES' => reimbursed_yes?(form),
-          'REIMBURSED_NO' => reimbursed_no?(form),
+          'REIMBURSED_YES' => false,
+          'REIMBURSED_NO' => false,
 
           # Box 17 - Did the beneficiary leave any other debts?
           'OTHER_DEBTS_YES' => other_debts_exist?(form),
@@ -110,13 +107,13 @@ module BioHeartApi
           'CLAIMANT_SIGNATURE' => form.dig('claimant', 'signature'),
 
           # Box 23B - Today's date
-          'DATE_OF_CLAIMANT_SIGNATURE' => parse_date(form.dig('claimant', 'signature_date')),
+          'DATE_OF_CLAIMANT_SIGNATURE' => map_date(form.dig('claimant', 'signature_date')),
 
           # Box 26 - Remarks
           'REMARKS' => form['remarks'],
 
           # Form Type (must be prefixed with StructuredData: to be ingested)
-          'FORM_TYPE' => "StructuredData:#{FORM_TYPE}"
+          'FORM_TYPE' => 'StructuredData:21P-601'
         }
 
         # Add Box 14A-D - Surviving Relatives (up to 4)
@@ -134,10 +131,24 @@ module BioHeartApi
 
       private
 
-      # Build full address string from address hash
-      #
-      # @param address_hash [Hash, nil] Hash with address components
-      # @return [String, nil] Full address or nil
+      def build_full_name(name_hash)
+        return nil unless name_hash
+
+        parts = [
+          name_hash['first'],
+          name_hash['middle'],
+          name_hash['last']
+        ].compact.compact_blank
+
+        parts.any? ? parts.join(' ') : nil
+      end
+
+      def extract_middle_initial(name_hash)
+        return nil unless name_hash && name_hash['middle'].present?
+
+        name_hash['middle'][0]
+      end
+
       def build_full_address(address_hash)
         return nil unless address_hash
 
@@ -153,20 +164,12 @@ module BioHeartApi
         parts.any? ? parts.join(', ') : nil
       end
 
-      # Extract 5-digit ZIP code from zip_code hash
-      #
-      # @param zip_hash [Hash, nil] Hash with 'first5' and 'last4' keys
-      # @return [String, nil] 5-digit ZIP or nil
       def extract_zip5(zip_hash)
         return nil unless zip_hash
 
         zip_hash['first5']
       end
 
-      # Format full ZIP code from zip_code hash
-      #
-      # @param zip_hash [Hash, nil] Hash with 'first5' and 'last4' keys
-      # @return [String, nil] Formatted ZIP or nil
       def format_zip_full(zip_hash)
         return nil unless zip_hash && zip_hash['first5'].present?
 
@@ -177,82 +180,28 @@ module BioHeartApi
         end
       end
 
-      # Format phone number from phone hash
-      #
-      # @param phone_hash [Hash, nil] Hash with 'area_code', 'prefix', 'line_number' keys
-      # @return [String, nil] Formatted phone number or nil
-      def format_phone(phone_hash)
-        return nil unless phone_hash && [phone_hash['area_code'], phone_hash['prefix'],
-                                         phone_hash['line_number']].none?(&:blank?)
-
-        "#{phone_hash['area_code']}#{phone_hash['prefix']}#{phone_hash['line_number']}"
-      end
-
-      # Check if surviving relatives has a specific type
-      #
-      # @param form [Hash] The form data
-      # @param type [String] The type to check (e.g., 'has_spouse')
-      # @return [Int] 1 if type exists, 0 otherwise
       def surviving_relatives_has_type?(form, type)
-        form.dig('surviving_relatives', type) == true ? 1 : 0
+        form.dig('surviving_relatives', type) == true
       end
 
-      # Determine if waive substitution YES checkbox should be checked
-      #
-      # @param form [Hash] The form data
-      # @return [Int] 1 if wants to waive, 0 otherwise
       def waive_substitution_yes?(form)
-        form.dig('surviving_relatives', 'wants_to_waive_substitution') == true ? 1 : 0
+        form.dig('surviving_relatives', 'wants_to_waive_substitution') == true
       end
 
-      # Determine if waive substitution NO checkbox should be checked
-      #
-      # @param form [Hash] The form data
-      # @return [Int] 1 if does not want to waive, 0 otherwise
       def waive_substitution_no?(form)
-        form.dig('surviving_relatives', 'wants_to_waive_substitution') == false ? 1 : 0
+        form.dig('surviving_relatives', 'wants_to_waive_substitution') == false
       end
 
-      # Check if there are other debts
-      #
-      # @param form [Hash] The form data
-      # @return [Int] 1 if other debts exist, 0 otherwise
       def other_debts_exist?(form)
         other_debts = form.dig('expenses', 'other_debts')
-        other_debts.is_a?(Array) && other_debts.any? ? 1 : 0
+        other_debts.is_a?(Array) && other_debts.any?
       end
 
-      # Check if there are no other debts
-      #
-      # @param form [Hash] The form data
-      # @return [Int] 1 if no other debts, 0 otherwise
       def other_debts_none?(form)
         other_debts = form.dig('expenses', 'other_debts')
-        !other_debts.is_a?(Array) || other_debts.empty? ? 1 : 0
+        !other_debts.is_a?(Array) || other_debts.empty?
       end
 
-      # Determine if reimbursed YES checkbox should be checked
-      # Note: This field is not in the frontend payload, so always returns false
-      #
-      # @param form [Hash] The form data
-      # @return [Int] 0
-      def reimbursed_yes?(_form)
-        0
-      end
-
-      # Determine if reimbursed NO checkbox should be checked
-      # Note: This field is not in the frontend payload, so always returns false
-      #
-      # @param form [Hash] The form data
-      # @return [Int] 0
-      def reimbursed_no?(_form)
-        0
-      end
-
-      # Add surviving relatives data (Box 14A-D, up to 4)
-      #
-      # @param payload [Hash] The payload to add data to
-      # @param form [Hash] The form data
       def add_surviving_relatives(payload, form)
         relatives = form.dig('surviving_relatives', 'relatives') || []
 
@@ -260,7 +209,7 @@ module BioHeartApi
           num = index + 1
           payload["NAME_OF_RELATIVE_#{num}"] = build_full_name(relative['full_name'])
           payload["RELATION_RELATIVE_#{num}"] = relative['relationship']
-          payload["DOB_RELATIVE_#{num}"] = parse_date(relative['date_of_birth'])
+          payload["DOB_RELATIVE_#{num}"] = map_date(relative['date_of_birth'])
           # "RELEATIVE" is a typo that exists in the data dictionary provided by MMS.
           payload["ADDRESS_RELEATIVE_#{num}"] = build_full_address(relative['address'])
         end
@@ -274,10 +223,6 @@ module BioHeartApi
         end
       end
 
-      # Add expenses data (Box 15A-E, up to 4)
-      #
-      # @param payload [Hash] The payload to add data to
-      # @param form [Hash] The form data
       def add_expenses(payload, form)
         expenses = form.dig('expenses', 'expenses_list') || []
 
@@ -302,10 +247,6 @@ module BioHeartApi
         end
       end
 
-      # Add other debts data (Box 18A-B, up to 4)
-      #
-      # @param payload [Hash] The payload to add data to
-      # @param form [Hash] The form data
       def add_other_debts(payload, form)
         other_debts = form.dig('expenses', 'other_debts') || []
 
@@ -322,14 +263,10 @@ module BioHeartApi
         end
       end
 
-      # Format currency value
-      #
-      # @param amount [Numeric, String, nil] The amount to format
-      # @return [String, nil] Formatted currency or nil
       def format_currency(amount)
-        return nil if amount.nil?
+        return nil if amount.nil? || amount.to_s.blank?
 
-        ActiveSupport::NumberHelper.number_to_currency(amount)
+        format('%.2f', amount.to_f)
       end
     end
   end
