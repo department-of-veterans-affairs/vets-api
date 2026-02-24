@@ -64,5 +64,9 @@ module V0
     def parse_form(form)
       JSON.parse(form)
     end
+
+    def service
+      @service ||= VeteranVerification::Service.new
+    end
   end
 end
