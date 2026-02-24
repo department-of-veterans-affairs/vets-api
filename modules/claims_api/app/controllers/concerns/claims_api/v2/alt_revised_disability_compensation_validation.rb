@@ -150,7 +150,7 @@ module ClaimsApi
             end
           rescue ArgumentError, TypeError
             collect_error_messages(
-                detail: "#{end_date} is not a valid date.",
+                detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
                 source: '/changeOfAddress/dates/endDate'
               )
           end

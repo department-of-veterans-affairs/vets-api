@@ -462,7 +462,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = end_date
         test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
-        expect(current_error_array[0][:detail]).to eq("#{end_date} is not a valid date.")
+        expect(current_error_array[0][:detail]).to eq("#{end_date} is not a valid date. Expected format: yyyy-mm-dd.")
         expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
     end
