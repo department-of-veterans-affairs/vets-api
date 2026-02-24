@@ -1442,7 +1442,9 @@ features:
     enable_in_development: true
   mhv_medical_records_clinical_notes_diagnostic:
     actor_type: user
-    description: Enables diagnostic logging for clinical notes only (response counts, filtering metrics, LOINC distributions).
+    description: >
+      Enables diagnostic logging for clinical notes only (response counts, filtering metrics,
+      LOINC distributions). Falls back to mhv_medical_records_diagnostic_logging if not enabled.
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
