@@ -373,8 +373,8 @@ module Veteran
         import_vso_organizations(vso_orgs)
         populate_org_representative_joins!(rep_org_pairs:, poa_codes: current_poa_codes)
 
-        # Remove stale organizations that are no longer in the OGC data
-        remove_stale_organizations(current_poa_codes)
+        # Retain stale orgs that are no longer in the OGC data, but deactivate their join records
+        deactivate_stale_organization_joins(current_poa_codes)
       end
 
       vso_reps
