@@ -196,15 +196,11 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
           }
         end
 
-        it 'falls back to original data and logs error' do
+        it 'raises the error and logs it' do
           allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:error).with(/Error processing receipt/)
+          expect(Rails.logger).to receive(:error).with(/HEIC conversion failed/)
 
-          subject.receipt = invalid_heic_receipt
-
-          # Should fall back to original data
-          expect(subject.receipt).to eq(invalid_heic_receipt)
-          expect(subject.receipt['content_type']).to eq('image/heic')
+          expect { subject.receipt = invalid_heic_receipt }.to raise_error(StandardError)
         end
       end
 
