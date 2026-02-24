@@ -38,6 +38,7 @@ module V0
       if response.status
         monitor.track_request_code(
           response.status,
+          action: 'create',
           user_uuid: current_user&.uuid,
           claim_guid: claim&.guid
         )
@@ -77,6 +78,7 @@ module V0
       if response.status
         monitor.track_request_code(
           response.status,
+          action: 'download_pdf',
           user_uuid: current_user&.uuid,
           claim_guid: claim&.guid
         )

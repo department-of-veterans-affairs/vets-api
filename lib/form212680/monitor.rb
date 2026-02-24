@@ -17,6 +17,7 @@ module Form212680
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
+      action
       data_pointer
       error_type
       method
@@ -138,14 +139,16 @@ module Form212680
     # Enables response code distribution tracking in Datadog
     #
     # @param code [Integer] HTTP status code (200, 422, 429, 500, etc.)
+    # @param action [String, nil] Optional action name (e.g., 'create', 'download_pdf')
     # @param user_uuid [String, nil] Optional user UUID for correlation
     # @param claim_guid [String, nil] Optional claim GUID for correlation
-    def track_request_code(code, user_uuid: nil, claim_guid: nil)
+    def track_request_code(code, action: nil, user_uuid: nil, claim_guid: nil)
       submit_event(
         :info,
         "#{message_prefix} request completed with status #{code}",
         "#{CLAIM_STATS_KEY}.request",
         code:,
+        action:,
         user_uuid:,
         claim_guid:
       )
