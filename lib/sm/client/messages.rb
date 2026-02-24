@@ -29,7 +29,7 @@ module SM
         json = perform(:get, path, nil, token_headers).body
         message = Message.new(json[:data].merge(json[:metadata]))
 
-        # Derive OH migration phase from cached triage teams
+        # Derive OH migration phase from the message's triage group (e.g., station number)
         message.oh_migration_phase = derive_oh_migration_phase_for_message(message)
         message.migrated_to_oracle_health = derive_migrated_to_oracle_health(message)
         message
@@ -87,7 +87,8 @@ module SM
         result.data.each { |msg| msg.oh_migration_phase = oh_migration_phase } if oh_migration_phase
 
         # Derive migrated_to_oracle_health for each message based on its triage_group
-        result.data.each { |msg| msg.migrated_to_oracle_health = derive_migrated_to_oracle_health(msg) }
+        migrated_to_oracle_health = derive_migrated_to_oracle_health(result.data.first)
+        result.data.each { |msg| msg.migrated_to_oracle_health = migrated_to_oracle_health }
 
         track_metric('get_full_messages_for_thread', is_oh:, status: 'success')
         result
@@ -139,11 +140,11 @@ module SM
       private
 
       ##
-      # Derives OH migration phase for a single message based on its triage_group_id
+      # Derives OH migration phase for a single message based on its triage group's station number
       #
       # @param message [Message] the message to derive phase for
-      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window
-      #                       if team not found in cache, or nil if no migration data exists
+      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window,
+      #                       or nil if no migration data exists
       #
       def derive_oh_migration_phase_for_message(message)
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
@@ -179,7 +180,7 @@ module SM
         return false if station_number.blank?
 
         # Post-migration: facility is Cerner in VA profile but triage group is not yet OH
-        cerner_facility_ids = current_user&.cerner_facility_ids || []
+        cerner_facility_ids = Array(current_user&.cerner_facility_ids).map(&:to_s)
         cerner_facility_ids.include?(station_number) && oh_triage_group == false
       rescue => e
         Rails.logger.error(
