@@ -12,6 +12,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion).and_return(false)
 
     # Mock authentication to provide tokens for VCR cassettes
     auth_manager_double = instance_double(
