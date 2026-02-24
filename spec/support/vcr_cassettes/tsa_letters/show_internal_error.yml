@@ -52,11 +52,9 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "errors": [{
-            "status": "500",
-            "title": "Internal Server Error",
-            "detail": "An unexpected error occurred"
-          }]
+          "uuid": "3fa85f64-5717-4562-b3fc-2c963f66aFaб",
+          "code": "VEFSERR50806",
+          "message": "Unknown error encountered retrieving user
         }
   recorded_at: Mon, 06 Oct 2025 17:03:17 GMT
 recorded_with: VCR 6.3.1

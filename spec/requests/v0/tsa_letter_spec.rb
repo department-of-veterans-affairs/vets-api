@@ -48,7 +48,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
 
     context 'when upstream returns 400' do
       it 'logs and renders 200 with empty body' do
-        VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
+        VCR.use_cassette('tsa_letters/show_bad_request', { match_requests_on: %i[method uri body] }) do
           expect(Rails.logger).to receive(:info).with('TSA Letter Error',
                             error_status: 400,
                             user_account_id: user.user_account_uuid)

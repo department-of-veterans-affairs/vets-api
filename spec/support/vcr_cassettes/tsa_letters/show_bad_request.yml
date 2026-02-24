@@ -17,8 +17,8 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 401
-      message: Unauthorized
+      code: 400
+      message: Bad Request
     headers:
       Date:
       - Mon, 06 Oct 2025 17:03:17 GMT
@@ -52,15 +52,9 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "messages": [
-            "timestamp": "2024-85-20T15:53:29.389",
-            "key":
-            "UNAUTHORIZED",
-            "severity": "ERROR",
-            "status": "401",
-            "text": "No JWT Token in Header.",
-            "httpStatus": "UNAUTHORIZED"
-          ]
+          "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afaб",
+          "code": "VEFSERR40009",
+          "message": "JWT provided does not contain expected claims, or contains invalid claim
         }
   recorded_at: Mon, 06 Oct 2025 17:03:17 GMT
 recorded_with: VCR 6.3.1
