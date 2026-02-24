@@ -173,8 +173,8 @@ RSpec.describe BioHeartApi::FormMappers::Form21p601Mapper do
         before { form_data['surviving_relatives']['wants_to_waive_substitution'] = true }
 
         it 'checks YES and unchecks NO' do
-          expect(result['WAIVE_YES']).to be(true)
-          expect(result['WAIVE_NO']).to be(false)
+          expect(result['WAIVE_YES']).to be(1)
+          expect(result['WAIVE_NO']).to be(0)
         end
       end
 
@@ -182,8 +182,8 @@ RSpec.describe BioHeartApi::FormMappers::Form21p601Mapper do
         before { form_data['surviving_relatives']['wants_to_waive_substitution'] = false }
 
         it 'checks NO and unchecks YES' do
-          expect(result['WAIVE_YES']).to be(false)
-          expect(result['WAIVE_NO']).to be(true)
+          expect(result['WAIVE_YES']).to be(0)
+          expect(result['WAIVE_NO']).to be(1)
         end
       end
     end
