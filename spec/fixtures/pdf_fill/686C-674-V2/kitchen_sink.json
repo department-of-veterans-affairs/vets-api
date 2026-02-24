@@ -384,7 +384,8 @@
         "supporting_stepchild": false,
         "full_name": { "first": "stepchild", "middle": "middle", "last": "leaving" },
         "ssn": "987654321",
-        "birth_date": "2009-04-01"
+        "birth_date": "2009-04-01",
+        "date_stepchild_left_household": "2025-02-15"
       },
       {
         "who_does_the_stepchild_live_with": {
@@ -404,7 +405,8 @@
         "supporting_stepchild": false,
         "full_name": { "first": "second", "middle": "middle", "last": "stepchild" },
         "ssn": "987654321",
-        "birth_date": "2009-04-01"
+        "birth_date": "2009-04-01",
+        "date_stepchild_left_household": "2026-01-01"
       }
     ],
     "deaths": [
