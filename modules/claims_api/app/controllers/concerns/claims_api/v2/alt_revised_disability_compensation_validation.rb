@@ -623,17 +623,37 @@ module ClaimsApi
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
 
-        return if max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
 
-        if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
-          max_period['activeDutyEndDate'], '%Y-%m-%d'
-        ) > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
-           180.days) || (Date.strptime(ant_sep_date,
-                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
+        beyond_180_days = duty_end_date_check(max_period) || anticipated_separation_date_check(ant_sep_date)
 
-          collect_error_messages(
-            detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
-          )
+        return if !beyond_180_days || eligible_for_future_end_date?(service_information)
+
+        collect_error_messages(
+          detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
+        )
+      end
+
+      def duty_end_date_check(max_period)
+        Date.strptime(max_period['activeDutyEndDate'],
+                      '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
+      end
+
+      def anticipated_separation_date_check(ant_sep_date)
+        Date.strptime(ant_sep_date, '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
+      end
+
+      def eligible_for_future_end_date?(service_information)
+        reserves_national_guard_service = service_information['reservesNationalGuardService']
+        reserves_national_guard_service.present? && past_service_period?(service_information['servicePeriods'])
+      end
+
+      def past_service_period?(service_periods)
+        service_periods.any? do |sp|
+          end_date = sp['activeDutyEndDate']
+          next false if end_date.blank?
+
+          Date.parse(end_date) <= Time.zone.today.end_of_day
         end
       end
 

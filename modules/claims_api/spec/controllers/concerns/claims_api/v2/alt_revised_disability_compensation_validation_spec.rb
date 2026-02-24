@@ -138,6 +138,85 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#alt_rev_validate_claim_date_to_active_duty_end_date' do
+    let(:form_attributes) do
+      {
+        'serviceInformation' => {
+          'federalActivation' => {
+            'anticipatedSeparationDate' => 90.days.from_now.to_date.iso8601
+          },
+          'servicePeriods' => [
+            {
+              'activeDutyBeginDate' => 3.years.ago.to_date.iso8601,
+              'activeDutyEndDate' => 1.year.ago.to_date.iso8601
+            },
+            {
+              'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
+              'activeDutyEndDate' => 7.years.ago.to_date.iso8601
+            }
+          ]
+        }
+      }
+    end
+
+    let(:reserves) do
+      {
+        'component' => 'National Guard',
+        'obligationTermsOfService' => {
+          'beginDate' => '1990-11-24',
+          'endDate' => '1995-11-17'
+        },
+        'unitName' => 'National Guard Unit Name',
+        'unitAddress' => '1243 Main Street',
+        'unitPhone' => {
+          'areaCode' => '555',
+          'phoneNumber' => '5555555'
+        },
+        'receivingInactiveDutyTrainingPay' => 'YES'
+      }
+    end
+
+    context 'when the max active duty end date is valid' do
+      it 'does not return an error' do
+        subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, form_attributes['serviceInformation'])
+
+        expect(current_error_array).to be_nil
+      end
+    end
+
+    context 'when the active duty end date is beyond 180 days from the claim date' do
+      it 'collects an error message' do
+        invalid_attributes = form_attributes.deep_dup
+        invalid_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+          200.days.from_now.to_date.iso8601
+        invalid_attributes['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
+          200.days.from_now.to_date.iso8601
+
+        subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, invalid_attributes['serviceInformation'])
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          'Service members cannot submit a claim until they are within 180 days of their separation date.'
+        )
+      end
+    end
+
+    context 'when the active duty end date is beyond 180 days from the claim date, but current branch is reserves' do
+      it 'does not raise a 422' do
+        valid_attributes = form_attributes.deep_dup
+        valid_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        valid_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+          200.days.from_now.to_date.iso8601
+        valid_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+          200.days.from_now.to_date.iso8601
+
+        subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, valid_attributes['serviceInformation'])
+
+        expect(current_error_array).to be_nil
+      end
+    end
+  end
+
   describe '#validate_service_periods_quantity!' do
     let(:invalid_form_attributes) do
       {
@@ -180,6 +259,30 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       subject.send(:validate_service_periods_quantity!, valid_form_attributes['serviceInformation']['servicePeriods'])
 
       expect(current_error_array).to be_nil
+    end
+  end
+
+  describe '#duty_end_date_check' do
+    it 'returns true when active duty end date is beyond 180 days from claim date' do
+      max_period = { 'activeDutyEndDate' => 200.days.from_now.to_date.iso8601 }
+
+      expect(subject.send(:duty_end_date_check, max_period)).to be true
+    end
+
+    it 'returns false when active duty end date is within 180 days from claim date' do
+      max_period = { 'activeDutyEndDate' => 90.days.from_now.to_date.iso8601 }
+
+      expect(subject.send(:duty_end_date_check, max_period)).to be false
+    end
+  end
+
+  describe '#anticipated_separation_date_check' do
+    it 'returns true when anticipated separation date is beyond 180 days from claim date' do
+      expect(subject.send(:anticipated_separation_date_check, 200.days.from_now.to_date.iso8601)).to be true
+    end
+
+    it 'returns false when anticipated separation date is within 180 days from claim date' do
+      expect(subject.send(:anticipated_separation_date_check, 90.days.from_now.to_date.iso8601)).to be false
     end
   end
 
