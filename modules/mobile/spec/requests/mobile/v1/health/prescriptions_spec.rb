@@ -344,7 +344,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             end
 
             expect(StatsD).not_to have_received(:increment).with(
-              'api.uhd.refills.requested', anything, anything
+              'api.uhd.refills.requested', any_args
             )
           end
         end
