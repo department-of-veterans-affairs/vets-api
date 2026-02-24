@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'digital_forms_api/validation/schema'
+require 'digital_forms_api/validation'
 
 RSpec.describe DigitalFormsApi::Validation do
   let(:schema) { build(:digital_forms_api_schema) }

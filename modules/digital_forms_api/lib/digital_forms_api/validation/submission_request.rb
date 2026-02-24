@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'digital_forms_api/validation/schema'
+require 'digital_forms_api/validation'
 
 # Digital Forms API namespace.
 module DigitalFormsApi
@@ -8,27 +8,21 @@ module DigitalFormsApi
   module Validation
     # Builds and validates the submissions request body sent to Digital Forms API.
     #
-    # Validation is driven by schema fetched from the endpoint:
-    # - if endpoint schema defines an envelope, validate the full request
-    # - otherwise validate only the payload against the fetched form schema
+    # The form_schema validates the payload (actual form data) only.
+    # Request structure validation (envelope) is handled separately by the
+    # Forms API OpenAPI schema.
     class SubmissionRequest
       # Validate and return a submission request payload.
       #
       # @param payload [Hash] structured form payload to submit
       # @param metadata [Hash] envelope metadata for the submission
-      # @param form_schema [Hash] schema fetched from Forms API
+      # @param form_schema [Hash] schema fetched from Forms API for payload validation
       # @return [Hash] validated submission request
       # @raise [JSON::Schema::ValidationError] when schema validation fails
       def validate(payload:, metadata:, form_schema:)
-        request = build_request(payload:, metadata:)
+        DigitalFormsApi::Validation.validate_against_schema(form_schema, payload)
 
-        if request_schema?(form_schema)
-          DigitalFormsApi::Validation.validate_against_schema(form_schema, request)
-        else
-          DigitalFormsApi::Validation.validate_against_schema(form_schema, payload)
-        end
-
-        request
+        build_request(payload:, metadata:)
       end
 
       private
@@ -37,7 +31,7 @@ module DigitalFormsApi
       #
       # @param payload [Hash] structured form payload to submit
       # @param metadata [Hash] envelope metadata for the submission
-      # @return [Hash] request body ready for schema validation and POST
+      # @return [Hash] request body ready for POST
       def build_request(payload:, metadata:)
         normalized_metadata = normalize_metadata(metadata)
 
@@ -54,21 +48,18 @@ module DigitalFormsApi
       end
 
       # Normalize metadata to symbol keys to avoid mixed string/symbol duplicates.
+      # Handles the case where both string and symbol versions of a key may exist
+      # by preferring the symbol-keyed value.
       #
       # @param metadata [Hash]
       # @return [Hash]
       def normalize_metadata(metadata)
-        metadata.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
-      end
-
-      # Identify whether the fetched schema expects the full request object.
-      #
-      # @param schema [Hash, Object] schema fetched from Forms API
-      # @return [Boolean] true when schema includes properties.envelope
-      def request_schema?(schema)
-        return false unless schema.is_a?(Hash)
-
-        schema.dig('properties', 'envelope').is_a?(Hash) || schema.dig(:properties, :envelope).is_a?(Hash)
+        result = {}
+        metadata.to_h.each do |key, value|
+          sym_key = key.respond_to?(:to_sym) ? key.to_sym : key
+          result[sym_key] = value unless result.key?(sym_key)
+        end
+        result
       end
     end
   end
