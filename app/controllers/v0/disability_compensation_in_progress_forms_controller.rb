@@ -72,10 +72,66 @@ module V0
       # for Toxic Exposure 1.1 - add indicator to In Progress Forms
       # moving forward, we don't want to change the version if it is already there
       parsed_form_data = set_started_form_version(parsed_form_data)
+
+      # Fix poisoned IPFs: if disabilityCompNewConditionsWorkflow was erroneously
+      # injected as true (by useFormFeatureToggleSync) into a form built under the
+      # old flow, the user crashes when returnUrl navigates to an old-flow page
+      # whose schemas were never initialized (flag true = old-flow pages inactive).
+      # Simple fix: if flag is true and returnUrl is an old-flow conditions page,
+      # reset the flag to false so old-flow pages activate properly.
+      if Flipper.enabled?(:disability_compensation_fix_poisoned_ipf, @current_user)
+        parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
+      end
       {
         formData: parsed_form_data,
         metadata:
       }
+    end
+
+    # Old-flow conditions pages — all wrapped by gatePages(workflow, isNewConditionsOff),
+    # so they become inactive when the flag is true.
+    #   /new-disabilities/follow-up  — showPagePerItem schemas never initialized → RJSF crash
+    #   /new-disabilities/add        — depends returns false → redirect loop
+    #   /claim-type                  — depends returns false → redirect loop
+    #   /disabilities/orientation    — depends returns false → redirect loop
+    #   /disabilities/rated-disabilities — depends returns false → redirect loop
+    OLD_FLOW_CONDITIONS_PATTERN = %r{
+      claim-type |
+      disabilities/orientation |
+      disabilities/rated-disabilities |
+      new-disabilities/(follow-up|add\b)
+    }x
+
+    # If disabilityCompNewConditionsWorkflow is true and returnUrl points to an
+    # old-flow conditions page, reset the flag to false. This prevents the
+    # RJSF crash (follow-up) and redirect loops (all other old-flow pages).
+    def fix_new_conditions_workflow_flag(form_data, metadata)
+      flag = form_data['disabilityCompNewConditionsWorkflow']
+      return_url = metadata&.dig('returnUrl') || ''
+
+      return form_data unless [true, 'true'].include?(flag)
+
+      unless OLD_FLOW_CONDITIONS_PATTERN.match?(return_url)
+        log_poisoned_ipf_fix('returnUrl not an old-flow conditions page, skipping', flag:, return_url:)
+        return form_data
+      end
+
+      log_poisoned_ipf_fix('resetting to false — flag true + old-flow returnUrl', flag:, return_url:)
+      corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
+      begin
+        form_for_user.update(form_data: corrected.to_json)
+      rescue => e
+        Rails.logger.error("Form526 fix_poisoned_ipf: failed to persist - #{e.message}")
+      end
+      corrected
+    end
+
+    def log_poisoned_ipf_fix(message, flag: nil, return_url: nil)
+      Rails.logger.info("Form526 fix_poisoned_ipf: #{message}",
+                        user_uuid: @current_user&.uuid,
+                        in_progress_form_id: form_for_user&.id,
+                        flag_ipf_value: flag,
+                        return_url:)
     end
 
     def set_started_form_version(data)

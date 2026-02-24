@@ -54,7 +54,6 @@ module BenefitsClaims
               'shortDescription' => item.short_description,
               'supportAliases' => item.support_aliases
             }
-            # New content override fields (populated when cst_evidence_requests_content_override is enabled)
             add_content_field(fields, 'longDescription', item.long_description)
             add_content_field(fields, 'nextSteps', item.next_steps)
             add_content_field(fields, 'noActionNeeded', item.no_action_needed)
