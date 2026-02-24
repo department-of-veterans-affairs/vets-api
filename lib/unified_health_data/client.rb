@@ -74,59 +74,70 @@ module UnifiedHealthData
       perform(:get, path, params, request_headers)
     end
 
-    def get_imaging_studies(patient_id:, start_date:, end_date:, imaging_study_type: 'ALL')
-      path = "#{config.base_path}imaging-studies/#{SourceConstants::ORACLE_HEALTH}"
-      params = { patientId: patient_id, startDate: start_date, endDate: end_date, imagingStudyType: imaging_study_type }
-      perform(:get, path, params, request_headers)
+    def get_imaging_studies(patient_id:, start_date:, end_date:, imaging_study_type: 'ALL', site_ids: [])
+      path = "#{config.base_path}imaging-studies?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      body = { siteIds: site_ids }
+      body[:imagingStudyType] = imaging_study_type if imaging_study_type != 'ALL'
+      perform(:post, path, body.to_json, request_headers(include_content_type: true))
     end
 
     def get_imaging_study(patient_id:, start_date:, end_date:, record_id:)
-      path = "#{config.base_path}imaging-study/#{SourceConstants::ORACLE_HEALTH}"
+      path = "#{config.base_path}imaging-study"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
       perform(:get, path, params, request_headers)
     end
 
     def get_dicom_zip(patient_id:, start_date:, end_date:, record_id:)
-      path = "#{config.base_path}dicom-zip/#{SourceConstants::ORACLE_HEALTH}"
+      path = "#{config.base_path}dicom-zip"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
       perform(:get, path, params, request_headers)
     end
 
     private
 
-    # Override perform to automatically detect OperationOutcome partial failures in FHIR responses.
-    # This ensures all SCDF API calls are checked without requiring manual calls at each endpoint.
+    # Override perform to detect OperationOutcome issues in FHIR responses.
+    # Error-level OperationOutcomes raise exceptions (existing behavior).
+    # Warning-level OperationOutcomes are attached to the response body as '_warnings'
+    # so downstream services/controllers can surface them to the frontend.
     #
     # @param method [Symbol] HTTP method (:get, :post, etc.)
     # @param path [String] API path
     # @param params [Hash, nil] Request parameters or body
     # @param headers [Hash, nil] Request headers
     # @return [Faraday::Response] The response from the API
-    # @raise [Common::Exceptions::UpstreamPartialFailure] when OperationOutcome errors detected
+    # @raise [Common::Exceptions::UpstreamPartialFailure] when error-level OperationOutcomes detected
     def perform(method, path, params = nil, headers = nil)
       response = super
-      check_for_partial_failures!(response, path)
+      check_for_operation_outcomes!(response, path)
       response
     end
 
-    # Checks the response body for OperationOutcome resources with error severity.
-    # The detector handles any response format gracefully - non-SCDF responses
-    # (arrays, different hash structures) will simply return partial_failure? = false.
+    # Scans the response for OperationOutcome resources.
+    # Errors raise immediately. Warnings are injected into the response body for downstream use.
     #
     # @param response [Faraday::Response] The response from the API
     # @param path [String] The API path for logging/metrics
-    # @raise [Common::Exceptions::UpstreamPartialFailure] when partial failures detected
-    def check_for_partial_failures!(response, path)
+    # @raise [Common::Exceptions::UpstreamPartialFailure] when error-level OperationOutcomes detected
+    def check_for_operation_outcomes!(response, path)
       detector = OperationOutcomeDetector.new(response.body)
-      return unless detector.partial_failure?
-
       resource_type = extract_resource_type(path)
-      detector.log_and_track(resource_type:)
 
-      raise Common::Exceptions::UpstreamPartialFailure.new(
-        failed_sources: detector.failed_sources,
-        failure_details: detector.failure_details
-      )
+      if detector.partial_failure?
+        detector.log_and_track(resource_type:)
+        # NOTE: If errors and warnings co-exist (e.g., VistA times out but Oracle Health has a
+        # missing Binary warning), the error takes precedence and warnings are not surfaced.
+        # This is intentional — a source-level failure already triggers UpstreamPartialFailure
+        # handling, and the warning about a missing attachment is secondary.
+        raise Common::Exceptions::UpstreamPartialFailure.new(
+          failed_sources: detector.failed_sources,
+          failure_details: detector.failure_details
+        )
+      end
+
+      if detector.warnings? && response.body.is_a?(Hash)
+        detector.log_and_track_warnings(resource_type:)
+        response.body['_warnings'] = detector.warning_details
+      end
     end
 
     # Extracts the resource type from the API path for logging and metrics
