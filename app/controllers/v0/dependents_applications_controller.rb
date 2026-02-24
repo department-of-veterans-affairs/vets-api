@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'digital_forms_api/service/submissions'
 
 module V0
   class DependentsApplicationsController < ApplicationController
@@ -15,7 +17,7 @@ module V0
       raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
 
-    def create
+    def create # rubocop:disable Metrics/MethodLength
       claim = create_claim(dependent_params.to_json)
 
       monitor.track_create_attempt(claim, current_user)
@@ -32,6 +34,22 @@ module V0
 
       claim.process_attachments!
 
+      # FDF pilot
+      forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
+      if forms_api_enabled && (claim.claim_form_type == '21-686c')
+        begin
+          claim_info = claim.get_claim_information(current_user)
+          if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
+            submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+            log_submitted(in_progress_form, claim)
+            claim.send_submitted_email(current_user)
+            return render json: SavedClaimSerializer.new(claim)
+          end
+        rescue => e
+          monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
+        end
+      end
+
       dependent_service = create_dependent_service
 
       dependent_service.submit_686c_form(claim)
@@ -47,6 +65,52 @@ module V0
     end
 
     private
+
+    # submit claim to forms api - temp for FDF pilot
+    def submit_via_forms_api(claim, claim_label, participant_id)
+      digital_forms_api_submission_service ||= DigitalFormsApi::Service::Submissions.new
+
+      payload = claim.parsed_form
+      metadata = {
+        formId: claim.claim_form_type,
+        veteranId: participant_id,
+        claimantId: participant_id,
+        epCode: claim_label[/^\d+/],
+        claimLabel: claim_label
+      }
+
+      response = digital_forms_api_submission_service.submit(payload, metadata)
+      raise response.to_s.to_s unless response.success?
+
+      monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
+
+      upload_evidence_documents(claim, participant_id)
+
+      # TODO: parse the response body and pass back the identifier to be used by the form viewer (future)
+      'submission-id'
+    end
+
+    # upload evidence documents - temp for FDF pilot
+    def upload_evidence_documents(claim, participant_id)
+      form_id = claim.claim_form_type
+      doctype = claim.document_type
+
+      folder_identifier = "VETERAN:PARTICIPANT_ID:#{participant_id}"
+      claims_evidence_uploader = ClaimsEvidenceApi::Uploader.new(folder_identifier)
+
+      file_path = claim.process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id)
+      claims_evidence_uploader.upload_evidence(claim.id, file_path:, form_id:, doctype:)
+
+      stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
+      claim.persistent_attachments.each do |pa|
+        doctype = pa.document_type
+        file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+        claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
+      end
+    rescue
+      monitor.track_event(:error, 'Evidence submission during Forms API processing failed',
+                          "#{STATS_KEY}.submit_pdf.failure", error: e.message)
+    end
 
     def dependent_params
       params.permit(

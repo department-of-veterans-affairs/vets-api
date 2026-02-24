@@ -111,7 +111,10 @@ module SignIn
     end
 
     def logingov_current_ial
-      verified_ial_level(logingov_ial2?)
+      translated_ial = verified_ial_level(logingov_ial2?)
+      Rails.logger.info('[SignIn][CredentialLevelCreator] logingov_current_ial',
+                        logingov_acr:, translated_ial:, credential_uuid:)
+      translated_ial
     end
 
     def mhv_current_ial
@@ -135,7 +138,7 @@ module SignIn
     end
 
     def logingov_ial2?
-      logingov_acr == Constants::Auth::LOGIN_GOV_IAL2
+      logingov_ial2_levels.include?(logingov_acr)
     end
 
     def idme_loa3_or_previously_verified?
@@ -169,6 +172,12 @@ module SignIn
     def previously_verified?(identifier_type)
       user_verification = UserVerification.find_by(identifier_type => credential_uuid)
       user_verification&.verified?
+    end
+
+    def logingov_ial2_levels
+      [Constants::Auth::LOGIN_GOV_IAL2,
+       Constants::Auth::LOGIN_GOV_IAL2_REQUIRED,
+       Constants::Auth::LOGIN_GOV_IAL2_PREFERRED]
     end
   end
 end
