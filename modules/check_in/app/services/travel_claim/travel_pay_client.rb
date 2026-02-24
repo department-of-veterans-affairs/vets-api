@@ -51,14 +51,14 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing appointment data
     #
     def send_appointment_request(veis_token:, btsss_token:)
+      path = "#{api_version}/appointments/find-or-add"
       with_monitoring do
-        perform(:post, 'api/v3/appointments/find-or-add',
+        perform(:post, path,
                 { appointmentDateTime: @appointment_date_time, facilityStationNumber: @station_number },
                 build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(operation: 'find_or_add_appointment',
-                             api_path: 'api/v3/appointments/find-or-add', error: e)
+      log_external_api_error(operation: 'find_or_add_appointment', api_path: path, error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -71,13 +71,14 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing claim data
     #
     def send_claim_request(veis_token:, btsss_token:, appointment_id:)
+      path = "#{api_version}/claims"
       with_monitoring do
-        perform(:post, 'api/v3/claims',
+        perform(:post, path,
                 { appointmentId: appointment_id, claimName: CLAIM_NAME, claimantType: CLAIMANT_TYPE },
                 build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(operation: 'create_claim', api_path: 'api/v3/claims', error: e)
+      log_external_api_error(operation: 'create_claim', api_path: path, error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -91,14 +92,15 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing expense data
     #
     def send_mileage_expense_request(veis_token:, btsss_token:, claim_id:, date_incurred:)
+      path = "#{api_version}/expenses/mileage"
       with_monitoring do
-        perform(:post, 'api/v3/expenses/mileage',
+        perform(:post, path,
                 { claimId: claim_id, dateIncurred: date_incurred, description: EXPENSE_DESCRIPTION,
                   tripType: TRIP_TYPE },
                 build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(operation: 'add_mileage_expense', api_path: 'api/v3/expenses/mileage', error: e)
+      log_external_api_error(operation: 'add_mileage_expense', api_path: path, error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -111,11 +113,12 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing claim data
     #
     def send_get_claim_request(veis_token:, btsss_token:, claim_id:)
+      path = "#{api_version}/claims/#{claim_id}"
       with_monitoring do
-        perform(:get, "api/v3/claims/#{claim_id}", nil, build_headers(veis_token:, btsss_token:))
+        perform(:get, path, nil, build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(operation: 'get_claim', api_path: 'api/v3/claims/{claim_id}', error: e)
+      log_external_api_error(operation: 'get_claim', api_path: path, error: e)
       enrich_and_reraise_if_needed(e)
     end
 
@@ -128,15 +131,24 @@ module TravelClaim
     # @return [Faraday::Response] HTTP response containing submission data
     #
     def send_claim_submission_request(veis_token:, btsss_token:, claim_id:)
+      path = "#{api_version}/claims/#{claim_id}/submit"
       with_monitoring do
-        perform(:patch, "api/v3/claims/#{claim_id}/submit", nil, build_headers(veis_token:, btsss_token:))
+        perform(:patch, path, nil, build_headers(veis_token:, btsss_token:))
       end
     rescue *API_EXCEPTIONS => e
-      log_external_api_error(operation: 'submit_claim', api_path: 'api/v3/claims/{claim_id}/submit', error: e)
+      log_external_api_error(operation: 'submit_claim', api_path: path, error: e)
       enrich_and_reraise_if_needed(e)
     end
 
     private
+
+    def api_version
+      if Flipper.enabled?(:check_in_experience_use_btsss_v2_claim_submission_endpoints)
+        'api/v2'
+      else
+        'api/v3'
+      end
+    end
 
     ##
     # Builds HTTP headers for BTSSS API requests.
@@ -196,7 +208,7 @@ module TravelClaim
 
     def build_base_log_data(operation, api_path)
       {
-        message: 'TravelPayClient: BTSSS API Error',
+        message: "#{CheckIn::Constants::LOG_PREFIX}: BTSSS API Error",
         operation:,
         api_path:,
         correlation_id: @correlation_id,
