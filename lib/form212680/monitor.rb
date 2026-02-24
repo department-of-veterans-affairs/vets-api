@@ -82,7 +82,7 @@ module Form212680
 
     ##
     # Track submission begun in controller
-    # Called when claim is saved and about to be queued to Sidekiq
+    # Called when submission processing starts, before validation and persistence
     #
     # @param claim [SavedClaim::Form212680]
     # @param user_uuid [String, nil] Optional user UUID for tracking
@@ -99,7 +99,8 @@ module Form212680
 
     ##
     # Track successful submission
-    # Called when claim is successfully saved and queued
+    # Called when claim is successfully validated, saved,
+    # and attachments processed
     #
     # @param claim [SavedClaim::Form212680]
     # @param user_uuid [String, nil] Optional user UUID for tracking
@@ -116,7 +117,7 @@ module Form212680
 
     ##
     # Track submission failure
-    # Called when claim save or processing fails
+    # Called when claim validation or save fails in the controller action
     #
     # @param claim [SavedClaim::Form212680]
     # @param error [StandardError] The error that occurred
@@ -139,7 +140,8 @@ module Form212680
     # Enables response code distribution tracking in Datadog
     #
     # @param code [Integer] HTTP status code (200, 422, 429, 500, etc.)
-    # @param action [String, nil] Optional action name (e.g., 'create', 'download_pdf')
+    # @param action [String, nil] Optional action name
+    #   (e.g., 'create', 'download_pdf')
     # @param user_uuid [String, nil] Optional user UUID for correlation
     # @param claim_guid [String, nil] Optional claim GUID for correlation
     def track_request_code(code, action: nil, user_uuid: nil, claim_guid: nil)
