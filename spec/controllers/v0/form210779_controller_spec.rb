@@ -14,6 +14,7 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     allow(monitor).to receive(:track_submission_success)
     allow(monitor).to receive(:track_submission_failure)
     allow(monitor).to receive(:track_request_code)
+    allow(monitor).to receive(:track_request_validation_error)
   end
 
   def parsed_response
@@ -144,6 +145,16 @@ RSpec.describe V0::Form210779Controller, type: :controller do
           expect(claim).to be_a(SavedClaim::Form210779)
           expect(error.message).to eq('Validation failed')
         end
+
+        post(:create, body: invalid_data, as: :json)
+      end
+
+      it 'tracks validation error when ActiveRecord validation fails' do
+        expect(monitor).to receive(:track_request_validation_error).with(
+          error: kind_of(Common::Exceptions::ValidationErrors),
+          request: kind_of(ActionDispatch::Request),
+          claim: kind_of(SavedClaim::Form210779)
+        )
 
         post(:create, body: invalid_data, as: :json)
       end

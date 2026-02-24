@@ -32,21 +32,25 @@ module Form210779
     end
 
     ##
-    # Logs Committee request validation failures
+    # Logs validation failures from ActiveRecord
     #
-    # Called when Committee middleware rejects a request that doesn't conform
-    # to the OpenAPI schema. Logs the field path and error type without PII.
+    # Form 21-0779 does not use Committee middleware for validation.
+    # This tracks ActiveRecord validation errors when claim.save fails.
     #
-    # @param error [Committee::InvalidRequest] The validation error from Committee
+    # Note: Rails handles malformed JSON at middleware level (returns 400),
+    # so JSON parse errors never reach the controller.
+    #
+    # @param error [Common::Exceptions::ValidationErrors] The validation error
     # @param request [Rack::Request] The incoming request
-    def track_request_validation_error(error:, request:)
+    # @param claim [SavedClaim::Form210779] The claim object with validation errors
+    def track_request_validation_error(error:, request:, claim: nil)
       call_location = caller_locations.first
 
-      validation_details = extract_validation_details(error)
+      validation_details = extract_validation_details_from_error(error, claim)
 
       track_request(
         :warn,
-        "#{self.class.name} #{FORM_ID} Committee validation failed",
+        "#{self.class.name} #{FORM_ID} validation failed: #{validation_details[:error_type]}",
         "#{CLAIM_STATS_KEY}.validation_error",
         call_location:,
         form_id: FORM_ID,
@@ -150,67 +154,32 @@ module Form210779
     end
 
     ##
-    # Extracts validation details from Committee error without exposing PII
+    # Extracts validation details from ActiveRecord errors without exposing PII
     #
-    # @param error [Committee::InvalidRequest] The validation error
+    # @param error [Common::Exceptions::ValidationErrors] The validation error
+    # @param claim [SavedClaim::Form210779] The claim object with validation errors
     # @return [Hash] Hash with :error_type and :data_pointer
-    def extract_validation_details(error)
-      message = error.message.to_s
-
+    def extract_validation_details_from_error(error, claim)
       # Debug log for local development (suppressed in production)
-      Rails.logger.debug { "[#{self.class.name}] Committee error: #{message}" }
+      Rails.logger.debug { "[#{self.class.name}] Validation error: #{error.class} - #{error.message}" }
 
       {
-        error_type: extract_error_type(message),
-        data_pointer: extract_data_pointer(message)
+        error_type: 'activerecord_validation',
+        data_pointer: extract_data_pointer_from_claim(claim)
       }
     end
 
     ##
-    # Extracts the error type from Committee error message
+    # Extracts field path from ActiveRecord validation errors
     #
-    # @param message [String] The error message
-    # @return [String] The error type (e.g., 'pattern', 'required', 'type')
-    def extract_error_type(message)
-      case message
-      when /pattern.*does not match/i
-        'pattern_mismatch'
-      when /required/i
-        'missing_required'
-      when /is not a member of enum/i
-        'invalid_enum'
-      when /expected.*got/i, /type mismatch/i
-        'type_mismatch'
-      when /minimum|maximum/i
-        'out_of_range'
-      when /minLength|maxLength/i
-        'invalid_length'
-      else
-        'validation_error'
-      end
-    end
+    # @param claim [SavedClaim::Form210779, nil] The claim object
+    # @return [String] The field path or 'unknown'
+    def extract_data_pointer_from_claim(claim)
+      return 'unknown' unless claim&.errors&.any?
 
-    ##
-    # Extracts the field path (data pointer) from Committee error message
-    #
-    # Removes PII by extracting only the schema path, not user values.
-    #
-    # @param message [String] The error message
-    # @return [String, nil] The field path or nil if not found
-    def extract_data_pointer(message)
-      # Committee errors often include the path in formats like:
-      # "#/properties/veteranInformation/properties/ssn pattern..."
-      # or "/veteranInformation/ssn"
-      if (match = message.match(%r{#/[^\s]+|/[a-zA-Z][a-zA-Z0-9/]*}))
-        # Clean up the path to remove schema-specific parts
-        path = match[0]
-        path = path.gsub(%r{#/paths/[^/]+/[^/]+/requestBody/content/[^/]+/schema}, '')
-        path = path.gsub('/properties/', '/')
-        path = path.gsub(%r{^/+}, '/')
-        path.presence || 'unknown'
-      else
-        'unknown'
-      end
+      # Get first error's attribute path
+      first_error_key = claim.errors.attribute_names.first
+      first_error_key.to_s.presence || 'unknown'
     end
 
     ##
