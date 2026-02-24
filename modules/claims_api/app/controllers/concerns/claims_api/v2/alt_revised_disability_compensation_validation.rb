@@ -90,13 +90,15 @@ module ClaimsApi
       end
 
       def alt_rev_validate_form_526_change_of_address_beginning_date
+        # beginning date only needs to be validated for TEMPORARY address changes
+        return unless form_attributes['changeOfAddress']&.dig('typeOfAddressChange') == 'TEMPORARY'
         change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'beginDate')
-        return if date.nil? # nullable on schema
+        begin_date = change_of_address.dig('dates', 'beginDate')
 
         begin
-          begins_in_past = Date.strptime(date, '%Y-%m-%d') <= Date.current
-          if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
+          # if the address type is TEMPORARY, the beginDate must exist and be in the future.
+          begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
+          if begin_date.present? && begins_in_past
             collect_error_messages(
               detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
               source: '/changeOfAddress/dates/beginDate'
