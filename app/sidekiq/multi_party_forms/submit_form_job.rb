@@ -47,8 +47,8 @@ module MultiPartyForms
 
       ActiveRecord::Base.transaction do
         merged_data = merge_form_data
-        @saved_claim = create_saved_claim(merged_data)
-        @submission.update!(saved_claim: @saved_claim)
+        saved_claim = create_saved_claim(merged_data)
+        @submission.update!(saved_claim:)
       end
     end
 
