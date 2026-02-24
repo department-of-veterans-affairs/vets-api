@@ -30,7 +30,6 @@ module V0
       end
     rescue Common::Exceptions::ValidationErrors
       monitor.track_submission_failure(claim, StandardError.new('Validation failed'), user_uuid: current_user&.uuid)
-      monitor.track_request_code(422)
       raise
     rescue => e
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
