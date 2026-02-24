@@ -7,8 +7,9 @@ module IncreaseCompensation
   # @see VeteranFacingServices::NotificationEmail::SavedClaim
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
-    def initialize(saved_claim_id)
+    def initialize(saved_claim_id, confirmation_number = nil)
       super(saved_claim_id, service_name: 'increase_compensation')
+      @confirmation_number = confirmation_number
     end
 
     private
@@ -46,7 +47,9 @@ module IncreaseCompensation
         # confirmation, error
         'first_name' => first_name,
         # received
-        'date_received' => date_received
+        'date_received' => date_received,
+        # use benefits_intake_uuid if provided, otherwise use the claim.guid
+        'confirmation_number' => @confirmation_number || claim.confirmation_number
       }
 
       default.merge(template)
