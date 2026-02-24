@@ -29,7 +29,6 @@ module V0
       # Track ActiveRecord validation errors
       monitor.track_request_validation_error(error: e, request:, claim:)
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
-      monitor.track_request_code(422)
       raise
     rescue => e
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
