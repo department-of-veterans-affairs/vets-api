@@ -52,22 +52,85 @@ module DigitalFormsApi
       # @raise [ArgumentError] when schema payload is not a Hash
       def parse_schema(body, form_id)
         schema = extract_schema(body)
+
         return schema if schema.is_a?(Hash)
 
         message = "Schema response for form_id '#{form_id}' did not include a JSON schema " \
                   "(expected Hash, got #{schema.class})"
-        monitor.track_schema_payload_error(form_id, message, call_location: caller_locations.first)
+
+        monitor.track_schema_payload_error(
+          form_id,
+          message,
+          call_location: caller_locations.first
+        )
+
         raise ArgumentError, message
       end
 
       # Extract schema payload from top-level or nested response structures.
+      #
+      # Supports:
+      #   1. { "schema": { ... } }
+      #   2. { "data": { "schema": { ... } } }
+      #   3. Full OpenAPI document → extracts POST /submissions requestBody schema
+      #
       # @param body [Hash, Object]
       # @return [Hash, Object]
       def extract_schema(body)
         return body['schema'] if body.is_a?(Hash) && body.key?('schema')
         return body.dig('data', 'schema') if body.is_a?(Hash) && body.key?('data')
 
+        return extract_from_openapi(body) if openapi_document?(body)
+
         body
+      end
+
+      # Detect if response body looks like an OpenAPI document.
+      #
+      # @param body [Hash, Object]
+      # @return [Boolean]
+      def openapi_document?(body)
+        body.is_a?(Hash) &&
+          body.key?('openapi') &&
+          body.key?('paths')
+      end
+
+      # Extract POST /submissions requestBody schema from OpenAPI doc.
+      #
+      # @param body [Hash]
+      # @return [Hash, nil]
+      def extract_from_openapi(body)
+        schema =
+          body.dig(
+            'paths',
+            '/submissions',
+            'post',
+            'requestBody',
+            'content',
+            'application/json',
+            'schema'
+          )
+
+        return nil unless schema.is_a?(Hash)
+
+        resolve_ref(schema, body)
+      end
+
+      # Resolve OpenAPI $ref if present.
+      #
+      # @param schema [Hash]
+      # @param root [Hash]
+      # @return [Hash]
+      def resolve_ref(schema, root)
+        return schema unless schema['$ref'].is_a?(String)
+
+        ref_path = schema['$ref'].sub(%r{\A#/}, '').split('/')
+
+        resolved = ref_path.reduce(root) do |acc, key|
+          acc.is_a?(Hash) ? acc[key] : nil
+        end
+
+        resolved || schema
       end
     end
   end
