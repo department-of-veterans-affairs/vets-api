@@ -10,6 +10,7 @@ module V0
     skip_before_action :authenticate, only: %i[create download_pdf]
     before_action :load_user, :check_feature_enabled
 
+    # rubocop:disable Metrics/MethodLength
     def create
       # Body parsed by Rails; schema validated by committee before hitting here.
       payload = request.raw_post
@@ -35,9 +36,18 @@ module V0
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
       raise
     ensure
-      monitor.track_request_code(response.status) if response.status
+      if response.status
+        monitor.track_request_code(
+          response.status,
+          action: 'create',
+          user_uuid: current_user&.uuid,
+          claim_guid: claim&.guid
+        )
+      end
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # rubocop:disable Metrics/MethodLength
     def download_pdf
       # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
       parsed_form = JSON.parse(request.raw_post)
@@ -65,9 +75,16 @@ module V0
       StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
     ensure
-      monitor.track_request_code(response.status) if response.status
+      if response.status
+        monitor.track_request_code(
+          response.status,
+          action: 'download_pdf',
+          user_uuid: current_user&.uuid
+        )
+      end
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

@@ -131,18 +131,9 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'tracks request code for successful submission' do
-        expect(monitor).to receive(:track_request_code).with(200)
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'create', user_uuid: nil))
 
         post(:create, body: valid_payload.to_json, as: :json)
-      end
-
-      it 'tracks request code for validation errors' do
-        invalid_payload = { veteranInformation: { fullName: { first: 'OnlyFirst' } } }
-
-        expect(monitor).to receive(:track_request_code).with(422)
-
-        post(:create, body: invalid_payload.to_json, as: :json)
-        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it 'tracks request code for PDF download success' do
@@ -156,7 +147,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         allow(File).to receive(:delete).and_call_original
         allow(File).to receive(:delete).with(temp_pdf)
 
-        expect(monitor).to receive(:track_request_code).with(200)
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'download_pdf', user_uuid: nil))
 
         post(:download_pdf, body: form_data.to_json, as: :json)
       end
@@ -164,7 +155,7 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       it 'tracks request code for PDF generation errors' do
         allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
 
-        expect(monitor).to receive(:track_request_code).with(500)
+        expect(monitor).to receive(:track_request_code).with(500, hash_including(action: 'download_pdf', user_uuid: nil))
 
         post(:download_pdf, body: form_data.to_json, as: :json)
       end

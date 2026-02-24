@@ -133,8 +133,19 @@ module Form214192
     # Used to track HTTP response codes (200, 422, 500, etc.) for monitoring
     #
     # @param code [Integer] HTTP response code
-    def track_request_code(code)
-      StatsD.increment("#{CLAIM_STATS_KEY}.request", tags: ["code:#{code}"])
+    # @param action [String, nil] Optional action name (e.g., 'create', 'download_pdf')
+    # @param user_uuid [String, nil] Optional user UUID for correlation
+    # @param claim_guid [String, nil] Optional claim GUID for correlation
+    def track_request_code(code, action: nil, user_uuid: nil, claim_guid: nil)
+      submit_event(
+        :info,
+        "#{message_prefix} request completed with status #{code}",
+        "#{CLAIM_STATS_KEY}.request",
+        code:,
+        action:,
+        user_uuid:,
+        claim_guid:
+      )
     end
 
     private
