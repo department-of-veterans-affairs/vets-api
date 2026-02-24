@@ -66,6 +66,12 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
         job.perform(submission.id)
       end
 
+      it 'sets submitted_at on the submission' do
+        job.perform(submission.id)
+
+        expect(submission.reload.submitted_at).to be_present
+      end
+
       it 'destroys both InProgressForms' do
         job.perform(submission.id)
 
@@ -94,6 +100,32 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
 
       it 'still enqueues the Lighthouse submission job' do
         expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(saved_claim.id)
+
+        job.perform(submission.id)
+      end
+
+      it 'still cleans up InProgressForms' do
+        job.perform(submission.id)
+
+        expect(InProgressForm.exists?(primary_in_progress_form.id)).to be(false)
+        expect(InProgressForm.exists?(secondary_in_progress_form.id)).to be(false)
+      end
+
+      it 'still tracks success metrics' do
+        job.perform(submission.id)
+
+        expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.begin")
+        expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.success")
+      end
+    end
+
+    context 'when retried after Lighthouse submission was already enqueued' do
+      before do
+        submission.update!(saved_claim:, submitted_at: Time.zone.now)
+      end
+
+      it 'does not enqueue a duplicate Lighthouse submission' do
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async)
 
         job.perform(submission.id)
       end

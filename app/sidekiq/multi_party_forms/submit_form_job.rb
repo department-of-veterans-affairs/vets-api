@@ -84,7 +84,10 @@ module MultiPartyForms
     end
 
     def enqueue_lighthouse_submission
+      return if @submission.submitted_at.present?
+
       Lighthouse::SubmitBenefitsIntakeClaim.perform_async(@submission.saved_claim_id)
+      @submission.update!(submitted_at: Time.zone.now)
     end
 
     def enqueue_confirmation_emails
