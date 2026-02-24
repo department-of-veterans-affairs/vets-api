@@ -192,61 +192,61 @@ module BioHeartApi
       #
       # @param form [Hash] The form data
       # @param type [String] The type to check (e.g., 'has_spouse')
-      # @return [Boolean] true if type exists, false otherwise
+      # @return [Int] 1 if type exists, 0 otherwise
       def surviving_relatives_has_type?(form, type)
-        form.dig('surviving_relatives', type) == true
+        form.dig('surviving_relatives', type) == true ? 1 : 0
       end
 
       # Determine if waive substitution YES checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if wants to waive, false otherwise
+      # @return [Int] 1 if wants to waive, 0 otherwise
       def waive_substitution_yes?(form)
-        form.dig('surviving_relatives', 'wants_to_waive_substitution') == true
+        form.dig('surviving_relatives', 'wants_to_waive_substitution') == true ? 1 : 0
       end
 
       # Determine if waive substitution NO checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if does not want to waive, false otherwise
+      # @return [Int] 1 if does not want to waive, 0 otherwise
       def waive_substitution_no?(form)
-        form.dig('surviving_relatives', 'wants_to_waive_substitution') == false
+        form.dig('surviving_relatives', 'wants_to_waive_substitution') == false ? 1 : 0
       end
 
       # Check if there are other debts
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if other debts exist, false otherwise
+      # @return [Int] 1 if other debts exist, 0 otherwise
       def other_debts_exist?(form)
         other_debts = form.dig('expenses', 'other_debts')
-        other_debts.is_a?(Array) && other_debts.any?
+        other_debts.is_a?(Array) && other_debts.any? ? 1 : 0
       end
 
       # Check if there are no other debts
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if no other debts, false otherwise
+      # @return [Int] 1 if no other debts, 0 otherwise
       def other_debts_none?(form)
         other_debts = form.dig('expenses', 'other_debts')
-        !other_debts.is_a?(Array) || other_debts.empty?
+        !other_debts.is_a?(Array) || other_debts.empty? ? 1 : 0
       end
 
       # Determine if reimbursed YES checkbox should be checked
       # Note: This field is not in the frontend payload, so always returns false
       #
       # @param form [Hash] The form data
-      # @return [Boolean] false
+      # @return [Int] 0
       def reimbursed_yes?(_form)
-        false
+        0
       end
 
       # Determine if reimbursed NO checkbox should be checked
       # Note: This field is not in the frontend payload, so always returns false
       #
       # @param form [Hash] The form data
-      # @return [Boolean] false
+      # @return [Int] 0
       def reimbursed_no?(_form)
-        false
+        0
       end
 
       # Add surviving relatives data (Box 14A-D, up to 4)
@@ -329,7 +329,7 @@ module BioHeartApi
       def format_currency(amount)
         return nil if amount.nil?
 
-        format('%.2f', amount.to_f)
+        ActiveSupport::NumberHelper.number_to_currency(amount)
       end
     end
   end
