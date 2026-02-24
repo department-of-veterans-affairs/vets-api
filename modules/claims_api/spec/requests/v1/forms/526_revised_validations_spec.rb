@@ -841,10 +841,17 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
 
-      it 'raises error if beginningDate is after or equal to endingDate' do
+      it 'raises error if beginningDate is equal to endingDate' do
         form_attributes['veteran']['changeOfAddress']['endingDate'] = form_attributes.dig(
           'veteran', 'changeOfAddress', 'beginningDate'
         )
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises an error if beginningDate is after endingDate' do
+        form_attributes['veteran']['changeOfAddress']['beginningDate'] = 3.days.from_now.to_date.iso8601
+        form_attributes['veteran']['changeOfAddress']['endingDate'] = 2.days.from_now.to_date.iso8601
         expect { subject.validate_form_526_change_of_address! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
