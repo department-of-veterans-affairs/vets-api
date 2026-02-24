@@ -45,7 +45,7 @@ module MedicalCopays
       end
 
       def summary(month_count: 6)
-        result = collect_invoices_in_range(month_count:)
+        result = collect_invoices_in_range(month_count)
         entries = result['entries']
 
         total_amount = 0.to_d
@@ -65,7 +65,7 @@ module MedicalCopays
       end
 
       def list_months(month_count: 6)
-        result = collect_invoices_in_range(month_count:)
+        result = collect_invoices_in_range(month_count)
         raw_bundle = result['raw_bundle']
         filtered_entries = result['entries']
 
@@ -108,7 +108,7 @@ module MedicalCopays
       private
 
       # rubocop:disable Metrics/MethodLength
-      def collect_invoices_in_range(month_count:, count: 50)
+      def collect_invoices_in_range(month_count, count = 50)
         from = month_count.months.ago.utc
         page = 1
         collected_entries = []
