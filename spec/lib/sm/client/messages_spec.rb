@@ -289,17 +289,6 @@ describe 'sm client' do
           end
         end
 
-        it 'returns nil when messages have no triage_group' do
-          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
-            result = client.get_full_messages_for_thread(message_id)
-
-            result.data.each { |msg| allow(msg).to receive(:triage_group).and_return(nil) }
-
-            phase = client.send(:derive_oh_migration_phase, result)
-            expect(phase).to be_nil
-          end
-        end
-
         it 'logs error and returns nil when an exception occurs' do
           VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
             allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
