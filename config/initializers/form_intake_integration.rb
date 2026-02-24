@@ -5,20 +5,18 @@
 module FormIntake
   # Forms eligible for GCIO integration
   # Each form must also have a feature flag and mapper
-  ELIGIBLE_FORMS = [
-    # Forms will be added here as implemented
-    # Example:
-    # '21P-601',
-    # '21-0966',
+  ELIGIBLE_FORMS = %w[
+    21P-0537
+    21P-601
   ].freeze
 
   # Map each form to its feature flag for independent control
+  # rubocop:disable Naming/VariableNumber
   FORM_FEATURE_FLAGS = {
-    # Forms will be added here as implemented
-    # Example:
-    # '21P-601' => :form_intake_integration_601,
-    # '21-0966' => :form_intake_integration_0966,
+    '21P-0537' => :form_intake_integration_0537,
+    '21P-601' => :form_intake_integration_601
   }.freeze
+  # rubocop:enable Naming/VariableNumber
 
   # Check if GCIO is enabled for a specific form
   # @param form_id [String] Form type ID

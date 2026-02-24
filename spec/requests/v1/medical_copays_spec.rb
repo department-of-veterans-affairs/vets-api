@@ -12,8 +12,8 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake-access-token')
   end
 
-  describe 'index', skip: 'temporarily skipped' do
-    it 'returns a formatted hash response', skip: 'temporarily skipped' do
+  describe 'index' do
+    it 'returns a formatted hash response' do
       VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays'
 
@@ -48,7 +48,11 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
     it 'handles auth error' do
       VCR.use_cassette('lighthouse/hcc/auth_error') do
-        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+        allow_any_instance_of(Auth::ClientCredentials::Service)
+          .to receive(:get_token).and_call_original
+        allow(Auth::ClientCredentials::JWTGenerator)
+          .to receive(:generate_token).and_return('fake-jwt')
+
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)
