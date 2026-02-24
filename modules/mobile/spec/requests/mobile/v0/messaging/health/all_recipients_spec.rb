@@ -174,7 +174,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         parsed_response_contents = response.parsed_body['data']
         triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
         expect(triage_team.dig('attributes', 'name')).to eq(
-          'Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr'
+          'Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr' # rubocop:disable Layout/LineLength
         )
         expect(triage_team['type']).to eq('all_triage_teams')
         expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
