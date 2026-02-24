@@ -147,7 +147,8 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         allow(File).to receive(:delete).and_call_original
         allow(File).to receive(:delete).with(temp_pdf)
 
-        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'download_pdf', user_uuid: nil))
+        expect(monitor).to receive(:track_request_code).with(200,
+                                                             hash_including(action: 'download_pdf', user_uuid: nil))
 
         post(:download_pdf, body: form_data.to_json, as: :json)
       end
@@ -155,7 +156,8 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       it 'tracks request code for PDF generation errors' do
         allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
 
-        expect(monitor).to receive(:track_request_code).with(500, hash_including(action: 'download_pdf', user_uuid: nil))
+        expect(monitor).to receive(:track_request_code).with(500,
+                                                             hash_including(action: 'download_pdf', user_uuid: nil))
 
         post(:download_pdf, body: form_data.to_json, as: :json)
       end
