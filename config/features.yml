@@ -753,6 +753,9 @@ features:
   decision_review_use_new_appealable_issues_service:
     actor_type: user
     description: Enables use of the new Appealable Issues service for fetching appealable issues.
+  decision_review_add_user_account_id_to_rum:
+    actor_type: user
+    description: Adds the user account ID to Datadog RUM logs for SC, HLR and NOD apps
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
