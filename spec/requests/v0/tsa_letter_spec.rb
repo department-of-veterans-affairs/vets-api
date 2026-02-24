@@ -59,8 +59,40 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    context 'when upstream returns other error' do
-      it 'returns 503 with error status in error '
+    context 'when upstream returns 401' do
+      it 'raises Unauthorized exception' do
+        VCR.use_cassette('tsa_letters/show_unauthorized', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:unauthorized)
+          expect(response.parsed_body).to include('errors')
+          expect(response.parsed_body['errors'].first['title']).to eq('Not authorized')
+          expect(response.parsed_body['errors'].first['status']).to eq('401')
+        end
+      end
+    end
+
+    context 'when upstream returns 500' do
+      it 'raises ExternalServerInternalServerError exception' do
+        VCR.use_cassette('tsa_letters/show_internal_error', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:internal_server_error)
+          expect(response.parsed_body).to include('errors')
+          expect(response.parsed_body['errors'].first['title']).to eq('Internal server error')
+          expect(response.parsed_body['errors'].first['status']).to eq('500')
+        end
+      end
+    end
+
+    context 'when upstream returns 501' do
+      it 'raises NotImplemented exception' do
+        VCR.use_cassette('tsa_letters/show_not_implemented', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:not_implemented)
+          expect(response.parsed_body).to include('errors')
+          expect(response.parsed_body['errors'].first['title']).to eq('Not Implemented')
+          expect(response.parsed_body['errors'].first['status']).to eq('501')
+        end
+      end
     end
 
     context 'when response contains invalid datetime' do
