@@ -589,6 +589,64 @@ RSpec.describe ApplicationController, type: :controller do
       end
     end
 
+    describe 'authorization failure logging (AU-3)' do
+      context 'when a Pundit::NotAuthorizedError is raised' do
+        it 'logs an authorization failure with AU-3 required fields' do
+          allow(Rails.logger).to receive(:info)
+
+          get :not_authorized
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Authorization failure (403)',
+            hash_including(
+              user_uuid: nil,
+              request_id: anything,
+              remote_ip: anything
+            )
+          )
+          expect(response).to have_http_status(:forbidden)
+        end
+
+        context 'with a signed-in user' do
+          let(:user) { create(:user) }
+
+          before do
+            controller.instance_variable_set(:@current_user, user)
+          end
+
+          it 'logs the user_uuid of the current user' do
+            allow(Rails.logger).to receive(:info)
+
+            get :not_authorized
+
+            expect(Rails.logger).to have_received(:info).with(
+              'Authorization failure (403)',
+              hash_including(user_uuid: user.uuid)
+            )
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+      end
+
+      context 'when a Common::Exceptions::Forbidden is raised directly' do
+        it 'logs an authorization failure with AU-3 required fields' do
+          allow(Rails.logger).to receive(:info)
+
+          get :forbidden
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Authorization failure (403)',
+            hash_including(
+              user_uuid: nil,
+              request_id: anything,
+              remote_ip: anything
+            )
+          )
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
     describe '#test_authentication' do
       let(:user) { build(:user, :loa3) }
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
