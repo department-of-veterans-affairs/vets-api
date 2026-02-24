@@ -151,7 +151,7 @@ For Tier 3 full audits, also analyze:
 
 ## Behavior Rules
 
-1. **Every finding must have file path and line number** — use `file_path:line_number` format
+1. **Every finding must have file path and line number** — use `file_path:line_number` format (e.g., `app/services/my_module/upstream_client.rb:45`). Never use class#method references (e.g., `UpstreamClient#fetch`) — always resolve to the actual file path and line number.
 2. **Show the actual code snippet**, not just descriptions
 3. **Read surrounding context (10-20 lines) before flagging** — avoid false positives
 4. **`rescue StandardError` at controller action / Sidekiq `perform` boundaries is acceptable** — only flag if combined with error swallowing or wrong status code
@@ -162,6 +162,7 @@ For Tier 3 full audits, also analyze:
 9. **Use confidence levels**: HIGH = always flag, MEDIUM = read context first
 10. **For multiline patterns**, use search with multiline support or read the file and check context manually
 11. **Exclude test/spec files** from most pattern matches unless specifically noted
+12. **Always use the structured output format below** — organize findings under `### Play NN:` headings with `####` sub-headings per finding. Never use a summary-style flat list.
 
 ---
 
