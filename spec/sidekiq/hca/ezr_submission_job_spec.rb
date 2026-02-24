@@ -34,6 +34,23 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
       }
     ]
   end
+  let(:v2_failure_email_template_params) do
+    [
+      form['email'],
+      failure_email_template_id,
+      {
+        'salutation' => "Dear #{form.dig('veteranFullName', 'first')},"
+      },
+      'Settings.vanotify.services.health_apps_1010.api_key',
+      {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: form_id,
+          statsd_tags: tags
+        }
+      }
+    ]
+  end
 
   def expect_submission_failure_email_and_statsd_increments
     expect(VANotify::EmailJob).to receive(:perform_async).with(*failure_email_template_params)
@@ -48,6 +65,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   describe 'when retries are exhausted' do
     before do
       Flipper.enable(:ezr_use_va_notify_on_submission_failure)
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010ezr_submission).and_return(false)
     end
 
     after do
@@ -116,6 +135,26 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
             expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
           end
         end
+
+        context 'when va_notify_v2_form1010ezr_submission is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010ezr_submission).and_return(true)
+          end
+
+          it 'tracks the errors and sends the failure email via V2::QueueEmailJob' do
+            msg = {
+              'args' => [encrypted_form, nil]
+            }
+
+            described_class.within_sidekiq_retries_exhausted_block(msg) do
+              allow(VANotify::V2::QueueEmailJob).to receive(:enqueue)
+              expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+              expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(*v2_failure_email_template_params)
+              expect(VANotify::EmailJob).not_to receive(:perform_async)
+              expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+            end
+          end
+        end
       end
 
       context 'the send failure email flipper is disabled' do
@@ -142,6 +181,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     before do
       allow(User).to receive(:find).with(user.uuid).and_return(user)
       allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010ezr_submission).and_return(false)
     end
 
     context 'when submission has an error' do
@@ -171,6 +212,25 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
             '[10-10EZR] failure'
           )
           subject
+        end
+
+        context 'when va_notify_v2_form1010ezr_submission is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010ezr_submission).and_return(true)
+          end
+
+          it 'sends failure email via V2::QueueEmailJob' do
+            allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
+            allow(StatsD).to receive(:increment)
+            allow(VANotify::V2::QueueEmailJob).to receive(:enqueue)
+
+            expect(StatsD).to receive(:increment).with('api.1010ezr.enrollment_system_validation_error')
+            expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(*v2_failure_email_template_params)
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+
+            subject
+          end
         end
       end
 
@@ -205,6 +265,20 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
           it 'sends a failure email, and does not retry' do
             expect { subject }.to raise_error(Sidekiq::JobRetry::Skip)
+          end
+
+          context 'when va_notify_v2_form1010ezr_submission is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:va_notify_v2_form1010ezr_submission).and_return(true)
+              allow(VANotify::V2::QueueEmailJob).to receive(:enqueue)
+            end
+
+            it 'sends failure email via V2::QueueEmailJob and does not retry' do
+              expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(*v2_failure_email_template_params)
+              expect(VANotify::EmailJob).not_to receive(:perform_async)
+              expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+              expect { subject }.to raise_error(Sidekiq::JobRetry::Skip)
+            end
           end
         end
 
