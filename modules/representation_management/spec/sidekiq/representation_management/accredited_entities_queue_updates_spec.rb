@@ -1546,6 +1546,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       allow(job).to receive(:log_to_slack_channel)
+      allow(RepresentationManagement::AccreditationXlsxProcessor).to receive(:perform_async)
       job.instance_variable_set(:@report, String.new)
       job.instance_variable_set(:@start_time, 2.minutes.ago)
       job.instance_variable_set(:@processing_error_types, [])
@@ -1570,6 +1571,119 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:finalize_and_send_report)
 
       expect(job).to have_received(:log_to_slack_channel).with(initial_report)
+    end
+
+    it 'calls trigger_xlsx_fallback before sending the report' do
+      allow(job).to receive(:calculate_duration).and_return('1m 0s')
+      job.instance_variable_set(:@processing_error_types, %w[agents])
+
+      job.send(:finalize_and_send_report)
+
+      expect(RepresentationManagement::AccreditationXlsxProcessor).to have_received(:perform_async).with(%w[agents])
+      report = job.instance_variable_get(:@report)
+      expect(report).to include('XLSX Fallback')
+    end
+  end
+
+  describe '#trigger_xlsx_fallback' do
+    let(:job) { described_class.new }
+
+    before do
+      allow(RepresentationManagement::AccreditationXlsxProcessor).to receive(:perform_async)
+      allow(Settings).to receive(:vsp_environment).and_return('development')
+      job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@processing_error_types, [])
+      job.instance_variable_set(:@count_mismatch_types, [])
+    end
+
+    context 'when no failed types exist' do
+      it 'does not enqueue AccreditationXlsxProcessor' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor).not_to have_received(:perform_async)
+      end
+
+      it 'does not append to the report' do
+        job.send(:trigger_xlsx_fallback)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).not_to include('XLSX Fallback')
+      end
+    end
+
+    context 'when @processing_error_types has entries' do
+      before do
+        job.instance_variable_set(:@processing_error_types, %w[agents attorneys])
+      end
+
+      it 'enqueues AccreditationXlsxProcessor with those types' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor)
+          .to have_received(:perform_async).with(%w[agents attorneys])
+      end
+
+      it 'appends fallback info to the report' do
+        job.send(:trigger_xlsx_fallback)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).to include('XLSX Fallback')
+        expect(report).to include('agents, attorneys')
+      end
+    end
+
+    context 'when @count_mismatch_types has entries (symbols)' do
+      before do
+        job.instance_variable_set(:@count_mismatch_types, %i[attorneys veteran_service_organizations])
+      end
+
+      it 'converts to strings and enqueues AccreditationXlsxProcessor' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor)
+          .to have_received(:perform_async).with(%w[attorneys veteran_service_organizations])
+      end
+    end
+
+    context 'when both lists have overlapping entries' do
+      before do
+        job.instance_variable_set(:@processing_error_types, %w[agents attorneys])
+        job.instance_variable_set(:@count_mismatch_types, %i[attorneys representatives])
+      end
+
+      it 'deduplicates and enqueues with the union' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor)
+          .to have_received(:perform_async).with(%w[agents attorneys representatives])
+      end
+    end
+
+    context 'when perform_async raises an error' do
+      before do
+        job.instance_variable_set(:@processing_error_types, %w[agents])
+        allow(RepresentationManagement::AccreditationXlsxProcessor)
+          .to receive(:perform_async).and_raise(StandardError.new('Redis connection failed'))
+        allow(job).to receive(:log_error)
+      end
+
+      it 'does not crash the parent job' do
+        expect { job.send(:trigger_xlsx_fallback) }.not_to raise_error
+      end
+
+      it 'logs the error' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(job).to have_received(:log_error).with(/XLSX fallback enqueue failed/)
+      end
+
+      it 'appends failure info to the report' do
+        job.send(:trigger_xlsx_fallback)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).to include('XLSX Fallback')
+        expect(report).to include('FAILED to enqueue')
+      end
     end
   end
 

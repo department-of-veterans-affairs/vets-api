@@ -22,11 +22,21 @@ module RepresentationManagement
       job.send(:log_to_slack, "AccreditationXlsxProcessor retries exhausted: #{msg['error_message']}")
     end
 
-    VALID_TYPES = %w[attorney claims_agent representative organization].freeze
-    INDIVIDUAL_TYPES = %w[attorney claims_agent representative].freeze
+    # Maps API-level type names to internal type names used by VSOReloader and XlsxFileProcessor
+    API_TYPE_MAP = {
+      'agents' => 'claims_agent',
+      'attorneys' => 'attorney',
+      'representatives' => 'representative',
+      'veteran_service_organizations' => 'organization'
+    }.freeze
+
+    VALID_TYPES = %w[agents attorneys representatives veteran_service_organizations].freeze
+    INDIVIDUAL_TYPES = %w[agents attorneys representatives].freeze
+    MAPPED_INDIVIDUAL_TYPES = %w[attorney claims_agent representative].freeze
     SLICE_SIZE = 30
 
-    # @param types [Array<String>] Entity types to process (defaults to all)
+    # @param types [Array<String>] API-level entity types to process (defaults to all)
+    #   Valid types: 'agents', 'attorneys', 'representatives', 'veteran_service_organizations'
     def perform(types = VALID_TYPES)
       unless Flipper.enabled?(:accredited_entity_models_populate_with_xlsx_data)
         log_info('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
@@ -39,6 +49,7 @@ module RepresentationManagement
       @report = []
       @start_time = Time.current
       @types = validate_types(types)
+      @mapped_types = @types.map { |t| API_TYPE_MAP[t] }
 
       log_info("Starting AccreditationXlsxProcessor for types: #{@types.join(', ')}")
 
@@ -76,7 +87,7 @@ module RepresentationManagement
     # Calls VSOReloader synchronously to ensure records exist before XLSX address updates
     def reload_entities
       log_info('Running VSOReloader to ensure records exist...')
-      VSOReloader.new.perform(@types)
+      VSOReloader.new.perform(@mapped_types)
       log_info('VSOReloader complete')
       @report << 'VSOReloader: Complete'
     rescue => e
@@ -100,7 +111,7 @@ module RepresentationManagement
     # @param file_path [String] Path to the downloaded XLSX file
     def process_xlsx_file(file_path)
       file_content = File.binread(file_path)
-      parsed_data = XlsxFileProcessor.new(file_content, @types).process
+      parsed_data = XlsxFileProcessor.new(file_content, @mapped_types).process
 
       if parsed_data.empty?
         log_error('XLSX file parsing returned no data')
@@ -124,7 +135,7 @@ module RepresentationManagement
       parsed_data.each do |type, records|
         @report << "XLSX Parsed: #{type} - #{records.size} rows"
 
-        if INDIVIDUAL_TYPES.include?(type)
+        if MAPPED_INDIVIDUAL_TYPES.include?(type)
           individual_ids.concat(update_individuals(type, records))
         elsif type == 'organization'
           organization_ids.concat(update_organizations(records))

@@ -88,6 +88,7 @@ module RepresentationManagement
       # Add deletion skip summary
       add_deletion_skip_summary
       add_address_quality_report_by_individual_type
+      trigger_xlsx_fallback
 
       @report << "\nJob Duration: #{duration}\n"
       log_to_slack_channel(@report)
@@ -834,6 +835,22 @@ module RepresentationManagement
     def log_error(message)
       log_to_slack_channel("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
       Rails.logger.error("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
+    end
+
+    # Enqueues AccreditationXlsxProcessor as a fallback for any entity types that failed
+    # during API processing (due to processing errors or count mismatches).
+    # Uses perform_async to leverage the processor's retry: 10 and sidekiq_retries_exhausted.
+    #
+    # @return [void]
+    def trigger_xlsx_fallback
+      failed_types = (@processing_error_types.map(&:to_s) + @count_mismatch_types.map(&:to_s)).uniq
+      return if failed_types.empty?
+
+      RepresentationManagement::AccreditationXlsxProcessor.perform_async(failed_types)
+      @report << "\n\U0001F4E6 **XLSX Fallback:** Enqueued for: #{failed_types.join(', ')}\n"
+    rescue => e
+      log_error("XLSX fallback enqueue failed: #{e.message}")
+      @report << "\n\u26A0\uFE0F **XLSX Fallback:** FAILED to enqueue - #{e.message}\n"
     end
 
     def log_to_slack_channel(message)
