@@ -15,7 +15,7 @@ RSpec.describe SimpleFormsApi::Mms::IbmUploadJob, type: :job do
   describe '#perform' do
     context 'when IBM upload is successful' do
       before do
-	   expect(ibm_service).to receive(:upload_form).and_return(true) # Simulating a successful response
+        allow(ibm_service).to receive(:upload_form).and_return(true) # Simulating a successful response
       end
 
       it 'logs the success message' do
