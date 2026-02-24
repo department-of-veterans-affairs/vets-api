@@ -289,6 +289,9 @@ features:
   champva_vanotify_custom_confirmation_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
+  champva_vanotify_custom_pega_alert_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending missing Pega status alert emails with VA Notify
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
@@ -969,6 +972,10 @@ features:
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
+    enable_in_development: true
+  event_bus_gateway_retry_sms:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway sms that VA Notify marks temporary-failure
     enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
