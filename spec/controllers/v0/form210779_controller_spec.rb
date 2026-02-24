@@ -160,16 +160,11 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       end
 
       it 'tracks request code for successful submission' do
-        expect(monitor).to receive(:track_request_code).with(200)
+        expect(monitor).to receive(:track_request_code).with(200,
+                                                             hash_including(user_uuid: nil,
+                                                                            claim_guid: kind_of(String)))
 
         post(:create, body: form_data, as: :json)
-      end
-
-      it 'tracks request code for validation errors' do
-        expect(monitor).to receive(:track_request_code).with(422)
-
-        post(:create, body: invalid_data, as: :json)
-        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end

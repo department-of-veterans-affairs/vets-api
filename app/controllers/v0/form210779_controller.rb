@@ -10,6 +10,7 @@ module V0
     before_action :load_user
     before_action :check_feature_enabled
 
+    # rubocop:disable Metrics/MethodLength
     def create
       claim = saved_claim_class.new(form: filtered_params)
 
@@ -34,8 +35,15 @@ module V0
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
       raise
     ensure
-      monitor.track_request_code(response.status) if response.status
+      if response.status
+        monitor.track_request_code(
+          response.status,
+          user_uuid: current_user&.uuid,
+          claim_guid: claim&.guid
+        )
+      end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def download_pdf
       claim = saved_claim_class.find_by!(guid: params[:guid])
