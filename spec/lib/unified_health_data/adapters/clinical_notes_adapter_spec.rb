@@ -258,6 +258,71 @@ RSpec.describe 'ClinicalNotesAdapter' do
         expect(result).to be_nil
       end
     end
+
+    context 'proactive warnings' do
+      it 'warns when note content is empty' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        # Remove all content data to simulate empty note
+        note['resource']['content'].each { |c| c['attachment'].delete('data') }
+
+        expect(Rails.logger).to receive(:warn).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'parse',
+            anomaly: 'empty_note_content',
+            record_id: note['resource']['id']
+          )
+        )
+        expect(StatsD).to receive(:increment).with('unified_health_data.clinical_note.empty_content')
+
+        parsed = adapter.parse(note)
+        expect(parsed).not_to be_nil
+        expect(parsed.note).to be_nil
+      end
+
+      it 'does not warn when note content is present' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+
+        expect(Rails.logger).not_to receive(:warn)
+        expect(StatsD).not_to receive(:increment).with('unified_health_data.clinical_note.empty_content')
+
+        parsed = adapter.parse(note)
+        expect(parsed.note).not_to be_nil
+      end
+
+      it 'warns when LOINC code is not in known mapping' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        # Replace LOINC code with an unknown one
+        note['resource']['type']['coding'] = [{ 'code' => '99999-9', 'system' => 'http://loinc.org' }]
+
+        expect(Rails.logger).to receive(:warn).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'parse',
+            anomaly: 'unknown_loinc_code',
+            record_id: note['resource']['id'],
+            loinc_codes: '99999-9'
+          )
+        )
+        expect(StatsD).to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')
+
+        parsed = adapter.parse(note)
+        expect(parsed.note_type).to eq('other')
+      end
+
+      it 'does not warn when LOINC code is in known mapping' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+
+        expect(Rails.logger).not_to receive(:warn).with(
+          hash_including(anomaly: 'unknown_loinc_code')
+        )
+        expect(StatsD).not_to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')
+
+        adapter.parse(note)
+      end
+    end
   end
 
   describe '#parse_avs_with_metadata' do

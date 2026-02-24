@@ -86,6 +86,46 @@ module UnifiedHealthData
         )
       end
 
+      # Proactive: warns when more than half of DocumentReferences are dropped during
+      # parsing and date filtering, indicating a possible upstream data-quality regression.
+      HIGH_FILTER_RATE_THRESHOLD = 0.5
+
+      def warn_high_filter_rate(doc_ref_count, returned_count)
+        return if doc_ref_count.zero?
+
+        filter_rate = 1.0 - (returned_count.to_f / doc_ref_count)
+        return unless filter_rate > HIGH_FILTER_RATE_THRESHOLD
+
+        mr_log.warn(
+          resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+          action: 'index',
+          anomaly: 'high_filter_rate',
+          filter_rate: (filter_rate * 100).round(1),
+          doc_ref_count:,
+          returned_count:
+        )
+
+        StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.clinical_notes.anomaly.high_filter_rate")
+      end
+
+      # Proactive: warns when multiple notes in a single request have unparseable dates,
+      # indicating a possible upstream date-format change.
+      DATE_PARSE_FAILURE_THRESHOLD = 3
+
+      def warn_date_parse_failures(failure_count, total_count)
+        return unless failure_count >= DATE_PARSE_FAILURE_THRESHOLD
+
+        mr_log.warn(
+          resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+          action: 'filter',
+          anomaly: 'elevated_date_parse_failures',
+          failure_count:,
+          total_count:
+        )
+
+        StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.clinical_notes.anomaly.date_parse_failures")
+      end
+
       def log_notes_index_metrics(parsed_notes, start_date, end_date)
         total_notes = parsed_notes.size
         vista_count = parsed_notes.count { |n| n.source == SourceConstants::VISTA }
@@ -119,7 +159,18 @@ module UnifiedHealthData
         )
 
         StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.clinical_notes.show.source", tags: ["source:#{source_used}"])
-        StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.clinical_notes.show.not_found") unless found
+
+        # Proactive: always-on warning when a note ID from the index can't be fetched individually.
+        # This is visible in Splunk without needing the diagnostic toggle.
+        unless found
+          mr_log.warn(
+            resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+            action: 'show',
+            anomaly: 'note_not_found',
+            source: source_used
+          )
+          StatsD.increment("#{self.class::STATSD_KEY_PREFIX}.clinical_notes.show.not_found")
+        end
       end
     end
   end

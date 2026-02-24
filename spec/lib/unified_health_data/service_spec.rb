@@ -955,7 +955,8 @@ describe UnifiedHealthData::Service, type: :service do
           [note_with_blank_date, note_with_invalid_date, note_with_valid_date]
         )
 
-        # Expect warning to be logged for invalid date
+        # Expect warning to be logged for invalid date (allow other warn calls like high_filter_rate)
+        allow(Rails.logger).to receive(:warn)
         expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
 
         notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')

@@ -150,6 +150,7 @@ module UnifiedHealthData
         log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
         clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
         clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
+        warn_high_filter_rate(doc_ref_records.size, parsed_notes.size)
 
         parsed_notes
       end
@@ -388,6 +389,7 @@ module UnifiedHealthData
 
     # Keeps only parsed notes whose date falls within [start_date, end_date] (inclusive).
     # Filtering on parsed notes (same objects we return) so the response is guaranteed correct.
+    # Tracks date-parse failures and emits an aggregated warning when the count exceeds threshold.
     def filter_parsed_notes_by_date_range(notes, start_date, end_date)
       return notes if notes.blank?
       return notes if start_date.blank? || end_date.blank?
@@ -395,12 +397,15 @@ module UnifiedHealthData
       start_d = DateTime.parse(start_date.to_s).to_date
       end_d = DateTime.parse(end_date.to_s).to_date
 
-      notes.select do |note|
+      date_parse_failure_count = 0
+
+      filtered = notes.select do |note|
         next false if note.blank? || note.date.blank?
 
         note_date = DateTime.parse(note.date.to_s).to_date
         note_date >= start_d && note_date <= end_d
       rescue ArgumentError, TypeError
+        date_parse_failure_count += 1
         Rails.logger.warn(
           'UnifiedHealthData::Service#filter_parsed_notes_by_date_range ' \
           "excluding note due to invalid date. note_id=#{note&.id.inspect} " \
@@ -408,6 +413,10 @@ module UnifiedHealthData
         )
         false
       end
+
+      warn_date_parse_failures(date_parse_failure_count, notes.size) if date_parse_failure_count.positive?
+
+      filtered
     end
 
     def remap_vista_uid(records)

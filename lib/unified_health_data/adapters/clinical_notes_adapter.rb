@@ -55,6 +55,19 @@ module UnifiedHealthData
 
         note_content = get_note(record)
 
+        # Proactive: warn when a note passes docStatus filtering but has no content.
+        # Veterans see a title but click into an empty page.
+        if note_content.blank?
+          @mr_log.warn(
+            resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+            action: 'parse',
+            anomaly: 'empty_note_content',
+            record_id: record['id'],
+            note_type: get_record_type(record)
+          )
+          StatsD.increment('unified_health_data.clinical_note.empty_content')
+        end
+
         UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record, note_content,
                                                                             source: note['source']))
       end
@@ -160,6 +173,19 @@ module UnifiedHealthData
         LOINC_CODES.each do |key, value|
           return value if record['type']['coding']&.any? { |coding| coding['code'] == key }
         end
+
+        # Proactive: warn when a LOINC code is not in our known mapping.
+        # New upstream note types silently bucket as 'other' until we add support.
+        codes = record['type']['coding']&.map { |c| c['code'] }&.compact
+        @mr_log.warn(
+          resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+          action: 'parse',
+          anomaly: 'unknown_loinc_code',
+          record_id: record['id'],
+          loinc_codes: codes&.join(',')
+        )
+        StatsD.increment('unified_health_data.clinical_note.unknown_loinc_code')
+
         'other'
       end
 
