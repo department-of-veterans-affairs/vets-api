@@ -97,14 +97,23 @@ module ClaimsApi
 
         begin
           # if the address type is TEMPORARY, the beginDate must exist and be in the future.
+          if begin_date.blank?
+            collect_error_messages(
+              detail: 'Change of address beginDate is required if addressChangeType is TEMPORARY',
+              source: '/changeOfAddress/dates/beginDate'
+            )
+            return
+          end
+
           begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
-          if begin_date.present? && begins_in_past
+
+          if begins_in_past
             collect_error_messages(
               detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
               source: '/changeOfAddress/dates/beginDate'
             )
           end
-        rescue
+        rescue ArgumentError, TypeError
           # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
