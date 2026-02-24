@@ -113,7 +113,6 @@ module UnifiedHealthData
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         result = parse_refill_response(response)
         validate_refill_response_count(normalized_orders, result)
-        increment_refill(result[:success].size) if result[:success].present?
         result
       end
     rescue Common::Exceptions::BackendServiceException => e
@@ -477,10 +476,6 @@ module UnifiedHealthData
         entry.dig('resource', 'resourceType') == 'DocumentReference'
       end
       doc_entry&.dig('resource')
-    end
-
-    def increment_refill(count = 1)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count)
     end
 
     def uhd_client
