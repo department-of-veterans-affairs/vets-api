@@ -54,7 +54,7 @@ http_interactions:
         {
           "uuid": "3fa85f64-5717-4562-b3Fc-2c963f66afaб" ,
           "code": "VEFSERR50102",
-          "message": "Operation not"
+          "message": "Operation not enabled."
         }
   recorded_at: Mon, 06 Oct 2025 17:03:17 GMT
 recorded_with: VCR 6.3.1

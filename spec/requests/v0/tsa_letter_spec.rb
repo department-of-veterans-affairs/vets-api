@@ -24,7 +24,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     context 'when user has no letter' do
-      it 'renders an empty response' do
+      it 'renders 200 without data' do
         VCR.use_cassette('tsa_letters/show_success_empty', { match_requests_on: %i[method uri body] }) do
           get '/v0/tsa_letter'
           expect(response).to have_http_status(:ok)
@@ -34,7 +34,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     context 'when upstream returns 403' do
-      it 'logs and renders 200 with empty body' do
+      it 'logs and renders 200 without data' do
         VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri body] }) do
           expect(Rails.logger).to receive(:info).with('TSA Letter Error',
                                                       error_status: 403,
@@ -47,7 +47,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     context 'when upstream returns 400' do
-      it 'logs and renders 200 with empty body' do
+      it 'logs and renders 200 without data' do
         VCR.use_cassette('tsa_letters/show_bad_request', { match_requests_on: %i[method uri body] }) do
           expect(Rails.logger).to receive(:info).with('TSA Letter Error',
                                                       error_status: 400,
