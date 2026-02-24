@@ -17,12 +17,15 @@ module DigitalFormsApi
       # @param payload [Hash] structured form payload to submit
       # @param metadata [Hash] envelope metadata for the submission
       # @param form_schema [Hash] schema fetched from Forms API for payload validation
+      # @param request_schema [Hash] schema for submission request envelope validation
       # @return [Hash] validated submission request
       # @raise [JSON::Schema::ValidationError] when schema validation fails
-      def validate(payload:, metadata:, form_schema:)
+      def validate(payload:, metadata:, form_schema:, request_schema:)
         DigitalFormsApi::Validation.validate_against_schema(form_schema, payload)
+        request = build_request(payload:, metadata:)
+        DigitalFormsApi::Validation.validate_against_schema(request_schema, request)
 
-        build_request(payload:, metadata:)
+        request
       end
 
       private

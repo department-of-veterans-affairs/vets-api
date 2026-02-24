@@ -34,4 +34,19 @@ FactoryBot.define do
       nested ? { 'data' => { 'schema' => schema_body } } : schema_body
     end
   end
+
+  factory :digital_forms_api_request_schema, class: Hash do
+    skip_create
+
+    initialize_with do
+      path = Rails.root.join(
+        'modules',
+        'digital_forms_api',
+        'config',
+        'schemas',
+        'forms_api_submissions_request_schema.json'
+      )
+      JSON.parse(File.read(path))
+    end
+  end
 end

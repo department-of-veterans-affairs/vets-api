@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'digital_forms_api/service/base'
+require 'digital_forms_api/service/request_schema'
 require 'digital_forms_api/service/schema'
 require 'digital_forms_api/validation/submission_request'
 
@@ -20,7 +21,8 @@ module DigitalFormsApi
       # @param dry_run [Boolean] perform a dry run in which no action is taken except validation by the endpoint
       def submit(payload, metadata, dry_run: false)
         form_schema = schema_service.fetch(metadata[:formId] || metadata['formId'])
-        request = submission_validator.validate(payload:, metadata:, form_schema:)
+        request_schema = request_schema_service.fetch
+        request = submission_validator.validate(payload:, metadata:, form_schema:, request_schema:)
 
         headers = {}
 
@@ -47,6 +49,11 @@ module DigitalFormsApi
       # @return [DigitalFormsApi::Service::Schema] memoized schema service instance
       def schema_service
         @schema_service ||= DigitalFormsApi::Service::Schema.new
+      end
+
+      # @return [DigitalFormsApi::Service::RequestSchema] memoized request schema service instance
+      def request_schema_service
+        @request_schema_service ||= DigitalFormsApi::Service::RequestSchema.new
       end
 
       # end Submissions

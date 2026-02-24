@@ -39,18 +39,21 @@ RSpec.describe DigitalFormsApi::Validation::SubmissionRequest do
     }
   end
   let(:form_schema) { build(:digital_forms_api_schema, :with_required) }
+  let(:request_schema) { build(:digital_forms_api_request_schema) }
 
   describe '#validate' do
     it 'validates the payload against the form schema and returns the request envelope' do
-      expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(form_schema, payload)
+      expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(form_schema, payload).ordered
+      expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(request_schema, request).ordered
 
-      expect(validator.validate(payload:, metadata:, form_schema:)).to eq(request)
+      expect(validator.validate(payload:, metadata:, form_schema:, request_schema:)).to eq(request)
     end
 
     it 'normalizes string-key metadata and returns a valid request envelope' do
-      expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(form_schema, payload)
+      expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(form_schema, payload).ordered
+      expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(request_schema, request).ordered
 
-      expect(validator.validate(payload:, metadata: string_key_metadata, form_schema:)).to eq(request)
+      expect(validator.validate(payload:, metadata: string_key_metadata, form_schema:, request_schema:)).to eq(request)
     end
 
     context 'when metadata has both string and symbol keys for the same field' do
@@ -66,9 +69,10 @@ RSpec.describe DigitalFormsApi::Validation::SubmissionRequest do
       end
 
       it 'prefers the symbol-keyed value' do
-        expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(form_schema, payload)
+        expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(form_schema, payload).ordered
+        expect(DigitalFormsApi::Validation).to receive(:validate_against_schema).with(request_schema, request).ordered
 
-        result = validator.validate(payload:, metadata: mixed_metadata, form_schema:)
+        result = validator.validate(payload:, metadata: mixed_metadata, form_schema:, request_schema:)
         expect(result[:envelope][:formId]).to eq('99t-12345')
       end
     end
