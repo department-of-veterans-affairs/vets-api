@@ -38,6 +38,7 @@ module V0
       if response.status
         monitor.track_request_code(
           response.status,
+          action: 'create',
           user_uuid: current_user&.uuid,
           claim_guid: claim&.guid
         )
@@ -45,6 +46,7 @@ module V0
     end
     # rubocop:enable Metrics/MethodLength
 
+    # rubocop:disable Metrics/MethodLength
     def download_pdf
       claim = saved_claim_class.find_by!(guid: params[:guid])
       pdf_start_time = Time.current
@@ -67,9 +69,16 @@ module V0
       StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
     ensure
-      monitor.track_request_code(response.status) if response.status
+      if response.status
+        monitor.track_request_code(
+          response.status,
+          action: 'download_pdf',
+          user_uuid: current_user&.uuid
+        )
+      end
       File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

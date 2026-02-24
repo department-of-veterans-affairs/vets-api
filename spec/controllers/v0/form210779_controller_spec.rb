@@ -161,7 +161,8 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
       it 'tracks request code for successful submission' do
         expect(monitor).to receive(:track_request_code).with(200,
-                                                             hash_including(user_uuid: nil,
+                                                             hash_including(action: 'create',
+                                                                            user_uuid: nil,
                                                                             claim_guid: kind_of(String)))
 
         post(:create, body: form_data, as: :json)
@@ -239,7 +240,9 @@ RSpec.describe V0::Form210779Controller, type: :controller do
         allow(File).to receive(:delete).and_call_original
         allow(File).to receive(:delete).with(temp_pdf)
 
-        expect(monitor).to receive(:track_request_code).with(200)
+        expect(monitor).to receive(:track_request_code).with(200,
+                                                             hash_including(action: 'download_pdf',
+                                                                            user_uuid: nil))
 
         get(:download_pdf, params: { guid: claim.guid })
       end
@@ -247,7 +250,9 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       it 'tracks request code for PDF generation errors' do
         allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError, 'PDF error')
 
-        expect(monitor).to receive(:track_request_code).with(500)
+        expect(monitor).to receive(:track_request_code).with(500,
+                                                             hash_including(action: 'download_pdf',
+                                                                            user_uuid: nil))
 
         get(:download_pdf, params: { guid: claim.guid })
       end
