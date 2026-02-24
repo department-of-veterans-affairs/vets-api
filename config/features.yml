@@ -1465,10 +1465,6 @@ features:
     actor_type: user
     description: Enables fetching Oracle Health migration schedules for VAHB mobile users
     enable_in_development: true
-  mhv_oh_migration_extended_phases:
-    actor_type: user
-    description: Enables extended migration phases (p8, p9) for Oracle Health facility migration tracking
-    enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
     description: Enables improvements to medication management functionality
