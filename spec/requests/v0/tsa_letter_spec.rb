@@ -37,11 +37,11 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       it 'logs and renders 200 with empty body' do
         VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri body] }) do
           expect(Rails.logger).to receive(:info).with('TSA Letter Error',
-                            error_status: 403,
-                            user_account_id: user.user_account_uuid)
+                                                      error_status: 403,
+                                                      user_account_id: user.user_account_uuid)
           get '/v0/tsa_letter'
           expect(response).to have_http_status(:ok)
-          expect(response.body).to eq({data: nil}.to_json)
+          expect(response.body).to eq({ data: nil }.to_json)
         end
       end
     end
@@ -50,11 +50,11 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       it 'logs and renders 200 with empty body' do
         VCR.use_cassette('tsa_letters/show_bad_request', { match_requests_on: %i[method uri body] }) do
           expect(Rails.logger).to receive(:info).with('TSA Letter Error',
-                            error_status: 400,
-                            user_account_id: user.user_account_uuid)
+                                                      error_status: 400,
+                                                      user_account_id: user.user_account_uuid)
           get '/v0/tsa_letter'
           expect(response).to have_http_status(:ok)
-          expect(response.body).to eq({data: nil}.to_json)
+          expect(response.body).to eq({ data: nil }.to_json)
         end
       end
     end
