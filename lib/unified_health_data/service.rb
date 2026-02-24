@@ -147,7 +147,7 @@ module UnifiedHealthData
         # SCDF may return notes outside the requested range; this ensures only in-range notes are returned.
         parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
+        log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
         clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
         clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
 
@@ -245,7 +245,7 @@ module UnifiedHealthData
         parsed_avs_meta = summaries.map do |summary|
           clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
         end
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_avs_meta, 'AVS')
+        log_loinc_code_distribution(parsed_avs_meta, 'AVS')
         parsed_avs_meta.compact
       end
     end
@@ -430,7 +430,7 @@ module UnifiedHealthData
     def parse_single_note(record)
       return nil if record.blank?
 
-      clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
+      clinical_notes_adapter.parse(record)
     end
 
     # Fetches a single Oracle Health note directly via the SCDF source-specific endpoint.
@@ -486,7 +486,7 @@ module UnifiedHealthData
     end
 
     def clinical_notes_adapter
-      @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
+      @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user: @user)
     end
 
     def conditions_adapter

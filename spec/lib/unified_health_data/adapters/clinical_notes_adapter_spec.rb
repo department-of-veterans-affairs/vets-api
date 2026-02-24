@@ -4,7 +4,18 @@ require 'rails_helper'
 require 'unified_health_data/adapters/clinical_notes_adapter'
 
 RSpec.describe 'ClinicalNotesAdapter' do
-  let(:adapter) { UnifiedHealthData::Adapters::ClinicalNotesAdapter.new }
+  let(:user) { build(:user, :loa3) }
+  let(:adapter) { UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user:) }
+
+  before do
+    allow(Flipper).to receive(:enabled?)
+      .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+      .and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:mhv_medical_records_diagnostic_logging, user)
+      .and_return(false)
+  end
+
   let(:notes_sample_response) do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
@@ -188,12 +199,16 @@ RSpec.describe 'ClinicalNotesAdapter' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource']['docStatus'] = 'preliminary'
 
-        expected_msg = 'Filtered DocumentReference: ' \
-                       'id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, ' \
-                       'docStatus=preliminary, reason=disallowed_doc_status'
         expect(Rails.logger).to receive(:info).with(
-          expected_msg,
-          { service: 'unified_health_data', filtering: true }
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            record_id: '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+            doc_status: 'preliminary',
+            reason: 'disallowed_doc_status',
+            log_level_context: 'diagnostic'
+          )
         )
         expect(StatsD).to receive(:increment).with(
           'unified_health_data.clinical_note.filtered_document_reference',
@@ -207,12 +222,15 @@ RSpec.describe 'ClinicalNotesAdapter' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource'].delete('docStatus')
 
-        expected_msg = 'Filtered DocumentReference: ' \
-                       'id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, ' \
-                       'docStatus=, reason=missing_doc_status'
         expect(Rails.logger).to receive(:info).with(
-          expected_msg,
-          { service: 'unified_health_data', filtering: true }
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            record_id: '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+            reason: 'missing_doc_status',
+            log_level_context: 'diagnostic'
+          )
         )
         expect(StatsD).to receive(:increment).with(
           'unified_health_data.clinical_note.filtered_document_reference',
@@ -222,7 +240,11 @@ RSpec.describe 'ClinicalNotesAdapter' do
         adapter.parse(note)
       end
 
-      it 'does not log but still increments StatsD when logging_enabled is false' do
+      it 'does not log but still increments StatsD when toggle is disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource']['docStatus'] = 'preliminary'
 
@@ -232,7 +254,7 @@ RSpec.describe 'ClinicalNotesAdapter' do
           tags: ['reason:disallowed_doc_status']
         )
 
-        result = adapter.parse(note, logging_enabled: false)
+        result = adapter.parse(note)
         expect(result).to be_nil
       end
     end

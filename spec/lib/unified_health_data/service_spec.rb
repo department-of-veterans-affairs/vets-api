@@ -928,10 +928,10 @@ describe UnifiedHealthData::Service, type: :service do
       it 'excludes notes with blank or invalid dates and logs a warning' do
         # Disable logging to simplify test
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, anything)
           .and_return(false)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
+          .with(:mhv_medical_records_diagnostic_logging, anything)
           .and_return(false)
 
         # Create mock notes with various date conditions
@@ -1024,33 +1024,44 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:gauge)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
           .and_return(false)
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
 
         service.get_care_summaries_and_notes
 
         expect(Rails.logger).to have_received(:info).with(
-          {
-            message: 'Clinical Notes LOINC code distribution',
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            record_type: 'Clinical Notes',
             loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
             total_codes: 6,
             total_records: 6,
-            service: 'unified_health_data'
-          }
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log LOINC code distribution when flipper disabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
-          .with(hash_including(message: 'Clinical Notes LOINC code distribution'))
+          .with(hash_including(action: 'loinc_distribution'))
         service.get_care_summaries_and_notes
       end
     end
@@ -1063,30 +1074,40 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:gauge)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
           .and_return(false)
       end
 
       it 'logs notes response count when flipper enabled' do
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
           .and_return(true)
 
         service.get_care_summaries_and_notes
 
         expect(Rails.logger).to have_received(:info).with(
-          /Clinical Notes response: total_doc_refs=\d+, returned=\d+, filtered=\d+/,
-          { service: 'unified_health_data' }
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log notes response count when flipper disabled' do
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
           .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
-          .with(/Clinical Notes response:/, anything)
+          .with(hash_including(resource: 'clinical_notes', action: 'filter'))
         service.get_care_summaries_and_notes
       end
     end
@@ -1102,11 +1123,13 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(Rails.logger).to have_received(:info).with(
           hash_including(
-            message: 'Clinical Notes index response',
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'index',
             total_notes: 6,
             vista_count: be_a(Integer),
             oracle_health_count: be_a(Integer),
-            service: 'unified_health_data'
+            log_level_context: 'diagnostic'
           )
         )
       end
@@ -1271,7 +1294,7 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:increment)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, anything)
           .and_return(true)
       end
 
@@ -1293,11 +1316,13 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'Clinical Notes show request',
+              service: 'medical_records',
+              resource: 'clinical_notes',
+              action: 'show',
               source: 'source not specified',
               note_found: true,
               note_type: be_a(String),
-              service: 'unified_health_data'
+              log_level_context: 'diagnostic'
             )
           )
         end
@@ -1329,7 +1354,8 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'Clinical Notes show request',
+              resource: 'clinical_notes',
+              action: 'show',
               note_found: false,
               note_type: nil
             )
@@ -1355,10 +1381,12 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'Clinical Notes show request',
+              service: 'medical_records',
+              resource: 'clinical_notes',
+              action: 'show',
               source: 'oracle-health',
               note_found: true,
-              service: 'unified_health_data'
+              log_level_context: 'diagnostic'
             )
           )
         end
@@ -1482,27 +1510,36 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
 
         service.get_appt_avs(appt_id: '12345', include_binary: true)
 
         expect(Rails.logger).to have_received(:info).with(
-          {
-            message: 'AVS LOINC code distribution',
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            record_type: 'AVS',
             loinc_code_distribution: '4189669:2,96345-4:2',
             total_codes: 2,
             total_records: 2,
-            service: 'unified_health_data'
-          }
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log LOINC code distribution when flipper disabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
+          .with(hash_including(action: 'loinc_distribution'))
         service.get_appt_avs(appt_id: '12345', include_binary: true)
       end
     end

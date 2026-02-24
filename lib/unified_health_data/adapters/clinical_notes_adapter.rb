@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'medical_records/medical_records_log'
 require_relative '../models/clinical_notes'
 require_relative '../models/avs'
 require_relative '../models/binary_data'
@@ -38,13 +39,17 @@ module UnifiedHealthData
 
       ALLOWED_DOC_STATUSES = %w[final amended].freeze
 
-      def parse(note, logging_enabled: true)
+      def initialize(user: nil)
+        @mr_log = MedicalRecords::MedicalRecordsLog.new(user:)
+      end
+
+      def parse(note)
         record = note['resource']
         return nil unless record
 
         unless allowed_doc_status?(record['docStatus'])
           reason = record['docStatus'].blank? ? 'missing_doc_status' : 'disallowed_doc_status'
-          log_filtered_clinical_note(record, reason, logging_enabled:)
+          log_filtered_clinical_note(record, reason)
           return nil
         end
 
@@ -138,13 +143,14 @@ module UnifiedHealthData
         ALLOWED_DOC_STATUSES.include?(doc_status&.downcase)
       end
 
-      def log_filtered_clinical_note(record, reason, logging_enabled: true)
-        if logging_enabled
-          Rails.logger.info(
-            "Filtered DocumentReference: id=#{record['id']}, docStatus=#{record['docStatus']}, reason=#{reason}",
-            { service: 'unified_health_data', filtering: true }
-          )
-        end
+      def log_filtered_clinical_note(record, reason)
+        @mr_log.diagnostic(
+          resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+          action: 'filter',
+          record_id: record['id'],
+          doc_status: record['docStatus'],
+          reason:
+        )
 
         StatsD.increment('unified_health_data.clinical_note.filtered_document_reference',
                          tags: ["reason:#{reason}"])
