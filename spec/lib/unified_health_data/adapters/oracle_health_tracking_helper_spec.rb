@@ -330,5 +330,157 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         expect(result.first[:tracking_number]).to eq('TRACK-001')
       end
     end
+
+    context 'with multiple shipping-info extensions on a single dispense (multi-package shipment)' do
+      let(:resource_with_multi_package_dispense) do
+        {
+          'id' => '20848812135',
+          'medicationCodeableConcept' => {
+            'text' => 'METFORMIN 500MG',
+            'coding' => [
+              { 'system' => 'http://hl7.org/fhir/sid/ndc', 'code' => '00591-0754-01' }
+            ]
+          },
+          'identifier' => [
+            { 'system' => 'http://example.com/prescription', 'value' => '36209961' }
+          ],
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => '515184429024' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'FEDEX HOME DELIVERY' },
+                    { 'url' => 'Shipped Date', 'valueString' => '2026-02-06 14:00:00.0' },
+                    { 'url' => 'Prescription Name', 'valueString' => 'METFORMIN 500MG' },
+                    { 'url' => 'NDC Code', 'valueString' => '00591-0754-01' },
+                    { 'url' => 'Prescription Number', 'valueString' => '36209961' }
+                  ]
+                },
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => '515184429002' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'FEDEX HOME DELIVERY' },
+                    { 'url' => 'Shipped Date', 'valueString' => '2026-02-06 14:00:00.0' },
+                    { 'url' => 'Prescription Name', 'valueString' => 'METFORMIN 500MG' },
+                    { 'url' => 'NDC Code', 'valueString' => '00591-0754-01' },
+                    { 'url' => 'Prescription Number', 'valueString' => '36209961' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'returns one tracking hash per shipping-info extension' do
+        result = helper.build_tracking_information(resource_with_multi_package_dispense)
+
+        expect(result).to be_an(Array)
+        expect(result.length).to eq(2)
+        expect(result.map { |t| t[:tracking_number] }).to contain_exactly('515184429024', '515184429002')
+      end
+
+      it 'repeats shared fields on each tracking hash' do
+        result = helper.build_tracking_information(resource_with_multi_package_dispense)
+
+        result.each do |tracking|
+          expect(tracking[:prescription_number]).to eq('36209961')
+          expect(tracking[:shipped_date]).to eq('2026-02-06 14:00:00.0')
+          expect(tracking[:prescription_name]).to eq('METFORMIN 500MG')
+          expect(tracking[:ndc_number]).to eq('00591-0754-01')
+          expect(tracking[:prescription_id]).to eq('20848812135')
+          expect(tracking[:carrier]).to eq('FEDEX HOME DELIVERY')
+        end
+      end
+    end
+
+    context 'with three shipping-info extensions and mixed carriers on one dispense' do
+      let(:resource_with_three_packages) do
+        {
+          'id' => '99999',
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => 'PKG-001' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'USPS' }
+                  ]
+                },
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => 'PKG-002' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'FEDEX' }
+                  ]
+                },
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => 'PKG-003' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'UPS' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'returns all three tracking entries with correct carriers' do
+        result = helper.build_tracking_information(resource_with_three_packages)
+
+        expect(result.length).to eq(3)
+        expect(result.map { |t| [t[:tracking_number], t[:carrier]] }).to contain_exactly(
+          %w[PKG-001 USPS],
+          %w[PKG-002 FEDEX],
+          %w[PKG-003 UPS]
+        )
+      end
+    end
+
+    context 'with multi-package dispense where one extension has no tracking number' do
+      let(:resource_with_partial_multi_package) do
+        {
+          'id' => '88888',
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => 'VALID-TRACK' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'USPS' }
+                  ]
+                },
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Delivery Service', 'valueString' => 'FEDEX' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'returns only extensions that have a tracking number' do
+        result = helper.build_tracking_information(resource_with_partial_multi_package)
+
+        expect(result.length).to eq(1)
+        expect(result.first[:tracking_number]).to eq('VALID-TRACK')
+      end
+    end
   end
 end
