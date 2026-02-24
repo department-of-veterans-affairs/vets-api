@@ -159,6 +159,12 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
+  disability_compensation_fix_poisoned_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that resets erroneously injected
+      disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -1753,6 +1759,9 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
+  pdf_fill_field_validation:
+    actor_type: user
+    description: Monitor PDF field name mismatches via StatsD metrics. Tracks mismatches to detect blank/partial PDFs without blocking submissions.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2982,6 +2991,9 @@ features:
   discover_your_benefits_results_page_update:
     actor_type: cookie_id
     description: "If enabled, displays new results page features and designs"
+  cve_veteran_status_new_service:
+    actor_type: user
+    description: "If enabled, displays new veteran status page"
   va_online_scheduling_log_mobile:
     actor_type: user
     description: If enabled, logs additional information about mobile appointments for debugging purposes
