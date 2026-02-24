@@ -57,7 +57,7 @@ module IncreaseCompensation
         # upload must be performed within 15 minutes of this request
         upload_document
 
-        send_submitted_email
+        send_received_email
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
         @intake_service.uuid
@@ -210,10 +210,10 @@ module IncreaseCompensation
       end
 
       # VANotify job to send Submission in Progress email to veteran
-      def send_submitted_email
-        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
+      def send_received_email
+        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:received)
       rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
+        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'received', e)
       end
 
       # Delete temporary stamped PDF files for this instance.
