@@ -59,12 +59,17 @@ module BenefitsClaims
       {}.freeze
     end
 
-    # Pre-computed normalized lookup index for fallback matching
-    # Keys are downcased with whitespace around hyphens removed
+    # Normalizes a display name key for fallback matching:
+    # downcases and collapses whitespace around hyphens
     # (e.g., "AO - med evid" → "ao-med evid", "RADIATION - medical" → "radiation-medical")
+    def self.normalize_key(key)
+      key.downcase.gsub(/\s*-\s*/, '-')
+    end
+
+    # Pre-computed normalized lookup index for fallback matching
     # Maps normalized keys to original CONTENT values for O(1) lookup
     CONTENT_NORMALIZED = CONTENT.each_with_object({}) do |(key, value), index|
-      index[key.downcase.gsub(/\s*-\s*/, '-')] ||= value
+      index[normalize_key(key)] ||= value
     end.freeze
 
     class << self
@@ -97,11 +102,12 @@ module BenefitsClaims
       # @param display_name [String] The tracked item display name
       # @return [Hash, nil] The content override with defaults applied, or nil if not found
       def find_by_display_name(display_name)
+        return nil unless display_name.is_a?(String)
+
         entry = CONTENT[display_name]
         return DEFAULTS.merge(entry) if entry
 
-        # Normalize by downcasing and removing spaces around hyphens, then retry against pre-computed index
-        normalized = display_name.downcase.gsub(/\s*-\s*/, '-')
+        normalized = normalize_key(display_name)
         entry = CONTENT_NORMALIZED[normalized]
         return DEFAULTS.merge(entry) if entry
 

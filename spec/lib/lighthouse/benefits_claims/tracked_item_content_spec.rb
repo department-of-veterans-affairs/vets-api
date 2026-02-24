@@ -50,6 +50,19 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
       expect(described_class::CONTENT).not_to be_empty
     end
 
+    it 'has no keys that collide after normalization' do
+      seen = Hash.new { |h, k| h[k] = [] }
+
+      described_class::CONTENT.each_key do |key|
+        seen[described_class.normalize_key(key)] << key
+      end
+
+      collisions = seen.select { |_, keys| keys.length > 1 }
+      expect(collisions).to be_empty, lambda {
+        collisions.map { |norm, keys| "#{norm.inspect} <- #{keys.inspect}" }.join("\n")
+      }
+    end
+
     it 'contains entries that all pass schema validation' do
       errors = described_class.validate_all_entries
       expect(errors).to be_empty, lambda {
