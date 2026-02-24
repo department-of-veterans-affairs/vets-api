@@ -94,11 +94,19 @@ module IncreaseCompensation
       # @param claim
       # @raise [Exception]
       def process_attachments(in_progress_form, claim)
-        docs = JSON.parse(in_progress_form.form_data)['supporting_documents']
-        claim.process_attachments!(docs)
+        @docs = JSON.parse(in_progress_form.form_data)['supporting_documents']
+        claim.process_attachments!(@docs)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
-
+        IncreaseCompensation::NotificationEmail.new(claim.id).deliver(
+          :persistent_attachment_error,
+          claim.id,
+          personalization: {
+            file_count: @docs&.length,
+            file_names: @docs&.map { |f| f['name'] },
+            first_name: claim.veteran_first_name
+          }
+        )
         raise e
       end
 
