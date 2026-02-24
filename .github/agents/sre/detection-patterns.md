@@ -117,12 +117,13 @@ Grep helpers:
 ### Play 10: Don't Build Module-Specific Frameworks
 File: [Play 10](.github/agents/sre/plays/10-dont-build-module-specific-frameworks.md)
 
-**What to look for:** Custom logging services, error handler classes, monitoring wrappers, or tracing helpers built within a module. These fragment the codebase — vets-api has 24+ of these. Modules should use Rails.logger, StatsD, Datadog::Tracing, and the ExceptionHandling concern directly.
+**What to look for:** Custom logging services, error handler classes, monitoring wrappers, tracing helpers, or error classification methods built within a module. These fragment the codebase — vets-api has 24+ of these. Modules should use Rails.logger, StatsD, Datadog::Tracing, and the ExceptionHandling concern directly. Also look for `handle_error` or `handle_exception` methods embedded in service classes — these reimplement error classification that belongs in the platform layer, even without a standalone framework class.
 
 Grep helpers:
 - `class\s+\w*LogService` — HIGH: custom logging framework
 - `class\s+\w*ErrorHandler` — HIGH: custom error handler
 - `def\s+rescue_from` — HIGH: module-specific rescue_from override
+- `def\s+(self\.)?handle_(error|exception)` — HIGH: custom error classification method in service/controller
 - `class\s+\w*Monitor\b` — MEDIUM: custom monitoring class (check it's not a domain model)
 
 ### Play 11: Standardized Error Responses
@@ -179,11 +180,13 @@ Grep helpers (scope to `exceptions.en.yml` and error class files):
 ### Play 16: Don't Swallow Errors
 File: [Play 16](.github/agents/sre/plays/16-dont-swallow-errors.md)
 
-**What to look for:** Rescue blocks that return nil, false, empty arrays, or empty hashes — silently swallowing failures. The caller gets a nil and assumes the operation succeeded or the record doesn't exist. Especially dangerous when calling external services — a BGS timeout returns the same nil as "no data found."
+**What to look for:** Rescue blocks that swallow errors — either by returning sentinel values (nil, false, empty collections) or by logging/emitting metrics without re-raising. The caller (or framework) never sees the exception. Especially dangerous in Sidekiq jobs where the exception is needed to trigger retries and dead queue entries, and when combined with `retry: false`.
 
 Context check (search for `rescue` then read the rescue body):
 - Rescue block whose last expression is `nil`, `false`, `[]`, or `{}` — HIGH
 - Retry loops that exhaust without raising — HIGH
+- Rescue block in Sidekiq `perform` that logs/emits metrics but does NOT re-raise — HIGH (job silently succeeds, no retry, no dead queue)
+- Any rescue block that does not contain `raise` after logging — MEDIUM (check if caller/framework needs the exception)
 
 ### Play 17: Prefer Structured Logs
 File: [Play 17](.github/agents/sre/plays/17-prefer-structured-logs.md)

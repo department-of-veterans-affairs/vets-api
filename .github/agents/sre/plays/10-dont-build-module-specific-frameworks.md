@@ -96,6 +96,21 @@ language: ruby
       <example>def rescue_from(exception)` in a module controller</example>
       <example>rescue_from StandardError, with: :handle_error` in module base controller</example>
     </pattern>
+    <pattern name="custom_handle_error_method" confidence="high">
+      <signature>def\s+(self\.)?handle_(error|exception)</signature>
+      <description>
+        Defines a module-specific error classification or handling
+        method inside a service or controller class. These methods
+        typically switch on exception type to return error hashes or
+        custom responses, reimplementing error classification logic
+        that belongs in the platform layer (ExceptionHandling concern
+        or Common::Exceptions). Even when embedded in a service class
+        rather than a standalone framework class, this fragments error
+        handling across modules.
+      </description>
+      <example>def self.handle_error(error, context = {})</example>
+      <example>def handle_exception(e)</example>
+    </pattern>
     <heuristic>
       A module that defines its own class wrapping
       `Datadog::Tracing.trace`, `Rails.logger`, or `StatsD` is

@@ -110,11 +110,29 @@ language: ruby
       retry exhaustion. The caller cannot distinguish "success with
       no data" from "all retries failed."
     </heuristic>
+    <pattern name="rescue_without_reraise_in_sidekiq" confidence="high">
+      <signature>rescue.*\n(?:.*\n)*?\s*end\s*$</signature>
+      <description>
+        A rescue block in a Sidekiq job's perform method that does
+        not re-raise the exception. Even if the block logs or emits
+        metrics, the job silently succeeds from Sidekiq's perspective
+        — no retry, no dead queue entry, no visibility into the
+        failure rate. This is especially dangerous with
+        `sidekiq_options retry: false` because there is no safety net.
+        Look for rescue blocks where no `raise` appears between the
+        rescue keyword and the closing `end`.
+      </description>
+      <example>rescue => e\n  Rails.logger.error(...)\n  StatsD.increment(...)\nend</example>
+    </pattern>
     <heuristic>
-      A method where the rescue block does not call `raise`,
-      `Rails.logger.error`, or emit a StatsD metric is likely
-      swallowing errors completely. Check whether any observability
-      signal escapes the rescue.
+      A rescue block that logs and/or emits metrics but does NOT
+      re-raise is still swallowing the error if the method's contract
+      requires the caller (or framework) to see the exception. This
+      is especially true in Sidekiq jobs (where Sidekiq needs the
+      exception to trigger retries) and in service methods called by
+      controllers (where ExceptionHandling needs the exception to
+      render the correct HTTP response). Logging alone does not
+      constitute "handling" — the error must propagate.
     </heuristic>
     <false_positive>
       `rescue ActiveRecord::RecordNotFound => e; nil` in a
