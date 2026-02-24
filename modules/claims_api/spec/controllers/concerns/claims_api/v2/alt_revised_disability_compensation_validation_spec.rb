@@ -493,10 +493,12 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
         subject.form_attributes['changeOfAddress']['dates'].delete('beginDate')
         subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
-        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
 
-        expect(res[0][:detail]).to eq('beginDate is not a valid date.')
-        expect(res[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+        expect(current_error_array[0][:detail]).to eq(
+          'Change of address beginDate is required if addressChangeType is TEMPORARY'
+        )
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
       end
     end
 
