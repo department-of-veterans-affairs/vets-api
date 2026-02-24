@@ -2,9 +2,10 @@
 
 require 'rails_helper'
 require 'lighthouse/healthcare_cost_and_coverage/configuration'
+include ActiveSupport::Testing::TimeHelpers
 
 RSpec.describe 'V1::MedicalCopays', type: :request do
-  let(:current_user) { build(:user, :loa3, icn: 123) }
+  let(:current_user) { build(:user, :loa3, icn: '123') }
 
   before do
     sign_in_as(current_user)
@@ -14,7 +15,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
   describe 'index' do
     it 'returns a formatted hash response' do
-      VCR.use_cassette('lighthouse/hcc/medical_copays_index_with_city', match_requests_on: %i[method path query]) do
+      VCR.use_cassette('lighthouse/hcc/copay_list_by_month', match_requests_on: %i[method path query]) do
         get '/v1/medical_copays'
 
         response_body = JSON.parse(response.body)
