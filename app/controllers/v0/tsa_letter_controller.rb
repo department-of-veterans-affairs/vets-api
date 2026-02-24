@@ -13,8 +13,8 @@ module V0
       500 => Common::Exceptions::ExternalServerInternalServerError,
       501 => Common::Exceptions::NotImplemented
     }.freeze
-    # 403 indicates that the API doesn't know the user.
     # 400 is a bad request, but it's unclear why this happens
+    # 403 indicates that the API doesn't know the user.
     NONBLOCKING_STATUSES = [400, 403].freeze
 
     def show
@@ -74,7 +74,7 @@ module V0
       Rails.logger.info('TSA Letter Error',
                         error_status: error.status,
                         user_account_id: current_user.user_account_uuid)
-      render(json: { data: nil }) and return
+      render(json: { data: nil })
     end
   end
 end
