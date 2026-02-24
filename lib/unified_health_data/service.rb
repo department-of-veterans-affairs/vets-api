@@ -34,6 +34,7 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
+        warnings = extract_warnings(body)
 
         combined_records = fetch_combined_records(body)
 
@@ -46,7 +47,7 @@ module UnifiedHealthData
         # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        parsed_records
+        { records: parsed_records, warnings: }
       end
     end
 
@@ -137,6 +138,7 @@ module UnifiedHealthData
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
+        warnings = extract_warnings(body)
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
@@ -151,7 +153,7 @@ module UnifiedHealthData
         clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
         clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
 
-        parsed_notes
+        { records: parsed_notes, warnings: }
       end
     end
 
@@ -283,6 +285,14 @@ module UnifiedHealthData
     end
 
     private
+
+    # Extracts and removes warning metadata injected by the client's OperationOutcome detection.
+    # Returns an empty array if no warnings are present.
+    def extract_warnings(body)
+      return [] unless body.is_a?(Hash)
+
+      body.delete('_warnings') || []
+    end
 
     def fetch_combined_records(body)
       return [] if body.nil?
