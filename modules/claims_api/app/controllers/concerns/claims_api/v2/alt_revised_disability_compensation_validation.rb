@@ -121,26 +121,39 @@ module ClaimsApi
 
       def alt_rev_validate_form_526_change_of_address_ending_date
         change_of_address = form_attributes&.dig('changeOfAddress')
-        date = change_of_address&.dig('dates', 'endDate')
-        return if date.nil? # nullable on schema
+        end_date = change_of_address&.dig('dates', 'endDate')
 
-        if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
+        case change_of_address&.dig('typeOfAddressChange')&.upcase
+        when 'PERMANENT'
+          # if the address type is PERMANENT, the endDate should not be included
           collect_error_messages(
             detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
             source: '/changeOfAddress/dates/endDate'
-          )
-        end
+          ) if end_date.present?
 
-        return if change_of_address['dates']['beginDate'].blank? # nothing to check against
-
-        # cannot compare invalid dates so need to return here if date is invalid
-        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
-
-        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-          collect_error_messages(
-            source: '/changeOfAddress/dates/endDate',
-            detail: 'endDate needs to be after beginDate.'
-          )
+        when 'TEMPORARY'
+          # if the address type is TEMPORARY, the endDate must exist and be in chonological order from beginDate
+          if end_date.blank?
+            collect_error_messages(
+              detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
+              source: '/changeOfAddress/dates/endDate'
+            )
+            return
+          end
+          begin
+            begin_date = change_of_address.dig('dates', 'beginDate')
+            unless Date.strptime(begin_date, '%Y-%m-%d') <= Date.strptime(end_date, '%Y-%m-%d')
+              collect_error_messages(
+                detail: 'endDate needs to be after beginDate.',
+                source: '/changeOfAddress/dates/endDate'
+              )
+            end
+          rescue ArgumentError, TypeError
+            collect_error_messages(
+                detail: "#{end_date} is not a valid date.",
+                source: '/changeOfAddress/dates/endDate'
+              )
+          end
         end
       end
 
