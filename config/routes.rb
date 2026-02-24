@@ -86,6 +86,7 @@ Rails.application.routes.draw do
       resources :secondary, only: [:show] do
         member do
           post :start
+          post :complete
         end
       end
     end
