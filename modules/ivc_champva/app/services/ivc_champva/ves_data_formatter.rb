@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module IvcChampva
+  # rubocop:disable Metrics/ClassLength
   class VesDataFormatter
     CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
     RELATIONSHIPS = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
@@ -9,6 +10,9 @@ module IvcChampva
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
 
     # Transform parsed form data from frontend format to a VES request & validate
+    #
+    # Use format_for_extended_request for 10-10D-EXTENDED submissions.
+    #
     # @param parsed_form_data [Hash] the parsed form data from the frontend
     # @return [IvcChampva::VesRequest] the VES request object
     def self.format_for_request(parsed_form_data)
@@ -22,6 +26,84 @@ module IvcChampva
         beneficiaries: ves_data[:beneficiaries],
         certification: ves_data[:certification]
       )
+    end
+
+    ##
+    # Formats 10-10D-EXTENDED form data into a VesRequest with OHI subforms attached.
+    # Builds the 10-10D request, then builds OHI requests for applicants with health
+    # insurance data, propagates UUIDs, and attaches them as subforms.
+    #
+    # @param parsed_form_data [Hash] the parsed form data from the frontend
+    # @return [IvcChampva::VesRequest] the VES request object with OHI subforms
+    def self.format_for_extended_request(parsed_form_data)
+      # Build the 10-10D request
+      ves_request = format_for_request(parsed_form_data)
+
+      # Build standalone OHI requests
+      ohi_requests = format_for_ohi_request(parsed_form_data)
+
+      # Propagate UUIDs and attach as subforms
+      ohi_requests.each do |ohi_request|
+        # Find matching beneficiary by SSN + name
+        # TODO: is SSN required?  Is this a good way to match?
+        matching_beneficiary = find_matching_beneficiary(ves_request.beneficiaries, ohi_request.beneficiary)
+
+        # Propagate UUIDs from parent
+        ohi_request.application_uuid = ves_request.application_uuid
+        if matching_beneficiary
+          ohi_request.person_uuid = matching_beneficiary.person_uuid
+          ohi_request.beneficiary.person_uuid = matching_beneficiary.person_uuid
+        end
+
+        ves_request.add_subform(IvcChampva::VesOhiRequest::FORM_TYPE, ohi_request)
+      end
+
+      ves_request
+    end
+
+    ##
+    # Formats OHI (10-7959C) form data into VesOhiRequest(s) for standalone submissions.
+    #
+    # @param parsed_form_data [Hash] the parsed form data from the frontend
+    # @return [Array<IvcChampva::VesOhiRequest>] array of OHI request objects
+    def self.format_for_ohi_request(parsed_form_data)
+      applicants = parsed_form_data['applicants'] || []
+      ohi_requests = []
+
+      applicants.each do |applicant|
+        next unless applicant_has_ohi_data?(applicant)
+
+        ohi_data = transform_ohi_to_ves_format(applicant, parsed_form_data)
+
+        # TODO: Enable validation once VES swagger spec is available
+        # validate_ohi_data(ohi_data)
+
+        ohi_requests << IvcChampva::VesOhiRequest.new(
+          application_uuid: ohi_data[:application_uuid],
+          person_uuid: ohi_data[:person_uuid],
+          beneficiary: ohi_data[:beneficiary],
+          medicare: ohi_data[:medicare],
+          health_insurance: ohi_data[:health_insurance],
+          certification: ohi_data[:certification]
+        )
+      end
+
+      ohi_requests
+    end
+
+    ##
+    # Finds a matching beneficiary by SSN and name.
+    # Used to propagate person_uuid from 10-10D beneficiaries to OHI requests.
+    #
+    # @param beneficiaries [Array<VesRequest::Beneficiary>] the beneficiaries from the VesRequest
+    # @param ohi_beneficiary [VesOhiRequest::Beneficiary] the OHI beneficiary to match
+    # @return [VesRequest::Beneficiary, nil] the matching beneficiary or nil
+    def self.find_matching_beneficiary(beneficiaries, ohi_beneficiary)
+      beneficiaries.find do |ben|
+        ben.ssn == ohi_beneficiary.ssn &&
+          ben.first_name&.downcase == ohi_beneficiary.first_name&.downcase &&
+          ben.last_name&.downcase == ohi_beneficiary.last_name&.downcase
+      end
     end
 
     def self.transform_to_ves_format(parsed_form_data)
@@ -130,7 +212,141 @@ module IvcChampva
       address
     end
 
+    ##
+    # Checks if an applicant has OHI data (health_insurance or medicare).
+    #
+    # @param applicant [Hash] applicant data
+    # @return [Boolean]
+    def self.applicant_has_ohi_data?(applicant)
+      health_insurance = applicant['health_insurance']
+      medicare = applicant['medicare']
+
+      (health_insurance.is_a?(Array) && health_insurance.any?) ||
+        (medicare.is_a?(Array) && medicare.any?)
+    end
+
+    ##
+    # Transforms applicant data to VES OHI format.
+    #
+    # @param applicant_data [Hash] the applicant data
+    # @param parsed_form_data [Hash] the full form data (for certification)
+    # @return [Hash] the transformed data
+    def self.transform_ohi_to_ves_format(applicant_data, parsed_form_data)
+      {
+        application_uuid: SecureRandom.uuid,
+        person_uuid: SecureRandom.uuid,
+        beneficiary: map_ohi_beneficiary(applicant_data),
+        medicare: map_medicare(applicant_data['medicare'] || []),
+        health_insurance: map_health_insurance(applicant_data['health_insurance'] || []),
+        certification: map_ohi_certification(parsed_form_data)
+      }
+    end
+
+    ##
+    # Maps applicant data to OHI beneficiary format.
+    # Reuses existing map_beneficiary logic where applicable.
+    #
+    # @param applicant_data [Hash] the applicant data
+    # @param person_uuid [String, nil] optional person UUID to use (for extended form UUID propagation)
+    # @return [Hash]
+    def self.map_ohi_beneficiary(applicant_data, person_uuid = nil)
+      {
+        person_uuid: person_uuid || SecureRandom.uuid,
+        first_name: transliterate_and_strip(applicant_data.dig('applicant_name', 'first')),
+        middle_initial: applicant_data.dig('applicant_name', 'middle'),
+        last_name: transliterate_and_strip(applicant_data.dig('applicant_name', 'last')),
+        suffix: applicant_data.dig('applicant_name', 'suffix'),
+        ssn: applicant_data['ssn_or_tin'] || applicant_data['applicant_ssn'],
+        date_of_birth: applicant_data['applicant_dob'],
+        gender: normalize_gender(applicant_data.dig('applicant_gender',
+                                                    'gender') || applicant_data['applicant_gender']),
+        email_address: applicant_data['applicant_email_address'] || applicant_data['applicant_email'],
+        phone_number: format_phone_number(applicant_data['applicant_phone']),
+        address: map_address(applicant_data['applicant_address'])
+      }
+    end
+
+    ##
+    # Maps medicare data array to VES format.
+    #
+    # @param medicare_array [Array<Hash>] medicare entries from the form
+    # @return [Array<Hash>]
+    def self.map_medicare(medicare_array)
+      return [] unless medicare_array.is_a?(Array)
+
+      medicare_array.map do |medicare|
+        {
+          plan_type: medicare['medicare_plan_type'],
+          medicare_number: medicare['medicare_number'],
+          part_a_effective_date: format_date(medicare['medicare_part_a_effective_date']),
+          part_b_effective_date: format_date(medicare['medicare_part_b_effective_date']),
+          part_c_carrier: medicare['medicare_part_c_carrier'],
+          part_c_effective_date: format_date(medicare['medicare_part_c_effective_date']),
+          has_pharmacy_benefits: medicare['has_pharmacy_benefits'],
+          has_part_d: medicare['has_medicare_part_d'],
+          part_d_carrier: medicare['medicare_part_d_carrier'],
+          part_d_effective_date: format_date(medicare['medicare_part_d_effective_date'])
+        }.compact
+      end
+    end
+
+    ##
+    # Maps health_insurance data array to VES format.
+    #
+    # @param health_insurance_array [Array<Hash>] health insurance entries from the form
+    # @return [Array<Hash>]
+    def self.map_health_insurance(health_insurance_array)
+      return [] unless health_insurance_array.is_a?(Array)
+
+      health_insurance_array.map do |insurance|
+        {
+          insurance_type: insurance['insurance_type'],
+          medigap_plan: insurance['medigap_plan'],
+          provider: insurance['provider'],
+          effective_date: format_date(insurance['effective_date']),
+          expiration_date: format_date(insurance['expiration_date']),
+          through_employer: insurance['through_employer'],
+          eob: insurance['eob'],
+          additional_comments: insurance['additional_comments']
+        }.compact
+      end
+    end
+
+    ##
+    # Maps certification data for OHI submissions.
+    #
+    # @param form_data [Hash] the parsed form data containing certification info
+    # @return [Hash]
+    def self.map_ohi_certification(form_data)
+      return {} if form_data.nil?
+
+      certification = form_data['certification'] || {}
+      {
+        signature: form_data['statement_of_truth_signature'],
+        signature_date: certification['date'] || form_data['certification_date'],
+        first_name: transliterate_and_strip(certification['first_name']),
+        last_name: transliterate_and_strip(certification['last_name']),
+        middle_initial: certification['middle_initial'],
+        phone_number: format_phone_number(certification['phone_number']),
+        relationship: certification['relationship'] || form_data['certifier_role'],
+        address: map_address(certification)
+      }.compact
+    end
+
+    ##
+    # Validates OHI data before building request.
+    # TODO: Implement validation once VES swagger spec is available
+    #
+    # @param data [Hash] the transformed OHI data
+    def self.validate_ohi_data(data)
+      # TODO: Add validation rules based on VES swagger spec
+      # For now, just return the data as-is
+      data
+    end
+
+    # ============================================================================
     # Data formatting methods
+    # ============================================================================
     def self.format_phone_number(phone)
       return nil if phone.blank?
 
@@ -387,4 +603,5 @@ module IvcChampva
       raise ArgumentError, "#{error_label} is an empty string" if value.length.zero?
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

@@ -69,7 +69,9 @@ module IvcChampva
       end
 
       def get_ivc_forms(form_uuid, file_names)
-        forms = if file_names.any? { |name| name.end_with?('_merged.pdf') }
+        forms = if file_names.any? { |name| name.end_with?('_combined.pdf') }
+                  # For merged/combined PDFs, update all records for this submission
+                  # (Pega only sees the single combined file, but we have individual records)
                   fetch_forms_by_uuid(form_uuid)
                 else
                   forms_query(form_uuid, file_names)

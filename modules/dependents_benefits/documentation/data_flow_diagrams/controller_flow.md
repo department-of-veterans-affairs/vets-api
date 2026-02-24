@@ -64,4 +64,4 @@ After the controller returns 200 to the user, background processing begins:
 
 - **[UserData Collection](./userdata_flow.md)** - Details of how user data is collected and fallbacks
 - **[Submission Jobs](./submission_jobs_flow.md)** - BGSFormJob and ClaimsEvidenceFormJob process all child claims
-- **[Backup Job](./backup_job_flow.md)** - DependentBackupJob for submission on permanent failures
+- **[Backup Job](./backup_job_flow.md)** - BenefitsIntakeJob for submission on permanent failures

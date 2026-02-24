@@ -18,7 +18,8 @@ module UnifiedHealthData
                  :patient_id,
                  :series_count,
                  :image_count,
-                 :series
+                 :series,
+                 :dicom_zip_url
     end
   end
 end
