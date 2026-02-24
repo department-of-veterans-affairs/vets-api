@@ -78,13 +78,13 @@ module MultiPartyForms
 
     def create_saved_claim(merged_data)
       SavedClaim.create!(
-        form_id: @submission.form_type,
+        form_id: @submission.form_type.sub(/-(PRIMARY|SECONDARY)$/, ''),
         form_data: merged_data.to_json
       )
     end
 
     def enqueue_lighthouse_submission
-      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(@saved_claim.id)
+      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(@submission.saved_claim_id)
     end
 
     def enqueue_confirmation_emails

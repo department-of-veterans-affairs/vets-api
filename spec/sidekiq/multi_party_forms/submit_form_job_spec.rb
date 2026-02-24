@@ -18,7 +18,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
   let(:submission) do
     create(
       :multi_party_form_submission,
-      form_type: '21-2680-PRIMARY',
+      form_type: '21-2680',
       status: 'secondary_in_progress',
       primary_in_progress_form:,
       secondary_in_progress_form:
@@ -47,7 +47,7 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
 
       it 'creates a SavedClaim with the merged data' do
         expect(SavedClaim).to receive(:create!).with(
-          form_id: '21-2680-PRIMARY',
+          form_id: '21-2680',
           form_data: merged_data.to_json
         ).and_return(saved_claim)
 
@@ -74,6 +74,38 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
       end
 
       it 'tracks StatsD begin and success metrics' do
+        job.perform(submission.id)
+
+        expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.begin")
+        expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.success")
+      end
+    end
+
+    context 'when retried after SavedClaim was already created' do
+      before do
+        submission.update!(saved_claim:)
+      end
+
+      it 'does not create a duplicate SavedClaim' do
+        expect(SavedClaim).not_to receive(:create!)
+
+        job.perform(submission.id)
+      end
+
+      it 'still enqueues the Lighthouse submission job' do
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(saved_claim.id)
+
+        job.perform(submission.id)
+      end
+
+      it 'still cleans up InProgressForms' do
+        job.perform(submission.id)
+
+        expect(InProgressForm.exists?(primary_in_progress_form.id)).to be(false)
+        expect(InProgressForm.exists?(secondary_in_progress_form.id)).to be(false)
+      end
+
+      it 'still tracks success metrics' do
         job.perform(submission.id)
 
         expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.begin")
