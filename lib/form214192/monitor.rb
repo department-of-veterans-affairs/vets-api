@@ -78,7 +78,7 @@ module Form214192
 
     ##
     # Track submission begun in controller
-    # Called when claim is saved and about to be queued to Sidekiq
+    # Called when submission processing starts, before validation and persistence
     #
     # @param claim [SavedClaim::Form214192]
     # @param user_uuid [String, nil] Optional user UUID for tracking
@@ -95,7 +95,7 @@ module Form214192
 
     ##
     # Track successful submission in controller
-    # Called when claim is successfully saved and queued
+    # Called when claim is successfully validated, saved, and attachments processed
     #
     # @param claim [SavedClaim::Form214192]
     # @param user_uuid [String, nil] Optional user UUID for tracking
@@ -112,7 +112,7 @@ module Form214192
 
     ##
     # Track submission failure in controller
-    # Called when submission fails (validation or unexpected error)
+    # Called when claim validation or save fails in the controller action
     #
     # @param claim [SavedClaim::Form214192]
     # @param error [Exception]
