@@ -37,6 +37,7 @@ module UnifiedHealthData
     attribute :location, String
     attribute :ordered_by, String
     attribute :body_site, String
+    attribute :comments, String, array: true
     attribute :status, String
     attribute :source, String
     attribute :facility_timezone, String # IANA timezone ID (e.g., 'America/New_York') for the facility

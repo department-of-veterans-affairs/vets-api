@@ -2,6 +2,8 @@
 
 module CheckIn
   module Constants
+    LOG_PREFIX = 'Check-In V1 Travel Claim'
+
     # settings for travel claims for vista appts
     STATSD_NOTIFY_ERROR = 'worker.checkin.travel_claim.notify.error'
     STATSD_NOTIFY_SUCCESS = 'worker.checkin.travel_claim.notify.success'
@@ -52,6 +54,14 @@ module CheckIn
     OH_STATSD_CLAIM_CREATE_ERROR = 'api.oracle_health.travel_claim.claim.create.error'
     OH_STATSD_EXPENSE_ADD_ERROR = 'api.oracle_health.travel_claim.expense.add.error'
     OH_STATSD_CLAIM_SUBMIT_ERROR = 'api.oracle_health.travel_claim.claim.submit.error'
+
+    # Auth failure metrics
+    CIE_STATSD_AUTH_FAILURE = 'api.check_in.travel_claim.auth.failure'
+    OH_STATSD_AUTH_FAILURE = 'api.oracle_health.travel_claim.auth.failure'
+
+    # Validation error metrics
+    CIE_STATSD_VALIDATION_ERROR = 'api.check_in.travel_claim.validation.error'
+    OH_STATSD_VALIDATION_ERROR = 'api.oracle_health.travel_claim.validation.error'
 
     # Check-in eligibility and demographics tracking
     STATSD_CHECKIN_DATA_RETRIEVED = 'api.check_in.data.retrieved'
