@@ -23007,6 +23007,109 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "type": "object",
+                "nullable": true,
+                "description": "Embedded triage group (provider recipient) details from the MHV Secure Messaging API",
+                "properties": {
+                  "triageTeamId": {
+                    "type": "integer",
+                    "example": 401155
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "SM_TO_VA_GOV_TRIAGE_GROUP_TEST"
+                  },
+                  "preferredTeam": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "stationNumber": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "979"
+                  },
+                  "healthCareSystemName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationStationNumber": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "groupTypeEnumVal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subGroupTypeEnumVal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "groupTypePatientDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subGroupTypePatientDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "teamName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "leadProviderName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "suggestedNameDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "legacyName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "ohPoolId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "oplock": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "createdDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Mon, 20 Mar 2023 14:01:45 GMT"
+                  },
+                  "modifiedDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Thu, 15 Jan 2026 15:49:06 GMT"
+                  },
+                  "relationType": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "PATIENT"
+                  },
+                  "ohTriageGroup": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -23022,6 +23125,11 @@
                 "nullable": true,
                 "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
                 "example": null
+              },
+              "migratedToOracleHealth": {
+                "type": "boolean",
+                "description": "Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.",
+                "example": false
               }
             }
           },
@@ -23463,6 +23571,109 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "type": "object",
+                "nullable": true,
+                "description": "Embedded triage group (provider recipient) details from the MHV Secure Messaging API",
+                "properties": {
+                  "triageTeamId": {
+                    "type": "integer",
+                    "example": 401155
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "SM_TO_VA_GOV_TRIAGE_GROUP_TEST"
+                  },
+                  "preferredTeam": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "stationNumber": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "979"
+                  },
+                  "healthCareSystemName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationStationNumber": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "groupTypeEnumVal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subGroupTypeEnumVal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "groupTypePatientDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subGroupTypePatientDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "teamName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "leadProviderName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "suggestedNameDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "legacyName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "ohPoolId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "oplock": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "createdDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Mon, 20 Mar 2023 14:01:45 GMT"
+                  },
+                  "modifiedDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Thu, 15 Jan 2026 15:49:06 GMT"
+                  },
+                  "relationType": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "PATIENT"
+                  },
+                  "ohTriageGroup": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -23735,6 +23946,109 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "type": "object",
+                "nullable": true,
+                "description": "Embedded triage group (provider recipient) details from the MHV Secure Messaging API",
+                "properties": {
+                  "triageTeamId": {
+                    "type": "integer",
+                    "example": 401155
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "SM_TO_VA_GOV_TRIAGE_GROUP_TEST"
+                  },
+                  "preferredTeam": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "stationNumber": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "979"
+                  },
+                  "healthCareSystemName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationStationNumber": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "groupTypeEnumVal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subGroupTypeEnumVal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "groupTypePatientDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subGroupTypePatientDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "teamName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "leadProviderName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "suggestedNameDisplay": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "legacyName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "ohPoolId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "oplock": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "createdDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Mon, 20 Mar 2023 14:01:45 GMT"
+                  },
+                  "modifiedDate": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "Thu, 15 Jan 2026 15:49:06 GMT"
+                  },
+                  "relationType": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "PATIENT"
+                  },
+                  "ohTriageGroup": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -23749,6 +24063,11 @@
                 "nullable": true,
                 "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
                 "example": null
+              },
+              "migratedToOracleHealth": {
+                "type": "boolean",
+                "description": "Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.",
+                "example": false
               }
             }
           },
@@ -23986,6 +24305,109 @@
                       "nullable": true,
                       "example": "Triage_Group_5"
                     },
+                    "triageGroup": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Embedded triage group (provider recipient) details from the MHV Secure Messaging API",
+                      "properties": {
+                        "triageTeamId": {
+                          "type": "integer",
+                          "example": 401155
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "SM_TO_VA_GOV_TRIAGE_GROUP_TEST"
+                        },
+                        "preferredTeam": {
+                          "type": "boolean",
+                          "example": false
+                        },
+                        "active": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "stationNumber": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "979"
+                        },
+                        "healthCareSystemName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "locationName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "locationStationNumber": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "groupTypeEnumVal": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "subGroupTypeEnumVal": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "groupTypePatientDisplay": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "subGroupTypePatientDisplay": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "teamName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "leadProviderName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "suggestedNameDisplay": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "legacyName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "ohPoolId": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "oplock": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "createdDate": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Mon, 20 Mar 2023 14:01:45 GMT"
+                        },
+                        "modifiedDate": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "Thu, 15 Jan 2026 15:49:06 GMT"
+                        },
+                        "relationType": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "PATIENT"
+                        },
+                        "ohTriageGroup": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      }
+                    },
                     "proxySenderName": {
                       "type": "string",
                       "nullable": true,
@@ -24089,7 +24511,7 @@
               "messageCounts": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count \nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
+                "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count\nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
                 "properties": {
                   "read": {
                     "type": "integer",
