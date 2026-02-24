@@ -65,7 +65,7 @@ http_interactions:
   recorded_at: Fri, 20 Feb 2026 13:17:20 GMT
 - request:
     method: get
-    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=10&page=1&patient=123"
+    uri: "<LIGHTHOUSE_CLAIMS_API_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&page=1&patient=123"
     body:
       encoding: US-ASCII
       string: ''
