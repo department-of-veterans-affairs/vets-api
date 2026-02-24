@@ -21,7 +21,7 @@ module DigitalFormsApi
       # @param dry_run [Boolean] perform a dry run in which no action is taken except validation by the endpoint
       def submit(payload, metadata, dry_run: false)
         form_schema = schema_service.fetch(metadata[:formId] || metadata['formId'])
-        request_schema = request_schema_service.fetch
+        request_schema = request_schema_service.fetch_submission_request_schema
         request = submission_validator.validate(payload:, metadata:, form_schema:, request_schema:)
 
         headers = {}

@@ -46,7 +46,8 @@ FactoryBot.define do
         'schemas',
         'forms_api_submissions_request_schema.json'
       )
-      JSON.parse(File.read(path))
+      body = JSON.parse(File.read(path))
+      body.dig('paths', '/submissions', 'post', 'requestBody', 'content', 'application/json', 'schema')
     end
   end
 end

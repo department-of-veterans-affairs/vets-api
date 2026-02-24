@@ -49,7 +49,7 @@ RSpec.describe DigitalFormsApi::Service::Submissions do
       allow(DigitalFormsApi::Service::Schema).to receive(:new).and_return(schema_service)
       allow(DigitalFormsApi::Service::RequestSchema).to receive(:new).and_return(request_schema_service)
       allow(DigitalFormsApi::Validation::SubmissionRequest).to receive(:new).and_return(submission_validator)
-      allow(request_schema_service).to receive(:fetch).and_return(request_schema)
+      allow(request_schema_service).to receive(:fetch_submission_request_schema).and_return(request_schema)
     end
 
     it 'performs a POST' do
