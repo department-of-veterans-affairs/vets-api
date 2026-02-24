@@ -264,7 +264,7 @@ RSpec.describe Form214192::Monitor do
 
     it 'increments StatsD metric' do
       expect(StatsD).to receive(:increment).with(
-        "#{claim_stats_key}.submission.begun",
+        "#{submission_stats_key}.begun",
         hash_including(tags: array_including('service:form214192'))
       )
 
@@ -299,7 +299,7 @@ RSpec.describe Form214192::Monitor do
 
     it 'increments StatsD metric' do
       expect(StatsD).to receive(:increment).with(
-        "#{claim_stats_key}.submission.success",
+        "#{submission_stats_key}.success",
         hash_including(tags: array_including('service:form214192'))
       )
 
@@ -328,7 +328,7 @@ RSpec.describe Form214192::Monitor do
 
     it 'increments StatsD metric' do
       expect(StatsD).to receive(:increment).with(
-        "#{claim_stats_key}.submission.failure",
+        "#{submission_stats_key}.failure",
         hash_including(tags: array_including('service:form214192'))
       )
 

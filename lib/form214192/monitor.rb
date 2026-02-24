@@ -86,7 +86,7 @@ module Form214192
       submit_event(
         :info,
         "#{self.class.name} #{FORM_ID} submission begun",
-        "#{CLAIM_STATS_KEY}.submission.begun",
+        "#{SUBMISSION_STATS_KEY}.begun",
         claim:,
         user_uuid:,
         claim_guid: claim&.guid
@@ -103,7 +103,7 @@ module Form214192
       submit_event(
         :info,
         "#{self.class.name} #{FORM_ID} submission success",
-        "#{CLAIM_STATS_KEY}.submission.success",
+        "#{SUBMISSION_STATS_KEY}.success",
         claim:,
         user_uuid:,
         claim_guid: claim&.guid
@@ -121,7 +121,7 @@ module Form214192
       submit_event(
         :error,
         "#{self.class.name} #{FORM_ID} submission failure",
-        "#{CLAIM_STATS_KEY}.submission.failure",
+        "#{SUBMISSION_STATS_KEY}.failure",
         claim:,
         user_uuid:,
         claim_guid: claim&.guid,
