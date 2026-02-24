@@ -2673,6 +2673,13 @@ features:
       A switch that toggles the use of the v4 Travel Pay API for /appointments/find-or-add.
       Enabled - The find_or_create method will use Travel Pay API v4.
       Disabled - The find_or_create method will use Travel Pay API v2.
+  travel_pay_enable_community_care:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the availability of community care features for Travel Pay.
+      Enabled - Community care features are available to users.
+      Disabled - Community care features are not available. Server returns a 503 (Service Unavailable) until re-enabled.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
