@@ -61,30 +61,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         )
         post(base_path, params:)
       end
-
-      it 'does not pass callback options when' \
-         'accredited_representative_portal_email_delivery_callback feature flag is disabled' do
-        allow(Flipper).to receive(:enabled?)
-          .with(:accredited_representative_portal_email_delivery_callback)
-          .and_return(false)
-
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          params[:next_steps_email][:email_address],
-          'appoint_a_representative_confirmation_email_template_id',
-          {
-            'first_name' => 'First',
-            'form name' => 'Form Name',
-            'form number' => 'Form Number',
-            'representative type' => 'attorney',
-            'representative name' => 'Bob Law',
-            'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
-          },
-          'fake_secret',
-          nil
-        )
-
-        post(base_path, params:)
-      end
     end
 
     context 'when triggering validation errors' do

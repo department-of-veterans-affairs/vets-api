@@ -115,18 +115,39 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
-  it 'ignores forms created within the last 1 minute' do
-    # We created 3 test forms above
-    forms[0].update(created_at: Time.zone.now) # Created within the last minute
-    # Created more than 1 minute ago
-    forms[1].update(created_at: 2.minutes.ago)
-    forms[2].update(created_at: 3.minutes.ago)
+  context 'when champva_ignore_recent_missing_statuses flag is enabled' do
+    it 'ignores forms created within the last 2 hours' do
+      allow(Flipper).to receive(:enabled?).with(:champva_ignore_recent_missing_statuses,
+                                                @current_user).and_return(true)
+      # We created 3 test forms above
+      forms[0].update(created_at: 2.hours.ago + 2.minutes) # slightly less than 2 hours ago
+      forms[1].update(created_at: 2.hours.ago - 2.minutes) # slightly more than 2 hours ago
+      forms[2].update(created_at: 3.hours.ago)
 
-    # Perform the job that checks form statuses
-    job.perform
+      # Perform the job that checks form statuses
+      job.perform
 
-    # Check that forms created in the last minute are ignored
-    expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+      # Check that forms created in the last 2 hours are ignored
+      expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+    end
+  end
+
+  context 'when champva_ignore_recent_missing_statuses flag is disabled' do
+    it 'ignores forms created within the last 1 minute' do
+      allow(Flipper).to receive(:enabled?).with(:champva_ignore_recent_missing_statuses,
+                                                @current_user).and_return(false)
+      # We created 3 test forms above
+      forms[0].update(created_at: Time.zone.now) # Created within the last minute
+      # Created more than 1 minute ago
+      forms[1].update(created_at: 2.minutes.ago)
+      forms[2].update(created_at: 3.minutes.ago)
+
+      # Perform the job that checks form statuses
+      job.perform
+
+      # Check that forms created in the last minute are ignored
+      expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+    end
   end
 
   it 'processes nil forms in batches that belong to the same submission' do
@@ -251,6 +272,36 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     result = job.num_docs_match_reports?(batch)
 
     expect(result).to be true
+    expect(job.missing_status_cleanup).to have_received(:manually_process_batch).with(batch)
+
+    # Clean up test data
+    batch.each(&:destroy)
+  end
+
+  it 'reconciles all records when combined PDF submission matches single Pega report' do
+    # For combined submissions, multiple docs are merged into a single _combined.pdf
+    # Pega only sees the combined file, but we store individual records for each original doc
+    form_uuid = SecureRandom.uuid
+    batch = [
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_7959f_2_combined.pdf", pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_vha_10_7959f_2.pdf", pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_supporting_doc_0.pdf", pega_status: nil),
+      create(:ivc_champva_form, form_uuid:, file_name: "#{form_uuid}_supporting_doc_1.pdf", pega_status: nil)
+    ]
+
+    # Pega only reports the single combined PDF
+    pega_reports = [
+      { 'UUID' => form_uuid, 'Status' => 'Processed' }
+    ]
+
+    allow(job.pega_api_client).to receive(:record_has_matching_report).and_return(pega_reports)
+    allow(job.missing_status_cleanup).to receive(:manually_process_batch)
+
+    # Should return true: 1 combined PDF locally matches 1 Pega report
+    result = job.num_docs_match_reports?(batch)
+
+    expect(result).to be true
+    # All 4 records should be passed for status update
     expect(job.missing_status_cleanup).to have_received(:manually_process_batch).with(batch)
 
     # Clean up test data

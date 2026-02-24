@@ -14,6 +14,1607 @@
           ],
           "presentedForm": [{ "contentType": "text/plain", "data": "abc123" }]
         }
+      },
+        {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "27667fa0-f9e0-4427-a744-fbb221d21e37",
+          "meta": {
+            "profile": [
+              "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.imaging"
+            ]
+          },
+          "contained": [
+            {
+              "resourceType": "ServiceRequest",
+              "id": "7d04df66-b63d-429c-9fea-bdbbda211126",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://snomed.info/sct",
+                      "code": "363679005",
+                      "display": "Imaging"
+                    }
+                  ]
+                }
+              ],
+              "subject": { "reference": "Patient/24643801" },
+              "requester": {
+                "reference": "Practitioner/3e11fb2e-003b-46a1-905f-74f538fb1a97"
+              },
+              "performer": [
+                {
+                  "reference": "Organization/d46f6243-68c1-467e-bf2f-fe16a63aeea0"
+                }
+              ]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "3e11fb2e-003b-46a1-905f-74f538fb1a97",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                  "value": "urn:va:user:F253:2173"
+                }
+              ],
+              "name": [{ "family": "ANDERSON", "given": ["FREDERICK J"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "a94b3ff2-8202-4f46-86a0-0fbaadeff0c9",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.3.984",
+                  "value": "urn:va:location:F253:1157"
+                }
+              ],
+              "name": "GENERAL RADIOLOGY (983)"
+            },
+            {
+              "resourceType": "Organization",
+              "id": "d46f6243-68c1-467e-bf2f-fe16a63aeea0",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.3.984",
+                  "value": "983"
+                }
+              ],
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "dd271aea-8789-40de-ae78-64b496e16c1d",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                  "value": "urn:va:user:F253:2173"
+                }
+              ],
+              "name": [{ "family": "ANDERSON", "given": ["FREDERICK J"] }]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "32504a49-3161-4dbd-b062-a6c22f943bfe",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                  "value": "urn:va:user:F253:520647536"
+                }
+              ],
+              "name": [{ "family": "BALIAMOUNE", "given": ["MOSTAFA Z"] }]
+            }
+          ],
+          "identifier": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "value": "ASCN"
+            },
+            {
+              "system": "vista-uid",
+              "value": "urn:va:image:F253:7227761:6758794.8749-2"
+            },
+            {
+              "use": "secondary",
+              "system": "vista-uid",
+              "value": "CaseNum.107"
+            }
+          ],
+          "basedOn": [
+            {
+              "reference": "ServiceRequest/7d04df66-b63d-429c-9fea-bdbbda211126"
+            }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "LP29684-5",
+                  "display": "Radiology"
+                }
+              ]
+            }
+          ],
+          "performer": [
+            { "reference": "Organization/a94b3ff2-8202-4f46-86a0-0fbaadeff0c9" }
+          ],
+          "resultsInterpreter": [
+            {
+              "reference": "Practitioner/dd271aea-8789-40de-ae78-64b496e16c1d"
+            },
+            { "reference": "Practitioner/32504a49-3161-4dbd-b062-a6c22f943bfe" }
+          ],
+          "presentedForm": [
+            {
+              "contentType": "text/plain",
+              "data": "U0lMVkEsQUxFWEFOREVSIFJJQ0EgIDI5OC00Ny0zMzQ2ICAgIERPQi1NQVIgMDEsIDE5OTAgTSAgIA0KRXhtIERhdGU6IERFQyAwNSwgMjAyNEAxMjo1MA0KUmVxIFBoeXM6IEJBTElBTU9VTkUsTU9TVEFGQSBaICAgICAgICAgICBQYXQgTG9jOiBjaHljaHkgKFJlcSdnIExvYykNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgSW1nIExvYzogR0VORVJBTCBSQURJT0xPR1kgKDk4MykNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU2VydmljZTogVW5rbm93bg0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDSFlTSFIgVEVTVCBMQUINCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIENIRVlFTk5FLCBGTCA4MjAwMQ0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiANCg0KKENhc2UgOTgzLTEyMDUyNC0xMDcgQ09NUExFVEUpIEZBQ0lBTCBCT05FICAgICAgICAgICAgICAgICAgICAgIChSQUQgIEJyb2FkICAgKQ0KICAgICBSZWFzb24gZm9yIFN0dWR5OiBwb2xpY3kNCg0KICAgIENsaW5pY2FsIEhpc3Rvcnk6DQogICAgICAtICAgICAgIEZvciBhbnkgY29tbWVudCwgcGxlYXNlIGVudGVyICJ0aGlzIGlzIGEgdGVzdCBSYWRpb2xvZ3kNCiAgICAgIHJlc3VsdCBjb21tZW50IiANCg0KICAgIFJlcG9ydCBTdGF0dXM6IFZlcmlmaWVkICAgICAgICAgICAgICAgICAgIERhdGUgUmVwb3J0ZWQ6IERFQyAwNSwgMjAyNA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIERhdGUgVmVyaWZpZWQ6IERFQyAwNSwgMjAyNA0KICAgIFZlcmlmaWVyIEUtU2lnOi9FUy9NT1NUQUZBIFogQkFMSUFNT1VORQ0KDQogICAgUmVwb3J0Og0KICAgICAgVGhlIGJvbmVzIGFuZCBzb2Z0IHRpc3N1ZXMgYXJlIHdpdGhpbiBub3JtYWwgbGltaXRzLiAgTm8gb2J2aW91cyANCiAgICAgIGZyYWN0dXJlcyBvciBkaXNsb2NhdGlvbnMuICANCg0KICAgIEltcHJlc3Npb246DQogICAgICBUaGUgZXhhbSBpcyB3aXRoaW4gbm9ybWFsIGxpbWl0cy4gIA0KDQogICAgUHJpbWFyeSBEaWFnbm9zdGljIENvZGU6IE5PUk1BTA0KICAgIFNlY29uZGFyeSBEaWFnbm9zdGljIENvZGVzOiANCiAgICAgIFBST0JBQkxZIE5PUk1BTA0KDQpQcmltYXJ5IEludGVycHJldGluZyBTdGFmZjoNCiAgRlJFREVSSUNLIEogQU5ERVJTT04sIFJhZGlvbG9naXN0DQpTZWNvbmRhcnkgSW50ZXJwcmV0aW5nIFN0YWZmOg0KICBKIFJBWU1PTkQgR0VJUywgU3RhZmYgUGh5c2ljaWFuDQpQcmltYXJ5IEludGVycHJldGluZyBSZXNpZGVudDoNCiAgTU9TVEFGQSBaIEJBTElBTU9VTkUsIERyLiBNbyAoVmVyaWZpZXIpDQpTZWNvbmRhcnkgSW50ZXJwcmV0aW5nIFJlc2lkZW50Og0KICBMRUUgQU5OIEhVTEVULCBMZWUgQW5uIEh1bGV0DQovTVpCDQoNCg==",
+              "title": "FACIAL BONE",
+              "creation": "2024-12-05T12:50:00+00:00"
+            }
+          ]
+        }
+      },
+            {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "1a63f144-b9c6-4127-894a-567b446fd1da",
+          "meta": {
+            "profile": [
+              "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.imaging"
+            ]
+          },
+          "contained": [
+            {
+              "resourceType": "ServiceRequest",
+              "id": "ac3c8659-edc6-4be9-8659-ae8eed71554d",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://snomed.info/sct",
+                      "code": "363679005",
+                      "display": "Imaging"
+                    }
+                  ]
+                }
+              ],
+              "subject": { "reference": "Patient/24643801" },
+              "requester": {
+                "reference": "Practitioner/5398e6e7-5659-4d41-bd99-543f15a2ce1a"
+              },
+              "performer": [
+                {
+                  "reference": "Organization/2d23a190-12db-4609-aa7c-2a2ec637be4b"
+                }
+              ]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "5398e6e7-5659-4d41-bd99-543f15a2ce1a",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                  "value": "urn:va:user:F253:2173"
+                }
+              ],
+              "name": [{ "family": "ANDERSON", "given": ["FREDERICK J"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "dd4d5e56-daa6-42a1-8d94-09000645c8d5",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.3.984",
+                  "value": "urn:va:location:F253:1157"
+                }
+              ],
+              "name": "GENERAL RADIOLOGY (983)"
+            },
+            {
+              "resourceType": "Organization",
+              "id": "2d23a190-12db-4609-aa7c-2a2ec637be4b",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.3.984",
+                  "value": "983"
+                }
+              ],
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "1d273a14-2e92-4936-b076-ba23f5046e8c",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                  "value": "urn:va:user:F253:2173"
+                }
+              ],
+              "name": [{ "family": "ANDERSON", "given": ["FREDERICK J"] }]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "704a56b7-3d1f-49f1-afa9-89ff6066747e",
+              "identifier": [
+                {
+                  "use": "usual",
+                  "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                  "value": "urn:va:user:F253:520647536"
+                }
+              ],
+              "name": [{ "family": "BALIAMOUNE", "given": ["MOSTAFA Z"] }]
+            }
+          ],
+          "identifier": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "value": "ASCN"
+            },
+            {
+              "system": "vista-uid",
+              "value": "urn:va:image:F253:7227761:6758794.8749-1"
+            },
+            {
+              "use": "secondary",
+              "system": "vista-uid",
+              "value": "CaseNum.106"
+            }
+          ],
+          "basedOn": [
+            {
+              "reference": "ServiceRequest/ac3c8659-edc6-4be9-8659-ae8eed71554d"
+            }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "LP29684-5",
+                  "display": "Radiology"
+                }
+              ]
+            }
+          ],
+          "performer": [
+            { "reference": "Organization/dd4d5e56-daa6-42a1-8d94-09000645c8d5" }
+          ],
+          "resultsInterpreter": [
+            {
+              "reference": "Practitioner/1d273a14-2e92-4936-b076-ba23f5046e8c"
+            },
+            { "reference": "Practitioner/704a56b7-3d1f-49f1-afa9-89ff6066747e" }
+          ],
+          "presentedForm": [
+            {
+              "contentType": "text/plain",
+              "data": "U0lMVkEsQUxFWEFOREVSIFJJQ0EgIDI5OC00Ny0zMzQ2ICAgIERPQi1NQVIgMDEsIDE5OTAgTSAgIA0KRXhtIERhdGU6IERFQyAwNSwgMjAyNEAxMjo1MA0KUmVxIFBoeXM6IEJBTElBTU9VTkUsTU9TVEFGQSBaICAgICAgICAgICBQYXQgTG9jOiBjaHljaHkgKFJlcSdnIExvYykNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgSW1nIExvYzogR0VORVJBTCBSQURJT0xPR1kgKDk4MykNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgU2VydmljZTogVW5rbm93bg0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBDSFlTSFIgVEVTVCBMQUINCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIENIRVlFTk5FLCBGTCA4MjAwMQ0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiANCg0KKENhc2UgOTgzLTEyMDUyNC0xMDYgQ09NUExFVEUpIEFCRE9NRU4gMiArIFBBICYgTEFUIENIRVNUICAgICAgIChSQUQgIERldGFpbGVkKSBDUFQ6NzQwMjINCiAgICAgUHJvYyBNb2RpZmllcnMgOiBMRUZUDQogICAgIFJlYXNvbiBmb3IgU3R1ZHk6IHBvbGljeQ0KDQogICAgQ2xpbmljYWwgSGlzdG9yeToNCiAgICAgIC0gICAgICAgRm9yIGFueSBjb21tZW50LCBwbGVhc2UgZW50ZXIgInRoaXMgaXMgYSB0ZXN0IFJhZGlvbG9neQ0KICAgICAgcmVzdWx0IGNvbW1lbnQiIA0KDQogICAgQWRkaXRpb25hbCBDbGluaWNhbCBIaXN0b3J5Og0KICAgICAgV2hhdCBpcyBDbGluaWNhbCBDb3JyZWxhdGlvbj8gIkNsaW5pY2FsIGNvcnJlbGF0aW9uIiBpcyBhIHRlcm0NCiAgICAgIHVzZWQgaW4gbWVkaWNpbmUsIGZyZXF1ZW50bHkgd2l0aGluIHJhZGlvbG9neSByZXBvcnRzLCB0aGF0IGNhbg0KICAgICAgYW5kIHNob3VsZCBiZSB0YWtlbiBsaXRlcmFsbHkgLSBjb3JyZWxhdGUgdGhlIGFibm9ybWFsIG9yDQogICAgICB1bmV4cGVjdGVkIGltYWdpbmcgZmluZGluZyB3aXRoIHdoYXQncyBnb2luZyBvbiB3aXRoIHRoZSBwYXRpZW50DQogICAgICBjbGluaWNhbGx5LiAgDQogICAgICAgDQogICAgICBIZWFsdGhjYXJlIHByb3ZpZGVycyBzaG91bGQgdXNlIHRoZSBwYXRpZW50J3MgY2xpbmljYWwgZmluZGluZ3MNCiAgICAgIChtZWRpY2FsIGhpc3RvcnksIHBoeXNpY2FsIGV4YW0sIGxhYm9yYXRvcnkgdGVzdGluZywgb3RoZXINCiAgICAgIGltYWdpbmcgc3R1ZGllcywgZXRjLikgdG8gZGV0ZXJtaW5lIHRoZSBzaWduaWZpY2FuY2Ugb2YgdGhlDQogICAgICByYWRpb2xvZ3kgZmluZGluZ3MuIEEgcGF0aWVudCdzIGNsaW5pY2FsIGhpc3RvcnkgaXMgZXNzZW50aWFsbHkNCiAgICAgIG1lZGljaW5lJ3MgUm9zZXR0YSBTdG9uZSBmb3IgZGVjaXBoZXJpbmcgdW5leHBsYWluZWQgaW1hZ2luZw0KICAgICAgcmVzdWx0cy4gDQogICAgICAgDQogICAgICBJbiBvdGhlciB3b3JkcywgbG9vayBhdCBhbGwgb2YgdGhlIGluZm9ybWF0aW9uIGF2YWlsYWJsZSBhbmQgc2VlDQogICAgICBob3cgdGhlIHVuZXhwZWN0ZWQgZmluZGluZyhzKSBjb3JyZWxhdGUocykgdG8gdGhhdCBzcGVjaWZpYw0KICAgICAgaW5kaXZpZHVhbC4gIA0KICAgICAgIA0KICAgICAgVGhlIGdvYWwgaXMgdG8gbmFycm93IGRvd24gYSBkaWZmZXJlbnRpYWwgZGlhZ25vc2lzICh0aGUNCiAgICAgIHBvdGVudGlhbCBjYXVzZXMpIHRvIG9uZSBhY2N1cmF0ZSBkaWFnbm9zaXMgdGhhdCBjYW4gYWNjb3VudCBmb3INCiAgICAgIGFsbCBvZiB0aGUgcGF0aWVudCdzIHN5bXB0b21zIChpLmUuLCBpZGVudGlmeSB0aGUgZGlzZWFzZSBwcm9jZXNzDQogICAgICB0aGF0IGNhbiBleHBsYWluIHRoZSBjYXVzZSBvZiB0aGUgdW5kZXJseWluZyBtZWRpY2FsIGlsbG5lc3Mgb3INCiAgICAgIHByb2JsZW0pIGFuZCBydWxlIG91dCBvdGhlciBwb3RlbnRpYWwgZGlhZ25vc2VzIG1lbnRpb25lZCBpbiB0aGUNCiAgICAgIHJhZGlvbG9naXN0J3MgaW50ZXJwcmV0YXRpb24uICANCiAgICAgICANCiAgICAgIEZvciBleGFtcGxlLCB3ZSBtYXkgc2F5ICInQScgaXMgcHJlc2VudCBhbmQgY291bGQgYmUgc2Vjb25kYXJ5IHRvDQogICAgICAnWCwgWSwgb3IgWi4nIENvcnJlbGF0ZSBjbGluaWNhbGx5LiIgVGhpcyBpcyBvdXIgd2F5IG9mIHNheWluZw0KICAgICAgdGhhdCB3ZSBmb3VuZCBzb21ldGhpbmcgYWJub3JtYWwgKCdBJyBpbiB0aGlzIGNhc2UpIGJ1dCBoYXZlDQogICAgICBpbmFkZXF1YXRlIGNsaW5pY2FsIGluZm9ybWF0aW9uIHRvIGRpZmZlcmVudGlhdGUgYmV0d2VlbiAnWCwgWSwNCiAgICAgIGFuZCBaJyBhcyB0aGUgY2F1c2Ugb2YgJ0EnIGFuZCB3ZSdyZSBhc2tpbmcgdGhlIG9yZGVyaW5nDQogICAgICBkb2N0b3IvcHJvdmlkZXIgdG8gZmlsbCBpbiB0aGUgZ2FwcyBhbmQgbmFycm93IGl0IGRvd24gdG8gdGhlDQogICAgICBtb3N0IGxpa2VseSB1bmRlcmx5aW5nIGNhdXNlLiANCiAgICAgICANCiAgICAgIFdoaWxlIHRoZXJlIGFyZSBvY2Nhc2lvbmFsIG1lbWVzIHdpdGggaGVhbHRoY2FyZSB3b3JrZXJzIGpva2luZ2x5IA0KICAgICAgc3VnZ2VzdGluZyByYWRpb2xvZ2lzdHMgb3ZlcnVzZSB0aGUgcGhyYXNlIChhdCBsZWFzdCBJIGhvcGUNCiAgICAgIHRoZXkncmUgam9raW5nISksIGNsaW5pY2FsIGNvcnJlbGF0aW9uIHBsYXlzIGFuIGluY3JlZGlibHkNCiAgICAgIGltcG9ydGFudCBwYXJ0IHRvIHByb3ZpZGluZyBleGNlbGxlbnQgcGF0aWVudCBjYXJlIGFuZCBpcyB3aGVyZQ0KICAgICAgdGhlIHJhZGlvbG9naXN0IGZpdHMgaW50byB0aGUgbWVkaWNhbCB0ZWFtLiANCiAgICAgICANCiAgICAgIFdoeSBpcyBpdCBJbXBvcnRhbnQgZm9yIERvY3RvcnMgdG8gQ29ycmVsYXRlIENsaW5pY2FsbHk/IENsaW5pY2FsDQogICAgICBjb3JyZWxhdGlvbiBpcyBhIGNyaXRpY2FsIHBhcnQgb2YgYmVpbmcgYSBncmVhdCBkb2N0b3IuIFRoaW5rIG9mIA0KICAgICAgeW91cnNlbGYgYXMgYSBkZXRlY3RpdmUuIFlvdSBoYXZlIHRvIGJlIGFibGUgdG8gbG9vayBhdCBhDQogICAgICBwYXRpZW50LCB0YWtlIGluIGFsbCBvZiB0aGUgaW5mb3JtYXRpb24gYXZhaWxhYmxlIHRvIGNyZWF0ZSBhDQogICAgICBmdWxsIHBpY3R1cmUgb2Ygd2hhdCdzIGdvaW5nIG9uLCBhbmQgcHV0IHRoZSBwaWVjZXMgdG9nZXRoZXIgaW4gYQ0KICAgICAgd2F5IHRoYXQgc29sdmVzIHRoZSBwdXp6bGUuICANCiAgICAgICANCiAgICAgIEtlZXAgaW4gbWluZDogT2NjYW0ncyByYXpvciAodGhlIHNpbXBsZXN0IHNvbHV0aW9uIGlzIGxpa2VseQ0KICAgICAgY29ycmVjdCAtIGEgc2luZ2xlIGV0aW9sb2d5IGlzIG1vc3QgbGlrZWx5IHRoZSBsb25lIGNhdXNlKSB2ZXJzdXMNCiAgICAgIEhpY2thbSdzIGRpY3R1bSAoYSBwYXRpZW50IGNhbiBoYXZlIGFzIG1hbnkgZGlzZWFzZXMgYXMgdGhleSBkYXJuDQogICAgICB3ZWxsIHBsZWFzZSAtIG1vcmUgdGhhbiBvbmUgdW5kZXJseWluZyBwYXRob2xvZ3kgbWF5IGFjY291bnQgZm9yDQogICAgICB0aGUgcGF0aWVudCdzIGlsbG5lc3MpLiAgDQogICAgICAgDQogICAgICBFdmVyeSBwYXRpZW50IGlzIHVuaXF1ZSwgc28gaGVhbHRoY2FyZSBwcm92aWRlcnMgbXVzdCB0YWtlIGFsbCBvZg0KICAgICAgdGhlIHBhdGllbnQncyBzcGVjaWZpYyBtZWRpY2FsIGluZm9ybWF0aW9uIGludG8gYWNjb3VudCB0byBmaWd1cmUNCiAgICAgIG91dCB0aGUgc2lnbmlmaWNhbmNlLCBpZiBhbnksIG9mIHRoZSBhYm5vcm1hbGl0eSBkaXNjb3ZlcmVkIG9uDQogICAgICB0aGUgaW1hZ2luZyBleGFtLiBQcm92aWRlcnMgbmVlZCB0byB0YWtlIGEgc3RlcCBiYWNrIGZyb20gdGhlDQogICAgICB0cmVlcyBhbmQgc2VlIHRoZSBmb3Jlc3QuIExvb2sgYXQgZWFjaCB0ZXN0IHJlc3VsdCBpbmRpdmlkdWFsbHkNCiAgICAgIGFuZCB0aGUgdGVzdCByZXN1bHRzIGFzIGEgd2hvbGUgKGUuZy4sIFQzIGFuZCBUNCBsZXZlbHMgYXJlIG11Y2gNCiAgICAgIG1vcmUgdXNlZnVsIHdoZW4geW91IGhhdmUgYSBUU0gpLiANCiAgICAgICANCiAgICAgIENsaW5pY2FsIGNvcnJlbGF0aW9uIGlzIGltcG9ydGFudCBiZWNhdXNlIGl0IGFsbG93cyBkb2N0b3JzIHRvDQogICAgICBtYWtlIGFuIGFjY3VyYXRlIGRpYWdub3NpcyB1c2luZyBhbGwgdGhlIGluZm9ybWF0aW9uIGF2YWlsYWJsZSB0bw0KICAgICAgdGhlbS4gQnkgY29ycmVsYXRpbmcgY2xpbmljYWwgZGF0YSB3aXRoIGxhYm9yYXRvcnkgdGVzdCByZXN1bHRzLA0KICAgICAgaW1hZ2luZyBmaW5kaW5ncywgYW5kIG90aGVyIGluZm9ybWF0aW9uLCBkb2N0b3JzIGNhbiBvYnRhaW4gdGhlDQogICAgICBjb3JyZWN0IGRpYWdub3NpcyB0aGF0IHdpbGwgZ3VpZGUgbWFuYWdlbWVudCBhbmQgZW5zdXJlIHRoYXQNCiAgICAgIHRoZWlyIHBhdGllbnRzIHJlY2VpdmUgdGhlIGFwcHJvcHJpYXRlIGNhcmUgdGhleSBkZXNlcnZlLiAgDQogICAgICAgDQogICAgICBUcmVhdCB0aGUgcGF0aWVudCwgbm90IGp1c3QgYWJub3JtYWwgaW1hZ2luZyBvciBsYWJvcmF0b3J5DQogICAgICByZXN1bHRzISANCg0KICAgIFJlcG9ydCBTdGF0dXM6IFZlcmlmaWVkICAgICAgICAgICAgICAgICAgIERhdGUgUmVwb3J0ZWQ6IERFQyAwNSwgMjAyNA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIERhdGUgVmVyaWZpZWQ6IERFQyAwNSwgMjAyNA0KICAgIFZlcmlmaWVyIEUtU2lnOi9FUy9NT1NUQUZBIFogQkFMSUFNT1VORQ0KDQogICAgUmVwb3J0Og0KICAgICAgIA0KICAgICAgIA0KICAgICAgUE9SVEFCTEUgQVAgQ0hFU1QgDQogICAgICAgDQogICAgICBGaW5kaW5nczogIFRoaXMgZXhhbSBpcyBjb21wYXJlZCB0byB0aGUgZXhhbXMgZG9uZSBEZWNlbWJlciAzMCwNCiAgICAgIDE5OTksIGFuZCBGZWJydWFyeSAxNiwgMTk5OS4gIFNpbmNlIHRoZSBwcmV2aW91cyBleGFtcywgdGhlIGhlYXJ0DQogICAgICBzaXplIHJlbWFpbnMgZW5sYXJnZWQuICBUaGUgYXNjZW5kaW5nIGFvcnRhLCBhb3J0aWMgYXJjaCwgYW5kDQogICAgICBkZXNjZW5kaW5nIGFvcnRhIGFyZSB2ZXJ5IHByb21pbmVudC4gIFRoZSBjZW50cmFsIHB1bG1vbmFyeQ0KICAgICAgdmVzc2VscyBhcmUgcXVpdGUgcHJvbWluZW50LiAgVGhlIHBhdGllbnQgZG9lcyBoYXZlIGNoYW5nZXMNCiAgICAgIGNvbnNpc3RlbnQgd2l0aCBzb21lIGVsZW1lbnQgb2YgQ09QRC4gIENhbGNpZmllZCBncmFudWxvbWFzIGFyZQ0KICAgICAgaWRlbnRpZmllZC4gIEkgZG8gbm90IHNlZSBldmlkZW5jZSBvZiBhY3V0ZSBjYXJkaW9wdWxtb25hcnkgDQogICAgICBkZWNvbXBlbnNhdGlvbi4gDQoNCiAgICBJbXByZXNzaW9uOg0KICAgICAgIA0KICAgICAgIA0KICAgICAgMS4gIENhcmRpb21lZ2FseS4gIA0KICAgICAgIA0KICAgICAgMi4gIENPUEQuICANCiAgICAgICANCiAgICAgIDMuICBWZXJ5IHRvcnR1b3VzIGFvcnRhLiANCg0KICAgIFByaW1hcnkgRGlhZ25vc3RpYyBDb2RlOiBOT1JNQUwNCiAgICBTZWNvbmRhcnkgRGlhZ25vc3RpYyBDb2RlczogDQogICAgICBQUk9CQUJMWSBOT1JNQUwNCg0KUHJpbWFyeSBJbnRlcnByZXRpbmcgU3RhZmY6DQogIEZSRURFUklDSyBKIEFOREVSU09OLCBSYWRpb2xvZ2lzdA0KU2Vjb25kYXJ5IEludGVycHJldGluZyBTdGFmZjoNCiAgSiBSQVlNT05EIEdFSVMsIFN0YWZmIFBoeXNpY2lhbg0KUHJpbWFyeSBJbnRlcnByZXRpbmcgUmVzaWRlbnQ6DQogIE1PU1RBRkEgWiBCQUxJQU1PVU5FLCBEci4gTW8gKFZlcmlmaWVyKQ0KU2Vjb25kYXJ5IEludGVycHJldGluZyBSZXNpZGVudDoNCiAgTEVFIEFOTiBIVUxFVCwgTGVlIEFubiBIdWxldA0KL01aQg0KDQo=",
+              "title": "ABDOMEN 2 + PA & LAT CHEST",
+              "creation": "2024-12-05T12:50:00+00:00"
+            }
+          ]
+        }
+      },
+            {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "0525287a-d9e1-4076-9833-24a9dc696f0d",
+          "contained": [
+            {
+              "resourceType": "Practitioner",
+              "id": "41fd017d-4080-43e2-9115-4afe71ae0c1f",
+              "identifier": [
+                { "system": "vista-uid", "value": "urn:va:user:F253:2" }
+              ],
+              "name": [{ "family": "ZZCASSIDY", "given": ["TOM"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "4c5afe0a-fcf8-4479-9f5c-3065bdd52641",
+              "meta": {
+                "profile": [
+                  "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"
+                ]
+              },
+              "identifier": [
+                { "use": "usual", "system": "989", "value": "989" },
+                { "system": "facility-code", "value": "983" }
+              ],
+              "active": true,
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Specimen",
+              "id": "64c49581-a7b8-429c-bf7e-3873d05107a6",
+              "accessionIdentifier": {
+                "use": "usual",
+                "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                "value": "MICRO 25 14"
+              },
+              "status": "available",
+              "type": { "text": "BLOOD" },
+              "collection": {
+                "collectedDateTime": "2025-02-27T11:51:00+00:00",
+                "bodySite": { "text": "BLOOD" }
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/labComment",
+              "valueString": "comment on specimen for release "
+            }
+          ],
+          "identifier": [
+            {
+              "system": "vista-uid",
+              "value": "urn:va:lab:F253:7227761:MI;6749771.884876"
+            }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "urn:va:lab-category:MI",
+                  "display": "MI"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "18725-2",
+                "display": "Microbiology studies (set)"
+              }
+            ],
+            "text": "Microbiology"
+          },
+          "subject": { "reference": "Patient/24643801" },
+          "effectiveDateTime": "2025-02-27T11:51:00+00:00",
+          "issued": "2025-02-27T11:51:00.000+00:00",
+          "performer": [
+            {
+              "reference": "Practitioner/41fd017d-4080-43e2-9115-4afe71ae0c1f"
+            },
+            { "reference": "Organization/4c5afe0a-fcf8-4479-9f5c-3065bdd52641" }
+          ],
+          "resultsInterpreter": [
+            { "reference": "Practitioner/41fd017d-4080-43e2-9115-4afe71ae0c1f" }
+          ],
+          "specimen": [
+            { "reference": "Specimen/64c49581-a7b8-429c-bf7e-3873d05107a6" }
+          ],
+          "presentedForm": [
+            {
+              "contentType": "text/plain",
+              "data": "QWNjZXNzaW9uIFtVSURdOiBNSUNSTyAyNSAxNCBbMTIyNTAwMDAxNF0gICBSZWNlaXZlZDogRmViIDI3LCAyMDI1QDExOjUxDQpDb2xsZWN0aW9uIHNhbXBsZTogQkxPT0QgICAgICAgICAgICAgICBDb2xsZWN0aW9uIGRhdGU6IEZlYiAyNywgMjAyNSAxMTo1MQ0KUHJvdmlkZXI6IE1DR1VJUkUsTUFSQ0kgUA0KQ29tbWVudCBvbiBzcGVjaW1lbjogY29tbWVudCBvbiBzcGVjaW1lbiBmb3IgcmVsZWFzZSANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiBUZXN0KHMpIG9yZGVyZWQ6IEJMT09EIENVTFRVUkUNCg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tDQpQZXJmb3JtaW5nIExhYm9yYXRvcnk6DQpCYWN0ZXJpb2xvZ3kgUmVwb3J0IFBlcmZvcm1lZCBCeTogDQpDSFlTSFIgVEVTVCBMQUINCjIzNjAgRSBQRVJTSElORyBCTFZEIENIRVlFTk5FLCBGTCA4MjAwMS01MzU2DQoNCg=="
+            }
+          ]
+        }
+      },
+            {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "81abc997-6fe5-4144-b326-6bfe6e8ae055",
+          "contained": [
+            {
+              "resourceType": "Practitioner",
+              "id": "871dddb9-a7b4-45f9-aad0-1f50ee4a78ab",
+              "identifier": [
+                { "system": "vista-uid", "value": "urn:va:user:F253:2" }
+              ],
+              "name": [{ "family": "ZZCASSIDY", "given": ["TOM"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "ec076f2c-6278-4759-9846-29512f45afb1",
+              "meta": {
+                "profile": [
+                  "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"
+                ]
+              },
+              "identifier": [
+                { "use": "usual", "system": "989", "value": "989" },
+                { "system": "facility-code", "value": "983" }
+              ],
+              "active": true,
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Specimen",
+              "id": "b4cac864-bef7-4bb2-bdd2-ef0f75f3a1e7",
+              "accessionIdentifier": {
+                "use": "usual",
+                "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                "value": "MISCM 25 7"
+              },
+              "status": "available",
+              "type": { "text": "PLASMA" },
+              "collection": {
+                "collectedDateTime": "2025-02-27T11:38:00+00:00",
+                "bodySite": { "text": "PLASMA" }
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/labComment",
+              "valueString": "~Test "
+            }
+          ],
+          "identifier": [
+            {
+              "system": "vista-uid",
+              "value": "urn:va:lab:F253:7227761:MI;6749771.886152"
+            }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "urn:va:lab-category:MI",
+                  "display": "MI"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "18725-2",
+                "display": "Microbiology studies (set)"
+              }
+            ],
+            "text": "Microbiology"
+          },
+          "subject": { "reference": "Patient/24643801" },
+          "effectiveDateTime": "2025-02-27T11:38:00+00:00",
+          "issued": "2025-05-20T13:32:00.000+00:00",
+          "performer": [
+            {
+              "reference": "Practitioner/871dddb9-a7b4-45f9-aad0-1f50ee4a78ab"
+            },
+            { "reference": "Organization/ec076f2c-6278-4759-9846-29512f45afb1" }
+          ],
+          "resultsInterpreter": [
+            { "reference": "Practitioner/871dddb9-a7b4-45f9-aad0-1f50ee4a78ab" }
+          ],
+          "specimen": [
+            { "reference": "Specimen/b4cac864-bef7-4bb2-bdd2-ef0f75f3a1e7" }
+          ],
+          "presentedForm": [
+            {
+              "contentType": "text/plain",
+              "data": "QWNjZXNzaW9uIFtVSURdOiBNSVNDTSAyNSA3IFs0MjI1MDAwMDA3XSAgICBSZWNlaXZlZDogRmViIDI3LCAyMDI1QDExOjM4DQpDb2xsZWN0aW9uIHNhbXBsZTogQkxPT0QgICAgICAgICAgICAgICBDb2xsZWN0aW9uIGRhdGU6IEZlYiAyNywgMjAyNSAxMTozOA0KU2l0ZS9TcGVjaW1lbjogUExBU01BDQpQcm92aWRlcjogTUNHVUlSRSxNQVJDSSBQDQpDb21tZW50IG9uIHNwZWNpbWVuOiB+VGVzdCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiBUZXN0KHMpIG9yZGVyZWQ6IENVTFRVUkUgJiBTVVNDRVBUSUJJTElUWS4uLi4uLiBjb21wbGV0ZWQ6IEFwciAzMCwgMjAyNQ0KDQoqIEJBQ1RFUklPTE9HWSBGSU5BTCBSRVBPUlQgPT4gQXByIDMwLCAyMDI1IDEyOjEyICAgVEVDSCBDT0RFOiA1MjA2NTAzMzkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCj0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLT0tLQ0KUGVyZm9ybWluZyBMYWJvcmF0b3J5Og0KQmFjdGVyaW9sb2d5IFJlcG9ydCBQZXJmb3JtZWQgQnk6IA0KQ0hZU0hSIFRFU1QgTEFCDQoyMzYwIEUgUEVSU0hJTkcgQkxWRCBDSEVZRU5ORSwgRkwgODIwMDEtNTM1Ng0KDQo="
+            }
+          ]
+        }
+      },
+            {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "df64e7c7-d354-43a1-ab57-445844b59b52",
+          "contained": [
+            {
+              "resourceType": "Practitioner",
+              "id": "327c2edb-e0d6-47db-89f0-c89b35577831",
+              "identifier": [
+                { "system": "provider-code", "value": "520650339" },
+                { "system": "taxonomy-code", "value": "2081P0004X" }
+              ],
+              "name": [{ "family": "MCGUIRE", "given": ["MARCI", "P"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "807f2bc6-e2c4-42eb-9a35-902dbb712f31",
+              "meta": {
+                "profile": [
+                  "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"
+                ]
+              },
+              "identifier": [
+                { "use": "usual", "system": "989", "value": "989" },
+                { "system": "facility-code", "value": "983" }
+              ],
+              "active": true,
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Organization",
+              "id": "eef4c3a3-532d-4633-908e-a8fd21fa926b",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "active": true,
+              "name": "OIFO BAYPINES TEST LAB "
+            },
+            {
+              "resourceType": "ServiceRequest",
+              "id": "d36cbc4f-9af7-460d-aa16-960a16852a9a",
+              "status": "unknown",
+              "intent": "order",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://snomed.info/sct",
+                      "code": "108252007",
+                      "display": "Laboratory procedure"
+                    }
+                  ]
+                }
+              ],
+              "subject": { "reference": "Patient/24643801" },
+              "requester": {
+                "reference": "Practitioner/327c2edb-e0d6-47db-89f0-c89b35577831"
+              },
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "bodySite": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v2-0070",
+                      "display": "SERUM"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "resourceType": "Specimen",
+              "id": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "status": "available",
+              "type": { "text": "SERUM" },
+              "request": [
+                {
+                  "reference": "ServiceRequest/d36cbc4f-9af7-460d-aa16-960a16852a9a"
+                }
+              ],
+              "collection": { "collectedDateTime": "2025-01-23T22:01:52+00:00" }
+            },
+            {
+              "resourceType": "Observation",
+              "id": "cd6b1dc4-303c-4ed2-ada9-7806862a3f3f",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2345-7"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4665460"
+                  }
+                ],
+                "text": "GLUCOSE"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 99.0,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "70 - 110" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "af86f092-3bff-41e1-a574-cd9bb7983d4b",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "3094-0"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4673484"
+                  }
+                ],
+                "text": "UREA NITROGEN"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 30.0,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "7 - 18" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "1f668393-317f-4fdf-8d3b-455a030838ff",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2160-0"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4663483"
+                  }
+                ],
+                "text": "CREATININE"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 20.0,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "0.6 - 1.3" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "ac317861-8fb0-4dfe-9924-3d13eed03dc1",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2951-2"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4671912"
+                  }
+                ],
+                "text": "SODIUM"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 24.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "136 - 145" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "1cc7e73b-7666-4f6c-97c4-2ccd26dd04db",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2823-3"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4670505"
+                  }
+                ],
+                "text": "POTASSIUM"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 200.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "3.5 - 5.1" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "d0781ed8-5775-4829-b5eb-663dacc0244d",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2075-0"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4662584"
+                  }
+                ],
+                "text": "CHLORIDE"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 10.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "98 - 107" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "081469ad-c431-4c18-9423-53dd39874d6b",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.829848)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "d36cbc4f-9af7-460d-aa16-960a16852a9a" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2028-9"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4662085"
+                  }
+                ],
+                "text": "CO2"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:00+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/eef4c3a3-532d-4633-908e-a8fd21fa926b"
+                }
+              ],
+              "valueQuantity": {
+                "value": 1.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "43190ef7-8e7e-4bc1-a267-b1e55b9a53ba"
+              },
+              "referenceRange": [{ "text": "22 - 29" }]
+            }
+          ],
+          "extension": [
+            {
+              "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/labComment",
+              "valueString": "TEST COMMENT - RESULTS CONTAIN CRITICAL HIGH AND CRITICAL LOW VALU Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+            }
+          ],
+          "identifier": [
+            { "system": "vista-uid", "value": "CH;6749875.829848" }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "CH",
+                  "display": "CH"
+                }
+              ]
+            }
+          ],
+          "code": { "text": "CHEM 7" },
+          "subject": { "reference": "Patient/24643801" },
+          "effectiveDateTime": "2025-01-23T22:01:52+00:00",
+          "issued": "2025-01-26T20:37:00.000+00:00",
+          "performer": [
+            { "reference": "Organization/807f2bc6-e2c4-42eb-9a35-902dbb712f31" }
+          ],
+          "specimen": [
+            { "reference": "Specimen/43190ef7-8e7e-4bc1-a267-b1e55b9a53ba" }
+          ],
+          "result": [
+            { "reference": "Observation/cd6b1dc4-303c-4ed2-ada9-7806862a3f3f" },
+            { "reference": "Observation/af86f092-3bff-41e1-a574-cd9bb7983d4b" },
+            { "reference": "Observation/1f668393-317f-4fdf-8d3b-455a030838ff" },
+            { "reference": "Observation/ac317861-8fb0-4dfe-9924-3d13eed03dc1" },
+            { "reference": "Observation/1cc7e73b-7666-4f6c-97c4-2ccd26dd04db" },
+            { "reference": "Observation/d0781ed8-5775-4829-b5eb-663dacc0244d" },
+            { "reference": "Observation/081469ad-c431-4c18-9423-53dd39874d6b" }
+          ]
+        }
+      },
+            {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "c3dd22a1-809d-4edc-b0e8-0a0fe02e1e66",
+          "contained": [
+            {
+              "resourceType": "Practitioner",
+              "id": "31298f3b-e830-4cb0-8c61-b5895df8d26b",
+              "identifier": [
+                { "system": "provider-code", "value": "520650339" },
+                { "system": "taxonomy-code", "value": "2081P0004X" }
+              ],
+              "name": [{ "family": "MCGUIRE", "given": ["MARCI", "P"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "715ef836-02c0-412a-88f7-cb81bc6e0691",
+              "meta": {
+                "profile": [
+                  "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"
+                ]
+              },
+              "identifier": [
+                { "use": "usual", "system": "989", "value": "989" },
+                { "system": "facility-code", "value": "983" }
+              ],
+              "active": true,
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Organization",
+              "id": "f26124ac-5364-4c93-8088-9ac358a651fa",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "active": true,
+              "name": "OIFO BAYPINES TEST LAB "
+            },
+            {
+              "resourceType": "ServiceRequest",
+              "id": "52974a2b-5645-4e9a-845c-bf82749d8fb9",
+              "status": "unknown",
+              "intent": "order",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://snomed.info/sct",
+                      "code": "108252007",
+                      "display": "Laboratory procedure"
+                    }
+                  ]
+                }
+              ],
+              "subject": { "reference": "Patient/24643801" },
+              "requester": {
+                "reference": "Practitioner/31298f3b-e830-4cb0-8c61-b5895df8d26b"
+              },
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "bodySite": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v2-0070",
+                      "display": "SERUM"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "resourceType": "Specimen",
+              "id": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "status": "available",
+              "type": { "text": "SERUM" },
+              "request": [
+                {
+                  "reference": "ServiceRequest/52974a2b-5645-4e9a-845c-bf82749d8fb9"
+                }
+              ],
+              "collection": { "collectedDateTime": "2025-01-23T22:06:20+00:00" }
+            },
+            {
+              "resourceType": "Observation",
+              "id": "4bdf0d68-adf0-40f1-8f2e-c3e6923f97ae",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2345-7"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4665460"
+                  }
+                ],
+                "text": "GLUCOSE"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 99.0,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "70 - 110" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "3a7aa433-3f75-4aec-9ba2-6b1633e01728",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "3094-0"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4673484"
+                  }
+                ],
+                "text": "UREA NITROGEN"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 200.0,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "7 - 18" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "5464dfc5-f7eb-44bc-8ee2-704547c69b2b",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2160-0"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4663483"
+                  }
+                ],
+                "text": "CREATININE"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 5.0,
+                "unit": "mg/dL",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "0.6 - 1.3" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "5e83699b-dc43-4b06-ba0c-c0a267d11196",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2951-2"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4671912"
+                  }
+                ],
+                "text": "SODIUM"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 8.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "136 - 145" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "1604cb59-9b7e-41a8-becf-a433095bca48",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2823-3"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4670505"
+                  }
+                ],
+                "text": "POTASSIUM"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 24.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "3.5 - 5.1" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "d29ae2f6-3f4e-4ce9-8063-8cfaa79087ff",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2075-0"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4662584"
+                  }
+                ],
+                "text": "CHLORIDE"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 2.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "98 - 107" }]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "4e30d207-08dc-45e2-9bf9-9a62ea6bbdd6",
+              "identifier": [
+                {
+                  "system": "vista-uid",
+                  "value": "Value(valueString=CH;6749875.82938)"
+                }
+              ],
+              "basedOn": [
+                { "reference": "52974a2b-5645-4e9a-845c-bf82749d8fb9" }
+              ],
+              "status": "final",
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://loinc.org",
+                    "version": "2.68",
+                    "code": "2028-9"
+                  },
+                  {
+                    "system": "http://va.gov/terminology/vistaDefinedTerms/95.3",
+                    "code": "4662085"
+                  }
+                ],
+                "text": "CO2"
+              },
+              "subject": { "reference": "Patient/24643801" },
+              "effectiveDateTime": "2025-01-26T20:37:14+00:00",
+              "performer": [
+                {
+                  "reference": "Organization/f26124ac-5364-4c93-8088-9ac358a651fa"
+                }
+              ],
+              "valueQuantity": {
+                "value": 2.0,
+                "unit": "meq/L",
+                "system": "http://unitsofmeasure.org"
+              },
+              "note": [
+                {
+                  "text": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+                }
+              ],
+              "specimen": {
+                "reference": "e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06"
+              },
+              "referenceRange": [{ "text": "22 - 29" }]
+            }
+          ],
+          "extension": [
+            {
+              "url": "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/labComment",
+              "valueString": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356"
+            }
+          ],
+          "identifier": [
+            { "system": "vista-uid", "value": "CH;6749875.82938" }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "CH",
+                  "display": "CH"
+                }
+              ]
+            }
+          ],
+          "code": { "text": "CHEM 7" },
+          "subject": { "reference": "Patient/24643801" },
+          "effectiveDateTime": "2025-01-23T22:06:20+00:00",
+          "issued": "2025-01-26T20:37:14.000+00:00",
+          "performer": [
+            { "reference": "Organization/715ef836-02c0-412a-88f7-cb81bc6e0691" }
+          ],
+          "specimen": [
+            { "reference": "Specimen/e326e4ec-ca5a-4c10-a1a1-4b57f0cecc06" }
+          ],
+          "result": [
+            { "reference": "Observation/4bdf0d68-adf0-40f1-8f2e-c3e6923f97ae" },
+            { "reference": "Observation/3a7aa433-3f75-4aec-9ba2-6b1633e01728" },
+            { "reference": "Observation/5464dfc5-f7eb-44bc-8ee2-704547c69b2b" },
+            { "reference": "Observation/5e83699b-dc43-4b06-ba0c-c0a267d11196" },
+            { "reference": "Observation/1604cb59-9b7e-41a8-becf-a433095bca48" },
+            { "reference": "Observation/d29ae2f6-3f4e-4ce9-8063-8cfaa79087ff" },
+            { "reference": "Observation/4e30d207-08dc-45e2-9bf9-9a62ea6bbdd6" }
+          ]
+        }
+      },
+            {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "137aa5a4-4ebe-48ab-9068-5ee1524cd971",
+          "contained": [
+            {
+              "resourceType": "Practitioner",
+              "id": "7572695f-adb4-404b-87a1-05fd63c28857",
+              "identifier": [
+                { "system": "vista-uid", "value": "urn:va:user:F253:520647644" }
+              ],
+              "name": [{ "family": "BARRS", "given": ["STEPHEN"] }]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "9227adb9-9652-4e91-bec1-a793dae97dfa",
+              "identifier": [
+                { "system": "vista-uid", "value": "urn:va:user:F253:520650352" }
+              ],
+              "name": [{ "family": "BORLAND", "given": ["VICTORIA", "A"] }]
+            },
+            {
+              "resourceType": "Organization",
+              "id": "13f979f9-f4d3-4157-a218-8d4f74c47f85",
+              "meta": {
+                "profile": [
+                  "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.organization"
+                ]
+              },
+              "identifier": [
+                { "use": "usual", "system": "989", "value": "989" },
+                { "system": "facility-code", "value": "983" }
+              ],
+              "active": true,
+              "name": "CHYSHR TEST LAB"
+            },
+            {
+              "resourceType": "Specimen",
+              "id": "b4ff0bdd-016b-40b5-8891-e0d414000532",
+              "accessionIdentifier": {
+                "use": "usual",
+                "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                "value": "SP 25 3"
+              },
+              "status": "available",
+              "type": { "text": "skin" },
+              "collection": { "collectedDateTime": "2025-02-20T21:34:00+00:00" }
+            }
+          ],
+          "identifier": [
+            {
+              "system": "vista-uid",
+              "value": "urn:va:lab:F253:7227761:SP;6749778.7866"
+            }
+          ],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "urn:va:lab-category:SP",
+                  "display": "SP"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "27898-6",
+                "display": "Pathology studies (set)"
+              }
+            ],
+            "text": "Surgical Pathology"
+          },
+          "subject": { "reference": "Patient/24643801" },
+          "effectiveDateTime": "2025-02-20T21:34:00+00:00",
+          "issued": "2025-02-20T21:48:00.000+00:00",
+          "performer": [
+            {
+              "reference": "Practitioner/7572695f-adb4-404b-87a1-05fd63c28857"
+            },
+            { "reference": "Organization/13f979f9-f4d3-4157-a218-8d4f74c47f85" }
+          ],
+          "resultsInterpreter": [
+            { "reference": "Practitioner/9227adb9-9652-4e91-bec1-a793dae97dfa" }
+          ],
+          "specimen": [
+            { "reference": "Specimen/b4ff0bdd-016b-40b5-8891-e0d414000532" }
+          ],
+          "presentedForm": [
+            {
+              "contentType": "text/plain",
+              "data": "RGF0ZSBTcGVjIHRha2VuOiBGZWIgMjAsIDIwMjUgMjE6MzQgIFBhdGhvbG9naXN0OlNURVBIRU4gQkFSUlMNCkRhdGUgU3BlYyByZWMnZDogRmViIDIwLCAyMDI1IDIxOjM1ICBSZXNpZGVudDogTUFSQ0kgUCBNQ0dVSVJFDQpEYXRlICBjb21wbGV0ZWQ6IEZlYiAyMCwgMjAyNSAgICAgICAgQWNjZXNzaW9uICM6IFNQIDI1IDMNClN1Ym1pdHRlZCBieTog Ym9ybGFuZCAgICAgICAgICAgICAgICBQcmFjdGl0aW9uZXI6VklDVE9SSUEgQSBCT1JMQU5EDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NClNwZWNpbWVuOiANClNraW4NCkJyaWVmIENsaW5pY2FsIEhpc3Rvcnk6DQpBbGV4YW5kZXIgcHJlc2VudGVkIHRvIHBoeXNpY2lhbidzIG9mZmljZSB3IGNvbmNlcm5zIGFyb3VuZCBhIG1vbGVib3V0IGEgZGFya2VuaW5nIG1vbGUgb24gaGlzIGJhY2suDQpQcmVvcGVyYXRpdmUgRGlhZ25vc2lzOg0KcG90ZW50aWFsIG1hbGlnbmFudCBuZW9wbGFzbSBvZiB0aGUgc2tpbg0KT3BlcmF0aXZlIEZpbmRpbmdzOg0KQ2xlYW4gbWFyZ2lucyBvZiBhZmZlY3RlZCB0aXNzdWUgZXh0cmFjdGVkIHZpYSBwdW5jaCBiaW9wc3kNClBvc3RvcGVyYXRpdmUgRGlhZ25vc2lzOg0KQWN0aW5pYyBrZXJhdG9zaXMgKHByZWNhbmNlcm91cyBsZXNpb24pDQoNCm5vDQpHcm9zcyBkZXNjcmlwdGlvbjoNClNjYWx5IGdyb3d0aCBuZWFyIHNjYXB1bGFyIHJlZ2lvbiBwb3RlbnRpYWwgcHJlY3Vyc29yIHRvIHNxdWFtb3VzIGNhcmNpbm9tYQ0KTWljcm9zY29waWMgZXhhbS9kaWFnbm9zaXM6IChEYXRlIFNwZWMgdGFrZW46IEZlYiAyMCwgMjAyNSAyMTozNCkNClRCQQ0KDQphY3RpbmljIGtlcmF0b3Npcw0KPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tPS0tDQpQZXJmb3JtaW5nIExhYm9yYXRvcnk6DQpTdXJnaWNhbCBQYXRob2xvZ3kgUmVwb3J0IFBlcmZvcm1lZCBCeTogDQpDSFlTSFIgVEVTVCBMQUINCjIzNjAgRSBQRVJTSElORyBCTFZEIENIRVlFTk5FLCBGTCA4MjAwMS01MzU2DQoNCg=="
+            }
+          ]
+        }
       }
     ]
   },
@@ -924,6 +2525,2440 @@
             }
           ],
           "presentedForm": [{ "contentType": "text/plain", "data": "def456" }]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "d2841f74-180d-476a-a878-1a9d675f7f80",
+          "meta": {
+            "profile": [
+              "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chReport"
+            ]
+          },
+          "contained": [
+            {
+              "resourceType": "ServiceRequest",
+              "id": "20851395889",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Service Request</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Code</b>: SARS-CoV-2 ANTIGEN POC</p><p><b>Occurrence Start</b>: Dec 10, 2025 12:21 P.M. CST</p><p><b>Occurrence End</b>: Dec 10, 2025 12:23 P.M. CST</p><p><b>Priority</b>: Routine</p><p><b>Status</b>: Completed</p><p><b>Intent</b>: Order</p><p><b>Requester</b>: Borland, Victoria A</p><p><b>Order Detail</b>: RT, 12/10/2025 12:21:00 CST, Nasopharyngeal Swab, Collected Y/N, RT - Routine, VICTORI.BORLAND.0001, 12/10/2025 12:23:07 CST, Track Order on Worklist</p></div>"
+              },
+              "status": "completed",
+              "intent": "order",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/6000",
+                      "code": "2513",
+                      "display": "Laboratory",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "108252007",
+                      "display": "Laboratory procedure (procedure)",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "priority": "routine",
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/200",
+                    "code": "648459931",
+                    "userSelected": true
+                  }
+                ],
+                "text": "SARS-CoV-2 ANTIGEN POC"
+              },
+              "orderDetail": [
+                {
+                  "text": "RT, 12/10/2025 12:21:00 CST, Nasopharyngeal Swab, Collected Y/N, RT - Routine, VICTORI.BORLAND.0001, 12/10/2025 12:23:07 CST, Track Order on Worklist"
+                }
+              ],
+              "subject": {
+                "reference": "Patient/72339199",
+                "display": "SILVA, ALEXANDER RICARDO"
+              },
+              "encounter": { "reference": "Encounter/322675980" },
+              "occurrencePeriod": {
+                "start": "2025-12-10T18:21:00Z",
+                "end": "2025-12-10T18:23:08Z"
+              },
+              "authoredOn": "2025-12-10T18:23:07Z",
+              "requester": {
+                "reference": "Practitioner/63662034",
+                "display": "Borland, Victoria A"
+              }
+            },
+            {
+              "resourceType": "Encounter",
+              "id": "322675980",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Encounter</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Location</b>: 556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-WHOL-CL</p><p><b>Type</b>: Pre Outpatient</p><p><b>Class</b>: pre-admission</p><p><b>Status</b>: Planned</p><p><b>Period Start Date</b>: Nov 20, 2025  8:30 A.M. CST</p><p><b>Attending Physician</b>: PITTS, CRYSTAL D</p><p><b>Service Provider</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+              },
+              "identifier": [
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/319",
+                        "code": "1077",
+                        "display": "FIN NBR",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "AN",
+                        "display": "Account number",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "FIN NBR"
+                  },
+                  "system": "urn:oid:2.16.840.1.113883.3.8901.1",
+                  "value": "179107179"
+                }
+              ],
+              "status": "planned",
+              "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "PRENC",
+                "display": "pre-admission",
+                "userSelected": false
+              },
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/71",
+                      "code": "425315687",
+                      "display": "Pre Outpatient",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "36301000175103",
+                      "display": "Outpatient preadmission encounter (procedure)",
+                      "userSelected": false
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "36301000175103",
+                      "display": "Outpatient preadmission encounter (procedure)",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Pre Outpatient"
+                }
+              ],
+              "subject": {
+                "reference": "Patient/72339199",
+                "display": "SILVA, ALEXANDER RICARDO"
+              },
+              "participant": [
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "1119",
+                          "display": "Attending Provider",
+                          "userSelected": true
+                        },
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                          "code": "ATND",
+                          "display": "attender",
+                          "userSelected": false
+                        }
+                      ],
+                      "text": "Attending Provider"
+                    }
+                  ],
+                  "period": { "start": "2025-11-20T14:30:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/60007312",
+                    "display": "PITTS, CRYSTAL D"
+                  }
+                },
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "4199423",
+                          "display": "Dietitian",
+                          "userSelected": true
+                        },
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                          "code": "SPRF",
+                          "display": "secondary performer",
+                          "userSelected": false
+                        }
+                      ],
+                      "text": "Dietitian"
+                    }
+                  ],
+                  "period": { "start": "2025-12-15T15:46:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/45630050",
+                    "display": "Dietitian3, VA-Diet"
+                  }
+                },
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "24490347",
+                          "display": "View Only Position",
+                          "userSelected": true
+                        }
+                      ],
+                      "text": "View Only Position"
+                    }
+                  ],
+                  "period": { "start": "2025-11-21T00:53:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/63662034",
+                    "display": "Borland, Victoria A"
+                  }
+                }
+              ],
+              "appointment": [{ "reference": "Appointment/172661963" }],
+              "period": { "start": "2025-11-20T14:30:00.000Z" },
+              "location": [
+                {
+                  "location": {
+                    "reference": "Location/8679201321",
+                    "display": "556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-WHOL-CL"
+                  },
+                  "status": "active"
+                }
+              ],
+              "serviceProvider": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            },
+            {
+              "resourceType": "Location",
+              "id": "8679201321",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Location</b></p><p><b>Name</b>: 556 Whole Health Clinic</p><p><b>Alias</b>: 556-WHOL-CL</p><p><b>Managing Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p><p><b>Part Of</b>: 8678910613</p><p><b>Physical Type</b>: Ambulatory(s)</p><p><b>Status</b>: Active</p></div>"
+              },
+              "identifier": [{ "use": "official", "value": "556-WHOL-CL" }],
+              "status": "active",
+              "name": "556 Whole Health Clinic",
+              "alias": ["556-WHOL-CL"],
+              "mode": "instance",
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/222",
+                      "code": "772",
+                      "display": "Ambulatory(s)",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                      "code": "OF",
+                      "display": "Outpatient facility"
+                    }
+                  ],
+                  "text": "Ambulatory(s)"
+                }
+              ],
+              "address": {
+                "use": "work",
+                "text": "3001 Green Bay Rd\nNorth Chicago, IL 60064",
+                "line": ["3001 Green Bay Rd"],
+                "city": "North Chicago",
+                "state": "IL",
+                "postalCode": "60064"
+              },
+              "physicalType": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/222",
+                    "code": "772",
+                    "display": "Ambulatory(s)",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/location-physical-type",
+                    "code": "wa",
+                    "display": "Ward"
+                  }
+                ],
+                "text": "Ambulatory(s)"
+              },
+              "managingOrganization": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              },
+              "partOf": { "reference": "Location/8678910613" }
+            },
+            {
+              "resourceType": "Observation",
+              "id": "L-20875172766",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Observation</b></p><p><b>Patient Id</b>: 72339199</p><p><b>Status</b>: Final</p><p><b>Categories</b>: Laboratory</p><p><b>Code</b>: SARS-CoV-2 ANTIGEN</p><p><b>Result</b>: Positive</p><p><b>Interpretation</b>: Abnormal</p><p><b>Effective Date</b>: Dec 10, 2025 12:21 P.M. CST</p></div>"
+              },
+              "identifier": [
+                {
+                  "system": "https://fhir.cerner.com/ceuuid",
+                  "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875172766-2025121018230800"
+                }
+              ],
+              "basedOn": [{ "reference": "ServiceRequest/20851395889" }],
+              "status": "final",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                      "code": "laboratory",
+                      "display": "Laboratory",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                    "code": "421259709",
+                    "display": "SARS-CoV-2 ANTIGEN",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "94558-4",
+                    "userSelected": false
+                  }
+                ],
+                "text": "SARS-CoV-2 ANTIGEN"
+              },
+              "subject": { "reference": "Patient/72339199" },
+              "encounter": { "reference": "Encounter/322675980" },
+              "effectiveDateTime": "2025-12-10T18:21:00.000Z",
+              "issued": "2025-12-10T18:21:00.000Z",
+              "performer": [
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "LA",
+                            "display": "legal authenticator"
+                          }
+                        ],
+                        "text": "legal authenticator"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "PPRF",
+                            "display": "primary performer"
+                          }
+                        ],
+                        "text": "primary performer"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0912",
+                            "code": "OP",
+                            "display": "Ordering Provider"
+                          }
+                        ],
+                        "text": "Ordering Provider"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/63662034"
+                }
+              ],
+              "valueCodeableConcept": { "text": "Positive" },
+              "interpretation": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/52",
+                      "code": "201",
+                      "display": "ABN",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                      "code": "A",
+                      "display": "Abnormal",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Abnormal"
+                }
+              ],
+              "note": [
+                {
+                  "authorReference": { "reference": "Practitioner/63662034" },
+                  "time": "2025-12-10T18:21:00Z",
+                  "text": "Performed using BinaxNOW COVID-19 Ag Card\n"
+                }
+              ],
+              "specimen": { "reference": "Specimen/365283598" }
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "63662034",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Practitioner</b></p><p><b>Name</b>: Borland, Victoria A</p><p><b>Identifiers</b>: OTHER: 999, SPI: 111111, DOCDEA: FK1111111, OTHER: 999, MESSAGING: 63662034, NPI: 1111111111, PRSNLPRIMID: 1634880646, OTHER: 1079053164, OTHER: SN=999</p><p><b>Status</b>: Active</p></div>"
+              },
+              "extension": [
+                {
+                  "url": "https://fhir-ehr.cerner.com/r4/StructureDefinition/is-physician",
+                  "valueBoolean": true
+                }
+              ],
+              "identifier": [
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "PRN",
+                        "display": "Provider number"
+                      }
+                    ],
+                    "text": "SureScripts Prescriber Index"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "DEA",
+                        "display": "Drug Enforcement Administration registration number"
+                      }
+                    ],
+                    "text": "DOCDEA"
+                  },
+                  "system": "urn:oid:2.16.840.1.113883.4.814",
+                  "value": "FK1111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "U",
+                        "display": "Unspecified identifier"
+                      }
+                    ],
+                    "text": "Messaging"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "63662034",
+                  "period": { "start": "2025-12-10T02:30:51.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "NPI",
+                        "display": "National provider identifier"
+                      }
+                    ],
+                    "text": "National Provider Identifier"
+                  },
+                  "system": "http://hl7.org/fhir/sid/us-npi",
+                  "value": "1111111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": { "text": "Personnel Primary Identifier" },
+                  "system": "urn:oid:2.16.840.1.113883.3.42.10001.100001.12",
+                  "value": "1634880646",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "1079053164",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "SN=999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                }
+              ],
+              "active": true,
+              "name": [
+                {
+                  "use": "usual",
+                  "text": "Borland, Victoria A",
+                  "family": "Borland",
+                  "given": ["Victoria", "A"],
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "old",
+                  "text": "Borland, Victoria A",
+                  "family": "Borland",
+                  "given": ["Victoria", "A"],
+                  "period": {
+                    "start": "2024-06-27T15:47:31.000Z",
+                    "end": "2025-12-10T02:07:42.000Z"
+                  }
+                }
+              ],
+              "address": [
+                {
+                  "use": "work",
+                  "text": "1111 Main St\nWashington, DC 111111\nUS",
+                  "line": ["1111 Main St"],
+                  "city": "Washington",
+                  "state": "DC",
+                  "postalCode": "111111",
+                  "country": "US"
+                }
+              ]
+            }
+          ],
+          "basedOn": [{ "reference": "ServiceRequest/20851395889" }],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "CH"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                  "code": "421259709",
+                  "display": "SARS-CoV-2 ANTIGEN",
+                  "userSelected": true
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "94558-4",
+                  "userSelected": false
+                }
+              ]
+            }
+          ],
+          "code": { "text": "CH" },
+          "encounter": { "reference": "Encounter/322675980" },
+          "effectiveDateTime": "2025-12-10T18:21:00+00:00",
+          "performer": [
+            {
+              "reference": "Location/8679201321",
+              "display": "556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-WHOL-CL"
+            },
+            { "reference": "Practitioner/63662034" }
+          ],
+          "result": [{ "reference": "Observation/L-20875172766" }]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "8baf62b3-5d9d-495e-97b1-21f98828fce3",
+          "meta": {
+            "profile": [
+              "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chReport"
+            ]
+          },
+          "contained": [
+            {
+              "resourceType": "ServiceRequest",
+              "id": "20849490589",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Service Request</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Code</b>: SC2/FLU A/FLU B ANTIGEN POC</p><p><b>Occurrence Start</b>: Dec  8, 2025  4:49 P.M. CST</p><p><b>Occurrence End</b>: Dec  9, 2025  4:50 P.M. CST</p><p><b>Priority</b>: Routine</p><p><b>Status</b>: Completed</p><p><b>Intent</b>: Order</p><p><b>Requester</b>: PITTS, CRYSTAL D</p><p><b>Order Detail</b>: 12/08/2025 16:49:00 CST, Nasal Swab, RT, Track Order on Worklist, Collected Y/N</p></div>"
+              },
+              "status": "completed",
+              "intent": "order",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/6000",
+                      "code": "2513",
+                      "display": "Laboratory",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "108252007",
+                      "display": "Laboratory procedure (procedure)",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "priority": "routine",
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/200",
+                    "code": "1799255167",
+                    "userSelected": true
+                  }
+                ],
+                "text": "SC2/FLU A/FLU B ANTIGEN POC"
+              },
+              "orderDetail": [
+                {
+                  "text": "12/08/2025 16:49:00 CST, Nasal Swab, RT, Track Order on Worklist, Collected Y/N"
+                }
+              ],
+              "subject": {
+                "reference": "Patient/72339199",
+                "display": "SILVA, ALEXANDER RICARDO"
+              },
+              "encounter": {
+                "reference": "Encounter/322675980"
+              },
+              "occurrencePeriod": {
+                "start": "2025-12-08T22:49:00Z",
+                "end": "2025-12-09T22:50:17Z"
+              },
+              "authoredOn": "2025-12-09T22:50:16Z",
+              "requester": {
+                "reference": "Practitioner/60007312",
+                "display": "PITTS, CRYSTAL D"
+              }
+            },
+            {
+              "resourceType": "Encounter",
+              "id": "322675980",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Encounter</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Location</b>: 556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-WHOL-CL</p><p><b>Type</b>: Pre Outpatient</p><p><b>Class</b>: pre-admission</p><p><b>Status</b>: Planned</p><p><b>Period Start Date</b>: Nov 20, 2025  8:30 A.M. CST</p><p><b>Attending Physician</b>: PITTS, CRYSTAL D</p><p><b>Service Provider</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+              },
+              "identifier": [
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/319",
+                        "code": "1077",
+                        "display": "FIN NBR",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "AN",
+                        "display": "Account number",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "FIN NBR"
+                  },
+                  "system": "urn:oid:2.16.840.1.113883.3.8901.1",
+                  "value": "179107179"
+                }
+              ],
+              "status": "planned",
+              "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "PRENC",
+                "display": "pre-admission",
+                "userSelected": false
+              },
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/71",
+                      "code": "425315687",
+                      "display": "Pre Outpatient",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "36301000175103",
+                      "display": "Outpatient preadmission encounter (procedure)",
+                      "userSelected": false
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "36301000175103",
+                      "display": "Outpatient preadmission encounter (procedure)",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Pre Outpatient"
+                }
+              ],
+              "subject": {
+                "reference": "Patient/72339199",
+                "display": "SILVA, ALEXANDER RICARDO"
+              },
+              "participant": [
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "1119",
+                          "display": "Attending Provider",
+                          "userSelected": true
+                        },
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                          "code": "ATND",
+                          "display": "attender",
+                          "userSelected": false
+                        }
+                      ],
+                      "text": "Attending Provider"
+                    }
+                  ],
+                  "period": { "start": "2025-11-20T14:30:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/60007312",
+                    "display": "PITTS, CRYSTAL D"
+                  }
+                },
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "4199423",
+                          "display": "Dietitian",
+                          "userSelected": true
+                        },
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                          "code": "SPRF",
+                          "display": "secondary performer",
+                          "userSelected": false
+                        }
+                      ],
+                      "text": "Dietitian"
+                    }
+                  ],
+                  "period": { "start": "2025-12-15T15:46:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/45630050",
+                    "display": "Dietitian3, VA-Diet"
+                  }
+                },
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "24490347",
+                          "display": "View Only Position",
+                          "userSelected": true
+                        }
+                      ],
+                      "text": "View Only Position"
+                    }
+                  ],
+                  "period": { "start": "2025-11-21T00:53:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/63662034",
+                    "display": "Borland, Victoria A"
+                  }
+                }
+              ],
+              "appointment": [{ "reference": "Appointment/172661963" }],
+              "period": { "start": "2025-11-20T14:30:00.000Z" },
+              "location": [
+                {
+                  "location": {
+                    "reference": "Location/8679201321",
+                    "display": "556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-WHOL-CL"
+                  },
+                  "status": "active"
+                }
+              ],
+              "serviceProvider": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            },
+            {
+              "resourceType": "Location",
+              "id": "8679201321",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Location</b></p><p><b>Name</b>: 556 Whole Health Clinic</p><p><b>Alias</b>: 556-WHOL-CL</p><p><b>Managing Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p><p><b>Part Of</b>: 8678910613</p><p><b>Physical Type</b>: Ambulatory(s)</p><p><b>Status</b>: Active</p></div>"
+              },
+              "identifier": [{ "use": "official", "value": "556-WHOL-CL" }],
+              "status": "active",
+              "name": "556 Whole Health Clinic",
+              "alias": ["556-WHOL-CL"],
+              "mode": "instance",
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/222",
+                      "code": "772",
+                      "display": "Ambulatory(s)",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                      "code": "OF",
+                      "display": "Outpatient facility"
+                    }
+                  ],
+                  "text": "Ambulatory(s)"
+                }
+              ],
+              "address": {
+                "use": "work",
+                "text": "3001 Green Bay Rd\nNorth Chicago, IL 60064",
+                "line": ["3001 Green Bay Rd"],
+                "city": "North Chicago",
+                "state": "IL",
+                "postalCode": "60064"
+              },
+              "physicalType": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/222",
+                    "code": "772",
+                    "display": "Ambulatory(s)",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/location-physical-type",
+                    "code": "wa",
+                    "display": "Ward"
+                  }
+                ],
+                "text": "Ambulatory(s)"
+              },
+              "managingOrganization": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              },
+              "partOf": { "reference": "Location/8678910613" }
+            },
+            {
+              "resourceType": "Observation",
+              "id": "L-20875127445",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Observation</b></p><p><b>Patient Id</b>: 72339199</p><p><b>Status</b>: Final</p><p><b>Categories</b>: Laboratory</p><p><b>Code</b>: SARS-CoV-2 ANTIGEN</p><p><b>Result</b>: Negative</p><p><b>Interpretation</b>: Normal</p><p><b>Effective Date</b>: Dec  8, 2025  4:49 P.M. CST</p><p><b>Reference Range</b>: Negative</p></div>"
+              },
+              "identifier": [
+                {
+                  "system": "https://fhir.cerner.com/ceuuid",
+                  "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875127445-2025120922501700"
+                }
+              ],
+              "basedOn": [{ "reference": "ServiceRequest/20849490589" }],
+              "status": "final",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                      "code": "laboratory",
+                      "display": "Laboratory",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                    "code": "300400712",
+                    "display": "SARS CORONAVIRUS 2 AG:PRTHR:PT:RESPIRATORY SYSTEM SPECIMEN:ORD:IA.RAPID",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                    "code": "421259709",
+                    "display": "SARS-CoV-2 ANTIGEN",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "94558-4",
+                    "userSelected": false
+                  }
+                ],
+                "text": "SARS-CoV-2 ANTIGEN"
+              },
+              "subject": { "reference": "Patient/72339199" },
+              "encounter": { "reference": "Encounter/322675980" },
+              "effectiveDateTime": "2025-12-08T22:49:00.000Z",
+              "issued": "2025-12-08T22:49:00.000Z",
+              "performer": [
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "LA",
+                            "display": "legal authenticator"
+                          }
+                        ],
+                        "text": "legal authenticator"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "PPRF",
+                            "display": "primary performer"
+                          }
+                        ],
+                        "text": "primary performer"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/63662034"
+                },
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0912",
+                            "code": "OP",
+                            "display": "Ordering Provider"
+                          }
+                        ],
+                        "text": "Ordering Provider"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/60007312"
+                }
+              ],
+              "valueCodeableConcept": { "text": "Negative" },
+              "interpretation": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/52",
+                      "code": "214",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                      "code": "N",
+                      "display": "Normal",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Normal"
+                }
+              ],
+              "specimen": { "reference": "Specimen/365272382" },
+              "referenceRange": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/referencerange-meaning",
+                        "code": "normal",
+                        "display": "Normal Range"
+                      }
+                    ],
+                    "text": "Normal Range"
+                  },
+                  "text": "Negative"
+                }
+              ]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "L-20875127441",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Observation</b></p><p><b>Patient Id</b>: 72339199</p><p><b>Status</b>: Final</p><p><b>Categories</b>: Laboratory</p><p><b>Code</b>: Flu B Rapid Ag</p><p><b>Result</b>: Negative</p><p><b>Interpretation</b>: Normal</p><p><b>Effective Date</b>: Dec  8, 2025  4:49 P.M. CST</p><p><b>Reference Range</b>: Negative</p></div>"
+              },
+              "identifier": [
+                {
+                  "system": "https://fhir.cerner.com/ceuuid",
+                  "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875127441-2025120922501700"
+                }
+              ],
+              "basedOn": [{ "reference": "ServiceRequest/20849490589" }],
+              "status": "final",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                      "code": "laboratory",
+                      "display": "Laboratory",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                    "code": "102598213",
+                    "display": "Flu B Rapid Ag",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "80383-3",
+                    "userSelected": false
+                  }
+                ],
+                "text": "Flu B Rapid Ag"
+              },
+              "subject": { "reference": "Patient/72339199" },
+              "encounter": { "reference": "Encounter/322675980" },
+              "effectiveDateTime": "2025-12-08T22:49:00.000Z",
+              "issued": "2025-12-08T22:49:00.000Z",
+              "performer": [
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "LA",
+                            "display": "legal authenticator"
+                          }
+                        ],
+                        "text": "legal authenticator"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "PPRF",
+                            "display": "primary performer"
+                          }
+                        ],
+                        "text": "primary performer"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/63662034"
+                },
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0912",
+                            "code": "OP",
+                            "display": "Ordering Provider"
+                          }
+                        ],
+                        "text": "Ordering Provider"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/60007312"
+                }
+              ],
+              "valueCodeableConcept": { "text": "Negative" },
+              "interpretation": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/52",
+                      "code": "214",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                      "code": "N",
+                      "display": "Normal",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Normal"
+                }
+              ],
+              "specimen": { "reference": "Specimen/365272382" },
+              "referenceRange": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/referencerange-meaning",
+                        "code": "normal",
+                        "display": "Normal Range"
+                      }
+                    ],
+                    "text": "Normal Range"
+                  },
+                  "text": "Negative"
+                }
+              ]
+            },
+            {
+              "resourceType": "Observation",
+              "id": "L-20875127439",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Observation</b></p><p><b>Patient Id</b>: 72339199</p><p><b>Status</b>: Final</p><p><b>Categories</b>: Laboratory</p><p><b>Code</b>: Flu A Rapid Ag</p><p><b>Result</b>: Positive</p><p><b>Interpretation</b>: Abnormal</p><p><b>Effective Date</b>: Dec  8, 2025  4:49 P.M. CST</p><p><b>Reference Range</b>: Negative</p></div>"
+              },
+              "identifier": [
+                {
+                  "system": "https://fhir.cerner.com/ceuuid",
+                  "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875127439-2025120922501700"
+                }
+              ],
+              "basedOn": [{ "reference": "ServiceRequest/20849490589" }],
+              "status": "final",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                      "code": "laboratory",
+                      "display": "Laboratory",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                    "code": "102598429",
+                    "display": "Flu A Rapid Ag",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "80382-5",
+                    "userSelected": false
+                  }
+                ],
+                "text": "Flu A Rapid Ag"
+              },
+              "subject": { "reference": "Patient/72339199" },
+              "encounter": { "reference": "Encounter/322675980" },
+              "effectiveDateTime": "2025-12-08T22:49:00.000Z",
+              "issued": "2025-12-08T22:49:00.000Z",
+              "performer": [
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "LA",
+                            "display": "legal authenticator"
+                          }
+                        ],
+                        "text": "legal authenticator"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "PPRF",
+                            "display": "primary performer"
+                          }
+                        ],
+                        "text": "primary performer"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/63662034"
+                },
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0912",
+                            "code": "OP",
+                            "display": "Ordering Provider"
+                          }
+                        ],
+                        "text": "Ordering Provider"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/60007312"
+                }
+              ],
+              "valueCodeableConcept": { "text": "Positive" },
+              "interpretation": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/52",
+                      "code": "201",
+                      "display": "ABN",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                      "code": "A",
+                      "display": "Abnormal",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Abnormal"
+                }
+              ],
+              "specimen": { "reference": "Specimen/365272382" },
+              "referenceRange": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/referencerange-meaning",
+                        "code": "normal",
+                        "display": "Normal Range"
+                      }
+                    ],
+                    "text": "Normal Range"
+                  },
+                  "text": "Negative"
+                }
+              ]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "63662034",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Practitioner</b></p><p><b>Name</b>: Borland, Victoria A</p><p><b>Identifiers</b>: OTHER: 999, SPI: 111111, DOCDEA: FK1111111, OTHER: 999, MESSAGING: 63662034, NPI: 1111111111, PRSNLPRIMID: 1634880646, OTHER: 1079053164, OTHER: SN=999</p><p><b>Status</b>: Active</p></div>"
+              },
+              "extension": [
+                {
+                  "url": "https://fhir-ehr.cerner.com/r4/StructureDefinition/is-physician",
+                  "valueBoolean": true
+                }
+              ],
+              "identifier": [
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "PRN",
+                        "display": "Provider number"
+                      }
+                    ],
+                    "text": "SureScripts Prescriber Index"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "DEA",
+                        "display": "Drug Enforcement Administration registration number"
+                      }
+                    ],
+                    "text": "DOCDEA"
+                  },
+                  "system": "urn:oid:2.16.840.1.113883.4.814",
+                  "value": "FK1111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "U",
+                        "display": "Unspecified identifier"
+                      }
+                    ],
+                    "text": "Messaging"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "63662034",
+                  "period": { "start": "2025-12-10T02:30:51.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "NPI",
+                        "display": "National provider identifier"
+                      }
+                    ],
+                    "text": "National Provider Identifier"
+                  },
+                  "system": "http://hl7.org/fhir/sid/us-npi",
+                  "value": "1111111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": { "text": "Personnel Primary Identifier" },
+                  "system": "urn:oid:2.16.840.1.113883.3.42.10001.100001.12",
+                  "value": "1634880646",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "1079053164",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "SN=999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                }
+              ],
+              "active": true,
+              "name": [
+                {
+                  "use": "usual",
+                  "text": "Borland, Victoria A",
+                  "family": "Borland",
+                  "given": ["Victoria", "A"],
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "old",
+                  "text": "Borland, Victoria A",
+                  "family": "Borland",
+                  "given": ["Victoria", "A"],
+                  "period": {
+                    "start": "2024-06-27T15:47:31.000Z",
+                    "end": "2025-12-10T02:07:42.000Z"
+                  }
+                }
+              ],
+              "address": [
+                {
+                  "use": "work",
+                  "text": "1111 Main St\nWashington, DC 111111\nUS",
+                  "line": ["1111 Main St"],
+                  "city": "Washington",
+                  "state": "DC",
+                  "postalCode": "111111",
+                  "country": "US"
+                }
+              ]
+            }
+          ],
+          "basedOn": [{ "reference": "ServiceRequest/20849490589" }],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "CH"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                  "code": "421259709",
+                  "display": "SARS-CoV-2 ANTIGEN",
+                  "userSelected": true
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "80383-3",
+                  "userSelected": false
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                  "code": "102598429",
+                  "display": "Flu A Rapid Ag",
+                  "userSelected": true
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                  "code": "102598213",
+                  "display": "Flu B Rapid Ag",
+                  "userSelected": true
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "80382-5",
+                  "userSelected": false
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "94558-4",
+                  "userSelected": false
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                  "code": "300400712",
+                  "display": "SARS CORONAVIRUS 2 AG:PRTHR:PT:RESPIRATORY SYSTEM SPECIMEN:ORD:IA.RAPID",
+                  "userSelected": true
+                }
+              ]
+            }
+          ],
+          "code": { "text": "CH" },
+          "encounter": { "reference": "Encounter/322675980" },
+          "effectiveDateTime": "2025-12-08T22:49:00+00:00",
+          "performer": [
+            {
+              "reference": "Location/8679201321",
+              "display": "556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-WHOL-CL"
+            },
+            { "reference": "Practitioner/63662034" }
+          ],
+          "result": [
+            { "reference": "Observation/L-20875127445" },
+            { "reference": "Observation/L-20875127441" },
+            { "reference": "Observation/L-20875127439" }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "DiagnosticReport",
+          "id": "a21b3621-4f42-4504-b41c-6598c8537212",
+          "meta": {
+            "profile": [
+              "https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition/VA.MHV.PHR.chReport"
+            ]
+          },
+          "contained": [
+            {
+              "resourceType": "ServiceRequest",
+              "id": "20851282853",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Service Request</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Code</b>: CRP</p><p><b>Occurrence Start</b>: Dec  9, 2025  7:25 P.M. CST</p><p><b>Occurrence End</b>: Dec  9, 2025  7:36 P.M. CST</p><p><b>Priority</b>: STAT</p><p><b>Reason</b>:</p><ul><li>Bitten by cow, initial encounter</li></ul><p><b>Status</b>: Completed</p><p><b>Intent</b>: Order</p><p><b>Order Detail</b>: 12/09/2025 19:17:00 CST, Blood, Stat, Nurse collect</p></div>"
+              },
+              "status": "completed",
+              "intent": "order",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/6000",
+                      "code": "2513",
+                      "display": "Laboratory",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "108252007",
+                      "display": "Laboratory procedure (procedure)",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "priority": "stat",
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/200",
+                    "code": "22787587",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "1988-5",
+                    "userSelected": false
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "1988-5",
+                    "userSelected": false
+                  }
+                ],
+                "text": "CRP"
+              },
+              "orderDetail": [
+                {
+                  "text": "12/09/2025 19:17:00 CST, Blood, Stat, Nurse collect"
+                }
+              ],
+              "subject": {
+                "reference": "Patient/72339199",
+                "display": "SILVA, ALEXANDER RICARDO"
+              },
+              "encounter": { "reference": "Encounter/322675981" },
+              "occurrencePeriod": {
+                "start": "2025-12-10T01:25:00Z",
+                "end": "2025-12-10T01:36:39Z"
+              },
+              "authoredOn": "2025-12-10T01:17:57Z",
+              "reasonCode": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                      "code": "W55.21XA",
+                      "display": "Bitten by cow, initial encounter",
+                      "userSelected": true
+                    }
+                  ],
+                  "text": "Bitten by cow, initial encounter"
+                }
+              ],
+              "note": [
+                {
+                  "text": "Comment on the ORDER (not on the result) for testing"
+                }
+              ]
+            },
+            {
+              "resourceType": "Encounter",
+              "id": "322675981",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Encounter</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Location</b>: 556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-PC-Blue</p><p><b>Type</b>: Pre Outpatient</p><p><b>Class</b>: pre-admission</p><p><b>Status</b>: Planned</p><p><b>Period Start Date</b>: Nov 21, 2025  7:30 A.M. CST</p><p><b>Attending Physician</b>: OOMMEN, SAJI, MD</p><p><b>Service Provider</b>: 556 Captain James A Lovell IL VA Medical Center</p></div>"
+              },
+              "identifier": [
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/319",
+                        "code": "1077",
+                        "display": "FIN NBR",
+                        "userSelected": true
+                      },
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "AN",
+                        "display": "Account number",
+                        "userSelected": false
+                      }
+                    ],
+                    "text": "FIN NBR"
+                  },
+                  "system": "urn:oid:2.16.840.1.113883.3.8901.1",
+                  "value": "179107180"
+                }
+              ],
+              "status": "planned",
+              "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "PRENC",
+                "display": "pre-admission",
+                "userSelected": false
+              },
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/71",
+                      "code": "425315687",
+                      "display": "Pre Outpatient",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "36301000175103",
+                      "display": "Outpatient preadmission encounter (procedure)",
+                      "userSelected": false
+                    },
+                    {
+                      "system": "http://snomed.info/sct",
+                      "code": "36301000175103",
+                      "display": "Outpatient preadmission encounter (procedure)",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Pre Outpatient"
+                }
+              ],
+              "subject": {
+                "reference": "Patient/72339199",
+                "display": "SILVA, ALEXANDER RICARDO"
+              },
+              "participant": [
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "1119",
+                          "display": "Attending Provider",
+                          "userSelected": true
+                        },
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                          "code": "ATND",
+                          "display": "attender",
+                          "userSelected": false
+                        }
+                      ],
+                      "text": "Attending Provider"
+                    }
+                  ],
+                  "period": { "start": "2025-11-21T00:45:29.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/58827490",
+                    "display": "OOMMEN, SAJI, MD"
+                  }
+                },
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "4199423",
+                          "display": "Dietitian",
+                          "userSelected": true
+                        },
+                        {
+                          "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                          "code": "SPRF",
+                          "display": "secondary performer",
+                          "userSelected": false
+                        }
+                      ],
+                      "text": "Dietitian"
+                    }
+                  ],
+                  "period": { "start": "2025-12-15T15:46:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/45630050",
+                    "display": "Dietitian3, VA-Diet"
+                  }
+                },
+                {
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/333",
+                          "code": "26574038057",
+                          "display": "Advance Practice Registered Nurse",
+                          "userSelected": true
+                        }
+                      ],
+                      "text": "Advance Practice Registered Nurse"
+                    }
+                  ],
+                  "period": { "start": "2025-11-23T14:43:00.000Z" },
+                  "individual": {
+                    "reference": "Practitioner/63662034",
+                    "display": "Borland, Victoria A"
+                  }
+                }
+              ],
+              "appointment": [{ "reference": "Appointment/172668725" }],
+              "period": { "start": "2025-11-21T13:30:00.000Z" },
+              "location": [
+                {
+                  "location": {
+                    "reference": "Location/8679119187",
+                    "display": "556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-PC-Blue"
+                  },
+                  "status": "active"
+                }
+              ],
+              "serviceProvider": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              }
+            },
+            {
+              "resourceType": "Location",
+              "id": "8679119187",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Location</b></p><p><b>Name</b>: 556 Primary Care Blue</p><p><b>Alias</b>: 556-PC-Blue</p><p><b>Managing Organization</b>: 556 Captain James A Lovell IL VA Medical Center</p><p><b>Part Of</b>: 8678910613</p><p><b>Physical Type</b>: Ambulatory(s)</p><p><b>Status</b>: Active</p></div>"
+              },
+              "identifier": [{ "use": "official", "value": "556-PC-Blue" }],
+              "status": "active",
+              "name": "556 Primary Care Blue",
+              "alias": ["556-PC-Blue"],
+              "mode": "instance",
+              "type": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/222",
+                      "code": "772",
+                      "display": "Ambulatory(s)",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                      "code": "OF",
+                      "display": "Outpatient facility"
+                    }
+                  ],
+                  "text": "Ambulatory(s)"
+                }
+              ],
+              "physicalType": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/222",
+                    "code": "772",
+                    "display": "Ambulatory(s)",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/location-physical-type",
+                    "code": "wa",
+                    "display": "Ward"
+                  }
+                ],
+                "text": "Ambulatory(s)"
+              },
+              "managingOrganization": {
+                "reference": "Organization/2044131",
+                "display": "556 Captain James A Lovell IL VA Medical Center"
+              },
+              "partOf": { "reference": "Location/8678910613" }
+            },
+            {
+              "resourceType": "Observation",
+              "id": "L-20875127584",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Observation</b></p><p><b>Patient Id</b>: 72339199</p><p><b>Status</b>: Final</p><p><b>Categories</b>: Laboratory</p><p><b>Code</b>: CRP</p><p><b>Result</b>: &lt;5.0 mg/L</p><p><b>Interpretation</b>: Normal</p><p><b>Effective Date</b>: Dec  9, 2025  7:25 P.M. CST</p><p><b>Reference Range</b>: &lt;=5.0</p></div>"
+              },
+              "identifier": [
+                {
+                  "system": "https://fhir.cerner.com/ceuuid",
+                  "value": "e552a601-e6dd-47a6-b78e-7d3e6e2d8648-20875127584-2025121001364000"
+                }
+              ],
+              "basedOn": [{ "reference": "ServiceRequest/20851282853" }],
+              "status": "final",
+              "category": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                      "code": "laboratory",
+                      "display": "Laboratory",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Laboratory"
+                }
+              ],
+              "code": {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                    "code": "102599581",
+                    "display": "CRP",
+                    "userSelected": true
+                  },
+                  {
+                    "system": "http://loinc.org",
+                    "code": "1988-5",
+                    "userSelected": false
+                  }
+                ],
+                "text": "CRP"
+              },
+              "subject": { "reference": "Patient/72339199" },
+              "encounter": { "reference": "Encounter/322675981" },
+              "effectiveDateTime": "2025-12-10T01:25:00.000Z",
+              "issued": "2025-12-10T01:36:35.000Z",
+              "performer": [
+                {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "LA",
+                            "display": "legal authenticator"
+                          }
+                        ],
+                        "text": "legal authenticator"
+                      }
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                            "code": "PPRF",
+                            "display": "primary performer"
+                          }
+                        ],
+                        "text": "primary performer"
+                      }
+                    }
+                  ],
+                  "reference": "Practitioner/63662034"
+                }
+              ],
+              "valueQuantity": {
+                "value": 5.0,
+                "comparator": "<",
+                "unit": "mg/L",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg/L"
+              },
+              "interpretation": [
+                {
+                  "coding": [
+                    {
+                      "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/52",
+                      "code": "214",
+                      "userSelected": true
+                    },
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                      "code": "N",
+                      "display": "Normal",
+                      "userSelected": false
+                    }
+                  ],
+                  "text": "Normal"
+                }
+              ],
+              "specimen": { "reference": "Specimen/365272389" },
+              "referenceRange": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/referencerange-meaning",
+                        "code": "normal",
+                        "display": "Normal Range"
+                      }
+                    ],
+                    "text": "Normal Range"
+                  },
+                  "text": "<=5.0"
+                }
+              ]
+            },
+            {
+              "resourceType": "Practitioner",
+              "id": "63662034",
+              "meta": {},
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Practitioner</b></p><p><b>Name</b>: Borland, Victoria A</p><p><b>Identifiers</b>: OTHER: 999, SPI: 111111, DOCDEA: FK1111111, OTHER: 999, MESSAGING: 63662034, NPI: 1111111111, PRSNLPRIMID: 1634880646, OTHER: 1079053164, OTHER: SN=999</p><p><b>Status</b>: Active</p></div>"
+              },
+              "extension": [
+                {
+                  "url": "https://fhir-ehr.cerner.com/r4/StructureDefinition/is-physician",
+                  "valueBoolean": true
+                }
+              ],
+              "identifier": [
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "PRN",
+                        "display": "Provider number"
+                      }
+                    ],
+                    "text": "SureScripts Prescriber Index"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "DEA",
+                        "display": "Drug Enforcement Administration registration number"
+                      }
+                    ],
+                    "text": "DOCDEA"
+                  },
+                  "system": "urn:oid:2.16.840.1.113883.4.814",
+                  "value": "FK1111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "U",
+                        "display": "Unspecified identifier"
+                      }
+                    ],
+                    "text": "Messaging"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "63662034",
+                  "period": { "start": "2025-12-10T02:30:51.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                        "code": "NPI",
+                        "display": "National provider identifier"
+                      }
+                    ],
+                    "text": "National Provider Identifier"
+                  },
+                  "system": "http://hl7.org/fhir/sid/us-npi",
+                  "value": "1111111111",
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": { "text": "Personnel Primary Identifier" },
+                  "system": "urn:oid:2.16.840.1.113883.3.42.10001.100001.12",
+                  "value": "1634880646",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "1079053164",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                },
+                {
+                  "use": "usual",
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "http://snomed.info/sct",
+                        "code": "74964007",
+                        "display": "Other (qualifier value)"
+                      }
+                    ],
+                    "text": "OTHER"
+                  },
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "SN=999",
+                  "period": { "start": "2024-06-27T15:47:31.000Z" }
+                }
+              ],
+              "active": true,
+              "name": [
+                {
+                  "use": "usual",
+                  "text": "Borland, Victoria A",
+                  "family": "Borland",
+                  "given": ["Victoria", "A"],
+                  "period": { "start": "2025-12-10T02:07:42.000Z" }
+                },
+                {
+                  "use": "old",
+                  "text": "Borland, Victoria A",
+                  "family": "Borland",
+                  "given": ["Victoria", "A"],
+                  "period": {
+                    "start": "2024-06-27T15:47:31.000Z",
+                    "end": "2025-12-10T02:07:42.000Z"
+                  }
+                }
+              ],
+              "address": [
+                {
+                  "use": "work",
+                  "text": "1111 Main St\nWashington, DC 111111\nUS",
+                  "line": ["1111 Main St"],
+                  "city": "Washington",
+                  "state": "DC",
+                  "postalCode": "111111",
+                  "country": "US"
+                }
+              ]
+            }
+          ],
+          "basedOn": [{ "reference": "ServiceRequest/20851282853" }],
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "CH"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/72",
+                  "code": "102599581",
+                  "display": "CRP",
+                  "userSelected": true
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "1988-5",
+                  "userSelected": false
+                }
+              ]
+            }
+          ],
+          "code": { "text": "CH" },
+          "encounter": { "reference": "Encounter/322675981" },
+          "effectiveDateTime": "2025-12-10T01:25:00+00:00",
+          "performer": [
+            {
+              "reference": "Location/8679119187",
+              "display": "556 Captain James A Lovell IL VA Medical Center, 556 Bldg 133, 556-PC-Blue"
+            },
+            { "reference": "Practitioner/63662034" }
+          ],
+          "result": [{ "reference": "Observation/L-20875127584" }]
         }
       }
     ]

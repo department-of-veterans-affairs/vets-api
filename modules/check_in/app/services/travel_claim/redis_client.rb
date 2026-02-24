@@ -49,6 +49,24 @@ module TravelClaim
       )
     end
 
+    # Fetches VEIS token from cache or computes via block if missing.
+    # Uses race_condition_ttl to prevent thundering herd on cache expiry.
+    #
+    # @param expires_in [ActiveSupport::Duration] cache TTL
+    # @param race_condition_ttl [ActiveSupport::Duration] grace period for stale reads during recompute
+    # @yield Block to compute token if cache miss
+    # @return [String] VEIS token
+    #
+    def fetch_veis_token(expires_in:, race_condition_ttl:, &)
+      Rails.cache.fetch(
+        'token',
+        namespace: 'check-in-veis-token-cache-v1',
+        expires_in:,
+        race_condition_ttl:,
+        &
+      )
+    end
+
     # v4 system token (BTSSS) stored under a non-PHI cache key provided by caller
     def v4_token(cache_key:)
       Rails.cache.read(

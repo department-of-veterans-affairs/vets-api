@@ -13,6 +13,7 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
+  let(:component) { 'DependentsBenefits::FormProfiles::VA686c674' }
   let(:user) do
     build(:user, :loa3, :legacy_icn, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', suffix: 'Jr.',
                                      address: build(:va_profile_address), vet360_id: '1')
@@ -349,19 +350,19 @@ RSpec.describe FormProfile, type: :model do
 
                 monitor = instance_double(DependentsBenefits::Monitor)
                 allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
-                allow(monitor).to receive(:track_prefill_warning)
+                allow(monitor).to receive(:track_warning_event)
 
                 prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
 
                 expect(monitor)
-                  .to have_received(:track_prefill_warning)
+                  .to have_received(:track_warning_event)
                   .with(
-                    'Failed to retrieve awards pension data', 'awards_pension_error',
-                    hash_including(
-                      user_account_uuid: user&.user_account_uuid,
-                      error: error.message,
-                      form_id: '686C-674-V2'
-                    )
+                    'Failed to retrieve awards pension data',
+                    action: 'awards_pension_error',
+                    component:,
+                    user_account_uuid: user&.user_account_uuid,
+                    error: error.message,
+                    form_id: '686C-674-V2'
                   )
 
                 expect(prefilled_data['nonPrefill']['isInReceiptOfPension']).to eq(-1)
@@ -679,10 +680,11 @@ RSpec.describe FormProfile, type: :model do
         monitor_instance = instance_double(DependentsBenefits::Monitor)
         allow(va686c674_form_profile).to receive(:monitor).and_return(monitor_instance)
 
-        expect(monitor_instance).to receive(:track_prefill_warning).with(
+        expect(monitor_instance).to receive(:track_warning_event).with(
           'Failed to retrieve VA file number',
-          'file_number_error',
-          hash_including(error: 'BGS error')
+          action: 'file_number_error',
+          component:,
+          error: 'BGS error'
         )
 
         result = va686c674_form_profile.send(:va_file_number)

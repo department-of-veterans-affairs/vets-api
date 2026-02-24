@@ -35,7 +35,6 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
         support_aliases: ['PMR', 'Medical Records'],
         documents: '[]',
         date: '2024-11-01',
-        # New content override fields (populated when cst_evidence_requests_content_override is enabled)
         long_description: { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test description' }] },
         next_steps: { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test next steps' }] },
         no_action_needed: false,
@@ -251,7 +250,6 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.tracked_items.first.support_aliases).to eq(['PMR', 'Medical Records'])
       expect(claim.tracked_items.first.documents).to eq('[]')
       expect(claim.tracked_items.first.date).to eq('2024-11-01')
-      # New content override fields (populated when cst_evidence_requests_content_override is enabled)
       expect(claim.tracked_items.first.long_description).to eq(
         { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test description' }] }
       )

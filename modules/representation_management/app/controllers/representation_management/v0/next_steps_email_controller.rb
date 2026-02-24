@@ -20,7 +20,7 @@ module RepresentationManagement
             template_id,
             email_personalisation(data),
             Settings.vanotify.services.va_gov.api_key,
-            email_callback_options(data)
+            email_delivery_callback(data)
           )
           render json: { message: 'Email enqueued' }, status: :ok
         else
@@ -43,12 +43,6 @@ module RepresentationManagement
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
-      end
-
-      def email_callback_options(data)
-        return unless Flipper.enabled?(:accredited_representative_portal_email_delivery_callback)
-
-        email_delivery_callback(data)
       end
 
       def email_delivery_callback(data)

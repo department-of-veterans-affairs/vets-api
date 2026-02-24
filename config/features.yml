@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_claimant_details:
+    actor_type: user
+    description: Enables the claimant details page on the frontend
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -28,9 +32,6 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
-  accredited_representative_portal_email_delivery_callback:
-    actor_type: user
-    description: Enables a custom email delivery callback to track and log all notification statuses beyond errors
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
@@ -134,6 +135,15 @@ features:
   bgs_param_logging_enabled:
     actor_type: user
     description: Enables logging of BGS parameters (filtered in production)
+  bio_heart_mms_submit:
+    actor_type: user
+    description: Toggle the sending of data to MMS for BIO HEART forms
+  bio_heart_mms_logging:
+    actor_type: user
+    description: Enable verbose logging in the BIO HEART MMS data submission workflow
+  bio_submission_status_report_enabled:
+    actor_type: user
+    description: Enables periodic job that generates CSV reports tracking BIO form submission status through Lighthouse Benefits Intake and Central Mail Processing
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
@@ -149,6 +159,12 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
+  disability_compensation_fix_poisoned_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that resets erroneously injected
+      disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -184,6 +200,8 @@ features:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
     description: "Gateway: Enable push notifications"
+  event_bus_gateway_sign_in_token_validation:
+    description: Enables SignInService token validation
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -277,6 +295,9 @@ features:
   champva_send_to_ves:
     actor_type: user
     description: Enables sending form submission data to the VES API.
+  champva_send_7959c_to_ves:
+    actor_type: user
+    description: Enables sending 10-7959c OHI form data to the VES API. Requires champva_send_to_ves to also be enabled.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
@@ -358,6 +379,15 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_bypass_metadata_json_file_for_1010d:
+    actor_type: user
+    description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
+  champva_allow_pdf_optional_content:
+    actor_type: user
+    description: Enables loading optional content from PDFs when combining them
+  champva_ignore_recent_missing_statuses:
+    actor_type: user
+    description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -418,6 +448,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_btsss_v2_claim_submission_endpoints:
+    actor_type: user
+    description: Enables using BTSSS v2 API endpoints instead of v3 for travel claim submission
+    enable_in_development: false
   check_in_experience_use_vaec_cie_endpoints:
     actor_type: user
     description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
@@ -445,10 +479,6 @@ features:
   claims_api_ews_updater_enables_local_bgs:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true
-  claims_api_ews_uploads_bd_refactor:
-    actor_type: user
-    description: When enabled, sends ews forms to BD via the refactored logic
     enable_in_development: true
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
@@ -506,10 +536,14 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
     enable_in_development: true
-  cst_evidence_requests_content_override:
+  cst_claims_list_filter:
+    actor_type: user
+    description: When enabled, claims status tool displays a filter on the claims list
+    enable_in_development: true
+  cst_evidence_requests_content_override_mobile:
     actor_type: user
     description: >
-      When enabled, tracked items in claims status tool use content dictionary
+      When enabled, tracked items in mobile claims status tool use content dictionary
       overrides for display names, descriptions, and structured content blocks.
     enable_in_development: true
   cst_include_ddl_5103_letters:
@@ -716,6 +750,9 @@ features:
     actor_type: user
     description: Enables job to generate and upload PDF copies of failure notification emails to VBMS.
     enable_in_development: true
+  decision_review_use_new_appealable_issues_service:
+    actor_type: user
+    description: Enables use of the new Appealable Issues service for fetching appealable issues.
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -731,6 +768,10 @@ features:
     actor_type: user
     description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
+  dependents_digital_forms_api_submission_enabled:
+    actor_type: user
+    description: Enables submission of dependents forms via Forms API
+    enable_in_development: false
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
@@ -1392,6 +1433,10 @@ features:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+    actor_type: user
+    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
+    enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for OH patients
@@ -1416,9 +1461,6 @@ features:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
     enable_in_development: true
-  mhv_landing_page_show_share_my_health_data_link:
-    actor_type: user
-    description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
   mhv_oh_migration_schedules:
     actor_type: user
     description: Enables fetching Oracle Health migration schedules for VAHB mobile users
@@ -1491,6 +1533,12 @@ features:
     actor_type: user
     description: Enables/disables Secure Messaging Medications Renewal Request feature
     enable_in_development: true
+  mhv_secure_messaging_stream_via_revproxy:
+    actor_type: user
+    description: >
+      When enabled, uses nginx X-Accel-Redirect to stream S3 attachment downloads via revproxy,
+      reducing memory usage and freeing Rails processes immediately instead of
+      blocking while streaming large files. Requires nginx/openresty configuration.
   mhv_bypass_downtime_notification:
     actor_type: user
     description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
@@ -1503,6 +1551,10 @@ features:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
     enable_in_development: true
+  mhv_medical_records_fetch_scdf_imaging_studies:
+    actor_type: user
+    description: Enables fetching imaging studies from SCDF for Medical Records
+    enable_in_development: false
   mhv_medical_records_hold_time_messaging_update:
     actor_type: user
     description: Enables updated hold time messaging
@@ -1707,6 +1759,9 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
+  pdf_fill_field_validation:
+    actor_type: user
+    description: Monitor PDF field name mismatches via StatsD metrics. Tracks mismatches to detect blank/partial PDFs without blocking submissions.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1886,6 +1941,9 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  schema_contract_get_awards_pension:
+    actor_type: user
+    description: Enables schema validation for the pensions service get awards pension fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
@@ -2114,10 +2172,6 @@ features:
     actor_type: user
     description: Permits the exclusion of Lovell sites from cancellations prior to Oracle Health cutover
     enable_in_development: true
-  va_online_scheduling_cancel:
-    actor_type: user
-    description: Allows veterans to cancel VA appointments
-    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
@@ -2175,18 +2229,6 @@ features:
   va_dependents_no_ssn:
     actor_type: user
     description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
-  va_online_scheduling_enable_OH_cancellations:
-    actor_type: user
-    enable_in_development: true
-    description: Allows appointment cancellations to be routed to Oracle Health sites.
-  va_online_scheduling_enable_OH_eligibility:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_slots_search:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
@@ -2207,14 +2249,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying the most recent facilities on the Choose your VA location page.
-  va_online_scheduling_OH_direct_schedule:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to enable direct scheduling workflow for Oracle Health appointments.
-  va_online_scheduling_OH_request:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to enable request workflow for Oracle Health appointments.
   va_online_scheduling_parallel_travel_claims:
     actor_type: user
     enable_in_development: true
@@ -2270,6 +2304,9 @@ features:
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
+  vba_documents_uploads_report_uuid_limit:
+    actor_type: user
+    description: Enables MaxArraySizeExceeded error when uploads/report exceeds 1000 IDs
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -2316,6 +2353,15 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_detailed_logging:
+    actor_type: user
+    description: Enables detailed logging on payment history controller and enable drop off tracking.
+  payment_history_exception_logging:
+    actor_type: user
+    description: Enables exception logging on payment history controller and enables exception drop off tracking.
+  payment_history_validation_logging:
+    actor_type: user
+    description: Enables logging used to check inputs for required attributes for payment history services.
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -2503,24 +2549,6 @@ features:
     enable_in_development: true
     actor_type: user
     description: Enable form 21-4140 EMPLOYMENT QUESTIONNAIRE
-  employment_questionnaires_browser_monitoring_enabled:
-    actor_type: user
-    description: Employment Questionnaire form Datadog RUM monitoring
-  employment_questionnaires_content_updates:
-    actor_type: user
-    description: Implement plain language and content updates
-  employment_questionnaires_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Action Needed email notification
-  employment_questionnaires_received_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Received email notification
-  employment_questionnaires_submitted_email_notification:
-    actor_type: user
-    description: Toggle sending of the Submission in Progress email notification
-  employment_questionnaires_persistent_attachment_error_email_notification:
-    actor_type: cookie_id
-    description: Toggle sending of the Persistent Attachment Error email notification
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2545,6 +2573,10 @@ features:
   income_and_assets_bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service for Income and Assets
+  increase_compensation_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-8940"
   increase_compensation_form_enabled:
     enable_in_development: true
     actor_type: user
@@ -2689,6 +2721,12 @@ features:
   va_notify_request_level_callbacks:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will authenticate request-level callback data
+  va_notify_v2_form1010cg_submission:
+    actor_type: user
+    description: If enabled, Form1010cg::SubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
+  va_notify_v2_in_progress_form_reminder:
+    actor_type: user
+    description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
   va_notify_delivery_status_update_job:
     actor_type: user
     description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications
@@ -2850,6 +2888,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-0779 on vets-website
+  form_21_0779_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-0779 (Request for Nursing Home Information)"
   vre_eligibility_status_phase_2_updates:
     actor_type: user
     description: If enabled, show VRE eligibility content and status updates for phase 2
@@ -2857,10 +2899,18 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables form 21P-530a on vets-website
+  form_21p_530a_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21P-530A (Application for Burial Allowance) - Deferred until VBA Data Dictionary is created"
   form_4192_enabled:
     actor_type: user
     enable_in_development: true
     description: Enables form 21-4192 on vets-website
+  form_21_4192_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-4192 (Request for Employment Information)"
   form_2680_enabled:
     actor_type: user
     enable_in_development: true
@@ -2869,9 +2919,16 @@ features:
     actor_type: user
     enable_in_development: true
     description: Enables multi-party forms feature for form 21-2680
+  form_21_2680_govcio_mms:
+    actor_type: cookie_id
+    enable_in_development: true
+    description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
   fetch_1095b_from_enrollment_system:
     actor_type: user
     description: Enables fetching of form 1095b from enrollment system instead of from local database
+  form1095b_multiple_years:
+    actor_type: user
+    description: Enables access to multiple years of form 1095b
   meb_1995_instruction_page_update_v3:
     actor_type: user
     description: Updated verbiage for instruction page for 5490
@@ -2895,6 +2952,9 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  survivors_benefits_idp:
+    actor_type: user
+    description: Enables IDP (Intelligent Document Processing) for survivors benefits supporting document uploads
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
@@ -2925,3 +2985,16 @@ features:
   vets_model_nested_array:
     actor_type: user
     description: If enabled, allows Vets::Model to serialize nested array of objects
+  vre_form_submission_tracking:
+    actor_type: user
+    description: If enabled, track form submissions for VR&E application Form 28-1900
+  discover_your_benefits_results_page_update:
+    actor_type: cookie_id
+    description: "If enabled, displays new results page features and designs"
+  cve_veteran_status_new_service:
+    actor_type: user
+    description: "If enabled, displays new veteran status page"
+  va_online_scheduling_log_mobile:
+    actor_type: user
+    description: If enabled, logs additional information about mobile appointments for debugging purposes
+    enable_in_development: false
