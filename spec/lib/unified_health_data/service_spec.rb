@@ -1163,6 +1163,77 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    context 'global toggle fallback (integration)' do
+      # Integration-style test: verifies that enabling ONLY the global toggle
+      # (not the domain toggle) activates diagnostic logging in both the
+      # service concern AND the adapter, proving the full fallback path works.
+
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:gauge)
+        allow(StatsD).to receive(:increment)
+
+        # Domain toggle OFF, global toggle ON
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(true)
+      end
+
+      it 'activates diagnostic logging in the service concern via global fallback' do
+        service.get_care_summaries_and_notes
+
+        # Service concern: log_notes_response_count fires
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            log_level_context: 'diagnostic'
+          )
+        )
+
+        # Service concern: log_notes_index_metrics fires
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'index',
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+
+      it 'activates diagnostic logging in the adapter via global fallback' do
+        # Verify the adapter's MedicalRecordsLog instance also picks up the global toggle.
+        # The adapter is created inside the service with `ClinicalNotesAdapter.new(user: @user)`,
+        # so its @mr_log must independently evaluate the global fallback.
+        adapter = UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user:)
+        expect(adapter.instance_variable_get(:@mr_log).diagnostic_enabled?(
+                 MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES
+               )).to be true
+      end
+
+      it 'activates LOINC distribution logging via global fallback' do
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+    end
+
     context 'index metrics and logging' do
       before do
         allow(Rails.logger).to receive(:info)
