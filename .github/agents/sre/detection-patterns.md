@@ -4,6 +4,8 @@ Read this file as the first step of every audit. For each play, use the **What t
 
 After finding a match, read the play file for rules, false-positive heuristics, and investigation steps before flagging.
 
+**Output format reminder:** Report findings under `### Play NN: Play Name — SEVERITY` headings. Each finding gets `#### N. \`file:line\` — CONFIDENCE` with a code snippet. See Iron Laws in sre.agent.md.
+
 **Confidence levels:**
 - `HIGH` — Flag if confirmed after reading context (outside test files)
 - `MEDIUM` — Read 10-20 lines of surrounding context; check play file for false positives
