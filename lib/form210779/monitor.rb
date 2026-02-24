@@ -17,6 +17,7 @@ module Form210779
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
+      action
       data_pointer
       error_type
       method
