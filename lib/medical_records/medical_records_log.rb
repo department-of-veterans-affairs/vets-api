@@ -4,8 +4,33 @@ module MedicalRecords
   ##
   # Structured logging utility for Medical Records across all API surfaces (V1, V2, Mobile).
   #
-  # Provides a consistent log envelope with automatic PII stripping, tiered verbosity
-  # controlled by a Flipper toggle, and built-in StatsD instrumentation.
+  # == Design Philosophy
+  #
+  # Medical Records logging has two competing needs: *visibility* during incidents and
+  # *quiet* during normal operation. This class resolves that tension with a two-tier
+  # model:
+  #
+  # * **Always-on methods** (+info+, +warn+, +error+) — for data you always want:
+  #   response counts, cache status, errors.
+  # * **Toggle-gated method** (+diagnostic+) — for verbose instrumentation you only
+  #   enable when debugging: filter rates, LOINC distributions, source breakdowns.
+  #
+  # Every log entry passes through +strip_pii+ before reaching +Rails.logger+, so
+  # even if a caller accidentally includes an +icn+ or +ssn+ key, it is silently
+  # removed. This is a safety net, not an excuse to pass PII intentionally.
+  #
+  # == Toggle Pattern
+  #
+  # Diagnostic logging uses a *domain + global fallback* pattern:
+  #
+  # 1. Check the per-domain toggle for the resource (e.g.
+  #    +:mhv_medical_records_clinical_notes_diagnostic+).
+  # 2. If not enabled, fall back to the global toggle
+  #    (+:mhv_medical_records_diagnostic_logging+).
+  # 3. Enabling *either* activates diagnostic logging for that user.
+  #
+  # This lets you surgically debug one domain in production, or flip the global
+  # toggle during an incident to light up diagnostics across all domains at once.
   #
   # == Usage
   #
@@ -32,11 +57,58 @@ module MedicalRecords
   #            redact_user_uuid: true, user_uuid: current_user.uuid,
   #            note_id: '12345', doc_ref_type: 'ConsultResultNote')
   #
+  # == Adding a New Domain
+  #
+  # Follow these steps when you want structured logging for a new domain
+  # (e.g. allergies, vitals). Clinical Notes is the reference implementation.
+  #
+  # 1. *Add a domain constant* — A constant already exists (e.g. +ALLERGIES+).
+  #    Use it in all +resource:+ arguments to avoid string typos.
+  #
+  # 2. *Register a domain toggle* — Add an entry to +DOMAIN_TOGGLES+:
+  #
+  #      DOMAIN_TOGGLES = {
+  #        CLINICAL_NOTES => :mhv_medical_records_clinical_notes_diagnostic,
+  #        ALLERGIES      => :mhv_medical_records_allergies_diagnostic,   # new
+  #      }.freeze
+  #
+  # 3. *Register the toggle in features.yml* — Add a corresponding entry under
+  #    +features:+ (keep alphabetical order):
+  #
+  #      mhv_medical_records_allergies_diagnostic:
+  #        actor_type: user
+  #        description: Enables diagnostic logging for allergies only.
+  #        enable_in_development: false
+  #
+  # 4. *Create a logging concern* (recommended) — Extract logging methods into
+  #    a concern like +ClinicalNotesLogging+ to keep service classes short.
+  #    The concern should:
+  #    - Memoize an +MedicalRecordsLog+ instance via +mr_log+.
+  #    - Expose domain-specific helper methods (e.g. +log_allergy_metrics+).
+  #    - Use +mr_log.diagnostic+ for verbose data and +mr_log.info/warn/error+
+  #      for always-on operational data.
+  #    - Guard expensive computation with an early +return unless+ when the
+  #      toggle is off (see +ClinicalNotesLogging#log_loinc_code_distribution+).
+  #
+  #    See +lib/unified_health_data/concerns/clinical_notes_logging.rb+ for
+  #    the reference implementation.
+  #
+  # 5. *Include the concern* in your service class:
+  #
+  #      class UnifiedHealthData::Service
+  #        include UnifiedHealthData::Concerns::AllergiesLogging
+  #      end
+  #
+  # 6. *Write specs* — Stub Flipper toggles (never use +Flipper.enable+) and
+  #    assert on +Rails.logger+ receiving the structured hash. See
+  #    +spec/lib/unified_health_data/concerns/clinical_notes_logging_spec.rb+.
+  #
   class MedicalRecordsLog
     SERVICE_NAME = 'medical_records'
 
     # ── Resource domain constants ──
-    # Use these instead of raw strings to avoid typos and improve discoverability.
+    # Use these instead of raw strings to avoid typos and improve grep-ability.
+    # When adding a new domain, add a constant here and reference it in DOMAIN_TOGGLES.
     ALLERGIES      = 'allergies'
     CLINICAL_NOTES = 'clinical_notes'
     CONDITIONS     = 'conditions'
@@ -50,6 +122,11 @@ module MedicalRecords
     # Per-domain toggles for surgical diagnostic logging.
     # Each maps a resource domain constant to its own Flipper toggle so you can debug
     # one domain without flooding logs from the others.
+    #
+    # To add a new domain: add a mapping here AND register the toggle in config/features.yml.
+    # Naming convention: :mhv_medical_records_<domain>_diagnostic
+    #
+    # Domains without an entry here still work — they just rely on the global toggle only.
     DOMAIN_TOGGLES = {
       CLINICAL_NOTES => :mhv_medical_records_clinical_notes_diagnostic
     }.freeze

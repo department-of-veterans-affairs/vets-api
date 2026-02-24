@@ -7,9 +7,37 @@ module UnifiedHealthData
     # Logging and metrics methods for clinical notes operations.
     # Extracted from Service to keep class length manageable.
     #
-    # Delegates toggle checks and structured logging to MedicalRecords::MedicalRecordsLog,
-    # which provides the `:mhv_medical_records_clinical_notes_diagnostic` domain toggle
-    # with a global fallback via `:mhv_medical_records_diagnostic_logging`.
+    # == Reference Implementation
+    #
+    # This concern is the canonical example of the MedicalRecordsLog pattern.
+    # Use it as a template when adding logging for a new domain (allergies, vitals, etc.).
+    # See MedicalRecords::MedicalRecordsLog class docs for the full "Adding a New Domain" guide.
+    #
+    # == Pattern Summary
+    #
+    # 1. Memoize an MedicalRecordsLog instance via +mr_log+ (receives +@user+ from the host class).
+    # 2. Wrap each log point in a small descriptive method (e.g. +log_notes_index_metrics+).
+    # 3. Use +mr_log.diagnostic+ for verbose data that should only appear when a Flipper toggle
+    #    is enabled for the user. Use +mr_log.info/warn/error+ for always-on operational data.
+    # 4. Guard expensive pre-computation with +return unless clinical_notes_logging_enabled?+
+    #    so disabled toggles skip the work entirely (see +log_loinc_code_distribution+).
+    # 5. Keep StatsD instrumentation alongside the log calls — they serve different consumers
+    #    (DataDog dashboards vs. Splunk/CloudWatch log queries).
+    #
+    # == Toggle Behavior
+    #
+    # Delegates toggle checks to MedicalRecords::MedicalRecordsLog, which provides the
+    # +:mhv_medical_records_clinical_notes_diagnostic+ domain toggle with a global fallback
+    # via +:mhv_medical_records_diagnostic_logging+. Enabling either toggle activates
+    # diagnostic logging for clinical notes.
+    #
+    # == Specs
+    #
+    # Stub Flipper (never use Flipper.enable/disable in tests):
+    #   allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_clinical_notes_diagnostic, user).and_return(true)
+    #
+    # Assert on the structured hash:
+    #   expect(Rails.logger).to have_received(:info).with(hash_including(service: 'medical_records', ...))
     module ClinicalNotesLogging
       extend ActiveSupport::Concern
 
