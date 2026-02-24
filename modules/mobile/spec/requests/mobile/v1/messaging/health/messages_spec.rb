@@ -42,7 +42,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
       VCR.eject_cassette
     end
 
-    let(:triage_group_384939) do
+    let(:first_triage_group) do
       {
         'triageTeamId' => 384_939,
         'name' => 'VA Flagship mobile applications interface 1_DAYT29',
@@ -70,7 +70,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
       }
     end
 
-    let(:triage_group_345468) do
+    let(:second_triage_group) do
       {
         'triageTeamId' => 345_468,
         'name' => 'VA Flagship mobile applications interface 1_DAYT29',
@@ -118,7 +118,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'recipientName' => 'MVIONE, TEST',
                 'readReceipt' => 'READ',
                 'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
-                'triageGroup' => triage_group_384939,
+                'triageGroup' => first_triage_group,
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
@@ -150,7 +150,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'recipientName' => 'MVIONE, TEST',
                 'readReceipt' => 'READ',
                 'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
-                'triageGroup' => triage_group_384939,
+                'triageGroup' => first_triage_group,
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
@@ -182,7 +182,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'recipientName' => 'WORKLOAD CAPTURE_Mohammad',
                 'readReceipt' => 'READ',
                 'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
-                'triageGroup' => triage_group_345468,
+                'triageGroup' => second_triage_group,
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
