@@ -1889,14 +1889,17 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
-  search_representative:
-    actor_type: user
-    description: Enable frontend application and cta for Search Representative application
-    enable_in_development: true
   search_gov_maintenance:
     actor_type: user
     description: Use when Search.gov system maintenance impacts sitewide search
     enable_in_development: true
+  search_representative:
+    actor_type: user
+    description: Enable frontend application and cta for Search Representative application
+    enable_in_development: true
+  search_results_ui_update:
+    actor_type: user
+    description: Enables the updated search results UI
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
