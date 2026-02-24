@@ -176,9 +176,9 @@ module SM
         return false if triage_group.blank?
 
         station_number = triage_group.station_number&.to_s
-        oh_triage_group = triage_group.oh_triage_group
         return false if station_number.blank?
 
+        oh_triage_group = triage_group.oh_triage_group
         # Post-migration: facility is Cerner in VA profile but triage group is not yet OH
         cerner_facility_ids = Array(current_user&.cerner_facility_ids).map(&:to_s)
         cerner_facility_ids.include?(station_number) && oh_triage_group == false

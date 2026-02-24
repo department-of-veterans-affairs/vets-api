@@ -267,6 +267,8 @@ describe 'sm client' do
 
         it 'returns nil when triage_group is nil' do
           VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).and_return(nil)
+
             result = client.get_full_messages_for_thread(message_id)
 
             result.data.each { |msg| allow(msg).to receive(:triage_group).and_return(nil) }
@@ -278,6 +280,8 @@ describe 'sm client' do
 
         it 'returns nil when station_number is blank' do
           VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).and_return(nil)
+
             result = client.get_full_messages_for_thread(message_id)
 
             result.data.each do |msg|
