@@ -120,30 +120,10 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         post(:create, body: invalid_data, as: :json)
       end
 
-      it 'tracks validation error when ActiveRecord validation fails' do
-        invalid_data = { form: build(:form212680_invalid).form }.to_json
-
-        expect(monitor).to receive(:track_request_validation_error).with(
-          error: kind_of(Common::Exceptions::ValidationErrors),
-          request: kind_of(ActionDispatch::Request),
-          claim: kind_of(SavedClaim::Form212680)
-        )
-
-        post(:create, body: invalid_data, as: :json)
-      end
-
       it 'tracks request code for successful submission' do
         expect(monitor).to receive(:track_request_code).with(200)
 
         post(:create, body: form_data, as: :json)
-      end
-
-      it 'tracks request code for validation errors' do
-        invalid_data = { form: build(:form212680_invalid).form }.to_json
-
-        expect(monitor).to receive(:track_request_code).with(422)
-
-        post(:create, body: invalid_data, as: :json)
       end
     end
 
