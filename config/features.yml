@@ -159,6 +159,12 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
+  disability_compensation_fix_poisoned_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that resets erroneously injected
+      disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -442,6 +448,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_btsss_v2_claim_submission_endpoints:
+    actor_type: user
+    description: Enables using BTSSS v2 API endpoints instead of v3 for travel claim submission
+    enable_in_development: false
   check_in_experience_use_vaec_cie_endpoints:
     actor_type: user
     description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
@@ -743,6 +753,9 @@ features:
   decision_review_use_new_appealable_issues_service:
     actor_type: user
     description: Enables use of the new Appealable Issues service for fetching appealable issues.
+  decision_review_add_user_account_id_to_rum:
+    actor_type: user
+    description: Adds the user account ID to Datadog RUM logs for SC, HLR and NOD apps
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -1003,8 +1016,8 @@ features:
     description: Enables the Financial Management app to only use the VBS API
     enable_in_development: true
   find_a_representative_enabled:
-    actor_type: cookie_id
-    description: Generic toggle for gating Find a Rep
+    actor_type: user
+    description: Enables organization filtering in Find a Rep search
     enable_in_development: true
   find_a_representative_enable_api:
     actor_type: user
@@ -1455,6 +1468,10 @@ features:
     actor_type: user
     description: Enables fetching Oracle Health migration schedules for VAHB mobile users
     enable_in_development: true
+  mhv_oh_migration_extended_phases:
+    actor_type: user
+    description: Enables extended migration phases (p8, p9) for Oracle Health facility migration tracking
+    enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
     description: Enables improvements to medication management functionality
@@ -1671,6 +1688,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oh_transition_refill_block:
+    actor_type: user
+    description: Blocks prescription refills for facilities transitioning to Oracle Health during phases p4-p6 (T-3 to T+2)
+    enable_in_development: true
   mhv_medications_oracle_health_cutover:
     actor_type: user
     description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
@@ -1749,6 +1770,9 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
+  pdf_fill_field_validation:
+    actor_type: user
+    description: Monitor PDF field name mismatches via StatsD metrics. Tracks mismatches to detect blank/partial PDFs without blocking submissions.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2939,6 +2963,9 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  survivors_benefits_idp:
+    actor_type: user
+    description: Enables IDP (Intelligent Document Processing) for survivors benefits supporting document uploads
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
@@ -2975,3 +3002,10 @@ features:
   discover_your_benefits_results_page_update:
     actor_type: cookie_id
     description: "If enabled, displays new results page features and designs"
+  cve_veteran_status_new_service:
+    actor_type: user
+    description: "If enabled, displays new veteran status page"
+  va_online_scheduling_log_mobile:
+    actor_type: user
+    description: If enabled, logs additional information about mobile appointments for debugging purposes
+    enable_in_development: false

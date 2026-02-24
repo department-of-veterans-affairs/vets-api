@@ -155,6 +155,14 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
     end
 
+    context 'when feature flag is disabled (restricted list)' do
+      it 'includes multi-party form IDs in the restricted benefits intake forms' do
+        forms = controller.send(:restricted_benefits_intake_forms)
+
+        expect(forms).to include('21-2680', '21-0779', '21-4192', '21P-530a')
+      end
+    end
+
     context 'serialization' do
       let(:mock_submission_status) do
         OpenStruct.new(

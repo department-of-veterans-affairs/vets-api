@@ -198,6 +198,7 @@ module PdfFill
 
     def handle_overflow_and_label_first_key(pdftk_keys)
       first_key = pdftk_keys[:first_key]
+
       transform_data(
         form_data: { first_key => placeholder_text },
         pdftk_keys:,
@@ -208,8 +209,7 @@ module PdfFill
 
     def transform_array(form_data, pdftk_keys)
       has_overflow = check_for_overflow(form_data, pdftk_keys)
-
-      if has_overflow
+      if has_overflow && !pdftk_keys[:bypass_overflow]
         if pdftk_keys[:label_all]
           handle_overflow_and_label_all(form_data, pdftk_keys)
         else
