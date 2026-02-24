@@ -138,6 +138,51 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#validate_service_periods_quantity!' do
+    let(:invalid_form_attributes) do
+      {
+        'serviceInformation' => {
+          'servicePeriods' => Array.new(101) do
+            {
+              'activeDutyBeginDate' => 15.years.ago.to_date.iso8601,
+              'activeDutyEndDate' => 5.years.ago.to_date.iso8601
+            }
+          end
+        }
+      }
+    end
+
+    it 'returns a 422 when the servicePeriod count is over 100' do
+      subject.send(:validate_service_periods_quantity!, invalid_form_attributes['serviceInformation']['servicePeriods'])
+
+      expect(current_error_array.count).to eq(1)
+      expect(current_error_array[0][:detail]).to eq(
+        'Number of service periods 101 must be less than or equal to 100'
+      )
+      expect(current_error_array[0][:source]).to eq(
+        '/serviceInformation/servicePeriods'
+      )
+    end
+
+    it 'does not return a 422 if the servicePeriods count is equal to 100' do
+      valid_form_attributes = invalid_form_attributes.deep_dup
+      valid_form_attributes['serviceInformation']['servicePeriods'].pop
+
+      subject.send(:validate_service_periods_quantity!, valid_form_attributes['serviceInformation']['servicePeriods'])
+
+      expect(current_error_array).to be_nil
+    end
+
+    it 'does not return a 422 if the servicePeriods count is under 100' do
+      valid_form_attributes = invalid_form_attributes.deep_dup
+      valid_form_attributes['serviceInformation']['servicePeriods'].pop(42)
+
+      subject.send(:validate_service_periods_quantity!, valid_form_attributes['serviceInformation']['servicePeriods'])
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
   describe '#remove_chars' do
     let(:date_string) { subject.form_attributes['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] }
 

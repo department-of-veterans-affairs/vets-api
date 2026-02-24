@@ -640,6 +640,8 @@ module ClaimsApi
       def alt_rev_validate_service_periods(service_information)
         return unless service_periods_present?(service_information)
 
+        validate_service_periods_quantity!(service_information['servicePeriods'])
+
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
             next unless date_is_valid?(sp['activeDutyBeginDate'],
@@ -656,6 +658,16 @@ module ClaimsApi
               end
             end
           end
+        end
+      end
+
+      def validate_service_periods_quantity!(service_periods)
+        sp_size = service_periods.size
+        if sp_size > 100
+          collect_error_messages(
+            source: '/serviceInformation/servicePeriods',
+            detail: "Number of service periods #{sp_size} must be less than or equal to 100"
+          )
         end
       end
 
