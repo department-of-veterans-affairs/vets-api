@@ -125,8 +125,8 @@ caseflow:
 cave:
   idp:
     base_url: ~
-    timeout: ~
     mock: ~
+    timeout: ~
 central_mail:
   upload:
     enabled: true

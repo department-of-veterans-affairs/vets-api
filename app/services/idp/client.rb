@@ -12,14 +12,19 @@ module Idp
 
     def initialize(base_url: nil, timeout: nil, mock: nil)
       @mock_mode = mock.nil? ? Settings.try(:cave)&.try(:idp)&.try(:mock) : mock
-      @mock_mode = !!@mock_mode
+      @mock_mode = @mock_mode ? true : false
 
       if mock_mode
         @storage_dir = Rails.root.join('tmp', 'idp')
         FileUtils.mkdir_p(@storage_dir)
       else
-        @base_url = base_url.presence || Settings.try(:cave)&.try(:idp)&.try(:base_url) || ENV['IDP_API_BASE_URL']
-        @timeout = timeout || Settings.try(:cave)&.try(:idp)&.try(:timeout) || ENV['IDP_API_TIMEOUT']&.to_i || DEFAULT_TIMEOUT
+        @base_url = base_url.presence ||
+                    Settings.try(:cave)&.try(:idp)&.try(:base_url) ||
+                    ENV.fetch('IDP_API_BASE_URL', nil)
+        @timeout = timeout ||
+                   Settings.try(:cave)&.try(:idp)&.try(:timeout) ||
+                   ENV['IDP_API_TIMEOUT']&.to_i ||
+                   DEFAULT_TIMEOUT
         raise Error, 'IDP base URL is not configured' if @base_url.blank?
       end
     end
@@ -127,14 +132,9 @@ module Idp
       }
     end
 
-    def mock_output(id, type)
+    def mock_output(id, _type)
       data = load_mock_document(id)
-      case (type || 'artifact')
-      when 'artifact'
-        { 'forms' => data['forms'] }
-      else
-        { 'forms' => data['forms'] }
-      end
+      { 'forms' => data['forms'] }
     end
 
     def mock_download(id, kvpid)

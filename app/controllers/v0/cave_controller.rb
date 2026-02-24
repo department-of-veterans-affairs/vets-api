@@ -18,12 +18,12 @@ module V0
 
     def output
       type = params[:type].presence || 'artifact'
-      render json: client.output(document_id, type: type)
+      render json: client.output(document_id, type:)
     end
 
     def download
       kvpid = params.require(:kvpid)
-      render json: client.download(document_id, kvpid: kvpid)
+      render json: client.download(document_id, kvpid:)
     end
 
     private

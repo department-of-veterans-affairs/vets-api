@@ -31,7 +31,7 @@ RSpec.describe 'CAVE API', type: :request do
       allow(client).to receive(:intake).with(file_name: 'test.pdf', pdf_base64: 'ZmlsZQ==')
                                        .and_return('id' => 'abc123')
 
-      post '/v0/cave', params: params
+      post('/v0/cave', params:)
 
       expect(response).to have_http_status(:ok)
       expect(parsed_response['id']).to eq('abc123')
@@ -40,7 +40,7 @@ RSpec.describe 'CAVE API', type: :request do
     it 'returns bad gateway when upstream fails' do
       allow(client).to receive(:intake).and_raise(Idp::Client::Error, 'boom')
 
-      post '/v0/cave', params: params
+      post('/v0/cave', params:)
 
       expect(response).to have_http_status(:bad_gateway)
       expect(parsed_response['errors'].first['detail'])

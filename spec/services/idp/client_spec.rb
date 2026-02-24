@@ -44,7 +44,7 @@ RSpec.describe Idp::Client do
       forms = client.output(contract['id'], type: 'artifact')['forms']
       kvpid = forms.first['mmsArtifactValidationId']
 
-      result = client.download(contract['id'], kvpid: kvpid)
+      result = client.download(contract['id'], kvpid:)
 
       expect(result).to include('FIRST_NAME', 'LAST_NAME')
     end
