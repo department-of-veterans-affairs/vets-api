@@ -6,7 +6,7 @@ module Form210779
   ##
   # Monitor class for tracking Form 21-0779 validation and submission events
   #
-  # Provides methods for tracking Committee validation failures and other
+  # Provides methods for tracking validation failures and other
   # form-related events with StatsD metrics and structured logging.
   #
   class Monitor < ::Logging::BaseMonitor
