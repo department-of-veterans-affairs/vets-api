@@ -188,7 +188,6 @@ module SimpleFormsApi
 
           add_vsi_flash_safely(form, submission)
 
-          
           submit_to_mms_if_applicable(form, confirmation_number)
         end
 
