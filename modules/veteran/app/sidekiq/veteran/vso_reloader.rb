@@ -427,7 +427,7 @@ module Veteran
     end
 
     # rubocop:disable Rails/SkipsModelValidations
-    def remove_stale_organizations(current_poa_codes)
+    def deactivate_stale_organization_joins(current_poa_codes)
       return if current_poa_codes.blank?
 
       stale_poas = Veteran::Service::Organization.where.not(poa: current_poa_codes).pluck(:poa)
