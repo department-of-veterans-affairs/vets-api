@@ -228,9 +228,11 @@ module ClaimsApi
     def validate_form_526_change_of_address_beginning_date!(change_of_address)
       return if change_of_address.blank?
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
-      return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
-
-      raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
+      beginning_date = change_of_address['beginningDate']
+      # if 'TEMPORARY' address, 'beginningDate' is required and must be in the future.
+      if beginning_date.blank? || !(Date.parse(beginning_date) > Time.zone.now)
+        raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', beginning_date)
+      end
     end
 
     def validate_form_526_change_of_address_ending_date!(change_of_address)
