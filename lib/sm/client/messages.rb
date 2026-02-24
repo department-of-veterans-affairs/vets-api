@@ -146,17 +146,9 @@ module SM
       #                       if team not found in cache, or nil if no migration data exists
       #
       def derive_oh_migration_phase_for_message(message)
-        triage_group_id = message&.triage_group_id
-        return nil if triage_group_id.blank?
-
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
 
-        # Look up station_number from cached triage teams
-        cached_teams = get_triage_teams_station_numbers
-        return nil if cached_teams.blank?
-
-        matching_team = cached_teams.find { |team| team.triage_team_id == triage_group_id }
-        station_number = matching_team&.station_number
+        station_number = message&.triage_group&.[](:station_number)
         return nil if station_number.blank?
 
         # Look up migration phase for this station number
