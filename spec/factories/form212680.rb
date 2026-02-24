@@ -20,4 +20,9 @@ FactoryBot.define do
     }
     form_id { SavedClaim::Form212680::FORM }
   end
+
+  factory :form212680_invalid, class: 'SavedClaim::Form212680' do
+    form_id { SavedClaim::Form212680::FORM }
+    form { '{"invalid": "data"}' }
+  end
 end
