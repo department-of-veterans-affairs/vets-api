@@ -82,7 +82,7 @@ module Form210779
 
     ##
     # Track submission begun in controller
-    # Called when claim is saved and about to be queued to Sidekiq
+    # Called when submission processing starts, before validation and persistence
     #
     # @param claim [SavedClaim::Form210779]
     # @param user_uuid [String, nil] Optional user UUID for tracking
@@ -99,7 +99,7 @@ module Form210779
 
     ##
     # Track successful submission
-    # Called when claim is successfully saved and queued
+    # Called when claim is successfully validated, saved, and attachments processed
     #
     # @param claim [SavedClaim::Form210779]
     # @param user_uuid [String, nil] Optional user UUID for tracking
@@ -116,7 +116,7 @@ module Form210779
 
     ##
     # Track submission failure
-    # Called when claim save or processing fails
+    # Called when claim validation or save fails in the controller action
     #
     # @param claim [SavedClaim::Form210779]
     # @param error [StandardError] The error that occurred
