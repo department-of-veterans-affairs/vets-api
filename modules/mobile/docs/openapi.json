@@ -1019,6 +1019,104 @@
         "summary": "/v0/appointments"
       }
     },
+    "/v0/appointments/avs_binaries/{appointment-id}": {
+      "get": {
+        "description": "Retrieve appointment AVS binary by id",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "appointment-id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The cerner appointment id to retrieve AVS binaries for. This value comes from the `avsPdf` field in the initial appointment response.",
+            "example": "52499028"
+          },
+          {
+            "in": "query",
+            "name": "doc_ids",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "A comma-separated list of document IDs.",
+            "example": "20875041789,20875041790"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AVS binary retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvsBinaries"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No VAOS Access": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "You do not have access to online scheduling",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
+                    }
+                  },
+                  "No ICN": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "No patient ICN found",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "418": {
+            "$ref": "#/components/responses/418"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        }
+      }
+    },
     "/v0/appointments/cancel/{cancelId}": {
       "put": {
         "description": "Cancel an appointment by cancelId. Note only VA appointments can be cancelled online and some VA facilities do not support online cancellation. Only appointments that can be cancelled will have a cancelId.",
@@ -10778,6 +10876,42 @@
                   "type": "integer"
                 }
               }
+            }
+          }
+        }
+      },
+      "AvsBinary": {
+        "type": "object",
+        "required": [
+          "docId"
+        ],
+        "properties": {
+          "docId": {
+            "description": "The document ID of the After Visit Summary PDF.",
+            "type": "string",
+            "example": 20875041789
+          },
+          "binary": {
+            "type": "string",
+            "description": "The base64 encoded PDF binary data."
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if the AVS could not be retrieved."
+          }
+        }
+      },
+      "AvsBinaries": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvsBinary"
             }
           }
         }
@@ -23680,13 +23814,20 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "userInTriageTeam"
+              "userInTriageTeam",
+              "stationNumber"
             ],
             "properties": {
               "userInTriageTeam": {
                 "type": "boolean",
                 "example": true,
-                "description": "This field is only present if the user is in the triage team for this message. This can be used to determine if the user can reply to the message."
+                "description": "Indicates whether the user is in an active triage team for this message. Can be used to determine if the user can reply to the message."
+              },
+              "stationNumber": {
+                "type": "string",
+                "nullable": true,
+                "example": "979",
+                "description": "The station number of the triage group associated with this message. Null if the user is not in an active triage team for this message."
               }
             }
           }

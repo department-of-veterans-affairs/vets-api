@@ -259,7 +259,7 @@ claims_api:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
-claims_evidence_api: &claims_evidence_api
+claims_evidence_api:
   base_url: https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/
   breakers_error_threshold: 80
   include_request: false
@@ -364,7 +364,16 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
-digital_forms_api: *claims_evidence_api # after PoC - duplicate settings, update param store, remove yaml anchor
+digital_forms_api:
+  base_url: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
+  timeout:
+    open: 30
+    read: 30
 directory:
   apikey: "<fake_api_key>"
   health_server_id: ~
@@ -557,6 +566,13 @@ form_10_10cg:
       bucket: my-bucket
       enabled: true
       region: us-gov-west-1
+form_intake:
+  api_version: 'v1'
+  breakers_error_threshold: 80
+  host: 'http://localhost:3000'
+  path: 'api/validated-forms'
+  timeout: 5
+  use_mocks: true
 form_mock_ae_design_patterns:
   prefill: true
 form_mock_prefill:
@@ -1388,6 +1404,7 @@ travel_pay:
   client_number: '12345'
   mobile_client_number: '56789'
   mock: false
+  open_timeout: 15
   service_name: BTSSS-API
   sts:
     scope: ~
@@ -1395,6 +1412,7 @@ travel_pay:
   subscription_key: api_key
   subscription_key_e: ~
   subscription_key_s: ~
+  timeout: 90
   veis:
     auth_url: https://auth.veis.gov
     client_id: client_id
@@ -1403,11 +1421,16 @@ travel_pay:
     tenant_id: tenant_id
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: 500
     max_iterations: 20

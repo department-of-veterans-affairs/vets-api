@@ -7,6 +7,7 @@ Mobile::Engine.routes.draw do
     get '/feature-toggles', to: 'feature_toggles#index'
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/appointments', to: 'appointments#index'
+    get '/appointments/avs_binaries/:appointment_id', to: 'appointments#get_avs_binaries'
     put '/appointments/cancel/:id', to: 'appointments#cancel'
     get '/appointments/community_care/eligibility/:service_type', to: 'community_care_eligibility#show'
     get '/appointments/va/eligibility', to: 'veterans_affairs_eligibility#show'

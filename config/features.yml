@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_representative_portal_claimant_details:
+    actor_type: user
+    description: Enables the claimant details page on the frontend
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -155,6 +159,12 @@ features:
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
+  disability_compensation_fix_poisoned_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that resets erroneously injected
+      disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -190,6 +200,8 @@ features:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
     description: "Gateway: Enable push notifications"
+  event_bus_gateway_sign_in_token_validation:
+    description: Enables SignInService token validation
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -367,6 +379,12 @@ features:
   champva_bypass_persisting_ves_json_to_database:
     actor_type: user
     description: Enables logic to bypass persisting VES JSON to the database for form submissions
+  champva_bypass_metadata_json_file_for_1010d:
+    actor_type: user
+    description: Enables logic to bypass uploading the metadata JSON file for form 10-10d submissions
+  champva_allow_pdf_optional_content:
+    actor_type: user
+    description: Enables loading optional content from PDFs when combining them
   champva_ignore_recent_missing_statuses:
     actor_type: user
     description: Enables ignoring the most recent form submissions in the MissingFormStatusJob
@@ -430,6 +448,10 @@ features:
     actor_type: cookie_id
     description: Enables the medication review content in pre-check-in.
     enable_in_development: true
+  check_in_experience_use_btsss_v2_claim_submission_endpoints:
+    actor_type: user
+    description: Enables using BTSSS v2 API endpoints instead of v3 for travel claim submission
+    enable_in_development: false
   check_in_experience_use_vaec_cie_endpoints:
     actor_type: user
     description: Enables using VAEC-CIE AWS account endpoints for CHIP and LoROTA instead of VAEC-CMS endpoints.
@@ -457,10 +479,6 @@ features:
   claims_api_ews_updater_enables_local_bgs:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true
-  claims_api_ews_uploads_bd_refactor:
-    actor_type: user
-    description: When enabled, sends ews forms to BD via the refactored logic
     enable_in_development: true
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
@@ -521,12 +539,6 @@ features:
   cst_claims_list_filter:
     actor_type: user
     description: When enabled, claims status tool displays a filter on the claims list
-    enable_in_development: true
-  cst_evidence_requests_content_override:
-    actor_type: user
-    description: >
-      When enabled, tracked items in claims status tool use content dictionary
-      overrides for display names, descriptions, and structured content blocks.
     enable_in_development: true
   cst_evidence_requests_content_override_mobile:
     actor_type: user
@@ -756,6 +768,10 @@ features:
     actor_type: user
     description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
+  dependents_digital_forms_api_submission_enabled:
+    actor_type: user
+    description: Enables submission of dependents forms via Forms API
+    enable_in_development: false
   dependents_module_enabled:
     actor_type: user
     description: Enables new Dependents module
@@ -1445,12 +1461,13 @@ features:
     actor_type: user
     description: Shows Veterans their Priority Group on the MHV Landing Page
     enable_in_development: true
-  mhv_landing_page_show_share_my_health_data_link:
-    actor_type: user
-    description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
   mhv_oh_migration_schedules:
     actor_type: user
     description: Enables fetching Oracle Health migration schedules for VAHB mobile users
+    enable_in_development: true
+  mhv_oh_migration_extended_phases:
+    actor_type: user
+    description: Enables extended migration phases (p8, p9) for Oracle Health facility migration tracking
     enable_in_development: true
   mhv_medications_management_improvements:
     actor_type: user
@@ -1538,6 +1555,10 @@ features:
     actor_type: user
     description: Enables users w/ Oracle Health facilities to download an OH CCD
     enable_in_development: true
+  mhv_medical_records_fetch_scdf_imaging_studies:
+    actor_type: user
+    description: Enables fetching imaging studies from SCDF for Medical Records
+    enable_in_development: false
   mhv_medical_records_hold_time_messaging_update:
     actor_type: user
     description: Enables updated hold time messaging
@@ -1742,6 +1763,9 @@ features:
   pdf_fill_redesign_overflow_jumplinks:
     actor_type: user
     description: Enable jumplinks from overflow page back to form, when using v2 PDF overflow generator
+  pdf_fill_field_validation:
+    actor_type: user
+    description: Monitor PDF field name mismatches via StatsD metrics. Tracks mismatches to detect blank/partial PDFs without blocking submissions.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -2284,6 +2308,9 @@ features:
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
+  vba_documents_uploads_report_uuid_limit:
+    actor_type: user
+    description: Enables MaxArraySizeExceeded error when uploads/report exceeds 1000 IDs
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -2929,6 +2956,9 @@ features:
   survivors_benefits_persistent_attachment_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Persistent Attachment Error email notification
+  survivors_benefits_idp:
+    actor_type: user
+    description: Enables IDP (Intelligent Document Processing) for survivors benefits supporting document uploads
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
@@ -2965,3 +2995,10 @@ features:
   discover_your_benefits_results_page_update:
     actor_type: cookie_id
     description: "If enabled, displays new results page features and designs"
+  cve_veteran_status_new_service:
+    actor_type: user
+    description: "If enabled, displays new veteran status page"
+  va_online_scheduling_log_mobile:
+    actor_type: user
+    description: If enabled, logs additional information about mobile appointments for debugging purposes
+    enable_in_development: false
