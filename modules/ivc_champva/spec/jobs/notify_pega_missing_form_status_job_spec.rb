@@ -15,6 +15,8 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
 
   before do
     allow(Settings.ivc_forms.sidekiq.missing_form_status_job).to receive(:enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback,
+                                              @current_user).and_return(false)
     allow(StatsD).to receive(:increment)
 
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: true))
@@ -113,6 +115,20 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
     end
   end
 
+  context 'when send_zsf_notification_to_pega is successful while callbacks are used' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback,
+                                                @current_user).and_return(true)
+    end
+
+    it 'does not log a successful notification send to Pega' do
+      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
+
+      # Expect our monitor NOT to track the successful send since callbacks handle tracking
+      expect(job.monitor).not_to have_received(:track_send_zsf_notification_to_pega)
+    end
+  end
+
   context 'when send_zsf_notification_to_pega fails' do
     before do
       # Sending the email should fail in this case
@@ -125,6 +141,47 @@ RSpec.describe 'IvcChampva::NotifyPegaMissingFormStatusJob', type: :job do
       # Expect our monitor to track the failed send
       expect(job.monitor).to have_received(:track_failed_send_zsf_notification_to_pega).with(forms[0].form_uuid,
                                                                                              'fake-template')
+    end
+  end
+
+  context 'when using callbacks' do
+    let(:form) { forms[0] }
+    let(:template_id) { 'PEGA-TEAM_MISSING_STATUS' }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_pega_alert_callback,
+                                                @current_user).and_return(true)
+    end
+
+    it 'calls callback_hash with proper form data and passes callback data to Email.new' do
+      allow(job).to receive(:callback_hash).and_call_original
+
+      expected_callback_klass = 'IvcChampva::PegaEmailNotificationCallback'
+      expected_additional_context = {
+        form_id: form.form_number,
+        form_uuid: form.form_uuid,
+        notification_type: 'pega_alert'
+      }
+
+      job.send_zsf_notification_to_pega(form, template_id)
+
+      # Expect callback_hash to have been called with the form
+      expect(job).to have_received(:callback_hash).with(form)
+
+      # Verify callback_hash returns expected data
+      callback_result = job.callback_hash(form)
+      expect(callback_result[:callback_klass]).to eq(expected_callback_klass)
+      expect(callback_result[:callback_metadata][:additional_context]).to eq(expected_additional_context)
+
+      # Verify the data passed to Email.new includes the callback information
+      expect(IvcChampva::Email).to have_received(:new).with(
+        hash_including(
+          callback_klass: expected_callback_klass,
+          callback_metadata: hash_including(
+            additional_context: expected_additional_context
+          )
+        )
+      )
     end
   end
 end
