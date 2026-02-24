@@ -39,8 +39,14 @@ module V0
     end
 
     def service_history
-      p "~~~~~ ezr#service_history w/ icn? #{@current_user.icn}"
-      response = service.get_service_history(@current_user.icn)
+      p "~~~~~ ezr#service_history w/ icn? #{@current_user.icn.present?}"
+      begin
+        response = service.get_service_history(@current_user.icn)
+        p "~~~~~ ezr#service_history resp", response
+        p "~~~~~ ezr#service_history resp data", response['data']
+      rescue => e
+        p "~~~~~ ezr#service_history err", e
+      end
 
       # LH returns the ICN of the Veteran in the data.id field
       # We want to scrub it out before sending to the FE
