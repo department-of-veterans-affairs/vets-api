@@ -47,6 +47,14 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       it 'maps "Pending Renewal" to "In progress"' do
         expect(mapper.map_to_v2_status('Pending Renewal')).to eq('In progress')
       end
+
+      it 'maps "Renew" to "In progress"' do
+        expect(mapper.map_to_v2_status('Renew')).to eq('In progress')
+      end
+
+      it 'maps "NewOrder" to "In progress"' do
+        expect(mapper.map_to_v2_status('NewOrder')).to eq('In progress')
+      end
     end
 
     context 'Inactive status mappings' do
@@ -125,7 +133,7 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       result = mapper.original_statuses_for_v2_status('In progress')
 
       expect(result).to include('Active: Submitted', 'Active: Refill in Process', 'Pending New Prescription',
-                                'Pending Renewal')
+                                'Pending Renewal', 'Renew', 'NewOrder')
     end
 
     it 'returns Inactive statuses array' do
@@ -221,6 +229,22 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
         expect(result.prescription_id).to eq('67890')
         expect(result.refill_status).to eq('discontinued')
         expect(result.facility_name).to eq('Another Facility')
+      end
+
+      it 'maps disp_status "Renew" to "In progress"' do
+        prescription = OpenStruct.new(disp_status: 'Renew', refill_status: 'renew', prescription_id: '1')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('In progress')
+      end
+
+      it 'maps disp_status "NewOrder" to "In progress"' do
+        prescription = OpenStruct.new(disp_status: 'NewOrder', refill_status: 'newOrder', prescription_id: '2')
+
+        result = mapper.apply_v2_status_mapping(prescription)
+
+        expect(result.disp_status).to eq('In progress')
       end
     end
 
@@ -344,6 +368,8 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       expect(mapping['active: submitted']).to eq('In progress')
       expect(mapping['active: refill in process']).to eq('In progress')
       expect(mapping['pending new prescription']).to eq('In progress')
+      expect(mapping['renew']).to eq('In progress')
+      expect(mapping['neworder']).to eq('In progress')
 
       # Inactive mappings
       expect(mapping['expired']).to eq('Inactive')
@@ -373,11 +399,8 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
       mapping = described_class::REFILL_STATUS_TO_DISP_STATUS
 
       expect(mapping['active']).to eq('Active')
-      expect(mapping['activeparked']).to eq('Active: Parked')
       expect(mapping['refillinprocess']).to eq('Active: Refill in Process')
       expect(mapping['submitted']).to eq('Active: Submitted')
-      expect(mapping['neworder']).to eq('Pending New Prescription')
-      expect(mapping['renew']).to eq('Pending Renewal')
       expect(mapping['hold']).to eq('Active: On hold')
       expect(mapping['providerhold']).to eq('Active: On hold')
       expect(mapping['expired']).to eq('Expired')
@@ -397,14 +420,6 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
         expect(result.disp_status).to eq('Active')
       end
 
-      it 'maps "activeParked" refill_status to "Active" V2 status' do
-        prescription = OpenStruct.new(disp_status: nil, refill_status: 'activeParked', prescription_id: '1')
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result.disp_status).to eq('Active')
-      end
-
       it 'maps "refillinprocess" refill_status to "In progress" V2 status' do
         prescription = OpenStruct.new(disp_status: nil, refill_status: 'refillinprocess', prescription_id: '1')
 
@@ -415,22 +430,6 @@ RSpec.describe UnifiedHealthData::Adapters::V2StatusMapping do
 
       it 'maps "submitted" refill_status to "In progress" V2 status' do
         prescription = OpenStruct.new(disp_status: nil, refill_status: 'submitted', prescription_id: '1')
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result.disp_status).to eq('In progress')
-      end
-
-      it 'maps "newOrder" refill_status to "In progress" V2 status' do
-        prescription = OpenStruct.new(disp_status: nil, refill_status: 'newOrder', prescription_id: '1')
-
-        result = mapper.apply_v2_status_mapping(prescription)
-
-        expect(result.disp_status).to eq('In progress')
-      end
-
-      it 'maps "renew" refill_status to "In progress" V2 status' do
-        prescription = OpenStruct.new(disp_status: nil, refill_status: 'renew', prescription_id: '1')
 
         result = mapper.apply_v2_status_mapping(prescription)
 

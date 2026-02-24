@@ -59,6 +59,7 @@ module IncomeAndAssets
           },
           # Q4
           'assetLocation' => {
+            limit: 45,
             key: "F[0].AssetLocation[#{ITERATOR}]",
             question_num: 10,
             question_suffix: '(4)',

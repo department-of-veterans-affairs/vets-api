@@ -38,6 +38,7 @@ module IncomeAndAssets
           },
           # Q2
           'recipientName' => {
+            limit: 45,
             key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
             question_num: 12,
             question_suffix: '(2)',
@@ -47,6 +48,7 @@ module IncomeAndAssets
           },
           # Q3
           'payer' => {
+            limit: 45,
             key: "F[0].IncomePayer12[#{ITERATOR}]",
             question_num: 12,
             question_suffix: '(3)',

@@ -1421,11 +1421,16 @@ travel_pay:
     tenant_id: tenant_id
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: 500
     max_iterations: 20

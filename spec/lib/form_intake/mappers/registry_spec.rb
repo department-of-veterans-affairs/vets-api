@@ -9,7 +9,7 @@ RSpec.describe FormIntake::Mappers::Registry do
     context 'when form has mapper' do
       before do
         stub_const('FormIntake::Mappers::Registry::FORM_MAPPERS', {
-                     '21P-601' => FormIntake::Mappers::BaseMapper
+                     '21P-601' => 'FormIntake::Mappers::BaseMapper'
                    })
       end
 
@@ -19,6 +19,10 @@ RSpec.describe FormIntake::Mappers::Registry do
     end
 
     context 'when form has no mapper' do
+      before do
+        stub_const('FormIntake::Mappers::Registry::FORM_MAPPERS', {})
+      end
+
       it 'raises MappingNotFoundError' do
         expect { described_class.mapper_for('UNKNOWN') }
           .to raise_error(FormIntake::Mappers::MappingNotFoundError, /UNKNOWN/)
@@ -34,7 +38,7 @@ RSpec.describe FormIntake::Mappers::Registry do
   describe '.mapper?' do
     before do
       stub_const('FormIntake::Mappers::Registry::FORM_MAPPERS', {
-                   '21P-601' => FormIntake::Mappers::BaseMapper
+                   '21P-601' => 'FormIntake::Mappers::BaseMapper'
                  })
     end
 
@@ -50,8 +54,8 @@ RSpec.describe FormIntake::Mappers::Registry do
   describe '.mapped_forms' do
     before do
       stub_const('FormIntake::Mappers::Registry::FORM_MAPPERS', {
-                   '21P-601' => FormIntake::Mappers::BaseMapper,
-                   '21-0966' => FormIntake::Mappers::BaseMapper
+                   '21P-601' => 'FormIntake::Mappers::BaseMapper',
+                   '21-0966' => 'FormIntake::Mappers::BaseMapper'
                  })
     end
 

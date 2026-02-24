@@ -1403,11 +1403,16 @@ travel_pay:
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
