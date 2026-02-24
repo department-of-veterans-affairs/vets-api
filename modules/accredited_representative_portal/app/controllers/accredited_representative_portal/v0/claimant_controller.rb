@@ -51,7 +51,8 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        authorize nil, policy_class: ClaimantPolicy
+        icn = IcnTemporaryIdentifier.find(params[:id]).icn
+        authorize icn, policy_class: ClaimantPolicy
 
         profile = claimant_profile(params[:id])
         raise Common::Exceptions::RecordNotFound, 'Claimant not found' if profile.blank?

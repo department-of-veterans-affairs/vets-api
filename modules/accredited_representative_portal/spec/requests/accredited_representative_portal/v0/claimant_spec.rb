@@ -169,13 +169,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       # Ensure the controller's top-level constant exists in *all* envs (CI included)
       stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
 
-      # IMPORTANT: satisfy verify_pundit_authorization hooks by ensuring the pundit flag is set.
-      allow_any_instance_of(AccreditedRepresentativePortal::V0::ClaimantController)
-        .to receive(:authorize) do |controller, *_args|
-          controller.instance_variable_set(:@_pundit_policy_authorized, true)
-          true
-        end
-
       # Controller uses top-level constant
       allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_return(identifier_obj)
 
@@ -186,6 +179,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         .and_return(identifier_obj)
 
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
+
+      # UPDATED: ClaimantPolicy#show? now enforces POA via ClaimantRepresentative.find(...)
+      # In request specs, strict .with(...) matching can be brittle (different relation instances),
+      # so allow broadly for the happy-path contexts.
+      allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find)
+        .and_return(instance_double(AccreditedRepresentativePortal::ClaimantRepresentative))
     end
 
     context 'when the claimant exists in MPI' do
@@ -229,6 +228,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
           identifier: icn,
           identifier_type: MPI::Constants::ICN
         )
+      end
+    end
+
+    context 'when rep does not have POA for claimant' do
+      before do
+        allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
+      end
+
+      it 'returns 403 forbidden' do
+        get(path, headers: json_headers)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
