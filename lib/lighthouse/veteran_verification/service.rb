@@ -35,15 +35,24 @@ module VeteranVerification
 
     def get_service_history(icn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint = 'service_history'
-      config
-        .get(
-          "#{endpoint}/#{icn}",
-          lighthouse_client_id,
-          lighthouse_rsa_key_path,
-          options
-        )
-        .body
+      p "~~~~~ vv#get_service_history #{
+        { endpoint: endpoint, icn: icn.present?,
+          lhc: lighthouse_client_id.present?,
+          lhrkp: lighthouse_rsa_key_path,
+          options: options,
+        }}"
+      body = config
+               .get(
+                 "#{endpoint}/#{icn}",
+                 lighthouse_client_id,
+                 lighthouse_rsa_key_path,
+                 options
+               )
+               .body
+      p "~~~~~ vv#get_service_history body, #{body}"
+      body
     rescue => e
+      p "~~~~~ vv#get_service_history e, #{e.message}"
       handle_error(e, lighthouse_client_id, endpoint, options)
     end
 
