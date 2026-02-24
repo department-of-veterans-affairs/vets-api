@@ -31,7 +31,7 @@ http_interactions:
     recorded_at: Tue, 04 Feb 2026 15:22:00 GMT
   - request:
       method: get
-      uri: "<MHV_UHD_HOST>/v1/medicalrecords/imaging-study/oracle-health?patientId=1234567890V012345&startDate=2026-01-01&endDate=2027-01-01&recordId=urn-vastudy-200CRNR-CM-6-ezFkLTc0LTZmLWNlLWY5LTBkLTQ1LWJlLWE1LTY"
+      uri: "<MHV_UHD_HOST>/v1/medicalrecords/imaging-study?patientId=1234567890V012345&startDate=2026-01-01&endDate=2027-01-01&recordId=urn-vastudy-200CRNR-CM-6-ezFkLTc0LTZmLWNlLWY5LTBkLTQ1LWJlLWE1LTY"
       body:
         encoding: US-ASCII
         string: ""

@@ -206,7 +206,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
   describe '#list' do
     it 'returns a list of invoices' do
-      skip 'Temporarily skip flaky test'
       VCR.use_cassette('lighthouse/hcc/invoice_list_success') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
@@ -222,7 +221,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
           {
             total: 10,
             page: 1,
-            per_page: 50,
+            per_page: 10,
             copay_summary: {
               total_current_balance: 757.27,
               copay_bill_count: 10,
@@ -234,7 +233,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
     end
 
     it 'handles no records' do
-      skip 'Temporarily skip flaky test'
       VCR.use_cassette('lighthouse/hcc/no_records') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
@@ -264,7 +262,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
 
       it 'raises BadRequest for a 400 from Lighthouse' do
-        skip 'Temporarily skip flaky test'
         VCR.use_cassette('lighthouse/hcc/auth_error') do
           allow(Auth::ClientCredentials::JWTGenerator)
             .to receive(:generate_token).and_return('fake-jwt')
@@ -276,7 +273,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
 
       it 'raises MissingOrganizationIdError' do
-        skip 'Temporarily skip flaky test'
         raw_invoices['entry'].first['resource']['issuer']['reference'] = nil
 
         allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
@@ -289,7 +285,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
 
       it 'raises MissingCityError' do
-        skip 'Temporarily skip flaky test'
         allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
 
         allow(service).to receive(:retrieve_organization_address).with('4-O3d8XK44ejMS').and_return(nil)
