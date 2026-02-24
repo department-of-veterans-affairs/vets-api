@@ -17,7 +17,9 @@ module MHV
         p4: -3,
         p5: 0,
         p6: 2,
-        p7: 7
+        p7: 7,
+        p8: 30,
+        p9: 45
       }.freeze
 
       MIGRATION_STATUS = {
@@ -37,9 +39,14 @@ module MHV
       def user_facility_ready_for_info_alert?
         return false if @current_user.va_treatment_facility_ids.blank?
 
-        @current_user.va_treatment_facility_ids.any? do |facility|
+        return false unless @current_user.va_treatment_facility_ids.any? do |facility|
           facilities_ready_for_info_alert.include?(facility.to_s)
         end
+
+        return false unless Flipper.enabled?(:portal_notice_interstitial_enabled, @current_user)
+
+        StatsD.increment('mhv.oh_facilities_helper.info_alert.success')
+        true
       end
 
       # Returns migration schedule information for facilities the user is associated with.
@@ -59,7 +66,80 @@ module MHV
         []
       end
 
+      # Looks up migration phase for a given station number
+      # @param station_number [String] the facility station number
+      # @return [String, nil] the current phase (e.g., "p1") or nil if not in migration
+      def get_phase_for_station_number(station_number)
+        return nil if station_number.blank?
+
+        get_phases_for_station_numbers([station_number])[station_number.to_s]
+      end
+
+      # Batch looks up migration phases for multiple station numbers
+      # Parses oh_migrations_list once and returns a hash mapping station_number -> phase
+      # @param station_numbers [Array<String>] array of facility station numbers
+      # @return [Hash<String, String>] hash mapping station_number to phase (e.g., "p1") or nil
+      def get_phases_for_station_numbers(station_numbers)
+        return {} if station_numbers.blank?
+
+        build_station_phases_map(station_numbers.to_set(&:to_s))
+      rescue => e
+        Rails.logger.error(
+          'OH Migration Phase Batch Lookup Error',
+          { error_class: e.class.name, error_message: e.message, station_numbers: }
+        )
+        {}
+      end
+
+      # Gets the current phase of the soonest migration window
+      # @return [String, nil] the current phase (e.g., "p3") or nil if no migration windows exist
+      def get_soonest_migration_phase
+        raw_value = Settings.mhv.oh_facility_checks.oh_migrations_list
+        return nil if raw_value.to_s.strip.blank?
+
+        migration_dates = extract_migration_dates(raw_value)
+        return nil if migration_dates.empty?
+
+        determine_current_phase(migration_dates.min)
+      rescue => e
+        Rails.logger.error(
+          'OH Soonest Migration Phase Lookup Error',
+          { error_class: e.class.name, error_message: e.message }
+        )
+        nil
+      end
+
       private
+
+      # Builds a hash mapping station numbers to their current migration phase
+      # @param station_numbers_set [Set<String>] set of station numbers to look up
+      # @return [Hash<String, String>] station_number => phase mapping
+      def build_station_phases_map(station_numbers_set)
+        parse_oh_migrations_list.each_with_object({}) do |migration, results|
+          phase = determine_current_phase(Date.parse(migration[:migration_date]))
+          migration[:facilities].each do |facility|
+            facility_id = facility[:facility_id].to_s
+            results[facility_id] = phase if station_numbers_set.include?(facility_id)
+          end
+        end
+      end
+
+      # Extracts all valid migration dates from the migrations list string
+      # @param raw_value [String] the raw migrations list setting
+      # @return [Array<Date>] array of parsed migration dates
+      def extract_migration_dates(raw_value)
+        raw_value.to_s.split(';').filter_map do |migration_entry|
+          migration_entry = migration_entry.strip
+          next if migration_entry.blank?
+
+          date_part, facilities_part = migration_entry.split(':', 2)
+          next if date_part.blank? || facilities_part.blank?
+
+          Date.parse(date_part.strip)
+        rescue ArgumentError
+          nil
+        end
+      end
 
       def pretransitioned_oh_facilities
         @pretransitioned_oh_facilities ||= parse_facility_setting(
@@ -172,23 +252,36 @@ module MHV
         { current: }.merge(phase_dates)
       end
 
+      # Returns the active set of phases based on feature toggle
+      # @return [Hash] phases to use for calculations
+      def active_phases
+        if Flipper.enabled?(:mhv_oh_migration_extended_phases)
+          PHASES
+        else
+          PHASES.except(:p8, :p9)
+        end
+      end
+
       # Calculates absolute dates for each phase based on migration date
       # @return [Hash] Phase keys with formatted date strings
       def calculate_phase_dates(migration_date)
-        PHASES.transform_values do |day_offset|
+        active_phases.transform_values do |day_offset|
           "#{format_phase_date(migration_date + day_offset)} at 12:00AM ET"
         end
       end
 
       # Determines the current phase based on today's date (inclusive boundaries)
+      # @param migration_date [Date] the migration date
       # @return [String, nil] Phase identifier (e.g., "p1") or nil if outside active window
       def determine_current_phase(migration_date)
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
+        phases = active_phases
+
         # Find the current phase by checking from latest phase to earliest
         # Phase boundaries are inclusive - if today is day -45, we're in p1
-        sorted_phases = PHASES.sort_by { |_, offset| -offset }
+        sorted_phases = phases.sort_by { |_, offset| -offset }
 
         sorted_phases.each do |phase_name, day_offset|
           return phase_name.to_s if days_until_migration <= -day_offset
@@ -204,12 +297,13 @@ module MHV
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
-        p0_offset = PHASES[:p0] # -60
-        p7_offset = PHASES[:p7] # 7
+        phases = active_phases
+        p0_offset = phases[:p0]
+        last_phase_offset = phases.values.max
 
         if days_until_migration > -p0_offset
           MIGRATION_STATUS[:not_started]
-        elsif days_until_migration >= -p7_offset
+        elsif days_until_migration >= -last_phase_offset
           MIGRATION_STATUS[:active]
         else
           MIGRATION_STATUS[:complete]
