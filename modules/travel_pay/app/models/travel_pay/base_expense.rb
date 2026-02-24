@@ -33,9 +33,6 @@ module TravelPay
                    # When disabled: exact same behavior as master
                    receipt_data
                  end
-    rescue => e
-      Rails.logger.error("Error processing receipt: #{e.message}")
-      @receipt = receipt_data
     end
 
     # Returns the list of permitted parameters for this expense type
@@ -138,6 +135,9 @@ module TravelPay
       else
         receipt_data
       end
+    rescue => e
+      Rails.logger.error("HEIC conversion failed: #{e.message}")
+      raise
     end
 
     # Checks if the content type is HEIC/HEIF format
