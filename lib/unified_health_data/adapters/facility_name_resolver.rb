@@ -8,7 +8,7 @@ module UnifiedHealthData
     class FacilityNameResolver
       # DoD (Department of Defense) facility identifiers typically start with:
       # - 'zz' prefix (most common)
-      # - 'x' followed by uppercase letter (e.g., 'xNHOH')
+      # - 'x' followed by a letter (e.g., 'xNHOH')
       # These are not valid VA station numbers and should be handled gracefully.
       DOD_PREFIX_PATTERN = /^(zz|x[A-Z])/i
 
