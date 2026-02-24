@@ -371,6 +371,9 @@ digital_forms_api:
   include_request: false
   jwt_secret: fake-secret
   mock: false
+  request_schema:
+    backup_path: modules/digital_forms_api/config/schemas/forms_api_submissions_request_schema.json
+    preload_on_boot: true
   ssl: false
   timeout:
     open: 30
