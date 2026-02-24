@@ -9,7 +9,6 @@ module Mobile
       set_id(&:triage_team_id)
 
       attributes :triage_team_id,
-                 :name,
                  :station_number,
                  :preferred_team,
                  :relation_type,
@@ -18,6 +17,10 @@ module Mobile
                  :health_care_system_name,
                  :oh_triage_group,
                  :migrating_to_oh
+
+      attribute :name do |object|
+        object.suggested_name_display.presence || object.name
+      end
     end
   end
 end
