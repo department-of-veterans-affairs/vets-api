@@ -27,6 +27,7 @@ module IncreaseCompensation
         rescue
           claim = nil
         end
+        IncreaseCompensation::NotificationEmail.new(claim.id, @intake_service&.uuid).deliver(:error) if claim
         ia_monitor.track_submission_exhaustion(msg, claim)
       end
 
@@ -38,7 +39,7 @@ module IncreaseCompensation
       #
       # @return [UUID] benefits intake upload uuid
       #
-      def perform(saved_claim_id, user_account_uuid = nil)
+      def perform(saved_claim_id, user_account_uuid = nil, benefits_intake_service = nil)
         return unless Flipper.enabled?(:increase_compensation_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
@@ -49,17 +50,21 @@ module IncreaseCompensation
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
         @ibm_payload = @claim.to_ibm
+        # benefits_intake_uuid come from here
+        @intake_service ||= benefits_intake_service
+        reset_intake_service if @intake_service.nil?
 
         # upload must be performed within 15 minutes of this request
         upload_document
 
-        send_submitted_email
+        send_received_email
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
         @intake_service.uuid
       rescue => e
         monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
         @lighthouse_submission_attempt&.fail!
+        reset_intake_service
         raise e
       ensure
         cleanup_file_paths
@@ -78,8 +83,6 @@ module IncreaseCompensation
           raise IncreaseCompensationBenefitIntakeError,
                 "Unable to find IncreaseCompensation::SavedClaim #{saved_claim_id}"
         end
-
-        @intake_service = ::BenefitsIntake::Service.new
       end
 
       # Create a monitor to be used for _this_ job
@@ -129,7 +132,6 @@ module IncreaseCompensation
 
       # Upload generated pdf to Benefits Intake API
       def upload_document
-        @intake_service.request_upload # <- benefits_intake_uuid come from here
         monitor.track_submission_begun(@claim, @intake_service, @user_account_uuid)
         lighthouse_submission_polling
 
@@ -146,8 +148,36 @@ module IncreaseCompensation
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
-        govcio_upload if response.success?
+        if response.success?
+          update_form_submission_attempt # these are created in the s3 upload so update if different or on retry
+          govcio_upload
+        end
         raise IncreaseCompensationBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      def update_form_submission_attempt
+        # If its a retry we need the new intake uuid for the submission
+        form_submission = @claim.form_submissions.order(created_at: :asc).last || FormSubmission.create_with(
+          form_type: @claim.form_id,
+          form_data: @claim.to_json,
+          saved_claim: @claim,
+          saved_claim_id: @claim.id,
+          user_account_id: @claim.user_account_id
+        ).find_or_create_by!(form_type: @claim.form_id, saved_claim_id: @claim.id)
+
+        # update the submission attempt as well
+        latest_form_submission_attempt = form_submission.latest_attempt
+        if latest_form_submission_attempt
+          latest_form_submission_attempt.update!(benefits_intake_uuid: @intake_service.uuid)
+        else
+          FormSubmissionAttempt.create_with(
+            form_submission:
+          ).find_or_create_by!(benefits_intake_uuid: @intake_service.uuid)
+        end
+      end
+
+      def reset_intake_service
+        @intake_service = ::BenefitsIntake::Service.new
       end
 
       # Upload to IBM MMS if the govcio flipper is enabled
@@ -180,10 +210,10 @@ module IncreaseCompensation
       end
 
       # VANotify job to send Submission in Progress email to veteran
-      def send_submitted_email
-        IncreaseCompensation::NotificationEmail.new(@claim.id).deliver(:submitted)
+      def send_received_email
+        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:received)
       rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
+        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'received', e)
       end
 
       # Delete temporary stamped PDF files for this instance.

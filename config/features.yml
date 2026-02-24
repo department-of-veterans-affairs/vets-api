@@ -753,6 +753,9 @@ features:
   decision_review_use_new_appealable_issues_service:
     actor_type: user
     description: Enables use of the new Appealable Issues service for fetching appealable issues.
+  decision_review_add_user_account_id_to_rum:
+    actor_type: user
+    description: Adds the user account ID to Datadog RUM logs for SC, HLR and NOD apps
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -1013,8 +1016,8 @@ features:
     description: Enables the Financial Management app to only use the VBS API
     enable_in_development: true
   find_a_representative_enabled:
-    actor_type: cookie_id
-    description: Generic toggle for gating Find a Rep
+    actor_type: user
+    description: Enables organization filtering in Find a Rep search
     enable_in_development: true
   find_a_representative_enable_api:
     actor_type: user
@@ -1685,6 +1688,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oh_transition_refill_block:
+    actor_type: user
+    description: Blocks prescription refills for facilities transitioning to Oracle Health during phases p4-p6 (T-3 to T+2)
+    enable_in_development: true
   mhv_medications_oracle_health_cutover:
     actor_type: user
     description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning

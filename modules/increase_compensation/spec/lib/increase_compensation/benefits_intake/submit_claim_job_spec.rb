@@ -54,7 +54,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(service).to receive(:perform_upload)
         expect(job).to receive(:cleanup_file_paths)
 
-        result = job.perform(claim.id, user_account_uuid)
+        result = job.perform(claim.id, user_account_uuid, service)
         expect(result).to eq(service.uuid)
       end
 
@@ -65,7 +65,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(claim).not_to receive(:to_pdf)
         expect(service).not_to receive(:perform_upload)
 
-        result = job.perform(claim.id, user_account_uuid)
+        result = job.perform(claim.id, user_account_uuid, service)
         expect(result).to be_nil
       end
     end
@@ -77,6 +77,10 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
       expect(claim).to receive(:to_pdf).with(claim.guid, { omit_esign_stamp: }).and_return(pdf_path)
       expect(Lighthouse::Submission).to receive(:create)
       expect(Lighthouse::SubmissionAttempt).to receive(:create)
+      # expect(claim).to receive(:form_submissions).and_return(
+      #   [FromSubmission.new(form_type: claim.form_id, saved_claim_id: claim.id)]
+      # )
+      # expect(FormSubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
       expect(UserAccount).to receive(:find)
 
@@ -85,12 +89,12 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
       )
       expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id, :user_account_uuid)
+      job.perform(claim.id, :user_account_uuid, service)
     end
 
     it 'is unable to find user_account' do
       expect(IncreaseCompensation::SavedClaim).not_to receive(:find)
-      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(BenefitsIntake::Service).to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
@@ -107,7 +111,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
       expect(UserAccount).to receive(:find)
 
-      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(BenefitsIntake::Service).to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
@@ -205,8 +209,10 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     before do
       job.instance_variable_set(:@claim, claim)
+      job.instance_variable_set(:@intake_service, service)
 
       allow(IncreaseCompensation::NotificationEmail).to receive(:new).and_return(notification)
+      allow(service).to receive(:uuid).and_return('test_guid')
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
       job.instance_variable_set(:@monitor, monitor)
@@ -214,10 +220,11 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     end
 
     it 'errors and logs but does not reraise' do
-      expect(IncreaseCompensation::NotificationEmail).to receive(:new).with(claim.id)
-      expect(notification).to receive(:deliver).with(:submitted)
+      expect(IncreaseCompensation::NotificationEmail).to receive(:new).with(claim.id, 'test_guid')
+      expect(notification).to receive(:deliver).with(:received)
       expect(monitor).to receive(:track_send_email_failure)
-      job.send(:send_submitted_email)
+      job.send(:send_received_email)
+      # IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
     end
   end
 
