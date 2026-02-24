@@ -105,6 +105,20 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           )
         end
 
+        it 'does not increment StatsD refill metric when no successful refills' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+            post refill_path,
+                 params: [{ stationNumber: '663', id: '21431810851' }].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(StatsD).not_to have_received(:increment).with(
+            'api.uhd.refills.requested', anything, anything
+          )
+        end
+
         it 'logs event with station numbers from the request' do
           allow(UniqueUserEvents).to receive(:log_event)
 
