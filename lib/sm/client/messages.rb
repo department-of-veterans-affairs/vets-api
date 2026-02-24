@@ -82,7 +82,7 @@ module SM
         result = Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata],
                                                                          errors: json[:errors])
 
-        # Derive OH migration phase from cached triage teams
+        # Derive OH migration phase from triage team attribute
         oh_migration_phase = derive_oh_migration_phase(result)
         result.data.each { |msg| msg.oh_migration_phase = oh_migration_phase } if oh_migration_phase
 
