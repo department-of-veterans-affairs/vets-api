@@ -25,6 +25,16 @@ RSpec.describe BioHeartApi::FormMappers::Form21p601Mapper do
       )
     end
 
+    context 'with populated expenses array' do
+      # expenses is populated by the complete JSON, just overriding the value here
+      # for clarity's sake
+      before { form_data['expenses']['expenses_list'][0]['amount'] = '12345' }
+
+      it 'transforms monetary values to formatted currency strings' do
+        expect(result['EXPENSE_AMT_1']).to eq('$12,345.00')
+      end
+    end
+
     it 'produces expected complete payload structure' do
       # These keynames are those listed in the data dictionary from MMS
       expected_keys =
