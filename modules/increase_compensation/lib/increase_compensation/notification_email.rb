@@ -22,7 +22,7 @@ module IncreaseCompensation
     # @return [String] the first name of the claimant or veteran
     # If neither is available, defaults to 'Veteran'
     def first_name
-      first = claim.claimant_first_name || claim.veteran_first_name
+      first = claim.veteran_first_name || claim.claimant_first_name
 
       first&.titleize || 'Veteran'
     end

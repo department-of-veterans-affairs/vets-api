@@ -48,6 +48,13 @@ module DependentsBenefits
     def enqueue_submissions
       monitor.track_info_event('Starting claim submission processing', action: 'start', component:, parent_claim_id:)
 
+      if child_claims.any?(&:pension_related_submission?)
+        form_type = parent_claim&.claim_form_type
+        monitor.track_info_event('Submitted pension-related claim',
+                                 action: 'pension.submission',
+                                 component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY)
+      end
+
       jobs_enqueued = 0
       DependentsBenefits::Sidekiq::BGS::BGSFormJob.perform_async(parent_claim_id)
       jobs_enqueued += 1
@@ -138,8 +145,9 @@ module DependentsBenefits
             notification_email.send_received_notification
             if child_claims.any?(&:pension_related_submission?)
               form_type = parent_claim&.claim_form_type
-              monitor.track_info_event('Submitted pension-related claim',
-                                       action: 'pension.submission', component:, parent_claim_id:, form_type:)
+              monitor.track_info_event('Successful pension-related claim submission',
+                                       action: 'pension.submission',
+                                       component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY)
             end
           end
         end
@@ -189,7 +197,7 @@ module DependentsBenefits
     #
     # @return [String] Sidekiq job ID
     def send_backup_job
-      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id)
+      DependentsBenefits::Sidekiq::BenefitsIntakeJob.perform_async(parent_claim_id)
     end
 
     # Returns a notification email handler for the claim

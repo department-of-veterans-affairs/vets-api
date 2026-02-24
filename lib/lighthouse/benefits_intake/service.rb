@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/exceptions'
 require 'lighthouse/benefits_intake/configuration'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_utilities/pdf_validator'
@@ -97,7 +98,12 @@ module BenefitsIntake
     # Get the status for a set of prior uploads
     #
     # @param uuids [Array<String>] the uuids to check
+    # @raise [Common::Exceptions::MaxArraySizeExceeded] if more than 1000 uuids are provided
     def bulk_status(uuids:)
+      if Flipper.enabled?(:vba_documents_uploads_report_uuid_limit) && uuids.size > 1000
+        raise Common::Exceptions::MaxArraySizeExceeded.new('uuids', uuids.size, 1000)
+      end
+
       headers = { 'Content-Type' => Mime[:json].to_s, 'Accept' => Mime[:json].to_s }
       data = { ids: uuids }.to_json
       perform :post, 'uploads/report', data, headers

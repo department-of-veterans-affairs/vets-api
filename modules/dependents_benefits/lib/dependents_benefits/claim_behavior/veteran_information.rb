@@ -30,7 +30,7 @@ module DependentsBenefits
       #   folder_identifier #=> "VETERAN:ICN:1234567890V123456"
       def folder_identifier
         fid = 'VETERAN'
-        { ssn:, participant_id:, icn: }.each do |k, v|
+        { participant_id:, ssn:, icn: }.each do |k, v|
           if v.present?
             fid += ":#{k.to_s.upcase}:#{v}"
             break

@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/exceptions/upstream_partial_failure'
 require_relative 'configuration'
 require_relative 'operation_outcome_detector'
+require_relative 'source_constants'
 
 module UnifiedHealthData
   class Client < Common::Client::Base
@@ -28,8 +29,18 @@ module UnifiedHealthData
     end
 
     def get_notes_by_date(patient_id:, start_date:, end_date:)
-      path = "#{config.base_path}notes?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
+      path = "#{config.base_path}notes?" \
+             "patientId=#{patient_id}&startDate=#{start_date}" \
+             "&endDate=#{end_date}&includeBinary=false"
       perform(:get, path, nil, request_headers)
+    end
+
+    def get_note_by_source(patient_id:, source:, record_id:, start_date:, end_date:)
+      encoded_source = ERB::Util.url_encode(source)
+      encoded_record_id = ERB::Util.url_encode(record_id)
+      path = "#{config.base_path}notes/#{encoded_source}/#{encoded_record_id}"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date }
+      perform(:get, path, params, request_headers)
     end
 
     def get_vitals_by_date(patient_id:, start_date:, end_date:)
@@ -58,8 +69,26 @@ module UnifiedHealthData
     end
 
     def get_ccd(patient_id:, start_date:, end_date:)
-      path = "#{config.base_path}ccd/oracle-health"
+      path = "#{config.base_path}ccd/#{SourceConstants::ORACLE_HEALTH}"
       params = { patientId: patient_id, startDate: start_date, endDate: end_date }
+      perform(:get, path, params, request_headers)
+    end
+
+    def get_imaging_studies(patient_id:, start_date:, end_date:, imaging_study_type: 'ALL')
+      path = "#{config.base_path}imaging-studies/#{SourceConstants::ORACLE_HEALTH}"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date, imagingStudyType: imaging_study_type }
+      perform(:get, path, params, request_headers)
+    end
+
+    def get_imaging_study(patient_id:, start_date:, end_date:, record_id:)
+      path = "#{config.base_path}imaging-study/#{SourceConstants::ORACLE_HEALTH}"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
+      perform(:get, path, params, request_headers)
+    end
+
+    def get_dicom_zip(patient_id:, start_date:, end_date:, record_id:)
+      path = "#{config.base_path}dicom-zip/#{SourceConstants::ORACLE_HEALTH}"
+      params = { patientId: patient_id, startDate: start_date, endDate: end_date, recordId: record_id }
       perform(:get, path, params, request_headers)
     end
 

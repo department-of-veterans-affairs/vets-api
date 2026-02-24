@@ -50,7 +50,7 @@ module IncreaseCompensation
 
       # POST creates and validates an instance of `claim_class`
       def create
-        claim = claim_class.new(form: filtered_params[:form])
+        claim = claim_class.new(form: filtered_params[:form], user_account: current_user&.user_account)
         monitor.track_create_attempt(claim, current_user)
 
         # Issue with 2 8940's in the api, frontend  calls to /in_progess_form/8940 but backend uses `8940V1`

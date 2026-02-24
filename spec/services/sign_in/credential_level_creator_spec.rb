@@ -100,12 +100,43 @@ RSpec.describe SignIn::CredentialLevelCreator do
       context 'and user info has verified_at trait' do
         let(:verified_at) { Time.zone.now }
         let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
+        let(:expected_log_message) { '[SignIn][CredentialLevelCreator] logingov_current_ial' }
+        let(:expected_log_payload) { { logingov_acr:, translated_ial: expected_current_ial, credential_uuid: sub } }
 
         context 'and logingov acr is defined as IAL 2' do
           let(:logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
           let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
+
+          it 'logs the expected log' do
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+            subject
+          end
+        end
+
+        context 'and logingov acr is defined as IAL 2 required' do
+          let(:logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2_REQUIRED }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
+
+          it_behaves_like 'a created credential level'
+
+          it 'logs the expected log' do
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+            subject
+          end
+        end
+
+        context 'and logingov acr is defined as IAL 2 preferred' do
+          let(:logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2_PREFERRED }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
+
+          it_behaves_like 'a created credential level'
+
+          it 'logs the expected log' do
+            expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+            subject
+          end
         end
 
         context 'and logingov acr is not defined as IAL 2' do

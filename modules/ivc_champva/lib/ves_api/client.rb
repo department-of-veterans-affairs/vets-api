@@ -42,6 +42,20 @@ module IvcChampva
       end
 
       ##
+      # HTTP POST call to the VES VFMP service to submit a 10-7959c OHI certification.
+      #
+      # @param transaction_uuid [string] the UUID for the transaction
+      # @param acting_user [string, nil] the acting user for the application
+      # @param ves_request_data [IvcChampva::VesOhiRequest] preformatted request data
+      #
+      # @raise [NotImplementedError] This method is a stub pending VES API endpoint availability
+      def submit_7959c(_transaction_uuid, _acting_user, _ves_request_data)
+        # TODO: Implement once VES OHI endpoint is available
+        # Expected endpoint: "#{config.base_path}/ves-vfmp-app-svc/ohi-certifications"
+        raise NotImplementedError, 'VES OHI submission endpoint not yet implemented - awaiting VES API specification'
+      end
+
+      ##
       # Assembles headers for the VES API request
       #
       # @param transaction_uuid [string] the start date of the report
