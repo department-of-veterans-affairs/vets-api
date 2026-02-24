@@ -2,6 +2,7 @@
 
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescriptions_refills_serializer'
+require 'mhv/prescriptions/oh_transition_refill_filter'
 require 'securerandom'
 require 'unique_user_events'
 require 'vets/collection'
@@ -33,8 +34,17 @@ module MyHealth
         return unless validate_feature_flag
 
         parsed_orders = orders
-        result = service.refill_prescription(parsed_orders)
-        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
+        allowed_orders, blocked_failures = oh_transition_filter.partition_orders(parsed_orders)
+
+        # Only call upstream service if there are non-blocked orders
+        api_result = if allowed_orders.present?
+                       service.refill_prescription(allowed_orders)
+                     else
+                       { success: [], failed: [] }
+                     end
+
+        merged_result = MHV::Prescriptions::OhTransitionRefillFilter.merge_results(api_result, blocked_failures)
+        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, merged_result)
 
         # Log unique user event for prescription refill requested
         # Also logs OH-specific events if any facility IDs match tracked OH facilities
@@ -102,6 +112,10 @@ module MyHealth
 
       def service
         @service ||= UnifiedHealthData::Service.new(@current_user)
+      end
+
+      def oh_transition_filter
+        @oh_transition_filter ||= MHV::Prescriptions::OhTransitionRefillFilter.new(@current_user)
       end
 
       def validate_feature_flag
