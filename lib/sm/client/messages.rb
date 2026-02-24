@@ -148,7 +148,7 @@ module SM
       def derive_oh_migration_phase_for_message(message)
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
 
-        station_number = message&.triage_group&.[](:station_number)
+        station_number = message&.triage_group&.station_number
         return nil if station_number.blank?
 
         # Look up migration phase for this station number
@@ -174,12 +174,8 @@ module SM
         triage_group = message&.triage_group
         return false if triage_group.blank?
 
-        station_number = (triage_group[:station_number] || triage_group['station_number'])&.to_s
-        oh_triage_group = if triage_group.key?(:oh_triage_group)
-                            triage_group[:oh_triage_group]
-                          else
-                            triage_group['oh_triage_group']
-                          end
+        station_number = triage_group.station_number&.to_s
+        oh_triage_group = triage_group.oh_triage_group
         return false if station_number.blank?
 
         # Post-migration: facility is Cerner in VA profile but triage group is not yet OH

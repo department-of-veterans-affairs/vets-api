@@ -83,7 +83,8 @@ describe 'sm client' do
 
       it 'sets oh_migration_phase to nil when station_number is blank' do
         VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
-          allow_any_instance_of(Message).to receive(:triage_group).and_return({ station_number: nil })
+          allow_any_instance_of(Message).to receive(:triage_group)
+            .and_return(TriageGroupInfo.new(station_number: nil))
 
           message = client.get_message(existing_message_id)
 
@@ -173,7 +174,8 @@ describe 'sm client' do
           allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
 
           message = client.get_message(existing_message_id)
-          allow(message).to receive(:triage_group).and_return({ oh_triage_group: false })
+          allow(message).to receive(:triage_group)
+            .and_return(TriageGroupInfo.new(oh_triage_group: false))
 
           result = client.send(:derive_migrated_to_oracle_health, message)
 
@@ -186,9 +188,8 @@ describe 'sm client' do
           allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
 
           message = client.get_message(existing_message_id)
-          allow(message).to receive(:triage_group).and_return(
-            { station_number: '979', oh_triage_group: true }
-          )
+          allow(message).to receive(:triage_group)
+            .and_return(TriageGroupInfo.new(station_number: '979', oh_triage_group: true))
 
           result = client.send(:derive_migrated_to_oracle_health, message)
 
@@ -279,7 +280,9 @@ describe 'sm client' do
           VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
             result = client.get_full_messages_for_thread(message_id)
 
-            result.data.each { |msg| allow(msg).to receive(:triage_group).and_return({ station_number: nil }) }
+            result.data.each do |msg|
+              allow(msg).to receive(:triage_group).and_return(TriageGroupInfo.new(station_number: nil))
+            end
 
             phase = client.send(:derive_oh_migration_phase, result)
             expect(phase).to be_nil
