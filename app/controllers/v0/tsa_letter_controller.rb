@@ -63,18 +63,19 @@ module V0
     end
 
     def handle_error(error)
-      known_errors = ERROR_MAP.keys + NONBLOCKING_STATUSES
-      raise error unless error.respond_to?(:status) && error.status.in?(known_errors)
-
-      if error.status.in?(ERROR_MAP.keys)
-        error_class = ERROR_MAP[error.status]
+      status = error.respond_to?(:status) && error.status
+      case status
+      when *ERROR_MAP.keys
+        error_class = ERROR_MAP[status]
         raise error_class
+      when *NONBLOCKING_STATUSES
+        Rails.logger.info('TSA Letter Error',
+                          error_status: status,
+                          user_account_id: current_user.user_account_uuid)
+        render(json: { data: nil })
+      else
+        raise error
       end
-
-      Rails.logger.info('TSA Letter Error',
-                        error_status: error.status,
-                        user_account_id: current_user.user_account_uuid)
-      render(json: { data: nil })
     end
   end
 end
