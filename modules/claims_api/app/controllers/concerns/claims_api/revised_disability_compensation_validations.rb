@@ -225,6 +225,7 @@ module ClaimsApi
 
       validate_form_526_change_of_address_beginning_date!(change_of_address)
       validate_form_526_change_of_address_ending_date!(change_of_address)
+      validate_form_526_change_of_address_information!(change_of_address)
       validate_form_526_change_of_address_country!(change_of_address)
     end
 
@@ -250,6 +251,28 @@ module ClaimsApi
         beginning_date = change_of_address['beginningDate']
         if Date.parse(beginning_date) >= Date.parse(ending_date)
           raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
+        end
+      end
+    end
+
+    def validate_form_526_change_of_address_information!(change_of_address)
+      address_type = change_of_address['type']
+
+      case address_type&.upcase
+      when 'DOMESTIC'
+        # city, state, and zipFirstFive are required for domestic addresses
+        if change_of_address['city'].blank? || change_of_address['state'].blank? || change_of_address['zipFirstFive'].blank?
+          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress', change_of_address)
+        end
+      when 'INTERNATIONAL'
+        # city, country, and internationalPostalCode are required for international addresses
+        if change_of_address['city'].blank? || change_of_address['country'].blank? || change_of_address['internationalPostalCode'].blank? 
+          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress', change_of_address)
+        end
+      when 'MILITARY'
+        # militaryStateCode, militaryPostOfficeTypeCode, and firstFiveOfZip are required for military addresses
+        if change_of_address['militaryStateCode'].blank? || change_of_address['militaryPostOfficeTypeCode'].blank? || change_of_address['firstFiveOfZip'].blank?
+          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress', change_of_address)
         end
       end
     end

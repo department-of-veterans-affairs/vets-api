@@ -788,7 +788,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
   end
 
   describe '#validate_form_526_change_of_address!' do
-    let(:valid_countries) { %w[USA Canada] }
+    let(:valid_countries) { %w[USA Canada United\ Kingdom] }
 
     before do
       # Stubbing this because it's a method on the subject that fetches data from BRD
@@ -908,6 +908,122 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_change_of_address! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    describe 'change of address type validations' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'changeOfAddress' => {
+              'addressChangeType' => 'PERMANENT', # needed to pass above validations
+              'type' => address_type,
+              'country' => 'USA', # needed to pass above validations
+              **address_type_fields
+            }
+          }
+        }
+      end
+
+      context 'when type is DOMESTIC' do
+        let(:address_type) { 'DOMESTIC' }
+        let(:address_type_fields) do
+          {
+            'city' => 'Some City',
+            'state' => 'VA',
+            'zipFirstFive' => '12345'
+          }
+        end
+
+        it 'validates city, state, and zipFirstFive are present' do
+          expect { subject.validate_form_526_change_of_address! }.not_to raise_error
+        end
+
+        it 'raises an error if city is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('city')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+
+        it 'raises an error if state is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('state')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+
+        it 'raises an error if zipFirstFive is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('zipFirstFive')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+      end
+
+      context 'when type is INTERNATIONAL' do
+        let(:address_type) { 'INTERNATIONAL' }
+        let(:address_type_fields) do
+          {
+            'city' => 'London',
+            'country' => 'United Kingdom',
+            'internationalPostalCode' => 'SW1A 1AA',
+            'addressChangeType' => 'PERMANENT', # needed to pass above validations
+          }
+        end
+
+        it 'validates international address fields are present' do
+          expect { subject.validate_form_526_change_of_address! }.not_to raise_error
+        end
+
+        it 'raises an error if city is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('city')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+
+        it 'raises an error if country is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('country')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+
+        it 'raises an error if internationalPostalCode is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('internationalPostalCode')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+      end
+
+      context 'when type is MILITARY' do
+        let(:address_type) { 'MILITARY' }
+        let(:address_type_fields) do
+          {
+            'militaryStateCode' => 'AE',
+            'militaryPostOfficeTypeCode' => 'APO AE 09012',
+            'firstFiveOfZip' => '12345',
+            'addressChangeType' => 'PERMANENT', # needed to pass above validations
+          }
+        end
+
+        it 'validates military address fields are present' do
+          expect { subject.validate_form_526_change_of_address! }.not_to raise_error
+        end
+
+        it 'raises an error if militaryStateCode is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('militaryStateCode')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+
+        it 'raises an error if militaryPostOfficeTypeCode is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('militaryPostOfficeTypeCode')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+
+        it 'raises an error if firstFiveOfZip is missing' do
+          form_attributes['veteran']['changeOfAddress'].delete('firstFiveOfZip')
+          expect { subject.validate_form_526_change_of_address! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
       end
     end
   end
