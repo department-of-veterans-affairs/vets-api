@@ -27,7 +27,11 @@ module Burials
         },
         # 31D
         'bankAccountNumber' => {
-          key: 'form1[0].#subform[95].Routing_Or_Transit_Number[1]'
+          key: 'form1[0].#subform[95].Routing_Or_Transit_Number[1]',
+          limit: 15,
+          question_num: 31,
+          question_label: 'Account Number',
+          question_text: 'ACCOUNT NUMBER'
         }
       }.freeze
 
