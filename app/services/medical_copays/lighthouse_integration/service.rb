@@ -45,7 +45,7 @@ module MedicalCopays
 
       def summary(month_count: 6)
         result = collect_invoices_in_range(month_count:)
-        entries = result[:entries]
+        entries = result['entries']
 
         total_amount = 0.to_d
         count = 0
@@ -65,23 +65,18 @@ module MedicalCopays
 
       def list_months(month_count: 6)
         result = collect_invoices_in_range(month_count:)
-        entries = result[:entries]
+        raw_bundle = result['raw_bundle']
+        filtered_entries = result['entries']
 
-        if entries.empty?
-          return Lighthouse::HCC::Bundle.new(
-            raw_bundle.merge('entry' => []),
-            []
-          )
-        end
-
-        raw_bundle = raw_bundle.merge(
-          'entry' => entries,
-          'total' => entries.length,
-          'link' => []
+        new_bundle = raw_bundle.merge(
+          'entry' => filtered_entries,
+          'total' => filtered_entries.length,
+          'link' => [] # remove pagination
         )
 
-        formatted_entries = build_invoice_entries(raw_bundle)
-        Lighthouse::HCC::Bundle.new(raw_bundle, formatted_entries)
+        formatted_entries = filtered_entries.empty? ? [] : build_invoice_entries(new_bundle)
+
+        Lighthouse::HCC::Bundle.new(new_bundle, formatted_entries)
       end
 
       def summary_output(total_amount, count, month_count)
@@ -131,7 +126,7 @@ module MedicalCopays
 
             invoice_date = Time.iso8601(date_str)
 
-            return { raw_bundle: last_raw_bundle, entries: collected_entries } if invoice_date < from
+            next if invoice_date < from
 
             collected_entries << entry
           end
@@ -140,8 +135,8 @@ module MedicalCopays
         end
 
         {
-          raw_bundle: last_raw_bundle,
-          entries: collected_entries
+          'raw_bundle' => last_raw_bundle,
+          'entries' => collected_entries
         }
       end
       # rubocop:enable Metrics/MethodLength
