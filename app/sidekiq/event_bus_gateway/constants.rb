@@ -15,6 +15,10 @@ module EventBusGateway
 
     # Controls the sidekiq (infrastructure level) retry when the letter ready sms job fails.
     SIDEKIQ_RETRY_COUNT_FIRST_SMS = 5
+    # Controls the sidekiq (infrastructure level) retry when the letter ready sms retry job fails.
+    SIDEKIQ_RETRY_COUNT_RETRY_SMS = 3
+    # Controls the maximum number of sms attempts to VA notify (application level).
+    MAX_SMS_ATTEMPTS = 5
 
     # Controls the sidekiq (infrastructure level) retry when the letter ready push job fails.
     SIDEKIQ_RETRY_COUNT_FIRST_PUSH = 5
