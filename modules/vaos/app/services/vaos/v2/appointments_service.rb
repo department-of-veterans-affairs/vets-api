@@ -113,7 +113,7 @@ module VAOS
 
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
-        if Flipper.enabled?(:va_online_scheduling_log_mobile) && tp_client == 'mobile'
+        if Flipper.enabled?(:va_online_scheduling_log_mobile, user) && tp_client == 'mobile'
           # Only log for future appointments from mobile
           # Prepare appointments already happened so we have :pending
           some_appointments = appointments.any? { |appt| appt[:pending] == true }
