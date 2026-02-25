@@ -141,13 +141,11 @@ jobs:
       - name: Export Docker image
         run: docker save vets-api | zstd -T0 -o /tmp/vets-api.tar.zst
 
-      - name: Upload Docker image
-        uses: actions/upload-artifact@v6
+      - name: Save Docker image to cache
+        uses: actions/cache/save@v4
         with:
-          name: docker-image
           path: /tmp/vets-api.tar.zst
-          retention-days: 1
-          compression-level: 0
+          key: docker-image-${{ github.sha }}-${{ github.run_id }}
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
@@ -199,11 +197,12 @@ jobs:
         with:
           mask-password: true
 
-      - name: Download Docker image
-        uses: actions/download-artifact@v7
+      - name: Restore Docker image from cache
+        uses: actions/cache/restore@v4
         with:
-          name: docker-image
-          path: /tmp
+          path: /tmp/vets-api.tar.zst
+          key: docker-image-${{ github.sha }}-${{ github.run_id }}
+          fail-on-cache-miss: true
 
       - name: Load Docker image
         run: zstd -d /tmp/vets-api.tar.zst --stdout | docker load
@@ -388,12 +387,13 @@ jobs:
           echo "=== Verifying artifacts in vets-api directory ==="
           ls -la vets-api/simplecov-resultset-* || echo "No simplecov-resultset-* directories in vets-api"
 
-      - name: Download Docker image
+      - name: Restore Docker image from cache
         if: needs.tests.result == 'success'
-        uses: actions/download-artifact@v7
+        uses: actions/cache/restore@v4
         with:
-          name: docker-image
-          path: /tmp
+          path: /tmp/vets-api.tar.zst
+          key: docker-image-${{ github.sha }}-${{ github.run_id }}
+          fail-on-cache-miss: true
 
       - name: Load Docker image
         if: needs.tests.result == 'success'
