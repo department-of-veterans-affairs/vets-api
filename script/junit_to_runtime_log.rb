@@ -7,33 +7,48 @@
 
 require 'rexml/document'
 
-output_file = ARGV[0] || 'tmp/parallel_runtime_rspec.log'
-xml_glob = ARGV[1] || 'Test Results Group*/*.xml'
+module JunitToRuntimeLog
+  # Parse JUnit XML files and return a hash of { "spec/file_spec.rb" => total_seconds }
+  def self.aggregate_times(xml_paths)
+    file_times = Hash.new(0.0)
 
-file_times = Hash.new(0.0)
+    xml_paths.each do |xml_path|
+      doc = REXML::Document.new(File.read(xml_path))
+      doc.elements.each('//testcase') do |tc|
+        file = tc.attributes['file']
+        time = tc.attributes['time']
+        next unless file && time
 
-Dir.glob(xml_glob).each do |xml_path|
-  doc = REXML::Document.new(File.read(xml_path))
-  doc.elements.each('//testcase') do |tc|
-    file = tc.attributes['file']
-    time = tc.attributes['time']
-    next unless file && time
+        # Normalize path: remove leading ./ if present
+        file = file.sub(%r{^\./}, '')
+        file_times[file] += time.to_f
+      end
+    end
 
-    # Normalize path: remove leading ./ if present
-    file = file.sub(%r{^\./}, '')
-    file_times[file] += time.to_f
+    file_times
+  end
+
+  # Write a parallel_test runtime log from aggregated file times
+  def self.write_log(file_times, output_file)
+    File.open(output_file, 'w') do |f|
+      file_times.sort_by { |path, _| path }.each do |path, time|
+        f.puts "#{path}:#{format('%.4f', time)}"
+      end
+    end
   end
 end
 
-if file_times.empty?
-  warn 'No test timing data found in JUnit XML files.'
-  exit 0
-end
+if __FILE__ == $PROGRAM_NAME
+  output_file = ARGV[0] || 'tmp/parallel_runtime_rspec.log'
+  xml_glob = ARGV[1] || 'Test Results Group*/*.xml'
 
-File.open(output_file, 'w') do |f|
-  file_times.sort_by { |path, _| path }.each do |path, time|
-    f.puts "#{path}:#{format('%.4f', time)}"
+  file_times = JunitToRuntimeLog.aggregate_times(Dir.glob(xml_glob))
+
+  if file_times.empty?
+    warn 'No test timing data found in JUnit XML files.'
+    exit 0
   end
-end
 
-warn "Generated #{output_file} with #{file_times.size} entries"
+  JunitToRuntimeLog.write_log(file_times, output_file)
+  warn "Generated #{output_file} with #{file_times.size} entries"
+end
