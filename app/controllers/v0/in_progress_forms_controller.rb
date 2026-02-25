@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# InProgressFormsController - Handles saving and retrieving in-progress form data
+#
+# This controller manages the REST API for in-progress forms, allowing users to:
+# - List all their in-progress forms (index)
+# - Retrieve a specific form with prefilled data (show)
+# - Save form progress (update)
+# - Delete saved form data (destroy)
+#
+# Form-specific prefill logic is handled by FormProfile subclasses.
+#
+# Related files for MDOT form (Medical Device Ordering Tool):
+# - Form profile class: app/models/form_profiles/mdot.rb
+# - Form persistence: app/models/in_progress_form.rb
+# - Form registration: app/models/form_profile.rb
+# - Form profile mapping: config/form_profile_mappings/MDOT.yml
+# - MDOT client library: lib/mdot/
+
 module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound

@@ -1,3 +1,18 @@
+# MDOT (Medical Device Ordering Tool) Form Profile Mapping
+#
+# This file maps form fields to their corresponding data sources in the FormProfile.
+# The mapping format is: form_field: [source_object, attribute_path]
+#
+# Related files:
+# - Form profile class: app/models/form_profiles/mdot.rb
+# - Form persistence: app/models/in_progress_form.rb
+# - Form registration: app/models/form_profile.rb
+# - MDOT client library: lib/mdot/client.rb
+# - MDOT models: lib/mdot/address.rb, lib/mdot/eligibility.rb, lib/mdot/supply.rb
+#
+# Usage: This mapping is loaded by FormProfile.mappings_for_form('MDOT') and used
+# to generate prefilled form data for the MDOT form.
+
 fullName: [identity_information, full_name]
 permanentAddress: [mdot_contact_information, permanent_address]
 temporaryAddress: [mdot_contact_information, temporary_address]

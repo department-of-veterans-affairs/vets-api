@@ -2,6 +2,19 @@
 
 require 'json_marshal/marshaller'
 
+# InProgressForm - Stores form data for forms being filled out by users
+#
+# This model handles persistence of in-progress form data for various VA forms.
+# Form-specific behavior is handled by FormProfile subclasses.
+#
+# Related files for MDOT form (Medical Device Ordering Tool):
+# - Form profile class: app/models/form_profiles/mdot.rb
+# - Form registration: app/models/form_profile.rb (lines 142, 196)
+# - Form profile mapping: config/form_profile_mappings/MDOT.yml
+# - MDOT client library: lib/mdot/
+#
+# See also: app/controllers/v0/in_progress_forms_controller.rb
+
 class InProgressForm < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: false
 
