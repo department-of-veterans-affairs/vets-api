@@ -7,15 +7,15 @@ module DecisionReviews
         service_tag 'appeal-application'
 
         def index
-          ci = decision_review_service
-               .get_supplemental_claim_contestable_issues(user: current_user, benefit_type: params[:benefit_type])
-               .body
+          ci = get_appealable_issues.body
           render json: merge_legacy_appeals(ci)
         rescue => e
           log_exception_to_personal_information_log e,
                                                     error_class: "#{self.class.name}#index exception #{e.class} (SC_V1)"
           raise
         end
+
+        private
 
         def merge_legacy_appeals(contestable_issues)
           # Fetch Legacy Appels and combine with CIs
@@ -37,6 +37,16 @@ module DecisionReviews
             contestable_issues
           else
             ci_la
+          end
+        end
+
+        def get_appealable_issues
+          if use_new_appealable_issues_service?
+            appealable_issues_service
+              .get_supplemental_claim_issues(user: current_user, benefit_type: params[:benefit_type])
+          else
+            decision_review_service
+              .get_supplemental_claim_contestable_issues(user: current_user, benefit_type: params[:benefit_type])
           end
         end
       end

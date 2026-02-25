@@ -113,6 +113,14 @@ module VAOS
 
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
+        if Flipper.enabled?(:va_online_scheduling_log_mobile) && tp_client == 'mobile' &&
+           start_date.is_a?(DateTime) && start_date >= DateTime.now.utc.to_datetime
+          # Only log for future appointments from mobile
+          # Prepare appointments already happened so we have :pending
+          some_appointments = appointments.any? { |appt| appt[:pending] == true }
+          Rails.logger.info("VAOS: include: #{include} statuses: #{statuses} pending?: #{some_appointments}")
+        end
+
         # Merge travel claims - either from parallel fetch or sequential fetch
         if should_fetch_travel_claims
           appointments = if parallelize_fetch && travel_claims_result
@@ -181,9 +189,20 @@ module VAOS
         unless eps_appointments_service.config.mock_enabled?
           vaos_response = get_all_appointments(pagination_params)
           vaos_request_failures = vaos_response[:meta][:failures]
+          vaos_data = vaos_response[:data]
+
+          unless vaos_data.is_a?(Array)
+            Rails.logger.error(
+              'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
+              "Unexpected VAOS response format: data is #{vaos_data.class.name}, expected Array"
+            )
+            msg = 'Unexpected VAOS response in referral_appointment_already_exists? - data is not an Array'
+            vaos_request_failures = msg if vaos_request_failures.blank?
+          end
 
           return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-          return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+
+          return { exists: true } if vaos_data.any? { |appt| appt[:referral_id] == referral_id }
         end
 
         eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
@@ -354,10 +373,19 @@ module VAOS
 
       def get_sorted_recent_appointments
         appointments = get_appointments(1.year.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
+        unless appointments[:data].is_a?(Array)
+          Rails.logger.warn('VAOS get_sorted_recent_appointments - appointments response data is not an array')
+          return []
+        end
+
         sort_recent_appointments(appointments[:data])
       end
 
       def sort_recent_appointments(appointments)
+        unless appointments.is_a?(Array)
+          Rails.logger.warn('VAOS sort_recent_appointments - appointments is not an array')
+          return []
+        end
         filtered_appts = appointments.reject { |appt| appt&.start.nil? }
         removed_appts = appointments - filtered_appts
         if removed_appts.length.positive?
@@ -493,6 +521,11 @@ module VAOS
       end
 
       def process_vaos_appointments(appointments_data, referral_number)
+        unless appointments_data.is_a?(Array)
+          Rails.logger.warn('VAOS process_vaos_appointments - appointments_data is not an array')
+          return []
+        end
+
         filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
         normalized = filtered.map do |appt|
           {
@@ -760,7 +793,11 @@ module VAOS
       end
 
       def fetch_clinic_appointments(start_time, end_time, statuses)
-        get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+        appts_data = get_appointments(start_time, end_time, statuses)[:data]
+        return appts_data.select { |appt| appt.kind == 'clinic' } if appts_data.is_a?(Array)
+
+        Rails.logger.warn('VAOS fetch_clinic_appointments - appointments response data is not an array')
+        []
       end
 
       # rubocop:disable Metrics/MethodLength
