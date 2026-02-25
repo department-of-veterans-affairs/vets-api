@@ -251,11 +251,11 @@ RSpec.describe VeteranStatusCard::Service do
           expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
         end
 
-        it 'logs STATSD_INELIGIBLE and PERSON_NOT_FOUND metrics' do
+        it 'logs STATSD_INELIGIBLE and NO_ICN_MESSAGE metrics' do
           subject.status_card
 
           expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
-          expect(StatsD).to have_received(:increment).with('veteran_status_card.person_not_found')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.no_icn')
         end
 
         it 'does not call external APIs' do
@@ -266,20 +266,37 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'when user is missing edipi or icn' do
+      context 'when user is missing ICN' do
         before do
-          allow(user).to receive_messages(edipi: nil, icn: nil)
+          allow(user).to receive_messages(icn: nil)
         end
 
         it 'returns person_not_found_response directly' do
           expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
         end
 
-        it 'logs STATSD_INELIGIBLE and PERSON_NOT_FOUND metrics' do
+        it 'logs STATSD_INELIGIBLE and NO_ICN_MESSAGE metrics' do
           subject.status_card
 
           expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
-          expect(StatsD).to have_received(:increment).with('veteran_status_card.person_not_found')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.no_icn')
+        end
+      end
+
+      context 'when user is missing EDIPI but has ICN' do
+        before do
+          allow(user).to receive(:edipi).and_return(nil)
+        end
+
+        it 'returns person_not_found_response directly' do
+          expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        end
+
+        it 'logs STATSD_INELIGIBLE and NO_EDIPI_MESSAGE metrics' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.no_edipi')
         end
       end
     end

@@ -15,6 +15,10 @@ module VeteranStatusCard
     STATSD_INELIGIBLE = 'ineligible'
     STATSD_SUCCESS = 'success'
 
+    # Messages for user's missing fields
+    NO_ICN_MESSAGE = 'no_icn'
+    NO_EDIPI_MESSAGE = 'no_edipi'
+
     # Default value in case SSC codes are never checked
     NO_SSC_CHECK_MESSAGE = 'no_ssc_check'
 
@@ -93,8 +97,15 @@ module VeteranStatusCard
     #     - When not eligible: { header:, body:, alert_type:, veteran_status:,
     #         not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #
-    def status_card
-      if @user.nil? || @user.edipi.blank? || @user.icn.blank?
+    def status_card # rubocop:disable Metrics/MethodLength
+      if @user&.icn.blank?
+        @confirmation_status = NO_ICN_MESSAGE
+        log_missing_fields
+        return person_not_found_response
+      end
+
+      if @user&.edipi.blank?
+        @confirmation_status = NO_EDIPI_MESSAGE
         log_missing_fields
         return person_not_found_response
       end
@@ -242,13 +253,13 @@ module VeteranStatusCard
     # @return [void]
     #
     def log_missing_fields
-      keys = [STATSD_INELIGIBLE, VET_STATUS_PERSON_NOT_FOUND_TEXT, NO_SSC_CHECK_MESSAGE, STATSD_SUCCESS]
+      keys = [STATSD_INELIGIBLE, @confirmation_status, STATSD_SUCCESS]
       log_multiple_statsd(keys)
 
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: NOT_CONFIRMED_TEXT,
-                          not_confirmed_reason: VET_STATUS_PERSON_NOT_FOUND_TEXT,
-                          confirmation_status: NO_SSC_CHECK_MESSAGE,
+                          not_confirmed_reason: nil,
+                          confirmation_status: @confirmation_status,
                           service_summary_code: nil
                         })
     end
