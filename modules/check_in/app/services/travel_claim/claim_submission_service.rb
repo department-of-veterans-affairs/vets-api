@@ -426,6 +426,11 @@ module TravelClaim
       return unless Flipper.enabled?(:check_in_experience_travel_reimbursement)
       return if @check_in_uuid.blank?
 
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_ERROR_NOTIFICATION,
+        CheckIn::Constants::OH_STATSD_ERROR_NOTIFICATION
+      )
+
       template_id = determine_error_template_id(error)
       claim_number_last_four = @claim_number_last_four || 'unknown'
 
