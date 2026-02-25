@@ -481,6 +481,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         result = transformer.send(:transform_disabilities, [source], nil).first
         expect(result.approximate_date).to eq('1973')
       end
+
+      it 'sets approximate_date as a string not a hash' do
+        source = base_source.merge('approximateDate' => { 'year' => '1973', 'month' => '03', 'day' => '22' })
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to be_a(String)
+      end
+
+      it 'handles approximateDate when it arrives as a pre-formatted string' do
+        source = base_source.merge('approximateDate' => '1973-03-22')
+        result = transformer.send(:transform_disabilities, [source], nil).first
+        expect(result.approximate_date).to be_a(String)
+        expect(result.approximate_date).to eq('1973-03-22')
+      end
     end
   end
 

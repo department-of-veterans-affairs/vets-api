@@ -701,7 +701,7 @@ module EVSS
         approx = src['approximateDate']
         return if approx.blank?
 
-        dis.approximate_date = convert_approximate_date(approx)
+         dis.approximate_date = approx.is_a?(String) ? approx : convert_approximate_date(approx)
       end
 
       def format_exposure_text(cause, related_to_toxic_exposure)
