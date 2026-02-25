@@ -94,6 +94,8 @@ module IncreaseCompensation
       # @param claim
       # @raise [Exception]
       def process_attachments(in_progress_form, claim)
+        return if in_progress_form.nil?
+
         @docs = JSON.parse(in_progress_form.form_data)['supporting_documents']
         claim.process_attachments!(@docs)
       rescue => e
