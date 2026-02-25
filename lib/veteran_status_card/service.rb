@@ -218,7 +218,8 @@ module VeteranStatusCard
     #
     def log_statsd(key)
       # Ensure statsd is logged with downcase suffixes
-      return unless key.present?
+      return if key.blank?
+
       StatsD.increment("#{statsd_key_prefix}.#{key.downcase}")
     end
 

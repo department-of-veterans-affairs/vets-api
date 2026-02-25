@@ -160,11 +160,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
     end
 
     context 'when user is nil' do
-      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError)
+      it 'does not raise an error' do
+        expect { described_class.new(nil) }.not_to raise_error
+      end
+
+      it 'only logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(nil)
 
         expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
       end
     end
 
@@ -173,11 +177,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         allow(user).to receive_messages(edipi: nil, icn: nil)
       end
 
-      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError)
+      it 'does not raise an error' do
+        expect { described_class.new(user) }.not_to raise_error
+      end
+
+      it 'only logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(user)
 
         expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
       end
     end
   end
@@ -480,8 +488,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
 
     context 'error scenarios' do
       context 'when user is nil' do
-        it 'raises ArgumentError (inherited from base class)' do
-          expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
+        let(:user) { nil }
+
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns Mobile person_not_found_response directly' do
+          expect(subject.status_card).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
         end
       end
 

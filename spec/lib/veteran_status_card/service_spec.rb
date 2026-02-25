@@ -84,15 +84,15 @@ RSpec.describe VeteranStatusCard::Service do
     end
 
     context 'when user is nil' do
-      it 'logs STATSD_TOTAL and STATSD_FAILURE' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError)
-
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+      it 'does not raise an error' do
+        expect { described_class.new(nil) }.not_to raise_error
       end
 
-      it 'raises an argument error' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
+      it 'only logs STATSD_TOTAL' do
+        described_class.new(nil)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.failure')
       end
     end
 
@@ -101,15 +101,15 @@ RSpec.describe VeteranStatusCard::Service do
         allow(user).to receive_messages(edipi: nil, icn: nil)
       end
 
-      it 'logs STATSD_TOTAL and STATSD_FAILURE' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError)
-
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+      it 'does not raise an error' do
+        expect { described_class.new(user) }.not_to raise_error
       end
 
-      it 'raises an argument error' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError, 'User missing required fields')
+      it 'only logs STATSD_TOTAL' do
+        described_class.new(user)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.failure')
       end
     end
   end
@@ -238,6 +238,52 @@ RSpec.describe VeteranStatusCard::Service do
   end
 
   describe '#status_card' do
+    context 'when user validation fails' do
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      context 'when user is nil' do
+        let(:user) { nil }
+
+        it 'returns person_not_found_response directly' do
+          expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        end
+
+        it 'logs STATSD_INELIGIBLE and PERSON_NOT_FOUND metrics' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.person_not_found')
+        end
+
+        it 'does not call external APIs' do
+          subject.status_card
+
+          expect(vet_verification_service).not_to have_received(:get_vet_verification_status)
+          expect(military_personnel_service).not_to have_received(:get_dod_service_summary)
+        end
+      end
+
+      context 'when user is missing edipi or icn' do
+        before do
+          allow(user).to receive_messages(edipi: nil, icn: nil)
+        end
+
+        it 'returns person_not_found_response directly' do
+          expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        end
+
+        it 'logs STATSD_INELIGIBLE and PERSON_NOT_FOUND metrics' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.person_not_found')
+        end
+      end
+    end
+
     describe 'StatsD logging' do
       before do
         allow(StatsD).to receive(:increment)
