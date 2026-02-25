@@ -291,12 +291,11 @@ RSpec.describe 'ClinicalNotesAdapter' do
         expect(parsed.note).not_to be_nil
       end
 
-      it 'warns when LOINC code is not in known mapping' do
+      it 'logs unknown LOINC code as diagnostic when toggle is enabled' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
-        # Replace LOINC code with an unknown one
         note['resource']['type']['coding'] = [{ 'code' => '99999-9', 'system' => 'http://loinc.org' }]
 
-        expect(Rails.logger).to receive(:warn).with(
+        expect(Rails.logger).to receive(:info).with(
           hash_including(
             service: 'medical_records',
             resource: 'clinical_notes',
@@ -312,10 +311,27 @@ RSpec.describe 'ClinicalNotesAdapter' do
         expect(parsed.note_type).to eq('other')
       end
 
-      it 'does not warn when LOINC code is in known mapping' do
+      it 'does not log unknown LOINC code when toggle is disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['type']['coding'] = [{ 'code' => '99999-9', 'system' => 'http://loinc.org' }]
+
+        expect(Rails.logger).not_to receive(:info).with(
+          hash_including(anomaly: 'unknown_loinc_code')
+        )
+        expect(StatsD).to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')
+
+        parsed = adapter.parse(note)
+        expect(parsed.note_type).to eq('other')
+      end
+
+      it 'does not log when LOINC code is in known mapping' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
 
-        expect(Rails.logger).not_to receive(:warn).with(
+        expect(Rails.logger).not_to receive(:info).with(
           hash_including(anomaly: 'unknown_loinc_code')
         )
         expect(StatsD).not_to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')

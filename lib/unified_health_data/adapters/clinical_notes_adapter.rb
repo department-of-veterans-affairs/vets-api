@@ -174,10 +174,12 @@ module UnifiedHealthData
           return value if record['type']['coding']&.any? { |coding| coding['code'] == key }
         end
 
-        # Proactive: warn when a LOINC code is not in our known mapping.
-        # New upstream note types silently bucket as 'other' until we add support.
+        # Diagnostic: log when a LOINC code is not in our known mapping.
+        # Toggle-gated because LOINC_CODES only has 3 entries, so many legitimate
+        # codes (e.g. AVS codes) will hit this path in normal operation.
+        # StatsD counter still fires always-on for DataDog monitoring.
         codes = record['type']['coding']&.map { |c| c['code'] }&.compact
-        @mr_log.warn(
+        @mr_log.diagnostic(
           resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
           action: 'parse',
           anomaly: 'unknown_loinc_code',
