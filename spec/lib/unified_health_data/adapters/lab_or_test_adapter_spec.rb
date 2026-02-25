@@ -935,6 +935,107 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
     end
+
+    context 'with observation comments' do
+      it 'returns a single note as an array' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Glucose' },
+                'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                'status' => 'final',
+                'note' => [{ 'text' => 'Normal' }]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.comments).to eq(['Normal'])
+      end
+
+      it 'returns multiple notes as an array' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Cholesterol' },
+                'valueQuantity' => { 'value' => 180, 'unit' => 'mg/dL' },
+                'status' => 'final',
+                'note' => [
+                  { 'text' => '<200 mg/dL: Desirable' },
+                  { 'text' => '200-240 mg/dL: Borderline' },
+                  { 'text' => '>240 mg/dL: At risk' }
+                ]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.comments).to eq([
+                                              '<200 mg/dL: Desirable',
+                                              '200-240 mg/dL: Borderline',
+                                              '>240 mg/dL: At risk'
+                                            ])
+      end
+
+      it 'returns an empty array when notes are nil' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Sodium' },
+                'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+                'status' => 'final'
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.comments).to eq([])
+      end
+    end
+
+    context 'with observation status capitalization' do
+      it 'capitalizes the status field' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Glucose' },
+                'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                'status' => 'final',
+                'note' => [{ 'text' => 'Normal' }]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.status).to eq('Final')
+      end
+
+      it 'handles nil status gracefully by filtering out the observation' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Glucose' },
+                'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                'status' => nil,
+                'note' => [{ 'text' => 'Normal' }]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result).to be_empty
+      end
+    end
   end
 
   describe '#get_reference_id' do
@@ -2022,7 +2123,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           result = adapter.send(:get_observations, record)
 
           expect(result.size).to eq(1)
-          expect(result.first.status).to eq('final')
+          expect(result.first.status).to eq('Final')
         end
 
         it 'includes observations with status "amended"' do
@@ -2042,7 +2143,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           result = adapter.send(:get_observations, record)
 
           expect(result.size).to eq(1)
-          expect(result.first.status).to eq('amended')
+          expect(result.first.status).to eq('Amended')
         end
 
         it 'includes observations with status "corrected"' do
@@ -2062,7 +2163,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           result = adapter.send(:get_observations, record)
 
           expect(result.size).to eq(1)
-          expect(result.first.status).to eq('corrected')
+          expect(result.first.status).to eq('Corrected')
         end
 
         it 'includes observations with status "appended"' do
@@ -2082,7 +2183,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           result = adapter.send(:get_observations, record)
 
           expect(result.size).to eq(1)
-          expect(result.first.status).to eq('appended')
+          expect(result.first.status).to eq('Appended')
         end
       end
 
@@ -2176,7 +2277,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
           expect(result.size).to eq(2)
           expect(result.map(&:test_code)).to contain_exactly('Glucose', 'Potassium')
-          expect(result.map(&:status)).to contain_exactly('final', 'amended')
+          expect(result.map(&:status)).to contain_exactly('Final', 'Amended')
         end
       end
 
