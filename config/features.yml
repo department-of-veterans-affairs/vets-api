@@ -898,6 +898,12 @@ features:
       Enables content and design enhancements for supporting evidence
       in the 526 disability compensation workflow.
     enable_in_development: false
+  disability_526_supporting_evidence_file_input_v3:
+    actor_type: user
+    description: >
+      Enables the v3 file input component for supporting evidence uploads
+      in the 526 disability compensation workflow.
+    enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
     actor_type: user
     description: enables adding new conditions workflow indicator to in progress 526 forms
@@ -1959,6 +1965,10 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  search_gov_maintenance:
+    actor_type: user
+    description: Use when Search.gov system maintenance impacts sitewide search
+    enable_in_development: true
   schema_contract_get_awards_pension:
     actor_type: user
     description: Enables schema validation for the pensions service get awards pension fetch.
@@ -1966,10 +1976,9 @@ features:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
     enable_in_development: true
-  search_gov_maintenance:
+  search_results_ui_update:
     actor_type: user
-    description: Use when Search.gov system maintenance impacts sitewide search
-    enable_in_development: true
+    description: Enables the updated search results UI
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
@@ -2687,6 +2696,13 @@ features:
       A switch that toggles the use of the v4 Travel Pay API for /appointments/find-or-add.
       Enabled - The find_or_create method will use Travel Pay API v4.
       Disabled - The find_or_create method will use Travel Pay API v2.
+  travel_pay_enable_community_care:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the availability of community care features for Travel Pay.
+      Enabled - Community care features are available to users.
+      Disabled - Community care features are not available. Server returns a 503 (Service Unavailable) until re-enabled.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results

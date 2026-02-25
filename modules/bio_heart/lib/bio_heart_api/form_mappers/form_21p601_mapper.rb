@@ -286,8 +286,8 @@ module BioHeartApi
           payload["EXPENSE_PAID_TO_#{num}"] = expense['provider']
           payload["EXPENSE_PAID_FOR_#{num}"] = expense['expense_type']
           payload["EXPENSE_AMT_#{num}"] = format_currency(expense['amount'])
-          payload["PAID_#{num}"] = expense['is_paid'] == true
-          payload["UNPAID_#{num}"] = expense['is_paid'] == false
+          payload["PAID_#{num}"] = expense['is_paid'] == true ? 1 : 0
+          payload["UNPAID_#{num}"] = expense['is_paid'] == false ? 1 : 0
           payload["EXPENSE_PAID_BY_#{num}"] = expense['paid_by']
         end
 
@@ -296,8 +296,8 @@ module BioHeartApi
           payload["EXPENSE_PAID_TO_#{num}"] = nil
           payload["EXPENSE_PAID_FOR_#{num}"] = nil
           payload["EXPENSE_AMT_#{num}"] = nil
-          payload["PAID_#{num}"] = false
-          payload["UNPAID_#{num}"] = false
+          payload["PAID_#{num}"] = 0
+          payload["UNPAID_#{num}"] = 0
           payload["EXPENSE_PAID_BY_#{num}"] = nil
         end
       end
