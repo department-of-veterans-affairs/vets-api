@@ -1,0 +1,647 @@
+# @format
+---
+http_interactions:
+  - request:
+      method: post
+      uri: "<MHV_UHD_SECURITY_HOST>/mhvapi/security/v1/login"
+      body:
+        encoding: UTF-8
+        string: '{"appId":"test-app","appToken":"test-token","subject":"test-subject","userType":"test-user-type"}'
+      headers:
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Faraday v2.13.4
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - "*/*"
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+        Authorization:
+          - Bearer test-access-token-12345
+      body:
+        encoding: UTF-8
+        string: '{"access_token":"test-access-token-12345","token_type":"Bearer","expires_in":3600}'
+    recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+  - request:
+      method: post
+      uri: "<MHV_UHD_HOST>/v1/medicalrecords/imaging-studies?patientId=1234567890V012345&startDate=2024-01-01&endDate=2025-05-31"
+      body:
+        encoding: UTF-8
+        string: '{"siteIds":["200CRNR"]}'
+      headers:
+        Authorization:
+          - Bearer test-access-token-12345
+        X-Api-Key:
+          - test-api-key
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Faraday v2.13.4
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - "*/*"
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |
+          {
+              "resourceType": "Bundle",
+              "entry": [
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-4-ezg2LWY1LTliLTkzLWY3LTZjLTQxLTgzLTgwLWU",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_4_ezg2LWY1LTliLTkzLWY3LTZjLTQxLTgzLTgwLWU1LTMzLTA5LTc5LTU0LWE5LWZifQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T19:56:24+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "numberOfSeries": 2,
+                          "numberOfInstances": 2,
+                          "series": [
+                              {
+                                  "number": 5,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezg2LWY1LTliLTkzLWY3LTZjLTQxLTgzLTgwLWU1LTMzLTA5LTc5LTU0LWE5LWZifQ%7e%7e-CM_4_ezg2LWY1LTliLTkzLWY3LTZjLTQxLTgzLTgwLWU1LTMzLTA5LTc5LTU0LWE5LWZifQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "number": 6,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_5_WFItMjA4NzU0MDg4MDI%7e-CM_4_ezg2LWY1LTliLTkzLWY3LTZjLTQxLTgzLTgwLWU1LTMzLTA5LTc5LTU0LWE5LWZifQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-4-ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJ",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_4_ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJhLTRlLWE1LTE4LTYyLWZlLWM4fQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:45:04+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 7,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJhLTRlLWE1LTE4LTYyLWZlLWM4fQ%7e%7e-CM_4_ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJhLTRlLWE1LTE4LTYyLWZlLWM4fQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "number": 8,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_5_WFItMjA4NzU0MDgyNDc%7e-CM_4_ezA1LTQ4LTc5LTQxLWQ5LTc5LTRjLWMxLWJjLTJhLTRlLWE1LTE4LTYyLWZlLWM4fQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-6-ezgxLTRiLTc2LWEzLTJkLWY2LTQ1LWU5LTk5LWV",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_6_ezgxLTRiLTc2LWEzLTJkLWY2LTQ1LWU5LTk5LWVmLTc1LTkyLTUxLTk0LTcxLWY3fQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:16:26+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezgxLTRiLTc2LWEzLTJkLWY2LTQ1LWU5LTk5LWVmLTc1LTkyLTUxLTk0LTcxLWY3fQ%7e%7e-CM_7_ezgxLTRiLTc2LWEzLTJkLWY2LTQ1LWU5LTk5LWVmLTc1LTkyLTUxLTk0LTcxLWY3fQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-6-ezQ2LWI1LTNlLWJkLTMxLTJmLTQwLTQzLWIwLTl",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_6_ezQ2LWI1LTNlLWJkLTMxLTJmLTQwLTQzLWIwLTlkLTc5LWFkLWUzLWViLWQ3LTNmfQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:35:47+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezQ2LWI1LTNlLWJkLTMxLTJmLTQwLTQzLWIwLTlkLTc5LWFkLWUzLWViLWQ3LTNmfQ%7e%7e-CM_7_ezQ2LWI1LTNlLWJkLTMxLTJmLTQwLTQzLWIwLTlkLTc5LWFkLWUzLWViLWQ3LTNmfQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-6-ezkyLTlmLTI0LWQ4LTI4LTI4LTRkLTcyLWE5LWN",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_6_ezkyLTlmLTI0LWQ4LTI4LTI4LTRkLTcyLWE5LWNjLTlmLWUwLTJhLTM4LTkyLTllfQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:33:21+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezkyLTlmLTI0LWQ4LTI4LTI4LTRkLTcyLWE5LWNjLTlmLWUwLTJhLTM4LTkyLTllfQ%7e%7e-CM_7_ezkyLTlmLTI0LWQ4LTI4LTI4LTRkLTcyLWE5LWNjLTlmLWUwLTJhLTM4LTkyLTllfQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-2-GiqEChE5cKWhWkpIJUBTogJgEHoRAyJKGWYWFQ-",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_2_GiqEChE5cKWhWkpIJUBTogJgEHoRAyJKGWYWFQ%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "modality": [
+                              {
+                                  "system": "http://dicom.nema.org/resources/ontology/DCM",
+                                  "code": "ECG"
+                              }
+                          ],
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:05:50+00:00",
+                          "description": "CONT MONITORING >48 HR TO 7 DAY W HOOKUP",
+                          "series": [
+                              {
+                                  "uid": "1.3.6.1.4.1.23849.693902496.187.1639032249713375916",
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM",
+                                      "code": "ECG"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_3_1.3.6.1.4.1.23849.2284762327.187.1639032249713529149-CM_2_GiqEChE5cKWhWkpIJUBTogJgEHoRAyJKGWYWFQ%7e-1234567890V012345-ECG"
+                                              }
+                                          ],
+                                          "uid": "1.3.6.1.4.1.23849.2284762327.187.1639032249713529149",
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM",
+                                              "code": "1.2.840.10008.5.1.4.1.1.7",
+                                              "display": "Secondary Capture Image Storage"
+                                          },
+                                          "number": 1,
+                                          "title": "DICOM"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-6-e2EwLTgzLWEzLTczLTNjLThjLTQ3LWExLTk3LTI",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_6_e2EwLTgzLWEzLTczLTNjLThjLTQ3LWExLTk3LTIwLTY5LTIyLTI5LWEwLTI4LTU5fQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:09:54+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_e2EwLTgzLWEzLTczLTNjLThjLTQ3LWExLTk3LTIwLTY5LTIyLTI5LWEwLTI4LTU5fQ%7e%7e-CM_7_e2EwLTgzLWEzLTczLTNjLThjLTQ3LWExLTk3LTIwLTY5LTIyLTI5LWEwLTI4LTU5fQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-6-ezJjLWI2LWQwLWVkLWE0LTQ0LTQwLWVlLWI0LWR",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_6_ezJjLWI2LWQwLWVkLWE0LTQ0LTQwLWVlLWI0LWRkLTg0LWNiLTljLTQxLTQxLTg0fQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T18:00:47+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezJjLWI2LWQwLWVkLWE0LTQ0LTQwLWVlLWI0LWRkLTg0LWNiLTljLTQxLTQxLTg0fQ%7e%7e-CM_7_ezJjLWI2LWQwLWVkLWE0LTQ0LTQwLWVlLWI0LWRkLTg0LWNiLTljLTQxLTQxLTg0fQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-4-ezM0LTBjLTRiLTY1LWUyLWUxLTQxLTM1LWE2LTc",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_4_ezM0LTBjLTRiLTY1LWUyLWUxLTQxLTM1LWE2LTcyLTIzLTIxLTFkLWNkLTNmLTVifQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-07T21:34:01+00:00",
+                          "note": [
+                              {
+                                  "text": "Document# 8"
+                              }
+                          ],
+                          "description": "Document# 8",
+                          "series": [
+                              {
+                                  "number": 3,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_ezM0LTBjLTRiLTY1LWUyLWUxLTQxLTM1LWE2LTcyLTIzLTIxLTFkLWNkLTNmLTVifQ%7e%7e-CM_4_ezM0LTBjLTRiLTY1LWUyLWUxLTQxLTM1LWE2LTcyLTIzLTIxLTFkLWNkLTNmLTVifQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "number": 4,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_5_WFItMjA4NzUzNzgyNDU%7e-CM_4_ezM0LTBjLTRiLTY1LWUyLWUxLTQxLTM1LWE2LTcyLTIzLTIxLTFkLWNkLTNmLTVifQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "ImagingStudy",
+                          "id": "urn-vastudy-200CRNR-CM-4-e2IzLTQ4LWNiLTRiLTkyLWVhLTQ3LWJkLTgwLTg",
+                          "identifier": [
+                              {
+                                  "use": "usual",
+                                  "system": "urn:oid:2.16.840.1.113883.3.8901.2",
+                                  "value": "urn:vastudy:200CRNR-CM_4_e2IzLTQ4LWNiLTRiLTkyLWVhLTQ3LWJkLTgwLTg5LTc1LWQ0LWIwLTUwLWNkLTYyfQ%7e%7e-1234567890V012345"
+                              }
+                          ],
+                          "status": "available",
+                          "subject": {
+                              "reference": "Patient/1234567890V012345"
+                          },
+                          "started": "2026-01-13T15:41:24+00:00",
+                          "note": [
+                              {
+                                  "text": "CCIA P3721 EDIPI Ingest test 1-7-26"
+                              }
+                          ],
+                          "description": "CCIA P3721 EDIPI Ingest test 1-7-26",
+                          "series": [
+                              {
+                                  "number": 1,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_7_e2IzLTQ4LWNiLTRiLTkyLWVhLTQ3LWJkLTgwLTg5LTc1LWQ0LWIwLTUwLWNkLTYyfQ%7e%7e-CM_4_e2IzLTQ4LWNiLTRiLTkyLWVhLTQ3LWJkLTgwLTg5LTc1LWQ0LWIwLTUwLWNkLTYyfQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "number": 2,
+                                  "modality": {
+                                      "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                  },
+                                  "instance": [
+                                      {
+                                          "extension": [
+                                              {
+                                                  "url": "http://hl7.org/fhir/StructureDefinition/imagingstudy-instance-uid",
+                                                  "valueString": "urn:vaimage:200CRNR-CM_5_WFItMjA4NzUzNjY4MTE%7e-CM_4_e2IzLTQ4LWNiLTRiLTkyLWVhLTQ3LWJkLTgwLTg5LTc1LWQ0LWIwLTUwLWNkLTYyfQ%7e%7e-1234567890V012345"
+                                              }
+                                          ],
+                                          "sopClass": {
+                                              "system": "http://dicom.nema.org/resources/ontology/DCM"
+                                          },
+                                          "number": 0,
+                                          "title": "PDF"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  },
+                  {
+                      "resource": {
+                          "resourceType": "OperationOutcome",
+                          "id": "ab00632e-7c7a-40a9-b670-97061d0fa705",
+                          "issue": [
+                              {
+                                  "severity": "information",
+                                  "code": "informational",
+                                  "diagnostics": "Success"
+                              },
+                              {
+                                  "severity": "information",
+                                  "code": "informational",
+                                  "diagnostics": "Overall message outcome"
+                              }
+                          ]
+                      }
+                  }
+              ]
+          }
+    recorded_at: Mon, 25 Aug 2025 19:00:00 GMT
+recorded_with: VCR 6.3.1

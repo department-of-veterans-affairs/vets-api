@@ -523,6 +523,21 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
         end
       end
 
+      context 'when PPMS API raises GatewayTimeout' do
+        it 'returns 504 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Exceptions::GatewayTimeout.new)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:gateway_timeout)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Gateway Timeout')
+          expect(response_json['errors'].first['code']).to eq('504')
+        end
+      end
+
       context 'when PPMS API is unavailable' do
         it 'returns 503 error' do
           allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
@@ -548,6 +563,71 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
           expect(response).to have_http_status(:bad_gateway)
           response_json = JSON.parse(response.body)
           expect(response_json['errors'].first['title']).to eq('Bad Gateway')
+        end
+      end
+
+      context 'when PPMS API raises ClientError' do
+        it 'returns 502 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Client::Errors::ClientError.new('Connection failed'))
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:bad_gateway)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Bad Gateway')
+          expect(response_json['errors'].first['code']).to eq('502')
+        end
+      end
+
+      context 'when PPMS API raises ParsingError' do
+        it 'returns 502 error' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(Common::Client::Errors::ParsingError.new('Invalid JSON response'))
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:bad_gateway)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Bad Gateway')
+          expect(response_json['errors'].first['code']).to eq('502')
+        end
+      end
+
+      context 'when an unexpected error occurs' do
+        it 'returns 500 error and tracks in Datadog' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(RuntimeError.new('Unexpected failure'))
+
+          mock_span = instance_double(Datadog::Tracing::Span)
+          allow(Datadog::Tracing).to receive(:active_span).and_return(mock_span)
+          allow(mock_span).to receive(:set_error)
+          allow(mock_span).to receive(:service=)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:internal_server_error)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Internal server error')
+          expect(response_json['errors'].first['code']).to eq('500')
+          expect(mock_span).to have_received(:set_error).with(instance_of(RuntimeError))
+        end
+
+        it 'handles missing Datadog span gracefully' do
+          allow_any_instance_of(FacilitiesApi::V2::PPMS::Client).to receive(:facility_service_locator)
+            .and_raise(RuntimeError.new('Unexpected failure'))
+
+          allow(Datadog::Tracing).to receive(:active_span).and_return(nil)
+
+          get '/facilities_api/v2/ccp',
+              params: { lat: 40.0, long: -74.0, type: 'provider', specialties: ['213E00000X'] }
+
+          expect(response).to have_http_status(:internal_server_error)
+          response_json = JSON.parse(response.body)
+          expect(response_json['errors'].first['title']).to eq('Internal server error')
         end
       end
     end
@@ -673,6 +753,165 @@ RSpec.describe 'FacilitiesApi::V2::Ccp', team: :facilities, type: :request, vcr:
 
           expect(response).to have_http_status(:bad_gateway)
         end
+      end
+    end
+  end
+
+  describe 'Betamocks Integration', vcr: vcr_options do
+    context 'when mock mode is enabled' do
+      let(:params) do
+        {
+          lat: 40.415217,
+          long: -74.057114,
+          radius: 200,
+          type: 'pharmacy'
+        }
+      end
+
+      before do
+        allow(Settings.ppms).to receive(:mock).and_return(true)
+        allow(Settings.betamocks).to receive_messages(
+          enabled: true,
+          cache_dir: Rails.root.join('..', 'vets-api-mockdata').to_s
+        )
+      end
+
+      it 'returns mock data when betamocks is enabled' do
+        get('/facilities_api/v2/ccp', params:)
+
+        expect(response).to be_successful
+        bod = JSON.parse(response.body)
+
+        # Verify response has expected structure from mock data
+        expect(bod['data']).to be_an(Array)
+        expect(bod['data'].first).to include('id', 'type', 'attributes')
+        expect(bod['data'].first['type']).to eq('provider')
+
+        # Verify mock data contains expected provider from pos_locator/default.json
+        expect(bod['data'].first['attributes']).to include(
+          'name' => 'BAYSHORE PHARMACY',
+          'uniqueId' => '1225028293'
+        )
+      end
+    end
+  end
+
+  describe 'fetch_lat_long_and_radius parameter validation' do
+    context 'Invalid latitude parameter' do
+      it 'returns 400 error when latitude is not a valid float' do
+        invalid_params = params.merge(lat: 'not_a_number')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+        response_json = JSON.parse(response.body)
+        expect(response_json['errors'].first['title']).to include('Invalid field value')
+      end
+
+      it 'returns 400 error when latitude is empty string' do
+        invalid_params = params.merge(lat: '')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when latitude has special characters' do
+        invalid_params = params.merge(lat: '40.415217@')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when latitude is nil' do
+        invalid_params = params.merge(lat: nil)
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'Invalid longitude parameter' do
+      it 'returns 400 error when longitude is not a valid float' do
+        invalid_params = params.merge(long: 'invalid_long')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+        response_json = JSON.parse(response.body)
+        expect(response_json['errors'].first['title']).to include('Invalid field value')
+      end
+
+      it 'returns 400 error when longitude is empty string' do
+        invalid_params = params.merge(long: '')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when longitude has special characters' do
+        invalid_params = params.merge(long: '-74.057114!')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when longitude is nil' do
+        invalid_params = params.merge(long: nil)
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'Invalid radius parameter' do
+      it 'returns 400 error when radius is not a valid float' do
+        invalid_params = params.merge(radius: 'huge')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+        response_json = JSON.parse(response.body)
+        expect(response_json['errors'].first['title']).to include('Invalid field value')
+      end
+
+      it 'returns 400 error when radius is empty string' do
+        invalid_params = params.merge(radius: '')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when radius has special characters' do
+        invalid_params = params.merge(radius: '200$')
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns 400 error when radius is nil' do
+        invalid_params = params.merge(radius: nil)
+
+        get('/facilities_api/v2/ccp', params: invalid_params)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'Valid latitude/longitude/radius parameters', vcr: vcr_options do
+      it 'accepts latitude and longitude as string floats' do
+        valid_params = params.merge(lat: '40.415217', long: '-74.057114', radius: '200')
+
+        get('/facilities_api/v2/ccp', params: valid_params)
+
+        expect(response).to be_successful
       end
     end
   end

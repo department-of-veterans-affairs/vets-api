@@ -4,15 +4,16 @@ require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
+require 'increase_compensation/notification_email'
 require 'pdf_utilities/datestamp_pdf'
 
-RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_helpers,
-               skip: 'TODO after schema built' do
+RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:increase_compensation_claim) }
-  let(:service) { double('service') }
+  let(:service) { double(BenefitsIntake::Service) }
   let(:monitor) { IncreaseCompensation::Monitor.new }
+  let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -20,12 +21,11 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
     let(:omit_esign_stamp) { true }
-    let(:extras_redesign) { true }
 
     before do
       job.instance_variable_set(:@claim, claim)
       allow(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
-      allow(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      allow(claim).to receive(:to_pdf).with(claim.guid, { omit_esign_stamp: }).and_return(pdf_path)
       allow(claim).to receive(:persistent_attachments).and_return([])
 
       job.instance_variable_set(:@intake_service, service)
@@ -39,20 +39,22 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     end
 
     context 'with increase_compensation_form_enabled flipper' do
-      before do
-        allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
-      end
+      # before do
+      #   allow(UserAccount).to receive(:find).and_return(instance_double(user_account))
+      # end
 
       it 'processes claim when flipper is enabled' do
         allow(Flipper).to receive(:enabled?).with(:increase_compensation_form_enabled).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
         allow(job).to receive(:process_document).and_return(pdf_path)
+        allow(UserAccount).to receive(:find).and_return(user_account)
 
         expect(IncreaseCompensation::SavedClaim).to receive(:find).and_return(claim)
         expect(claim).to receive(:to_pdf)
         expect(service).to receive(:perform_upload)
         expect(job).to receive(:cleanup_file_paths)
 
-        result = job.perform(claim.id, user_account_uuid)
+        result = job.perform(claim.id, user_account_uuid, service)
         expect(result).to eq(service.uuid)
       end
 
@@ -63,17 +65,22 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(claim).not_to receive(:to_pdf)
         expect(service).not_to receive(:perform_upload)
 
-        result = job.perform(claim.id, user_account_uuid)
+        result = job.perform(claim.id, user_account_uuid, service)
         expect(result).to be_nil
       end
     end
 
     it 'submits the saved claim successfully' do
       allow(job).to receive(:process_document).and_return(pdf_path)
+      allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
 
-      expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign:, omit_esign_stamp: }).and_return(pdf_path)
+      expect(claim).to receive(:to_pdf).with(claim.guid, { omit_esign_stamp: }).and_return(pdf_path)
       expect(Lighthouse::Submission).to receive(:create)
       expect(Lighthouse::SubmissionAttempt).to receive(:create)
+      # expect(claim).to receive(:form_submissions).and_return(
+      #   [FromSubmission.new(form_type: claim.form_id, saved_claim_id: claim.id)]
+      # )
+      # expect(FormSubmissionAttempt).to receive(:create)
       expect(Datadog::Tracing).to receive(:active_trace)
       expect(UserAccount).to receive(:find)
 
@@ -82,12 +89,12 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
       )
       expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id, :user_account_uuid)
+      job.perform(claim.id, :user_account_uuid, service)
     end
 
     it 'is unable to find user_account' do
       expect(IncreaseCompensation::SavedClaim).not_to receive(:find)
-      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(BenefitsIntake::Service).to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
@@ -104,7 +111,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
       expect(UserAccount).to receive(:find)
 
-      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(BenefitsIntake::Service).to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
@@ -118,13 +125,50 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     # perform
   end
 
+  describe '#govcio_upload' do
+    let(:ibm_service) { double('ibm_service') }
+    let(:response) { double('response') }
+
+    before do
+      claim.guid = 'test_guid'
+      job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
+      allow(service).to receive(:uuid).and_return('test_guid')
+
+      job.instance_variable_set(:@ibm_payload, { test: 'data' })
+
+      allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+      allow(ibm_service).to receive(:upload_form).and_return(response)
+      allow(response).to receive(:success?).and_return(true)
+    end
+
+    it 'uploads to IBM MMS when govcio flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(true)
+
+      expect(Ibm::Service).to receive(:new)
+      expect(ibm_service).to receive(:upload_form).with(form: { test: 'data' }.to_json, guid: 'test_guid')
+
+      job.send(:govcio_upload)
+    end
+
+    it 'does not upload to IBM MMS when govcio flipper is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:increase_compensation_govcio_mms).and_return(false)
+
+      expect(Ibm::Service).not_to receive(:new)
+      expect(ibm_service).not_to receive(:upload_form)
+
+      job.send(:govcio_upload)
+    end
+  end
+
   describe '#process_document' do
-    let(:service) { instance_double(service) }
+    let(:service) { instance_double(BenefitsIntake::Service) }
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
@@ -161,12 +205,14 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
   describe '#send_submitted_email' do
     let(:monitor_error) { create(:monitor_error) }
-    let(:notification) { instance_double(notification) }
+    let(:notification) { instance_double(IncreaseCompensation::NotificationEmail) }
 
     before do
       job.instance_variable_set(:@claim, claim)
+      job.instance_variable_set(:@intake_service, service)
 
       allow(IncreaseCompensation::NotificationEmail).to receive(:new).and_return(notification)
+      allow(service).to receive(:uuid).and_return('test_guid')
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
       job.instance_variable_set(:@monitor, monitor)
@@ -174,10 +220,11 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
     end
 
     it 'errors and logs but does not reraise' do
-      expect(IncreaseCompensation::NotificationEmail).to receive(:new).with(claim.id)
-      expect(notification).to receive(:deliver).with(:submitted)
+      expect(IncreaseCompensation::NotificationEmail).to receive(:new).with(claim.id, 'test_guid')
+      expect(notification).to receive(:deliver).with(:received)
       expect(monitor).to receive(:track_send_email_failure)
-      job.send(:send_submitted_email)
+      job.send(:send_received_email)
+      # IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
     end
   end
 

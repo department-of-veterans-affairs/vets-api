@@ -15,7 +15,11 @@ module IvcChampva
     def perform
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      batches = missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
+      batches = if Flipper.enabled?(:champva_ignore_recent_missing_statuses, @current_user)
+                  missing_status_cleanup.get_missing_statuses(silent: true, ignore_recent: true)
+                else
+                  missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
+                end
 
       Rails.logger.info "IVC Forms MissingFormStatusJob - Job started - batch_count: #{batches.count}"
 
@@ -206,12 +210,23 @@ module IvcChampva
     private
 
     ##
-    # Filters out VES JSON files from a batch since they're sent to VES, not Pega
+    # Filters batch to only include files that Pega actually processes.
+    # Excludes VES JSON files (sent to VES, not Pega) and for FMP combined submissions,
+    # only counts the combined PDF (not the individual files that were merged into it).
     #
     # @param batch [Array<IvcChampvaForm>] An array of IVC CHAMPVA form objects
-    # @return [Array<IvcChampvaForm>] Filtered array excluding VES JSON files
+    # @return [Array<IvcChampvaForm>] Filtered array of Pega-processable files
     def filter_pega_processable_files(batch)
-      batch.reject { |record| ves_json_file?(record.file_name) }
+      # Check if this is an FMP combined submission (has a _combined.pdf file)
+      has_combined_pdf = batch.any? { |record| combined_pdf_file?(record.file_name) }
+
+      if has_combined_pdf
+        # For FMP combined submissions, only the _combined.pdf was sent to Pega
+        batch.select { |record| combined_pdf_file?(record.file_name) }
+      else
+        # For regular submissions, exclude only VES JSON files
+        batch.reject { |record| ves_json_file?(record.file_name) }
+      end
     end
 
     ##
@@ -223,6 +238,17 @@ module IvcChampva
       return false if file_name.blank?
 
       file_name.include?('_ves.json')
+    end
+
+    ##
+    # Determines if a file is a combined PDF (FMP single-file upload) based on its filename
+    #
+    # @param file_name [String] The name of the file to check
+    # @return [Boolean] true if the file is a combined PDF, false otherwise
+    def combined_pdf_file?(file_name)
+      return false if file_name.blank?
+
+      file_name.end_with?('_combined.pdf')
     end
   end
 end

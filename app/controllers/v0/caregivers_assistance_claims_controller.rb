@@ -11,7 +11,6 @@ module V0
     AUDITOR = ::Form1010cg::Auditor.new
     RESULTS_PER_PAGE = 5
     SEARCH_RADIUS = 500
-    FACILITIES_FIXED_PARAMS = { per_page: RESULTS_PER_PAGE, radius: SEARCH_RADIUS }.freeze
 
     skip_before_action :authenticate
     before_action :load_user, only: :create
@@ -62,9 +61,11 @@ module V0
 
     def facilities
       lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(
-        lighthouse_facilities_params.merge(FACILITIES_FIXED_PARAMS)
+        lighthouse_facilities_params.merge(per_page: RESULTS_PER_PAGE)
       )
       render(json: lighthouse_facilities)
+    rescue => e
+      Rails.logger.error("10-10CG - Error retrieving facilities: #{e.message}", params[:facility_ids])
     end
 
     private
@@ -87,6 +88,10 @@ module V0
         services: [],
         bbox: []
       )
+
+      # Per Lighthouse docs, Radius may only be supplied if both lat and long are present.
+      # https://developer.va.gov/explore/api/va-facilities/docs?version=current
+      permitted_params.merge!(radius: SEARCH_RADIUS) if permitted_params[:lat] && permitted_params[:long]
 
       # The Lighthouse Facilities api expects the facility ids param as `facilityIds`
       permitted_params.to_h.transform_keys { |key| key == 'facility_ids' ? 'facilityIds' : key }

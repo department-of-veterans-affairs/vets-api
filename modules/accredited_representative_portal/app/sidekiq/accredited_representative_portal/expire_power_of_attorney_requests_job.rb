@@ -61,7 +61,7 @@ module AccreditedRepresentativePortal
       )
 
       monitor.track_count(
-        'vets_api.statsd.ar_poa_request_count',
+        'ar.poa.request.expired',
         tags:
       )
 

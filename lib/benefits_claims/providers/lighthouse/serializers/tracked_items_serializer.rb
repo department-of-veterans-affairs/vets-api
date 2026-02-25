@@ -47,13 +47,26 @@ module BenefitsClaims
           end
 
           def self.display_fields(item)
-            {
+            fields = {
               'friendlyName' => item.friendly_name,
               'friendlyDescription' => item.friendly_description,
               'activityDescription' => item.activity_description,
               'shortDescription' => item.short_description,
               'supportAliases' => item.support_aliases
             }
+            add_content_field(fields, 'longDescription', item.long_description)
+            add_content_field(fields, 'nextSteps', item.next_steps)
+            add_content_field(fields, 'noActionNeeded', item.no_action_needed)
+            add_content_field(fields, 'isDBQ', item.is_dbq)
+            add_content_field(fields, 'isProperNoun', item.is_proper_noun)
+            add_content_field(fields, 'isSensitive', item.is_sensitive)
+            add_content_field(fields, 'noProvidePrefix', item.no_provide_prefix)
+
+            fields
+          end
+
+          def self.add_content_field(fields, key, value)
+            fields[key] = value unless value.nil?
           end
         end
       end

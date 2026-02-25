@@ -51,15 +51,51 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
         end
 
-        it 'calls the API and returns the facility name' do
-          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
-          mock_facility = double('facility', name: 'API Facility Name')
-          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
-          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+        context 'when facility is found in database' do
+          let(:db_facility) { instance_double(HealthFacility, name: 'Database Facility Name') }
 
-          result = subject.resolve_facility_name(dispense_with_station_number)
-          expect(result).to eq('API Facility Name')
-          expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
+          before do
+            allow(HealthFacility).to receive(:find_by).with(station_number: '556').and_return(db_facility)
+          end
+
+          it 'returns the facility name from the database' do
+            result = subject.resolve_facility_name(dispense_with_station_number)
+            expect(result).to eq('Database Facility Name')
+          end
+
+          it 'writes the database result to cache' do
+            subject.resolve_facility_name(dispense_with_station_number)
+            expect(Rails.cache).to have_received(:write).with(
+              'uhd:facility_names:556',
+              'Database Facility Name',
+              expires_in: 4.hours
+            )
+          end
+
+          it 'does not call the API' do
+            mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+            allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+            expect(mock_client).not_to receive(:get_facilities)
+
+            subject.resolve_facility_name(dispense_with_station_number)
+          end
+        end
+
+        context 'when facility is not in database but found in API' do
+          before do
+            allow(HealthFacility).to receive(:find_by).with(station_number: '556').and_return(nil)
+          end
+
+          it 'calls the API and returns the facility name' do
+            mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+            mock_facility = double('facility', name: 'API Facility Name')
+            allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+            allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([mock_facility])
+
+            result = subject.resolve_facility_name(dispense_with_station_number)
+            expect(result).to eq('API Facility Name')
+            expect(mock_client).to have_received(:get_facilities).with(facilityIds: 'vha_556')
+          end
         end
       end
 
@@ -129,14 +165,152 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:warn)
       end
 
       it 'returns nil when station number does not match 3-digit pattern' do
         result = subject.resolve_facility_name(dispense_with_short_station)
-        expect(Rails.logger).to have_received(:error).with(
+        expect(Rails.logger).to have_received(:warn).with(
           'Unable to extract valid station number from: 12-PHARMACY'
         )
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with MedicationDispense containing DoD facility identifier' do
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      context 'with zz prefix' do
+        let(:dispense_with_zz_prefix) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod',
+            'location' => { 'display' => 'zz0127-RX-CLINIC' }
+          }
+        end
+
+        it 'returns nil and logs info for zz prefix DoD identifier' do
+          result = subject.resolve_facility_name(dispense_with_zz_prefix)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Skipping DoD facility identifier: zz0127-RX-CLINIC'
+          )
+        end
+
+        it 'does not attempt facility lookup for zz prefix' do
+          expect(HealthFacility).not_to receive(:find_by)
+          subject.resolve_facility_name(dispense_with_zz_prefix)
+        end
+      end
+
+      context 'with uppercase zz prefix' do
+        let(:dispense_with_uppercase_zz) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-upper',
+            'location' => { 'display' => 'ZZ1656-RX-CLINIC' }
+          }
+        end
+
+        it 'returns nil for uppercase ZZ prefix (case-insensitive match)' do
+          result = subject.resolve_facility_name(dispense_with_uppercase_zz)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'with zz prefix and alphabetic station' do
+        let(:dispense_with_zz_alpha) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-alpha',
+            'location' => { 'display' => 'zzMAMC Main OP' }
+          }
+        end
+
+        it 'returns nil for zz prefix with alphabetic station (Madigan Army Medical Center)' do
+          result = subject.resolve_facility_name(dispense_with_zz_alpha)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Skipping DoD facility identifier: zzMAMC Main OP'
+          )
+        end
+      end
+
+      context 'with x prefix followed by uppercase letter' do
+        let(:dispense_with_x_prefix) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-x',
+            'location' => { 'display' => 'xNHOH Clinic IP' }
+          }
+        end
+
+        it 'returns nil for x prefix DoD identifier (Naval Hospital Oak Harbor)' do
+          result = subject.resolve_facility_name(dispense_with_x_prefix)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Skipping DoD facility identifier: xNHOH Clinic IP'
+          )
+        end
+      end
+
+      context 'with various DoD ward suffixes' do
+        let(:dispense_with_ward_suffix) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-ward',
+            'location' => { 'display' => 'zz757-ADM-WOMENS-OMNI' }
+          }
+        end
+
+        it 'returns nil for zz prefix with ward suffix' do
+          result = subject.resolve_facility_name(dispense_with_ward_suffix)
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    context 'with MedicationDispense containing out-of-range OH station number' do
+      let(:dispense_with_invalid_station) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-1',
+          'location' => { 'display' => '7200-RX-MAIN' }
+        }
+      end
+
+      let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
+
+      before do
+        allow(Rails.cache).to receive(:read).and_return(nil)
+        allow(Rails.cache).to receive_messages(read: nil, exist?: false)
+        allow(Rails.cache).to receive(:write)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+        allow(HealthFacility).to receive(:find_by).and_return(nil)
+        allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+        allow(mock_client).to receive(:get_facilities).and_return([])
+      end
+
+      it 'logs info message when facility is not found for either station format' do
+        subject.resolve_facility_name(dispense_with_invalid_station)
+
+        expect(Rails.logger).to have_received(:info).with(
+          a_string_matching(
+            Regexp.new(
+              'No facility name found for facility identifier: 7200.*' \
+              'or 3 digit station: 720.*' \
+              'derived from 7200-RX-MAIN',
+              Regexp::MULTILINE
+            )
+          )
+        )
+      end
+
+      it 'returns nil when neither database nor API finds the facility' do
+        result = subject.resolve_facility_name(dispense_with_invalid_station)
         expect(result).to be_nil
       end
     end

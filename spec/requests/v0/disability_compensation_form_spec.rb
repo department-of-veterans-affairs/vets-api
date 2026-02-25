@@ -137,7 +137,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       end
 
       context 'with an `all claims` claim' do
-        let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
+        let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/submit_all_claim/all.json' }
 
         it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
@@ -535,7 +535,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       end
 
       context 'with an `bdd` claim' do
-        let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
+        let(:bdd_form) { File.read 'spec/support/disability_compensation_form/submit_all_claim/bdd.json' }
         let(:user) do
           build(:disabilities_compensation_user, :with_terms_of_use_agreement, icn: '1012666073V986297',
                                                                                idme_uuid: SecureRandom.uuid)
@@ -566,7 +566,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       end
 
       it 'returns a 422 when no new or increase disabilities are submitted' do
-        all_claims_form = File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json'
+        all_claims_form = File.read 'spec/support/disability_compensation_form/submit_all_claim/all.json'
         json_object = JSON.parse(all_claims_form)
         json_object['form526'].delete('newPrimaryDisabilities')
         json_object['form526'].delete('newSecondaryDisabilities')
@@ -578,7 +578,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   end
 
   describe 'SavedClaim::DisabilityCompensation::Form526AllClaim save error logging' do
-    let(:form_params) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
+    let(:form_params) { File.read 'spec/support/disability_compensation_form/submit_all_claim/all.json' }
     let(:claim_with_save_error) do
       claim = SavedClaim::DisabilityCompensation::Form526AllClaim.new
       errors = ActiveModel::Errors.new(claim)

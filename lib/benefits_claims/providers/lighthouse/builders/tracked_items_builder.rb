@@ -57,7 +57,14 @@ module BenefitsClaims
               friendly_description: data['friendlyDescription'],
               activity_description: data['activityDescription'],
               short_description: data['shortDescription'],
-              support_aliases: data['supportAliases']
+              support_aliases: data['supportAliases'],
+              long_description: data['longDescription'],
+              next_steps: data['nextSteps'],
+              no_action_needed: data['noActionNeeded'],
+              is_dbq: data['isDBQ'],
+              is_proper_noun: data['isProperNoun'],
+              is_sensitive: data['isSensitive'],
+              no_provide_prefix: data['noProvidePrefix']
             }
           end
         end

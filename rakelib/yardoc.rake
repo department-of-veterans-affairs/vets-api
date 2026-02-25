@@ -29,7 +29,7 @@ task :yardoc do # rubocop:disable Rails/RakeEnvironment
 
   # true == 'on' in GH action yaml
   paths = config[true]['pull_request']['paths'].select do |path|
-    files.find { |file| File.fnmatch(path, file) }
+    files.find { |file| File.fnmatch(path, file, File::FNM_PATHNAME) }
   end
   if paths.empty?
     puts Rainbow('Finished. No watched paths changed.').yellow

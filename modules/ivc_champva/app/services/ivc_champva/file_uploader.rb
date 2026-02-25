@@ -51,7 +51,11 @@ module IvcChampva
       end
 
       if all_success
-        generate_and_upload_meta_json
+        if Flipper.enabled?(:champva_bypass_metadata_json_file_for_1010d, @current_user) && @form_id == 'vha_10_10d'
+          [200, nil] # Return success for metadata upload without actually uploading
+        else
+          generate_and_upload_meta_json
+        end
       else
         monitor.track_s3_upload_error(@metadata['uuid'], s3_err)
         # Stop this submission in its tracks - entries will still be added to database
@@ -67,6 +71,7 @@ module IvcChampva
     #
     # @return [Array<Array<Integer, String>>] Array of arrays containing status codes and error messages
     def handle_iterative_uploads
+      bypass_ves_json_flag = Flipper.enabled?(:champva_bypass_persisting_ves_json_to_database, @current_user)
       @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
 
@@ -76,7 +81,11 @@ module IvcChampva
 
         file_name = File.basename(file_path).gsub('-tmp', '')
         response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
-        insert_form(file_name, response_status.to_s) if @insert_db_row
+        if bypass_ves_json_flag
+          insert_form(file_name, response_status.to_s) if @insert_db_row && file_name.exclude?('_ves.json')
+        else
+          insert_form(file_name, response_status.to_s) if @insert_db_row # rubocop:disable Style/IfInsideElse
+        end
 
         response_status
       end.compact
@@ -91,7 +100,7 @@ module IvcChampva
 
       begin
         # Combine all PDFs into a single file
-        IvcChampva::PdfCombiner.combine(merged_pdf_path, @file_paths.compact)
+        IvcChampva::PdfCombiner.combine(merged_pdf_path, @file_paths.compact, @current_user)
 
         attachment_id = @form_id
         file_name = File.basename(merged_pdf_path)

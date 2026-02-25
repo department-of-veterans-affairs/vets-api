@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../support/helpers/rails_helper'
+require 'sm/client'
 
 RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
   include SchemaMatchers
@@ -32,6 +33,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
   context 'when authorized' do
     before do
       VCR.insert_cassette('sm_client/session')
+      allow_any_instance_of(SM::Client).to receive(:get_triage_teams_station_numbers).and_return([])
     end
 
     after do
@@ -48,6 +50,20 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('all_triage_teams')
+    end
+
+    it 'uses suggestedNameDisplay to override name when present' do
+      allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
+        care_systems_stub
+      )
+      VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
+        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
+      end
+      expect(response).to be_successful
+      triage_team = response.parsed_body['data'].find { |entry| entry['id'] == '4399547' }
+      expect(triage_team.dig('attributes', 'name')).to eq(
+        'Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr'
+      )
     end
 
     it 'filters out teams with blocked_status == true' do
@@ -139,29 +155,47 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
     end
 
-    context 'when there are cached triage teams' do
+    context 'when stubbing get_all_triage_teams' do
       let(:params) { { useCache: true } }
 
       before do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'all_triage_teams.json')
-        data = Common::Collection.new(AllTriageTeams, data: JSON.parse(File.read(path)))
-        AllTriageTeams.set_cached("#{user.uuid}-all-triage-teams", data)
+        data = Vets::Collection.new(JSON.parse(File.read(path)), AllTriageTeams)
+        allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(data)
       end
 
-      it 'retrieve cached triage teams rather than hitting the service' do
+      it 'retrieves triage teams from the stubbed client' do
         allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
           care_systems_stub
         )
-        expect do
-          get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-          parsed_response_contents = response.parsed_body['data']
-          triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
-          expect(triage_team.dig('attributes', 'name')).to eq('589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON')
-          expect(triage_team['type']).to eq('all_triage_teams')
-          expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
-        end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
+        get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        parsed_response_contents = response.parsed_body['data']
+        triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
+        expect(triage_team.dig('attributes', 'name')).to eq(
+          'Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr' # rubocop:disable Layout/LineLength
+        )
+        expect(triage_team['type']).to eq('all_triage_teams')
+        expect(response).to match_camelized_response_schema('all_triage_teams', { strict: false })
+      end
+
+      it 'falls back to name when suggested_name_display is nil' do
+        allow_any_instance_of(Mobile::V0::RecipientsController).to receive(:get_unique_care_systems).and_return(
+          care_systems_stub
+        )
+        # Override the fixture data to have a nil suggested_name_display for the first team
+        path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'all_triage_teams.json')
+        fixture_data = JSON.parse(File.read(path))
+        fixture_data.first['suggested_name_display'] = nil
+        data = Vets::Collection.new(fixture_data, AllTriageTeams)
+        allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(data)
+
+        get('/mobile/v0/messaging/health/allrecipients', headers: sis_headers, params:)
+        expect(response).to be_successful
+        parsed_response_contents = response.parsed_body['data']
+        triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
+        expect(triage_team.dig('attributes', 'name')).to eq('589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON')
       end
     end
 
@@ -171,8 +205,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
       before do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures',
                                'all_triage_teams_with_duplicates.json')
-        data = Common::Collection.new(AllTriageTeams, data: JSON.parse(File.read(path)))
-        AllTriageTeams.set_cached("#{user.uuid}-all-triage-teams", data)
+        data = Vets::Collection.new(JSON.parse(File.read(path)), AllTriageTeams)
+        allow_any_instance_of(SM::Client).to receive(:get_all_triage_teams).and_return(data)
       end
 
       it 'returns a list of the name and station number for each unique care system in meta with 612 off' do

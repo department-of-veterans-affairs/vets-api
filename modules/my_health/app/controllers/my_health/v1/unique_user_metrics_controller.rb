@@ -16,53 +16,39 @@ module MyHealth
       # Creates unique user metric events for the authenticated user.
       # Processes multiple events in a single batch operation.
       #
+      # Events are buffered for asynchronous processing - the response indicates
+      # which events were accepted for processing, not whether they are new.
+      #
       # @example Request payload
       #   POST /my-health/v1/unique_user_metrics
       #   {
       #     "event_names": ["mhv_landing_page_accessed", "secure_messaging_accessed"]
       #   }
       #
-      # @example Success response when feature enabled (200 OK or 201 Created)
+      # @example Success response (202 Accepted)
       #   {
-      #     "results": [
-      #       { "event_name": "mhv_landing_page_accessed", "status": "created", "new_event": true },
-      #       { "event_name": "secure_messaging_accessed", "status": "exists", "new_event": false }
-      #     ]
+      #     "buffered_events": ["mhv_landing_page_accessed", "secure_messaging_accessed"]
       #   }
       #
-      # @example Success response when feature disabled (200 OK)
+      # @example Response when feature disabled (200 OK)
       #   {
-      #     "results": [
-      #       { "event_name": "mhv_landing_page_accessed", "status": "disabled", "new_event": false },
-      #       { "event_name": "secure_messaging_accessed", "status": "disabled", "new_event": false }
-      #     ]
-      #   }
-      #
-      # @example Success response with invalid event name (200 OK)
-      #   {
-      #     "results": [
-      #       { "event_name": "valid_event", "status": "created", "new_event": true },
-      #       { "event_name": "invalid_event", "status": "invalid", "new_event": false }
-      #     ]
+      #     "buffered_events": []
       #   }
       #
       def create
         event_names = metrics_params[:event_names]
 
-        # Process all events and collect results
-        results = event_names.flat_map do |event_name|
-          # Validate event name is in registry before processing
-          unless UniqueUserEvents::EventRegistry.valid_event?(event_name)
-            next [UniqueUserEvents::Service.build_invalid_result(event_name)]
-          end
-
-          UniqueUserEvents.log_event(user: current_user, event_name:)
+        # Filter to valid events only
+        valid_event_names = event_names.select do |event_name|
+          UniqueUserEvents::EventRegistry.valid_event?(event_name)
         end
 
-        # Return 201 if any new events were logged, otherwise 200
-        new_events_count = results.count { |result| result[:new_event] }
-        status_code = new_events_count.positive? ? :created : :ok
-        render json: { results: }, status: status_code
+        # Process all valid events - returns array of event names that were buffered
+        buffered_events = UniqueUserEvents.log_events(user: current_user, event_names: valid_event_names)
+
+        # Return 202 Accepted if any events were buffered, otherwise 200 OK
+        status_code = buffered_events.any? ? :accepted : :ok
+        render json: { buffered_events: }, status: status_code
       end
 
       private

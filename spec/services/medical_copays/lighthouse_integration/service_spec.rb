@@ -25,7 +25,17 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
       context 'on success' do
         before do
-          allow(service).to receive_messages(invoice_service: double(list: raw_invoices), retrieve_city: 'Tampa')
+          allow(service).to receive_messages(
+            invoice_service: double(list: raw_invoices),
+            retrieve_organization_address: {
+              city: 'Tampa',
+              address_line1: '123 Test St',
+              address_line2: nil,
+              address_line3: nil,
+              state: 'FL',
+              postalCode: '33601'
+            }
+          )
           allow(Lighthouse::HCC::Invoice).to receive(:new).and_return(double)
           allow(Lighthouse::HCC::Bundle).to receive(:new).and_return(mock_bundle)
         end
@@ -83,14 +93,31 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
     describe '#get_detail' do
       let(:invoice_data) { { 'id' => 'invoice-1', 'account' => { 'reference' => 'Account/acc-1' } } }
       let(:mock_detail) { instance_double(Lighthouse::HCC::CopayDetail) }
+      let(:base_stubs) do
+        {
+          invoice_service: double(read: invoice_data),
+          fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
+          fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
+          fetch_medications: {}
+        }
+      end
 
       context 'on success' do
         before do
+          allow(service).to receive_messages(base_stubs)
           allow(service).to receive_messages(
-            invoice_service: double(read: invoice_data),
-            fetch_invoice_dependencies: { account: {}, charge_items: {}, payments: [] },
-            fetch_charge_item_dependencies: { encounters: {}, medication_dispenses: {} },
-            fetch_medications: {}
+            fetch_organization_address: {
+              address_line1: '123 Test St',
+              address_line2: nil,
+              address_line3: nil,
+              city: 'Tampa',
+              state: 'FL',
+              postalCode: '33601'
+            },
+            fetch_patient_data: {
+              'resourceType' => 'Bundle',
+              'entry' => [{ 'resource' => { 'resourceType' => 'Patient' } }]
+            }
           )
           allow(Lighthouse::HCC::CopayDetail).to receive(:new).and_return(mock_detail)
         end
@@ -108,6 +135,37 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         it 'measures latency' do
           expect { service.get_detail(id: 'invoice-1') }
             .to trigger_statsd_measure('api.mcp.lighthouse.detail.latency')
+        end
+      end
+
+      context 'when organization address is missing' do
+        before do
+          allow(service).to receive_messages(base_stubs)
+          allow(service).to receive_messages(fetch_organization_address: nil, fetch_patient_data: nil)
+        end
+
+        it 'still builds a CopayDetail with nil facility_address' do
+          expect(Lighthouse::HCC::CopayDetail).to receive(:new).with(
+            hash_including(facility_address: nil)
+          ).and_return(mock_detail)
+          service.get_detail(id: 'invoice-1')
+        end
+      end
+
+      context 'when patient data is missing' do
+        before do
+          allow(service).to receive_messages(base_stubs)
+          allow(service).to receive_messages(
+            fetch_organization_address: { city: 'Tampa' },
+            fetch_patient_data: nil
+          )
+        end
+
+        it 'still builds a CopayDetail with nil patient_data' do
+          expect(Lighthouse::HCC::CopayDetail).to receive(:new).with(
+            hash_including(patient_data: nil)
+          ).and_return(mock_detail)
+          service.get_detail(id: 'invoice-1')
         end
       end
 
@@ -148,7 +206,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
 
   describe '#list' do
     it 'returns a list of invoices' do
-      skip 'Temporarily skip flaky test'
       VCR.use_cassette('lighthouse/hcc/invoice_list_success') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
@@ -164,7 +221,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
           {
             total: 10,
             page: 1,
-            per_page: 50,
+            per_page: 10,
             copay_summary: {
               total_current_balance: 757.27,
               copay_bill_count: 10,
@@ -176,7 +233,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
     end
 
     it 'handles no records' do
-      skip 'Temporarily skip flaky test'
       VCR.use_cassette('lighthouse/hcc/no_records') do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
@@ -206,7 +262,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
 
       it 'raises BadRequest for a 400 from Lighthouse' do
-        skip 'Temporarily skip flaky test'
         VCR.use_cassette('lighthouse/hcc/auth_error') do
           allow(Auth::ClientCredentials::JWTGenerator)
             .to receive(:generate_token).and_return('fake-jwt')
@@ -218,7 +273,6 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
 
       it 'raises MissingOrganizationIdError' do
-        skip 'Temporarily skip flaky test'
         raw_invoices['entry'].first['resource']['issuer']['reference'] = nil
 
         allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
@@ -231,10 +285,9 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       end
 
       it 'raises MissingCityError' do
-        skip 'Temporarily skip flaky test'
         allow(service).to receive(:invoice_service).and_return(double(list: raw_invoices))
 
-        allow(service).to receive(:retrieve_city).with('4-O3d8XK44ejMS').and_return(nil)
+        allow(service).to receive(:retrieve_organization_address).with('4-O3d8XK44ejMS').and_return(nil)
 
         expect { service.list(count: 10, page: 1) }
           .to raise_error(
@@ -257,6 +310,16 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         expect(result).to be_a(Lighthouse::HCC::CopayDetail)
         expect(result.external_id).to be_present
         expect(result.facility).to be_present
+        expect(result.facility).to be_a(Hash)
+        expect(result.facility['name']).to be_present
+        expect(result.facility['address']).to be_a(Hash)
+
+        address = result.facility['address']
+        expect(address['address_line1']).to eq('3000 CORAL HILLS DR')
+        expect(address['city']).to eq('CORAL SPRINGS')
+        expect(address['state']).to eq('FL')
+        expect(address['postalCode']).to eq('330654108')
+
         expect(result.status).to be_present
         expect(result.line_items).to be_an(Array)
         expect(result.payments).to be_an(Array)
@@ -274,6 +337,123 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
           service.get_detail(id: '4-1abZUKu7LnbcQc')
         end.to raise_error(Common::Exceptions::BadRequest)
       end
+    end
+  end
+
+  describe '#summary' do
+    let(:icn) { '123' }
+    let(:service) { described_class.new(icn) }
+    let(:invoice_service) { instance_double(Lighthouse::HealthcareCostAndCoverage::Invoice::Service) }
+
+    before do
+      allow(service).to receive(:invoice_service).and_return(invoice_service)
+    end
+
+    def invoice_entry(date:, balance:)
+      {
+        'resource' => {
+          'date' => date,
+          'totalPriceComponent' => [
+            {
+              'type' => 'base',
+              'amount' => { 'value' => balance }
+            },
+            {
+              'type' => 'informational',
+              'code' => { 'text' => 'Original Amount' },
+              'amount' => { 'value' => balance }
+            }
+          ]
+        }
+      }
+    end
+
+    it 'aggregates total amount and count within the month window' do
+      now = Time.current.utc
+
+      entries = [
+        invoice_entry(date: now.iso8601, balance: 10.50),
+        invoice_entry(date: now.iso8601, balance: 20.25)
+      ]
+
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => entries })
+
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 2)
+        .and_return({ 'entry' => [] })
+
+      result = service.summary(month_count: 6)
+
+      expect(result).to eq(
+        entries: [],
+        meta: {
+          total_amount_due: 30.75,
+          total_copays: 2,
+          month_window: 6
+        }
+      )
+    end
+
+    it 'stops processing when an invoice is older than the window' do
+      recent = Time.current.utc
+      old = 7.months.ago.utc
+
+      entries = [
+        invoice_entry(date: recent.iso8601, balance: 15.00),
+        invoice_entry(date: old.iso8601, balance: 999.99)
+      ]
+
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => entries })
+
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 2)
+        .and_return({ 'entry' => [] })
+
+      result = service.summary(month_count: 6)
+
+      expect(result[:meta][:total_amount_due]).to eq(15.0)
+      expect(result[:meta][:total_copays]).to eq(1)
+    end
+
+    it 'skips entries without a date' do
+      entries = [
+        { 'resource' => {} },
+        invoice_entry(date: Time.current.utc.iso8601, balance: 12.00)
+      ]
+
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => entries })
+
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 2)
+        .and_return({ 'entry' => [] })
+
+      result = service.summary
+
+      expect(result[:meta][:total_amount_due]).to eq(12.0)
+      expect(result[:meta][:total_copays]).to eq(1)
+    end
+
+    it 'returns zero totals when no entries are returned' do
+      allow(invoice_service).to receive(:list)
+        .with(count: 50, page: 1)
+        .and_return({ 'entry' => [] })
+
+      result = service.summary
+
+      expect(result).to eq(
+        entries: [],
+        meta: {
+          total_amount_due: 0.0,
+          total_copays: 0,
+          month_window: 6
+        }
+      )
     end
   end
 end

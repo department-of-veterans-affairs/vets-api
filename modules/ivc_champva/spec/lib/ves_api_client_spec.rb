@@ -89,6 +89,22 @@ RSpec.describe IvcChampva::VesApi::Client do
     end
   end
 
+  describe '#submit_7959c' do
+    let(:ves_ohi_request_data) { double('VesOhiRequest', to_json: '{}') }
+
+    it 'raises NotImplementedError as a stub' do
+      expect do
+        client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+      end.to raise_error(NotImplementedError, /VES OHI submission endpoint not yet implemented/)
+    end
+
+    it 'includes a message about awaiting VES API specification' do
+      expect do
+        client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+      end.to raise_error(NotImplementedError, /awaiting VES API specification/)
+    end
+  end
+
   describe 'headers' do
     it 'returns the right headers' do
       result = client.headers('the_right_uuid', 'the_right_acting_user')

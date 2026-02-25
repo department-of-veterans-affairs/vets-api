@@ -30,6 +30,7 @@ module Swagger
                   AsyncTransaction::VAProfile::InitializePersonTransaction
                   AsyncTransaction::VAProfile::PermissionTransaction
                   AsyncTransaction::VAProfile::TelephoneTransaction
+                  AsyncTransaction::VAProfile::PersonOptionsTransaction
                 ], example: 'AsyncTransaction::VAProfile::EmailTransaction'
               property :metadata, type: :array do
                 items type: :object do
@@ -68,6 +69,7 @@ module Swagger
                     AsyncTransaction::VAProfile::InitializePersonTransaction
                     AsyncTransaction::VAProfile::PermissionTransaction
                     AsyncTransaction::VAProfile::TelephoneTransaction
+                    AsyncTransaction::VAProfile::PersonOptionsTransaction
                   ], example: 'AsyncTransaction::VAProfile::AddressTransaction'
                 property :metadata, type: :array do
                   items type: :object do

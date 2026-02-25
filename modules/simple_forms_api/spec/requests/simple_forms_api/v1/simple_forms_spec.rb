@@ -23,7 +23,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21p_0847.json',
     'vba_21p_0537.json',
     'vba_40_0247.json',
-    'vba_40_10007.json'
+    'vba_40_10007.json',
+    'vba_40_1330m.json'
   ]
 
   unauthenticated_forms = %w[
@@ -31,6 +32,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     vba_21p_0847.json
     vba_40_0247.json
     vba_40_10007.json
+    vba_40_1330m.json
   ]
   authenticated_forms = forms - unauthenticated_forms
 
@@ -578,7 +580,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       data_sets = [
         { form_id: '40-0247', file: valid_file },
-        { form_id: '40-10007', file: valid_file }
+        { form_id: '40-10007', file: valid_file },
+        { form_id: '40-1330M', file: valid_file }
       ]
 
       data_sets.each do |data|
@@ -1302,6 +1305,107 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             }
           )
         end
+      end
+    end
+  end
+
+  describe 'Form 40-1330M with attachments' do
+    let(:fixture_path) do
+      Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_1330m.json')
+    end
+    let(:form_data) { JSON.parse(fixture_path.read) }
+    let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
+    let(:random_string) { 'some-unique-simple-forms-file-seed' }
+    let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
+
+    before do
+      VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+      VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+      allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+      allow(Common::FileHelpers).to receive(:random_file_path).and_return(file_seed)
+      allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
+        original_method.call(args[0], random_string)
+      end
+    end
+
+    after do
+      VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
+      VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
+      Common::FileHelpers.delete_file_if_exists(metadata_file)
+    end
+
+    context 'with supporting documents' do
+      let(:attachment) { create(:persistent_attachment_va_form, form_id: '40-1330M') }
+      let(:data_with_attachments) do
+        form_data.merge(
+          'veteran_supporting_documents' => [
+            { 'confirmation_code' => attachment.guid }
+          ]
+        )
+      end
+
+      it 'successfully submits form with supporting documents' do
+        allow_any_instance_of(PersistentAttachment).to receive(:to_pdf).and_return(
+          Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf').to_s
+        )
+
+        post '/simple_forms_api/v1/simple_forms', params: data_with_attachments
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['confirmation_number']).to be_present
+      end
+    end
+
+    context 'with additional_address' do
+      let(:data_with_additional_address) do
+        form_data.merge(
+          'additional_address' => {
+            'street' => '123 Main St',
+            'city' => 'Seattle',
+            'state' => 'WA',
+            'postal_code' => '98101',
+            'country' => 'USA'
+          }
+        )
+      end
+
+      it 'successfully submits form with additional_address' do
+        post '/simple_forms_api/v1/simple_forms', params: data_with_additional_address
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['confirmation_number']).to be_present
+      end
+    end
+
+    context 'with both supporting documents and additional_address' do
+      let(:attachment) { create(:persistent_attachment_va_form, form_id: '40-1330M') }
+      let(:data_with_both) do
+        form_data.merge(
+          'veteran_supporting_documents' => [
+            { 'confirmation_code' => attachment.guid }
+          ],
+          'additional_address' => {
+            'street' => '789 Pine St',
+            'city' => 'Portland',
+            'state' => 'OR',
+            'postal_code' => '97202',
+            'country' => 'USA'
+          }
+        )
+      end
+
+      it 'successfully submits form with both attachments and additional address' do
+        allow_any_instance_of(PersistentAttachment).to receive(:to_pdf).and_return(
+          Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf').to_s
+        )
+
+        post '/simple_forms_api/v1/simple_forms', params: data_with_both
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['confirmation_number']).to be_present
       end
     end
   end

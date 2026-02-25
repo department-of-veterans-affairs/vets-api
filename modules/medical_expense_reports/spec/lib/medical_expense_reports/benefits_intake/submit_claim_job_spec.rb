@@ -118,6 +118,40 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
     # perform
   end
 
+  describe '#govcio_upload' do
+    let(:ibm_service) { double('ibm_service') }
+    let(:response) { double('response') }
+
+    before do
+      job.instance_variable_set(:@intake_service, service)
+      allow(service).to receive(:guid).and_return('test_guid')
+
+      job.instance_variable_set(:@ibm_payload, { test: 'data' })
+
+      allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+      allow(ibm_service).to receive(:upload_form).and_return(response)
+      allow(response).to receive(:success?).and_return(true)
+    end
+
+    it 'uploads to IBM MMS when govcio flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_govcio_mms).and_return(true)
+
+      expect(Ibm::Service).to receive(:new)
+      expect(ibm_service).to receive(:upload_form).with(form: { test: 'data' }.to_json, guid: 'test_guid')
+
+      job.send(:govcio_upload)
+    end
+
+    it 'does not upload to IBM MMS when govcio flipper is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_govcio_mms).and_return(false)
+
+      expect(Ibm::Service).not_to receive(:new)
+      expect(ibm_service).not_to receive(:upload_form)
+
+      job.send(:govcio_upload)
+    end
+  end
+
   describe '#build_ibm_payload' do
     let(:base_form_data) do
       {
@@ -298,22 +332,6 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
 
       it 'strips non digits' do
         expect(job.send(:sanitize_phone, '(555) 123-4567')).to eq('5551234567')
-      end
-    end
-
-    describe '#us_phone_number' do
-      it 'returns nil when primary phone is nil' do
-        expect(job.send(:us_phone_number, nil)).to be_nil
-      end
-
-      it 'only returns digits for US numbers' do
-        primary_phone = { 'countryCode' => 'US', 'contact' => '(555) 123-4567' }
-        expect(job.send(:us_phone_number, primary_phone)).to eq('5551234567')
-      end
-
-      it 'returns nil for non-US phone codes' do
-        primary_phone = { 'countryCode' => 'CA', 'contact' => '123-456-7890' }
-        expect(job.send(:us_phone_number, primary_phone)).to be_nil
       end
     end
 

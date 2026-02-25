@@ -1,8 +1,0 @@
-# Form profile mappings for VA Form 1330M - Presidential Memorial Certificate Application
-# Maps VA Profile data to form fields
-
-# The frontend prefillTransformer handles the prefill logic,
-# so we provide a minimal mapping here just to satisfy the backend requirements.
-# This empty hash ensures the form is recognized for prefill without errors.
-
-mailingAddress: [contact_information, address]

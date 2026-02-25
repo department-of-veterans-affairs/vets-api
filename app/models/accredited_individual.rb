@@ -3,6 +3,11 @@
 require 'accredited_representation/constants'
 
 class AccreditedIndividual < ApplicationRecord
+  INDIVIDUAL_TYPE_ATTORNEY = 'attorney'
+  INDIVIDUAL_TYPE_CLAIM_AGENT = 'claims_agent'
+  INDIVIDUAL_TYPE_VSO_REPRESENTATIVE = 'representative'
+  DUMMY_OGC_ID = '00000000-0000-0000-0000-000000000000'
+  include RepresentationManagement::Geocodable
   # Represents an accredited individual (attorney, claims agent, representative) as defined by the OGC accreditation
   # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
   # accreditation.
@@ -33,6 +38,37 @@ class AccreditedIndividual < ApplicationRecord
     'representative' => 'representative'
   }
 
+  scope :attorneys, -> { where(individual_type: 'attorney') }
+  scope :representatives, -> { where(individual_type: 'representative') }
+  scope :claims_agents, -> { where(individual_type: 'claims_agent') }
+  scope :with_location, lambda {
+    where('location IS NOT NULL OR (lat IS NOT NULL AND "long" IS NOT NULL)')
+  }
+
+  scope :without_location, lambda {
+    where(location: nil)
+      .where('lat IS NULL OR "long" IS NULL')
+  }
+
+  scope :with_full_address, lambda {
+    where.not(address_line1: [nil, ''])
+         .where.not(city: [nil, ''])
+         .where.not(state_code: [nil, ''])
+         .where.not(zip_code: [nil, ''])
+  }
+
+  scope :with_city_state_only, lambda {
+    where.not(city: [nil, ''])
+         .where.not(state_code: [nil, ''])
+         .where(address_line1: [nil, ''])
+         .where(zip_code: [nil, ''])
+  }
+
+  scope :with_zip_only, lambda {
+    where.not(zip_code: [nil, ''])
+         .where(address_line1: [nil, ''], city: [nil, ''], state_code: [nil, ''])
+  }
+
   before_save :set_full_name
 
   # Set the full_name attribute for the representative
@@ -56,6 +92,37 @@ class AccreditedIndividual < ApplicationRecord
 
     where(query, params)
   end
+
+  # rubocop:disable Metrics/MethodLength
+  def self.address_quality_counts
+    no_location_relation = without_location
+    with_location_relation = with_location
+    full_relation = with_location_relation.with_full_address
+    partial_zip_only_relation = with_location_relation.with_zip_only
+    partial_city_state_only_relation = with_location_relation.with_city_state_only
+
+    sql = <<~SQL.squish
+      SELECT
+        (SELECT COUNT(*) FROM (#{no_location_relation.select('1').to_sql}) AS no_loc_sub) AS no_location,
+        (SELECT COUNT(*) FROM (#{full_relation.select('1').to_sql}) AS full_sub) AS full_count,
+        (SELECT COUNT(*) FROM (#{partial_zip_only_relation.select('1').to_sql}) AS zip_sub) AS partial_zip_only,
+        (SELECT COUNT(*) FROM (#{partial_city_state_only_relation.select('1').to_sql}) AS city_sub) AS partial_city_state_only,
+        (SELECT COUNT(*) FROM (#{with_location_relation.select('1').to_sql}) AS with_loc_sub) AS with_location
+    SQL
+
+    row = connection.exec_query(sql).first.symbolize_keys
+
+    {
+      no_location: row[:no_location],
+      full: row[:full_count],
+      partial_zip_only: row[:partial_zip_only],
+      partial_city_state_only: row[:partial_city_state_only]
+    }.tap do |h|
+      h[:partial] = h[:partial_zip_only] + h[:partial_city_state_only]
+      h[:other] = row[:with_location] - h[:full] - h[:partial]
+    end
+  end
+  # rubocop:enable Metrics/MethodLength
 
   #
   # Find all [AccreditedIndividuals] with a full name with at least the threshold value of
@@ -101,5 +168,43 @@ class AccreditedIndividual < ApplicationRecord
   rescue => e
     Rails.logger.error("Address validation failed for AccreditedIndividual #{id}: #{e.message}")
     false
+  end
+
+  # Address completeness / “returnable in FAR” helpers
+
+  def location?
+    location.present? || (lat.present? && long.present?)
+  end
+
+  def full_address?
+    location? &&
+      address_line1.present? &&
+      city.present? &&
+      state_code.present? &&
+      zip_code.present?
+  end
+
+  # City/state-only OR zip-only
+  def partial_address?
+    return false unless location?
+    return false if full_address?
+
+    city_state_only = city.present? && state_code.present? && address_line1.blank? && zip_code.blank?
+    zip_only = zip_code.present? && address_line1.blank? && city.blank? && state_code.blank?
+
+    city_state_only || zip_only
+  end
+
+  def no_location?
+    !location?
+  end
+
+  # Optional: one method that gives the 3-way status cleanly
+  def address_quality
+    return :none if no_location?
+    return :full if full_address?
+    return :partial if partial_address?
+
+    :unknown
   end
 end

@@ -32,6 +32,7 @@ module TravelPay
     #
     # @return [Faraday::Response]
     #
+    # rubocop:disable Metrics/MethodLength
     def request_btsss_token(veis_token, user)
       sts_token = request_sts_token(user)
 
@@ -50,7 +51,22 @@ module TravelPay
 
         response.body['data']['accessToken']
       end
+    rescue Common::Exceptions::BackendServiceException => e
+      # BTSSS auth 4xx errors indicate upstream service issues, not client errors
+      # Reraise as 502 Bad Gateway to ensure proper monitoring/alerting
+      status = e.original_status.to_i
+      if status >= 400 && status < 500
+        Rails.logger.error(
+          "BTSSS token request failed with status #{status}",
+          { response_status: status, correlation_id: }
+        )
+        raise Common::Exceptions::BadGateway.new(
+          errors: [{ title: 'Bad Gateway', detail: 'BTSSS authentication service error', status: 502 }]
+        )
+      end
+      raise
     end
+    # rubocop:enable Metrics/MethodLength
 
     def request_sts_token(user)
       private_key_file = IdentitySettings.sign_in.sts_client.key_path

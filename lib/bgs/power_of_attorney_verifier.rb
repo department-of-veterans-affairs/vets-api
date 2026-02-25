@@ -11,10 +11,31 @@ module BGS
       @current_poa ||= @veteran.power_of_attorney
     end
 
+    # Returns the current Power of Attorney code for the veteran.
+    #
+    # POA assignments can have time limits. The end_date attribute on the PowerOfAttorney
+    # model is auto-populated when retrieving POA information from BGS. When respect_expiration
+    # is true, this method checks the end_date and returns nil if the POA has expired.
+    #
+    # @param respect_expiration [Boolean] if true, returns nil for expired POAs (end_date in the past)
+    # @return [String, nil] the POA code, or nil if no POA exists or POA is expired
+    #
+    # @example Get current POA code without expiration check
+    #   verifier.current_poa_code
+    #   #=> "A1Q"
+    #
+    # @example Get POA code only if not expired
+    #   verifier.current_poa_code(respect_expiration: true)
+    #   #=> nil (if expired)
+    #
+    # @see https://github.com/department-of-veterans-affairs/vets-api/pull/22780
+    #
     # TODO: Refactor other calls so expiration is always checked & argument can be removed
     def current_poa_code(respect_expiration: false)
-      return nil if respect_expiration && current_poa.try(:end_date).present? && Date.strptime(current_poa.end_date,
-                                                                                               '%m/%d/%Y')
+      if respect_expiration && current_poa.try(:end_date).present?
+        expiration_date = Date.strptime(current_poa.end_date, '%m/%d/%Y')
+        return nil if expiration_date < Time.zone.today
+      end
 
       current_poa.try(:code)
     end

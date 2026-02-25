@@ -37,6 +37,7 @@ module V1
                        VERIFY_PAGE_AUTHENTICATED = 'verify_page_authenticated',
                        VERIFY_PAGE_UNAUTHENTICATED = 'verify_page_unauthenticated'].freeze
     CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
+    LOGIN_EXCEPTION_COOKIE_NAME = 'exc'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -82,6 +83,14 @@ module V1
 
       if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
         redirect_to url_service.tou_declined_logout_redirect_url
+      elsif (exc_cookie = cookies.signed[LOGIN_EXCEPTION_COOKIE_NAME]).present?
+        code = exc_cookie[:code].presence
+        request_id = exc_cookie[:request_id].presence
+
+        Rails.logger.info('[V1][SessionsController] SLO Callback error cookie found', code:, request_id:)
+        cookies.delete(LOGIN_EXCEPTION_COOKIE_NAME)
+
+        redirect_to url_service.login_redirect_url(auth: 'fail', code:, request_id:)
       else
         redirect_to url_service.logout_redirect_url
       end
@@ -115,9 +124,9 @@ module V1
 
     def delete_sign_in_service_cookies
       cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: IdentitySettings.sign_in.info_cookie_domain)
+      cookies[SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME] = { value: '', expires: Time.at(0).utc }
     end
 
     def set_sentry_context_for_callback
@@ -361,7 +370,7 @@ module V1
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def handle_callback_error(exc, status, response, context = {},
+    def handle_callback_error(exc, status, response, context = {}, # rubocop:disable Metrics/MethodLength
                               code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
       # replaces bundled Sentry error message with specific XML messages
       message = if response && response.normalized_errors.count > 1 && response.status_detail
@@ -373,10 +382,23 @@ module V1
       Rails.logger.error('[V1][Sessions Controller] error', context:, message:)
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
-      unless performed?
-        redirect_to url_service.login_redirect_url(auth: 'fail', code:,
-                                                   request_id: request.request_id)
+      if exc.respond_to?(:force_logout) && exc.force_logout
+        cookies.signed[LOGIN_EXCEPTION_COOKIE_NAME] = {
+          value: { code:, request_id: request.request_id },
+          expires: 2.minutes.from_now,
+          secure: true,
+          httponly: true
+        }
+
+        url = URI.parse(url_service.ssoe_slo_url)
+        url.query = { appKey: CGI.escape(IdentitySettings.saml_ssoe.logout_app_key),
+                      clientId: params[:client_id] }.compact.to_query
+
+        redirect_to url.to_s
       end
+
+      redirect_to url_service.login_redirect_url(auth: 'fail', code:, request_id: request.request_id) unless performed?
+
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
       PersonalInformationLog.create(

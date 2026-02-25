@@ -57,44 +57,6 @@ describe PdfFill::Filler, type: :model do
 
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
-    before do
-      # We are not testing the pdftk wrapper here, we are testing the fill_form method
-      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields) do |_instance, _path|
-        [
-          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
-          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
-        ]
-      end
-
-      allow_any_instance_of(PdfForms::PdftkWrapper)
-        .to receive(:fill_form) do |_instance, _template, output, _hash, **_opts|
-          FileUtils.mkdir_p(File.dirname(output))
-
-          # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
-          FileUtils
-            .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
-
-          output
-        end
-
-      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_instance, _a, _b, output|
-        File.write(output, "%PDF-1.4\n% Fake Combined PDF\n")
-        output
-      end
-
-      allow(PdfFill::Filler).to receive(:stamp_form) do |file_path, _submit_date|
-        stamped = file_path.sub('.pdf', '_stamped.pdf')
-
-        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
-        FileUtils
-          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped)
-
-        stamped
-      end
-
-      allow(File).to receive(:delete) # prevent accidental file deletion in tests
-    end
-
     [
       { form_id: '686C-674', factory: :dependency_claim },
       { form_id: '686C-674-V2', factory: :dependency_claim_v2 }
@@ -105,46 +67,6 @@ describe PdfFill::Filler, type: :model do
 
   # there are approx. 46 tests here which is deceptive.
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    # performance tweaks to speed up tests. Timestamping the methods in filler.rb
-    # identified these as being the bottlenecks
-    before do
-      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:get_fields).and_return(
-        [
-          OpenStruct.new(name: 'FakeField1', value: 'FakeValue1'),
-          OpenStruct.new(name: 'FakeField2', value: 'FakeValue2')
-        ]
-      )
-
-      # Stub Pdftk fill_form to avoid real PDF generation
-      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:fill_form) do |_, _template, output, *_args|
-        FileUtils.mkdir_p(File.dirname(output))
-        # Copy a fixture file. It doesn't matter which one except kitchen sink runs faster than simple
-        FileUtils
-          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), output)
-
-        output
-      end
-
-      # Make stamp_form fast by stubbing out PDFUtilities::DatestampPdf
-      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) do |_instance, *_args|
-        # Return a unique tmp file each time to mimic real stamping
-        stamped_path = "tmp/pdfs/fake_stamped_#{SecureRandom.uuid}.pdf"
-        FileUtils.mkdir_p(File.dirname(stamped_path))
-        FileUtils
-          .cp(Rails.root.join('spec', 'fixtures', 'pdf_fill', '686C-674', 'kitchen_sink.pdf'), stamped_path)
-
-        stamped_path
-      end
-
-      # Stub PDF concatenation to skip real pdftk
-      allow_any_instance_of(PdfForms::PdftkWrapper).to receive(:cat) do |_, a, b, output|
-        # Simulate a combined PDF
-        FileUtils.mkdir_p(File.dirname(output))
-        File.write(output, "%PDF-1.4\n% Fake combined PDF of #{File.basename(a)} + #{File.basename(b)}\n%%EOF")
-        output
-      end
-    end
-
     def overflow_file_suffix(extras_redesign, show_jumplinks)
       return '_extras.pdf' unless extras_redesign
 
@@ -322,6 +244,100 @@ describe PdfFill::Filler, type: :model do
         expect(Rails.logger).to have_received(:error).with(
           "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
         )
+      end
+    end
+  end
+
+  describe '#validate_field_names' do
+    let(:form_id) { '28-1900' }
+    let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+    let(:template_fields) { %w[field1 field2 field3] }
+
+    before do
+      allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return(template_fields)
+    end
+
+    context 'when all field names match the template' do
+      let(:data_hash) { { 'field1' => 'value1', 'field2' => 'value2', 'field3' => 'value3' } }
+
+      it 'does not increment any StatsD metrics' do
+        expect(StatsD).not_to receive(:increment)
+
+        described_class.validate_field_names(template_path, data_hash, form_id)
+      end
+    end
+
+    context 'when some field names do not match the template' do
+      let(:data_hash) { { 'field1' => 'value1', 'wrong_field' => 'value2', 'another_wrong' => 'value3' } }
+
+      it 'increments StatsD mismatch metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                   tags: ["form_id:#{form_id}"])
+
+        described_class.validate_field_names(template_path, data_hash, form_id)
+      end
+    end
+
+    context 'when template fields cannot be extracted' do
+      let(:data_hash) { { 'field1' => 'value1' } }
+
+      before do
+        allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return([])
+      end
+
+      it 'increments StatsD mismatch metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                   tags: ["form_id:#{form_id}"])
+
+        described_class.validate_field_names(template_path, data_hash, form_id)
+      end
+    end
+  end
+
+  describe '#extract_template_field_names' do
+    let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+    let(:field_names) do
+      [
+        'form1[0].#subform[0].FirstName[0]',
+        'form1[0].#subform[0].LastName[0]'
+      ]
+    end
+
+    context 'when pdftk successfully extracts fields' do
+      before do
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:get_field_names)
+          .with(template_path)
+          .and_return(field_names)
+      end
+
+      it 'returns array of field names' do
+        result = described_class.extract_template_field_names(template_path)
+
+        expect(result).to eq(field_names)
+      end
+    end
+
+    context 'when pdftk command fails' do
+      before do
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:get_field_names)
+          .with(template_path)
+          .and_raise(StandardError.new('Error: file not found'))
+      end
+
+      it 'returns empty array' do
+        result = described_class.extract_template_field_names(template_path)
+
+        expect(result).to eq([])
+      end
+
+      it 'logs warning message' do
+        expect(Rails.logger).to receive(:warn).with(
+          'Failed to extract fields from PDF template',
+          template_path:,
+          error: 'Error: file not found'
+        )
+
+        described_class.extract_template_field_names(template_path)
       end
     end
   end

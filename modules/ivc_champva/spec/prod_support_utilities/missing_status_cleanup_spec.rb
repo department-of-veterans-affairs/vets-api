@@ -57,6 +57,18 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
       recent_form.destroy
     end
 
+    it 'filters out records created in the last 2 hours when ignore_recent is true' do
+      recent_form = create(:ivc_champva_form, pega_status: nil, created_at: 2.hours.ago.utc)
+      most_recent_form = create(:ivc_champva_form, pega_status: nil, created_at: 2.hours.ago.utc + 2.minutes)
+      result = subject.get_missing_statuses(silent: true, ignore_recent: true)
+
+      expect(result.keys.count).to eq(4)
+      expect(result.keys).not_to include(most_recent_form.form_uuid)
+
+      most_recent_form.destroy
+      recent_form.destroy
+    end
+
     it 'calls display_batch when silent is false' do
       display_batch_called = 0
       original_method = described_class.instance_method(:display_batch)
