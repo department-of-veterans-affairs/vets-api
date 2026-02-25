@@ -88,7 +88,9 @@ module V0
           # ALWAYS enable benefits intake for backward compatibility
           # The feature flag only controls whether to show ALL forms vs restricted list
           benefits_intake_enabled: true,
-          decision_reviews_enabled: display_decision_reviews_forms?
+          decision_reviews_enabled: display_decision_reviews_forms?,
+          ivc_champva_enabled: display_ivc_champva_forms?,
+          user_email: @current_user.email
         }
       end
 
@@ -104,6 +106,13 @@ module V0
       def display_decision_reviews_forms?
         Flipper.enabled?(
           :my_va_display_decision_reviews_forms,
+          @current_user
+        )
+      end
+
+      def display_ivc_champva_forms?
+        Flipper.enabled?(
+          :benefits_claims_ivc_champva_provider,
           @current_user
         )
       end

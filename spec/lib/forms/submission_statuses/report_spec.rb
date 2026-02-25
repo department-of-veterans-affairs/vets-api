@@ -249,6 +249,50 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
     end
   end
 
+  context 'when ivc champva gateway is enabled' do
+    subject(:report) do
+      described_class.new(
+        user_account:,
+        allowed_forms:,
+        gateway_options: {
+          benefits_intake_enabled: false,
+          decision_reviews_enabled: false,
+          ivc_champva_enabled: true,
+          user_email: 'test@example.com'
+        }
+      )
+    end
+
+    before do
+      create(
+        :ivc_champva_form,
+        email: 'test@example.com',
+        form_number: '10-10D-EXTENDED',
+        form_uuid: SecureRandom.uuid,
+        s3_status: '[200]',
+        pega_status: 'Processed',
+        ves_status: nil
+      )
+      create(
+        :ivc_champva_form,
+        email: 'other@example.com',
+        form_number: '10-10d',
+        form_uuid: SecureRandom.uuid,
+        s3_status: '[200]',
+        pega_status: 'Processed',
+        ves_status: nil
+      )
+    end
+
+    it 'returns ivc champva submissions for the current user only' do
+      result = report.run
+
+      expect(result.submission_statuses.size).to eq(1)
+      expect(result.submission_statuses.first.form_type).to eq('10-10D')
+      expect(result.submission_statuses.first.status).to eq('vbms')
+    end
+  end
+
   context 'logging errors' do
     let(:logger) { Rails.logger }
 

@@ -8,6 +8,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
 
   before do
     sign_in_as(user)
+    allow(Flipper).to receive(:enabled?)
+      .with(:benefits_claims_ivc_champva_provider, user).and_return(false)
   end
 
   describe 'GET #show' do
