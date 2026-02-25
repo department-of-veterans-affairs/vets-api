@@ -65,15 +65,14 @@ module IncreaseCompensation
         end
 
         process_attachments(in_progress_form, claim)
-        benefits_intake = benefits_intake_service
-        start_submission_background_job(claim.id, current_user&.user_account_uuid, benefits_intake)
+        start_submission_background_job(claim.id, current_user&.user_account_uuid)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
-        pdf_url = upload_to_s3(claim, config: s3_config, benefits_intake_uuid: benefits_intake.uuid)
-        log_success(claim, current_user&.user_account_uuid, benefits_intake&.uuid)
+        pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
+        log_success(claim, current_user&.user_account_uuid)
         clear_saved_form(claim.form_id[..6])
-        render json: build_response(benefits_intake.uuid, pdf_url, claim)
+        render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
@@ -117,40 +116,11 @@ module IncreaseCompensation
         params.require(short_name.to_sym).permit(:form)
       end
 
-      def s3_config
-        IncreaseCompensation::ZsfConfig.new
-      end
-
-      def benefits_intake_service
-        service = ::BenefitsIntake::Service.new
-        service.request_upload
-        service
-      end
-
-      def start_submission_background_job(claim_id, user_account_uuid, benefits_intake_service)
+      def start_submission_background_job(claim_id, user_account_uuid)
         IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(
           claim_id,
-          user_account_uuid,
-          benefits_intake_service
+          user_account_uuid
         )
-      end
-
-      def build_response(confirmation_number, pdf_url, claim)
-        attributes = {
-          confirmation_number:,
-          expiration_date: 1.year.from_now,
-          form: '21-8940',
-          guid: claim.guid,
-          pdf_url: pdf_url || nil,
-          regional_office: claim.regional_office,
-          submitted_at: claim.submitted_at,
-          submission_api: 'benefitsIntake'
-        }
-
-        { data: {
-          id: claim.id,
-          attributes:
-        } }
       end
 
       ##
@@ -177,13 +147,12 @@ module IncreaseCompensation
         @monitor ||= IncreaseCompensation::Monitor.new
       end
 
-      def log_success(claim, user_uuid, benefits_intake_uuid)
+      def log_success(claim, user_uuid)
         StatsD.increment("#{stats_key}.success")
         Rails.logger.info(
           'IncreaseCompensation::Controller Submission Saved',
           { claim_id: claim.id,
             confirmation_number: claim.confirmation_number,
-            benefits_intake_uuid:,
             user_uuid: }
         )
       end
