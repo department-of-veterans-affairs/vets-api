@@ -316,6 +316,7 @@ Rails.application.routes.draw do
         end
       end
       resources :address_validation, only: :create
+      resources :telephone_validation, only: :create
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
