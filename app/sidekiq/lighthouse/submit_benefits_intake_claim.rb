@@ -57,6 +57,9 @@ module Lighthouse
       # Upload to IBM MMS after successful Lighthouse submission
       govcio_upload if @ibm_payload.present?
 
+      # Worker success = Lighthouse accepted the upload and worker completed
+      # This does NOT mean Lighthouse has fully processed the submission
+      # FormSubmissionAttempt remains 'pending' until confirmed via polling or webhook
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
       StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["form_id:#{@claim.form_id}"])
 
@@ -64,6 +67,7 @@ module Lighthouse
 
       @lighthouse_service.uuid
     rescue => e
+      # Worker failure = upload to Lighthouse failed (network, validation, etc.)
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: ["form_id:#{@claim.form_id}"])
       @form_submission_attempt&.fail!
