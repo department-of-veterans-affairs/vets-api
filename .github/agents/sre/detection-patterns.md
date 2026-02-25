@@ -32,10 +32,14 @@ File: [Play 02](.github/agents/sre/plays/02-preserve-cause-chains.md)
 
 **What to look for:** Rescue blocks that catch an exception and raise a new one without passing `cause: e`. Also: converting an exception to a string with `raise "error: #{e}"` which destroys the original class, backtrace, and cause chain. The fix is `raise NewException.new(message, cause: e)` or bare `raise` to preserve automatically.
 
+Note: `raise e` inside `rescue => e` DOES preserve the cause chain (Ruby sets `cause` implicitly). Only flag when a *different* exception class is raised without `cause:`.
+
 Grep helpers:
 - `raise\s+".*#\{.*\}"` — HIGH: stringified re-raise destroys cause chain
 - `raise\s+\w+\.new\(.*\.message\)` — HIGH: wraps only the message, drops the exception object
 - `raise\s+\w+Exception\.new\([^)]*\)\s*$` — MEDIUM: new exception without `cause:` keyword — read context to check if inside a rescue block
+- `raise\s+Common::Exceptions::\w+\s*$` — MEDIUM: raises a platform exception without arguments — check if inside a rescue block (if so, cause chain is broken because the original exception is discarded)
+- `raise\s+[A-Z]\w+::\w+\s*$` — MEDIUM: raises a namespaced exception with no args inside a rescue — read context to confirm rescue block
 
 ### Play 03: Never Use Bare Rescues
 File: [Play 03](.github/agents/sre/plays/03-never-use-bare-rescues.md)
