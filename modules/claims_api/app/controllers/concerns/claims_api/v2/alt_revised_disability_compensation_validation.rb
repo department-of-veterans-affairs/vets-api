@@ -89,9 +89,11 @@ module ClaimsApi
         collect_error_if_value_not_present('city', form_object_desc) if city.blank?
       end
 
+      # rubocop:disable Metrics/MethodLength
       def alt_rev_validate_form_526_change_of_address_beginning_date
         # beginning date only needs to be validated for TEMPORARY address changes
         return unless form_attributes['changeOfAddress']&.dig('typeOfAddressChange') == 'TEMPORARY'
+
         change_of_address = form_attributes['changeOfAddress']
         begin_date = change_of_address.dig('dates', 'beginDate')
 
@@ -126,11 +128,12 @@ module ClaimsApi
         case change_of_address&.dig('typeOfAddressChange')&.upcase
         when 'PERMANENT'
           # if the address type is PERMANENT, the endDate should not be included
-          collect_error_messages(
-            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
-            source: '/changeOfAddress/dates/endDate'
-          ) if end_date.present?
-
+          if end_date.present?
+            collect_error_messages(
+              detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
+              source: '/changeOfAddress/dates/endDate'
+            )
+          end
         when 'TEMPORARY'
           # if the address type is TEMPORARY, the endDate must exist and be in chonological order from beginDate
           if end_date.blank?
@@ -150,12 +153,13 @@ module ClaimsApi
             end
           rescue ArgumentError, TypeError
             collect_error_messages(
-                detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
-                source: '/changeOfAddress/dates/endDate'
+              detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
+              source: '/changeOfAddress/dates/endDate'
               )
           end
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def alt_rev_validate_form_526_change_of_address_country
         country = form_attributes.dig('changeOfAddress', 'country')
@@ -179,7 +183,11 @@ module ClaimsApi
 
       def alt_rev_validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        alt_rev_validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+        if address['country'] == 'USA'
+          alt_rev_validate_form_526_usa_coa_conditions(address)
+        else
+          alt_rev_validate_form_526_international_address(address)
+        end
       end
 
       def alt_rev_validate_form_526_usa_coa_conditions(address)
@@ -199,6 +207,16 @@ module ClaimsApi
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
+      end
+
+      def alt_rev_validate_form_526_international_address(address)
+        # international post code required for international addresses
+        if address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         end
       end

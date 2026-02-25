@@ -427,6 +427,38 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'conditional validations when the country is not USA' do
+      before do
+        subject.form_attributes['changeOfAddress']['country'] = 'Afghanistan'
+        subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
+        subject.form_attributes['changeOfAddress']['state'] = nil
+      end
+
+      context 'internationalPostalCode is included' do
+        it 'does not return an error array' do
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = '151-8557'
+
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
+
+          expect(res).to be_nil
+          expect(current_error_array).to be_nil
+        end
+      end
+
+      context 'internationalPostalCode is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = ''
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
+
+          expect(current_error_array[0][:detail]).to eq(
+            'The internationalPostalCode is required if the country is not USA.'
+          )
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/internationalPostalCode')
+        end
+      end
+    end
+
     context 'when the country is not provided' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = ''
