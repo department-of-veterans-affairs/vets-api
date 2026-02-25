@@ -788,7 +788,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
   end
 
   describe '#validate_form_526_change_of_address!' do
-    let(:valid_countries) { %w[USA Canada United\ Kingdom] }
+    let(:valid_countries) { ['USA', 'Canada', 'United Kingdom'] }
 
     before do
       # Stubbing this because it's a method on the subject that fetches data from BRD
@@ -999,7 +999,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
             'city' => 'London',
             'country' => 'United Kingdom',
             'internationalPostalCode' => 'SW1A 1AA',
-            'addressChangeType' => 'PERMANENT', # needed to pass above validations
+            'addressChangeType' => 'PERMANENT' # needed to pass above validations
           }
         end
 
@@ -1033,7 +1033,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
             'militaryStateCode' => 'AE',
             'militaryPostOfficeTypeCode' => 'APO AE 09012',
             'firstFiveOfZip' => '12345',
-            'addressChangeType' => 'PERMANENT', # needed to pass above validations
+            'addressChangeType' => 'PERMANENT' # needed to pass above validations
           }
         end
 

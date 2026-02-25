@@ -155,7 +155,7 @@ module ClaimsApi
             collect_error_messages(
               detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
               source: '/changeOfAddress/dates/endDate'
-              )
+            )
           end
         end
       end

@@ -231,9 +231,10 @@ module ClaimsApi
 
     def validate_form_526_change_of_address_beginning_date!(change_of_address)
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
+
       beginning_date = change_of_address['beginningDate']
       # if 'TEMPORARY' address, 'beginningDate' is required and must be in the future.
-      if beginning_date.blank? || !(Date.parse(beginning_date) > Time.zone.now)
+      if beginning_date.blank? || (Date.parse(beginning_date) <= Time.zone.now)
         raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', beginning_date)
       end
     end
@@ -261,17 +262,20 @@ module ClaimsApi
       case address_type&.upcase
       when 'DOMESTIC'
         # city, state, and zipFirstFive are required for domestic addresses
-        if change_of_address['city'].blank? || change_of_address['state'].blank? || change_of_address['zipFirstFive'].blank?
+        if change_of_address['city'].blank? || change_of_address['state'].blank? ||
+           change_of_address['zipFirstFive'].blank?
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress', change_of_address)
         end
       when 'INTERNATIONAL'
         # city, country, and internationalPostalCode are required for international addresses
-        if change_of_address['city'].blank? || change_of_address['country'].blank? || change_of_address['internationalPostalCode'].blank? 
+        if change_of_address['city'].blank? || change_of_address['country'].blank? ||
+           change_of_address['internationalPostalCode'].blank?
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress', change_of_address)
         end
       when 'MILITARY'
         # militaryStateCode, militaryPostOfficeTypeCode, and firstFiveOfZip are required for military addresses
-        if change_of_address['militaryStateCode'].blank? || change_of_address['militaryPostOfficeTypeCode'].blank? || change_of_address['firstFiveOfZip'].blank?
+        if change_of_address['militaryStateCode'].blank? || change_of_address['militaryPostOfficeTypeCode'].blank? ||
+           change_of_address['firstFiveOfZip'].blank?
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress', change_of_address)
         end
       end
