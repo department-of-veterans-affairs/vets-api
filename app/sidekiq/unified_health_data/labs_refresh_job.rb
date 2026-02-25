@@ -44,10 +44,11 @@ module UnifiedHealthData
 
     def fetch_labs_data(user, start_date, end_date)
       uhd_service = UnifiedHealthData::Service.new(user)
-      uhd_service.get_labs(
+      result = uhd_service.get_labs(
         start_date: start_date.strftime('%Y-%m-%d'),
         end_date: end_date.strftime('%Y-%m-%d')
       )
+      result[:records]
     end
 
     def log_success(labs_data, start_date, end_date)
