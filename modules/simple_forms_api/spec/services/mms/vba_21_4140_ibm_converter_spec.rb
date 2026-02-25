@@ -5,72 +5,54 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
-  let(:form) do
-    OpenStruct.new(
-      first_name: 'John',
-      middle_initial: 'Q',
-      last_name: 'Doe',
-      ssn: ['123','45','6789'],
-      dob: '1980-01-15',
-      phone_primary: '(555) 123-4567',
-      signature_employed: 'John Doe',
-      signature_date_employed: '2024-01-01',
-      data: { 'email_address' => 'TEST@EMAIL.COM', 'id_number' => { 'va_file_number' => 'VA123' },  'date_of_birth' => '1980-01-15' },
-      address: OpenStruct.new(
-        address_line1: '123 Main',
-        address_line2: 'Apt 2',
-        address_line3: 'Attn: Testing',
-        city: 'Austin',
-        state_code: 'TX',
-        country_code_iso2: 'US',
-        zip_code: '78701-1234'
-      ),
-      employment_history: [
-        OpenStruct.new(
-          type_of_work: 'Full-time',
-          hours_per_week: '40',
-          lost_time_from_illness: '13',
-          highest_gross_income_per_month: 2300,
-          employment_dates: { from: '2018-03-15', to: '2020-06-30' },
-          name_and_address: 'IBM Corp',
-		  employer_address: OpenStruct.new(
-		            country: 'USA',
-		            street: '1234 Executive Ave',
-		            city: 'Metropolis',
-		            state: 'CA',
-		            postal_code: '90210'
-          )
-        )
-      ]
-    )
+  let(:fixture_file) { 'vba_21_4140.json' }
+  let(:fixture_path) do
+    Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', fixture_file)
   end
+  let(:data) { JSON.parse(File.read(fixture_path)) }
+  let(:form) { SimpleFormsApi::VBA214140.new(data) }
 
+  let(:ibm_fixture_file) { 'vba_21_4140_ibm_payload.json' }
+  let(:ibm_fixture_path) do
+    Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', ibm_fixture_file)
+  end
+  let(:ibm_payload) { JSON.parse(File.read(ibm_fixture_path)) } 
 
   describe '.convert' do
     subject(:payload) { described_class.convert(form) }
 
+    it 'converts a parsed form to the keys and formats expected by IBM' do
+      ibm_payload['DATE_SIGNED'] = Date.today.strftime('%m%d%Y')
+
+      expect(payload).to eq(ibm_payload)
+    end
+
     it 'normalizes SSN' do
-      expect(payload['VETERAN_SSN']).to eq('123456789')
+      expect(payload['VETERAN_SSN']).to eq('547901234')
     end
 
     it 'formats DOB as MMDDYYYY' do
-      expect(payload['VETERAN_DOB']).to eq('01151980')
+      expect(payload['VETERAN_DOB']).to eq('02271979')
     end
 
     it 'downcases email' do
-      expect(payload['EMAIL']).to eq('test@email.com')
+      expect(payload['EMAIL']).to eq('test@example.com')
     end
 
     it 'includes employer info' do
-      expect(payload['EMPLOYER_NAME_ADDRESS']).to eq('IBM Corp')
+      expect(payload['EMPLOYER_NAME_ADDRESS']).to eq('Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America')
     end
 
     it 'includes full name correctly' do
-      expect(payload['VETERAN_NAME']).to eq('John Q Doe')
+      expect(payload['VETERAN_FULL_NAME']).to eq('Rumpelstilts T Mephistopheles-Rei')
     end
 
     it 'truncates first name correctly' do
-      expect(payload['VETERAN_FIRST_NAME']).to eq('John')
+      expect(payload['VETERAN_FIRST_NAME']).to eq('Rumpelstilts')
+    end
+
+    it 'sets DATE_SIGNED as the current date' do
+      expect(payload['DATE_SIGNED']).to eq(Date.today.strftime('%m%d%Y'))
     end
   end
 end
