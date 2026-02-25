@@ -5,6 +5,8 @@ require 'digital_forms_api/service/submissions'
 
 module DigitalFormsApi
   class SubmissionsController < ApplicationController
+    service_tag 'digital-forms'
+
     def show
       check_flipper_flag
       begin
