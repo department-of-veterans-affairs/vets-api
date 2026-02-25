@@ -19,6 +19,7 @@ module Mobile
             clinics: true,
             facilities: true,
             travel_pay_claims: include_claims,
+            # Whether service returns avsPdf is based on: flipper state, whether OH, and start date of appt
             avs: start_date < 1.day.ago.utc
           }
 
