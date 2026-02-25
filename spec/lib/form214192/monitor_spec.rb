@@ -7,13 +7,11 @@ RSpec.describe Form214192::Monitor do
   subject(:monitor) { described_class.new }
 
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
-  let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:form_id) { described_class::FORM_ID }
 
   describe 'BaseMonitor abstract methods' do
     it 'implements required methods' do
       expect(monitor.claim_stats_key).to eq('api.form214192')
-      expect(monitor.submission_stats_key).to eq('worker.lighthouse.form214192_intake_job')
       expect(monitor.name).to eq('form214192')
       expect(monitor.form_id).to eq('21-4192')
     end
@@ -264,7 +262,7 @@ RSpec.describe Form214192::Monitor do
 
     it 'increments StatsD metric' do
       expect(StatsD).to receive(:increment).with(
-        "#{submission_stats_key}.begun",
+        "#{claim_stats_key}.submission.begun",
         hash_including(tags: array_including('service:form214192'))
       )
 
@@ -299,7 +297,7 @@ RSpec.describe Form214192::Monitor do
 
     it 'increments StatsD metric' do
       expect(StatsD).to receive(:increment).with(
-        "#{submission_stats_key}.success",
+        "#{claim_stats_key}.submission.success",
         hash_including(tags: array_including('service:form214192'))
       )
 
@@ -328,7 +326,7 @@ RSpec.describe Form214192::Monitor do
 
     it 'increments StatsD metric' do
       expect(StatsD).to receive(:increment).with(
-        "#{submission_stats_key}.failure",
+        "#{claim_stats_key}.submission.failure",
         hash_including(tags: array_including('service:form214192'))
       )
 

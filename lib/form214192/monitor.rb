@@ -13,7 +13,6 @@ module Form214192
     SERVICE_NAME = 'form214192'
     FORM_ID = '21-4192'
     CLAIM_STATS_KEY = 'api.form214192'
-    SUBMISSION_STATS_KEY = 'worker.lighthouse.form214192_intake_job'
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
@@ -64,10 +63,6 @@ module Form214192
       CLAIM_STATS_KEY
     end
 
-    def submission_stats_key
-      SUBMISSION_STATS_KEY
-    end
-
     def name
       SERVICE_NAME
     end
@@ -86,7 +81,7 @@ module Form214192
       submit_event(
         :info,
         "#{self.class.name} #{FORM_ID} submission begun",
-        "#{SUBMISSION_STATS_KEY}.begun",
+        "#{CLAIM_STATS_KEY}.submission.begun",
         claim:,
         user_uuid:,
         claim_guid: claim&.guid
@@ -103,7 +98,7 @@ module Form214192
       submit_event(
         :info,
         "#{self.class.name} #{FORM_ID} submission success",
-        "#{SUBMISSION_STATS_KEY}.success",
+        "#{CLAIM_STATS_KEY}.submission.success",
         claim:,
         user_uuid:,
         claim_guid: claim&.guid
@@ -121,7 +116,7 @@ module Form214192
       submit_event(
         :error,
         "#{self.class.name} #{FORM_ID} submission failure",
-        "#{SUBMISSION_STATS_KEY}.failure",
+        "#{CLAIM_STATS_KEY}.submission.failure",
         claim:,
         user_uuid:,
         claim_guid: claim&.guid,
