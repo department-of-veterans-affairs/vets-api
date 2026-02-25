@@ -99,6 +99,34 @@ describe SM::Client, '#status' do
     end
   end
 
+  describe '#get_oh_sync_status' do
+    let(:client) { described_class.new(session: { user_id: '10616687' }) }
+
+    before do
+      allow(client).to receive(:token_headers).and_return({})
+    end
+
+    it 'returns the sync status when finished' do
+      VCR.use_cassette('sm_client/messages/gets/oh_sync_status') do
+        result = client.get_oh_sync_status
+        expect(result).to be_a(Hash)
+        expect(result[:data][:status]).to eq('FINISHED')
+        expect(result[:data][:sync_complete]).to be(true)
+        expect(result[:data][:error]).to be_nil
+      end
+    end
+
+    it 'returns the sync status with error details when error' do
+      VCR.use_cassette('sm_client/messages/gets/oh_sync_status_error') do
+        result = client.get_oh_sync_status
+        expect(result).to be_a(Hash)
+        expect(result[:data][:status]).to eq('ERROR')
+        expect(result[:data][:sync_complete]).to be(true)
+        expect(result[:data][:error]).to eq('Sync failed due to upstream timeout')
+      end
+    end
+  end
+
   describe '#poll_message_status' do
     let(:client) { described_class.new(session: { user_id: '10616687' }) }
 
