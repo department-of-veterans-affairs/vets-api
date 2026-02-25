@@ -106,16 +106,19 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
   describe '#upload_form_526' do
     let(:pending_claim) do
-      instance_double(
-        ClaimsApi::AutoEstablishedClaim,
+      create(
+        :auto_established_claim,
         form_data: { 'autoCestPDFGenerationDisabled' => auto_cest_pdf_generation_disabled }
       )
     end
 
-    let(:error_message) do
+    # common error messages
+    let(:field_required_error) do
       'Claim submission requires that the "autoCestPDFGenerationDisabled" field ' \
         'must be set to "true" in order to allow a 526 PDF to be uploaded'
     end
+
+    let(:not_found_error) { 'Resource not found' }
 
     # expect document validations to pass
     before do
@@ -123,7 +126,8 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         validate_document_provided: nil,
         validate_documents_content_type: nil,
         validate_documents_page_size: nil,
-        claims_v1_logging: nil
+        claims_v1_logging: nil,
+        render: nil
       )
     end
 
@@ -139,7 +143,63 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         it 'returns the expected detail message' do
           expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
             .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
-              expect(error.errors.first.detail.squish).to eq(error_message)
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is true on the form' do
+        let(:auto_cest_pdf_generation_disabled) { true }
+
+        before do
+          allow(ClaimsApi::V1::Form526EstablishmentUpload).to receive(:perform_async).with(pending_claim&.id)
+        end
+
+        it 'calls the FES claim establishment and upload method' do
+          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(
+            :perform_async
+          ).with(pending_claim&.id).once
+        end
+
+        it 'does not call the ClaimEstablisher and ClaimUploader jobs' do
+          allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+          allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
+          expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async)
+        end
+
+        it 'renders the serialized pending claim' do
+          expect(controller).to receive(:render) do |args|
+            expect(args[:json]).to be_a(ClaimsApi::AutoEstablishedClaimSerializer)
+            expect(args[:json].serializable_hash[:data][:id]).to eq(pending_claim.id)
+          end
+
+          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+        let(:auto_cest_pdf_generation_disabled) { nil }
+
+        it "returns a 'resource not found' error" do
+          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
+              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            }
+        end
+      end
+
+      context 'when the pending claim cannot be found' do
+        before do
+          allow(ClaimsApi::AutoEstablishedClaim).to receive(:pending?).and_return(nil)
+        end
+
+        it "returns a 'resource not found' error" do
+          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
+              expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
         end
       end
