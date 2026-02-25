@@ -779,6 +779,29 @@ RSpec.describe V1::SessionsController, type: :controller do
         expect(call_endpoint).to redirect_to(expected_redirect_url)
       end
     end
+
+    context 'when exception cookie is present' do
+      let(:cookie_value) do
+        { code: '113',
+          request_id: 'some_request_id' }
+      end
+
+      let(:expected_redirect_url) { "http://127.0.0.1:3001/auth/login/callback?auth=fail&#{cookie_value.to_query}" }
+      let(:signed_jar) { instance_double(ActionDispatch::Cookies::SignedKeyRotatingCookieJar) }
+      let(:cookie_jar) { instance_double(ActionDispatch::Cookies::CookieJar) }
+      let(:cookie_name) { V1::SessionsController::LOGIN_EXCEPTION_COOKIE_NAME }
+
+      before do
+        allow(controller).to receive(:cookies).and_return(cookie_jar)
+        allow(signed_jar).to receive(:[]).with(cookie_name).and_return(cookie_value)
+        allow(cookie_jar).to receive(:signed).and_return(signed_jar)
+        allow(cookie_jar).to receive(:delete)
+      end
+
+      it 'redirects to the login_url with expected error code' do
+        expect(call_endpoint).to redirect_to(expected_redirect_url)
+      end
+    end
   end
 
   describe 'POST #saml_callback' do
@@ -996,7 +1019,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               }
             }
           end
-          let(:expected_redirect_params) { { auth: 'fail', code: '113', request_id: }.to_query }
+          let(:expected_redirect_url) { "https://int.eauth.va.gov/slo/globallogout?appKey=#{expected_app_key}" }
+          let(:expected_app_key) { 'https%253A%252F%252Fssoe-sp-dev.va.gov' }
+          let(:cookie_name) { V1::SessionsController::LOGIN_EXCEPTION_COOKIE_NAME }
 
           before do
             allow(Rails.logger).to receive(:error)
@@ -1009,8 +1034,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
           end
 
-          it 'responds with a correlation error message and code' do
-            expect(call_endpoint).to redirect_to(expected_redirect)
+          it 'sets an exc cookie with the expected error code and request id' do
+            expect(cookies.signed[:exc]).to eq({ code: '113', request_id: })
+          end
+
+          it 'redirects to ssoe global logout' do
+            expect(call_endpoint).to redirect_to(expected_redirect_url)
           end
         end
       end
