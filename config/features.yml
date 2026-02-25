@@ -289,6 +289,9 @@ features:
   champva_vanotify_custom_confirmation_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
+  champva_vanotify_custom_pega_alert_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending missing Pega status alert emails with VA Notify
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
@@ -753,6 +756,9 @@ features:
   decision_review_use_new_appealable_issues_service:
     actor_type: user
     description: Enables use of the new Appealable Issues service for fetching appealable issues.
+  decision_review_add_user_account_id_to_rum:
+    actor_type: user
+    description: Adds the user account ID to Datadog RUM logs for SC, HLR and NOD apps
   dependency_verification_browser_monitoring_enabled:
     actor_type: user
     description: Enable Datadog RUM/LOG monitoring for the form 21-0538
@@ -967,6 +973,10 @@ features:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
     enable_in_development: true
+  event_bus_gateway_retry_sms:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway sms that VA Notify marks temporary-failure
+    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1013,8 +1023,8 @@ features:
     description: Enables the Financial Management app to only use the VBS API
     enable_in_development: true
   find_a_representative_enabled:
-    actor_type: cookie_id
-    description: Generic toggle for gating Find a Rep
+    actor_type: user
+    description: Enables organization filtering in Find a Rep search
     enable_in_development: true
   find_a_representative_enable_api:
     actor_type: user
@@ -1685,6 +1695,10 @@ features:
     actor_type: user
     description: Enables sanitizeKramesHtmlStr function for Krames API prescription documentation
     enable_in_development: false
+  mhv_medications_oh_transition_refill_block:
+    actor_type: user
+    description: Blocks prescription refills for facilities transitioning to Oracle Health during phases p4-p6 (T-3 to T+2)
+    enable_in_development: true
   mhv_medications_oracle_health_cutover:
     actor_type: user
     description: Enables Oracle Health cutover functionality for the 4 Michigan VAMC facilities transitioning
@@ -1945,6 +1959,10 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  search_gov_maintenance:
+    actor_type: user
+    description: Use when Search.gov system maintenance impacts sitewide search
+    enable_in_development: true
   schema_contract_get_awards_pension:
     actor_type: user
     description: Enables schema validation for the pensions service get awards pension fetch.
@@ -1952,10 +1970,9 @@ features:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
     enable_in_development: true
-  search_gov_maintenance:
+  search_results_ui_update:
     actor_type: user
-    description: Use when Search.gov system maintenance impacts sitewide search
-    enable_in_development: true
+    description: Enables the updated search results UI
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page

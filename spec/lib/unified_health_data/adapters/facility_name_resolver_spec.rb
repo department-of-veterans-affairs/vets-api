@@ -165,15 +165,110 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:warn)
       end
 
       it 'returns nil when station number does not match 3-digit pattern' do
         result = subject.resolve_facility_name(dispense_with_short_station)
-        expect(Rails.logger).to have_received(:error).with(
+        expect(Rails.logger).to have_received(:warn).with(
           'Unable to extract valid station number from: 12-PHARMACY'
         )
         expect(result).to be_nil
+      end
+    end
+
+    context 'with MedicationDispense containing DoD facility identifier' do
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      context 'with zz prefix' do
+        let(:dispense_with_zz_prefix) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod',
+            'location' => { 'display' => 'zz0127-RX-CLINIC' }
+          }
+        end
+
+        it 'returns nil and logs info for zz prefix DoD identifier' do
+          result = subject.resolve_facility_name(dispense_with_zz_prefix)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Skipping DoD facility identifier: zz0127-RX-CLINIC'
+          )
+        end
+
+        it 'does not attempt facility lookup for zz prefix' do
+          expect(HealthFacility).not_to receive(:find_by)
+          subject.resolve_facility_name(dispense_with_zz_prefix)
+        end
+      end
+
+      context 'with uppercase zz prefix' do
+        let(:dispense_with_uppercase_zz) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-upper',
+            'location' => { 'display' => 'ZZ1656-RX-CLINIC' }
+          }
+        end
+
+        it 'returns nil for uppercase ZZ prefix (case-insensitive match)' do
+          result = subject.resolve_facility_name(dispense_with_uppercase_zz)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'with zz prefix and alphabetic station' do
+        let(:dispense_with_zz_alpha) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-alpha',
+            'location' => { 'display' => 'zzMAMC Main OP' }
+          }
+        end
+
+        it 'returns nil for zz prefix with alphabetic station (Madigan Army Medical Center)' do
+          result = subject.resolve_facility_name(dispense_with_zz_alpha)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Skipping DoD facility identifier: zzMAMC Main OP'
+          )
+        end
+      end
+
+      context 'with x prefix followed by uppercase letter' do
+        let(:dispense_with_x_prefix) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-x',
+            'location' => { 'display' => 'xNHOH Clinic IP' }
+          }
+        end
+
+        it 'returns nil for x prefix DoD identifier (Naval Hospital Oak Harbor)' do
+          result = subject.resolve_facility_name(dispense_with_x_prefix)
+          expect(result).to be_nil
+          expect(Rails.logger).to have_received(:info).with(
+            'Skipping DoD facility identifier: xNHOH Clinic IP'
+          )
+        end
+      end
+
+      context 'with various DoD ward suffixes' do
+        let(:dispense_with_ward_suffix) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-dod-ward',
+            'location' => { 'display' => 'zz757-ADM-WOMENS-OMNI' }
+          }
+        end
+
+        it 'returns nil for zz prefix with ward suffix' do
+          result = subject.resolve_facility_name(dispense_with_ward_suffix)
+          expect(result).to be_nil
+        end
       end
     end
 

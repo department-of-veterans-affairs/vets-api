@@ -796,7 +796,10 @@ RSpec.describe FormProfile, type: :model do
       'currentlyActiveDuty' => {
         'yes' => false
       },
-      'activeDuty' => false
+      'activeDuty' => false,
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863'
+      }
     }
   end
   let(:v28_8832_expected) do
