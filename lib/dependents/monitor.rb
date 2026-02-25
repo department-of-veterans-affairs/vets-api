@@ -49,7 +49,9 @@ module Dependents
 
       super('dependents-application', allowlist: ALLOWLIST)
 
-      @tags += ["service:#{service}"]
+      @use_v3 = get_use_v3
+      @use_v3_removal = get_use_v3_removal(@claim)
+      @tags = get_tags
     end
 
     def name
@@ -62,6 +64,25 @@ module Dependents
 
     def submission_stats_key
       SUBMISSION_STATS_KEY
+    end
+
+    # tag used for logging to identify ALL claims with v3 flipper active
+    def get_use_v3
+      Flipper.enabled?(:va_dependents_v3, user)
+    end
+
+    # tag used for logging to identify claims with v3 removal flow active
+    def get_use_v3_removal(claim)
+      claim&.parsed_form&.dig('dependents_application', 'is_v3_removal_flow') || false
+    end
+
+    def get_tags
+      @tags += ["service:#{service}"]
+      @tags += ["use_v3:#{@use_v3}", "v3_removal:#{@use_v3_removal}"] if @use_v3
+    end
+
+    def user
+      @user ||= @claim&.user_account&.user
     end
 
     def claim(claim_id)
