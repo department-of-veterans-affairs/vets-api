@@ -150,9 +150,7 @@ module UnifiedHealthData
         parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
         log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
-        clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
-        clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
-        warn_high_filter_rate(doc_ref_records.size, parsed_notes.size)
+        log_care_summaries_metrics(doc_ref_records, parsed_notes, start_date, end_date)
 
         { records: parsed_notes, warnings: }
       end
@@ -395,6 +393,12 @@ module UnifiedHealthData
 
         allergy['resource']['id'] = vista_identifier['value']
       end
+    end
+
+    def log_care_summaries_metrics(doc_ref_records, parsed_notes, start_date, end_date)
+      clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
+      clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
+      warn_high_filter_rate(doc_ref_records.size, parsed_notes.size)
     end
 
     # Keeps only parsed notes whose date falls within [start_date, end_date] (inclusive).
