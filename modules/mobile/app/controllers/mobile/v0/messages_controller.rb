@@ -127,7 +127,9 @@ module Mobile
       end
 
       def oh_sync_status
-        render json: client.get_oh_sync_status
+        result = client.get_oh_sync_status
+        data = result[:data] || {}
+        render json: Mobile::V0::OhSyncStatusSerializer.new(@current_user.uuid, data)
       end
 
       private

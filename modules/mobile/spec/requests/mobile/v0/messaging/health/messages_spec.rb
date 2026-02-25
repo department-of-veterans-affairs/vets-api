@@ -148,8 +148,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           expect(response).to be_successful
           result = JSON.parse(response.body)
-          expect(result['data']['status']).to eq('FINISHED')
-          expect(result['data']['syncComplete']).to be(true)
+          expect(result['data']['type']).to eq('oh_sync_status')
+          expect(result['data']['attributes']['status']).to eq('FINISHED')
+          expect(result['data']['attributes']['syncComplete']).to be(true)
+          expect(result['data']['attributes']['error']).to be_nil
         end
 
         it 'returns the OH sync status when error' do
@@ -159,9 +161,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           expect(response).to be_successful
           result = JSON.parse(response.body)
-          expect(result['data']['status']).to eq('ERROR')
-          expect(result['data']['syncComplete']).to be(true)
-          expect(result['data']['error']).to eq('Sync failed due to upstream timeout')
+          expect(result['data']['type']).to eq('oh_sync_status')
+          expect(result['data']['attributes']['status']).to eq('ERROR')
+          expect(result['data']['attributes']['syncComplete']).to be(true)
+          expect(result['data']['attributes']['error']).to eq('Sync failed due to upstream timeout')
         end
       end
 

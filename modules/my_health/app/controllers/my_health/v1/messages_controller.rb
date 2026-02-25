@@ -102,7 +102,9 @@ module MyHealth
       end
 
       def oh_sync_status
-        render json: client.get_oh_sync_status
+        result = client.get_oh_sync_status
+        data = result[:data] || {}
+        render json: OhSyncStatusSerializer.new(data)
       end
 
       private
