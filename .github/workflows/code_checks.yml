@@ -133,8 +133,20 @@ jobs:
             USER_ID=${{ env.VETS_API_USER_ID }}
           context: .
           push: false
+          load: true
+          tags: vets-api
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Export Docker image
+        run: docker save vets-api -o /tmp/vets-api.tar
+
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v6
+        with:
+          name: docker-image
+          path: /tmp/vets-api.tar
+          retention-days: 1
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
@@ -186,25 +198,14 @@ jobs:
         with:
           mask-password: true
 
-      - name: Set Environment Variable
-        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
+      - name: Download Docker image
+        uses: actions/download-artifact@v7
         with:
-          build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
-          context: .
-          push: false
-          load: true
-          tags: vets-api
-          cache-from: type=gha
+          name: docker-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: docker load -i /tmp/vets-api.tar
 
       # Shard balancing: if a runtime log exists (cached from a previous run),
       # parallel_test uses --group-by runtime to distribute specs by actual
