@@ -103,4 +103,46 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
       end
     end
   end
+
+  describe '#upload_form_526' do
+    let(:pending_claim) do
+      instance_double(
+        ClaimsApi::AutoEstablishedClaim,
+        form_data: { 'autoCestPDFGenerationDisabled' => auto_cest_pdf_generation_disabled }
+      )
+    end
+
+    let(:error_message) do
+      'Claim submission requires that the "autoCestPDFGenerationDisabled" field ' \
+        'must be set to "true" in order to allow a 526 PDF to be uploaded'
+    end
+
+    # expect document validations to pass
+    before do
+      allow(controller).to receive_messages(
+        validate_document_provided: nil,
+        validate_documents_content_type: nil,
+        validate_documents_page_size: nil,
+        claims_v1_logging: nil
+      )
+    end
+
+    describe 'with FES service enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:pending?).and_return(pending_claim)
+      end
+
+      context 'when autoCestPDFGenerationDisabled is false on the form' do
+        let(:auto_cest_pdf_generation_disabled) { false }
+
+        it 'returns the expected detail message' do
+          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(error_message)
+            }
+        end
+      end
+    end
+  end
 end
