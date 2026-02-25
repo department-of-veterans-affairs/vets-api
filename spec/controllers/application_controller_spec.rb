@@ -591,17 +591,18 @@ RSpec.describe ApplicationController, type: :controller do
 
     describe 'authorization failure logging (AU-3)' do
       context 'when a Pundit::NotAuthorizedError is raised' do
-        it 'logs an authorization failure with AU-3 required fields' do
+        it 'logs a forbidden response with AU-3 required fields' do
           allow(Rails.logger).to receive(:info)
 
           get :not_authorized
 
           expect(Rails.logger).to have_received(:info).with(
-            'Authorization failure (403)',
+            'Forbidden access (403)',
             hash_including(
               user_uuid: nil,
               request_id: anything,
-              remote_ip: anything
+              remote_ip: a_kind_of(String),
+              detail: 'User does not have access to the requested resource'
             )
           )
           expect(response).to have_http_status(:forbidden)
@@ -620,8 +621,13 @@ RSpec.describe ApplicationController, type: :controller do
             get :not_authorized
 
             expect(Rails.logger).to have_received(:info).with(
-              'Authorization failure (403)',
-              hash_including(user_uuid: user.uuid)
+              'Forbidden access (403)',
+              hash_including(
+                user_uuid: user.uuid,
+                request_id: anything,
+                remote_ip: a_kind_of(String),
+                detail: 'User does not have access to the requested resource'
+              )
             )
             expect(response).to have_http_status(:forbidden)
           end
@@ -629,17 +635,18 @@ RSpec.describe ApplicationController, type: :controller do
       end
 
       context 'when a Common::Exceptions::Forbidden is raised directly' do
-        it 'logs an authorization failure with AU-3 required fields' do
+        it 'logs a forbidden response with AU-3 required fields' do
           allow(Rails.logger).to receive(:info)
 
           get :forbidden
 
           expect(Rails.logger).to have_received(:info).with(
-            'Authorization failure (403)',
+            'Forbidden access (403)',
             hash_including(
               user_uuid: nil,
               request_id: anything,
-              remote_ip: anything
+              remote_ip: a_kind_of(String),
+              detail: 'Forbidden'
             )
           )
           expect(response).to have_http_status(:forbidden)

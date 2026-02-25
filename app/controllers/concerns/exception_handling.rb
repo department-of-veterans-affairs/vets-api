@@ -59,7 +59,7 @@ module ExceptionHandling
         report_mapped_exception(exception, va_exception)
       end
 
-      log_authorization_failure(va_exception) if va_exception.status_code == 403
+      log_forbidden(va_exception) if va_exception.status_code == 403
 
       headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
       render_errors(va_exception)
@@ -104,15 +104,15 @@ module ExceptionHandling
     request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&.set_error(exception)
   end
 
-  # Log authorization failures with AU-3 required fields (NIST SP 800-53)
-  # to ensure 403 responses are consistently auditable in Datadog.
-  def log_authorization_failure(va_exception)
+  # Log 403 Forbidden responses with AU-3 required fields (NIST SP 800-53)
+  # to ensure all forbidden responses are consistently auditable in Datadog.
+  def log_forbidden(va_exception)
     Rails.logger.info(
-      'Authorization failure (403)',
+      'Forbidden access (403)',
       user_uuid: current_user&.uuid,
       request_id: request.uuid,
       remote_ip: request.remote_ip,
-      detail: va_exception.errors.map(&:to_hash)
+      detail: va_exception.errors.first&.detail
     )
   end
 end
