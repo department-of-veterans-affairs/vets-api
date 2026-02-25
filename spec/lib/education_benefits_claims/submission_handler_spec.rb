@@ -5,7 +5,7 @@ require 'education_benefits_claims/submission_handler'
 require 'education_benefits_claims/monitor'
 require 'education_benefits_claims/notification_email'
 
-Rspec.describe EducationBenefitsClaims::SubmissionHandler do
+RSpec.describe EducationBenefitsClaims::SubmissionHandler do
   let(:handler) { described_class.for_form_id('22-0989') }
   let(:claim) { create(:va0989) }
   let(:monitor) { double(EducationBenefitsClaims::Monitor) }
