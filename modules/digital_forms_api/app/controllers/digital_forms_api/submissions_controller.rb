@@ -19,7 +19,7 @@ module DigitalFormsApi
         else
           render json: { error: 'Internal server error' }, status: :internal_server_error
         end
-      rescue => e
+      rescue
         render json: { error: 'Internal server error' }, status: :internal_server_error
       end
     end

@@ -25,7 +25,7 @@ RSpec.describe DigitalFormsApi::SubmissionsController, type: :controller do
       let(:cassette) { 'retrieve_686c' }
 
       it 'returns the submission and template' do
-        VCR.use_cassette("digital_forms/template_686c") do
+        VCR.use_cassette('digital_forms/template_686c') do
           retrieve_submission!
         end
         expect(response).to have_http_status(:ok)
