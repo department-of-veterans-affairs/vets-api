@@ -329,6 +329,18 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
         expect(result.length).to eq(1)
         expect(result.first[:tracking_number]).to eq('TRACK-001')
       end
+
+      it 'logs warnings for dispenses with partial tracking info' do
+        expect(Rails.logger).to receive(:warn).with(
+          'OracleHealthTrackingHelper: Partial tracking info for resource 12345. ' \
+          'Tracking number: present, carrier: missing'
+        )
+        expect(Rails.logger).to receive(:warn).with(
+          'OracleHealthTrackingHelper: Partial tracking info for resource 12345. ' \
+          'Tracking number: missing, carrier: present'
+        )
+        helper.build_tracking_information(resource_with_mixed_dispenses)
+      end
     end
 
     context 'with multiple shipping-info extensions on a single dispense (multi-package shipment)' do
@@ -480,6 +492,118 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
 
         expect(result.length).to eq(1)
         expect(result.first[:tracking_number]).to eq('VALID-TRACK')
+      end
+
+      it 'logs a warning for the extension with carrier but no tracking number' do
+        expect(Rails.logger).to receive(:warn).with(
+          'OracleHealthTrackingHelper: Partial tracking info for resource 88888. ' \
+          'Tracking number: missing, carrier: present'
+        )
+        helper.build_tracking_information(resource_with_partial_multi_package)
+      end
+    end
+
+    context 'with tracking number but no carrier (partial tracking info)' do
+      let(:resource_with_tracking_no_carrier) do
+        {
+          'id' => '77777',
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => 'TRACK-NO-CARRIER' },
+                    { 'url' => 'Shipped Date', 'valueString' => '2026-02-10 10:00:00.0' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'still returns the tracking hash with a nil carrier' do
+        result = helper.build_tracking_information(resource_with_tracking_no_carrier)
+
+        expect(result.length).to eq(1)
+        expect(result.first[:tracking_number]).to eq('TRACK-NO-CARRIER')
+        expect(result.first[:carrier]).to be_nil
+      end
+
+      it 'logs a warning about partial tracking info' do
+        expect(Rails.logger).to receive(:warn).with(
+          'OracleHealthTrackingHelper: Partial tracking info for resource 77777. ' \
+          'Tracking number: present, carrier: missing'
+        )
+        helper.build_tracking_information(resource_with_tracking_no_carrier)
+      end
+    end
+
+    context 'with carrier but no tracking number (partial tracking info)' do
+      let(:resource_with_carrier_no_tracking) do
+        {
+          'id' => '66666',
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Delivery Service', 'valueString' => 'UPS' },
+                    { 'url' => 'Shipped Date', 'valueString' => '2026-02-10 10:00:00.0' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'returns no tracking results' do
+        result = helper.build_tracking_information(resource_with_carrier_no_tracking)
+
+        expect(result).to be_empty
+      end
+
+      it 'logs a warning about partial tracking info' do
+        expect(Rails.logger).to receive(:warn).with(
+          'OracleHealthTrackingHelper: Partial tracking info for resource 66666. ' \
+          'Tracking number: missing, carrier: present'
+        )
+        helper.build_tracking_information(resource_with_carrier_no_tracking)
+      end
+    end
+
+    context 'with both tracking number and carrier present' do
+      let(:resource_with_complete_tracking) do
+        {
+          'id' => '55555',
+          'contained' => [
+            {
+              'resourceType' => 'MedicationDispense',
+              'id' => 'dispense-1',
+              'extension' => [
+                {
+                  'url' => 'http://va.gov/fhir/StructureDefinition/shipping-info',
+                  'extension' => [
+                    { 'url' => 'Tracking Number', 'valueString' => 'COMPLETE-TRACK' },
+                    { 'url' => 'Delivery Service', 'valueString' => 'FEDEX' }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      it 'does not log any partial tracking warning' do
+        expect(Rails.logger).not_to receive(:warn)
+        helper.build_tracking_information(resource_with_complete_tracking)
       end
     end
   end

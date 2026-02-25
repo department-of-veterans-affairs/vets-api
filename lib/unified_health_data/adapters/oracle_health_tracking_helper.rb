@@ -5,6 +5,8 @@ module UnifiedHealthData
     # Helper module for extracting tracking information from Oracle Health FHIR MedicationRequest resources
     # Supports both extension-based (new format) and identifier-based (legacy format) tracking data
     module OracleHealthTrackingHelper
+      SHIPPING_INFO_URL = 'http://va.gov/fhir/StructureDefinition/shipping-info'
+
       # Builds tracking information from MedicationRequest dispenses
       # Tries extension-based format first, falls back to identifier-based format
       #
@@ -42,7 +44,8 @@ module UnifiedHealthData
         end
       end
 
-      # Builds a single tracking hash from one shipping-info extension
+      # Builds a single tracking hash from one shipping-info extension.
+      # Identification is based on the extension URL (SHIPPING_INFO_URL), not individual field names.
       #
       # @param resource [Hash] FHIR MedicationRequest resource
       # @param shipping_extension [Hash] A single shipping-info extension
@@ -52,11 +55,17 @@ module UnifiedHealthData
         return nil if nested_extensions.empty?
 
         tracking_number = find_extension_value(nested_extensions, 'Tracking Number')
+        carrier = find_extension_value(nested_extensions, 'Delivery Service')
+
+        if partial_tracking_info?(tracking_number, carrier)
+          log_partial_tracking_info(resource, tracking_number, carrier)
+        end
+
         return nil unless tracking_number
 
         extension_data = {
           tracking_number:,
-          carrier: find_extension_value(nested_extensions, 'Delivery Service'),
+          carrier:,
           shipped_date: find_extension_value(nested_extensions, 'Shipped Date'),
           prescription_name: find_extension_value(nested_extensions, 'Prescription Name'),
           prescription_number: find_extension_value(nested_extensions, 'Prescription Number'),
@@ -68,12 +77,27 @@ module UnifiedHealthData
 
       # Finds all shipping-info extensions from a dispense's extension array.
       # Multi-package shipments may have multiple shipping-info extensions on one dispense.
+      # Identification is based on the extension URL, not individual nested field names.
       #
       # @param dispense [Hash] FHIR MedicationDispense resource
       # @return [Array<Hash>] Matching shipping extensions (may be empty)
       def find_shipping_extensions(dispense)
         extensions = dispense['extension'] || []
-        extensions.select { |ext| ext['url'] == 'http://va.gov/fhir/StructureDefinition/shipping-info' }
+        extensions.select { |ext| ext['url'] == SHIPPING_INFO_URL }
+      end
+
+      # Checks if tracking info is partial (one of tracking_number/carrier is present but not the other)
+      def partial_tracking_info?(tracking_number, carrier)
+        tracking_number.present? ^ carrier.present?
+      end
+
+      # Logs a warning when partial tracking info is encountered
+      def log_partial_tracking_info(resource, tracking_number, carrier)
+        Rails.logger.warn(
+          'OracleHealthTrackingHelper: Partial tracking info for resource ' \
+          "#{resource['id']}. Tracking number: #{tracking_number.present? ? 'present' : 'missing'}, " \
+          "carrier: #{carrier.present? ? 'present' : 'missing'}"
+        )
       end
 
       # Finds an extension value by exact URL match
