@@ -59,7 +59,7 @@ module ExceptionHandling
         report_mapped_exception(exception, va_exception)
       end
 
-      log_forbidden(va_exception) if va_exception.status_code == 403
+      log_forbidden(va_exception) if va_exception.respond_to?(:status_code) && va_exception.status_code == 403
 
       headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
       render_errors(va_exception)
