@@ -1338,7 +1338,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-          description: Bad Gateway - upstream service error
+          description: Bad Gateway – upstream secure messaging service error
       summary: /v1/messaging/messages/oh_sync_status
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
@@ -3360,7 +3360,7 @@ components:
         category:
           type: string
           description: |
-            Message category. This must be one of the values returned by the 
+            Message category. This must be one of the values returned by the
             <pre>/v1/messaging/messages/categories</pre> endpoint.
           example: OTHER
         body:
