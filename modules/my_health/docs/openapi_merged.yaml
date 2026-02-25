@@ -1333,6 +1333,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Gateway - upstream service error
       summary: /v1/messaging/messages/oh_sync_status
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
