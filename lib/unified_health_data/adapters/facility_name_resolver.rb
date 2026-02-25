@@ -6,11 +6,10 @@ module UnifiedHealthData
   module Adapters
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
-      # DoD (Department of Defense) facility identifiers typically start with:
-      # - 'zz' prefix (most common)
-      # - 'x' followed by a letter (e.g., 'xNHOH')
-      # These are not valid VA station numbers and should be handled gracefully.
-      DOD_PREFIX_PATTERN = /^(zz|x[A-Z])/i
+      # Valid VA station numbers start with exactly 3 digits, optionally followed
+      # by a hyphen or alpha characters (e.g., '648', '648A4', '648-Main').
+      # Non-matching identifiers (e.g., DoD 4+ digit codes, zz/x prefixes) are excluded.
+      VA_STATION_PATTERN = /^\d{3}(?!\d)/
 
       # Extracts facility name from a FHIR MedicationDispense resource
       #
@@ -22,30 +21,19 @@ module UnifiedHealthData
         # Get .location.display from dispense
         location_display = dispense.dig('location', 'display')
         return nil unless location_display
-        return if dod_identifier?(location_display)
+
+        unless location_display.match?(VA_STATION_PATTERN)
+          Rails.logger.info("Skipping non-VA station identifier: #{location_display}")
+          return nil
+        end
 
         # First try the legacy 3-digit station number
-        three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
+        three_digit_station = location_display[0, 3]
         facility_name = lookup(three_digit_station)
         return facility_name if facility_name
 
         # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
-        facility_identifier = location_display.split('-').first
-        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
-        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
-        if facility_identifier.present? && facility_identifier != three_digit_station &&
-           facility_identifier.match?(valid_station_regex)
-          facility_identifier_lookup = lookup(facility_identifier)
-          if facility_identifier_lookup.nil?
-            Rails.logger.info("No facility name found for facility identifier: #{facility_identifier}
-            or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display")
-          end
-          return facility_identifier_lookup
-        end
-
-        Rails.logger.warn("Unable to extract valid station number from: #{location_display}")
-
-        nil
+        resolve_extended_station(location_display, three_digit_station)
       end
 
       # Looks up facility name by station identifier with caching
@@ -70,15 +58,23 @@ module UnifiedHealthData
 
       private
 
-      # Checks if the location display value is a DoD facility identifier
-      #
-      # @param location_display [String] Location display value from FHIR resource
-      # @return [Boolean] true if the identifier is a DoD facility
-      def dod_identifier?(location_display)
-        return false unless location_display.match?(DOD_PREFIX_PATTERN)
+      # Attempts lookup using the extended facility identifier (e.g., 648A4 from '648A4-RX-MAIN')
+      def resolve_extended_station(location_display, three_digit_station)
+        facility_identifier = location_display.split('-').first
+        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
 
-        Rails.logger.info("Skipping DoD facility identifier: #{location_display}")
-        true
+        if facility_identifier.present? && facility_identifier != three_digit_station &&
+           facility_identifier.match?(valid_station_regex)
+          facility_name = lookup(facility_identifier)
+          if facility_name.nil?
+            Rails.logger.info("No facility name found for facility identifier: #{facility_identifier}
+            or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display")
+          end
+          return facility_name
+        end
+
+        Rails.logger.warn("Unable to extract valid station number from: #{location_display}")
+        nil
       end
 
       # Fetches facility name from Lighthouse API

@@ -165,19 +165,19 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:info)
       end
 
-      it 'returns nil when station number does not match 3-digit pattern' do
+      it 'returns nil and logs info when station number does not match 3-digit pattern' do
         result = subject.resolve_facility_name(dispense_with_short_station)
-        expect(Rails.logger).to have_received(:warn).with(
-          'Unable to extract valid station number from: 12-PHARMACY'
-        )
         expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Skipping non-VA station identifier: 12-PHARMACY'
+        )
       end
     end
 
-    context 'with MedicationDispense containing DoD facility identifier' do
+    context 'with MedicationDispense containing non-VA facility identifier' do
       before do
         allow(Rails.logger).to receive(:info)
       end
@@ -195,7 +195,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           result = subject.resolve_facility_name(dispense_with_zz_prefix)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:info).with(
-            'Skipping DoD facility identifier: zz0127-RX-CLINIC'
+            'Skipping non-VA station identifier: zz0127-RX-CLINIC'
           )
         end
 
@@ -214,7 +214,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           }
         end
 
-        it 'returns nil for uppercase ZZ prefix (case-insensitive match)' do
+        it 'returns nil for uppercase ZZ prefix' do
           result = subject.resolve_facility_name(dispense_with_uppercase_zz)
           expect(result).to be_nil
         end
@@ -233,7 +233,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           result = subject.resolve_facility_name(dispense_with_zz_alpha)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:info).with(
-            'Skipping DoD facility identifier: zzMAMC Main OP'
+            'Skipping non-VA station identifier: zzMAMC Main OP'
           )
         end
       end
@@ -251,7 +251,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           result = subject.resolve_facility_name(dispense_with_x_prefix)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:info).with(
-            'Skipping DoD facility identifier: xNHOH Clinic IP'
+            'Skipping non-VA station identifier: xNHOH Clinic IP'
           )
         end
       end
@@ -272,8 +272,8 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
     end
 
-    context 'with MedicationDispense containing out-of-range OH station number' do
-      let(:dispense_with_invalid_station) do
+    context 'with MedicationDispense containing 4-digit station number (non-VA pattern)' do
+      let(:dispense_with_4digit_station) do
         {
           'resourceType' => 'MedicationDispense',
           'id' => 'dispense-1',
@@ -281,37 +281,21 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         }
       end
 
-      let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
-
       before do
-        allow(Rails.cache).to receive(:read).and_return(nil)
-        allow(Rails.cache).to receive_messages(read: nil, exist?: false)
-        allow(Rails.cache).to receive(:write)
         allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:warn)
-        allow(HealthFacility).to receive(:find_by).and_return(nil)
-        allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
-        allow(mock_client).to receive(:get_facilities).and_return([])
       end
 
-      it 'logs info message when facility is not found for either station format' do
-        subject.resolve_facility_name(dispense_with_invalid_station)
-
+      it 'returns nil and logs non-VA identifier skip' do
+        result = subject.resolve_facility_name(dispense_with_4digit_station)
+        expect(result).to be_nil
         expect(Rails.logger).to have_received(:info).with(
-          a_string_matching(
-            Regexp.new(
-              'No facility name found for facility identifier: 7200.*' \
-              'or 3 digit station: 720.*' \
-              'derived from 7200-RX-MAIN',
-              Regexp::MULTILINE
-            )
-          )
+          'Skipping non-VA station identifier: 7200-RX-MAIN'
         )
       end
 
-      it 'returns nil when neither database nor API finds the facility' do
-        result = subject.resolve_facility_name(dispense_with_invalid_station)
-        expect(result).to be_nil
+      it 'does not attempt facility lookup' do
+        expect(HealthFacility).not_to receive(:find_by)
+        subject.resolve_facility_name(dispense_with_4digit_station)
       end
     end
 
