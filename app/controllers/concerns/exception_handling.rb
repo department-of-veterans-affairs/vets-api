@@ -65,6 +65,7 @@ module ExceptionHandling
       render_errors(va_exception)
     end
   end
+
   def render_errors(va_exception)
     case va_exception
     when JsonSchema::JsonApiMissingAttribute
@@ -112,7 +113,7 @@ module ExceptionHandling
       user_uuid: current_user&.uuid,
       request_id: request.uuid,
       remote_ip: request.remote_ip,
-      detail: va_exception.errors.first&.detail
+      detail: va_exception.errors.map(&:to_h)
     )
   end
 end

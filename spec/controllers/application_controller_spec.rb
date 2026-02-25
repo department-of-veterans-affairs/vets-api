@@ -591,6 +591,13 @@ RSpec.describe ApplicationController, type: :controller do
 
     describe 'authorization failure logging (AU-3)' do
       context 'when a Pundit::NotAuthorizedError is raised' do
+        let(:expected_detail) do
+          [{ title: 'Forbidden',
+             detail: 'User does not have access to the requested resource',
+             code: '403',
+             status: '403' }]
+        end
+
         it 'logs a forbidden response with AU-3 required fields' do
           allow(Rails.logger).to receive(:info)
 
@@ -602,7 +609,7 @@ RSpec.describe ApplicationController, type: :controller do
               user_uuid: nil,
               request_id: anything,
               remote_ip: a_kind_of(String),
-              detail: 'User does not have access to the requested resource'
+              detail: expected_detail
             )
           )
           expect(response).to have_http_status(:forbidden)
@@ -626,7 +633,7 @@ RSpec.describe ApplicationController, type: :controller do
                 user_uuid: user.uuid,
                 request_id: anything,
                 remote_ip: a_kind_of(String),
-                detail: 'User does not have access to the requested resource'
+                detail: expected_detail
               )
             )
             expect(response).to have_http_status(:forbidden)
@@ -646,7 +653,7 @@ RSpec.describe ApplicationController, type: :controller do
               user_uuid: nil,
               request_id: anything,
               remote_ip: a_kind_of(String),
-              detail: 'Forbidden'
+              detail: [{ title: 'Forbidden', detail: 'Forbidden', code: '403', status: '403' }]
             )
           )
           expect(response).to have_http_status(:forbidden)
