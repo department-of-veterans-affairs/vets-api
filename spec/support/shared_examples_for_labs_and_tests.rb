@@ -170,9 +170,9 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
         expect(obs['testCode']).to be_present
         expect(obs['testCode']).to be_a(String)
 
-        # status must be a valid FHIR status
+        # status must be a valid FHIR status (capitalized by the adapter)
         valid_statuses = %w[registered preliminary final amended corrected cancelled entered-in-error unknown]
-        expect(valid_statuses).to include(obs['status']) if obs['status'].present?
+        expect(valid_statuses).to include(obs['status'].downcase) if obs['status'].present?
 
         # value must have text and type
         value = obs['value']
@@ -181,7 +181,7 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
 
         # Optional fields should be strings when present
         expect(obs['referenceRange']).to be_a(String) if obs['referenceRange'].present?
-        expect(obs['comments']).to be_a(String) if obs['comments'].present?
+        expect(obs['comments']).to be_an(Array) if obs['comments'].present?
         expect(obs['bodySite']).to be_a(String) if obs['bodySite'].present?
         expect(obs['sampleTested']).to be_a(String) if obs['sampleTested'].present?
       end
@@ -250,7 +250,7 @@ RSpec.shared_examples 'labs and tests specific data validation' do |response_dat
 
     first_obs = observations.first
     expect(first_obs['testCode']).to eq('URINE COLOR')
-    expect(first_obs['status']).to eq('final')
+    expect(first_obs['status']).to eq('Final')
     expect(first_obs.dig('value', 'type')).to eq('string')
     expect(first_obs.dig('value', 'text')).to eq('clear')
   end
