@@ -71,7 +71,7 @@ module IncreaseCompensation
         monitor.track_create_success(in_progress_form, claim, current_user)
 
         pdf_url = upload_to_s3(claim, config: s3_config, benefits_intake_uuid: benefits_intake.uuid)
-        log_success(claim, current_user&.user_account_uuid)
+        log_success(claim, current_user&.user_account_uuid, benefits_intake&.uuid)
         clear_saved_form(claim.form_id[..6])
         render json: build_response(benefits_intake.uuid, pdf_url, claim)
       rescue => e
@@ -177,10 +177,14 @@ module IncreaseCompensation
         @monitor ||= IncreaseCompensation::Monitor.new
       end
 
-      def log_success(claim, user_uuid)
+      def log_success(claim, user_uuid, benefits_intake_uuid)
         StatsD.increment("#{stats_key}.success")
         Rails.logger.info(
-          "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
+          'IncreaseCompensation::Controller Submission Saved',
+          { claim_id: claim.id,
+            confirmation_number: claim.confirmation_number,
+            benefits_intake_uuid:,
+            user_uuid: }
         )
       end
 
