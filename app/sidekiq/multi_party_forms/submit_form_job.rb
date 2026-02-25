@@ -8,6 +8,7 @@ module MultiPartyForms
     include Vets::SharedLogging
 
     class MergeServiceNotFoundError < StandardError; end
+    class MissingFormDataError < StandardError; end
 
     RETRY = 10
     STATSD_KEY_PREFIX = 'worker.multi_party_forms.submit_form'
@@ -65,6 +66,9 @@ module MultiPartyForms
       primary_data = @submission.primary_in_progress_form.form_data
       secondary_data = @submission.secondary_in_progress_form.form_data
 
+      raise MissingFormDataError, "Missing primary form data for submission #{@submission.id}" if primary_data.nil?
+      raise MissingFormDataError, "Missing secondary form data for submission #{@submission.id}" if secondary_data.nil?
+
       resolve_merge_service.new(primary_data, secondary_data).merge
     end
 
@@ -86,8 +90,11 @@ module MultiPartyForms
     def enqueue_lighthouse_submission
       return if @submission.submitted_at.present?
 
-      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(@submission.saved_claim_id)
       @submission.update!(submitted_at: Time.zone.now)
+      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(@submission.saved_claim_id)
+    rescue
+      @submission.update!(submitted_at: nil)
+      raise
     end
 
     def enqueue_confirmation_emails

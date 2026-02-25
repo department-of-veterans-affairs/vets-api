@@ -207,5 +207,53 @@ RSpec.describe MultiPartyForms::SubmitFormJob, type: :job do
         expect(StatsD).to have_received(:increment).with("#{described_class::STATSD_KEY_PREFIX}.failure")
       end
     end
+
+    context 'when primary form data is nil' do
+      before do
+        primary_in_progress_form.update_columns(form_data: nil)
+      end
+
+      it 'raises MissingFormDataError' do
+        expect { job.perform(submission.id) }
+          .to raise_error(described_class::MissingFormDataError, /Missing primary form data/)
+      end
+
+      it 'does not enqueue the Lighthouse submission job' do
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async)
+
+        expect { job.perform(submission.id) }.to raise_error(described_class::MissingFormDataError)
+      end
+    end
+
+    context 'when secondary form data is nil' do
+      before do
+        secondary_in_progress_form.update_columns(form_data: nil)
+      end
+
+      it 'raises MissingFormDataError' do
+        expect { job.perform(submission.id) }
+          .to raise_error(described_class::MissingFormDataError, /Missing secondary form data/)
+      end
+
+      it 'does not enqueue the Lighthouse submission job' do
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async)
+
+        expect { job.perform(submission.id) }.to raise_error(described_class::MissingFormDataError)
+      end
+    end
+
+    context 'when Lighthouse::SubmitBenefitsIntakeClaim.perform_async fails' do
+      before do
+        submission.update!(saved_claim:)
+        allow(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async)
+          .and_raise(Redis::ConnectionError, 'connection refused')
+      end
+
+      it 'rolls back submitted_at so the job can be retried' do
+        expect { job.perform(submission.id) }.to raise_error(Redis::ConnectionError)
+
+        expect(submission.reload.submitted_at).to be_nil
+      end
+    end
   end
 end
