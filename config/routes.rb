@@ -78,10 +78,15 @@ Rails.application.routes.draw do
     end
 
     namespace :multi_party_forms do
-      resources :primary, only: %i[create show]
-      resources :secondary, only: [] do
+      resources :primary, only: %i[create show] do
+        member do
+          post :complete
+        end
+      end
+      resources :secondary, only: [:show] do
         member do
           post :start
+          post :complete
         end
       end
     end
@@ -450,7 +455,6 @@ Rails.application.routes.draw do
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount DigitalFormsApi::Engine, at: '/digital_forms_api'
-  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IncreaseCompensation::Engine, at: '/increase_compensation'

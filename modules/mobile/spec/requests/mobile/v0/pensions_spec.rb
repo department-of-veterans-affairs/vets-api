@@ -21,6 +21,25 @@ RSpec.describe 'Mobile::V0::Pensions', type: :request do
       )
     end
 
+    context 'when :schema_contract_get_awards_pension is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('schema_contract_get_awards_pension').and_return(true)
+      end
+
+      let(:user_account) { create(:user_account) }
+
+      it 'initiates schema contract validation' do
+        sis_user.user_account_uuid = user_account.id
+        sis_user.save!
+
+        VCR.use_cassette('bid/awards/get_awards_pension') do
+          get '/mobile/v0/pensions', headers: sis_headers
+        end
+        SchemaContract::ValidationJob.drain
+        expect(SchemaContract::Validation.last.status).to eq('success')
+      end
+    end
+
     context 'when upstream service returns error' do
       it 'returns error' do
         allow_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_return(false)
