@@ -27,9 +27,17 @@ module V0
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid) if defined?(claim)
       handle_general_error(e, claim)
     ensure
-      monitor.track_request_code(response.status) if response.present?
+      if response.present?
+        monitor.track_request_code(
+          response.status,
+          action: 'create',
+          user_uuid: current_user&.uuid,
+          claim_guid: claim&.guid
+        )
+      end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def download_pdf
       # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
       raw_payload = request.raw_post
@@ -55,9 +63,16 @@ module V0
     rescue => e
       handle_pdf_generation_error(e)
     ensure
-      monitor.track_request_code(response.status) if response.present?
+      if response.present?
+        monitor.track_request_code(
+          response.status,
+          action: 'download_pdf',
+          user_uuid: current_user&.uuid
+        )
+      end
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

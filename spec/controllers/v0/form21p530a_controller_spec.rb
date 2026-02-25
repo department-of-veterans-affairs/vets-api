@@ -86,7 +86,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       end
 
       it 'tracks request code on success' do
-        expect(monitor).to receive(:track_request_code).with(200)
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'create'))
         post(:create, body: valid_payload.to_json, as: :json)
       end
 
@@ -335,7 +335,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       end
 
       it 'tracks request code on success' do
-        expect(monitor).to receive(:track_request_code).with(200)
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'download_pdf'))
         post(:download_pdf, body: valid_payload.to_json, as: :json)
       end
 
@@ -345,7 +345,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         end
 
         it 'tracks request code on failure' do
-          expect(monitor).to receive(:track_request_code).with(500)
+          expect(monitor).to receive(:track_request_code).with(500, hash_including(action: 'download_pdf'))
           post(:download_pdf, body: valid_payload.to_json, as: :json)
         end
       end

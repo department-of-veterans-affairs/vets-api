@@ -12,10 +12,10 @@ module Form21p530a
     SERVICE_NAME = 'form21p530a'
     FORM_ID = '21P-530A'
     CLAIM_STATS_KEY = 'api.form21p530a'
-    SUBMISSION_STATS_KEY = 'worker.lighthouse.form21p530a_intake_job'
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
+      action
       data_pointer
       error_type
       method
@@ -54,32 +54,32 @@ module Form21p530a
 
     # Required BaseMonitor abstract method implementations
     def claim_stats_key = CLAIM_STATS_KEY
-    def submission_stats_key = SUBMISSION_STATS_KEY
     def name = SERVICE_NAME
     def form_id = FORM_ID
 
     ##
     # Track submission begun in controller
-    # Called when claim is saved and about to be queued to Sidekiq
+    # Called when submission processing starts, before validation and persistence
     def track_submission_begun(claim, user_uuid: nil)
-      submit_event(:info, "#{message_prefix} submission begun", "#{SUBMISSION_STATS_KEY}.begun",
+      submit_event(:info, "#{message_prefix} submission begun", "#{CLAIM_STATS_KEY}.submission.begun",
                    claim:, user_uuid:, claim_guid: claim&.guid)
     end
 
     ##
     # Track successful submission in controller
-    # Called when claim is successfully saved and queued
+    # Called when claim is successfully validated, saved,
+    # and attachments processed
     def track_submission_success(claim, user_uuid: nil)
-      submit_event(:info, "#{message_prefix} submission success", "#{SUBMISSION_STATS_KEY}.success",
+      submit_event(:info, "#{message_prefix} submission success", "#{CLAIM_STATS_KEY}.submission.success",
                    claim:, user_uuid:, claim_guid: claim&.guid)
     end
 
     ##
     # Track submission failure in controller
-    # Called when claim save or processing fails
+    # Called when claim validation or save fails in the controller action
     def track_submission_failure(claim, error, user_uuid: nil)
       submit_event(:error, "#{message_prefix} submission failure: #{error.class}",
-                   "#{SUBMISSION_STATS_KEY}.failure",
+                   "#{CLAIM_STATS_KEY}.submission.failure",
                    claim:, user_uuid:, claim_guid: claim&.guid,
                    error_class: error.class.name, error_message: error.message)
     end
@@ -87,9 +87,15 @@ module Form21p530a
     ##
     # Track HTTP response codes for API endpoint monitoring
     # Enables response code distribution tracking in Datadog
-    def track_request_code(code)
+    #
+    # @param code [Integer] HTTP status code (200, 422, 429, 500, etc.)
+    # @param action [String, nil] Optional action name
+    #   (e.g., 'create', 'download_pdf')
+    # @param user_uuid [String, nil] Optional user UUID for correlation
+    # @param claim_guid [String, nil] Optional claim GUID for correlation
+    def track_request_code(code, action: nil, user_uuid: nil, claim_guid: nil)
       submit_event(:info, "#{message_prefix} request completed with status #{code}",
-                   "#{CLAIM_STATS_KEY}.request", code:)
+                   "#{CLAIM_STATS_KEY}.request", code:, action:, user_uuid:, claim_guid:)
     end
 
     private
