@@ -166,6 +166,16 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           expect(result['data']['attributes']['syncComplete']).to be(true)
           expect(result['data']['attributes']['error']).to eq('Sync failed due to upstream timeout')
         end
+
+        it 'returns 502 when upstream returns a 500 error' do
+          VCR.use_cassette('sm_client/messages/gets/oh_sync_status_500') do
+            get '/mobile/v0/messaging/health/messages/oh_sync_status', headers: sis_headers
+          end
+
+          expect(response).to have_http_status(:bad_gateway)
+          result = JSON.parse(response.body)
+          expect(result['errors'].first['code']).to eq('SM99')
+        end
       end
 
       describe 'POST create' do

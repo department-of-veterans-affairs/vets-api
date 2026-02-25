@@ -125,6 +125,16 @@ describe SM::Client, '#status' do
         expect(result[:data][:error]).to eq('Sync failed due to upstream timeout')
       end
     end
+
+    it 'raises BackendServiceException when upstream returns 500' do
+      VCR.use_cassette('sm_client/messages/gets/oh_sync_status_500') do
+        expect { client.get_oh_sync_status }
+          .to raise_error(Common::Exceptions::BackendServiceException) { |error|
+            expect(error.status_code).to eq(502)
+            expect(error.errors.first[:code]).to eq('SM99')
+          }
+      end
+    end
   end
 
   describe '#poll_message_status' do

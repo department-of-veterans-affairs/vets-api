@@ -118,6 +118,16 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(result['data']['attributes']['syncComplete']).to be(true)
         expect(result['data']['attributes']['error']).to be_nil
       end
+
+      it 'returns 502 when upstream returns a 500 error' do
+        VCR.use_cassette('sm_client/messages/gets/oh_sync_status_500') do
+          get '/my_health/v1/messaging/messages/oh_sync_status'
+        end
+
+        expect(response).to have_http_status(:bad_gateway)
+        result = JSON.parse(response.body)
+        expect(result['errors'].first['code']).to eq('SM99')
+      end
     end
 
     it 'responds to GET #show' do
