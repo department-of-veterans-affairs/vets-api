@@ -19,10 +19,12 @@ module MedicalCopays
       CHARGE_ITEM_FETCH_LIMIT = 100
       PAYMENT_FETCH_LIMIT = 100
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
+      MAX_SUMMARY_PAGES = 20
 
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
       class MissingCityError < StandardError; end
+      class ServiceError < StandardError; end
 
       def initialize(icn)
         @icn = icn
@@ -42,6 +44,53 @@ module MedicalCopays
         raise
       end
 
+      def summary(month_count: 6)
+        result = collect_invoices_in_range(month_count)
+        entries = result['entries']
+
+        total_amount = 0.to_d
+        count = 0
+
+        entries.each do |entry|
+          invoice = Lighthouse::HCC::Invoice.new(entry)
+          total_amount += invoice.current_balance.to_d
+          count += 1
+        end
+
+        summary_output(total_amount, count, month_count)
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.summary.failure")
+        Rails.logger.error("MedicalCopays::LighthouseIntegration::Service#summary error: #{e.class}: #{e.message}")
+        raise ServiceError, 'External service error'
+      end
+
+      def list_months(month_count: 6)
+        result = collect_invoices_in_range(month_count)
+        raw_bundle = result['raw_bundle']
+        filtered_entries = result['entries']
+
+        new_bundle = raw_bundle.merge(
+          'entry' => filtered_entries,
+          'total' => filtered_entries.length,
+          'link' => []
+        )
+
+        formatted_entries = filtered_entries.empty? ? [] : build_invoice_entries(new_bundle)
+
+        Lighthouse::HCC::Bundle.new(new_bundle, formatted_entries)
+      end
+
+      def summary_output(total_amount, count, month_count)
+        {
+          entries: [],
+          meta: {
+            total_amount_due: total_amount.to_f,
+            total_copays: count,
+            month_window: month_count
+          }
+        }
+      end
+
       def get_detail(id:)
         StatsD.increment("#{STATSD_KEY_PREFIX}.detail.initiated")
 
@@ -57,6 +106,43 @@ module MedicalCopays
       end
 
       private
+
+      # rubocop:disable Metrics/MethodLength
+      def collect_invoices_in_range(month_count, count = 50)
+        from = month_count.months.ago.utc
+        page = 1
+        collected_entries = []
+        last_raw_bundle = nil
+
+        loop do
+          break if page > MAX_SUMMARY_PAGES
+
+          raw = invoice_service.list(count:, page:)
+          last_raw_bundle = raw
+
+          entries = raw['entry'] || []
+          break if entries.empty?
+
+          entries.each do |entry|
+            date_str = entry.dig('resource', 'date')
+            next unless date_str
+
+            invoice_date = Time.iso8601(date_str)
+
+            next if invoice_date < from
+
+            collected_entries << entry
+          end
+
+          page += 1
+        end
+
+        {
+          'raw_bundle' => last_raw_bundle,
+          'entries' => collected_entries
+        }
+      end
+      # rubocop:enable Metrics/MethodLength
 
       def record_success(operation)
         start_time = Time.current

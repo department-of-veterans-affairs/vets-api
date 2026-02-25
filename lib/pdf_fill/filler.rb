@@ -32,9 +32,12 @@ require 'pdf_fill/forms/va2210215a'
 require 'pdf_fill/forms/va221919'
 require 'pdf_fill/forms/va228794'
 require 'pdf_fill/forms/va220976'
+require 'pdf_fill/forms/va220989'
 require 'pdf_fill/forms/va2210272'
 require 'pdf_fill/forms/va2210275'
+require 'pdf_fill/forms/va2210278'
 require 'pdf_fill/forms/va212680'
+require 'pdf_fill/forms/va220810'
 require 'pdf_fill/processors/va2210215_continuation_sheet_processor'
 require 'pdf_fill/processors/va228794_processor'
 require 'pdf_fill/processors/va220839_processor'
@@ -50,6 +53,8 @@ module PdfFill
   module Filler
     class PdfFillerException < StandardError; end
     module_function
+
+    STATSD_KEY_PREFIX = 'api.pdf_fill'
 
     # A PdfForms instance for handling standard PDF forms.
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
@@ -95,7 +100,9 @@ module PdfFill
       '5655' => PdfFill::Forms::Va5655,
       '22-0839' => PdfFill::Forms::Va220839,
       '22-0803' => PdfFill::Forms::Va220803,
+      '22-0810' => PdfFill::Forms::Va220810,
       '22-0976' => PdfFill::Forms::Va220976,
+      '22-0989' => PdfFill::Forms::Va220989,
       '21-0779' => PdfFill::Forms::Va210779,
       '22-8794' => PdfFill::Forms::Va228794,
       '22-10216' => PdfFill::Forms::Va2210216,
@@ -103,7 +110,8 @@ module PdfFill
       '22-10215a' => PdfFill::Forms::Va2210215a,
       '22-1919' => PdfFill::Forms::Va221919,
       '22-10272' => PdfFill::Forms::Va2210272,
-      '22-10275' => PdfFill::Forms::Va2210275
+      '22-10275' => PdfFill::Forms::Va2210275,
+      '22-10278' => PdfFill::Forms::Va2210278
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -276,6 +284,10 @@ module PdfFill
                         "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
                       end
 
+      # Validate that field names in data match the PDF template fields
+      # Track mismatches via StatsD for monitoring blank/partial PDFs
+      validate_field_names(template_path, new_hash, form_id) if Flipper.enabled?(:pdf_fill_field_validation)
+
       if fill_options.fetch(:use_hexapdf, false)
         fill_form_with_hexapdf(template_path, file_path, new_hash)
       else
@@ -372,6 +384,56 @@ module PdfFill
       return nil if datetime.blank?
 
       "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
+    end
+
+    ##
+    # Validates that field names in the data hash match the PDF template fields.
+    # This prevents generating blank PDFs when field names don't match the template.
+    # Validates that field names in data match the PDF template fields.
+    # Tracks mismatches via StatsD for monitoring blank/partial PDFs.
+    #
+    # @param template_path [String] Path to the PDF template file.
+    # @param data_hash [Hash] Hash of field names and values to fill.
+    # @param form_id [String] The form ID for StatsD tagging.
+    #
+    def validate_field_names(template_path, data_hash, form_id)
+      template_fields = extract_template_field_names(template_path)
+
+      data_field_names = data_hash.keys.map(&:to_s)
+      unmatched_fields = data_field_names - template_fields
+
+      if unmatched_fields.any?
+        StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.mismatch", tags: ["form_id:#{form_id}"])
+        Rails.logger.warn(
+          "PDF field validation mismatch for form #{form_id}",
+          {
+            unmatched_fields_count: unmatched_fields.size,
+            unmatched_fields:,
+            data_fields_count: data_field_names.size,
+            template_fields_count: template_fields.size
+          }
+        )
+      end
+    end
+
+    ##
+    # Extracts field names from a PDF template using pdftk.
+    #
+    # @param template_path [String] Path to the PDF template file.
+    #
+    # @return [Array<String>] Array of field names found in the template.
+    #
+    def extract_template_field_names(template_path)
+      # Use PdfForms gem's built-in method to get field names
+      field_names = PDF_FORMS.get_field_names(template_path)
+      field_names || []
+    rescue => e
+      Rails.logger.warn(
+        'Failed to extract fields from PDF template',
+        template_path:,
+        error: e.message
+      )
+      []
     end
   end
 end

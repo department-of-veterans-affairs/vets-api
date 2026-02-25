@@ -240,6 +240,13 @@
     :path: '/v1/usermgmt/account-service/account'
     :file_path: 'mhv/account_creation/create_account/default'
 
+- :name: 'SSOe Get Traits'
+  :base_uri: <%= "#{URI(IdentitySettings.ssoe_get_traits.url).host}:#{URI(IdentitySettings.ssoe_get_traits.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: '/psim_webservice/dev/IdMSSOeWebService'
+      :file_path: 'ssoe/get_traits/default'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -766,27 +773,27 @@
       :file_path: "/travel_claim/v0/claimstatus/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/api/v4/auth/system-access-token"
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2}/api/v4/auth/system-access-token" %>
       :file_path: "/travel_claim/v1/btsss_token/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/api/v3/claims"
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2}/api/v3/claims" %>
       :file_path: "/travel_claim/claims/index/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/api/v3/appointments/find-or-add"
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2}/api/v3/appointments/find-or-add" %>
       :file_path: "/travel_claim/v1/appointments/default"
       :response_delay: 0.3
     - :method: :patch
-      :path: "/api/v3/claims/*/submit"
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2}/api/v3/claims/*/submit" %>
       :file_path: "/travel_claim/v1/claims/submit/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/api/v3/claims"
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2}/api/v3/claims" %>
       :file_path: "/travel_claim/v1/claims/create/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/api/v3/expenses/mileage"
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path_v2}/api/v3/expenses/mileage" %>
       :file_path: "/travel_claim/v1/expenses/create/default"
       :response_delay: 0.3
 
@@ -1210,7 +1217,13 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"(\w+)"'
-
+    - :method: :post
+      :path: "/suite/webapi/update-ch31-milestone-status"
+      :file_path: "vre/ch31_case_milestones"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+        
 # SOB/DGI
 - :name: "SOB"
   :base_uri: <%= "#{URI(Settings.dgi.sob.claimants.url).host}:#{URI(Settings.dgi.sob.claimants.url).port}" %>
@@ -1267,3 +1280,20 @@
     - :method: :post
       :path: "/api/SaveAppointment"
       :file_path: "/vass/save_appointment/default"
+
+# PPMS
+- :name: 'PPMS'
+  :base_uri: <%= "#{URI(Settings.ppms.url).host}:#{URI(Settings.ppms.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/dws/v1.0/FacilityServiceLocator"
+      :file_path: "ppms/facility_service_locator/default"
+    - :method: :get
+      :path: "/dws/v1.0/ProviderLocator"
+      :file_path: "ppms/provider_locator/default"
+    - :method: :get
+      :path: "/dws/v1.0/PlaceOfServiceLocator"
+      :file_path: "ppms/pos_locator/default"
+    - :method: :get
+      :path: "/dws/v1.0/Specialties"
+      :file_path: "ppms/specialties/default"

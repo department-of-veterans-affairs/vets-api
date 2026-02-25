@@ -933,4 +933,53 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       end
     end
   end
+
+  describe 'GET /mobile/v0/appointments/avs_binaries' do
+    before do
+      allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+      allow(Rails.logger).to receive(:info)
+    end
+
+    context 'with appointment having AVS documents' do
+      let(:avs_binary) do
+        UnifiedHealthData::BinaryData.new(
+          content_type: 'application/pdf',
+          binary: 'binaryString'
+        )
+      end
+
+      it 'has access and returns appointment with OH avs' do
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc0', appt_id: 'appt123').and_return(avs_binary)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc1', appt_id: 'appt123')
+          .and_raise(Common::Exceptions::BackendServiceException)
+        allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_avs_binary_data)
+          .with(doc_id: 'doc2', appt_id: 'appt123').and_return(nil)
+        get '/mobile/v0/appointments/avs_binaries/appt123?doc_ids=doc0,doc1,doc2', headers: sis_headers
+        expect(response).to have_http_status(:ok)
+        data = JSON.parse(response.body)['data']
+        expect(data.length).to eq(3)
+
+        doc0 = data[0]
+        expect(doc0['id']).to eq('doc0')
+        expect(doc0['type']).to eq('avs_binary')
+
+        doc0_attributes = doc0['attributes']
+        expect(doc0_attributes['docId']).to eq('doc0')
+        expect(doc0_attributes['binary']).to eq('binaryString')
+        expect(doc0_attributes['error']).to be_nil
+
+        doc1_attributes = data[1]['attributes']
+        expect(doc1_attributes['docId']).to eq('doc1')
+        expect(doc1_attributes['binary']).to be_nil
+        expect(doc1_attributes['error']).to eq('Error retrieving AVS binary')
+
+        doc2_attributes = data[2]['attributes']
+        expect(doc2_attributes['docId']).to eq('doc2')
+        expect(doc2_attributes['binary']).to be_nil
+        expect(doc2_attributes['error']).to eq('Retrieved empty AVS binary')
+      end
+    end
+  end
 end
