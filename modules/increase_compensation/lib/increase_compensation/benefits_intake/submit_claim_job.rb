@@ -43,6 +43,9 @@ module IncreaseCompensation
         return unless Flipper.enabled?(:increase_compensation_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
+        # benefits_intake_uuid come from here
+        @intake_service ||= benefits_intake_service
+        reset_intake_service if @intake_service.nil?
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
@@ -50,9 +53,6 @@ module IncreaseCompensation
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
         @ibm_payload = @claim.to_ibm
-        # benefits_intake_uuid come from here
-        @intake_service ||= benefits_intake_service
-        reset_intake_service if @intake_service.nil?
 
         # upload must be performed within 15 minutes of this request
         upload_document
