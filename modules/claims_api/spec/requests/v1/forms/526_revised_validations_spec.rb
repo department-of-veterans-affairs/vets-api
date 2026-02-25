@@ -856,6 +856,18 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           .to raise_error(Common::Exceptions::InvalidFieldValue)
       end
 
+      it 'raises error if beginningDate is today' do
+        form_attributes['veteran']['changeOfAddress']['beginningDate'] = Time.zone.today.iso8601
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+
+      it 'raises an ArgumentError if endingDate has an invalid format' do
+        form_attributes['veteran']['changeOfAddress']['endingDate'] = '2024-99-99'
+        expect { subject.validate_form_526_change_of_address! }
+          .to raise_error(ArgumentError)
+      end
+
       it 'raises error if country is invalid' do
         form_attributes['veteran']['changeOfAddress']['country'] = 'Invalid'
         expect { subject.validate_form_526_change_of_address! }
@@ -908,6 +920,28 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_change_of_address! }
           .to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
+    end
+
+    context 'when addressChangeType and type are mixed case' do
+      let(:form_attributes) do
+        {
+          'veteran' => {
+            'changeOfAddress' => {
+              'addressChangeType' => 'temporary',
+              'beginningDate' => 1.day.from_now.to_date.iso8601,
+              'endingDate' => 2.days.from_now.to_date.iso8601,
+              'type' => 'international',
+              'city' => 'London',
+              'country' => 'United Kingdom',
+              'internationalPostalCode' => 'SW1A 1AA'
+            }
+          }
+        }
+      end
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_change_of_address! }.not_to raise_error
       end
     end
 
