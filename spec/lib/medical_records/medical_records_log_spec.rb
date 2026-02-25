@@ -285,7 +285,7 @@ RSpec.describe MedicalRecords::MedicalRecordsLog do
 
   describe 'PII stripping covers all declared keys' do
     it 'strips every key in PII_KEYS' do
-      pii_hash = described_class::PII_KEYS.each_with_object({}) { |k, h| h[k] = 'secret' }
+      pii_hash = described_class::PII_KEYS.index_with { 'secret' }
       pii_hash[:safe_field] = 'visible'
 
       expect(Rails.logger).to receive(:info) do |payload|
@@ -305,7 +305,7 @@ RSpec.describe MedicalRecords::MedicalRecordsLog do
         end
       end
 
-      contextual_hash = described_class::CONTEXTUAL_PII_KEYS.each_with_object({}) { |k, h| h[k] = 'secret' }
+      contextual_hash = described_class::CONTEXTUAL_PII_KEYS.index_with { 'secret' }
       log.info(resource: 'test', action: 'test', redact_user_uuid: true, **contextual_hash)
     end
 
@@ -316,7 +316,7 @@ RSpec.describe MedicalRecords::MedicalRecordsLog do
         end
       end
 
-      contextual_hash = described_class::CONTEXTUAL_PII_KEYS.each_with_object({}) { |k, h| h[k] = 'secret' }
+      contextual_hash = described_class::CONTEXTUAL_PII_KEYS.index_with { 'secret' }
       log.info(resource: 'test', action: 'test', **contextual_hash)
     end
   end

@@ -7,15 +7,6 @@ RSpec.describe 'ClinicalNotesAdapter' do
   let(:user) { build(:user, :loa3) }
   let(:adapter) { UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user:) }
 
-  before do
-    allow(Flipper).to receive(:enabled?)
-      .with(:mhv_medical_records_clinical_notes_diagnostic, user)
-      .and_return(true)
-    allow(Flipper).to receive(:enabled?)
-      .with(:mhv_medical_records_diagnostic_logging, user)
-      .and_return(false)
-  end
-
   let(:notes_sample_response) do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
@@ -32,6 +23,15 @@ RSpec.describe 'ClinicalNotesAdapter' do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'after_visit_summary.json'
     ).read)
+  end
+
+  before do
+    allow(Flipper).to receive(:enabled?)
+      .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+      .and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:mhv_medical_records_diagnostic_logging, user)
+      .and_return(false)
   end
 
   describe '#parse' do
