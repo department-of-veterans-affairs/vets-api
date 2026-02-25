@@ -6,3 +6,5 @@ contactEmail: [contact_information, email]
 periodsOfService: [military_information, tours_of_duty]
 currentlyActiveDuty: [military_information, currently_active_duty_hash]
 activeDuty: [military_information, currently_active_duty]
+nonPrefill:
+  veteranSsnLastFour: [identity_information, ssn_last_four]
