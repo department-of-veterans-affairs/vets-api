@@ -62,6 +62,38 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
   end
 
+  describe 'constants' do
+    it 'has the correct FORM_ID' do
+      expect(described_class::FORM_ID).to eq('10-10EZR')
+    end
+
+    it 'has the correct API_KEY_PATH' do
+      expect(described_class::API_KEY_PATH).to eq('Settings.vanotify.services.health_apps_1010.api_key')
+    end
+
+    it 'has the correct CALLBACK_METADATA' do
+      expect(described_class::CALLBACK_METADATA).to eq(
+        {
+          callback_metadata: {
+            notification_type: 'error',
+            form_number: '10-10EZR',
+            statsd_tags: {
+              service: 'healthcare-application',
+              function: '10-10EZR async form submission'
+            }
+          }
+        }
+      )
+    end
+  end
+
+  describe '.decrypt_form' do
+    it 'decrypts and parses the encrypted form JSON' do
+      result = described_class.decrypt_form(encrypted_form)
+      expect(result).to eq(form)
+    end
+  end
+
   describe 'when retries are exhausted' do
     before do
       Flipper.enable(:ezr_use_va_notify_on_submission_failure)
@@ -133,6 +165,30 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             expect(VANotify::EmailJob).not_to receive(:perform_async)
             expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+          end
+        end
+
+        it 'uses empty salutation when first_name is nil' do
+          form['veteranFullName']['first'] = nil
+          encrypted_form_no_name = HealthCareApplication::LOCKBOX.encrypt(form.to_json)
+          msg = {
+            'args' => [encrypted_form_no_name, nil]
+          }
+
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            expect(VANotify::EmailJob).to receive(:perform_async).with(
+              form['email'],
+              failure_email_template_id,
+              { 'salutation' => '' },
+              api_key,
+              {
+                callback_metadata: {
+                  notification_type: 'error',
+                  form_number: form_id,
+                  statsd_tags: tags
+                }
+              }
+            )
           end
         end
 
@@ -228,6 +284,22 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
             expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(*v2_failure_email_template_params)
             expect(VANotify::EmailJob).not_to receive(:perform_async)
             expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+
+            subject
+          end
+        end
+
+        context 'when ezr_use_va_notify_on_submission_failure is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_va_notify_on_submission_failure).and_return(false)
+          end
+
+          it 'does not send the failure email' do
+            allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
+            allow(StatsD).to receive(:increment)
+
+            expect(StatsD).to receive(:increment).with('api.1010ezr.enrollment_system_validation_error')
+            dont_expect_submission_failure_email_and_statsd_increments
 
             subject
           end
