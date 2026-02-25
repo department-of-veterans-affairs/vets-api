@@ -4,9 +4,11 @@ require 'digital_forms_api/service/forms'
 require 'digital_forms_api/service/submissions'
 
 module DigitalFormsApi
+  # The Fully Digital Forms controller that handles fetching form submissions and templates
   class SubmissionsController < ApplicationController
     service_tag 'digital-forms'
 
+    # Fetch form submission and template from Forms API
     def show
       check_flipper_flag
       begin
@@ -31,10 +33,12 @@ module DigitalFormsApi
                                                                   current_user)
     end
 
+    # Instantiate service for interacting with the /forms endpoints
     def forms_service
       DigitalFormsApi::Service::Forms.new
     end
 
+    # Instantiate service for interacting with the /submissions endpoints
     def submissions_service
       DigitalFormsApi::Service::Submissions.new
     end
