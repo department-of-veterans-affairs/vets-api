@@ -233,18 +233,18 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
     end
 
     it 'handles no records' do
-      VCR.use_cassette('lighthouse/hcc/no_records') do
+      VCR.use_cassette('lighthouse/hcc/no_records', match_requests_on: %i[method path query]) do
         allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
         service = MedicalCopays::LighthouseIntegration::Service.new('123')
 
-        response = service.list(count: 10, page: 1)
+        response = service.list(count: 50, page: 1)
 
         expect(response.entries).to be_empty
-        expect(response.page).to be_zero
+        expect(response.page).to eq(1)
         expect(response.meta).to eq(
           {
-            total: 0, page: 0, per_page: 10,
+            total: 0, page: 1, per_page: 50,
             copay_summary: {
               total_current_balance: 0.0,
               copay_bill_count: 0,
