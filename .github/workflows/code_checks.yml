@@ -301,6 +301,11 @@ jobs:
     runs-on: ubuntu-16-cores-latest
 
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: script/junit_to_runtime_log.rb
+          sparse-checkout-cone-mode: false
+
       - uses: actions/download-artifact@v7
 
       - name: Publish Test Results to GitHub
@@ -339,30 +344,7 @@ jobs:
         if: always()
         run: |
           mkdir -p tmp
-          ruby -e '
-            require "rexml/document"
-            file_times = Hash.new(0.0)
-            Dir.glob("Test Results Group*/*.xml").each do |xml_path|
-              doc = REXML::Document.new(File.read(xml_path))
-              doc.elements.each("//testcase") do |tc|
-                file = tc.attributes["file"]
-                time = tc.attributes["time"]
-                next unless file && time
-                file = file.sub(%r{^\./}, "")
-                file_times[file] += time.to_f
-              end
-            end
-            if file_times.any?
-              File.open("tmp/parallel_runtime_rspec.log", "w") do |f|
-                file_times.sort_by { |path, _| path }.each do |path, time|
-                  f.puts "#{path}:#{format("%.4f", time)}"
-                end
-              end
-              $stderr.puts "Generated runtime log with #{file_times.size} entries"
-            else
-              $stderr.puts "No test timing data found"
-            end
-          '
+          ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
       - name: Save runtime log to cache
         if: always()
