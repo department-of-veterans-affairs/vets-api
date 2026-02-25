@@ -1311,7 +1311,6 @@ res:
   ch_31_case_details:
     mock: ~
   ch_31_case_milestones:
-    api_key: ~
     mock: ~
   ch_31_eligibility:
     mock: ~

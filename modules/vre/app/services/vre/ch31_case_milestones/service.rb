@@ -5,14 +5,11 @@ module VRE
     class Service < VRE::Service
       configuration VRE::Ch31CaseMilestones::Configuration
 
-      class Ch31CaseMilestonesError < StandardError; end
-
       STATSD_KEY_PREFIX = 'api.res.case_milestones'
-      SERVICE_UNAVAILABLE_ERROR = 'APNX-1-4187-000'
 
       def initialize(icn)
         super()
-        raise Common::Exceptions::ParameterMissing, 'ICN is required' if icn.blank?
+        raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
         @icn = icn
       end
@@ -28,13 +25,19 @@ module VRE
         VRE::Ch31CaseMilestones::Response.new(raw_response.status, raw_response)
       rescue Common::Exceptions::BackendServiceException => e
         log_error(e)
-        raise e unless service_unavailable?(e)
+        raise e
       end
 
       private
 
       def api_path
         'update-ch31-milestone-status'
+      end
+
+      def request_headers
+        {
+          'Appian-API-Key' => Settings.res.api_key.to_s
+        }
       end
 
       def build_payload(milestone_params)
@@ -45,15 +48,9 @@ module VRE
       end
 
       def log_error(e)
-        message = e.original_body['errorMessageList'] || e.original_body['error']
+        message = e.original_body&.[]('errorMessageList') || e.original_body&.[]('error') || 'Unknown error'
         Rails.logger.error("Failed to update Ch. 31 case milestones: #{message}",
                            backtrace: e.backtrace)
-      end
-
-      def service_unavailable?(e)
-        return false unless e.original_body['error'] == SERVICE_UNAVAILABLE_ERROR
-
-        raise e.class.new('RES_CH31_CASE_MILESTONES_503', e.response_values)
       end
     end
   end

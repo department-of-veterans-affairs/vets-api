@@ -9,7 +9,11 @@ module VRE
       attribute :response_message, String
 
       def initialize(_status, response = nil)
-        super(response.body) if response
+        if response
+          body = response.body
+          body = body.deep_transform_keys { |key| key.to_s.underscore }
+          super(body)
+        end
       end
     end
   end

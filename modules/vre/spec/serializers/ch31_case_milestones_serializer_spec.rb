@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe VRE::Ch31CaseMilestonesSerializer, type: :serializer do
-  subject { serialize(response, serializer_class: described_class) }
+  subject { JSON.parse(serialize(response, serializer_class: described_class)) }
 
   let(:response) do
     VRE::Ch31CaseMilestones::Response.new(200, double(body: response_body))
