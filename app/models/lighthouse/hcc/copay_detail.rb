@@ -39,7 +39,7 @@ module Lighthouse
         @payments_data = attrs[:payments] || []
         @facility_address = attrs[:facility_address]
         @patient_data = attrs[:patient_data]
-        @associated_statements_data = attrs[:associated_statements]
+        @associated_statements_data = attrs[:associated_statements] || []
         assign_attributes
       end
 
@@ -63,6 +63,8 @@ module Lighthouse
       end
 
       def assign_associated_statements
+        return [] if @associated_statements.blank?
+
         @associated_statements = @associated_statements_data.map do |statement|
           {
             'id' => statement['resource']['id'],

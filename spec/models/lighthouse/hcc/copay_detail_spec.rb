@@ -5,7 +5,9 @@ require 'rails_helper'
 RSpec.describe Lighthouse::HCC::CopayDetail do
   describe 'initialization' do
     context 'with valid invoice data' do
-      subject { described_class.new(invoice_data:, account_data:, facility_address:, patient_data:) }
+      subject do
+        described_class.new(invoice_data:, account_data:, facility_address:, patient_data:, associated_statements:)
+      end
 
       let(:invoice_data) do
         {
@@ -31,6 +33,13 @@ RSpec.describe Lighthouse::HCC::CopayDetail do
           state: 'FL',
           postalCode: '12345'
         }
+      end
+
+      let(:associated_statements) do
+        [
+          { 'resource' => { 'id' => '123', 'date' => '2026-01-01T14:32:00-05:00' } },
+          { 'resource' => { 'id' => '123', 'date' => '2026-02-01T14:32:00-05:00' } }
+        ]
       end
 
       let(:patient_data) do
