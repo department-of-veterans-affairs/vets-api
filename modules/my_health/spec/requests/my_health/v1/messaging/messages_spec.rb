@@ -106,6 +106,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(result['data']['attributes']['sync_complete']).to be(true)
         expect(result['data']['attributes']['error']).to eq('Sync failed due to upstream timeout')
       end
+
+      it 'returns the OH sync status when camel-inflected' do
+        VCR.use_cassette('sm_client/messages/gets/oh_sync_status') do
+          get '/my_health/v1/messaging/messages/oh_sync_status', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        result = JSON.parse(response.body)
+        expect(result['data']['type']).to eq('oh_sync_status')
+        expect(result['data']['attributes']['syncComplete']).to be(true)
+        expect(result['data']['attributes']['error']).to be_nil
+      end
     end
 
     it 'responds to GET #show' do
