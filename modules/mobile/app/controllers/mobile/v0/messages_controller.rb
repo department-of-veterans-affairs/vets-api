@@ -126,6 +126,10 @@ module Mobile
         render json: Mobile::V0::MessageSignatureSerializer.new(@current_user.uuid, result).to_json
       end
 
+      def oh_sync_status
+        render json: client.get_oh_sync_status
+      end
+
       private
 
       # When we get message parameters as part of a multipart payload (i.e. with attachments),

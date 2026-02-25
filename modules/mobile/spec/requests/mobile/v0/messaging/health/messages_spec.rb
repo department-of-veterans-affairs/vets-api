@@ -140,6 +140,31 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         end
       end
 
+      describe 'GET oh_sync_status' do
+        it 'returns the OH sync status' do
+          VCR.use_cassette('sm_client/messages/gets/oh_sync_status') do
+            get '/mobile/v0/messaging/health/messages/oh_sync_status', headers: sis_headers
+          end
+
+          expect(response).to be_successful
+          result = JSON.parse(response.body)
+          expect(result['data']['status']).to eq('FINISHED')
+          expect(result['data']['syncComplete']).to be(true)
+        end
+
+        it 'returns the OH sync status when error' do
+          VCR.use_cassette('sm_client/messages/gets/oh_sync_status_error') do
+            get '/mobile/v0/messaging/health/messages/oh_sync_status', headers: sis_headers
+          end
+
+          expect(response).to be_successful
+          result = JSON.parse(response.body)
+          expect(result['data']['status']).to eq('ERROR')
+          expect(result['data']['syncComplete']).to be(true)
+          expect(result['data']['error']).to eq('Sync failed due to upstream timeout')
+        end
+      end
+
       describe 'POST create' do
         let(:attachment_type) { 'image/jpg' }
         let(:uploads) do
