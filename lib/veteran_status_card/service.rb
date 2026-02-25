@@ -79,16 +79,6 @@ module VeteranStatusCard
       log_statsd(STATSD_TOTAL)
       @user = user
       @confirmation_status = NO_SSC_CHECK_MESSAGE
-
-      if @user.nil?
-        log_statsd(STATSD_FAILURE)
-        raise ArgumentError, 'User cannot be nil'
-      end
-
-      if @user.edipi.blank? || @user.icn.blank?
-        log_statsd(STATSD_FAILURE)
-        raise ArgumentError, 'User missing required fields'
-      end
     end
 
     ##
@@ -104,6 +94,11 @@ module VeteranStatusCard
     #         not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #
     def status_card
+      if @user.nil? || @user.edipi.blank? || @user.icn.blank?
+        log_missing_fields
+        return person_not_found_response
+      end
+
       if eligible?
         log_vsc_result(confirmed: true)
 
@@ -184,16 +179,6 @@ module VeteranStatusCard
     end
 
     ##
-    # Returns the response when EDIPI has no PNL (Personnel Number List) record
-    # Override in subclasses to use different messaging
-    #
-    # @return [Hash] response with :title, :message, :status keys
-    #
-    def edipi_no_pnl_response
-      VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
-    end
-
-    ##
     # Returns the response for currently serving members
     # Override in subclasses to use different messaging
     #
@@ -233,7 +218,38 @@ module VeteranStatusCard
     #
     def log_statsd(key)
       # Ensure statsd is logged with downcase suffixes
+      return unless key.present?
       StatsD.increment("#{statsd_key_prefix}.#{key.downcase}")
+    end
+
+    ##
+    # Logs multiple StatsD metrics in a single call
+    #
+    # @param keys [Array<String>] the metric key suffixes to log
+    # @return [void]
+    #
+    def log_multiple_statsd(keys)
+      keys.each do |key|
+        log_statsd(key)
+      end
+    end
+
+    ##
+    # Logs metrics and structured result when the user is missing required fields
+    # (nil user, missing EDIPI, or missing ICN). Treats the outcome as PERSON_NOT_FOUND.
+    #
+    # @return [void]
+    #
+    def log_missing_fields
+      keys = [STATSD_INELIGIBLE, VET_STATUS_PERSON_NOT_FOUND_TEXT, NO_SSC_CHECK_MESSAGE, STATSD_SUCCESS]
+      log_multiple_statsd(keys)
+
+      Rails.logger.info("#{service_name} VSC Card Result", {
+                          veteran_status: NOT_CONFIRMED_TEXT,
+                          not_confirmed_reason: VET_STATUS_PERSON_NOT_FOUND_TEXT,
+                          confirmation_status: NO_SSC_CHECK_MESSAGE,
+                          service_summary_code: nil
+                        })
     end
 
     ##
@@ -243,16 +259,13 @@ module VeteranStatusCard
     # @return [void]
     #
     def log_vsc_result(confirmed: false)
-      key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
-      log_statsd(key)
-
-      # Log the vet verification reason if it exists
-      log_statsd(vet_verification_status[:reason]) if vet_verification_status[:reason].present?
-
-      # confirmation_status will always be present - it defaults to NO_SSC_CHECK_MESSAGE
-      log_statsd(@confirmation_status)
-
-      log_statsd(STATSD_SUCCESS)
+      keys = [
+        confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE,
+        vet_verification_status[:reason],
+        @confirmation_status,
+        STATSD_SUCCESS
+      ]
+      log_multiple_statsd(keys)
 
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
@@ -421,6 +434,12 @@ module VeteranStatusCard
       more_research_required_not_title_38? && ssc_confirmed?
     end
 
+    ##
+    # Checks whether the SSC code corresponds to a confirmed (eligible) veteran status
+    # Sets @confirmation_status as a side effect when a match is found
+    #
+    # @return [Boolean] true if the SSC code is in any confirmed code group, false otherwise
+    #
     def ssc_confirmed?
       case ssc_code
       when *AD_DSCH_VAL_SSC_CODES
