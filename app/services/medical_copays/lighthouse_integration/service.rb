@@ -140,7 +140,7 @@ module MedicalCopays
 
         patient_future = Concurrent::Promises.future { fetch_patient_data }
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
-        org_id = extract_org_id_from_invoice(invoice_data, true)
+        org_id = extract_org_id_from_invoice(invoice_data, optional_org_data: true)
         org_address = retrieve_organization_address(org_id)
         patient_data = patient_future.value!
         associated_statements = invoices_for_organization(DEFAULT_MONTH_COUNT, DEFAULT_INVOICE_COUNT, org_id, id)
@@ -370,7 +370,7 @@ module MedicalCopays
         reference.split('/').last
       end
 
-      def extract_org_id_from_invoice(invoice_data, optional_org_data = false)
+      def extract_org_id_from_invoice(invoice_data, optional_org_data: false)
         org_ref = invoice_data.dig('issuer', 'reference')
         return nil if optional_org_data && org_ref.blank? # how do we feel about this?
 
