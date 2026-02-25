@@ -10,6 +10,7 @@ module AccreditedRepresentativePortal
 
       def search # rubocop:disable Metrics/MethodLength
         authorize nil, policy_class: ClaimantPolicy
+
         claimant_profile =
           MPI::Service.new.find_profile_by_attributes(
             first_name: params[:first_name],
@@ -52,11 +53,18 @@ module AccreditedRepresentativePortal
       end
 
       def show
+        skip_authorization
+        # Using a ClaimantPolicy instance directly here instead of `authorize`
+        # so that the ClaimantRepresentative can be re-used and only one call
+        # made to the Lighthouse power-of-attorney endpoint for returning
+        # the organization name to the user.
         icn = IcnTemporaryIdentifier.lookup_icn(params[:id])
-        authorize icn, policy_class: ClaimantPolicy
+        policy = ClaimantPolicy.new(current_user, icn)
+        policy.show? or raise Pundit::NotAuthorizedError
 
         payload = AccreditedRepresentativePortal::ClaimantDetailsService.new(
           icn:,
+          representative_name: policy.claimant_representative.power_of_attorney_holder.name,
           benefit_type_param: params[:benefitType]
         ).call
 

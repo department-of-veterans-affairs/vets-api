@@ -2,8 +2,9 @@
 
 module AccreditedRepresentativePortal
   class ClaimantDetailsService
-    def initialize(icn:, benefit_type_param: nil)
+    def initialize(icn:, representative_name:, benefit_type_param: nil)
       @icn = icn
+      @representative_name = representative_name
       @benefit_type_param = benefit_type_param
     end
 
@@ -55,7 +56,8 @@ module AccreditedRepresentativePortal
           birth_date: profile.birth_date,
           ssn: profile.ssn&.last(4),
           phone: profile.home_phone,
-          address: claimant_address(profile)
+          address: claimant_address(profile),
+          representative_name: @representative_name
         }
       }
     end

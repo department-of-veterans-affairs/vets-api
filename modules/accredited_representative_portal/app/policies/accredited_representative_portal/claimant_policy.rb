@@ -14,10 +14,8 @@ module AccreditedRepresentativePortal
       claimant_representative.present?
     end
 
-    private
-
     def claimant_representative
-      ClaimantRepresentative.find(
+      @claimant_representative ||= ClaimantRepresentative.find(
         claimant_icn: @record,
         power_of_attorney_holder_memberships:
           @user.power_of_attorney_holder_memberships
