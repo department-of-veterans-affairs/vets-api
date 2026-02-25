@@ -9,6 +9,7 @@ tools:
   - execute       # RuboCop, date, mkdir (scoped below)
   - edit          # Write intermediate results to tmp/ only
   - github/*      # GitHub MCP tools for repo-level search
+model: claude-opus-4-6
 argument-hint: "e.g. 'audit modules/check_in'"
 ---
 
