@@ -190,7 +190,7 @@ chip:
   api_gtwy_id: fake_gtwy_id
   base_path: dev
   mobile_app:
-    password: "12345"
+    password: '12345'
     tenant_id: 12345678-aaaa-bbbb-cccc-269c51a7d380
     username: testuser
   mock: true
@@ -221,7 +221,7 @@ claims_api:
       ccg:
         aud_claim_url: https://fakeurlhere/fake/path/here
         client_id: fakekeyvaluehere
-        secret_key: path/to/fake/key.pem
+        secret_key:  path/to/fake/key.pem
     service_url: https://fakedomainandsubdomain.com
     ssl: false
     token_host: https://sandbox-api.va.gov
@@ -272,7 +272,7 @@ claims_evidence_api:
 clamav:
   host: 0.0.0.0
   mock: true
-  port: "33100"
+  port: '33100'
 coe:
   prefill: true
 connected_apps_api:
@@ -349,20 +349,20 @@ dgi:
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
     vets:
       mock: false
-      url: ""
+      url: ''
 dhp:
   fitbit:
-    client_id: ""
-    client_secret: ""
-    code_challenge: ""
-    code_verifier: ""
+    client_id: ''
+    client_secret: ''
+    code_challenge: ''
+    code_verifier: ''
     redirect_uri: http://localhost:3000/dhp_connected_devices/fitbit-callback
     scope: heartrate activity nutrition sleep
   mock: false
   s3:
-    aws_access_key_id: ""
-    aws_secret_access_key: ""
-    bucket: ""
+    aws_access_key_id: ''
+    aws_secret_access_key: ''
+    bucket: ''
     region: us-gov-west-1
 digital_forms_api:
   base_url: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/
@@ -567,10 +567,10 @@ form_10_10cg:
       enabled: true
       region: us-gov-west-1
 form_intake:
-  api_version: "v1"
+  api_version: 'v1'
   breakers_error_threshold: 80
-  host: "http://localhost:3000"
-  path: "api/validated-forms"
+  host: 'http://localhost:3000'
+  path: 'api/validated-forms'
   timeout: 5
   use_mocks: true
 form_mock_ae_design_patterns:
@@ -703,11 +703,11 @@ ivc_forms:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
-  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
-  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
-  sasl_mechanisms: "GSSAPI"
+  aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
+  broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
+  sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
-  security_protocol: "plaintext"
+  security_protocol: 'plaintext'
   test_topic_name: submission_trace_mock_test
   topic_name: submission_trace_form_status_change
 kms_key_id: ~
@@ -743,7 +743,7 @@ lighthouse:
     host: https://sandbox-api.va.gov
     use_mocks: false
   benefits_discovery:
-    host: "https://sandbox.lighthouse.va.gov"
+    host: 'https://sandbox.lighthouse.va.gov'
     x_api_key: ~
     x_app_id: ~
   benefits_documents:
@@ -891,7 +891,7 @@ maintenance:
     secret_access_key: ~
   pagerduty_api_token: <%= ENV['maintenance__pagerduty_api_token'] || 'FAKE_PAGER_DUTY_API_TOKEN' %>
   pagerduty_api_url: https://api.pagerduty.com
-  service_query_prefix: "External: "
+  service_query_prefix: 'External: '
   services:
     1010ez: ~
     1010ezr: ~
@@ -1095,22 +1095,22 @@ modules_appeals_api:
     uploads_enabled: false
   schema_dir: config/schemas
   slack:
-    api_key: ""
-    appeals_channel_id: ""
+    api_key: ''
+    appeals_channel_id: ''
   status_simulation_enabled: false
   token_validation:
     appeals_status:
-      api_key: ""
+      api_key: ''
     contestable_issues:
-      api_key: ""
+      api_key: ''
     higher_level_reviews:
-      api_key: ""
+      api_key: ''
     legacy_appeals:
-      api_key: ""
+      api_key: ''
     notice_of_disagreements:
-      api_key: ""
+      api_key: ''
     supplemental_claims:
-      api_key: ""
+      api_key: ''
 mvi_hca:
   url: http://example.com
 ogc:
@@ -1182,15 +1182,15 @@ reports:
       - Cameron.Testerman@va.gov
       - Leah.Keeler@va.gov
     expected_annual_submissions:
-      "21-0779": 0
-      "21-2680": 0
-      "21-4192": 0
-      "21P-530a": 0
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
     form_types:
-      - "21-4192"
-      - "21-0779"
-      - "21P-530a"
-      - "21-2680"
+      - '21-4192'
+      - '21-0779'
+      - '21P-530a'
+      - '21-2680'
     staging_emails:
       - Cameron.Testerman@va.gov
       - Leah.Keeler@va.gov
@@ -1401,8 +1401,8 @@ token_validation:
   url: https://dev-api.va.gov/internal/auth
 travel_pay:
   base_url: https://btsss.gov
-  client_number: "12345"
-  mobile_client_number: "56789"
+  client_number: '12345'
+  mobile_client_number: '56789'
   mock: false
   open_timeout: 15
   service_name: BTSSS-API
@@ -1421,16 +1421,16 @@ travel_pay:
     tenant_id: tenant_id
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-    - "506"
-    - "515"
-    - "553"
-    - "556"
-    - "653"
-    - "655"
-    - "668"
-    - "687"
-    - "692"
-    - "757"
+  - '506'
+  - '515'
+  - '553'
+  - '556'
+  - '653'
+  - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: 500
     max_iterations: 20
@@ -1487,9 +1487,9 @@ va_profile:
     timeout: 30
 vahb:
   version_requirement:
-    allergies_oracle_health: "3.0.0"
-    labs_oracle_health: "3.0.0"
-    medications_oracle_health: "2.99.99"
+    allergies_oracle_health: '3.0.0'
+    labs_oracle_health: '3.0.0'
+    medications_oracle_health: '2.99.99'
 valid_va_file_number: false
 vanotify:
   callback_url: https://test-api.va.gov/va_notify/callbacks
@@ -1888,14 +1888,14 @@ vanotify:
         reactivation_email_test_b: ~
         va_appointment_failure: fake_template_id
     veteran_readiness_and_employment:
-      api_key: "fake"
+      api_key: 'fake'
       email:
         confirmation_lighthouse:
-          template_id: "confirmation_lighthouse_email_template_id"
+          template_id: 'confirmation_lighthouse_email_template_id'
         confirmation_vbms:
-          template_id: "confirmation_vbms_email_template_id"
+          template_id: 'confirmation_vbms_email_template_id'
         error:
-          template_id: "error_email_template_id"
+          template_id: 'error_email_template_id'
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1926,7 +1926,7 @@ vass:
   auth_url: https://login.microsoftonline.us
   client_id: <%= ENV['vass__client_id'] %>
   client_secret: <%= ENV['vass__client_secret'] %>
-  jwt_secret: "test-jwt-secret-key-not-for-production"
+  jwt_secret: 'test-jwt-secret-key-not-for-production'
   mock: <%= ENV['vass__mock'] %>
   rate_limit_expiry: <%= ENV['vass__rate_limit_expiry'] || 900 %>
   rate_limit_max_attempts: <%= ENV['vass__rate_limit_max_attempts'] || 5 %>
@@ -1955,9 +1955,9 @@ vba_documents:
     enabled: false
     region: region
   slack:
-    api_key: ""
-    channel_id: ""
-    default_alert_email: ""
+    api_key: ''
+    channel_id: ''
+    default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240

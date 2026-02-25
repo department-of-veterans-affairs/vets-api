@@ -1637,6 +1637,15 @@ vanotify:
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
           template_id: ~
+    "22_0989":
+      api_key: ~
+      email:
+        error:
+          flipper_id: ~
+          template_id: ~
+        received:
+          flipper_id: ~
+          template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
       email:
