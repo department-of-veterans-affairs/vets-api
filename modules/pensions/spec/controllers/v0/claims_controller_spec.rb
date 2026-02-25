@@ -58,6 +58,21 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
 
       expect(response).to have_http_status(:success)
     end
+
+    it 'passes participant_id to SubmitClaimJob' do
+      user = create(:user)
+      pid = '99887766'
+      allow(Pensions::SavedClaim).to receive(:new).and_return(claim)
+      allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+      allow(user).to receive(:participant_id).and_return(pid)
+      allow(claim).to receive(:process_attachments!)
+
+      expect(Pensions::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
+        .with(anything, user.user_account_uuid, pid)
+
+      response = post(:create, params: { param_name => { form: claim.form } })
+      expect(response).to have_http_status(:success)
+    end
   end
 
   describe '#show' do
@@ -243,6 +258,41 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
       subject.send(:submit_traceability_to_event_bus, claim)
+    end
+
+    context 'when user has a participant_id' do
+      let(:user) { create(:user) }
+      let(:pid) { '12345678' }
+
+      before do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+        allow(user).to receive(:participant_id).and_return(pid)
+      end
+
+      it 'includes participant_id in additional_ids' do
+        expect(Kafka).to receive(:submit_event).with(
+          hash_including(additional_ids: [pid])
+        )
+
+        subject.send(:submit_traceability_to_event_bus, claim)
+      end
+    end
+
+    context 'when user has no participant_id' do
+      let(:user) { create(:user) }
+
+      before do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+        allow(user).to receive(:participant_id).and_return(nil)
+      end
+
+      it 'passes empty additional_ids' do
+        expect(Kafka).to receive(:submit_event).with(
+          hash_including(additional_ids: [])
+        )
+
+        subject.send(:submit_traceability_to_event_bus, claim)
+      end
     end
   end
 

@@ -64,7 +64,8 @@ module Pensions
 
         process_attachments(in_progress_form, claim)
 
-        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
+        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid,
+                                                               current_user&.participant_id)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -97,7 +98,8 @@ module Pensions
           icn: current_user&.icn.to_s,
           current_id: claim&.confirmation_number.to_s,
           submission_name: Pensions::FORM_ID,
-          state: Kafka::State::RECEIVED
+          state: Kafka::State::RECEIVED,
+          additional_ids: [current_user&.participant_id].compact
         )
       end
 
