@@ -1310,6 +1310,32 @@ paths:
       summary: /v1/messaging/messages/categories
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+  /v1/messaging/messages/oh_sync_status:
+    get:
+      description: Get the Oracle Health sync status
+      operationId: get_oh_sync_status
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OhSyncStatus'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/messages/oh_sync_status
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -2197,7 +2223,7 @@ paths:
             maximum: 100
             example: 20
         - description: |
-            The attribute to sort by. Prefix with "-" for descending order. 
+            The attribute to sort by. Prefix with "-" for descending order.
             Supported values: "alphabetical-rx-name", "last-fill-date", or field names like "disp_status", "prescription_name", "dispensed_date"
           in: query
           name: sort
@@ -2264,7 +2290,7 @@ paths:
                       recently_requested:
                         type: array
                         description: |
-                          List of prescriptions with status "Active: Refill in Process"  or "Active: Submitted"
+                          List of prescriptions with status "Active: Refill in Process" or "Active: Submitted"
                         items:
                           type: object
           description: OK
@@ -2346,6 +2372,126 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Internal Server Error
       summary: /v2/prescriptions/refill
+  /v2/medical_records/clinical_notes:
+    get:
+      description: |
+        List clinical notes (care summaries and notes) for the current user within a specified date range.
+        Returns notes from both VistA and Oracle Health sources. Each note includes a `source` field
+        indicating which system the record originated from.
+      operationId: listClinicalNotesV2
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for clinical notes query (format YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for clinical notes query (format YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          description: Clinical notes list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClinicalNotesResponse'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request - Invalid date parameter format
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Gateway - upstream service error
+      summary: /v2/medical_records/clinical_notes
+  /v2/medical_records/clinical_notes/{id}:
+    get:
+      description: |
+        Get a single clinical note by ID. The `source` query parameter is required and must be set
+        to `oracle-health` to retrieve the note directly from the Oracle Health source-specific endpoint.
+        Requests with `source=vista` or without a `source` parameter will receive a 404 response.
+      operationId: getClinicalNoteV2
+      parameters:
+        - name: id
+          in: path
+          description: Clinical note record ID
+          required: true
+          schema:
+            type: string
+        - name: source
+          in: query
+          description: |
+            The data source of the note. Must be `oracle-health` for direct retrieval from the Oracle Health endpoint. Requests with `vista` or without this parameter return 404.
+          required: true
+          schema:
+            type: string
+            enum:
+              - oracle-health
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          description: Single clinical note response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClinicalNote'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request - source parameter is missing, unsupported (e.g. vista), or invalid
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not Found - no note matching the given ID
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Gateway - upstream service error
+      summary: /v2/medical_records/clinical_notes/{id}
 components:
   securitySchemes:
     CookieAuth:
@@ -3020,6 +3166,9 @@ components:
         recipientName:
           type: string
           example: ROE, RICHARD
+        replyDisabled:
+          type: boolean
+          example: false
         proxySenderName:
           type: string
           nullable: true
@@ -3422,6 +3571,41 @@ components:
                     - MEDICATIONS
                     - TEST_RESULTS
                     - EDUCATION
+    OhSyncStatus:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Resource identifier
+            type:
+              type: string
+              example: oh_sync_status
+            attributes:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: |
+                    The current Oracle Health sync status.
+                  enum:
+                    - FINISHED
+                    - ERROR
+                    - NOT_STARTED
+                    - STARTED
+                    - IN_PROGRESS
+                    - UNKNOWN
+                sync_complete:
+                  type: boolean
+                  description: |
+                    Whether the sync process has completed. True when status is FINISHED, ERROR, NOT_STARTED, or UNKNOWN. False when STARTED or IN_PROGRESS.
+                error:
+                  type: string
+                  nullable: true
+                  description: |
+                    Optional error message providing details when an error occurred during sync.
     SecureMessageReplyRequest:
       type: object
       required:
@@ -4851,3 +5035,181 @@ components:
                     - prescription_id: '3636691'
                       message: Refill submitted successfully
                       station_number: '989'
+    ClinicalNote:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the clinical note
+          example: '15249697279'
+        type:
+          type: string
+          description: Resource type identifier
+          example: clinical_note
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the clinical note
+              example: '15249697279'
+            name:
+              type: string
+              description: Title or display name of the note
+              example: Abbreviated Visit Summary
+            note_type:
+              type: string
+              description: |
+                Classification of the note type. Possible values include physician_procedure_note, discharge_summary, and consult_result.
+              example: physician_procedure_note
+            loinc_codes:
+              type: array
+              description: LOINC codes associated with this note type
+              items:
+                type: string
+              example:
+                - 11506-3
+            date:
+              type: string
+              format: date-time
+              description: Date the note was created or the service occurred
+              example: '2026-02-02T21:13:27Z'
+            date_signed:
+              type: string
+              format: date-time
+              nullable: true
+              description: Date the note was signed by the authenticator
+              example: '2026-02-02T21:13:27Z'
+            written_by:
+              type: string
+              nullable: true
+              description: Name of the author who wrote the note
+              example: Borland, Victoria A
+            signed_by:
+              type: string
+              nullable: true
+              description: Name of the practitioner who signed/authenticated the note
+              example: Victoria A Borland
+            admission_date:
+              type: string
+              format: date-time
+              nullable: true
+              description: Admission date (applicable for discharge summaries)
+              example: null
+            discharge_date:
+              type: string
+              format: date-time
+              nullable: true
+              description: Discharge date (applicable for discharge summaries)
+              example: null
+            location:
+              type: string
+              nullable: true
+              description: Facility or organization where the note was documented
+              example: 668 Mann-Grandstaff WA VA Medical Center
+            note:
+              type: string
+              nullable: true
+              description: Base64-encoded plain text content of the note
+              example: VGhpcyBpcyBhIHRlc3Qgbm90ZS4=
+            source:
+              type: string
+              description: |
+                The data source system for this note. Either 'vista' for VistA records or 'oracle-health' for Oracle Health (Cerner) records.
+              enum:
+                - vista
+                - oracle-health
+              example: oracle-health
+    ClinicalNotesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClinicalNote'
+      definitions:
+        ClinicalNote:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the clinical note
+              example: '15249697279'
+            type:
+              type: string
+              description: Resource type identifier
+              example: clinical_note
+            attributes:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the clinical note
+                  example: '15249697279'
+                name:
+                  type: string
+                  description: Title or display name of the note
+                  example: Abbreviated Visit Summary
+                note_type:
+                  type: string
+                  description: |
+                    Classification of the note type. Possible values include physician_procedure_note, discharge_summary, and consult_result.
+                  example: physician_procedure_note
+                loinc_codes:
+                  type: array
+                  description: LOINC codes associated with this note type
+                  items:
+                    type: string
+                  example:
+                    - 11506-3
+                date:
+                  type: string
+                  format: date-time
+                  description: Date the note was created or the service occurred
+                  example: '2026-02-02T21:13:27Z'
+                date_signed:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Date the note was signed by the authenticator
+                  example: '2026-02-02T21:13:27Z'
+                written_by:
+                  type: string
+                  nullable: true
+                  description: Name of the author who wrote the note
+                  example: Borland, Victoria A
+                signed_by:
+                  type: string
+                  nullable: true
+                  description: Name of the practitioner who signed/authenticated the note
+                  example: Victoria A Borland
+                admission_date:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Admission date (applicable for discharge summaries)
+                  example: null
+                discharge_date:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Discharge date (applicable for discharge summaries)
+                  example: null
+                location:
+                  type: string
+                  nullable: true
+                  description: Facility or organization where the note was documented
+                  example: 668 Mann-Grandstaff WA VA Medical Center
+                note:
+                  type: string
+                  nullable: true
+                  description: Base64-encoded plain text content of the note
+                  example: VGhpcyBpcyBhIHRlc3Qgbm90ZS4=
+                source:
+                  type: string
+                  description: |
+                    The data source system for this note. Either 'vista' for VistA records or 'oracle-health' for Oracle Health (Cerner) records.
+                  enum:
+                    - vista
+                    - oracle-health
+                  example: oracle-health
