@@ -6,8 +6,8 @@ module UnifiedHealthData
   module Adapters
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
-      # Valid VA station numbers start with exactly 3 digits, optionally followed
-      # by a hyphen or alpha characters (e.g., '648', '648A4', '648-Main').
+      # Valid VA station numbers start with exactly 3 digits followed by a non-digit
+      # character or end of string (e.g., '648', '648A4', '648-RX-MAIN').
       # Non-matching identifiers (e.g., DoD 4+ digit codes, zz/x prefixes) are excluded.
       VA_STATION_PATTERN = /^\d{3}(?!\d)/
 
@@ -67,13 +67,14 @@ module UnifiedHealthData
            facility_identifier.match?(valid_station_regex)
           facility_name = lookup(facility_identifier)
           if facility_name.nil?
-            Rails.logger.info("No facility name found for facility identifier: #{facility_identifier}
-            or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display")
+            Rails.logger.info(
+              "No facility name found for facility identifier: #{facility_identifier} " \
+              "or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display"
+            )
           end
           return facility_name
         end
 
-        Rails.logger.warn("Unable to extract valid station number from: #{location_display}")
         nil
       end
 
