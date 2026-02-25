@@ -590,6 +590,18 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     describe 'authorization failure logging (AU-3)' do
+      let(:test_remote_ip) { '192.168.1.100' }
+      let(:test_request_id) { 'abc-123-def-456' }
+
+      before do
+        request.env['REMOTE_ADDR'] = test_remote_ip
+        allow(controller).to receive(:request).and_wrap_original do |original|
+          req = original.call
+          req.request_id = test_request_id
+          req
+        end
+      end
+
       context 'when a Pundit::NotAuthorizedError is raised' do
         let(:expected_detail) do
           [{ title: 'Forbidden',
@@ -607,8 +619,8 @@ RSpec.describe ApplicationController, type: :controller do
             'Forbidden access (403)',
             hash_including(
               user_uuid: nil,
-              request_id: anything,
-              remote_ip: a_kind_of(String),
+              request_id: test_request_id,
+              remote_ip: test_remote_ip,
               detail: expected_detail
             )
           )
@@ -631,8 +643,8 @@ RSpec.describe ApplicationController, type: :controller do
               'Forbidden access (403)',
               hash_including(
                 user_uuid: user.uuid,
-                request_id: anything,
-                remote_ip: a_kind_of(String),
+                request_id: test_request_id,
+                remote_ip: test_remote_ip,
                 detail: expected_detail
               )
             )
@@ -651,8 +663,8 @@ RSpec.describe ApplicationController, type: :controller do
             'Forbidden access (403)',
             hash_including(
               user_uuid: nil,
-              request_id: anything,
-              remote_ip: a_kind_of(String),
+              request_id: test_request_id,
+              remote_ip: test_remote_ip,
               detail: [{ title: 'Forbidden', detail: 'Forbidden', code: '403', status: '403' }]
             )
           )
