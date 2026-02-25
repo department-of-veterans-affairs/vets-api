@@ -29,8 +29,6 @@ module ClaimsApi
         alt_rev_validate_form_526_identification
         # ensure disabilities are valid
         alt_rev_validate_form_526_disabilities
-        # ensure homeless information is valid
-        alt_rev_validate_form_526_veteran_homelessness
         # ensure toxic exposure info is valid
         alt_rev_validate_form_526_toxic_exposure
         # ensure new address is valid
@@ -407,21 +405,6 @@ module ClaimsApi
 
         collect_error_messages(source: "/disabilities/#{dis_idx}/secondaryDisability/#{sd_idx}/approximateDate",
                                detail: "approximateDate (#{dis_idx}) must be a date in the past.")
-      end
-
-      def alt_rev_validate_form_526_veteran_homelessness
-        return if form_attributes&.dig('homeless').nil? # nullable on schema
-
-        # validate if international phone number is too long for homeless point of contact
-        if international_phone_too_long?
-          collect_error_messages(source: '/homeless/pointOfContactNumber/internationalTelephone',
-                                 detail: 'International telephone number must be shorter than 25 characters')
-        end
-      end
-
-      def international_phone_too_long?
-        phone = form_attributes.dig('homeless', 'pointOfContactNumber', 'internationalTelephone')
-        phone.length > 25 if phone
       end
 
       def alt_rev_validate_form_526_toxic_exposure
