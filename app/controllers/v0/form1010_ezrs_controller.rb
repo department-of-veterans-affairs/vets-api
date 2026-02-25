@@ -39,6 +39,7 @@ module V0
     end
 
     def service_history
+      authorize :lighthouse, :access?
       p "~~~~~ ezr#service_history w/ icn? #{@current_user.icn.present?}"
       begin
         response = service.get_service_history(@current_user.icn)
