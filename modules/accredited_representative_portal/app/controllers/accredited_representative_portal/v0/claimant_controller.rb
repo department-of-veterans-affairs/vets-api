@@ -23,10 +23,6 @@ module AccreditedRepresentativePortal
               current_user.power_of_attorney_holder_memberships
           )
 
-        ##
-        # TODO: Validate how POA requests in different statuses should appear to
-        # the user in this resource.
-        #
         power_of_attorney_requests =
           policy_scope(PowerOfAttorneyRequest).joins(:claimant).not_withdrawn.where(
             claimant: { icn: claimant_profile.icn }
@@ -51,49 +47,17 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        icn = IcnTemporaryIdentifier.find(params[:id]).icn
+        icn = IcnTemporaryIdentifier.lookup_icn(params[:id])
         authorize icn, policy_class: ClaimantPolicy
 
-        profile = claimant_profile(params[:id])
-        raise Common::Exceptions::RecordNotFound, 'Claimant not found' if profile.blank?
+        payload = AccreditedRepresentativePortal::ClaimantDetailsService.new(
+          icn:,
+          benefit_type_param: params[:benefitType]
+        ).call
 
-        render json: claimant_payload(profile)
+        render json: payload
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, 'Claimant not found'
-      end
-
-      private
-
-      def claimant_profile(id)
-        icn = IcnTemporaryIdentifier.find(id).icn
-        MPI::Service.new.find_profile_by_identifier(
-          identifier: icn,
-          identifier_type: MPI::Constants::ICN
-        )&.profile
-      end
-
-      def claimant_payload(profile)
-        {
-          data: {
-            first_name: profile.given_names&.first,
-            last_name: profile.family_name,
-            birth_date: profile.birth_date,
-            ssn: profile.ssn,
-            phone: profile.home_phone,
-            address: claimant_address(profile)
-          }
-        }
-      end
-
-      def claimant_address(profile)
-        addr = profile.address
-        {
-          line1: addr&.street,
-          line2: addr&.street2,
-          city: addr&.city,
-          state: addr&.state,
-          zip: addr&.postal_code
-        }
       end
     end
   end

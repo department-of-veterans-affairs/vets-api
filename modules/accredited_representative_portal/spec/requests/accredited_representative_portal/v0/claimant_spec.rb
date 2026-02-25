@@ -154,65 +154,81 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
   describe 'GET /accredited_representative_portal/v0/claimant/:id' do
     let(:json_headers) { { 'ACCEPT' => 'application/json' } }
-    let(:icn) { '1008714701V416111' }
     let(:identifier_id) { SecureRandom.uuid }
+    let(:benefit_type) { 'compensation' }
 
+    let(:path) { "/accredited_representative_portal/v0/claimant/#{identifier_id}" }
+
+    # MPI test style aligned with other parts of the codebase
+    let(:mpi_profile) do
+      build(
+        :mpi_profile,
+        icn: '1008714701V416111',
+        given_names: ['John'],
+        family_name: 'Smith',
+        birth_date: '1980-01-01',
+        ssn: '666-66-6666',
+        home_phone: '555-555-5555',
+        address: OpenStruct.new(
+          street: '123 Main St',
+          street2: 'Apt 4',
+          city: 'Springfield',
+          state: 'VA',
+          postal_code: '12345'
+        )
+      )
+    end
+
+    let(:icn) { mpi_profile.icn }
+    let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+    let(:itf_service) { instance_double(BenefitsClaims::Service) }
+
+    # allow have_received assertions without expect_any_instance_of
     let(:mpi_service) { instance_double(MPI::Service) }
 
-    # Verified double: requires IcnTemporaryIdentifier constant to exist, so we stub_const first.
-    let(:identifier_obj) { instance_double(IcnTemporaryIdentifier, icn:) }
-
-    # Prefer route helper to avoid mount/path differences in CI
-    let(:path) { "/accredited_representative_portal/v0/claimant/#{identifier_id}" }
+    # NEW: service double (controller now delegates to this)
+    let(:claimant_details_service) { instance_double(AccreditedRepresentativePortal::ClaimantDetailsService) }
 
     before do
       # Ensure the controller's top-level constant exists in *all* envs (CI included)
       stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
 
-      # Controller uses top-level constant
-      allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_return(identifier_obj)
+      # show uses lookup_icn per review
+      allow(IcnTemporaryIdentifier).to receive(:lookup_icn).with(identifier_id).and_return(icn)
 
-      # Also safe if something uses the namespaced constant directly
-      allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
-        .to receive(:find)
-        .with(identifier_id)
-        .and_return(identifier_obj)
-
-      allow(MPI::Service).to receive(:new).and_return(mpi_service)
-
-      # UPDATED: ClaimantPolicy#show? now enforces POA via ClaimantRepresentative.find(...)
-      # In request specs, strict .with(...) matching can be brittle (different relation instances),
-      # so allow broadly for the happy-path contexts.
+      # Policy: allow happy path POA check
       allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find)
         .and_return(instance_double(AccreditedRepresentativePortal::ClaimantRepresentative))
+
+      # Keep existing stubs (even if controller no longer calls these directly)
+      allow(MPI::Service).to receive(:new).and_return(mpi_service)
+      allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
+
+      allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service)
+      allow(itf_service).to receive(:get_intent_to_file).with(benefit_type).and_return({ 'status' => 'ok' })
+
+      # NEW: default happy-path service behavior
+      allow(AccreditedRepresentativePortal::ClaimantDetailsService).to receive(:new).with(
+        icn:,
+        benefit_type_param: benefit_type
+      ).and_return(claimant_details_service)
+
+      allow(claimant_details_service).to receive(:call).and_return(
+        {
+          data: {
+            first_name: 'John',
+            last_name: 'Smith',
+            birth_date: '1980-01-01',
+            itf: [{ 'status' => 'ok' }]
+          }
+        }
+      )
     end
 
     context 'when the claimant exists in MPI' do
-      let(:profile) do
-        OpenStruct.new(
-          given_names: ['John'],
-          family_name: 'Smith',
-          birth_date: '1980-01-01',
-          ssn: '666-66-6666',
-          home_phone: '555-555-5555',
-          address: OpenStruct.new(
-            street: '123 Main St',
-            street2: 'Apt 4',
-            city: 'Springfield',
-            state: 'VA',
-            postal_code: '12345'
-          )
-        )
-      end
-
-      let(:mpi_response) { OpenStruct.new(profile:) }
-
-      before do
-        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_response)
-      end
-
       it 'returns claimant profile fields' do
-        get(path, headers: json_headers)
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
 
         expect(response).to have_http_status(:ok)
         data = parsed_response.fetch('data')
@@ -221,49 +237,80 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         expect(data['birth_date']).to eq('1980-01-01')
       end
 
-      it 'calls MPI with the ICN from the identifier' do
-        get(path, headers: json_headers)
+      it 'includes itf payload' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
 
-        expect(mpi_service).to have_received(:find_profile_by_identifier).with(
-          identifier: icn,
-          identifier_type: MPI::Constants::ICN
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.dig('data', 'itf')).to be_present
+      end
+    end
+
+    context 'when itf lookup fails' do
+      before do
+        # keep your old stub (even if unused now)
+        allow(itf_service).to receive(:get_intent_to_file).with(benefit_type).and_raise(StandardError, 'itf down')
+
+        # what matters now: service returns empty itf array
+        allow(claimant_details_service).to receive(:call).and_return(
+          {
+            data: {
+              first_name: 'John',
+              last_name: 'Smith',
+              birth_date: '1980-01-01',
+              itf: []
+            }
+          }
         )
+      end
+
+      it 'still returns claimant profile fields and itf is nil' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+
+        expect(response).to have_http_status(:ok)
+        data = parsed_response.fetch('data')
+        expect(data['first_name']).to eq('John')
+        expect(data['last_name']).to eq('Smith')
+        expect(data['birth_date']).to eq('1980-01-01')
+        expect(data['itf']).to eq([])
       end
     end
 
     context 'when rep does not have POA for claimant' do
       before do
-        allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
+        allow(AccreditedRepresentativePortal::ClaimantRepresentative)
+          .to receive(:find)
+          .and_raise(ActiveRecord::RecordNotFound)
       end
 
       it 'returns 403 forbidden' do
-        get(path, headers: json_headers)
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
         expect(response).to have_http_status(:forbidden)
       end
     end
 
     context 'when MPI returns no profile' do
       before do
+        # keep your old stub (even if unused now)
         allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile: nil))
+
+        # what matters now: service raises not found
+        allow(claimant_details_service).to receive(:call)
+          .and_raise(Common::Exceptions::RecordNotFound, 'Claimant not found')
       end
 
       it 'returns 404 not found' do
-        get(path, headers: json_headers)
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
         expect(response).to have_http_status(:not_found)
       end
     end
 
     context 'when the temporary identifier does not exist' do
       before do
-        allow(IcnTemporaryIdentifier).to receive(:find).with(identifier_id).and_raise(ActiveRecord::RecordNotFound)
-        allow(AccreditedRepresentativePortal::IcnTemporaryIdentifier)
-          .to receive(:find)
-          .with(identifier_id)
-          .and_raise(ActiveRecord::RecordNotFound)
+        allow(IcnTemporaryIdentifier).to receive(:lookup_icn).with(identifier_id).and_raise(ActiveRecord::RecordNotFound)
       end
 
       it 'returns 404 not found' do
-        get(path, headers: json_headers)
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
         expect(response).to have_http_status(:not_found)
       end
     end
