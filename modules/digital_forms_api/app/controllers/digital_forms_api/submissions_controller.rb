@@ -6,6 +6,7 @@ require 'digital_forms_api/service/submissions'
 module DigitalFormsApi
   class SubmissionsController < ApplicationController
     def show
+      check_flipper_flag
       begin
         submission = submissions_service.retrieve(params[:id])
         template = forms_service.template('21-686c')
@@ -22,6 +23,11 @@ module DigitalFormsApi
     end
 
     private
+
+    def check_flipper_flag
+      raise Common::Exceptions::Forbidden unless Flipper.enabled?(:dependents_digital_forms_api_submission_enabled,
+                                                                  current_user)
+    end
 
     def forms_service
       DigitalFormsApi::Service::Forms.new

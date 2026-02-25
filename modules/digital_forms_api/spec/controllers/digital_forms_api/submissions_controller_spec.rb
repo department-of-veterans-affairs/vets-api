@@ -6,9 +6,12 @@ RSpec.describe DigitalFormsApi::SubmissionsController, type: :controller do
   routes { DigitalFormsApi::Engine.routes }
 
   let(:user) { create(:user) }
+  let(:flipper_enabled) { true }
 
   before do
     sign_in_as(user) if user.present?
+    allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
+                                              instance_of(User)).and_return(flipper_enabled)
   end
 
   describe '#show' do
@@ -55,6 +58,15 @@ RSpec.describe DigitalFormsApi::SubmissionsController, type: :controller do
       it 'returns a 401 error without hitting Forms API' do
         get(:show, params: { id: 'abc123' })
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when the Flipper flag is off' do
+      let(:flipper_enabled) { false }
+
+      it 'returns a 403 error without hitting Forms API' do
+        get(:show, params: { id: 'abc123' })
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
