@@ -206,17 +206,18 @@ jobs:
           tags: vets-api
           cache-from: type=gha
 
-      # Shard balancing: parallel_test uses --group-by default, which distributes
-      # specs by actual runtime when a log file exists, falling back to filesize
-      # when it doesn't. The runtime log is generated in publish_results from
-      # JUnit XML timing data and cached for subsequent runs.
+      # Shard balancing: if a runtime log exists (cached from a previous run),
+      # parallel_test uses --group-by runtime to distribute specs by actual
+      # measured execution time. Otherwise it falls back to --group-by filesize.
+      # The runtime log is generated in publish_results from JUnit XML timing
+      # data and cached for subsequent runs.
       #
       # Cache key priority:
       #   1. This branch's most recent run
       #   2. master branch (so new PRs get balanced shards immediately)
       #   3. Any previous run (catch-all fallback)
-      # If no cache exists at all (e.g. first-ever run), parallel_test falls
-      # back to filesize grouping automatically.
+      # If no cache exists at all (e.g. first-ever run), parallel_test uses
+      # filesize grouping automatically.
       - name: Restore runtime log from cache
         uses: actions/cache/restore@v4
         with:
@@ -225,6 +226,17 @@ jobs:
           restore-keys: |
             parallel-runtime-log-refs/heads/master
             parallel-runtime-log-
+
+      - name: Determine shard grouping strategy
+        id: grouping
+        run: |
+          if [ -f tmp/parallel_runtime_rspec.log ]; then
+            echo "strategy=runtime" >> $GITHUB_OUTPUT
+            echo "Runtime log found, using runtime-based shard balancing"
+          else
+            echo "strategy=filesize" >> $GITHUB_OUTPUT
+            echo "No runtime log found, falling back to filesize grouping"
+          fi
 
       - name: Setup Database
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -247,7 +259,7 @@ jobs:
           TEST_ENV_NUMBER: ${{ matrix.test_group }}
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by default --type rspec --only-group ${{ matrix.test_group }} -n 24 -o '--profile 20'"
+          "TEST_ENV_NUMBER=${{ matrix.test_group }} TMPDIR=tmp/systmp bundle exec parallel_test spec modules --group-by ${{ steps.grouping.outputs.strategy }} --type rspec --only-group ${{ matrix.test_group }} -n 24 -o '--profile 20'"
 
       - name: Prepare SimpleCov shard payload
         if: always()
