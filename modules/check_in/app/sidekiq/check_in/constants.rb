@@ -63,6 +63,10 @@ module CheckIn
     CIE_STATSD_VALIDATION_ERROR = 'api.check_in.travel_claim.validation.error'
     OH_STATSD_VALIDATION_ERROR = 'api.oracle_health.travel_claim.validation.error'
 
+    # Error notification dispatched
+    CIE_STATSD_ERROR_NOTIFICATION = 'api.check_in.travel_claim.error_notification'
+    OH_STATSD_ERROR_NOTIFICATION = 'api.oracle_health.travel_claim.error_notification'
+
     # Check-in eligibility and demographics tracking
     STATSD_CHECKIN_DATA_RETRIEVED = 'api.check_in.data.retrieved'
     STATSD_CHECKIN_ELIGIBILITY = 'api.check_in.appointment.eligibility'
