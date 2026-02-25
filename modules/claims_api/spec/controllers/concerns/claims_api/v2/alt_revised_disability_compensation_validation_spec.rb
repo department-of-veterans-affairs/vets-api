@@ -501,6 +501,33 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#alt_rev_validate_form_526_veteran_homelessness' do
+    context 'when international telephone is longer than 25 characters' do
+      it 'adds an error' do
+        subject.form_attributes['homeless'] = {
+          'pointOfContactNumber' => {
+            'internationalTelephone' => '1' * 26
+          }
+        }
+
+        test_526_validation_instance.send(:alt_rev_validate_form_526_veteran_homelessness)
+
+        expect(current_error_array[0][:source]).to eq('/homeless/pointOfContactNumber/internationalTelephone')
+      end
+    end
+
+    context 'when homeless is nil' do
+      it 'skips validation and does not add errors' do
+        subject.form_attributes['homeless'] = nil
+
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_veteran_homelessness)
+
+        expect(res).to be_nil
+        expect(current_error_array).to be_nil
+      end
+    end
+  end
+
   describe 'validation for BDD_PROGRAM claim' do
     future_date = "#{Time.current.year + 1}-12-20"
 

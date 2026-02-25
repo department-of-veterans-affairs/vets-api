@@ -412,36 +412,10 @@ module ClaimsApi
       def alt_rev_validate_form_526_veteran_homelessness
         return if form_attributes&.dig('homeless').nil? # nullable on schema
 
-        handle_empty_other_description
-
+        # validate if international phone number is too long for homeless point of contact
         if international_phone_too_long?
           collect_error_messages(source: '/homeless/pointOfContactNumber/internationalTelephone',
                                  detail: 'International telephone number must be shorter than 25 characters')
-        end
-      end
-
-      def get_homelessness_attributes
-        currently_homeless_attr = form_attributes.dig('homeless', 'currentlyHomeless')
-        homelessness_risk_attr = form_attributes.dig('homeless', 'riskOfBecomingHomeless')
-        [currently_homeless_attr, homelessness_risk_attr]
-      end
-
-      def handle_empty_other_description
-        currently_homeless_attr, homelessness_risk_attr = get_homelessness_attributes
-
-        # Set otherDescription to ' ' to bypass docker container validation
-        if currently_homeless_attr.present?
-          homeless_situation_options = currently_homeless_attr['homelessSituationOptions']
-          other_description = currently_homeless_attr['otherDescription']
-          if homeless_situation_options == 'OTHER' && other_description.blank?
-            form_attributes['homeless']['currentlyHomeless']['otherDescription'] = ' '
-          end
-        elsif homelessness_risk_attr.present?
-          living_situation_options = homelessness_risk_attr['livingSituationOptions']
-          other_description = homelessness_risk_attr['otherDescription']
-          if living_situation_options == 'other' && other_description.blank?
-            form_attributes['homeless']['riskOfBecomingHomeless']['otherDescription'] = ' '
-          end
         end
       end
 
