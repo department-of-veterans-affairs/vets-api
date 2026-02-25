@@ -1,0 +1,32 @@
+type: object
+properties:
+  data:
+    type: object
+    properties:
+      status:
+        type: string
+        description: >
+          The current Oracle Health sync status.
+        enum:
+          - FINISHED
+          - ERROR
+          - NOT_STARTED
+          - STARTED
+          - IN_PROGRESS
+          - UNKNOWN
+      sync_complete:
+        type: boolean
+        description: >
+          Whether the sync process has completed. True when status is
+          FINISHED, ERROR, NOT_STARTED, or UNKNOWN. False when STARTED
+          or IN_PROGRESS.
+      error:
+        type: string
+        nullable: true
+        description: >
+          Optional error message providing details when an error occurred
+          during sync.
+  errors:
+    type: object
+  metadata:
+    type: object

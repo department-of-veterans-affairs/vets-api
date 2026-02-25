@@ -101,6 +101,10 @@ module MyHealth
         head :no_content
       end
 
+      def oh_sync_status
+        render json: client.get_oh_sync_status
+      end
+
       private
 
       def prepare_message_params_h

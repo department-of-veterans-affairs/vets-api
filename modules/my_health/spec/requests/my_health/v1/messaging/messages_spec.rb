@@ -80,6 +80,31 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       expect(result['data']['signatureName']).to eq('test-api Name')
     end
 
+    describe 'GET /my_health/v1/messaging/messages/oh_sync_status' do
+      it 'returns the OH sync status' do
+        VCR.use_cassette('sm_client/messages/gets/oh_sync_status') do
+          get '/my_health/v1/messaging/messages/oh_sync_status'
+        end
+
+        expect(response).to be_successful
+        result = JSON.parse(response.body)
+        expect(result['data']['status']).to eq('FINISHED')
+        expect(result['data']['sync_complete']).to be(true)
+      end
+
+      it 'returns the OH sync status when error' do
+        VCR.use_cassette('sm_client/messages/gets/oh_sync_status_error') do
+          get '/my_health/v1/messaging/messages/oh_sync_status'
+        end
+
+        expect(response).to be_successful
+        result = JSON.parse(response.body)
+        expect(result['data']['status']).to eq('ERROR')
+        expect(result['data']['sync_complete']).to be(true)
+        expect(result['data']['error']).to eq('Sync failed due to upstream timeout')
+      end
+    end
+
     it 'responds to GET #show' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
         get "/my_health/v1/messaging/messages/#{message_id}"
