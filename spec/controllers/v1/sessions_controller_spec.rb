@@ -718,6 +718,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_redirect_url) { "https://int.eauth.va.gov/slo/globallogout?appKey=#{expected_app_key}" }
         let(:expected_app_key) { 'https%253A%252F%252Fssoe-sp-dev.va.gov' }
 
+        before { allow(Rails.logger).to receive(:info).and_call_original }
+
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
@@ -730,6 +732,14 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(Session.find(token)).to be_nil
           expect(session).to be_empty
           expect(User.find(loa1_user.user_account.id)).to be_nil
+        end
+
+        it 'logs the logout call with session_duration' do
+          expect(Rails.logger).to receive(:info).with(
+            'SessionsController version:v1 LOGOUT of type slo',
+            hash_including(session_duration: kind_of(Integer))
+          )
+          call_endpoint
         end
 
         context 'when agreements_declined is true' do
