@@ -182,7 +182,7 @@ execute bundle exec rubocop -c .rubocop-sre.yml --only Sre --format json modules
 
 Write the JSON output to `tmp/sre-audit-{module}-{timestamp}/pass0-rubocop.json`.
 
-This covers 9 plays with AST-level detection (P01, P02, P03, P08, P10, P14, P16, P17, P20). These are confirmed findings — no LLM triage needed. Each offense message includes the play number (e.g., `[Play 03]`) for direct mapping to the playbook.
+This covers 8 plays with AST-level detection (P01, P02, P03, P08, P10, P14, P16, P17). These are confirmed findings — no LLM triage needed. Each offense message includes the play number (e.g., `[Play 03]`) for direct mapping to the playbook. Note: the `NoManualBacktraceJoin` cop covers a sub-pattern of P20 (`e.backtrace.join`) but not the full catch-log-reraise anti-pattern — P20 still needs grep-based detection in Phase 2.
 
 The cops are defined in `lib/rubocop/cop/sre/` and configured in `.rubocop-sre.yml`.
 
@@ -211,12 +211,12 @@ Self-check: You should now know the difference between HIGH and MEDIUM confidenc
 
 **Pattern scan:**
 
-For the 12 plays NOT covered by RuboCop (04, 05, 06, 07, 09, 11, 12, 13, 15, 18, 19, 21), run `search` with detection patterns across the module directory:
+For the 13 plays NOT fully covered by RuboCop (04, 05, 06, 07, 09, 11, 12, 13, 15, 18, 19, 20, 21), run `search` with detection patterns across the module directory:
 1. Run `search` with each play's detection patterns
 2. Record every match with file:line and the matched pattern
 3. Skip plays that don't apply to the module's code patterns (e.g., skip retry plays if no Sidekiq jobs)
 
-Also run supplementary `search` patterns for the 9 RuboCop plays to catch semantic violations the AST cops miss (e.g., Play 16 "logs but doesn't re-raise" needs surrounding context that RuboCop can't evaluate).
+Also run supplementary `search` patterns for the 8 RuboCop plays to catch semantic violations the AST cops miss (e.g., Play 16 "logs but doesn't re-raise" needs surrounding context that RuboCop can't evaluate).
 
 Write the candidate list to `tmp/sre-audit-{module}-{timestamp}/pass1-candidates.md` using this format:
 
