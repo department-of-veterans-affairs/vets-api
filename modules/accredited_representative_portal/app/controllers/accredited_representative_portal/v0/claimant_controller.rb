@@ -53,11 +53,15 @@ module AccreditedRepresentativePortal
       end
 
       def show
+        raise ActionController::BadRequest unless Flipper.enabled?(
+          :accredited_representative_portal_claimant_details
+        )
+
         skip_authorization
         # Using a ClaimantPolicy instance directly here instead of `authorize`
         # so that the ClaimantRepresentative can be re-used and only one call
-        # made to the Lighthouse power-of-attorney endpoint for returning
-        # the organization name to the user.
+        # made to the Lighthouse power-of-attorney endpoint for PoA check and
+        # returning the organization name to the user.
         icn = IcnTemporaryIdentifier.lookup_icn(params[:id])
         policy = ClaimantPolicy.new(current_user, icn)
         policy.show? or raise Pundit::NotAuthorizedError
