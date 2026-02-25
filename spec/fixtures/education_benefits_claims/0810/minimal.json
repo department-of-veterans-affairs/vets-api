@@ -5,12 +5,12 @@
     "last": "Squarepants"
   },
     "mailingAddress": {
-    "isMilitary": false,
-    "country": "USA",
-    "street": "100 First Ave",
-    "city": "Washington",
-    "state": "DC",
-    "postalCode": "20001"
+      "isMilitary": false,
+      "country": "USA",
+      "street": "100 First Ave",
+      "city": "Washington",
+      "state": "DC",
+      "postalCode": "20001"
   },
   "emailAddress": "spongebob@hotdog.gov",
   "homePhone": "4018614700",
