@@ -196,11 +196,12 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
           }
         end
 
-        it 'raises the error and logs it' do
+        it 'raises an UnprocessableEntity error and logs it' do
           allow(Rails.logger).to receive(:info)
           expect(Rails.logger).to receive(:error).with(/HEIC conversion failed/)
 
-          expect { subject.receipt = invalid_heic_receipt }.to raise_error(StandardError)
+          expect { subject.receipt = invalid_heic_receipt }
+            .to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
 

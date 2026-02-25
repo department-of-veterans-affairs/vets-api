@@ -136,8 +136,9 @@ module TravelPay
         receipt_data
       end
     rescue => e
-      Rails.logger.error("HEIC conversion failed: #{e.message}")
-      raise
+      error_message = "HEIC conversion failed: #{e.message}"
+      Rails.logger.error(error_message)
+      raise Common::Exceptions::UnprocessableEntity.new(detail: error_message)
     end
 
     # Checks if the content type is HEIC/HEIF format
