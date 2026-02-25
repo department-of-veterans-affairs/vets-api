@@ -41,13 +41,18 @@ module VeteranVerification
           lhrkp: lighthouse_rsa_key_path,
           options: options,
         }}"
-      body = config
-               .get(
-                 "#{endpoint}/#{icn}",
-                 lighthouse_client_id,
-                 lighthouse_rsa_key_path,
-                 options
-               )
+      config1 = config
+      p "~~~~~ vv#get_service_history config #{config1}"
+
+      config_get = config1
+                     .get(
+                       "#{endpoint}/#{icn}",
+                       lighthouse_client_id,
+                       lighthouse_rsa_key_path,
+                       options
+                     )
+      p "~~~~~ vv#get_service_history get #{config_get}"
+      body = config_get
                .body
       p "~~~~~ vv#get_service_history body, #{body}"
       body
