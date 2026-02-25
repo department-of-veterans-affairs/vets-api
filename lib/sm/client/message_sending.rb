@@ -20,10 +20,11 @@ module SM
       # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
       #
       def post_create_message(args = {}, is_oh: false, **kwargs)
-        track_with_status('post_create_message', is_oh:) do
-          args.merge!(kwargs)
+        args.merge!(kwargs)
+        track_with_status('post_create_message', is_oh:) do |tags|
           validate_create_context(args)
           json = perform_with_logging(:post, 'message', args)
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message')
         end
       end
@@ -36,11 +37,12 @@ module SM
       # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
       #
       def post_create_message_with_attachment(args = {}, is_oh: false, **kwargs)
-        track_with_status('post_create_message_with_attachment', is_oh:) do
-          args.merge!(kwargs)
+        args.merge!(kwargs)
+        track_with_status('post_create_message_with_attachment', is_oh:) do |tags|
           validate_create_context(args)
           Rails.logger.info('MESSAGING: post_create_message_with_attachments')
           json = perform_with_logging(:post, 'message/attach', args, headers: multipart_headers)
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_with_attachment')
         end
       end
@@ -55,11 +57,12 @@ module SM
       # @raise [Common::Exceptions::ValidationErrors] if message create context is invalid
       #
       def post_create_message_with_lg_attachments(args = {}, is_oh: false, **kwargs)
-        track_with_status('post_create_message_with_lg_attachments', is_oh:) do
-          args.merge!(kwargs)
+        args.merge!(kwargs)
+        track_with_status('post_create_message_with_lg_attachments', is_oh:) do |tags|
           validate_create_context(args)
           Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
           message = create_message_with_lg_attachments_request('message/attach', args)
+          tags[:station_number] = resolve_station_number(message&.recipient_id)
           build_lg_message_response(message, is_oh, 'post_create_message_with_lg_attachments')
         end
       end
@@ -75,11 +78,12 @@ module SM
       def post_create_message_reply_with_attachment(id, args = {}, is_oh: false, **kwargs)
         raise Common::Exceptions::ParameterMissing, 'id' if id.blank?
 
-        track_with_status('post_create_message_reply_with_attachment', is_oh:) do
-          args.merge!(kwargs)
+        args.merge!(kwargs)
+        track_with_status('post_create_message_reply_with_attachment', is_oh:) do |tags|
           validate_reply_context(args)
           Rails.logger.info('MESSAGING: post_create_message_reply_with_attachment')
           json = perform_with_logging(:post, "message/#{id}/reply/attach", args, headers: multipart_headers)
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_reply_with_attachment')
         end
       end
@@ -97,11 +101,12 @@ module SM
       def post_create_message_reply_with_lg_attachment(id, args = {}, is_oh: false, **kwargs)
         raise Common::Exceptions::ParameterMissing, 'id' if id.blank?
 
-        track_with_status('post_create_message_reply_with_lg_attachment', is_oh:) do
-          args.merge!(kwargs)
+        args.merge!(kwargs)
+        track_with_status('post_create_message_reply_with_lg_attachment', is_oh:) do |tags|
           validate_reply_context(args)
           Rails.logger.info('MESSAGING: post_create_message_reply_with_lg_attachment')
           message = create_message_with_lg_attachments_request("message/#{id}/reply/attach", args)
+          tags[:station_number] = resolve_station_number(message&.recipient_id)
           build_lg_message_response(message, is_oh, 'post_create_message_reply_with_lg_attachment')
         end
       end
@@ -117,10 +122,11 @@ module SM
       def post_create_message_reply(id, args = {}, is_oh: false, **kwargs)
         raise Common::Exceptions::ParameterMissing, 'id' if id.blank?
 
-        track_with_status('post_create_message_reply', is_oh:) do
-          args.merge!(kwargs)
+        args.merge!(kwargs)
+        track_with_status('post_create_message_reply', is_oh:) do |tags|
           validate_reply_context(args)
           json = perform_with_logging(:post, "message/#{id}/reply", args)
+          tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_reply')
         end
       end
@@ -146,15 +152,13 @@ module SM
       def perform_with_logging(method, path, args, headers: token_headers)
         perform(method, path, args.to_h, headers).body
       rescue => e
-        if oh_pilot_user?
-          log_message_to_rails('MHV SM OH Pilot User: Message Send Failed', 'error', {
-                                 error: e.message,
-                                 recipient_id: "***#{args[:recipient_id]&.to_s&.last(6)}",
-                                 path:,
-                                 mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s.last(6)}",
-                                 client_type: client_type_name
-                               })
-        end
+        log_message_to_rails('MHV SM: Message Send Failed', 'error', {
+                               error: e.message,
+                               recipient_id: "***#{args[:recipient_id]&.to_s&.last(6)}",
+                               path:,
+                               mhv_correlation_id: "****#{current_user&.mhv_correlation_id.to_s.last(6)}",
+                               client_type: client_type_name
+                             })
         raise e
       end
     end

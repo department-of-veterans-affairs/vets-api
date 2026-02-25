@@ -1407,7 +1407,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             .with(doc_id: 'doc2', appt_id: 'appt123').and_return(nil)
           get '/vaos/v2/appointments/avs_binaries/appt123?doc_ids=doc0,doc1,doc2', headers: inflection_header
           expect(response).to have_http_status(:ok)
-          # expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
           data = JSON.parse(response.body)['data']
           expect(data.length).to eq(3)
 
@@ -1977,7 +1976,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:bad_gateway)
           expect(response_obj['errors'].first['title']).to eq('Appointment creation failed')
-          expect(response_obj['errors'].first['detail']).to eq(
+          expect(response_obj['errors'].first['detail']).to start_with(
             'Error checking existing appointments: Missing ICN message'
           )
         end

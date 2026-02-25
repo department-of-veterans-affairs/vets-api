@@ -3,190 +3,475 @@
 require 'rails_helper'
 
 RSpec.describe TravelClaim::AuthManager do
-  let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
-  let(:session) { CheckIn::V2::Session.build(data: { uuid: }) }
+  let(:icn) { '1234567890V123456' }
+  let(:station_number) { '500' }
+  let(:facility_type) { nil }
+  let(:correlation_id) { 'test-correlation-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+
+  let(:auth_manager) do
+    described_class.new(
+      icn:,
+      station_number:,
+      facility_type:,
+      correlation_id:
+    )
+  end
+
+  # Settings constants
+  let(:auth_url) { 'https://login.microsoftonline.us' }
+  let(:tenant_id) { 'fake_tenant_id' }
+  let(:travel_pay_client_id) { 'fake_client_id' }
+  let(:travel_pay_client_secret) { 'fake_client_secret' }
+  let(:travel_pay_client_secret_oh) { 'fake_client_secret_oh' }
+  let(:travel_pay_resource) { 'fake_resource' }
+  let(:claims_url_v2) { 'https://dev.integration.d365.va.gov' }
+  let(:client_number) { 'fake_client_number' }
+  let(:client_secret) { 'fake_client_secret' }
+  let(:subscription_key) { 'sub-key' }
+  let(:e_subscription_key) { 'e-sub' }
+  let(:s_subscription_key) { 's-sub' }
+
+  let(:veis_response) do
+    instance_double(Faraday::Response, body: { 'access_token' => 'veis-token' }, status: 200)
+  end
+  let(:btsss_response) do
+    instance_double(Faraday::Response, body: { 'data' => { 'accessToken' => 'btsss-token' } }, status: 200)
+  end
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(false)
   end
 
-  describe '#authorize' do
-    it 'raises when ICN is missing and no session provided' do
-      service = described_class.new
-      expect { service.authorize }.to raise_error(ArgumentError, /ICN not available/)
-    end
+  def stub_connections(_manager = nil, veis_resp: veis_response, btsss_resp: btsss_response)
+    veis_conn = instance_double(Faraday::Connection)
+    btsss_conn = instance_double(Faraday::Connection)
+    config_instance = instance_double(TravelClaim::Configuration)
 
-    it 'raises when ICN is missing in Redis with session provided' do
-      allow_any_instance_of(TravelClaim::RedisClient).to receive(:icn).and_return(nil)
-      service = described_class.new(check_in_session: session)
-      expect { service.authorize }.to raise_error(ArgumentError, /ICN not available/)
-    end
+    # Stub config.connection to return different connections based on server_url argument
+    allow(config_instance).to receive(:connection).with(no_args).and_return(btsss_conn)
+    allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
 
-    it 'returns cached token when present (provided icn; non-PHI key)' do
-      icn = '123V456'
-      service = described_class.new
-      key = service.send(:secure_cache_key, icn)
-      expect(key).not_to include(icn)
+    allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+    allow(veis_conn).to receive(:post).and_return(veis_resp)
+    allow(btsss_conn).to receive(:post).and_return(btsss_resp)
+  end
 
-      # Cached via redis_client v4_token storage
-      service.redis_client.save_v4_token(cache_key: key, token: 'cached-token')
+  describe '#initialize' do
+    it 'accepts icn, station_number, facility_type, and correlation_id' do
+      manager = described_class.new(
+        icn: '123',
+        station_number: '500',
+        facility_type: 'oh',
+        correlation_id: 'abc-123'
+      )
 
-      token = service.authorize(icn:)
-      expect(token).to eq('cached-token')
-    end
-
-    it 'returns cached token when present (session uuid key)' do
-      allow_any_instance_of(TravelClaim::RedisClient).to receive(:icn).and_return('123V456')
-      service = described_class.new(check_in_session: session)
-      key = service.send(:secure_cache_key, '123V456')
-      expect(key).to include(uuid)
-
-      service.redis_client.save_v4_token(cache_key: key, token: 'cached-token')
-
-      token = service.authorize
-      expect(token).to eq('cached-token')
-    end
-
-    it 'fetches veis and v4 tokens and caches the result (with provided icn)' do
-      icn = '123V456'
-      token_client = instance_double(TravelClaim::TokenClient)
-      allow(TravelClaim::TokenClient).to receive(:new).and_return(token_client)
-
-      veis_resp = Faraday::Response.new(response_body: { access_token: 'veis' }.to_json, status: 200)
-      v4_resp = Faraday::Response.new(response_body: { data: { accessToken: 'v4' } }.to_json, status: 200)
-      allow(token_client).to receive(:veis_token).and_return(veis_resp)
-      allow(token_client).to receive(:system_access_token_v4).with(veis_access_token: 'veis',
-                                                                   icn:).and_return(v4_resp)
-
-      service = described_class.new
-      # Spy on save_v4_token
-      allow(service.redis_client).to receive(:save_v4_token).and_call_original
-
-      token = service.authorize(icn:)
-      expect(token).to eq('v4')
-
-      key = service.send(:secure_cache_key, icn)
-      cached = service.redis_client.v4_token(cache_key: key)
-      expect(cached).to eq('v4')
-      expect(service.redis_client).to have_received(:save_v4_token).with(cache_key: key, token: 'v4')
-    end
-
-    it 'resolves icn from Redis when not passed' do
-      allow_any_instance_of(TravelClaim::RedisClient).to receive(:icn).and_return('123V456')
-
-      token_client = instance_double(TravelClaim::TokenClient)
-      allow(TravelClaim::TokenClient).to receive(:new).and_return(token_client)
-      veis_resp = Faraday::Response.new(response_body: { access_token: 'veis' }.to_json, status: 200)
-      v4_resp = Faraday::Response.new(response_body: { data: { accessToken: 'v4' } }.to_json, status: 200)
-      allow(token_client).to receive(:veis_token).and_return(veis_resp)
-      allow(token_client).to receive(:system_access_token_v4).with(veis_access_token: 'veis',
-                                                                   icn: '123V456').and_return(v4_resp)
-
-      service = described_class.new(check_in_session: session)
-      allow(service.redis_client).to receive(:save_v4_token).and_call_original
-
-      token = service.authorize
-      expect(token).to eq('v4')
-
-      key = service.send(:secure_cache_key, '123V456')
-      expect(service.redis_client.v4_token(cache_key: key)).to eq('v4')
-      expect(service.redis_client).to have_received(:save_v4_token).with(cache_key: key, token: 'v4')
+      expect(manager.station_number).to eq('500')
+      expect(manager.facility_type).to eq('oh')
+      expect(manager.correlation_id).to eq('abc-123')
     end
   end
 
-  describe '#request_new_tokens' do
-    it 'returns and persists both veis and v4 tokens (provided icn)' do
-      icn = '123V456'
-      token_client = instance_double(TravelClaim::TokenClient)
-      allow(TravelClaim::TokenClient).to receive(:new).and_return(token_client)
+  describe '#with_auth' do
+    it 'ensures tokens are fetched before yielding' do
+      stub_connections(auth_manager)
 
-      veis_resp = Faraday::Response.new(response_body: { access_token: 'veis' }.to_json, status: 200)
-      v4_resp = Faraday::Response.new(response_body: { data: { accessToken: 'v4' } }.to_json, status: 200)
-      allow(token_client).to receive(:veis_token).and_return(veis_resp)
-      allow(token_client).to receive(:system_access_token_v4).with(veis_access_token: 'veis',
-                                                                   icn:).and_return(v4_resp)
+      result = auth_manager.with_auth { 'success' }
 
-      service = described_class.new
-      # Spy on redis_client token writes
-      allow(service.redis_client).to receive(:save_token).and_call_original
-      allow(service.redis_client).to receive(:save_v4_token).and_call_original
-
-      result = service.request_new_tokens(icn:)
-      expect(result).to eq({ veis_token: 'veis', btsss_token: 'v4' })
-
-      expect(service.redis_client).to have_received(:save_token).with(token: 'veis')
-
-      key = service.send(:secure_cache_key, icn)
-      expect(service.redis_client.v4_token(cache_key: key)).to eq('v4')
-      expect(service.redis_client).to have_received(:save_v4_token).with(cache_key: key, token: 'v4')
+      expect(result).to eq('success')
+      expect(auth_manager.send(:instance_variable_get, :@current_veis_token)).to eq('veis-token')
+      expect(auth_manager.send(:instance_variable_get, :@current_btsss_token)).to eq('btsss-token')
     end
 
-    it 'resolves icn via session and persists tokens' do
-      allow_any_instance_of(TravelClaim::RedisClient).to receive(:icn).and_return('ICN999')
+    context 'when a 401 error occurs' do
+      let(:unauthorized_error) do
+        Common::Exceptions::BackendServiceException.new('VA900', { detail: 'Unauthorized' }, 401)
+      end
 
-      token_client = instance_double(TravelClaim::TokenClient)
-      allow(TravelClaim::TokenClient).to receive(:new).and_return(token_client)
+      it 'retries once by refreshing all tokens' do
+        stub_connections(auth_manager)
 
-      veis_resp = Faraday::Response.new(response_body: { access_token: 'veis' }.to_json, status: 200)
-      v4_resp = Faraday::Response.new(response_body: { data: { accessToken: 'v4' } }.to_json, status: 200)
-      allow(token_client).to receive(:veis_token).and_return(veis_resp)
-      allow(token_client).to receive(:system_access_token_v4).with(veis_access_token: 'veis',
-                                                                   icn: 'ICN999').and_return(v4_resp)
+        call_count = 0
+        result = auth_manager.with_auth do
+          call_count += 1
+          raise unauthorized_error if call_count == 1
 
-      service = described_class.new(check_in_session: session)
-      allow(service.redis_client).to receive(:save_token).and_call_original
-      allow(service.redis_client).to receive(:save_v4_token).and_call_original
+          'success after retry'
+        end
 
-      result = service.request_new_tokens
-      expect(result).to eq({ veis_token: 'veis', btsss_token: 'v4' })
-      expect(service.redis_client).to have_received(:save_token).with(token: 'veis')
+        expect(result).to eq('success after retry')
+        expect(call_count).to eq(2)
+      end
 
-      key = service.send(:secure_cache_key, 'ICN999')
-      expect(service.redis_client.v4_token(cache_key: key)).to eq('v4')
-      expect(service.redis_client).to have_received(:save_v4_token).with(cache_key: key, token: 'v4')
+      it 'does not retry more than once' do
+        stub_connections(auth_manager)
+
+        call_count = 0
+
+        expect do
+          auth_manager.with_auth do
+            call_count += 1
+            raise unauthorized_error
+          end
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(call_count).to eq(2)
+      end
     end
 
-    it 'raises when ICN cannot be resolved' do
-      allow_any_instance_of(TravelClaim::RedisClient).to receive(:icn).and_return(nil)
-      service = described_class.new(check_in_session: session)
-      expect { service.request_new_tokens }.to raise_error(ArgumentError, /ICN not available/)
+    context 'when a 409 error occurs' do
+      let(:conflict_error) do
+        Common::Exceptions::BackendServiceException.new(
+          'VA900',
+          { detail: 'Conflict error from BTSSS' },
+          409
+        )
+      end
+
+      it 'retries once by refreshing only the BTSSS token' do
+        stub_connections(auth_manager)
+
+        original_veis_token = nil
+        call_count = 0
+
+        auth_manager.with_auth do
+          call_count += 1
+          original_veis_token ||= auth_manager.send(:instance_variable_get, :@current_veis_token)
+          raise conflict_error if call_count == 1
+
+          'success after retry'
+        end
+
+        # VEIS token should be the same (not refreshed)
+        expect(auth_manager.send(:instance_variable_get, :@current_veis_token)).to eq(original_veis_token)
+        expect(call_count).to eq(2)
+      end
+
+      it 'does not retry more than once on 409' do
+        stub_connections(auth_manager)
+
+        call_count = 0
+
+        expect do
+          auth_manager.with_auth do
+            call_count += 1
+            raise conflict_error
+          end
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(call_count).to eq(2)
+      end
+    end
+
+    context 'when a non-retryable error occurs' do
+      it 'raises immediately without retry for 500 errors' do
+        stub_connections(auth_manager)
+
+        server_error = Common::Exceptions::BackendServiceException.new(
+          'VA900',
+          { detail: 'Server error' },
+          500
+        )
+        call_count = 0
+
+        expect do
+          auth_manager.with_auth do
+            call_count += 1
+            raise server_error
+          end
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(call_count).to eq(1)
+      end
+    end
+
+    context 'when token fetching fails in ensure_tokens!' do
+      before do
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'increments auth failure metric once' do
+        veis_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration)
+        allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+        allow(veis_conn).to receive(:post).and_return(
+          instance_double(Faraday::Response, body: {})
+        )
+
+        expect do
+          auth_manager.with_auth { 'success' }
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+
+        expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_AUTH_FAILURE).once
+      end
+
+      context 'with OH facility type' do
+        let(:facility_type) { 'oh' }
+
+        it 'increments OH auth failure metric once' do
+          veis_conn = instance_double(Faraday::Connection)
+          config_instance = instance_double(TravelClaim::Configuration)
+          allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+          allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+          allow(veis_conn).to receive(:post).and_return(
+            instance_double(Faraday::Response, body: {})
+          )
+
+          expect do
+            auth_manager.with_auth { 'success' }
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_AUTH_FAILURE).once
+        end
+      end
     end
   end
 
-  describe '#secure_cache_key' do
-    it 'uses settings.cache_key_secret when present' do
-      service = described_class.new
-      sd = OpenStruct.new(cache_key_secret: 'sekret')
-      allow(service).to receive(:settings).and_return(sd)
-      expect(OpenSSL::HMAC).to receive(:hexdigest).with('SHA256', 'sekret', 'ICN').and_return('d')
-      key = service.send(:secure_cache_key, 'ICN')
-      expect(key).to include('icn_hmac:d')
+  describe '#veis_token' do
+    it 'returns cached token from Rails.cache' do
+      Rails.cache.write(
+        'token',
+        'cached-token',
+        namespace: 'check-in-veis-token-cache-v1'
+      )
+
+      expect(auth_manager.veis_token).to eq('cached-token')
     end
 
-    it 'falls back to credentials secret_key_base when settings secret is absent' do
-      service = described_class.new
-      sd = OpenStruct.new(cache_key_secret: nil)
-      fake_creds = double('creds', secret_key_base: 'cred-secret')
-      fake_app = double('app', credentials: fake_creds)
-      allow(Rails).to receive(:application).and_return(fake_app)
-      allow(service).to receive(:settings).and_return(sd)
-      expect(OpenSSL::HMAC).to receive(:hexdigest).with('SHA256', 'cred-secret', 'ICN').and_return('d2')
-      key = service.send(:secure_cache_key, 'ICN')
-      expect(key).to include('icn_hmac:d2')
+    it 'fetches new token when cache is empty' do
+      veis_conn = instance_double(Faraday::Connection)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+      allow(veis_conn).to receive(:post).and_return(veis_response)
+
+      token = auth_manager.veis_token
+      expect(token).to eq('veis-token')
     end
 
-    it 'uses hardcoded fallback when neither settings nor credentials provide a secret' do
-      service = described_class.new
-      sd = OpenStruct.new(cache_key_secret: nil)
-      fake_creds = double('creds', secret_key_base: nil)
-      fake_app = double('app', credentials: fake_creds)
-      allow(Rails).to receive(:application).and_return(fake_app)
-      allow(service).to receive(:settings).and_return(sd)
-      expect(OpenSSL::HMAC).to receive(:hexdigest).with('SHA256', 'checkin-travel-pay', 'ICN').and_return('d3')
-      key = service.send(:secure_cache_key, 'ICN')
-      expect(key).to include('icn_hmac:d3')
+    it 'caches the token after fetching' do
+      veis_conn = instance_double(Faraday::Connection)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+      allow(veis_conn).to receive(:post).and_return(veis_response)
+
+      auth_manager.veis_token
+
+      cached = Rails.cache.read(
+        'token',
+        namespace: 'check-in-veis-token-cache-v1'
+      )
+      expect(cached).to eq('veis-token')
+    end
+  end
+
+  describe '#btsss_token' do
+    it 'fetches VEIS token first if not present' do
+      stub_connections(auth_manager)
+
+      token = auth_manager.btsss_token
+
+      expect(auth_manager.send(:instance_variable_get, :@current_veis_token)).to eq('veis-token')
+      expect(token).to eq('btsss-token')
+    end
+
+    it 'returns existing token if already fetched' do
+      auth_manager.instance_variable_set(:@current_btsss_token, 'existing-token')
+
+      expect(auth_manager.btsss_token).to eq('existing-token')
+    end
+  end
+
+  describe 'BTSSS client secret selection' do
+    # Test values from config/settings/test.yml
+    let(:oh_secret) { 'fake_travel_pay_client_secret_oh' }
+    let(:standard_secret) { 'fake_travel_pay_client_secret' }
+
+    context 'when facility_type is "oh"' do
+      let(:facility_type) { 'oh' }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(oh_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is not "oh"' do
+      let(:facility_type) { 'vamc' }
+
+      it 'uses the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(standard_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is nil (default)' do
+      # Uses the top-level let(:facility_type) { nil }
+
+      it 'falls back to the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(standard_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is uppercase "OH"' do
+      let(:facility_type) { 'OH' }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(oh_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is uppercase "VAMC"' do
+      let(:facility_type) { 'VAMC' }
+
+      it 'uses the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(standard_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type contains extra whitespace around "oh"' do
+      let(:facility_type) { '  oh  ' }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(oh_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is an unexpected type (integer)' do
+      let(:facility_type) { 123 }
+
+      it 'falls back to the standard client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(standard_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+
+    context 'when facility_type is a symbol :oh' do
+      let(:facility_type) { :oh }
+
+      it 'uses the Oracle Health client secret' do
+        auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+        btsss_conn = instance_double(Faraday::Connection)
+        config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+        allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+
+        expect(btsss_conn).to receive(:post) do |_path, body, _headers|
+          expect(body[:secret]).to eq(oh_secret)
+          btsss_response
+        end
+
+        auth_manager.btsss_token
+      end
+    end
+  end
+
+  describe 'error handling' do
+    it 'raises BackendServiceException when VEIS token is missing from response' do
+      veis_conn = instance_double(Faraday::Connection)
+      config_instance = instance_double(TravelClaim::Configuration)
+      allow(config_instance).to receive(:connection).with(server_url: anything).and_return(veis_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+      allow(veis_conn).to receive(:post).and_return(
+        instance_double(Faraday::Response, body: {})
+      )
+
+      expect do
+        auth_manager.veis_token
+      end.to raise_error(Common::Exceptions::BackendServiceException, /VEIS auth response missing/)
+    end
+
+    it 'raises BackendServiceException when BTSSS token is missing from response' do
+      auth_manager.instance_variable_set(:@current_veis_token, 'veis-token')
+
+      btsss_conn = instance_double(Faraday::Connection)
+      config_instance = instance_double(TravelClaim::Configuration, connection: btsss_conn)
+      allow(TravelClaim::Configuration).to receive(:instance).and_return(config_instance)
+      allow(btsss_conn).to receive(:post).and_return(
+        instance_double(Faraday::Response, body: { 'data' => {} })
+      )
+
+      expect do
+        auth_manager.btsss_token
+      end.to raise_error(Common::Exceptions::BackendServiceException, /BTSSS auth response missing/)
     end
   end
 end

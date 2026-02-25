@@ -95,6 +95,10 @@ properties:
       unreadMessages:
         type: boolean
         example: true
+      isOhMessage:
+        type: boolean
+        description: Indicates if this message thread is an Oracle Health message
+        example: false
   links:
     type: object
     additionalProperties: false

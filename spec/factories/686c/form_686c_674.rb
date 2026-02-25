@@ -1051,7 +1051,7 @@ FactoryBot.define do
               'name' => 'name of trade program'
             },
             'benefit_payment_date' => '2024-03-01',
-            'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true, 'other' => true },
+            'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true },
             'other_program_or_benefit' => 'all the programs!',
             'tuition_is_paid_by_gov_agency' => true,
             'marriage_date' => '2024-03-03',

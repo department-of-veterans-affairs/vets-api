@@ -17,6 +17,7 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
   let(:user_data) { { 'veteran_information' => { 'full_name' => { 'first' => 'John', 'last' => 'Doe' } } }.to_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
   let!(:current_group) { create(:saved_claim_group, saved_claim:, parent_claim:) }
+  let(:component) { described_class.name }
   let(:job) { described_class.new }
 
   describe '#submit_claims_to_service' do
@@ -281,14 +282,16 @@ RSpec.describe DependentsBenefits::Sidekiq::BGS::BGSFormJob, type: :job do
 
       before do
         allow(bgs_service).to receive(:create_proc).and_raise(error)
-        allow(monitor).to receive(:track_submission_error)
+        allow(monitor).to receive(:track_error_event)
       end
 
       it 'tracks the error with monitor' do
-        expect(monitor).to receive(:track_submission_error).with(
+        expect(monitor).to receive(:track_error_event).with(
           'Error generating proc ID',
-          'proc_id_failure',
-          hash_including(error:, parent_claim_id: parent_claim.id)
+          action: 'proc_id_failure',
+          component:,
+          error:,
+          parent_claim_id: parent_claim.id
         )
 
         expect do

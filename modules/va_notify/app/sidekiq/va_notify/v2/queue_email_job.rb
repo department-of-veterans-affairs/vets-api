@@ -42,7 +42,11 @@ module VANotify
       end
 
       def self.enqueue(email, template_id, personalisation, api_key_path, callback_options = {})
-        key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation: })
+        unless api_key_path.start_with?('Settings.')
+          raise ArgumentError, "API key path must start with 'Settings.': #{api_key_path}"
+        end
+
+        key = Sidekiq::AttrPackage.create(email:, personalisation:)
         perform_async(template_id, key, api_key_path, callback_options)
       end
 

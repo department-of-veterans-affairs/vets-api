@@ -28,7 +28,9 @@ module UnifiedHealthData
           'Active: Submitted',
           'Active: Refill in Process',
           'Pending New Prescription',
-          'Pending Renewal'
+          'Pending Renewal',
+          'Renew',
+          'NewOrder'
         ],
         'Inactive' => [
           'Expired',
