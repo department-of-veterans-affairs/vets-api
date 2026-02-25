@@ -333,6 +333,17 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   end
 
   describe 'validation of claimant change of address elements' do
+    context 'when changeOfAddress is not included' do
+      it 'skips change of address validations' do
+        subject.form_attributes.delete('changeOfAddress')
+
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address)
+
+        expect(res).to be_nil
+        expect(current_error_array).to be_nil
+      end
+    end
+
     context "'typeOfAddressChange','addressLine1','country' are conditionally required" do
       context 'without the required country value present' do
         it 'returns an error array' do
@@ -547,6 +558,30 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be ' \
                                                       'in the future if addressChangeType is TEMPORARY')
         expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+      end
+    end
+
+    context 'when the type is temporary and begin date is today' do
+      it 'returns an error array' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.iso8601
+        subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(1).iso8601
+
+        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+      end
+    end
+
+    context 'when typeOfAddressChange is mixed case temporary' do
+      it 'validates ending date requirements consistently' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'temporary'
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.next_day(1).iso8601
+        subject.form_attributes['changeOfAddress']['dates'].delete('endDate')
+
+        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
       end
     end
 
