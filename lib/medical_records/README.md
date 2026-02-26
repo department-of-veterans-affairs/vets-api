@@ -5,7 +5,7 @@
 `MedicalRecords::MedicalRecordsLog` (`lib/medical_records/medical_records_log.rb`) is the structured logging utility for Medical Records V2. It provides:
 
 - **Structured envelope** — every entry includes `service: 'medical_records'`, `resource:`, `action:`.
-- **Automatic PII stripping** — 12 keys (ICN, SSN, email, etc.) recursively removed. `user_uuid` optionally redacted via `redact_user_uuid: true`.
+- **Automatic PII stripping** — 22 keys (ICN, SSN, email, user_uuid, edipi, etc.) recursively removed from all log output.
 - **Tiered verbosity** — `info`, `warn`, `error` always-on; `diagnostic` gated by Flipper toggles.
 - **Domain + global toggle fallback** — `diagnostic` checks a per-domain toggle first, falls back to the global toggle. Either one activates logging.
 

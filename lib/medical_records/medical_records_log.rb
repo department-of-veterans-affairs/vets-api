@@ -52,11 +52,6 @@ module MedicalRecords
   #             error_class: 'Common::Client::Errors::ClientError',
   #             error_message: 'timeout')
   #
-  #   # Redact user_uuid when logging alongside clinical content
-  #   log.info(resource: MedicalRecordsLog::CLINICAL_NOTES, action: 'show',
-  #            redact_user_uuid: true, user_uuid: current_user.uuid,
-  #            note_id: '12345', doc_ref_type: 'ConsultResultNote')
-  #
   # == Adding a New Domain
   #
   # Follow these steps when you want structured logging for a new domain
@@ -132,6 +127,8 @@ module MedicalRecords
     }.freeze
 
     # Keys that are always stripped from log output. Checked case-insensitively.
+    # Sourced from the User model (app/models/user.rb) — covers identity fields,
+    # VA/DoD identifiers, and authentication UUIDs.
     PII_KEYS = %i[
       icn
       ssn
@@ -139,18 +136,22 @@ module MedicalRecords
       email
       mhv_correlation_id
       first_name
+      middle_name
       last_name
       birth_date
       date_of_birth
       address
       phone
       phone_number
-    ].freeze
-
-    # Keys that are safe on their own but become PII when logged alongside clinical data.
-    # Stripped only when the caller opts in via `redact_user_uuid: true`.
-    CONTEXTUAL_PII_KEYS = %i[
+      home_phone
+      edipi
+      birls_id
+      participant_id
+      sec_id
       user_uuid
+      idme_uuid
+      logingov_uuid
+      vet360_id
     ].freeze
 
     # @param user [User, nil] The authenticated user. When provided, diagnostic logging
@@ -164,11 +165,9 @@ module MedicalRecords
     #
     # @param resource [String] The medical record resource type (e.g. 'clinical_notes', 'allergies')
     # @param action [String] The controller/service action (e.g. 'index', 'show', 'filter')
-    # @param redact_user_uuid [Boolean] When true, strips user_uuid from output.
-    #   Use when logging alongside clinical content that could make user_uuid identifying.
     # @param metadata [Hash] Additional structured data to include in the log entry
-    def info(resource:, action:, redact_user_uuid: false, **metadata)
-      write(:info, resource:, action:, redact_user_uuid:, **metadata)
+    def info(resource:, action:, **metadata)
+      write(:info, resource:, action:, **metadata)
     end
 
     # Always-on warn-level log.
@@ -176,10 +175,9 @@ module MedicalRecords
     #
     # @param resource [String] The medical record resource type
     # @param action [String] The controller/service action
-    # @param redact_user_uuid [Boolean] When true, strips user_uuid from output.
     # @param metadata [Hash] Additional structured data
-    def warn(resource:, action:, redact_user_uuid: false, **metadata)
-      write(:warn, resource:, action:, redact_user_uuid:, **metadata)
+    def warn(resource:, action:, **metadata)
+      write(:warn, resource:, action:, **metadata)
     end
 
     # Always-on error-level log.
@@ -187,10 +185,9 @@ module MedicalRecords
     #
     # @param resource [String] The medical record resource type
     # @param action [String] The controller/service action
-    # @param redact_user_uuid [Boolean] When true, strips user_uuid from output.
     # @param metadata [Hash] Additional structured data
-    def error(resource:, action:, redact_user_uuid: false, **metadata)
-      write(:error, resource:, action:, redact_user_uuid:, **metadata)
+    def error(resource:, action:, **metadata)
+      write(:error, resource:, action:, **metadata)
     end
 
     # Toggle-gated diagnostic log at info level.
@@ -204,11 +201,10 @@ module MedicalRecords
     # @param action [String] The controller/service action
     # @param metadata [Hash] Additional structured data
     # @return [Boolean] true if the log was written, false if toggle was off
-    # @param redact_user_uuid [Boolean] When true, strips user_uuid from output.
-    def diagnostic(resource:, action:, redact_user_uuid: false, **metadata)
+    def diagnostic(resource:, action:, **metadata)
       return false unless diagnostic_enabled?(resource)
 
-      write(:info, resource:, action:, redact_user_uuid:, log_level_context: 'diagnostic', **metadata)
+      write(:info, resource:, action:, log_level_context: 'diagnostic', **metadata)
       true
     end
 
@@ -231,14 +227,14 @@ module MedicalRecords
     private
 
     # Builds the structured envelope, strips PII, and writes to Rails.logger.
-    def write(level, resource:, action:, redact_user_uuid: false, **metadata)
-      payload = build_payload(resource:, action:, redact_user_uuid:, **metadata)
+    def write(level, resource:, action:, **metadata)
+      payload = build_payload(resource:, action:, **metadata)
       Rails.logger.public_send(level, payload)
     end
 
     # Assembles the canonical log hash.
-    def build_payload(resource:, action:, redact_user_uuid: false, **metadata)
-      sanitized = strip_pii(metadata, redact_user_uuid:)
+    def build_payload(resource:, action:, **metadata)
+      sanitized = strip_pii(metadata)
 
       {
         service: SERVICE_NAME,
@@ -249,20 +245,17 @@ module MedicalRecords
     end
 
     # Recursively removes any keys from the hash that match PII_KEYS.
-    # When redact_user_uuid is true, also strips CONTEXTUAL_PII_KEYS.
     # Operates on a deep copy so the caller's hash is not mutated.
-    def strip_pii(hash, redact_user_uuid: false)
-      blocked = redact_user_uuid ? PII_KEYS + CONTEXTUAL_PII_KEYS : PII_KEYS
-
+    def strip_pii(hash)
       hash.each_with_object({}) do |(key, value), clean|
         sym_key = key.to_s.downcase.to_sym
-        next if blocked.include?(sym_key)
+        next if PII_KEYS.include?(sym_key)
 
         clean[key] = case value
                      when Hash
-                       strip_pii(value, redact_user_uuid:)
+                       strip_pii(value)
                      when Array
-                       value.map { |v| v.is_a?(Hash) ? strip_pii(v, redact_user_uuid:) : v }
+                       value.map { |v| v.is_a?(Hash) ? strip_pii(v) : v }
                      else
                        value
                      end

@@ -22,28 +22,18 @@ RSpec.describe MedicalRecords::MedicalRecordsLog do
       log.info(resource: described_class::CLINICAL_NOTES, action: 'index', total: 5)
     end
 
-    it 'strips PII keys from metadata but keeps user_uuid by default' do
+    it 'strips PII keys from metadata' do
       expect(Rails.logger).to receive(:info) do |payload|
         expect(payload).not_to have_key(:icn)
         expect(payload).not_to have_key(:ssn)
         expect(payload).not_to have_key(:email)
-        expect(payload[:user_uuid]).to eq('abc-123')
+        expect(payload).not_to have_key(:user_uuid)
         expect(payload[:total]).to eq(3)
       end
 
       log.info(resource: described_class::CLINICAL_NOTES, action: 'index',
                total: 3, icn: '123V456', ssn: '999-00-1234',
                email: 'vet@example.com', user_uuid: 'abc-123')
-    end
-
-    it 'strips user_uuid when redact_user_uuid is true' do
-      expect(Rails.logger).to receive(:info) do |payload|
-        expect(payload).not_to have_key(:user_uuid)
-        expect(payload[:total]).to eq(3)
-      end
-
-      log.info(resource: described_class::CLINICAL_NOTES, action: 'index',
-               redact_user_uuid: true, total: 3, user_uuid: 'abc-123')
     end
 
     it 'strips PII keys from nested hashes' do
@@ -298,26 +288,29 @@ RSpec.describe MedicalRecords::MedicalRecordsLog do
       log.info(resource: 'test', action: 'test', **pii_hash)
     end
 
-    it 'strips CONTEXTUAL_PII_KEYS only when redact_user_uuid is true' do
+    it 'strips VA/DoD identifier keys' do
       expect(Rails.logger).to receive(:info) do |payload|
-        described_class::CONTEXTUAL_PII_KEYS.each do |key|
+        %i[edipi birls_id participant_id sec_id vet360_id].each do |key|
+          expect(payload).not_to have_key(key), "Expected #{key} to be stripped but it was present"
+        end
+        expect(payload[:safe_field]).to eq('visible')
+      end
+
+      log.info(resource: 'test', action: 'test',
+               edipi: '1234567890', birls_id: '123456789',
+               participant_id: '600000001', sec_id: '0000000001',
+               vet360_id: '12345', safe_field: 'visible')
+    end
+
+    it 'strips authentication UUID keys' do
+      expect(Rails.logger).to receive(:info) do |payload|
+        %i[user_uuid idme_uuid logingov_uuid].each do |key|
           expect(payload).not_to have_key(key), "Expected #{key} to be stripped but it was present"
         end
       end
 
-      contextual_hash = described_class::CONTEXTUAL_PII_KEYS.index_with { 'secret' }
-      log.info(resource: 'test', action: 'test', redact_user_uuid: true, **contextual_hash)
-    end
-
-    it 'keeps CONTEXTUAL_PII_KEYS when redact_user_uuid is false' do
-      expect(Rails.logger).to receive(:info) do |payload|
-        described_class::CONTEXTUAL_PII_KEYS.each do |key|
-          expect(payload).to have_key(key), "Expected #{key} to be present but it was stripped"
-        end
-      end
-
-      contextual_hash = described_class::CONTEXTUAL_PII_KEYS.index_with { 'secret' }
-      log.info(resource: 'test', action: 'test', **contextual_hash)
+      log.info(resource: 'test', action: 'test',
+               user_uuid: 'abc-123', idme_uuid: 'def-456', logingov_uuid: 'ghi-789')
     end
   end
 end
