@@ -62,23 +62,6 @@ module TravelClaim
     end
 
     ##
-    # Returns headers required for authenticated BTSSS API requests.
-    #
-    # @return [Hash] Headers including Authorization, BTSSS-Access-Token, and subscription keys
-    # @raise [TravelClaim::Errors::InvalidArgument] If tokens are not available
-    #
-    def auth_headers
-      validate_tokens_present!
-
-      {
-        'Content-Type' => 'application/json',
-        'Authorization' => "Bearer #{@current_veis_token}",
-        'BTSSS-Access-Token' => @current_btsss_token,
-        'X-Correlation-ID' => @correlation_id
-      }.merge(subscription_key_headers)
-    end
-
-    ##
     # Returns the current VEIS token, fetching if needed.
     #
     # @return [String] VEIS access token
@@ -107,32 +90,15 @@ module TravelClaim
     end
 
     ##
-    # Refreshes only the BTSSS token, keeping the VEIS token.
-    # Used internally for 409 contact ID mismatch errors.
-    #
-    def refresh_btsss_token!
-      log_auth_event('Refreshing BTSSS token only')
-      @current_btsss_token = nil
-      fetch_btsss_token!
-    end
-
-    ##
-    # Refreshes both VEIS and BTSSS tokens.
-    # Used internally for 401 unauthorized errors.
-    #
-    def refresh_all_tokens!
-      log_auth_event('Refreshing all tokens')
-      @current_veis_token = nil
-      @current_btsss_token = nil
-      ensure_tokens!
-    end
-
-    ##
     # Ensures both tokens are available, fetching as needed.
     #
     def ensure_tokens!
       fetch_veis_token! if @current_veis_token.blank?
       fetch_btsss_token! if @current_btsss_token.blank?
+    rescue => e
+      log_auth_event("Token acquisition failed: #{e.class.name}")
+      increment_auth_failure_metric
+      raise
     end
 
     ##
@@ -239,19 +205,6 @@ module TravelClaim
     end
 
     ##
-    # Validates that both tokens are present.
-    #
-    # @raise [TravelClaim::Errors::InvalidArgument] if tokens are missing
-    #
-    def validate_tokens_present!
-      return if @current_veis_token.present? && @current_btsss_token.present?
-
-      missing = [('VEIS token' if @current_veis_token.blank?),
-                 ('BTSSS token' if @current_btsss_token.blank?)].compact
-      raise TravelClaim::Errors::InvalidArgument, "Missing auth tokens: #{missing.join(', ')}"
-    end
-
-    ##
     # Raises a standardized error for missing token data.
     #
     # @param token_type [String] 'VEIS' or 'BTSSS'
@@ -275,7 +228,7 @@ module TravelClaim
       return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
 
       log_data = {
-        message: "TravelClaim::AuthManager: #{message}",
+        message: "#{CheckIn::Constants::LOG_PREFIX} AuthManager: #{message}",
         correlation_id: @correlation_id,
         station_number: @station_number,
         facility_type: @facility_type,
@@ -302,6 +255,14 @@ module TravelClaim
       return nil if @icn.blank?
 
       @icn.to_s.last(4)
+    end
+
+    def increment_auth_failure_metric
+      if @facility_type.to_s.strip.downcase == 'oh'
+        StatsD.increment(CheckIn::Constants::OH_STATSD_AUTH_FAILURE)
+      else
+        StatsD.increment(CheckIn::Constants::CIE_STATSD_AUTH_FAILURE)
+      end
     end
 
     ##

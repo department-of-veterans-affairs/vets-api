@@ -44,6 +44,9 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
       .with(guid: 'test-attachment-guid')
       .and_return(mock_attachment)
     allow(PersistentAttachments::MilitaryRecords).to receive(:create!).and_return(mock_attachment)
+    allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:create_custom_attachment).and_return({})
+    allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:add_supporting_doc)
+    allow(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
   end
 
   after do

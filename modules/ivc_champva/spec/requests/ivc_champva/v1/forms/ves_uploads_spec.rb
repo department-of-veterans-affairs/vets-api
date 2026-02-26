@@ -34,6 +34,11 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
     allow(IvcChampvaForm).to receive_messages(first: mock_form, where: [mock_form])
     allow(mock_form).to receive(:update)
 
+    # Mock PDF generation
+    allow_any_instance_of(IvcChampva::VHA1010d2027).to receive(:handle_attachments).and_return(['test_path.pdf'])
+    allow_any_instance_of(IvcChampva::VHA1010d).to receive(:handle_attachments).and_return(['test_path.pdf'])
+    allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return('test_path.pdf')
+
     # Mock file uploads
     allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
       .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))

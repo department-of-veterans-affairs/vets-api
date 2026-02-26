@@ -100,7 +100,7 @@ module IvcChampva
 
       begin
         # Combine all PDFs into a single file
-        IvcChampva::PdfCombiner.combine(merged_pdf_path, @file_paths.compact)
+        IvcChampva::PdfCombiner.combine(merged_pdf_path, @file_paths.compact, @current_user)
 
         attachment_id = @form_id
         file_name = File.basename(merged_pdf_path)
