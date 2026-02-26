@@ -1,16 +1,7 @@
 ---
 id: bare-rescue
 title: Never Use Broad or Bare Rescues
-version: 2
 severity: CRITICAL
-category: exception-handling
-tags:
-- rescue
-- bare-rescue
-- exception-class
-- apm-blackout
-- error-swallowing
-language: ruby
 ---
 
 <!--
@@ -42,71 +33,6 @@ language: ruby
     <play id="classify-errors" relationship="complementary" />
     <play id="dont-catch-log-reraise" relationship="complementary" />
   </related_plays>
-
-  <retrieval_triggers>
-    <trigger>bare rescue without exception class</trigger>
-    <trigger>rescue =&gt; e without specifying error type</trigger>
-    <trigger>rescue Exception catches system signals</trigger>
-    <trigger>catch-all error handling hides bugs from APM</trigger>
-    <trigger>APM not seeing exceptions after rescue</trigger>
-    <trigger>nil returned on error instead of raising</trigger>
-  </retrieval_triggers>
-
-  <detection>
-    <pattern name="bare_rescue_no_class" confidence="high">
-      <signature>rescue\s*$</signature>
-      <description>
-        Bare `rescue` on its own line with no exception class. In Ruby
-        this catches StandardError and all subclasses, but signals the
-        developer did not consider which specific exceptions to
-        handle.
-      </description>
-    </pattern>
-    <pattern name="rescue_hashrocket_no_class" confidence="high">
-      <signature>rescue\s*=>\s*\w+</signature>
-      <description>
-        `rescue => e` without an exception class before the hash
-        rocket. Functionally identical to bare rescue — catches all
-        StandardError subclasses including NoMethodError from typos.
-      </description>
-    </pattern>
-    <pattern name="rescue_exception_class" confidence="high">
-      <signature>rescue\s+Exception\b</signature>
-      <description>
-        Explicitly catching `Exception`, the root of Ruby's exception
-        hierarchy. This catches system signals (SignalException,
-        Interrupt), process control (SystemExit), and load errors.
-        Worse than bare rescue.
-      </description>
-    </pattern>
-    <pattern name="rescue_nil_return" confidence="medium">
-      <signature>rescue.*\n\s*(nil|false|\[\]|\{\})\s*$</signature>
-      <description>
-        A rescue block returning nil, false, empty array, or empty
-        hash. When combined with bare rescue, silently swallows all
-        errors.
-      </description>
-    </pattern>
-    <heuristic>
-      A `rescue` block that returns `nil`, `false`, or an empty
-      collection is a strong signal of error swallowing combined
-      with bare rescue.
-    </heuristic>
-    <heuristic>
-      Methods that call external services (BGS, MPI, Lighthouse,
-      Faraday-based clients) and contain bare rescue are high-
-      priority violations.
-    </heuristic>
-    <false_positive>
-      `rescue StandardError => e` at a controller action boundary or
-      Sidekiq `perform` method is acceptable when it is the
-      outermost handler.
-    </false_positive>
-    <false_positive>
-      `rescue => e` in test/spec files is acceptable for testing
-      error paths.
-    </false_positive>
-  </detection>
 
   <rules>
     <rule enforcement="must">
@@ -148,24 +74,6 @@ language: ruby
     <medium>bare rescue in internal utility with no external dependencies</medium>
   </severity_assessment>
 
-  <default_to_action>
-    When detecting a bare rescue, provide a fix that narrows the
-    rescue clause to specific exception classes appropriate to the
-    called methods. Replace nil returns with typed exceptions.
-  </default_to_action>
-
-  <verify>
-    <command description="No bare rescue remains">
-      grep -On '^\s*rescue\s*$' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="No rescue =&gt; e without class">
-      grep -On '^\s*rescue\s*=>' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="No rescue Exception">
-      grep -On 'rescue\s+Exception\b' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-  </verify>
-
   <pr_comment_template>
     **Never Use Broad or Bare Rescues** | `CRITICAL`
 
@@ -190,21 +98,6 @@ language: ruby
 </agent_play>
 -->
 
-# Never Use Broad or Bare Rescues
-
-A bare `rescue` or `rescue => e` catches every `StandardError` subclass — including `NoMethodError` from typos and `ArgumentError` from bad data. Specify the exception classes you expect.
-
-> [!CAUTION]
-> Bare `rescue` catches **everything**: `NoMethodError` from typos, `SystemExit` from `exit!`, and `SignalException` from Ctrl+C.
-
-## Why It Matters
-
-When you use bare `rescue`, a BGS timeout returns nil, missing data returns nil, and a `NoMethodError` from a typo returns nil — you can't tell which failure occurred. APM never sees the error, so code bugs ship to production with zero alerts. On-call sees "veteran has no file number" when the real cause is a typo in a method name. Dashboards show no errors while veterans get wrong results.
-
-## Guidance
-
-Always specify exception classes in `rescue` blocks. Catch only the exceptions the called code can raise — typically service-specific errors and `Faraday::Error` subclasses. Use `rescue StandardError` only at controller action or Sidekiq `perform` boundaries as a last-resort handler.
-
 ### Do
 
 - `rescue BGS::ServiceError, Faraday::Error => e` — catches only expected failures
@@ -220,8 +113,6 @@ Always specify exception classes in `rescue` blocks. Catch only the exceptions t
 
 ### VRE Veteran Claim
 
-**Source:** [modules/vre/.../vre_veteran_readiness_employment_claim.rb:254-257](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/modules/vre/app/models/vre/vre_veteran_readiness_employment_claim.rb#L254-L257)
-
 ```ruby
 def veteran_va_file_number(user)
   response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
@@ -231,8 +122,6 @@ rescue  # Bare rescue catches ALL exceptions
   nil  # Returns nil for ALL failures
 end
 ```
-
-**Problem:** Bare `rescue` catches `NoMethodError` from typos, `SystemExit`, and `SignalException`. Returns nil for every failure — a BGS timeout is indistinguishable from "no file number." APM never sees the error.
 
 **Corrected:**
 
@@ -248,8 +137,6 @@ end
 
 ### Cemeteries Controller
 
-**Source:** [modules/simple_forms_api/.../cemeteries_controller.rb:14-17](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/modules/simple_forms_api/app/controllers/simple_forms_api/v1/cemeteries_controller.rb#L14-L17)
-
 ```ruby
 def index
   cemeteries = SimpleFormsApi::CemeteryService.all
@@ -260,8 +147,6 @@ rescue => e  # Same as bare rescue — catches EVERYTHING
   render json: { error: 'Unable to load cemetery data' }, status: :internal_server_error
 end
 ```
-
-**Problem:** `rescue => e` catches all `StandardError` subclasses. Manual backtrace logging duplicates APM. A typo in `format_cemetery` returns the same generic 500 as a network timeout — no diagnostic precision.
 
 **Corrected:**
 
@@ -277,8 +162,6 @@ end
 
 ### SAML User
 
-**Source:** [lib/saml/user.rb:79-82](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/lib/saml/user.rb#L79-L82)
-
 ```ruby
 def authn_context
   saml_response.authn_context_text
@@ -287,8 +170,6 @@ rescue  # Bare rescue catches everything just to set Sentry tags
   raise  # Re-raises after catching — tags ALL exceptions including bugs
 end
 ```
-
-**Problem:** Bare rescue catches and tags all exceptions — a `NoMethodError` gets tagged as "not-signed-in:error," which is misleading. Sentry dashboards can't distinguish SAML errors from code bugs.
 
 **Corrected:**
 
@@ -301,9 +182,3 @@ rescue SAML::ValidationError, SAML::MissingAttributeError => e
 end
 # Unexpected errors raise without misleading tags
 ```
-
-## References
-
-- [RuboCop Style/RescueException](https://docs.rubocop.org/rubocop/cops_style.html#stylerescueexception)
-- [RuboCop Style/RescueStandardError](https://docs.rubocop.org/rubocop/cops_style.html#stylerescuestandarderror)
-- [Ruby Exception Hierarchy](https://ruby-doc.org/core/Exception.html)

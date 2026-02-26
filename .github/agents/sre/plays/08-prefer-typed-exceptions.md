@@ -1,16 +1,7 @@
 ---
 id: prefer-typed-exceptions-v2
 title: Prefer Typed Exceptions with Domain-Specific Subclasses
-version: 1
 severity: CRITICAL
-category: exception-handling
-tags:
-- typed-exceptions
-- runtime-error
-- domain-hierarchy
-- case-study
-- exception-mapping
-language: ruby
 ---
 
 <!--
@@ -41,91 +32,6 @@ language: ruby
     <play id="classify-errors" relationship="complementary" />
     <play id="preserve-cause-chains" relationship="complementary" />
   </related_plays>
-
-  <retrieval_triggers>
-    <trigger>RuntimeError from untyped raise returns 500 for client error</trigger>
-    <trigger>production incident from raise string instead of typed exception</trigger>
-    <trigger>165 instances of untyped raise across codebase</trigger>
-    <trigger>domain-specific exception hierarchy design</trigger>
-    <trigger>exception to HTTP status code mapping</trigger>
-    <trigger>MHV session authentication failure case study</trigger>
-  </retrieval_triggers>
-
-  <detection>
-    <pattern name="untyped_string_raise" confidence="high">
-      <signature>raise\s+['"][^'"]+['"]</signature>
-      <description>
-        Untyped `raise 'message'` or `raise "message"`. In Ruby,
-        raising a string creates a generic RuntimeError that falls
-        through to the 500 handler in vets-api's ExceptionHandling
-        concern. This pattern catches all string raises regardless of
-        message content.
-      </description>
-      <example>raise 'A user_key is required for session creation'</example>
-      <example>raise "Missing/malformed form_number in params"</example>
-      <example>raise 'ContactInformationV2 - Missing User VAProfile_ID'</example>
-    </pattern>
-    <pattern name="untyped_raise_required" confidence="high">
-      <signature>raise\s+['"].*required</signature>
-      <description>
-        Untyped raise with a message containing "required." These
-        typically indicate missing authentication tokens, required
-        parameters, or precondition failures that should be 4xx client
-        errors but become 500 Internal Server Errors as RuntimeError
-        instances.
-      </description>
-      <example>raise 'A user_key is required for session creation'</example>
-      <example>raise "API key is required"</example>
-    </pattern>
-    <pattern name="untyped_raise_missing" confidence="high">
-      <signature>raise\s+['"].*missing</signature>
-      <description>
-        Untyped raise with a message containing "missing." These
-        indicate missing data, parameters, or identifiers that
-        represent client errors or incomplete data setup, not server
-        failures. The RuntimeError will be treated as a 500.
-      </description>
-      <example>raise 'Missing/malformed form_number in params'</example>
-      <example>raise 'ContactInformationV2 - Missing User VAProfile_ID'</example>
-    </pattern>
-    <heuristic>
-      A method that validates preconditions (authentication tokens,
-      required IDs, parameter presence) using `raise 'string'`
-      instead of typed exceptions is a high-priority violation.
-      These are client errors masquerading as server failures.
-    </heuristic>
-    <heuristic>
-      Code in HTTP request paths (controllers, service objects
-      called from controllers) where `raise 'string'` will bubble up
-      through the ExceptionHandling concern and become a 500
-      Internal Server Error. Check the call stack to determine if
-      the raise is in a request path.
-    </heuristic>
-    <heuristic>
-      A service or client class with multiple `raise 'string'`
-      statements suggests the module lacks a domain-specific
-      exception hierarchy. Look for opportunities to create a base
-      exception class for the domain and semantic subclasses for
-      specific failure modes.
-    </heuristic>
-    <false_positive>
-      `raise 'string'` in rake tasks or CLI scripts that are not in
-      HTTP request paths. These raises produce RuntimeError but do
-      not affect HTTP status codes or API responses. Lower priority
-      for remediation.
-    </false_positive>
-    <false_positive>
-      `raise 'string'` in test/spec files where the raise is being
-      tested or is part of test setup. Test code may intentionally
-      raise strings to verify error handling behavior.
-    </false_positive>
-    <false_positive>
-      `raise SomeTypedException, 'message'` where a string is passed
-      as the message argument to a typed exception constructor. This
-      is correct usage — the string is the message, not the
-      exception type.
-    </false_positive>
-  </detection>
 
   <rules>
     <rule enforcement="must">
@@ -176,24 +82,6 @@ inappropriate retries</high>
 request path</medium>
   </severity_assessment>
 
-  <default_to_action>
-    When you detect an untyped `raise 'string'`, determine the
-    failure mode and provide a fix using the correct typed exception
-    from Common::Exceptions. Include structured metadata.
-  </default_to_action>
-
-  <verify>
-    <command description="No untyped string raises remain in changed file">
-      grep -On "raise\s+['\"][^'\"]+['\"]" {{file_path}} | grep -v "raise [A-Z]" &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="Run specs for the changed file">
-      bundle exec rspec {{spec_path}}
-    </command>
-    <command description="RuboCop passes for changed file">
-      bundle exec rubocop {{file_path}}
-    </command>
-  </verify>
-
   <pr_comment_template>
     **Prefer Typed Exceptions with Domain-Specific Subclasses** | `CRITICAL`
 
@@ -218,29 +106,8 @@ request path</medium>
     [Play: Prefer Typed Exceptions](plays/prefer-typed-exceptions.md)
   </pr_comment_template>
 
-  <anti_pattern_sources>
-    <source name="MHV Session Authentication Failure" file="inline-example" />
-    <source name="IVC CHAMPVA Upload Validation" file="inline-example" />
-    <source name="VAProfile Contact Information" file="inline-example" />
-  </anti_pattern_sources>
-
 </agent_play>
 -->
-
-# Prefer Typed Exceptions with Domain-Specific Subclasses
-
-Every `raise "message"` creates a generic `RuntimeError` that falls through to the 500 handler. Use typed exception classes that map to the correct HTTP status code.
-
-> [!CAUTION]
-> Generic RuntimeError bypasses all specific exception handlers and defaults to 500 Internal Server Error, even for client-side issues like missing parameters or invalid authentication tokens.
-
-## Why It Matters
-
-When you use `raise 'A user_key is required'`, Ruby creates a `RuntimeError`. The framework's exception handler checks the type against known patterns — `ParameterMissing` maps to 400, `UnprocessableEntity` to 422 — but `RuntimeError` matches nothing, so it defaults to 500. A missing authentication token, an invalid parameter, a failed validation — all become indistinguishable 500 errors. Monitoring triggers false alerts, error metrics are inflated, and on-call investigates "server failures" that are actually client issues.
-
-## Guidance
-
-Replace `raise 'string'` with typed exceptions from `Common::Exceptions` or your module's exception hierarchy. Choose the class that maps to the correct HTTP status code for the failure mode: `ParameterMissing` for 400, `Unauthorized` for 401, `UnprocessableEntity` for 422. When a module has multiple failure modes, create domain-specific subclasses that inherit from semantic base types.
 
 ### Do
 
@@ -258,8 +125,6 @@ Replace `raise 'string'` with typed exceptions from `Common::Exceptions` or your
 
 ### MHV Session Authentication Failure
 
-> Production incident: September 11, 2025, 4:00-5:15 PM Eastern. Veterans received 500 errors accessing health records. Root cause: missing `user_key` raised as RuntimeError.
-
 ```ruby
 def authenticate
   raise 'A user_key is required for session creation' unless user_key
@@ -267,8 +132,6 @@ def authenticate
   # ...
 end
 ```
-
-**Problem:** A missing `user_key` is a data issue (422), not a server failure (500). The RuntimeError fell through the exception handler's type checks and defaulted to 500. Monitoring showed "server errors" while the actual problem was missing authentication data.
 
 **Corrected:**
 
@@ -294,8 +157,6 @@ def get_form_id
 end
 ```
 
-**Problem:** A missing required parameter should return 400 Bad Request, not 500. The client needs to know which parameter is missing.
-
 **Corrected:**
 
 ```ruby
@@ -320,8 +181,6 @@ def verify_vet360_id!
 end
 ```
 
-**Problem:** A missing VAProfile ID is incomplete data setup (422), not a server failure (500). Metrics show this as a server error while the actual problem is a data prerequisite.
-
 **Corrected:**
 
 ```ruby
@@ -335,60 +194,3 @@ def verify_vet360_id!
   # Returns 422 — data setup incomplete, not server failure
 end
 ```
-
-## Reference
-
-### Domain-Specific Exception Hierarchy
-
-When a module has multiple failure modes, create a hierarchy instead of using string raises:
-
-```ruby
-module Paws
-  class PawsError < StandardError
-    attr_reader :claim_id, :user_uuid
-
-    def initialize(message, claim_id: nil, user_uuid: nil)
-      super(message)
-      @claim_id = claim_id
-      @user_uuid = user_uuid
-    end
-  end
-
-  class DuplicateApplicationError < PawsError; end
-  class IneligibleApplicantError < PawsError; end
-end
-```
-
-Each exception type maps to a specific HTTP status and error response:
-
-```ruby
-rescue Paws::DuplicateApplicationError => e
-  render json: { errors: [{ status: '409', code: 'duplicate_application',
-    detail: e.message }] }, status: :conflict
-rescue Paws::IneligibleApplicantError => e
-  render json: { errors: [{ status: '422', code: 'ineligible_applicant',
-    detail: e.message }] }, status: :unprocessable_entity
-end
-```
-
-### Framework Exception-to-Status Mapping
-
-```ruby
-ActionDispatch::ExceptionWrapper.rescue_responses.merge!(
-  'Common::Exceptions::ParameterMissing'     => :bad_request,          # 400
-  'Common::Exceptions::UnauthorizedError'    => :unauthorized,         # 401
-  'Common::Exceptions::ForbiddenError'       => :forbidden,            # 403
-  'Common::Exceptions::RecordNotFound'       => :not_found,            # 404
-  'Common::Exceptions::UnprocessableEntity'  => :unprocessable_entity, # 422
-  'Common::Exceptions::ServiceUnavailable'   => :service_unavailable   # 503
-)
-```
-
-With untyped raises, everything falls through to the default (500). With typed exceptions, the framework routes automatically.
-
-## References
-
-- [Ruby Exception Hierarchy](https://ruby-doc.org/core/Exception.html)
-- [Common::Exceptions namespace](https://github.com/department-of-veterans-affairs/vets-api/tree/master/lib/common/exceptions)
-- Related: [Match Status Codes to the Source](05-classify-errors-honestly.md)
-- Related: [Preserve Cause Chains](02-preserve-cause-chains.md)

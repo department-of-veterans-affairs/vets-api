@@ -1,16 +1,7 @@
 ---
 id: send-retry-hints
 title: Send Retry Hints only when safe and useful
-version: 1
 severity: HIGH
-category: retry-resilience
-tags:
-- retry-after
-- 429
-- rate-limiting
-- thundering-herd
-- rack-attack
-language: ruby
 ---
 
 <!--
@@ -40,84 +31,6 @@ language: ruby
     <play id="respect-retry-headers" relationship="complementary" />
     <play id="standardized-error-responses" relationship="complementary" />
   </related_plays>
-
-  <retrieval_triggers>
-    <trigger>429 response missing Retry-After header</trigger>
-    <trigger>upstream Retry-After header discarded when catching 429</trigger>
-    <trigger>rate limit 429 converted to 503 service unavailable</trigger>
-    <trigger>thundering herd from missing retry guidance</trigger>
-    <trigger>client retries immediately without backoff</trigger>
-  </retrieval_triggers>
-
-  <detection>
-    <pattern name="429_response_missing_retry_after" confidence="high">
-      <signature>\[429,.*headers</signature>
-      <description>
-        A 429 response being constructed with a headers hash. Check
-        that the headers hash includes a 'Retry-After' key. If it does
-        not, clients have no standard guidance on when to retry and
-        will hammer the endpoint immediately.
-      </description>
-      <example>[429, headers, ['throttled']]</example>
-      <example>[429, { 'X-RateLimit-Limit' =&gt; ... }, [body]]</example>
-    </pattern>
-    <pattern name="429_converted_to_503" confidence="high">
-      <signature>raise.*ServiceUnavailable.*TooManyRequests</signature>
-      <description>
-        A rescue block that catches a TooManyRequests (429) error and
-        re-raises it as ServiceUnavailable (503). This loses the "rate
-        limit" semantic meaning and makes clients believe the service
-        is down rather than telling them they are making too many
-        requests. Retry-After timing is also discarded.
-      </description>
-      <example>rescue service::TooManyRequestsError; raise Common::Exceptions::ServiceUnavailable</example>
-      <example>rescue TooManyRequests =&gt; e; raise ServiceUnavailable, detail: 'Temporary issue'</example>
-    </pattern>
-    <pattern name="handle_429_without_retry_after" confidence="medium">
-      <signature>handle_429</signature>
-      <description>
-        A method named handle_429 or similar that processes 429
-        responses. Medium confidence because the method may or may not
-        extract the Retry-After header. Agent should read surrounding
-        code to check whether response headers are propagated to the
-        caller or discarded.
-      </description>
-      <example>def handle_429!(error)</example>
-      <example>def handle_429(response)</example>
-    </pattern>
-    <heuristic>
-      A Rack::Attack throttled_responder lambda that constructs a
-      429 response with X-RateLimit-* headers but no Retry-After
-      header. The X-RateLimit headers are non-standard (GitHub-
-      specific) and not recognized by HTTP client libraries for
-      automatic retry backoff.
-    </heuristic>
-    <heuristic>
-      A rescue block that catches a 429 error from an upstream
-      service, increments a StatsD counter, and re-raises a backend
-      exception without extracting `error.response.headers['Retry-
-      After']`. The upstream retry timing is available but
-      discarded.
-    </heuristic>
-    <heuristic>
-      A controller rescue block that catches TooManyRequestsError
-      and raises ServiceUnavailable with a generic detail message.
-      The 429-to-503 conversion is a strong signal that retry
-      semantics are being lost.
-    </heuristic>
-    <false_positive>
-      A 429 response that already includes a Retry-After header
-      alongside X-RateLimit-* headers. The presence of both is
-      correct and not a violation. Only flag when Retry-After is
-      missing.
-    </false_positive>
-    <false_positive>
-      A handle_429 method that extracts Retry-After from response
-      headers and passes it through in exception metadata. Read the
-      full method body before flagging — the propagation may happen
-      via `meta:` or a custom header.
-    </false_positive>
-  </detection>
 
   <rules>
     <rule enforcement="must">
@@ -177,33 +90,6 @@ wrong client behavior</high>
 but header is present</medium>
   </severity_assessment>
 
-  <default_to_action>
-    When you detect a missing Retry-After or 429-to-503 conversion
-    with high confidence, compose a PR comment that includes: 1.
-    The specific violation (missing header, discarded header, or
-    status conversion) 2. Why it matters (thundering herd,
-    cascading rate limits, wrong client UX) 3. A concrete code
-    suggestion from the golden patterns 4. The relevant RFC
-    reference (6585 or 7231) 5. A link to this play for full
-    context Do not simply flag the violation — provide the fix.
-    Include the exact header or exception change needed.
-  </default_to_action>
-
-  <verify>
-    <command description="No 429 response without Retry-After in changed file">
-      grep -On '\[429,.*headers' {{file_path}} | grep -v 'Retry-After' &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="No 429-to-503 conversion in changed file">
-      grep -On 'ServiceUnavailable.*TooManyRequests|TooManyRequests.*ServiceUnavailable' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="Run specs for changed file">
-      bundle exec rspec {{spec_path}}
-    </command>
-    <command description="RuboCop passes for changed file">
-      bundle exec rubocop {{file_path}}
-    </command>
-  </verify>
-
   <pr_comment_template>
     **Send Retry Hints only when safe and useful** | `HIGH`
 
@@ -232,29 +118,8 @@ but header is present</medium>
     [Play: Send Retry Hints](plays/send-retry-hints-to-clients.md)
   </pr_comment_template>
 
-  <anti_pattern_sources>
-    <source name="Rack::Attack Configuration" file="config/initializers/rack_attack.rb:68-79" url="https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/initializers/rack_attack.rb#L68-L79" />
-    <source name="SearchGSA Service" file="lib/search_gsa/service.rb:113-118" url="https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/lib/search_gsa/service.rb#L113-L118" />
-    <source name="Accredited Representative Portal" file="modules/accredited_representative_portal/app/controllers/accredited_representative_portal/v0/representative_form_upload_controller.rb:52-54" url="https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/modules/accredited_representative_portal/app/controllers/accredited_representative_portal/v0/representative_form_upload_controller.rb#L52-L54" />
-  </anti_pattern_sources>
-
 </agent_play>
 -->
-
-# Send Retry Hints only when safe and useful
-
-Retry-After headers tell clients exactly when to try again. When used correctly on 429 responses, they prevent thundering herds and let HTTP client libraries handle backoff automatically.
-
-> [!CAUTION]
-> Missing `Retry-After` on 429 responses causes thundering herds -- clients retry immediately and amplify the overload.
-
-## Why It Matters
-
-A 429 response without a Retry-After header causes your client to retry immediately, hit the rate limit again, and repeat -- creating a thundering herd that degrades the service for everyone. When an upstream service sends "retry in 60s" but your code catches the 429 and discards the header, the client retries in one second and triggers cascading rate limits across multiple services. Converting a 429 to a 503 makes your client think the service is down when it should know "too many requests," leading to the wrong diagnosis and wrong UX. Standard HTTP client libraries can auto-retry using Retry-After, but a missing header forces manual backoff logic that means more code and more bugs.
-
-## Guidance
-
-Include a `Retry-After` header on every 429 response you generate. When proxying upstream 429 responses, extract the upstream `Retry-After` value and propagate it through exception metadata so the client receives the original timing. Never convert 429 to 503 -- preserve the rate-limit semantic so clients and monitoring can distinguish "too many requests" from "service down."
 
 ### Do
 
@@ -303,13 +168,9 @@ Include a `Retry-After` header on every 429 response you generate. When proxying
 
 ## Anti-Patterns
 
-### Anti-Patterns from vets-api
-
 #### Rack::Attack Configuration
 
 ##### Anti-Pattern
-
-[config/initializers/rack_attack.rb:68-79](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/initializers/rack_attack.rb#L68-L79)
 
 ```ruby
 Rack::Attack.throttled_responder = lambda do |request|
@@ -345,28 +206,9 @@ Rack::Attack.throttled_responder = lambda do |request|
 end
 ```
 
-##### Impact
-
-Without `Retry-After` header:
-
-- Clients receive `X-RateLimit-Reset` (non-standard, GitHub-specific format)
-- HTTP client libraries don't understand custom headers for automatic retry backoff
-- Clients must manually parse `X-RateLimit-Reset` timestamp to calculate wait time
-- Mobile/web apps retry immediately and hit limit again (no exponential backoff guidance)
-
-With `Retry-After` header:
-
-- Standard HTTP clients (Faraday, axios, fetch) recognize `Retry-After` automatically
-- Client libraries implement automatic retry backoff without custom code
-- Reduces thundering herd when rate limit resets
-
----
-
 #### SearchGSA Service
 
 ##### Anti-Pattern
-
-[lib/search_gsa/service.rb:113-118](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/lib/search_gsa/service.rb#L113-L118)
 
 ```ruby
 def handle_429!(error)
@@ -397,28 +239,9 @@ def handle_429!(error)
 end
 ```
 
-##### Impact
-
-Without propagating `Retry-After`:
-
-- Upstream GSA API provides `Retry-After` guidance (e.g., "60 seconds")
-- Service catches 429 but discards retry timing information
-- Clients retry immediately without backoff
-- Triggers cascading 429s across all clients
-
-With propagating `Retry-After`:
-
-- Upstream retry guidance flows through to end clients
-- Clients wait the recommended time before retrying
-- Reduces load on both vets-api and upstream GSA service
-
----
-
 #### Accredited Representative Portal
 
 ##### Anti-Pattern
-
-[modules/accredited_representative_portal/app/controllers/accredited_representative_portal/v0/representative_form_upload_controller.rb:52-54](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/modules/accredited_representative_portal/app/controllers/accredited_representative_portal/v0/representative_form_upload_controller.rb#L52-L54)
 
 ```ruby
 rescue service::TooManyRequestsError
@@ -447,25 +270,3 @@ rescue service::TooManyRequestsError => e
   # Preserves 429 status and includes retry guidance
 end
 ```
-
-##### Impact
-
-Without preserving 429 and retry timing:
-
-- Upstream returns 429 (rate limit) with specific retry timing
-- Controller converts to 503 (generic service unavailable)
-- Client doesn't know if they should retry in 1 second, 1 minute, or 1 hour
-- Loses semantic meaning: 503 suggests "service down" not "you're making too many requests"
-- Clients retry immediately and hit limit again
-
-With preserving 429 and retry timing:
-
-- Client knows it's a rate limit (429), not service outage (503)
-- Client respects `Retry-After` guidance
-- Frontend can show user-friendly message: "Too many requests. Try again in 60 seconds"
-- Reduces unnecessary retries and server load
-
-## References
-
-- [RFC 6585 Section 4](https://tools.ietf.org/html/rfc6585#section-4)
-- [RFC 7231 Retry-After](https://tools.ietf.org/html/rfc7231#section-7.1.3)

@@ -1,16 +1,7 @@
 ---
 id: stable-unique-error-codes
 title: Make error codes stable, unique, and traceable
-version: 1
 severity: HIGH
-category: api-design
-tags:
-- error-codes
-- uniqueness
-- stability
-- i18n
-- exceptions-config
-language: ruby
 ---
 
 <!--
@@ -38,89 +29,6 @@ language: ruby
     <play id="standardized-error-responses" relationship="complementary" />
     <play id="classify-errors" relationship="complementary" />
   </related_plays>
-
-  <retrieval_triggers>
-    <trigger>duplicate error codes in exceptions config</trigger>
-    <trigger>error code same as HTTP status code</trigger>
-    <trigger>multiple errors share same code number</trigger>
-    <trigger>error code changes when HTTP status changes</trigger>
-    <trigger>cannot distinguish error types by code</trigger>
-  </retrieval_triggers>
-
-  <detection>
-    <pattern name="duplicate_code_values_in_yaml" confidence="high">
-      <signature>code:\s*(\d+)</signature>
-      <description>
-        Matches `code:` directives in the exceptions YAML config. When
-        the same numeric value appears on multiple exception keys, it
-        indicates duplicate error codes. The agent should collect all
-        `code:` values in exceptions.en.yml and flag any value that
-        appears more than once across different exception keys.
-      </description>
-      <example>code: 108` appearing under both `parameter_missing` and `ambiguous_request</example>
-      <example>code: 422` appearing under both `unprocessable_entity` and `upstream_unprocessable_entity</example>
-    </pattern>
-    <pattern name="http_status_as_error_code" confidence="medium">
-      <signature>code:\s*\d{3}\s*$</signature>
-      <description>
-        A `code:` value that is exactly a 3-digit number matching
-        common HTTP status codes (400, 401, 403, 404, 422, 500, 502,
-        503, 504). When the code value matches the `status:` value on
-        a nearby line, it indicates the developer used the HTTP status
-        as the error code rather than assigning a unique semantic
-        code. Medium confidence because some 3-digit codes may be
-        intentional unique identifiers that happen to be 3 digits.
-      </description>
-      <example>code: 422` with `status: 422` on the next line</example>
-      <example>code: 400` with `status: 400` on a nearby line</example>
-    </pattern>
-    <pattern name="non_namespaced_numeric_code" confidence="medium">
-      <signature>code:\s*\d+\s*$</signature>
-      <description>
-        A purely numeric error code without a domain namespace prefix.
-        Numeric codes are harder to trace to their source module and
-        are more likely to collide across teams. Medium confidence
-        because existing numeric codes may be intentional and well-
-        documented in the registry.
-      </description>
-      <example>code: 108</example>
-      <example>code: 999</example>
-    </pattern>
-    <heuristic>
-      When reviewing exceptions.en.yml, collect all `code:` values
-      into a frequency map. Any code value appearing more than once
-      under different exception keys is a duplicate code violation.
-      Exception: two keys that represent the same semantic error
-      (e.g., `parameter_missing` and `parameters_missing`) may share
-      a code.
-    </heuristic>
-    <heuristic>
-      When a `code:` value is identical to the `status:` value in
-      the same exception block, the developer likely copied the HTTP
-      status as the error code. Check whether the code would remain
-      meaningful if the HTTP status changed.
-    </heuristic>
-    <heuristic>
-      When a module defines new exception classes in
-      `lib/*/exceptions/`, check that each class references a unique
-      code in exceptions.en.yml. New exceptions that reuse existing
-      codes from other modules indicate a namespace collision.
-    </heuristic>
-    <false_positive>
-      Two exception keys that represent the exact same semantic
-      error (e.g., `parameter_missing` and `parameters_missing` both
-      meaning "a required parameter is absent") may intentionally
-      share the same code. This is acceptable only when the keys are
-      aliases for the same condition, not when they represent
-      distinct error scenarios.
-    </false_positive>
-    <false_positive>
-      A 3-digit numeric code like `code: 108` that happens to look
-      like an HTTP status but is actually a well-documented unique
-      identifier in the error code registry. Verify against the
-      registry before flagging.
-    </false_positive>
-  </detection>
 
   <rules>
     <rule enforcement="must">
@@ -181,30 +89,6 @@ code in exceptions.en.yml</high>
 exception</medium>
   </severity_assessment>
 
-  <default_to_action>
-    When you detect a duplicate or unstable error code, compose a
-    PR comment that includes: 1. The specific violation (which
-    codes are duplicated or which code matches HTTP status) 2. Why
-    it matters (clients cannot distinguish errors, metrics are
-    ambiguous, codes break when status changes) 3. A concrete
-    suggestion for a unique replacement code following the
-    namespace convention 4. A reminder that existing codes are
-    part of the API contract and may require client migration 5. A
-    link to this play for full context
-  </default_to_action>
-
-  <verify>
-    <command description="Find duplicate code values in exceptions config">
-      awk '/^\s*code:/ {codes[$NF]++} END {for (c in codes) if (codes[c]>1) {print c, codes[c]; err=1} if(err) exit 1}' config/locales/exceptions.en.yml
-    </command>
-    <command description="Find code values matching HTTP status patterns (3-digit codes equal to status)">
-      grep -On 'code:\s*\d{3}\s*$' config/locales/exceptions.en.yml
-    </command>
-    <command description="Run specs for exception handling">
-      bundle exec rspec spec/lib/common/exceptions/ spec/requests/
-    </command>
-  </verify>
-
   <pr_comment_template>
     **Make Error Codes Stable, Unique, and Traceable** | `HIGH`
 
@@ -226,28 +110,8 @@ exception</medium>
     [Play: Make Error Codes Stable, Unique, and Traceable](plays/stable-unique-error-codes.md)
   </pr_comment_template>
 
-  <anti_pattern_sources>
-    <source name="Duplicate Error Code 108" file="config/locales/exceptions.en.yml:75-86, 237-242" url="https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/locales/exceptions.en.yml#L75-L86" />
-    <source name="HTTP Status as Error Code" file="config/locales/exceptions.en.yml:156-167" url="https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/locales/exceptions.en.yml#L156-L167" />
-  </anti_pattern_sources>
-
 </agent_play>
 -->
-
-# Make error codes stable, unique, and traceable
-
-Every distinct error condition needs its own code that never changes. Stable, unique codes let clients handle errors precisely and let APM track each failure mode independently.
-
-> [!CAUTION]
-> Duplicate error codes make client error handling and APM tracking ambiguous — you can't tell which error occurred.
-
-## Why It Matters
-
-When error code 108 means three different things, a client checking `if (code === 108)` matches unrelated errors and breaks downstream handling. APM shows "108 errors spiking" but you cannot tell whether it is a missing param, an ambiguous request, or something else entirely — incident response becomes guesswork. If you use the HTTP status code as your error code (e.g., `code: 422`), the code breaks when you change the status to 400. When local validation and upstream rejection both return the same code, you lose the ability to tell who failed and your metrics become useless.
-
-## Guidance
-
-Assign a unique, stable code to every distinct error condition. Use namespaced string codes (e.g., `PAWS_DUPLICATE_APPLICATION`) to prevent collisions across teams. Never reuse a code for a different error, and never tie the code value to the HTTP status — codes must survive transport changes.
 
 ### Do
 
@@ -290,13 +154,9 @@ Assign a unique, stable code to every distinct error condition. Use namespaced s
 
 ## Anti-Patterns
 
-### Anti-Patterns from vets-api
-
 #### Exceptions Config - Duplicate Error Code 108
 
 ##### Anti-Pattern
-
-[config/locales/exceptions.en.yml:75-86, 237-242](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/locales/exceptions.en.yml#L75-L86)
 
 ```yaml
 parameter_missing:
@@ -338,29 +198,9 @@ ambiguous_request:
   status: 400
 ```
 
-##### Impact
-
-Without unique error codes:
-
-- Clients cannot distinguish between "missing parameter" (108) and "ambiguous request" (also 108)
-- APM dashboards aggregate three distinct failure modes under one code
-- Incident response becomes ambiguous: "We're seeing code 108 errors" → "Which 108? parameter_missing or ambiguous_request?"
-- Client-side error handling breaks: `if (error.code === 108)` matches multiple unrelated errors
-
-With unique error codes:
-
-- Each distinct error condition has its own code
-- APM can track trends: "ambiguous_request errors spiking" vs "parameter_missing stable"
-- Client can handle specifically: `case 108: showMissingParam(); case 111: showAmbiguousRequest()`
-- Incident response is clear: "Code 111 spike → check for ambiguous requests"
-
----
-
 #### Exceptions Config - HTTP Status as Error Code
 
 ##### Anti-Pattern
-
-[config/locales/exceptions.en.yml:156-167](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/locales/exceptions.en.yml#L156-L167)
 
 ```yaml
 unprocessable_entity:
@@ -391,23 +231,3 @@ upstream_unprocessable_entity:
   code: UPSTREAM_VALIDATION_FAILED   # Distinct semantic code (or: 119)
   status: 422
 ```
-
-##### Impact
-
-Without semantic error codes:
-
-- Using `422` as the error code violates the principle that codes should be semantic, not just HTTP status
-- Cannot distinguish between local validation failures vs upstream service rejections
-- APM metrics blind spot: "how many errors were upstream vs local?" cannot be answered
-- Code is not stable: if we later decide to return 400 instead of 422, the error code changes
-
-With semantic error codes:
-
-- Error codes are independent of HTTP status (status can evolve, code stays stable)
-- Can track "local validation errors" separately from "upstream validation errors"
-- Clients can handle: `if (code === 'VALIDATION_FAILED')` vs `if (code === 'UPSTREAM_VALIDATION_FAILED')`
-- Future-proof: changing HTTP status from 422 → 400 doesn't break client code
-
-## References
-
-- [vets-api exceptions.en.yml](https://github.com/department-of-veterans-affairs/vets-api/blob/master/config/locales/exceptions.en.yml)

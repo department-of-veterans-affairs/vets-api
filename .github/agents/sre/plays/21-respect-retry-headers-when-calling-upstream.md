@@ -1,17 +1,7 @@
 ---
 id: respect-retry-headers
-title: 'Retry smart: respect signals, fail fast, don''t spam logs'
-version: 1
+title: 'Retry smart: respect signals, fail fast, don't spam logs'
 severity: HIGH
-category: retry-resilience
-tags:
-- retry
-- log-spam
-- sidekiq
-- retry-after
-- circuit-breaker
-- silent-failure
-language: ruby
 ---
 
 <!--
@@ -42,99 +32,6 @@ language: ruby
     <play id="send-retry-hints" relationship="complementary" />
     <play id="map-upstream-network-errors" relationship="complementary" />
   </related_plays>
-
-  <retrieval_triggers>
-    <trigger>logging ERROR on every Sidekiq retry attempt</trigger>
-    <trigger>retry loop logs error 16 times for one failure</trigger>
-    <trigger>bare rescue in retry logic catches code bugs</trigger>
-    <trigger>retries exhaust silently and return nil</trigger>
-    <trigger>missing Retry-After header on 429 response</trigger>
-    <trigger>inflated failure metrics from retry counting</trigger>
-  </retrieval_triggers>
-
-  <detection>
-    <pattern name="sidekiq_retry_with_error_logging" confidence="high">
-      <signature>sidekiq_options\s+retry:\s*\d+</signature>
-      <description>
-        A Sidekiq job with retry enabled combined with `rescue` blocks
-        that log ERROR or increment failure metrics on every attempt.
-        The combination of `sidekiq_options retry: N` with
-        `logger.error` in the same class means every transient retry
-        produces an ERROR log entry and inflated failure metrics.
-        Check the rescue block for `logger.error` or
-        `StatsD.increment(...failure)`.
-      </description>
-      <example>sidekiq_options retry: 16` with `Rails.logger.error(...)` in rescue block</example>
-      <example>sidekiq_options retry: 5` with `StatsD.increment("job.failure")` on every attempt</example>
-    </pattern>
-    <pattern name="bare_rescue_with_retry" confidence="medium">
-      <signature>rescue\s*=>\s*e\n.*retry\b</signature>
-      <description>
-        A bare rescue (`rescue => e`) followed by a `retry` statement.
-        Bare rescue catches everything including NameError,
-        NoMethodError, and SignalException. This means typos and code
-        bugs are retried as if they were transient network failures.
-        Medium confidence because some retry helpers intentionally use
-        broad rescue with a retry_on filter — read surrounding code to
-        check.
-      </description>
-      <example>rescue =&gt; e\n  sleep delay\n  retry</example>
-      <example>rescue =&gt; e\n  attempts += 1\n  retry if attempts &lt; max</example>
-    </pattern>
-    <pattern name="sleep_retry_without_exception_filter" confidence="medium">
-      <signature>sleep\s+delay.*\n.*retry\b</signature>
-      <description>
-        A sleep-then-retry pattern without checking the exception
-        type. This indicates a custom retry loop that does not
-        distinguish transient failures from permanent ones. The retry
-        will run for any exception including code bugs. Medium
-        confidence because the exception check may occur earlier in
-        the method.
-      </description>
-      <example>sleep delay if delay.positive?\n  retry</example>
-      <example>sleep(2 ** attempt)\n  retry</example>
-    </pattern>
-    <heuristic>
-      A Sidekiq job class that rescues all exceptions, calls a
-      logging or metrics method, and then re-raises. If
-      `sidekiq_options retry:` is set, Sidekiq will retry the job
-      automatically — the rescue block fires on every attempt,
-      producing N identical ERROR logs and N failure metric
-      increments for a single job failure.
-    </heuristic>
-    <heuristic>
-      A custom retry helper class or method that uses `rescue => e`
-      (bare rescue) combined with `retry`. If the retry_on filter is
-      nil or checks `e.message` with string matching, code bugs like
-      NameError will be caught and retried because the error message
-      won't match any filter, falling through to the silent failure
-      path.
-    </heuristic>
-    <heuristic>
-      A retry loop where retries exhaust without raising an
-      exception. The method returns nil or an empty value. Callers
-      assume success because no exception was raised. This is a data
-      loss pattern — the operation silently failed.
-    </heuristic>
-    <false_positive>
-      A Sidekiq job that uses `sidekiq_retries_exhausted` callback
-      for ERROR logging and only logs WARN in the perform method's
-      rescue block. This is the correct pattern — WARN for transient
-      retries, ERROR only when retries are exhausted.
-    </false_positive>
-    <false_positive>
-      A retry helper that catches specific exception classes (e.g.,
-      `rescue Faraday::TimeoutError, Faraday::ConnectionFailed`)
-      rather than bare rescue. Specific exception classes are
-      acceptable for retry logic because they only catch transient
-      network failures.
-    </false_positive>
-    <false_positive>
-      A retry loop in test/spec code where broad rescue is used to
-      test retry behavior. Test code intentionally exercises failure
-      paths and should not be flagged.
-    </false_positive>
-  </detection>
 
   <rules>
     <rule enforcement="must">
@@ -206,36 +103,6 @@ blindly</medium>
     <medium>fixed delay retry without exponential backoff or jitter</medium>
   </severity_assessment>
 
-  <default_to_action>
-    When you detect a retry-related violation with high
-    confidence, compose a PR comment that includes: 1. The
-    specific violation (log spam, bare rescue, silent swallowing,
-    or missing Retry-After) 2. Why it matters (from
-    context/why_it_matters — alert fatigue, inflated metrics, data
-    loss, or thundering herd) 3. A concrete code suggestion from
-    the golden patterns 4. The relevant reference (Sidekiq Error
-    Handling wiki or RFC 7231) 5. A link to this play for full
-    context Do not simply flag the violation — provide the fix.
-    Include the specific code change needed (e.g., move ERROR to
-    sidekiq_retries_exhausted, replace bare rescue with specific
-    exception classes).
-  </default_to_action>
-
-  <verify>
-    <command description="No ERROR logging inside retry loops">
-      grep -On 'rescue.*\n.*retry\b' {{file_path}} | grep -i 'error' &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="No bare rescue with retry">
-      grep -On 'rescue\s*=>\s*\w+\n.*retry\b' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="Run specs for changed file">
-      bundle exec rspec {{spec_path}}
-    </command>
-    <command description="RuboCop passes for changed file">
-      bundle exec rubocop {{file_path}}
-    </command>
-  </verify>
-
   <pr_comment_template>
     **Retry smart: respect signals, fail fast, don't spam logs** | `HIGH`
 
@@ -262,29 +129,8 @@ blindly</medium>
     [Play: Retry Smart](plays/respect-retry-headers-when-calling-upstream.md)
   </pr_comment_template>
 
-  <anti_pattern_sources>
-    <source name="Letter Ready Email Job" file="app/sidekiq/event_bus_gateway/letter_ready_email_job.rb" url="https://github.com/department-of-veterans-affairs/vets-api/blob/4ec33d9e1e4264476a01d77629068d182e2c6028/app/sidekiq/event_bus_gateway/letter_ready_email_job.rb" />
-    <source name="Rack Attack Missing Retry-After" file="config/initializers/rack_attack.rb:68-79" url="https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/config/initializers/rack_attack.rb#L68-L79" />
-    <source name="IVC CHAMPVA Retry Helper" file="modules/ivc_champva/app/services/ivc_champva/retry.rb" url="https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/ivc_champva/app/services/ivc_champva/retry.rb" />
-  </anti_pattern_sources>
-
 </agent_play>
 -->
-
-# Retry Smart: Respect Signals, Fail Fast, Don't Spam Logs
-
-Retry logic is essential for resilience against transient failures, but poorly implemented retries create log spam, inflated metrics, and silent data loss. This play covers how to retry correctly.
-
-> [!CAUTION]
-> Logging ERROR on every retry attempt creates log spam that drowns real issues and inflates failure metrics.
-
-## Why It Matters
-
-When you log ERROR on every retry attempt, a single transient timeout generates 16 identical ERROR entries in a Sidekiq job with `retry: 16`. On-call engineers get paged for what is actually a self-recovering blip, and dashboards show 16 failures when only one job actually failed. Using bare rescue in retry logic is even worse — it catches code bugs like typos and NameError, turning them into infinite retry loops that burn resources. When retries exhaust and the exception is silently swallowed, the method returns nil, the caller assumes success, and data is lost with zero visibility.
-
-## Guidance
-
-Retry only transient failures (429, 503, 504, connection/timeout errors) using specific exception classes. Respect `Retry-After` headers from upstream services instead of guessing delays. Log WARN for retry attempts and reserve ERROR for when retries are fully exhausted. Always re-raise the exception when retries exhaust so callers know the operation failed.
 
 ### Do
 
@@ -378,8 +224,6 @@ Retry only transient failures (429, 503, 504, connection/timeout errors) using s
 
 #### Anti-Pattern
 
-[app/sidekiq/event_bus_gateway/letter_ready_email_job.rb](https://github.com/department-of-veterans-affairs/vets-api/blob/4ec33d9e1e4264476a01d77629068d182e2c6028/app/sidekiq/event_bus_gateway/letter_ready_email_job.rb)
-
 ```ruby
 class LetterReadyEmailJob
   include Sidekiq::Job
@@ -405,8 +249,6 @@ end
 
 #### Golden Pattern
 
-[lib/bgs/exceptions/bgs_errors.rb](https://github.com/department-of-veterans-affairs/vets-api/blob/4ec33d9e1e4264476a01d77629068d182e2c6028/lib/bgs/exceptions/bgs_errors.rb)
-
 ```ruby
 def with_multiple_attempts_enabled
   attempt ||= 0
@@ -424,37 +266,9 @@ rescue => e
 end
 ```
 
-#### Impact
-
-Without proper retry logging:
-
-- **Log spam:** One transient network blip -> 16 identical ERROR log entries
-- **Inflated metrics:** StatsD shows 16 failures when only 1 job actually failed
-- **Alert fatigue:** On-call teams paged for transient issues that will self-recover
-- **Can't distinguish:** "16 retries of 1 job" vs "16 different jobs failed"
-- **Wrong log level:** Transient failures (expected) logged as ERROR (unexpected)
-- **Debugging confusion:** Logs show "16 failures" but only 1 job in dead queue
-
-With proper retry logging:
-
-- **Clear signal:** WARN for transient retries, ERROR only for final failure
-- **Accurate metrics:** 1 final failure = 1 metric increment
-- **No alert spam:** Alerts fire only when retries exhausted (actual problem)
-- **Debugging clarity:** Can see retry attempts (WARN) vs actual failures (ERROR)
-- **Proper severity:** Transient issues don't trigger ERROR alerts
-
-### Rack Attack - Missing Retry-After header for 429
-
-> [!NOTE]
-> This anti-pattern (Rack::Attack `throttled_responder` missing `Retry-After` header) is covered in detail in [Play 12: Send Retry Hints to Clients](13-send-retry-hints-to-clients.md#rack-attack-configuration), including the golden pattern and impact analysis.
-
----
-
 ### IVC CHAMPVA Retry Helper - Bare Rescue, Log Spam, and Silent Failure
 
 #### Anti-Pattern
-
-[modules/ivc_champva/app/services/ivc_champva/retry.rb](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/ivc_champva/app/services/ivc_champva/retry.rb)
 
 ```ruby
 module IvcChampva
@@ -489,43 +303,3 @@ module IvcChampva
   end
 end
 ```
-
-#### Impact
-
-Without proper retry implementation:
-
-- **Bare rescue danger:** Typos like `ves_client.submit` caught and retried as if transient network issue
-- **Log spam:** Single timeout -> `ERROR: Retrying in 0 seconds...` logged on every retry
-- **Wrong severity:** ERROR for expected transient retries (should be WARN)
-- **No context:** Can't tell WHAT operation failed, WHICH exception occurred, or WHY retry triggered
-- **Silent exception swallowing:** When retries exhausted, NO error log, NO exception raised
-  - Method returns `nil` instead of raising
-  - Caller thinks operation succeeded
-  - Controller returns 200 OK but operation actually failed
-  - Database shows "submitted" but external system never received data
-- **Data loss:** User sees "Form submitted successfully" but form never actually submitted to VES
-
-With proper retry implementation (use Sidekiq job retry):
-
-- **Specific exceptions:** Only catches `Faraday::TimeoutError`, `ConnectionFailed`
-- **Single ERROR log:** One log when retries exhausted with full context
-- **Correct severity:** WARN for transient retries, ERROR when exhausted
-- **Rich context:** Operation name, attempt number, exception class, message
-- **Fails loudly:** Re-raises exception so caller knows operation failed
-- **No data loss:** Errors visible, operations fail properly, status tracking accurate
-
----
-
-## Reference
-
-### Quick Reference: What to Retry
-
-| Error Type | Retry? | Why |
-|------------|--------|-----|
-| 429, 503, 504, timeouts | Yes | Transient (may succeed on retry) |
-| 400, 401, 404, 422, 500 | No | Client error or bug (won't fix itself) |
-
-## References
-
-- [Sidekiq Error Handling](https://github.com/sidekiq/sidekiq/wiki/Error-Handling)
-- [RFC 7231 Retry-After](https://tools.ietf.org/html/rfc7231#section-7.1.3)

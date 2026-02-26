@@ -253,18 +253,18 @@ read .github/agents/sre/plays/{play-filename}.md
 
 Each play file has three sections:
 
-1. **YAML frontmatter** — metadata: `id`, `title`, `version`, `severity`, `category`, `tags`
+1. **YAML frontmatter** — metadata: `id`, `title`, `severity`
 2. **`<agent_play>` XML block** (inside an HTML comment `<!-- -->`) — structured agent data:
    - `<context>` — why this play matters
    - `<applies_to>` — file globs this play targets
-   - `<detection>` — patterns, heuristics, and false positives (also summarized in detection-patterns.md)
+   - `<related_plays>` — cross-references to complementary plays
    - `<rules>` — enforcement rules (must/must_not/should/verify)
    - `<investigate_before_answering>` — checklist steps before flagging a violation
    - `<severity_assessment>` — context-dependent severity (critical/high/medium)
    - `<pr_comment_template>` — structured finding template with placeholders
-   - `<verify>` — post-fix verification commands
-   - `<related_plays>` — cross-references to complementary plays
-3. **Human-readable markdown** — Why It Matters, Guidance, Do/Don't code examples, Anti-Patterns with corrected code, References
+3. **Markdown code examples** — Do/Don't patterns and Anti-Patterns with BAD/GOOD code pairs
+
+Detection patterns are consolidated in `detection-patterns.md` (loaded in Phase 1), not in individual play files.
 
 Use the XML `<pr_comment_template>` for finding structure, the `<investigate_before_answering>` steps to verify before flagging, and the markdown Do/Don't and Anti-Patterns sections for specific, actionable remediation guidance.
 

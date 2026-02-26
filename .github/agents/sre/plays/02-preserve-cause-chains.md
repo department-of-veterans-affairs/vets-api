@@ -1,16 +1,7 @@
 ---
 id: preserve-cause-chains
 title: Always Preserve the Cause Chain When Wrapping Exceptions
-version: 2
 severity: CRITICAL
-category: exception-handling
-tags:
-- cause-chain
-- exception-wrapping
-- stack-trace
-- apm-traceability
-- sidekiq-retry
-language: ruby
 ---
 
 <!--
@@ -41,90 +32,6 @@ language: ruby
     <play id="bare-rescue" relationship="complementary" />
     <play id="prefer-typed-exceptions" relationship="complementary" />
   </related_plays>
-
-  <retrieval_triggers>
-    <trigger>exception wrapped without preserving cause chain</trigger>
-    <trigger>APM shows wrapper exception but not original error</trigger>
-    <trigger>raise new exception loses original stack trace</trigger>
-    <trigger>Sidekiq wrong retry strategy due to exception type change</trigger>
-    <trigger>raise string interpolation destroys exception class</trigger>
-    <trigger>cause chain lost when re-raising exception</trigger>
-  </retrieval_triggers>
-
-  <detection>
-    <pattern name="raise_new_exception_without_cause" confidence="medium">
-      <signature>raise\s+\w+Exception\.new\([^)]*\)\s*$</signature>
-      <description>
-        Raises a new exception class without passing `cause:` as a
-        keyword argument. The original exception's stack trace, class,
-        and HTTP status are lost. Medium confidence because some
-        exception constructors accept cause implicitly or the raise
-        may occur outside a rescue block.
-      </description>
-      <example>raise BenefitsClaims::ServiceException.new(e.response)</example>
-      <example>raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)</example>
-    </pattern>
-    <pattern name="stringified_reraise" confidence="high">
-      <signature>raise\s+".*#\{.*\}"</signature>
-      <description>
-        Creates a new RuntimeError using string interpolation of the
-        caught exception. This completely destroys the original
-        exception class, backtrace, and cause chain. The result is
-        always a generic RuntimeError with only a message string. High
-        confidence because this is never the correct pattern.
-      </description>
-      <example>raise "error: #{e}"</example>
-      <example>raise "Failed: #{e.message}"</example>
-    </pattern>
-    <pattern name="wrap_with_message_only" confidence="high">
-      <signature>raise\s+\w+\.new\(.*\.message\)</signature>
-      <description>
-        Wraps an exception by extracting only the `.message` string
-        into a new exception. Loses the original exception class, full
-        backtrace, HTTP status code, and any nested cause chain. High
-        confidence because `.message` alone is never sufficient
-        context for debugging.
-      </description>
-      <example>raise ServiceException.new(e.message)</example>
-      <example>raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)</example>
-    </pattern>
-    <heuristic>
-      A rescue block that raises a new exception class without
-      `cause: e` in the constructor arguments is a strong signal of
-      a broken cause chain. Check whether the exception class
-      constructor accepts a `cause:` keyword argument.
-    </heuristic>
-    <heuristic>
-      A rescue block that uses string interpolation to build a new
-      error message (`raise "error: #{e}"`) always destroys the
-      cause chain. This pattern is commonly found in Sidekiq jobs
-      where it was copy-pasted across multiple files.
-    </heuristic>
-    <heuristic>
-      A rescue block in a service wrapper that catches Faraday
-      errors and raises a module-specific exception without `cause:`
-      breaks APM traceability for all upstream HTTP errors (status
-      codes, timeouts, connection failures).
-    </heuristic>
-    <false_positive>
-      `raise` (bare re-raise) without arguments inside a rescue
-      block is correct. Ruby automatically preserves the original
-      exception when using bare `raise`. This is the preferred
-      pattern when no additional context needs to be added.
-    </false_positive>
-    <false_positive>
-      Exception constructors that accept the original exception as a
-      positional argument (not `cause:`) and internally set the
-      cause chain. Verify by reading the exception class definition
-      before flagging.
-    </false_positive>
-    <false_positive>
-      Raising a new exception in code that is NOT inside a rescue
-      block. The detection patterns may match raise statements
-      outside of rescue contexts where there is no caught exception
-      to preserve.
-    </false_positive>
-  </detection>
 
   <rules>
     <rule enforcement="must">
@@ -188,28 +95,6 @@ propagate for correct error responses</high>
 dependencies or retry behavior</medium>
   </severity_assessment>
 
-  <default_to_action>
-    When you detect a broken cause chain with high confidence,
-    provide a fix adding `cause: e` or replacing stringified
-    re-raise with bare `raise`. Read the exception class
-    definition to verify it accepts `cause:` before suggesting.
-  </default_to_action>
-
-  <verify>
-    <command description="No stringified re-raise remains in changed file">
-      grep -On 'raise\s+".*#\{' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="No message-only wrap remains">
-      grep -On 'raise\s+\w+\.new\(.*\.message\)' {{file_path}} &amp;&amp; exit 1 || exit 0
-    </command>
-    <command description="Run specs for changed file">
-      bundle exec rspec {{spec_path}}
-    </command>
-    <command description="RuboCop passes for changed file">
-      bundle exec rubocop {{file_path}}
-    </command>
-  </verify>
-
   <pr_comment_template>
     **Always Preserve the Cause Chain When Wrapping Exceptions** | `CRITICAL`
 
@@ -238,21 +123,6 @@ dependencies or retry behavior</medium>
 </agent_play>
 -->
 
-# Always Preserve the Cause Chain When Wrapping Exceptions
-
-When you catch an exception and raise a new one, pass the caught exception as `cause:` so APM, logs, and Sidekiq can trace back to the original failure. In `rescue SomeError => e`, the variable `e` holds the caught exception — pass it as `cause: e`. If you named the variable differently (e.g., `rescue SomeError => error`), pass `cause: error`.
-
-> [!CAUTION]
-> Losing the cause chain destroys forensic traceability — you'll know something failed, but not *why*.
-
-## Why It Matters
-
-When you wrap an exception without `cause: e`, APM shows "ServiceException at line 46" but the original `Faraday::ServerError` is gone — the HTTP 503 status becomes invisible. Your stack trace points to the re-raise line, not where the connection actually failed. Sidekiq sees a `RuntimeError` instead of a `TimeoutError`, picks the wrong retry strategy, and the job fails permanently. When 500 errors spike, you can't tell a timeout from a 404 from a bug, so you're stuck grepping logs for hours.
-
-## Guidance
-
-Always pass the caught exception as `cause:` when raising a new exception inside a `rescue` block. If you don't need to add context, use `raise` without arguments instead — Ruby automatically preserves the original exception.
-
 ### Do
 
 - `raise ServiceException.new("BGS failed", cause: e)` — wraps with context, preserves the chain
@@ -268,16 +138,12 @@ Always pass the caught exception as `cause:` when raising a new exception inside
 
 ### Lighthouse Benefits Claims Service
 
-**Source:** [lib/lighthouse/benefits_claims/service.rb:45-46](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/lib/lighthouse/benefits_claims/service.rb#L45-L46)
-
 ```ruby
 rescue Faraday::ClientError, Faraday::ServerError => e
   raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
   # Missing cause: parameter — original Faraday exception lost
 end
 ```
-
-**Problem:** Missing `cause: e` — APM sees only `ServiceException: Lighthouse Error` at line 46. The original `Faraday::ServerError` with its 503 status, timeout location, and connection details is destroyed. You can't distinguish a 404 from a 503 from a network timeout.
 
 **Corrected:**
 
@@ -293,8 +159,6 @@ end
 
 ### Mobile Dependents Controller
 
-**Source:** [modules/mobile/app/controllers/mobile/v0/dependents_controller.rb:11-12](https://github.com/department-of-veterans-affairs/vets-api/blob/b2372803fded80b411dca317dbb94a72536b1f52/modules/mobile/app/controllers/mobile/v0/dependents_controller.rb#L11-L12)
-
 ```ruby
 rescue => e  # Catches ALL exceptions (typos, timeouts, DB errors)
   raise Common::Exceptions::BackendServiceException.new(
@@ -303,8 +167,6 @@ rescue => e  # Catches ALL exceptions (typos, timeouts, DB errors)
   )
 end
 ```
-
-**Problem:** `e.message` extracts only the string — original exception class, backtrace, and cause chain are gone. APM sees `BackendServiceException` at controller.rb:12 for every error. A BGS timeout looks identical to a `NoMethodError` from a typo.
 
 **Corrected:**
 
@@ -325,10 +187,6 @@ end
 
 ### Income Limit Import Jobs — Stringified Re-raise
 
-**Source:** [app/sidekiq/income_limits/std_state_import.rb:52](https://github.com/department-of-veterans-affairs/vets-api/blob/master/app/sidekiq/income_limits/std_state_import.rb#L52)
-
-> Found in **5 income limit Sidekiq jobs** — systemic copy-paste pattern.
-
 ```ruby
 def perform
   # ... CSV import logic ...
@@ -337,8 +195,6 @@ rescue => e
   # Creates NEW RuntimeError — original class, backtrace, and cause chain destroyed
 end
 ```
-
-**Problem:** `raise "error: #{e}"` creates a new `RuntimeError` with a flat string. The original exception class is gone, the backtrace points to this line only, and Sidekiq picks the wrong retry strategy because it sees `RuntimeError` instead of `Faraday::ConnectionFailed`.
 
 **Corrected:**
 
@@ -351,7 +207,3 @@ rescue => e
   raise ImportError.new("CSV import failed", cause: e)
 end
 ```
-
-## References
-
-- [Ruby Exception#cause](https://ruby-doc.org/core/Exception.html#method-i-cause)
