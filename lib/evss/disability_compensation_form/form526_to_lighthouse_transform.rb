@@ -640,7 +640,7 @@ module EVSS
         return nil if date_string.blank?
 
         s = date_string.to_s.strip
-        s = s.split('T', 2).first
+        s = s.split('T').first
 
         # Already acceptable
         return s if s.match?(/^\d{4}$/)
