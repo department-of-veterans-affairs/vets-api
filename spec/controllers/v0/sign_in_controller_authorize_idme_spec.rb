@@ -16,13 +16,6 @@ RSpec.describe V0::SignInController, type: :controller do
         it_behaves_like 'an idme service interface with appropriate operation'
       end
 
-      context 'and operation param is authorize' do
-        let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
-        let(:expected_op_value) { '' }
-
-        it_behaves_like 'an idme service interface with appropriate operation'
-      end
-
       context 'and operation param is arbitrary' do
         let(:operation_value) { 'some-operation-value' }
         let(:expected_error) { 'Operation is not valid' }
@@ -37,39 +30,32 @@ RSpec.describe V0::SignInController, type: :controller do
         it_behaves_like 'an idme service interface with appropriate operation'
       end
 
-      context 'and the operation param is interstitial_verify' do
-        let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_VERIFY }
-        let(:expected_op_value) { '' }
+      # Other valid operations (authorize, interstitial_verify, interstitial_signup,
+      # verify_cta_authenticated, verify_page_authenticated, verify_page_unauthenticated)
+      # all produce identical behavior (no op= param). Their convert_operation output is
+      # verified in spec/lib/sign_in/idme/service_spec.rb ('when operation is a valid
+      # non-signup operation'). Here we just confirm they are accepted without error.
+      context 'and operation param is a valid non-signup operation' do
+        let(:acr_value) { 'loa1' }
+        let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
+        let(:code_challenge_method) { { code_challenge_method: 'S256' } }
 
-        it_behaves_like 'an idme service interface with appropriate operation'
-      end
+        [
+          SignIn::Constants::Auth::AUTHORIZE,
+          SignIn::Constants::Auth::INTERSTITIAL_VERIFY,
+          SignIn::Constants::Auth::INTERSTITIAL_SIGNUP,
+          SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED,
+          SignIn::Constants::Auth::VERIFY_PAGE_AUTHENTICATED,
+          SignIn::Constants::Auth::VERIFY_PAGE_UNAUTHENTICATED
+        ].each do |op|
+          context "with operation=#{op}" do
+            let(:operation_value) { op }
 
-      context 'and the operation param is interstitial_signup' do
-        let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_SIGNUP }
-        let(:expected_op_value) { '' }
-
-        it_behaves_like 'an idme service interface with appropriate operation'
-      end
-
-      context 'and the operation param is verify_cta_authenticated' do
-        let(:operation_value) { SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED }
-        let(:expected_op_value) { '' }
-
-        it_behaves_like 'an idme service interface with appropriate operation'
-      end
-
-      context 'and the operation param is verify_page_authenticated' do
-        let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_AUTHENTICATED }
-        let(:expected_op_value) { '' }
-
-        it_behaves_like 'an idme service interface with appropriate operation'
-      end
-
-      context 'and the operation param is verify_page_unauthenticated' do
-        let(:operation_value) { SignIn::Constants::Auth::VERIFY_PAGE_UNAUTHENTICATED }
-        let(:expected_op_value) { '' }
-
-        it_behaves_like 'an idme service interface with appropriate operation'
+            it 'returns ok status' do
+              expect(subject).to have_http_status(:ok)
+            end
+          end
+        end
       end
     end
 
@@ -191,9 +177,19 @@ RSpec.describe V0::SignInController, type: :controller do
 
     context 'when type param is dslogon' do
       let(:type_value) { SignIn::Constants::Auth::DSLOGON }
-      let(:expected_type_value) { SignIn::Constants::Auth::DSLOGON }
+      let(:acr_value) { 'loa1' }
+      let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
+      let(:code_challenge_method) { { code_challenge_method: 'S256' } }
 
-      it_behaves_like 'an idme authentication service interface'
+      it 'routes through the same Idme::Service as idme' do
+        idme_service = instance_double(SignIn::Idme::Service)
+        allow(SignIn::Idme::Service).to receive(:new).and_return(idme_service)
+        allow(idme_service).to receive(:render_auth).and_return('<html></html>')
+
+        subject
+
+        expect(SignIn::Idme::Service).to have_received(:new).with(hash_including(type: SignIn::Constants::Auth::DSLOGON))
+      end
     end
   end
 end

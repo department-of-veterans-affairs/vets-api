@@ -123,6 +123,27 @@ describe SignIn::Idme::Service do
       end
     end
 
+    context 'when operation is a valid non-signup operation' do
+      let(:expected_op_param) { 'op=' }
+
+      [
+        SignIn::Constants::Auth::AUTHORIZE,
+        SignIn::Constants::Auth::INTERSTITIAL_VERIFY,
+        SignIn::Constants::Auth::INTERSTITIAL_SIGNUP,
+        SignIn::Constants::Auth::VERIFY_CTA_AUTHENTICATED,
+        SignIn::Constants::Auth::VERIFY_PAGE_AUTHENTICATED,
+        SignIn::Constants::Auth::VERIFY_PAGE_UNAUTHENTICATED
+      ].each do |op|
+        context "with operation=#{op}" do
+          let(:operation) { op }
+
+          it 'does not include an op param in rendered form' do
+            expect(response).not_to include(expected_op_param)
+          end
+        end
+      end
+    end
+
     context 'when optional_scopes are provided' do
       context 'and the scopes are valid' do
         let(:optional_scopes) { ['all_emails'] }
