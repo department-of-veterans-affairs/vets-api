@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe TravelPay::ReceiptConverter do
-  subject(:converter) { described_class.new }
+  subject(:converter) { described_class.new(user) }
+
+  let(:user) { build(:user) }
 
   let(:test_image_base64) do
     fixture_path = Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures', 'pixel-working.heic')
@@ -11,7 +13,7 @@ RSpec.describe TravelPay::ReceiptConverter do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion, user).and_return(true)
   end
 
   describe '#convert_if_heic' do
@@ -135,7 +137,7 @@ RSpec.describe TravelPay::ReceiptConverter do
 
     context 'when feature flag is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion, user).and_return(false)
       end
 
       let(:heic_params) do

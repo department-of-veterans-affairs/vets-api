@@ -12,7 +12,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion, user).and_return(false)
 
     # Mock authentication to provide tokens for VCR cassettes
     auth_manager_double = instance_double(
@@ -20,7 +20,8 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       authorize: {
         veis_token: 'veis_access_token_12345',
         btsss_token: 'btsss_access_token_67890'
-      }
+      },
+      user:
     )
     allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager_double)
   end
@@ -249,7 +250,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
 
       context 'when HEIC conversion flag is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion, user).and_return(true)
         end
 
         it 'converts HEIC to JPG and creates the expense' do
