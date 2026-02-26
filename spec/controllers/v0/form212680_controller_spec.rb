@@ -181,6 +181,8 @@ RSpec.describe V0::Form212680Controller, type: :controller do
     before do
       sign_in_as(user)
       allow(Flipper).to receive(:enabled?).with(:form_2680_enabled, anything).and_return(true)
+      allow(monitor).to receive(:track_pdf_generation_success)
+      allow(monitor).to receive(:track_pdf_generation_failure)
     end
 
     it 'generates and downloads PDF' do
@@ -221,6 +223,7 @@ RSpec.describe V0::Form212680Controller, type: :controller do
         allow_any_instance_of(SavedClaim::Form212680).to receive(:generate_prefilled_pdf).and_raise(StandardError,
                                                                                                     'PDF error')
 
+        expect(monitor).to receive(:track_pdf_generation_failure)
         expect(monitor).to receive(:track_request_code).with(500,
                                                              hash_including(action: 'download_pdf',
                                                                             claim_guid: kind_of(String)))

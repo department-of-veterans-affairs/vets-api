@@ -151,6 +151,38 @@ module Form212680
       )
     end
 
+    ##
+    # Track successful PDF generation
+    # Called when PDF is successfully generated and ready to send
+    #
+    # @param start_time [Time] The time PDF generation began
+    def track_pdf_generation_success(start_time)
+      duration_ms = (Time.current - start_time) * 1000
+      StatsD.measure("#{CLAIM_STATS_KEY}.pdf_generation.duration", duration_ms)
+
+      submit_event(
+        :info,
+        "#{message_prefix} PDF generation success",
+        "#{CLAIM_STATS_KEY}.pdf_generation.success",
+        duration_ms:
+      )
+    end
+
+    ##
+    # Track PDF generation failure
+    # Called when PDF generation fails with an error
+    #
+    # @param error [StandardError] The error that occurred
+    def track_pdf_generation_failure(error)
+      submit_event(
+        :error,
+        "#{message_prefix} PDF generation failure",
+        "#{CLAIM_STATS_KEY}.pdf_generation.failure",
+        error_class: error.class.name,
+        error_message: error.message
+      )
+    end
+
     private
 
     def message_prefix
