@@ -73,7 +73,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "129917"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -189,7 +190,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "234518"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -305,7 +307,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "347291"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -443,7 +446,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "458632"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -567,7 +571,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "519847"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -696,7 +701,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "623154"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -820,7 +826,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "731489"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -944,7 +951,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "842716"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -1061,7 +1069,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "953274"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -1185,7 +1194,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "164837"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -1314,7 +1324,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "275961"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -1693,7 +1704,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "386542"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -1817,7 +1829,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "497183"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -1941,7 +1954,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "518624"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -2065,7 +2079,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "629375"}
                 ],
                 "clinicalStatus": {
                     "coding": [
@@ -2194,7 +2209,8 @@
                     "use": "usual",
                     "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                     "value": "ProblemTO.983"
-                    }
+                    },
+                    {"use": "usual", "system": "vista-uid", "value": "741893"}
                 ],
                 "clinicalStatus": {
                     "coding": [
