@@ -53,7 +53,7 @@ module RuboCop
 
           case node.type
           when :nil then 'nil'
-          when :false then 'false'
+          when :false then 'false' # rubocop:disable Lint/BooleanSymbol
           when :array then node.children.empty? ? '[]' : nil
           when :hash then node.children.empty? ? '{}' : nil
           end

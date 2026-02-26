@@ -18,8 +18,10 @@ module RuboCop
       #   rescue SomeError => e
       #     raise MyError, "Failed: #{e.message}"
       class PreserveCauseChains < Base
+        # rubocop:disable Lint/InterpolationCheck
         MSG = '[Play 02] `raise "...#{e}..."` inside rescue discards the cause chain. ' \
               'Use `raise TypedError, message` to preserve `.cause`.'
+        # rubocop:enable Lint/InterpolationCheck
 
         def on_resbody(node)
           exception_var = node.children[1]

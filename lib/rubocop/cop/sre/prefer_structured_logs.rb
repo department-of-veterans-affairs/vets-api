@@ -38,12 +38,8 @@ module RuboCop
         def logger_receiver?(receiver)
           return false unless receiver
 
-          if receiver.send_type? && receiver.method?(:logger)
-            # logger.error(...) or Rails.logger.error(...)
-            true
-          else
-            false
-          end
+          # logger.error(...) or Rails.logger.error(...)
+          receiver.send_type? && receiver.method?(:logger)
         end
       end
     end

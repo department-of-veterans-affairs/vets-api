@@ -40,7 +40,7 @@ module RuboCop
           processed_source.file_path.include?('/controllers/')
         end
 
-        def each_exception_class(node, &block)
+        def each_exception_class(node, &)
           if node.array_type?
             node.children.each { |child| yield child if child.const_type? }
           elsif node.const_type?
