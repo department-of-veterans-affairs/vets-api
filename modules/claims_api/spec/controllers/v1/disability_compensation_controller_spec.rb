@@ -180,8 +180,19 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         end
       end
 
-      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+      context 'when autoCestPDFGenerationDisabled is nil on the form' do
         let(:auto_cest_pdf_generation_disabled) { nil }
+
+        it "returns a 'resource not found' error" do
+          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
+              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+        let(:pending_claim) { create(:auto_established_claim, form_data: {}) }
 
         it "returns a 'resource not found' error" do
           expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
@@ -256,8 +267,19 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         end
       end
 
-      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+      context 'when autoCestPDFGenerationDisabled is nil on the form' do
         let(:auto_cest_pdf_generation_disabled) { nil }
+
+        it "returns a 'resource not found' error" do
+          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
+              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+        let(:pending_claim) { create(:auto_established_claim, form_data: {}) }
 
         it "returns a 'resource not found' error" do
           expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
