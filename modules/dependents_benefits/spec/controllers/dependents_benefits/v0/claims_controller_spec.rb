@@ -12,6 +12,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, instance_of(User)).and_return(false)
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 

@@ -9,7 +9,7 @@ RSpec.describe DependentsBenefits::Monitor do
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
-  let(:monitor) { described_class.new }
+  let(:monitor) { described_class.new(nil, current_user) }
   let(:claim) { create(:dependents_claim) }
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
@@ -291,6 +291,67 @@ RSpec.describe DependentsBenefits::Monitor do
   describe '#form_id' do
     it 'returns expected form id' do
       expect(monitor.send(:form_id)).to eq(DependentsBenefits::FORM_ID)
+    end
+  end
+
+  describe 'v3 flipper' do
+    context 'when v3 is disabled' do
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false) }
+
+      it 'does not include v3 tags' do
+        m = described_class.new(nil, current_user)
+        expect(m.tags).not_to include('use_v3:true')
+        expect(m.tags).not_to include('v3_removal:true')
+      end
+    end
+
+    context 'when v3 is enabled but removal flow is not set' do
+      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true) }
+
+      it 'includes use_v3 and v3_removal:false tags' do
+        m = described_class.new(nil, current_user)
+        expect(m.tags).to include('use_v3:true')
+        expect(m.tags).to include('v3_removal:false')
+      end
+
+      context 'when user is user object' do
+        let(:current_user) { create(:user) }
+
+        it 'includes use_v3:true tag' do
+          m = described_class.new(nil, current_user)
+          expect(m.tags).to include('use_v3:true')
+        end
+      end
+
+      context 'when user is the generated user struct from DependentSubmissionJob' do
+        let(:current_user) do
+          OpenStruct.new(
+            uuid: 'user-uuid',
+            first_name: 'Test',
+            last_name: 'User',
+            common_name: 'Test User',
+            va_profile_email: 'test.user@example.com'
+          )
+        end
+
+        it 'includes use_v3:true tag' do
+          m = described_class.new(nil, current_user)
+          expect(m.tags).to include('use_v3:true')
+        end
+      end
+    end
+
+    context 'when v3 is enabled and claim is v3 removal flow' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
+        claim.update(form: { 'is_v3_removal_flow' => true }.to_json)
+      end
+
+      it 'includes use_v3 and v3_removal:true tags' do
+        m = described_class.new(claim.id, current_user)
+        expect(m.tags).to include('use_v3:true')
+        expect(m.tags).to include('v3_removal:true')
+      end
     end
   end
 end

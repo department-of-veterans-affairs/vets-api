@@ -40,8 +40,18 @@ module DependentsBenefits
       parent_claim_id
     ].freeze
 
-    def initialize
+    # @param claim_id [Integer, nil] optional SavedClaim id used to inspect claim for tags
+    # @param user [Object, nil] optional user used for flipper checks
+    def initialize(claim_id = nil, user = nil)
+      @claim_id = claim_id
+      @claim = find_claim(claim_id)
+      @user = user
+
       super(service_name, allowlist: ALLOWLIST, safe_keys: SAFE_KEYS)
+
+      @use_v3 = get_use_v3
+      @use_v3_removal = get_use_v3_removal(@claim)
+      @tags = get_tags
     end
 
     ##
@@ -151,6 +161,62 @@ module DependentsBenefits
     # @return [String]
     def form_id
       DependentsBenefits::FORM_ID
+    end
+
+    ##
+    # Load a saved claim for inspection
+    # @param claim_id [Integer] the id of the claim to load
+    # @return [SavedClaim, nil] the loaded claim or nil if not found
+    def find_claim(claim_id)
+      return nil if claim_id.nil?
+
+      ::SavedClaim.find(claim_id)
+    rescue => e
+      Rails.logger.warn('Unable to find claim for DependentsBenefits::Monitor', { claim_id:, e: })
+      nil
+    end
+
+    ##
+    # tag used for logging to identify ALL claims with v3 flipper active
+    # @return [Boolean] whether the v3 flipper is enabled for the user
+    def get_use_v3
+      return false if @user.nil?
+
+      actor = actor_for_flipper(@user)
+      Flipper.enabled?(:va_dependents_v3, actor)
+    end
+
+    ##
+    # Normalize a user-like object into something Flipper can accept as an actor (based on User#flipper_id)
+    # This can either be current_user from the claims controller or what's
+    # generated in DependentSubmissionJob#generate_user_struct
+    # @param user [Object] the user-like object to normalize
+    # @return [Object] the normalized actor for Flipper checks
+    def actor_for_flipper(user)
+      return user if user.respond_to?(:flipper_id)
+
+      OpenStruct.new(flipper_id: user.uuid)
+    end
+
+    ##
+    # tag used for logging to identify claims with v3 removal flow active
+    # @param claim [SavedClaim] the claim to inspect for v3 removal flow
+    # @return [Boolean] whether the claim is part of the v3 removal flow
+    def get_use_v3_removal(claim)
+      return false if !@use_v3 || claim.nil?
+
+      claim&.parsed_form&.[]('is_v3_removal_flow') || false
+    end
+
+    ##
+    # Generate tags for logging based on flipper states and claim attributes
+    # @return [Array<String>] the list of tags to be included in logs
+    def get_tags
+      additional_tags = @tags.dup || []
+      additional_tags << "service:#{service}"
+      additional_tags << "use_v3:#{@use_v3}" if @use_v3
+      additional_tags << "v3_removal:#{@use_v3_removal}" if @use_v3
+      additional_tags
     end
   end
 end

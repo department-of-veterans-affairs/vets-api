@@ -188,7 +188,7 @@ module DependentsBenefits
 
       # Creates a new monitor instance for tracking events
       def monitor
-        @monitor ||= DependentsBenefits::Monitor.new
+        @monitor ||= DependentsBenefits::Monitor.new(nil, current_user)
       end
     end
   end
