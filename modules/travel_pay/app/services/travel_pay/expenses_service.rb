@@ -36,6 +36,7 @@ module TravelPay
       Rails.logger.info("Creating expense of type: #{params['expense_type']}")
       # Build the request body for the API
       request_body = build_expense_request_body(params)
+      request_body = receipt_converter.convert_if_heic(request_body)
 
       response = client.add_expense(veis_token, btsss_token, params['expense_type'], request_body)
       response.body['data']
@@ -75,6 +76,7 @@ module TravelPay
 
       # Build the request body for the API
       request_body = build_expense_request_body(params)
+      request_body = receipt_converter.convert_if_heic(request_body)
 
       response = client.update_expense(veis_token, btsss_token, expense_id, expense_type, request_body)
       response.body['data']
@@ -142,6 +144,10 @@ module TravelPay
 
     def client
       TravelPay::ExpensesClient.new
+    end
+
+    def receipt_converter
+      @receipt_converter ||= TravelPay::ReceiptConverter.new
     end
   end
 end
