@@ -34,6 +34,7 @@ module AccreditedRepresentativePortal
       # If the policy has been instantiated with a class instead of a record,
       # fall back to the general authorization logic to avoid errors.
       return authorize unless @record.respond_to?(:power_of_attorney_holder_poa_code)
+
       poa_code = @record.power_of_attorney_holder_poa_code
 
       return false unless user_can_access_org?(poa_code)

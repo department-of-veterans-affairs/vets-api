@@ -190,6 +190,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         end
       end
     end
+
     describe 'Scope' do
       subject(:resolved_scope) { described_class::Scope.new(user, scope).resolve }
 
