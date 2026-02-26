@@ -3,12 +3,11 @@
 require 'sidekiq'
 
 module RepresentationManagement
-  # Processes address validation for AccreditedIndividual records by ID.
-  # This class finds AccreditedIndividual records and calls their validate_address method.
-  # Works for all individual types: agents, attorneys, and representatives.
-  # Contact field updates (email, phone, raw_address) are written directly by
+  # Processes address validation for AccreditedOrganization records by ID.
+  # This class finds AccreditedOrganization records and calls their validate_address method.
+  # Contact field updates (name, phone, raw_address) are written directly by
   # AccreditationXlsxProcessor before this job is queued.
-  class AccreditedIndividualsUpdate
+  class AccreditedOrganizationsUpdate
     include Sidekiq::Job
 
     sidekiq_options retry: 10 # Retry for about 21 hours
@@ -28,8 +27,8 @@ module RepresentationManagement
       @records_needing_geocoding = []
     end
 
-    # Processes address validation for AccreditedIndividuals by ID.
-    # @param record_ids [Array<String>] Array of AccreditedIndividual IDs
+    # Processes address validation for AccreditedOrganizations by ID.
+    # @param record_ids [Array<String>] Array of AccreditedOrganization IDs
     def perform(record_ids)
       record_ids.each { |record_id| process_record(record_id) }
       enqueue_geocoding_jobs
@@ -37,19 +36,18 @@ module RepresentationManagement
       log_error("Error processing job: #{e.message}", send_to_slack: true)
       raise
     ensure
-      @slack_messages.unshift('RepresentationManagement::AccreditedIndividualsUpdate') if @slack_messages.any?
+      @slack_messages.unshift('RepresentationManagement::AccreditedOrganizationsUpdate') if @slack_messages.any?
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 
     private
 
-    # Processes individual AccreditedIndividual record by ID.
+    # Processes individual AccreditedOrganization record by ID.
     # Finds the record and calls validate_address on it.
     # If validation fails, adds the record to the geocoding queue.
-    # If the record is not found or validation fails, the error is logged.
-    # @param record_id [String] The AccreditedIndividual ID.
+    # @param record_id [String] The AccreditedOrganization ID.
     def process_record(record_id)
-      record = AccreditedIndividual.find_by(id: record_id)
+      record = AccreditedOrganization.find_by(id: record_id)
 
       if record.nil?
         log_error("Record not found: #{record_id}", send_to_slack: false)
@@ -72,7 +70,7 @@ module RepresentationManagement
 
       @records_needing_geocoding.each_with_index do |record_id, index|
         delay_seconds = index * RATE_LIMIT_SECONDS
-        GeocodeRepresentativeJob.perform_in(delay_seconds.seconds, 'AccreditedIndividual', record_id)
+        GeocodeRepresentativeJob.perform_in(delay_seconds.seconds, 'AccreditedOrganization', record_id)
       end
     rescue => e
       log_error("Error enqueueing geocoding jobs: #{e.message}", send_to_slack: true)
@@ -81,17 +79,17 @@ module RepresentationManagement
     # Logs an error and optionally adds it to the Slack message array.
     # @param error [String] The error string to be logged.
     def log_error(error, send_to_slack: false)
-      message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error}"
+      message = "RepresentationManagement::AccreditedOrganizationsUpdate: #{error}"
       Rails.logger.error(message)
       @slack_messages << "----- #{message}" if send_to_slack
     end
 
     def log_to_slack(message)
-      return unless Settings.vsp_environment == 'production'
+      return unless Settings.vsp_environment.to_s.downcase == 'production'
 
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
-                                       username: 'RepresentationManagement::AccreditedIndividualsUpdate Bot')
+                                       username: 'RepresentationManagement::AccreditedOrganizationsUpdate Bot')
       client.notify(message)
     end
   end
