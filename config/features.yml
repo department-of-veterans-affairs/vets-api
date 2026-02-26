@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_entity_models_populate_with_xlsx_data:
+    actor_type: user
+    description: Enables the population of accredited entity models with data from the GCLAWS Accreditation XLSX file
+    enable_in_development: true
   accredited_representative_portal_claimant_details:
     actor_type: user
     description: Enables the claimant details page on the frontend
@@ -898,6 +902,12 @@ features:
       Enables content and design enhancements for supporting evidence
       in the 526 disability compensation workflow.
     enable_in_development: false
+  disability_526_supporting_evidence_file_input_v3:
+    actor_type: user
+    description: >
+      Enables the v3 file input component for supporting evidence uploads
+      in the 526 disability compensation workflow.
+    enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
     actor_type: user
     description: enables adding new conditions workflow indicator to in progress 526 forms
@@ -1443,9 +1453,18 @@ features:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
-  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+  mhv_medical_records_diagnostic_logging:
     actor_type: user
-    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
+    description: >
+      Global fallback toggle for Medical Records diagnostic logging. Enables verbose instrumentation
+      across ALL domains (clinical notes, allergies, conditions, labs, vitals, vaccines). Use during
+      incidents when you need full visibility. Per-domain toggles take priority when enabled.
+    enable_in_development: true
+  mhv_medical_records_clinical_notes_diagnostic:
+    actor_type: user
+    description: >
+      Enables diagnostic logging for clinical notes only (response counts, filtering metrics,
+      LOINC distributions). Falls back to mhv_medical_records_diagnostic_logging if not enabled.
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
@@ -1454,10 +1473,6 @@ features:
   mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for VistA patients
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_loinc_logging_enabled:
-    actor_type: user
-    description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
   mhv_landing_page_aal_notice:
     actor_type: user
