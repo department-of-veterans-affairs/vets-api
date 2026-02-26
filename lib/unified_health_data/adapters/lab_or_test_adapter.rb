@@ -13,7 +13,7 @@ module UnifiedHealthData
       include FhirHelpers
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
-      LABS = MedicalRecords::MedicalRecordsLog::LABS_AND_TESTS
+      LABS = 'labs_and_tests'
 
       # @param mr_log [MedicalRecords::MedicalRecordsLog, nil] Structured logger (nil = Rails.logger fallback)
       def initialize(mr_log: nil)
