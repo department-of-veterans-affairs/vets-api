@@ -102,12 +102,18 @@ module V0
       new-disabilities/(follow-up|add\b)
     }x
 
-    # If disabilityCompNewConditionsWorkflow is true and returnUrl points to an
+    # If the new-conditions-workflow flag is true and returnUrl points to an
     # old-flow conditions page, reset the flag to false. This prevents the
     # RJSF crash (follow-up) and redirect loops (all other old-flow pages).
+    #
+    # NOTE: form_data is stored with snake_case keys in the DB (OliveBranch
+    # converts incoming camelCase params), so the canonical key is
+    # 'disability_comp_new_conditions_workflow'.
+    WORKFLOW_FLAG_KEY = 'disability_comp_new_conditions_workflow'
+
     def fix_new_conditions_workflow_flag(form_data, metadata)
-      flag = form_data['disabilityCompNewConditionsWorkflow']
-      return_url = metadata&.dig('returnUrl') || ''
+      flag = form_data[WORKFLOW_FLAG_KEY]
+      return_url = metadata&.dig('returnUrl') || metadata&.dig('return_url') || ''
 
       return form_data unless [true, 'true'].include?(flag)
 
@@ -117,9 +123,9 @@ module V0
       end
 
       log_poisoned_ipf_fix('resetting to false — flag true + old-flow returnUrl', flag:, return_url:)
-      corrected = form_data.merge('disabilityCompNewConditionsWorkflow' => false)
+      corrected = form_data.merge(WORKFLOW_FLAG_KEY => false)
       begin
-        form_for_user.update(form_data: corrected.to_json)
+        form_for_user.update!(form_data: corrected.to_json)
       rescue => e
         Rails.logger.error("Form526 fix_poisoned_ipf: failed to persist - #{e.message}")
       end
