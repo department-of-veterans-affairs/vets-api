@@ -126,7 +126,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
     describe '#uncaught_error_response' do
       it 'returns Mobile constants' do
         expect(subject.send(:uncaught_error_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+          Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
         )
       end
     end

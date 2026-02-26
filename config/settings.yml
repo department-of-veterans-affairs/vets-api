@@ -568,6 +568,13 @@ form_10_10cg:
       bucket: <%= ENV['form_10_10cg__poa__s3__bucket'] %>
       enabled: true
       region: us-gov-west-1
+form_intake:
+  api_version: 'v1'
+  breakers_error_threshold: 80
+  host: <%= ENV['form_intake__host'] %>
+  path: <%= ENV['form_intake__path'] %>
+  timeout: 30
+  use_mocks: false
 form_mock_ae_design_patterns:
   prefill: true
 form_mock_prefill:
@@ -1287,6 +1294,8 @@ res:
   base_url: <%= ENV['res__base_url'] %>
   ch_31_case_details:
     mock: <%= ENV['res__ch_31_case_details__mock'] %>
+  ch_31_case_milestones:
+    mock: <%= ENV['res__ch_31_case_milestones__mock'] %>
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
@@ -1379,6 +1388,7 @@ travel_pay:
   client_number: <%= ENV['travel_pay__client_number'] %>
   mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
+  open_timeout: <%= ENV['travel_pay__open_timeout'] || 15 %>
   service_name: BTSSS-API
   sts:
     scope: <%= ENV['travel_pay__sts__scope'] %>
@@ -1386,6 +1396,7 @@ travel_pay:
   subscription_key: <%= ENV['travel_pay__subscription_key'] %>
   subscription_key_e: <%= ENV['travel_pay__subscription_key_e'] %>
   subscription_key_s: <%= ENV['travel_pay__subscription_key_s'] %>
+  timeout: <%= ENV['travel_pay__timeout'] || 90 %>
   veis:
     auth_url: https://login.microsoftonline.us
     client_id: <%= ENV['travel_pay__veis__client_id'] %>
@@ -1394,11 +1405,16 @@ travel_pay:
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
