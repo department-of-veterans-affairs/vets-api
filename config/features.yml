@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_entity_models_populate_with_xlsx_data:
+    actor_type: user
+    description: Enables the population of accredited entity models with data from the GCLAWS Accreditation XLSX file
+    enable_in_development: true
   accredited_representative_portal_claimant_details:
     actor_type: user
     description: Enables the claimant details page on the frontend
@@ -896,6 +900,12 @@ features:
     actor_type: user
     description: >
       Enables content and design enhancements for supporting evidence
+      in the 526 disability compensation workflow.
+    enable_in_development: false
+  disability_526_supporting_evidence_file_input_v3:
+    actor_type: user
+    description: >
+      Enables the v3 file input component for supporting evidence uploads
       in the 526 disability compensation workflow.
     enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
