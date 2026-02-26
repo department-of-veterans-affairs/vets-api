@@ -490,6 +490,14 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first['detail']).to include('not supported for renewal')
         end
+
+        it 'renames draft_id to id before sending to SM client' do
+          draft_params = params_with_prescription.merge(draft_id: '123456')
+          expect_any_instance_of(SM::Client).to receive(:post_create_renewal_message)
+            .with(hash_including('id' => '123456'), is_oh: anything)
+
+          post '/my_health/v1/messaging/messages/renewal', params: { message: draft_params }
+        end
       end
     end
 
