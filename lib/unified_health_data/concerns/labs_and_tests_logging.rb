@@ -9,7 +9,7 @@ module UnifiedHealthData
     #
     # Stub Flipper in tests (never use Flipper.enable/disable):
     #   allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_labs_and_tests_diagnostic, user).and_return(true)
-    module LabsAndTestsLogging
+    module LabsAndTestsLogging # rubocop:disable Metrics/ModuleLength
       extend ActiveSupport::Concern
 
       LABS = MedicalRecords::MedicalRecordsLog::LABS_AND_TESTS
