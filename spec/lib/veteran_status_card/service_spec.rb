@@ -247,8 +247,17 @@ RSpec.describe VeteranStatusCard::Service do
       context 'when user is nil' do
         let(:user) { nil }
 
-        it 'returns person_not_found_response directly' do
-          expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        it 'returns a veteran_status_alert with person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:status])
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('NO_ICN')
+          expect(result[:attributes][:service_summary_code]).to be_nil
         end
 
         it 'logs STATSD_INELIGIBLE and NO_ICN_MESSAGE metrics' do
@@ -271,8 +280,13 @@ RSpec.describe VeteranStatusCard::Service do
           allow(user).to receive_messages(icn: nil)
         end
 
-        it 'returns person_not_found_response directly' do
-          expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        it 'returns a veteran_status_alert with person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('NO_ICN')
         end
 
         it 'logs STATSD_INELIGIBLE and NO_ICN_MESSAGE metrics' do
@@ -288,8 +302,13 @@ RSpec.describe VeteranStatusCard::Service do
           allow(user).to receive(:edipi).and_return(nil)
         end
 
-        it 'returns person_not_found_response directly' do
-          expect(subject.status_card).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        it 'returns a veteran_status_alert with person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('NO_EDIPI')
         end
 
         it 'logs STATSD_INELIGIBLE and NO_EDIPI_MESSAGE metrics' do

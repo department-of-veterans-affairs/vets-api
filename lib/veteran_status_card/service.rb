@@ -101,13 +101,13 @@ module VeteranStatusCard
       if @user&.icn.blank?
         @confirmation_status = NO_ICN_MESSAGE
         log_missing_fields
-        return person_not_found_response
+        return person_not_found_response_hash
       end
 
       if @user&.edipi.blank?
         @confirmation_status = NO_EDIPI_MESSAGE
         log_missing_fields
-        return person_not_found_response
+        return person_not_found_response_hash
       end
 
       if eligible?
@@ -259,7 +259,7 @@ module VeteranStatusCard
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: NOT_CONFIRMED_TEXT,
                           not_confirmed_reason: nil,
-                          confirmation_status: @confirmation_status,
+                          confirmation_status: confirmation_status_upcase,
                           service_summary_code: nil
                         })
     end
@@ -604,6 +604,27 @@ module VeteranStatusCard
     #
     def vet_verification_service
       @vet_verification_service ||= VeteranVerification::Service.new
+    end
+
+    ##
+    # Returns a response for early errors finding no ICN or EDIPI
+    #
+    # @return [Hash] formatted error response with :type, :veteran_status, :service_summary_code,
+    #    :not_confirmed_reason, :confirmation_status
+    #
+    def person_not_found_response_hash
+      {
+        type: VETERAN_STATUS_ALERT,
+        attributes: {
+          header: person_not_found_response[:title],
+          body: person_not_found_response[:message],
+          alert_type: person_not_found_response[:status],
+          veteran_status: NOT_CONFIRMED_TEXT,
+          not_confirmed_reason: VET_STATUS_PERSON_NOT_FOUND_TEXT,
+          confirmation_status: confirmation_status_upcase,
+          service_summary_code: nil
+        }
+      }
     end
 
     ##

@@ -495,8 +495,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           allow(Rails.logger).to receive(:info)
         end
 
-        it 'returns Mobile person_not_found_response directly' do
-          expect(subject.status_card).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE)
+        it 'returns a veteran_status_alert with Mobile person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('NO_ICN')
         end
       end
 
