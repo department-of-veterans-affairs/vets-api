@@ -618,7 +618,6 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to have_received(:info).with(
             'Forbidden access (403)',
             hash_including(
-              user_uuid: nil,
               request_id: test_request_id,
               remote_ip: test_remote_ip,
               detail: expected_detail
@@ -627,29 +626,15 @@ RSpec.describe ApplicationController, type: :controller do
           expect(response).to have_http_status(:forbidden)
         end
 
-        context 'with a signed-in user' do
-          let(:user) { create(:user) }
+        it 'does not log user_uuid' do
+          allow(Rails.logger).to receive(:info)
 
-          before do
-            controller.instance_variable_set(:@current_user, user)
-          end
+          get :not_authorized
 
-          it 'logs the user_uuid of the current user' do
-            allow(Rails.logger).to receive(:info)
-
-            get :not_authorized
-
-            expect(Rails.logger).to have_received(:info).with(
-              'Forbidden access (403)',
-              hash_including(
-                user_uuid: user.uuid,
-                request_id: test_request_id,
-                remote_ip: test_remote_ip,
-                detail: expected_detail
-              )
-            )
-            expect(response).to have_http_status(:forbidden)
-          end
+          expect(Rails.logger).to have_received(:info).with(
+            'Forbidden access (403)',
+            hash_not_including(:user_uuid)
+          )
         end
       end
 
@@ -662,7 +647,6 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Rails.logger).to have_received(:info).with(
             'Forbidden access (403)',
             hash_including(
-              user_uuid: nil,
               request_id: test_request_id,
               remote_ip: test_remote_ip,
               detail: [{ title: 'Forbidden', detail: 'Forbidden', code: '403', status: '403' }]

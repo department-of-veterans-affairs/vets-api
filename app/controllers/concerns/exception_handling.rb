@@ -110,7 +110,6 @@ module ExceptionHandling
   def log_forbidden(va_exception)
     Rails.logger.info(
       'Forbidden access (403)',
-      user_uuid: current_user&.uuid,
       request_id: request.uuid,
       remote_ip: request.remote_ip,
       detail: va_exception.errors.map(&:to_h)
