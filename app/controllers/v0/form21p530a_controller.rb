@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'form21p530a/monitor'
+
 module V0
   class Form21p530aController < ApplicationController
     include RetriableConcern
@@ -9,25 +11,26 @@ module V0
     skip_before_action :authenticate, only: %i[create download_pdf]
     before_action :load_user, :check_feature_enabled
 
-    def monitor
-      @monitor ||= Form21p530a::Monitor.new
-    end
-
+    # rubocop:disable Metrics/MethodLength
     def create
-      claim = build_and_save_claim!
+      claim = build_claim
       monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
-      handle_successful_claim(claim)
 
-      clear_saved_form(claim.form_id)
-      render json: SavedClaimSerializer.new(claim)
-    rescue Common::Exceptions::ValidationErrors => e
-      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid) if defined?(claim)
-      handle_validation_error(e)
+      if claim.save
+        claim.process_attachments!
+
+        monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
+
+        clear_saved_form(claim.form_id)
+        render json: SavedClaimSerializer.new(claim)
+      else
+        raise Common::Exceptions::ValidationErrors, claim
+      end
     rescue => e
-      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid) if defined?(claim)
-      handle_general_error(e, claim)
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
+      raise
     ensure
-      if response.present?
+      if response.status
         monitor.track_request_code(
           response.status,
           action: 'create',
@@ -36,9 +39,12 @@ module V0
         )
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
     def download_pdf
+      pdf_start_time = Time.current
+
       # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
       raw_payload = request.raw_post
       transformed_payload = transform_country_codes(raw_payload)
@@ -50,6 +56,8 @@ module V0
 
       # Stamp signature (SignatureStamper returns original path if signature is blank)
       source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
+
+      monitor.track_pdf_generation_success(pdf_start_time)
 
       client_file_name = "21P-530a_#{SecureRandom.uuid}.pdf"
 
@@ -63,7 +71,7 @@ module V0
     rescue => e
       handle_pdf_generation_error(e)
     ensure
-      if response.present?
+      if response.status
         monitor.track_request_code(
           response.status,
           action: 'download_pdf',
@@ -78,17 +86,6 @@ module V0
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_530a_enabled, current_user)
-    end
-
-    def handle_pdf_generation_error(error)
-      Rails.logger.error('Form21p530a: Error generating PDF', error: error.message, backtrace: error.backtrace)
-      render json: {
-        errors: [{
-          title: 'PDF Generation Failed',
-          detail: 'An error occurred while generating the PDF',
-          status: '500'
-        }]
-      }, status: :internal_server_error
     end
 
     def stats_key
@@ -119,39 +116,25 @@ module V0
       raise Common::Exceptions::ValidationErrors, claim
     end
 
-    def build_and_save_claim!
-      # Body parsed by Rails,schema validated by committee before hitting here.
+    def build_claim
       payload = request.raw_post
       transformed_payload = transform_country_codes(payload)
-      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
-
-      raise Common::Exceptions::ValidationErrors, claim unless claim.save
-
-      claim
+      SavedClaim::Form21p530a.new(form: transformed_payload)
     end
 
-    def handle_successful_claim(claim)
-      claim.process_attachments!
-      monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
-      Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
-      StatsD.increment("#{stats_key}.success")
+    def monitor
+      @monitor ||= Form21p530a::Monitor.new
     end
 
-    def handle_validation_error(error)
-      StatsD.increment("#{stats_key}.failure")
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: error.message, claim_errors: error.resource&.errors&.full_messages }
-      )
-      raise
-    end
-
-    def handle_general_error(error, claim)
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
-      raise
+    def handle_pdf_generation_error(error)
+      monitor.track_pdf_generation_failure(error)
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
     end
   end
 end
