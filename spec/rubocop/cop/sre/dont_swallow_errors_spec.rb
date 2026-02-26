@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rubocop'
-require 'rubocop/rspec/support'
 require_relative '../../../../lib/rubocop/cop/sre/dont_swallow_errors'
+require_relative 'sre_cop_spec_helper'
 
-RSpec.describe RuboCop::Cop::Sre::DontSwallowErrors, :config do
+RSpec.describe RuboCop::Cop::Sre::DontSwallowErrors do
+  include SreCopSpecHelper
+
   subject(:cop) { described_class.new }
-
-  let(:config) { RuboCop::Config.new }
 
   describe 'swallowed errors' do
     it 'registers an offense for rescue returning nil' do

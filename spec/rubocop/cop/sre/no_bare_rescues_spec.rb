@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rubocop'
-require 'rubocop/rspec/support'
 require_relative '../../../../lib/rubocop/cop/sre/no_bare_rescues'
+require_relative 'sre_cop_spec_helper'
 
-RSpec.describe RuboCop::Cop::Sre::NoBareRescues, :config do
+RSpec.describe RuboCop::Cop::Sre::NoBareRescues do
+  include SreCopSpecHelper
+
   subject(:cop) { described_class.new }
-
-  let(:config) { RuboCop::Config.new }
 
   describe 'bare rescues' do
     it 'registers an offense for rescue => e (no exception class)' do

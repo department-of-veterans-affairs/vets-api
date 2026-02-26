@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rubocop'
-require 'rubocop/rspec/support'
 require_relative '../../../../lib/rubocop/cop/sre/no_manual_backtrace_join'
+require_relative 'sre_cop_spec_helper'
 
-RSpec.describe RuboCop::Cop::Sre::NoManualBacktraceJoin, :config do
+RSpec.describe RuboCop::Cop::Sre::NoManualBacktraceJoin do
+  include SreCopSpecHelper
+
   subject(:cop) { described_class.new }
-
-  let(:config) { RuboCop::Config.new }
 
   describe 'backtrace.join calls' do
     it 'registers an offense for e.backtrace.join("\n")' do

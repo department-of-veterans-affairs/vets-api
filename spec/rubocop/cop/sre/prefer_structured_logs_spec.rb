@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rubocop'
-require 'rubocop/rspec/support'
 require_relative '../../../../lib/rubocop/cop/sre/prefer_structured_logs'
+require_relative 'sre_cop_spec_helper'
 
-RSpec.describe RuboCop::Cop::Sre::PreferStructuredLogs, :config do
+RSpec.describe RuboCop::Cop::Sre::PreferStructuredLogs do
+  include SreCopSpecHelper
+
   subject(:cop) { described_class.new }
-
-  let(:config) { RuboCop::Config.new }
 
   describe 'interpolated log messages' do
     it 'registers an offense for Rails.logger.error with interpolation' do

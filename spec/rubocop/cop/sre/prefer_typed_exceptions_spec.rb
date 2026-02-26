@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rubocop'
-require 'rubocop/rspec/support'
 require_relative '../../../../lib/rubocop/cop/sre/prefer_typed_exceptions'
+require_relative 'sre_cop_spec_helper'
 
-RSpec.describe RuboCop::Cop::Sre::PreferTypedExceptions, :config do
+RSpec.describe RuboCop::Cop::Sre::PreferTypedExceptions do
+  include SreCopSpecHelper
+
   subject(:cop) { described_class.new }
-
-  let(:config) { RuboCop::Config.new }
 
   describe 'string raises' do
     it 'registers an offense for raise with a string literal' do
