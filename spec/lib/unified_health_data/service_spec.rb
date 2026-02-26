@@ -267,6 +267,86 @@ describe UnifiedHealthData::Service, type: :service do
         expect(oracle_record['source']).to eq('oracle-health')
       end
     end
+
+    context 'when VistA records have identifiers' do
+      let(:body) do
+        {
+          'vista' => {
+            'entry' => [
+              {
+                'resource' => {
+                  'id' => 'original-id-1',
+                  'resourceType' => 'AllergyIntolerance',
+                  'identifier' => [
+                    { 'use' => 'official', 'system' => 'https://va.gov/systems/200CRNR_120.8',
+                      'value' => '157916429' }
+                  ]
+                }
+              },
+              {
+                'resource' => {
+                  'id' => 'original-id-2',
+                  'resourceType' => 'DocumentReference',
+                  'identifier' => [
+                    { 'system' => 'vista-uid', 'value' => 'urn:va:document:F253:7227761:1845039' }
+                  ]
+                }
+              },
+              {
+                'resource' => {
+                  'id' => 'original-id-3',
+                  'resourceType' => 'Observation',
+                  'identifier' => [
+                    { 'system' => 'vista-uid', 'value' => 'urn:va:lab:F253:7227761:MI;6749872.83748' }
+                  ]
+                }
+              },
+              {
+                'resource' => {
+                  'id' => 'no-identifier-record',
+                  'resourceType' => 'Immunization'
+                }
+              }
+            ]
+          },
+          'oracle-health' => {
+            'entry' => [
+              { 'resource' => { 'id' => 'oracle-1', 'resourceType' => 'AllergyIntolerance' } }
+            ]
+          }
+        }
+      end
+
+      it 'remaps VistA IDs using va.gov/systems identifier' do
+        result = service.send(:fetch_combined_records, body)
+        allergy = result.find { |r| r['resource']['resourceType'] == 'AllergyIntolerance' && r['source'] == 'vista' }
+        expect(allergy['resource']['id']).to eq('157916429')
+      end
+
+      it 'remaps VistA IDs using vista-uid with urn:va: prefix' do
+        result = service.send(:fetch_combined_records, body)
+        note = result.find { |r| r['resource']['resourceType'] == 'DocumentReference' }
+        expect(note['resource']['id']).to eq('F253-7227761-1845039')
+      end
+
+      it 'remaps lab IDs using vista-uid with urn:va: prefix' do
+        result = service.send(:fetch_combined_records, body)
+        lab = result.find { |r| r['resource']['resourceType'] == 'Observation' }
+        expect(lab['resource']['id']).to eq('F253-7227761-MI;6749872.83748')
+      end
+
+      it 'preserves original ID when no matching identifier exists' do
+        result = service.send(:fetch_combined_records, body)
+        immunization = result.find { |r| r['resource']['resourceType'] == 'Immunization' }
+        expect(immunization['resource']['id']).to eq('no-identifier-record')
+      end
+
+      it 'does not remap Oracle Health record IDs' do
+        result = service.send(:fetch_combined_records, body)
+        oracle = result.find { |r| r['source'] == 'oracle-health' }
+        expect(oracle['resource']['id']).to eq('oracle-1')
+      end
+    end
   end
 
   # Allergies
@@ -2412,7 +2492,8 @@ describe UnifiedHealthData::Service, type: :service do
         'date' => be_a(String).or(be_nil),
         'provider' => be_a(String).or(be_nil),
         'facility' => be_a(String).or(be_nil),
-        'comments' => be_an(Array).or(be_nil)
+        'comments' => be_an(Array).or(be_nil),
+        'source' => be_a(String)
       }
     end
 
@@ -2454,15 +2535,17 @@ describe UnifiedHealthData::Service, type: :service do
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
       expect(conditions).to all(have_attributes(condition_attributes))
 
-      vista_conditions = conditions.select { |c| c.id.include?('-') }
-      oh_conditions = conditions.reject { |c| c.id.include?('-') }
+      # Distinguish VistA and Oracle Health conditions by source attribute
+      vista_conditions = conditions.select { |c| c.source == 'vista' }
+      oh_conditions = conditions.select { |c| c.source == 'oracle-health' }
       expect(vista_conditions).not_to be_empty
       expect(oh_conditions).not_to be_empty
 
-      depression_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      depression_condition = conditions.find { |c| c.id == '842716' }
       covid_condition = conditions.find { |c| c.id == 'p1533314061' }
 
       expect(depression_condition).to have_attributes(
+        id: '842716',
         name: 'Major depressive disorder, recurrent, mild',
         provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB'
@@ -2510,7 +2593,7 @@ describe UnifiedHealthData::Service, type: :service do
       conditions = service.get_conditions
       expect(conditions.size).to eq(16)
       expect(conditions).to all(be_a(UnifiedHealthData::Condition))
-      first_condition = conditions.find { |c| c.id == '2afda724-55ca-4a78-b815-3e6d9c35cd15' }
+      first_condition = conditions.find { |c| c.id == '842716' }
       expect(first_condition.name).to eq('Major depressive disorder, recurrent, mild')
     end
 
@@ -2543,7 +2626,7 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     describe '#get_single_condition' do
-      let(:condition_id) { '6f5683ba-2ae8-4d8d-85ff-24babcfbabde' }
+      let(:condition_id) { '458632' }
 
       it 'returns a single condition when found' do
         condition = service.get_single_condition(condition_id)
