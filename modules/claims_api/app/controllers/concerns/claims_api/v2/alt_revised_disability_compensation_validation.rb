@@ -552,7 +552,10 @@ module ClaimsApi
       end
 
       def alt_rev_validate_treatment_dates(treatments)
-        first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
+        service_information = form_attributes['serviceInformation']
+        return unless service_periods_present?(service_information)
+
+        first_service_period = service_information['servicePeriods'].min_by do |per|
           per['activeDutyBeginDate']
         end
 
@@ -580,12 +583,14 @@ module ClaimsApi
         return if service_information.nil? || service_information.blank?
 
         alt_rev_validate_service_after_13th_birthday!
-        alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        alt_rev_validate_service_periods(service_information)
-        alt_rev_validate_service_branch_names(service_information)
+        if service_periods_present?(service_information)
+          alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
+          alt_rev_validate_service_periods(service_information)
+          alt_rev_validate_service_branch_names(service_information)
+          alt_rev_validate_form_526_location_codes(service_information)
+        end
         alt_rev_validate_confinements(service_information)
         alt_rev_validate_reserves_required_values(service_information)
-        alt_rev_validate_form_526_location_codes(service_information)
       end
 
       def alt_rev_validate_service_after_13th_birthday!
@@ -610,38 +615,61 @@ module ClaimsApi
       end
 
       def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
-        unless service_information['servicePeriods'].nil?
-          max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
-        end
-        max_active_duty_end_date = max_period['activeDutyEndDate']
+        ant_sep_date = service_information&.dig('federalActivation', 'anticipatedSeparationDate')
+        return unless service_periods_present?(service_information)
 
+        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        max_active_duty_end_date = max_period['activeDutyEndDate']
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
 
-        return if max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
 
-        if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
-          max_period['activeDutyEndDate'], '%Y-%m-%d'
-        ) > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
-           180.days) || (Date.strptime(ant_sep_date,
-                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
+        beyond_180_days = duty_end_date_check(max_period) || anticipated_separation_date_check(ant_sep_date)
 
-          collect_error_messages(
-            detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
-          )
+        return if !beyond_180_days || eligible_for_future_end_date?(service_information)
+
+        collect_error_messages(
+          detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
+        )
+      end
+
+      def duty_end_date_check(max_period)
+        Date.strptime(max_period['activeDutyEndDate'],
+                      '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
+      end
+
+      def anticipated_separation_date_check(ant_sep_date)
+        Date.strptime(ant_sep_date, '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
+      end
+
+      def eligible_for_future_end_date?(service_information)
+        reserves_national_guard_service = service_information['reservesNationalGuardService']
+        reserves_national_guard_service.present? && past_service_period?(service_information['servicePeriods'])
+      end
+
+      def past_service_period?(service_periods)
+        service_periods.any? do |sp|
+          end_date = sp['activeDutyEndDate']
+          next false if end_date.blank?
+
+          Date.parse(end_date) <= Time.zone.today.end_of_day
         end
       end
 
       def alt_rev_validate_service_periods(service_information)
+        return unless service_periods_present?(service_information)
+
+        validate_service_periods_quantity!(service_information['servicePeriods'])
+
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
             next unless date_is_valid?(sp['activeDutyBeginDate'],
-                                       'serviceInformation/servicePeriods/activeDutyBeginDate', true)
+                                       "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate", true)
 
             if sp['activeDutyEndDate']
               next unless date_is_valid?(sp['activeDutyEndDate'],
-                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
+                                         "serviceInformation/servicePeriods/#{idx}/activeDutyEndDate", true)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
@@ -650,6 +678,16 @@ module ClaimsApi
               end
             end
           end
+        end
+      end
+
+      def validate_service_periods_quantity!(service_periods)
+        sp_size = service_periods.size
+        if sp_size > 100
+          collect_error_messages(
+            source: '/serviceInformation/servicePeriods',
+            detail: "Number of service periods #{sp_size} must be less than or equal to 100"
+          )
         end
       end
 
@@ -695,8 +733,10 @@ module ClaimsApi
 
       def alt_rev_validate_confinements(service_information) # rubocop:disable Metrics/MethodLength
         confinements = service_information&.dig('confinements')
-
         return if confinements.blank?
+
+        service_periods = service_information&.dig('servicePeriods')
+        return unless service_periods_present?(service_information)
 
         confinements.each_with_index do |confinement, idx|
           approximate_begin_date = confinement&.dig('approximateBeginDate')
@@ -717,7 +757,6 @@ module ClaimsApi
                                      "#{form_object_desc}/approximateBeginDate") &&
                       date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
 
-          service_periods = service_information&.dig('servicePeriods')
           earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
@@ -852,6 +891,7 @@ module ClaimsApi
       def activation_date_not_after_duty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']
         service_periods = service_information&.dig('servicePeriods')
+        return unless service_periods_present?(service_information)
 
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
@@ -902,6 +942,8 @@ module ClaimsApi
       def alt_rev_validate_claim_process_type_bdd
         claim_date = Date.parse(CLAIM_DATE.to_s)
         service_information = form_attributes['serviceInformation']
+        return unless service_periods_present?(service_information)
+
         active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
@@ -1003,6 +1045,10 @@ module ClaimsApi
         collect_date_error(date, property)
 
         false
+      end
+
+      def service_periods_present?(service_information)
+        service_information&.dig('servicePeriods').present?
       end
 
       def collect_date_error(date, property = '/')
