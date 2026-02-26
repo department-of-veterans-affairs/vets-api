@@ -79,13 +79,10 @@ describe Shrine::Plugins::ValidateVirusFree do
     end
 
     describe 'virus detection logging (AU-2)' do
-      before do
-        allow(Common::VirusScan).to receive(:scan).and_return(false)
-      end
-
       let(:test_remote_ip) { '10.0.0.42' }
 
       before do
+        allow(Common::VirusScan).to receive(:scan).and_return(false)
         RequestStore.store['additional_request_attributes'] = { 'remote_ip' => test_remote_ip }
       end
 
@@ -129,7 +126,7 @@ describe Shrine::Plugins::ValidateVirusFree do
       end
 
       it 'includes the upload_context from the record class name' do
-        record_double = instance_double('FormSubmissionAttempt', class: FormSubmissionAttempt)
+        record_double = instance_double(FormSubmissionAttempt, class: FormSubmissionAttempt)
         allow(instance).to receive(:record).and_return(record_double)
 
         allow(Rails.logger).to receive(:warn)
