@@ -1217,7 +1217,13 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"(\w+)"'
-
+    - :method: :post
+      :path: "/suite/webapi/update-ch31-milestone-status"
+      :file_path: "vre/ch31_case_milestones"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+        
 # SOB/DGI
 - :name: "SOB"
   :base_uri: <%= "#{URI(Settings.dgi.sob.claimants.url).host}:#{URI(Settings.dgi.sob.claimants.url).port}" %>
