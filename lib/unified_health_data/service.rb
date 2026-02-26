@@ -16,6 +16,7 @@ require_relative 'logging'
 require_relative 'client'
 require_relative 'source_constants'
 require_relative 'concerns/clinical_notes_logging'
+require_relative 'concerns/labs_and_tests_logging'
 require_relative 'concerns/facility_cache_warming'
 
 module UnifiedHealthData
@@ -23,6 +24,7 @@ module UnifiedHealthData
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
     include Concerns::ClinicalNotesLogging
+    include Concerns::LabsAndTestsLogging
     include Concerns::FacilityCacheWarming
 
     def initialize(user)
@@ -44,8 +46,8 @@ module UnifiedHealthData
 
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
 
-        # Log test code distribution
-        logger.log_test_code_distribution(parsed_records)
+        log_test_code_distribution(parsed_records)
+        log_labs_metrics(combined_records, parsed_records, start_date, end_date)
 
         { records: parsed_records, warnings: }
       end

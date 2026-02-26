@@ -1,0 +1,141 @@
+# frozen_string_literal: true
+
+require 'medical_records/medical_records_log'
+
+module UnifiedHealthData
+  module Concerns
+    # Logging and metrics for labs and tests. Follows ClinicalNotesLogging pattern.
+    # See MedicalRecords::MedicalRecordsLog "Adding a New Domain" guide.
+    #
+    # Stub Flipper in tests (never use Flipper.enable/disable):
+    #   allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_labs_and_tests_diagnostic, user).and_return(true)
+    module LabsAndTestsLogging
+      extend ActiveSupport::Concern
+
+      LABS = MedicalRecords::MedicalRecordsLog::LABS_AND_TESTS
+      HIGH_FILTER_RATE_THRESHOLD = 0.5
+      MISSING_DATE_THRESHOLD = 3
+      EMPTY_OBSERVATIONS_THRESHOLD = 3
+
+      private
+
+      def mr_log
+        @mr_log ||= MedicalRecords::MedicalRecordsLog.new(user: @user)
+      end
+
+      def labs_logging_enabled?
+        mr_log.diagnostic_enabled?(LABS)
+      end
+
+      def labs_statsd_prefix
+        "#{self.class::STATSD_KEY_PREFIX}.labs_and_tests"
+      end
+
+      # Logs test code and display name distribution (migrated from Logging class).
+      def log_test_code_distribution(records)
+        return unless labs_logging_enabled?
+
+        code_counts, name_counts, short_name_count = count_test_codes(records)
+        return if code_counts.empty? && name_counts.empty?
+
+        emit_distribution_diagnostic(code_counts, name_counts, records.size)
+        warn_short_test_names(short_name_count, records.size)
+      end
+
+      def count_test_codes(records)
+        code_counts = Hash.new(0)
+        name_counts = Hash.new(0)
+        short_name_count = 0
+        records.each do |record|
+          code_counts[record.test_code] += 1 if record.test_code.present?
+          if record.display.present?
+            name_counts[record.display] += 1
+            short_name_count += 1 if record.display.length <= 3
+          end
+        end
+        [code_counts, name_counts, short_name_count]
+      end
+
+      def emit_distribution_diagnostic(code_counts, name_counts, total_records)
+        sorted_codes = code_counts.sort_by { |_, c| -c }
+        sorted_names = name_counts.sort_by { |_, c| -c }
+        mr_log.diagnostic(
+          resource: LABS, action: 'test_code_distribution',
+          test_code_distribution: sorted_codes.map { |code, c| "#{code}:#{c}" }.join(','),
+          test_name_distribution: sorted_names.map { |name, c| "#{name}:#{c}" }.join(','),
+          total_codes: sorted_codes.size, total_names: sorted_names.size, total_records:
+        )
+        StatsD.gauge("#{labs_statsd_prefix}.diagnostic.test_code_count", sorted_codes.size)
+      end
+
+      def log_labs_response_count(raw_count, parsed_count)
+        mr_log.diagnostic(
+          resource: LABS, action: 'filter',
+          total_entries: raw_count, returned: parsed_count, filtered: raw_count - parsed_count
+        )
+      end
+
+      def log_labs_index_metrics(parsed_labs, start_date, end_date)
+        total = parsed_labs.size
+        vista_count = parsed_labs.count { |l| l.source == SourceConstants::VISTA }
+        oh_count = parsed_labs.count { |l| l.source == SourceConstants::ORACLE_HEALTH }
+        total_obs = parsed_labs.sum { |l| l.observations.size }
+        mr_log.diagnostic(
+          resource: LABS, action: 'index', total_labs: total, vista_count:,
+          oracle_health_count: oh_count, total_observations: total_obs,
+          avg_observations_per_report: total.positive? ? (total_obs.to_f / total).round(1) : 0,
+          start_date:, end_date:
+        )
+        StatsD.gauge("#{labs_statsd_prefix}.index.total", total)
+        StatsD.gauge("#{labs_statsd_prefix}.index.vista", vista_count)
+        StatsD.gauge("#{labs_statsd_prefix}.index.oracle_health", oh_count)
+      end
+
+      # Shared helper for always-on anomaly warnings: logs + increments StatsD.
+      def emit_anomaly(action:, anomaly:, **metadata)
+        mr_log.warn(resource: LABS, action:, anomaly:, **metadata)
+        StatsD.increment("#{labs_statsd_prefix}.anomaly.#{anomaly}")
+      end
+
+      # Warns when >50% of DiagnosticReports are dropped during parsing.
+      def warn_labs_high_filter_rate(raw_count, parsed_count)
+        return if raw_count.zero?
+
+        filter_rate = 1.0 - (parsed_count.to_f / raw_count)
+        return unless filter_rate > HIGH_FILTER_RATE_THRESHOLD
+
+        emit_anomaly(action: 'index', anomaly: 'high_filter_rate',
+                     filter_rate: (filter_rate * 100).round(1), raw_count:, parsed_count:)
+      end
+
+      def warn_missing_dates(missing_date_count, total_count)
+        return unless missing_date_count >= MISSING_DATE_THRESHOLD
+
+        emit_anomaly(action: 'parse', anomaly: 'elevated_missing_dates',
+                     missing_count: missing_date_count, total_count:)
+      end
+
+      def warn_empty_observations(empty_count, total_count)
+        return unless empty_count >= EMPTY_OBSERVATIONS_THRESHOLD
+
+        emit_anomaly(action: 'parse', anomaly: 'elevated_empty_observations',
+                     empty_count:, total_count:)
+      end
+
+      # Replaces PersonalInformationLog approach — no PII stored.
+      def warn_short_test_names(short_name_count, total_count)
+        return if short_name_count.zero?
+
+        emit_anomaly(action: 'parse', anomaly: 'short_test_names',
+                     short_name_count:, total_count:)
+      end
+
+      # Orchestrates index-level metrics and proactive warnings for get_labs.
+      def log_labs_metrics(combined_records, parsed_labs, start_date, end_date)
+        labs_logging_enabled? && log_labs_response_count(combined_records.size, parsed_labs.size)
+        labs_logging_enabled? && log_labs_index_metrics(parsed_labs, start_date, end_date)
+        warn_labs_high_filter_rate(combined_records.size, parsed_labs.size)
+      end
+    end
+  end
+end

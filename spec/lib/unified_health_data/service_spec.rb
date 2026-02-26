@@ -188,12 +188,18 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     it 'logs test code distribution from parsed records' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_medical_records_labs_and_tests_diagnostic, user)
+        .and_return(true)
+
       service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
 
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
-          message: 'UHD test code and name distribution',
-          service: 'unified_health_data'
+          service: 'medical_records',
+          resource: 'labs_and_tests',
+          action: 'test_code_distribution',
+          log_level_context: 'diagnostic'
         )
       )
     end
