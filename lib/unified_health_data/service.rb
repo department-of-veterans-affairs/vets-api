@@ -415,9 +415,16 @@ module UnifiedHealthData
     # 2. Identifier with system starting with 'https://va.gov/systems/' (e.g., Allergies)
     # 3. Fallback: keep the original resource ID
     #
-    # If the matched identifier value starts with 'urn:va:', extract the last 3 colon-separated
-    # segments and join them with '-' (e.g., "urn:va:document:F253:7227761:1845039" -> "F253-7227761-1845039").
+    # If the matched identifier value starts with 'urn:va:', drop the first 3 colon-separated
+    # segments (urn:va:<type>) and join the remaining segments with '-'
+    # (e.g., "urn:va:document:F253:7227761:1845039" -> "F253-7227761-1845039").
     # Otherwise, use the value directly.
+    #
+    # After extraction, semicolons and periods are replaced with dashes to produce
+    # URL-safe IDs. Periods would cause Rails to interpret them as format extensions
+    # (e.g., ".83748" → format "83748"), and semicolons are URL parameter delimiters
+    # in some specs. For example:
+    #   "urn:va:lab:F253:7227761:MI;6749872.83748" -> "F253-7227761-MI-6749872-83748"
     def remap_vista_id(record)
       identifiers = record.dig('resource', 'identifier')
       return record if identifiers.blank?
@@ -429,11 +436,13 @@ module UnifiedHealthData
 
       value = vista_identifier['value']
 
-      record['resource']['id'] = if value.start_with?('urn:va:')
-                                   value.split(':')[-3..].join('-')
-                                 else
-                                   value
-                                 end
+      remapped_id = if value.start_with?('urn:va:')
+                      value.split(':')[3..].join('-')
+                    else
+                      value
+                    end
+
+      record['resource']['id'] = remapped_id.tr('.;', '-')
 
       record
     end
