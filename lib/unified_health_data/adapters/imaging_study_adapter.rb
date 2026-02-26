@@ -10,16 +10,16 @@ module UnifiedHealthData
 
       # Parses imaging study records from FHIR ImagingStudy resources
       #
-      # @param body [Hash] The raw API response body containing entry array
+      # @param records [Array<Hash>] Array of FHIR Bundle entry records
       # @return [Array<UnifiedHealthData::ImagingStudy>] Array of parsed imaging study objects
-      def parse(body)
-        return [] if body.blank? || body['entry'].blank?
+      def parse(records)
+        return [] if records.blank?
 
-        records = body['entry'].select do |entry|
+        filtered = records.select do |entry|
           entry.dig('resource', 'resourceType') == 'ImagingStudy'
         end
 
-        parsed = records.map { |record| parse_single_study(record) }
+        parsed = filtered.map { |record| parse_single_study(record) }
         parsed.compact
       end
 
@@ -46,8 +46,8 @@ module UnifiedHealthData
           description: resource['description'],
           notes: extract_notes(resource),
           patient_id: extract_patient_id(resource),
-          series_count: series_data.size,
-          image_count: count_images(series_data),
+          series_count: resource['numberOfSeries'] || series_data.size,
+          image_count: resource['numberOfInstances'] || count_images(series_data),
           series: parse_series(series_data),
           dicom_zip_url: extract_presigned_url(resource)
         )

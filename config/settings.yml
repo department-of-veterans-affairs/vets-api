@@ -1294,6 +1294,8 @@ res:
   base_url: <%= ENV['res__base_url'] %>
   ch_31_case_details:
     mock: <%= ENV['res__ch_31_case_details__mock'] %>
+  ch_31_case_milestones:
+    mock: <%= ENV['res__ch_31_case_milestones__mock'] %>
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
@@ -1636,6 +1638,15 @@ vanotify:
           template_id: ~
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
+          template_id: ~
+    "22_0989":
+      api_key: ~
+      email:
+        error:
+          flipper_id: ~
+          template_id: ~
+        received:
+          flipper_id: ~
           template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
