@@ -32,40 +32,28 @@ severity: HIGH
 
   <rules>
     <rule enforcement="must">
-      Error codes must be unique across the system — no two distinct
-      error conditions may share the same code value in
+      Assign a unique error code to each distinct error condition
+      — no two different errors may share the same code value in
       exceptions.en.yml.
     </rule>
     <rule enforcement="must">
-      Error codes must be stable — once assigned, a code value must
-      never change, be reused for a different error, or be retired.
+      Keep error codes stable — once assigned, a code value must
+      never change, be reused for a different error, or be
+      retired.
     </rule>
-    <rule enforcement="must_not">
-      Never use an HTTP status code as the error code value — codes
-      must be independent of transport status so they remain stable
-      when status changes.
+    <rule enforcement="must">
+      Use error codes that are independent of HTTP status codes so
+      they remain stable when the transport status changes.
     </rule>
     <rule enforcement="should">
       Use namespaced string codes for domain specificity (e.g.,
-      `PAWS_DUPLICATE_APPLICATION`, `CLAIMS_MISSING_SSN`) to prevent
-      cross-team collisions.
+      `PAWS_DUPLICATE_APPLICATION`, `CLAIMS_MISSING_SSN`) to
+      prevent cross-team collisions.
     </rule>
     <rule enforcement="should">
       Document all error codes in the central registry
-      (config/locales/exceptions.en.yml) with descriptive titles and
-      details.
-    </rule>
-    <rule enforcement="verify">
-      Grep for duplicate codes in exceptions.en.yml (no matches)
-    </rule>
-    <rule enforcement="verify">
-      Client can handle by code: `case 'PAWS_DUPLICATE'`
-    </rule>
-    <rule enforcement="verify">
-      APM can track specific error trends (not ambiguous aggregates)
-    </rule>
-    <rule enforcement="verify">
-      Changing HTTP status doesn't change error code
+      (config/locales/exceptions.en.yml) with descriptive titles
+      and details.
     </rule>
   </rules>
 

@@ -35,45 +35,23 @@ severity: HIGH
 
   <rules>
     <rule enforcement="must">
-      Use Rails Semantic Logger and pass the exception object via
-      the `exception:` key — this records the message and backtrace
-      in one event.
+      Pass the exception object via the `exception:` key to Rails
+      Semantic Logger — this records the class, message, backtrace,
+      and cause chain in one event.
     </rule>
     <rule enforcement="must">
-      Log structured fields alongside the exception: event, code,
+      Pass dynamic values as keyword arguments (structured fields)
+      — string interpolation prevents DataDog from grouping events
+      and causes cardinality explosion.
+    </rule>
+    <rule enforcement="must">
+      Log structured fields alongside exceptions: event, code,
       status, service, operation, request_id/correlation_id,
       error_class, duration_ms, safe domain IDs.
     </rule>
-    <rule enforcement="must_not">
-      Never use string interpolation in log messages — pass dynamic
-      values as keyword arguments for DataDog queryability.
-    </rule>
-    <rule enforcement="must_not">
-      Never emit a second log entry with the backtrace — Semantic
-      Logger already captures it via `exception: e`.
-    </rule>
-    <rule enforcement="must_not">
-      Never log request bodies or secrets — no free-text
-      concatenation of params.
-    </rule>
-    <rule enforcement="should">
-      Keep metrics tags low-cardinality (e.g., `form_version`,
-      `stage`) — avoid exploding labels (e.g., per-`user_id`).
-    </rule>
-    <rule enforcement="verify">
-      DataDog query: `@operation:create_claim` finds all matching
-      logs
-    </rule>
-    <rule enforcement="verify">
-      Exception backtrace preserved automatically via `exception:`
-      key
-    </rule>
-    <rule enforcement="verify">
-      Single log pattern (not 10,000 unique strings from
-      interpolation)
-    </rule>
-    <rule enforcement="verify">
-      Metrics tags stay below cardinality limits
+    <rule enforcement="must">
+      Verify log fields contain no PII, PHI, or secrets — no
+      free-text concatenation of params or request bodies.
     </rule>
   </rules>
 

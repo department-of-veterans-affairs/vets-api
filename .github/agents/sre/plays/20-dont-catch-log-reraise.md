@@ -36,33 +36,13 @@ severity: HIGH
 
   <rules>
     <rule enforcement="must">
-      Catch only when adding meaningful context or converting to a
-      typed exception.
-    </rule>
-    <rule enforcement="must_not">
-      Never log and re-raise the same exception — let APM record it
-      once.
-    </rule>
-    <rule enforcement="must_not">
-      Never manually log backtraces — APM captures the full
-      backtrace automatically.
+      Catch exceptions only when adding meaningful context or
+      converting to a typed exception — if you are just logging
+      and re-raising, APM already captures everything.
     </rule>
     <rule enforcement="should">
-      Emit metrics (StatsD counters) for retry attempts, not logs.
-    </rule>
-    <rule enforcement="should">
-      When adding context, wrap with `cause:` and re-raise a new
-      typed exception.
-    </rule>
-    <rule enforcement="verify">
-      One exception → One signal in APM (not two)
-    </rule>
-    <rule enforcement="verify">
-      If catching, you're adding meaningful context (not just
-      logging)
-    </rule>
-    <rule enforcement="verify">
-      No manual backtrace logging (APM captures automatically)
+      Emit metrics (StatsD counters) for retry attempts instead of
+      log lines.
     </rule>
   </rules>
 

@@ -36,35 +36,9 @@ severity: HIGH
       Validate all inputs at the controller boundary before any
       state change (file uploads, DB writes, API calls).
     </rule>
-    <rule enforcement="must">
-      Use typed exceptions for validation failures
-      (ParameterMissing, UnprocessableEntity) — never untyped string
-      raises.
-    </rule>
-    <rule enforcement="must_not">
-      Never defer parameter validation to helper methods called
-      after state mutation has begun.
-    </rule>
-    <rule enforcement="must_not">
-      Never mutate state (upload files, write to database, call
-      APIs) before validation completes.
-    </rule>
     <rule enforcement="should">
       Use Rails strong parameters or before_action callbacks for
       boundary validation.
-    </rule>
-    <rule enforcement="verify">
-      All validation at controller boundary (no late validation in
-      helpers)
-    </rule>
-    <rule enforcement="verify">
-      No state changes before validation completes
-    </rule>
-    <rule enforcement="verify">
-      Validation errors return 4xx (not 500)
-    </rule>
-    <rule enforcement="verify">
-      Tests verify validation happens before processing
     </rule>
   </rules>
 

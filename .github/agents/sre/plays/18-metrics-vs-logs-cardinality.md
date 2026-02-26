@@ -34,52 +34,20 @@ severity: HIGH
   <rules>
     <rule enforcement="must">
       Use metrics (StatsD) for low-cardinality aggregations only —
-      tags must have fewer than 100 unique values.
+      each tag must have fewer than 100 unique values.
     </rule>
     <rule enforcement="must">
       Use logs for high-cardinality details — claim_id, user_id,
       request_id, file_path belong in structured log fields, not
       metric tags.
     </rule>
-    <rule enforcement="must_not">
-      Never tag metrics with claim_id, user_id, request_id,
-      application_id, or any unique identifier.
-    </rule>
-    <rule enforcement="must_not">
-      Never tag metrics with serialized hashes, JSON strings, or
-      params objects — these have infinite cardinality.
-    </rule>
     <rule enforcement="should">
-      Calculate total cardinality before tagging: card_1 x card_2 x
-      ... x card_n should be under 10,000 time series.
+      Calculate total cardinality before adding tags: card_1 x
+      card_2 x ... x card_n should stay under 10,000 time series.
     </rule>
     <rule enforcement="should">
       When a tag value set is unbounded, whitelist known values and
       bucket unknowns as 'other'.
-    </rule>
-    <rule enforcement="verify">
-      Review all `StatsD.increment` / `StatsD.histogram` calls: No
-      tags with `claim_id`, `user_id`, `request_id`, or UUIDs
-    </rule>
-    <rule enforcement="verify">
-      Calculate cardinality for each metric: Total < 10,000 time
-      series
-    </rule>
-    <rule enforcement="verify">
-      High-cardinality fields exist in logs, not metrics
-    </rule>
-    <rule enforcement="verify">
-      Dashboards don't time out (sign of excessive cardinality)
-    </rule>
-    <rule enforcement="verify">
-      Can search logs by high-cardinality fields (claim_id, user_id)
-    </rule>
-    <rule enforcement="verify">
-      Can aggregate metrics by low-cardinality tags (status,
-      form_type)
-    </rule>
-    <rule enforcement="verify">
-      No serialized objects (params hash, JSON) in metric tags
     </rule>
   </rules>
 

@@ -35,48 +35,26 @@ severity: HIGH
 
   <rules>
     <rule enforcement="must">
-      Only retry transient failures: 429, 503, 504,
-      connection/timeout errors.
-    </rule>
-    <rule enforcement="must_not">
-      Never retry client errors (4xx except 429) or server errors
-      that indicate bugs (500 with code-level errors).
+      Only retry transient failures: 429, 503, 504, and
+      connection/timeout errors — client errors and code bugs will
+      not resolve on retry.
     </rule>
     <rule enforcement="must">
-      Respect Retry-After headers from upstream — if the upstream
-      sends it, honor it instead of guessing.
+      Respect Retry-After headers from upstream — honor the timing
+      instead of guessing.
     </rule>
     <rule enforcement="must">
       Fail fast when circuit breaker is open or retry budget is
       exhausted — return immediately.
     </rule>
-    <rule enforcement="must_not">
-      Never log ERROR inside retry loops — log WARN for retry
-      attempts, ERROR only when retries exhaust.
+    <rule enforcement="must">
+      Log WARN for retry attempts and ERROR only when retries
+      exhaust — logging ERROR on every attempt creates log spam
+      and alert fatigue.
     </rule>
     <rule enforcement="should">
       Emit metrics for retry attempts separately from final
       failures.
-    </rule>
-    <rule enforcement="must_not">
-      Never use bare rescue in retry logic — catch specific
-      transient exception classes only.
-    </rule>
-    <rule enforcement="must">
-      Re-raise the exception when retries exhaust — never silently
-      return nil.
-    </rule>
-    <rule enforcement="verify">
-      Single timeout -> Single ERROR log (not 16 identical entries)
-    </rule>
-    <rule enforcement="verify">
-      Metrics track retry attempts vs final failures separately
-    </rule>
-    <rule enforcement="verify">
-      Circuit breaker prevents retry storms when upstream degraded
-    </rule>
-    <rule enforcement="verify">
-      Failed jobs raise exception (don't silently return nil)
     </rule>
   </rules>
 

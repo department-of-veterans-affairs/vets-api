@@ -35,35 +35,19 @@ severity: HIGH
   </related_plays>
 
   <rules>
-    <rule enforcement="must_not">
-      Never return nil or false from a rescue block to hide a
-      failure — upstream timeouts should raise, not look like "no
-      results."
-    </rule>
-    <rule enforcement="must_not">
-      Never let retry loops exhaust silently — emit a metric on each
-      attempt, log once when exhausted, then raise.
+    <rule enforcement="must">
+      Raise a typed exception from `Common::Exceptions` when a
+      service call fails — upstream timeouts should raise, not
+      return nil or false.
     </rule>
     <rule enforcement="must">
-      Always specify exception classes in rescue blocks (see Play:
-      Never Use Broad Rescues).
+      Emit a metric on each retry attempt, log once when retries
+      exhaust, then raise — silent exhaustion causes data loss.
     </rule>
-    <rule enforcement="must">
-      Always raise a typed exception when a service call fails — use
-      Common::Exceptions classes that map to HTTP status codes.
-    </rule>
-    <rule enforcement="should_not">
-      Don't catch an exception unless you can handle it meaningfully
-      — if you can't, let it propagate.
-    </rule>
-    <rule enforcement="verify">
-      APM sees exceptions (not swallowed by rescue -> nil)
-    </rule>
-    <rule enforcement="verify">
-      Timeouts raise ServiceUnavailable (don't return nil)
-    </rule>
-    <rule enforcement="verify">
-      Failed operations never return nil/false (they raise)
+    <rule enforcement="should">
+      Let exceptions propagate unless you can handle them
+      meaningfully — catching without adding value just hides
+      failures from APM.
     </rule>
   </rules>
 
