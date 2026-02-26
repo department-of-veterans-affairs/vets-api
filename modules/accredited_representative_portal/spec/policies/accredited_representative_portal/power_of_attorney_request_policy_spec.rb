@@ -7,10 +7,14 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
     subject(:policy) { described_class.new(user, power_of_attorney_request) }
 
     let(:user) { create(:representative_user) }
-    let(:power_of_attorney_request) { create(:power_of_attorney_request, poa_code: 'POA123') }
+    let(:power_of_attorney_request) { create(:power_of_attorney_request, poa_code: '123') }
     let(:power_of_attorney_holders) { [] }
 
     before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:accredited_representative_portal_individual_accept, user)
+        .and_return(false)
+
       allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
         receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
       )
@@ -27,7 +31,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
+              type: 'veteran_service_organization', poa_code: '123',
               name: 'Org Name', can_accept_digital_poa_requests: false
             )
           ]
@@ -42,7 +46,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
+              type: 'veteran_service_organization', poa_code: '123',
               name: 'Org Name', can_accept_digital_poa_requests: true
             )
           ]
@@ -54,41 +58,73 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
     end
 
-    describe '#show?' do
-      context 'when user has no matching POA holder' do
-        it 'denies access' do
-          expect(policy.show?).to be false
-        end
+    describe '#show? (individual accept flag ON)' do
+      let(:power_of_attorney_holders) do
+        [
+          PowerOfAttorneyHolder.new(
+            type: 'veteran_service_organization',
+            poa_code: '123',
+            name: 'Org Name',
+            can_accept_digital_poa_requests: true
+          )
+        ]
       end
 
-      context 'when user has a matching POA code but does not accept digital POAs' do
-        let(:power_of_attorney_holders) do
-          [
-            PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: false
-            )
-          ]
-        end
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_individual_accept, user)
+          .and_return(true)
 
-        it 'denies access' do
-          expect(policy.show?).to be false
-        end
+        allow(user).to receive(:registration_numbers).and_return(['REG1'])
       end
 
-      context 'when user has a matching POA code and accepts digital POAs' do
-        let(:power_of_attorney_holders) do
-          [
-            PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: true
-            )
-          ]
-        end
+      it 'denies when no join table record exists' do
+        relation = instance_double(ActiveRecord::Relation)
+        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
+        allow(relation).to receive_messages(where: relation, order: relation, first: nil)
 
-        it 'allows access' do
-          expect(policy.show?).to be true
-        end
+        expect(policy.show?).to be false
+      end
+
+      it "allows when join table acceptance_mode is 'any_request'" do
+        org_rep = instance_double(Veteran::Service::OrganizationRepresentative, acceptance_mode: 'any_request')
+
+        relation = instance_double(ActiveRecord::Relation)
+        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
+        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+
+        expect(policy.show?).to be true
+      end
+    end
+
+    describe '#create_decision? (individual accept flag ON)' do
+      let(:power_of_attorney_holders) do
+        [
+          PowerOfAttorneyHolder.new(
+            type: 'veteran_service_organization',
+            poa_code: '123',
+            name: 'Org Name',
+            can_accept_digital_poa_requests: true
+          )
+        ]
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:accredited_representative_portal_individual_accept, user)
+          .and_return(true)
+
+        allow(user).to receive(:registration_numbers).and_return(['REG1'])
+      end
+
+      it "allows when join table acceptance_mode is 'any_request'" do
+        org_rep = instance_double(Veteran::Service::OrganizationRepresentative, acceptance_mode: 'any_request')
+
+        relation = instance_double(ActiveRecord::Relation)
+        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
+        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+
+        expect(policy.create_decision?).to be true
       end
     end
 
@@ -97,15 +133,8 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
 
       let(:scope) { PowerOfAttorneyRequest.all }
 
-      let!(:matching_request) do
-        create(:power_of_attorney_request, poa_code: 'POA123')
-      end
-
-      let!(:non_matching_request) do
-        create(:power_of_attorney_request, poa_code: 'POA999')
-      end
-
-      let(:power_of_attorney_holders) { [] }
+      let!(:matching_request) { create(:power_of_attorney_request, poa_code: '123') }
+      let!(:non_matching_request) { create(:power_of_attorney_request, poa_code: '999') }
 
       context 'when user has no POA holders' do
         it 'returns an empty scope' do
@@ -117,7 +146,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
+              type: 'veteran_service_organization', poa_code: '123',
               name: 'Org Name', can_accept_digital_poa_requests: false
             )
           ]
@@ -132,7 +161,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
+              type: 'veteran_service_organization', poa_code: '123',
               name: 'Org Name', can_accept_digital_poa_requests: true
             )
           ]
