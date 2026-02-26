@@ -126,7 +126,8 @@ http_interactions:
                       "use": "usual",
                       "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                       "value": "ProblemTO.983"
-                      }
+                      },
+                      {"use": "usual", "system": "vista-uid", "value": "842716"}
                   ],
                   "clinicalStatus": {
                       "coding": [
@@ -243,7 +244,8 @@ http_interactions:
                       "use": "usual",
                       "system": "urn:oid:2.16.840.1.113883.4.349.4.989.983",
                       "value": "ProblemTO.983"
-                      }
+                      },
+                      {"use": "usual", "system": "vista-uid", "value": "129917"}
                   ],
                   "clinicalStatus": {
                       "coding": [
