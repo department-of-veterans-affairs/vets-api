@@ -155,11 +155,10 @@ RSpec.describe V0::Form214192Controller, type: :controller do
 
       it 'tracks request code for PDF generation errors' do
         allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
-
-        expect(monitor).to receive(:track_request_code).with(500,
-                                                             hash_including(action: 'download_pdf', user_uuid: nil))
+        expect(monitor).to receive(:track_pdf_generation_failure)
 
         post(:download_pdf, body: form_data.to_json, as: :json)
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
@@ -167,8 +166,14 @@ RSpec.describe V0::Form214192Controller, type: :controller do
   describe 'POST #download_pdf' do
     let(:pdf_content) { 'PDF_BINARY_CONTENT' }
     let(:temp_file_path) { '/tmp/test_pdf.pdf' }
+    let(:monitor) { instance_double(Form214192::Monitor) }
 
     before do
+      allow(Form214192::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive(:track_request_code)
+      allow(monitor).to receive(:track_pdf_generation_success)
+      allow(monitor).to receive(:track_pdf_generation_failure)
+
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file_path)
       allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_file_path)
       allow(File).to receive(:read).and_call_original
@@ -321,6 +326,24 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'accepts street2 values up to 30 characters for PDF generation' do
+        # Stub monitor for this test
+        monitor_stub = instance_double(Form214192::Monitor)
+        allow(Form214192::Monitor).to receive(:new).and_return(monitor_stub)
+        allow(monitor_stub).to receive(:track_request_code)
+        allow(monitor_stub).to receive(:track_pdf_generation_success)
+        allow(monitor_stub).to receive(:track_pdf_generation_failure)
+
+        # Stub PDF generation
+        temp_file = '/tmp/test.pdf'
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file)
+        allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_file)
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(temp_file).and_return('PDF_CONTENT')
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(temp_file).and_return(true)
+        allow(File).to receive(:delete).and_call_original
+        allow(File).to receive(:delete).with(temp_file)
+
         post(:download_pdf, body: payload_with_long_street2.to_json, as: :json)
 
         expect(response).to have_http_status(:ok)

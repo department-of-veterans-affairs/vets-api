@@ -49,10 +49,10 @@ module V0
 
     # rubocop:disable Metrics/MethodLength
     def download_pdf
+      pdf_start_time = Time.current
+
       # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
       parsed_form = JSON.parse(request.raw_post)
-
-      pdf_start_time = Time.current
 
       source_file_path = with_retries('Generate 21-4192 PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
@@ -61,18 +61,14 @@ module V0
       # Stamp signature (SignatureStamper returns original path if signature is blank)
       source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
 
-      # Track PDF generation duration
-      pdf_duration = Time.current - pdf_start_time
-      StatsD.measure("#{stats_key}.pdf_generation.duration", pdf_duration * 1000) # milliseconds
+      monitor.track_pdf_generation_success(pdf_start_time)
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
 
       file_contents = File.read(source_file_path)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
-      StatsD.increment("#{stats_key}.pdf_generation.success")
     rescue => e
-      StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
     ensure
       if response.status
@@ -93,7 +89,7 @@ module V0
     end
 
     def handle_pdf_generation_error(error)
-      Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)
+      monitor.track_pdf_generation_failure(error)
       render json: {
         errors: [{
           title: 'PDF Generation Failed',

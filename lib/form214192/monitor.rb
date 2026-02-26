@@ -144,6 +144,38 @@ module Form214192
       )
     end
 
+    ##
+    # Track successful PDF generation with timing
+    # Called when PDF is successfully generated and ready to send
+    #
+    # @param start_time [Time] When PDF generation started
+    def track_pdf_generation_success(start_time)
+      duration_ms = (Time.current - start_time) * 1000
+      StatsD.measure("#{CLAIM_STATS_KEY}.pdf_generation.duration", duration_ms)
+
+      submit_event(
+        :info,
+        "#{self.class.name} #{FORM_ID} PDF generation success",
+        "#{CLAIM_STATS_KEY}.pdf_generation.success",
+        duration_ms:
+      )
+    end
+
+    ##
+    # Track PDF generation failure
+    # Called when PDF generation fails at any stage
+    #
+    # @param error [Exception] The error that occurred
+    def track_pdf_generation_failure(error)
+      submit_event(
+        :error,
+        "#{self.class.name} #{FORM_ID} PDF generation failure",
+        "#{CLAIM_STATS_KEY}.pdf_generation.failure",
+        error_class: error.class.name,
+        error_message: error.message
+      )
+    end
+
     private
 
     ##
