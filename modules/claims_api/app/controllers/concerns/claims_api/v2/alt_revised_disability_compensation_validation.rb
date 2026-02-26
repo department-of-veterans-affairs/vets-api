@@ -615,7 +615,6 @@ module ClaimsApi
       end
 
       def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
         return unless service_periods_present?(service_information)
 
         service_periods = service_information['servicePeriods']
@@ -624,9 +623,9 @@ module ClaimsApi
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
 
-        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil?
 
-        beyond_180_days = duty_end_date_check(max_period) || anticipated_separation_date_check(ant_sep_date)
+        beyond_180_days = duty_end_date_check(max_period)
 
         return if !beyond_180_days || eligible_for_future_end_date?(max_period, service_periods)
 
@@ -640,15 +639,11 @@ module ClaimsApi
                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
       end
 
-      def anticipated_separation_date_check(ant_sep_date)
-        Date.strptime(ant_sep_date, '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
-      end
-
       def eligible_for_future_end_date?(max_period, service_periods)
-        most_recent_service_branch_is_reverse_or_guard?(max_period) && past_service_period?(service_periods)
+        most_recent_service_branch_is_reserves_or_guard?(max_period) && past_service_period?(service_periods)
       end
 
-      def most_recent_service_branch_is_reverse_or_guard?(max_period)
+      def most_recent_service_branch_is_reserves_or_guard?(max_period)
         most_recent_service_branch_name = max_period['serviceBranch']&.upcase
         return false if most_recent_service_branch_name.blank?
 
