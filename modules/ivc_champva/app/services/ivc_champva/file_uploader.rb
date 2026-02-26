@@ -189,7 +189,10 @@ module IvcChampva
     # [400, '... No such file or directory ...']
     # [500, 'Unexpected response from S3 upload']
     def generate_and_upload_meta_json
-      meta_file_name = "#{@metadata['uuid']}_#{@form_id}_metadata.json"
+      uuid = @metadata['uuid']
+      Rails.logger.info "IVC Champva Forms - FileUploader: Writing metadata.json file for form_uuid #{uuid}"
+
+      meta_file_name = "#{uuid}_#{@form_id}_metadata.json"
       meta_file_path = "tmp/#{meta_file_name}"
       File.write(meta_file_path, @metadata.to_json)
 
