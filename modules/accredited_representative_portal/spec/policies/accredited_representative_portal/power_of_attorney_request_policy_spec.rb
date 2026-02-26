@@ -130,14 +130,13 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       it "allows when join table acceptance_mode is 'self_only' and the user matches the representative" do
         org_rep = instance_double(
           Veteran::Service::OrganizationRepresentative,
-          acceptance_mode: 'self_only',
-          registration_number: 'REG1'
+          acceptance_mode: 'self_only'
         )
 
         relation = instance_double(ActiveRecord::Relation)
         allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
         allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
-
+        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('REG1')
         expect(policy.create_decision?).to be true
       end
 

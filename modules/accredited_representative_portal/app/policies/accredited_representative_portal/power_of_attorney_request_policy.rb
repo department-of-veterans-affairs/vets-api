@@ -51,7 +51,7 @@ module AccreditedRepresentativePortal
       when 'any_request'
         true
       when 'self_only'
-        request_reg_num = @record.accredited_individual&.representative_id
+        request_reg_num = @record.accredited_individual_registration_number
         request_reg_num.present? && @user.registration_numbers.include?(request_reg_num)
       when 'no_acceptance'
         false
