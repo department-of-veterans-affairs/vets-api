@@ -116,6 +116,81 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
           expect(response).to have_http_status(:forbidden)
         end
       end
+
+      context 'claimant identifier is specified' do
+        let!(:identifier) { AccreditedRepresentativePortal::IcnTemporaryIdentifier.create(icn: '1012832013V553700') }
+
+        before do
+          # rubocop:disable Rails/SkipsModelValidations
+          saved_claim_claimant_representative_b.update_columns(claimant_type: 'veteran')
+          # rubocop:enable Rails/SkipsModelValidations
+        end
+
+        context 'a valid claimant identifier is supplied' do
+          it 'filters results to that claimant' do
+            matching_claim = saved_claim_claimant_representative_b.saved_claim
+            matching_claim.update(
+              form: {
+                'veteran' =>
+                  { 'name' => { 'first' => 'Maurice', 'last' => 'Murphy' },
+                    'ssn' => '796265005',
+                    'dateOfBirth' => '1973-05-26',
+                    'postalCode' => '12345' }
+              }.to_json
+            )
+
+            VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+              get "/accredited_representative_portal/v0/claim_submissions?id=#{identifier.id}"
+              expect(response).to have_http_status(:ok)
+
+              expect(parsed_response).to eq(
+                {
+                  'data' => [
+                    {
+                      'submittedDate' => saved_claim_claimant_representative_b.created_at.to_date.iso8601,
+                      'firstName' => 'Maurice',
+                      'lastName' => 'Murphy',
+                      'formType' => '21-686c',
+                      'benefitType' => nil,
+                      'packet' => false,
+                      'confirmationNumber' =>
+                        saved_claim_claimant_representative_b.saved_claim
+                          .latest_submission_attempt.benefits_intake_uuid,
+                      'vbmsStatus' => 'awaiting_receipt',
+                      'vbmsReceivedDate' => nil,
+                      'id' => saved_claim_claimant_representative_b.id
+                    }
+                  ],
+                  'meta' => {
+                    'page' => {
+                      'number' => 1,
+                      'size' => 10,
+                      'total' => 1,
+                      'totalPages' => 1
+                    }
+                  }
+                }
+              )
+            end
+          end
+        end
+
+        context 'a known but invalid claimant identifier is supplied' do
+          it 'results in a 404 error' do
+            VCR.use_cassette('mpi/find_candidate/icn_not_found') do
+              get "/accredited_representative_portal/v0/claim_submissions?id=#{identifier.id}"
+              expect(response).to have_http_status(:not_found)
+            end
+          end
+        end
+
+        context 'an invalid claimant identifier is supplied' do
+          it 'results in a 404 error' do
+            get '/accredited_representative_portal/v0/claim_submissions?id=bogus'
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+      end
     end
 
     describe 'sorting and pagination plumbing' do
