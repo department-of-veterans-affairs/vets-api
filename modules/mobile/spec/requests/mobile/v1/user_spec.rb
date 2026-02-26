@@ -201,6 +201,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
             appointments
             benefitsPushNotification
             claims
+            cstMultiClaimProvider
             decisionLetters
             directDepositBenefits
             directDepositBenefitsUpdate

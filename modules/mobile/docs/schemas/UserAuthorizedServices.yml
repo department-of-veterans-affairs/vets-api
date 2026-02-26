@@ -29,6 +29,7 @@ properties:
           appointments: true
           benefitsPushNotification: false
           claims: true
+          cstMultiClaimProvider: false
           decisionLetters: true
           directDepositBenefits: true
           directDepositBenefitsUpdate: true

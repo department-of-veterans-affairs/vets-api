@@ -29,6 +29,9 @@ module Mobile
             :event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(@user.icn)
           ),
           claims: access?(lighthouse: :access?),
+          cstMultiClaimProvider: @user.icn.present? && Flipper.enabled?(
+            :cst_multi_claim_provider_mobile, Flipper::Actor.new(@user.icn)
+          ),
           decisionLetters: access?(bgs: :access?),
           directDepositBenefits: access?(lighthouse: :mobile_access?),
           directDepositBenefitsUpdate: access?(lighthouse: :mobile_access?),

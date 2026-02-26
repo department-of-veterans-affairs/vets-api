@@ -72,6 +72,32 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       end
     end
 
+    describe 'cstMultiClaimProvider' do
+      context 'when user does not have an icn' do
+        let(:user) { build(:user, :loa3, icn: nil) }
+
+        it 'is false' do
+          expect(user_services.service_auth_map[:cstMultiClaimProvider]).to be(false)
+        end
+      end
+
+      context 'when cst_multi_claim_provider_mobile flag is disabled' do
+        before { Flipper.disable(:cst_multi_claim_provider_mobile) }
+
+        it 'is false' do
+          expect(user_services.service_auth_map[:cstMultiClaimProvider]).to be(false)
+        end
+      end
+
+      context 'when user has an icn and cst_multi_claim_provider_mobile flag is enabled' do
+        before { Flipper.enable(:cst_multi_claim_provider_mobile) }
+
+        it 'is true' do
+          expect(user_services.service_auth_map[:cstMultiClaimProvider]).to be(true)
+        end
+      end
+    end
+
     describe 'decisionLetters' do
       context 'when user does not have bgs access' do
         let(:user) { build(:user, icn: nil, ssn: nil, participant_id: nil) }
