@@ -207,23 +207,13 @@ module EventBusGateway
       return if errors.empty?
 
       failed_types = errors.map { |e| e[:type] }
-      
+
       # Filter requested types by feature flags (some may have been skipped)
       # SMS and push may not be attempted even if template_id was provided if feature flag is off
-      actually_requested_types = requested_types.dup
-      if requested_types.include?('sms')
-        unless Flipper.enabled?(:event_bus_gateway_letter_ready_sms_notifications, Flipper::Actor.new(icn))
-          actually_requested_types.delete('sms')
-        end
-      end
-      if requested_types.include?('push')
-        unless Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(icn))
-          actually_requested_types.delete('push')
-        end
-      end
+      actually_requested_types = filter_by_feature_flags(requested_types, icn)
 
       # Check if all requested (and not feature-flag-skipped) notifications failed
-      if actually_requested_types.present? && (failed_types.sort == actually_requested_types.sort)
+      if actually_requested_types.present? && (failed_types.to_set == actually_requested_types.to_set)
         # All actually requested notifications failed to enqueue
         error_details = errors.map { |e| "#{e[:type]}: #{e[:error]}" }.join('; ')
         raise Errors::NotificationEnqueueError, "All notifications failed to enqueue: #{error_details}"
@@ -240,6 +230,22 @@ module EventBusGateway
           }
         )
       end
+    end
+
+    def filter_by_feature_flags(requested_types, icn)
+      actually_requested_types = requested_types.dup
+
+      if requested_types.include?('sms') &&
+         !Flipper.enabled?(:event_bus_gateway_letter_ready_sms_notifications, Flipper::Actor.new(icn))
+        actually_requested_types.delete('sms')
+      end
+
+      if requested_types.include?('push') &&
+         !Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(icn))
+        actually_requested_types.delete('push')
+      end
+
+      actually_requested_types
     end
   end
 end
