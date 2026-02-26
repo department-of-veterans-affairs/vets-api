@@ -17,7 +17,9 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
 
   describe '#parse' do
     it 'returns the expected fields for vista condition with all fields' do
-      vista_records = conditions_sample_response['vista']['entry']
+      vista_records = conditions_sample_response['vista']['entry'].map do |r|
+        r.merge('source' => 'vista')
+      end
       parsed_conditions = adapter.parse(vista_records)
       expect(parsed_conditions.size).to eq(16)
 
@@ -27,15 +29,18 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
                                          date: be_a(String).or(be_nil),
                                          provider: be_a(String),
                                          facility: be_a(String),
-                                         comments: be_an(Array)
+                                         comments: be_an(Array),
+                                         source: 'vista'
                                        ))
     end
 
     it 'returns the expected fields for oracle-health condition with all fields' do
-      oh_records = conditions_sample_response['oracle-health']['entry']
+      oh_records = conditions_sample_response['oracle-health']['entry'].map do |r|
+        r.merge('source' => 'oracle-health')
+      end
       parsed_conditions = adapter.parse(oh_records)
 
-      expect(oh_records.size).to be > parsed_conditions.size
+      expect(conditions_sample_response['oracle-health']['entry'].size).to be > parsed_conditions.size
       expect(parsed_conditions.size).to eq(2)
       expect(parsed_conditions).to all(have_attributes(
                                          id: be_a(String),
@@ -43,14 +48,15 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
                                          date: be_a(String).or(be_nil),
                                          provider: be_a(String),
                                          facility: be_a(String),
-                                         comments: be_an(Array)
+                                         comments: be_an(Array),
+                                         source: 'oracle-health'
                                        ))
     end
 
     it 'returns the expected fields with VistA sample data' do
       vista_records = conditions_sample_response['vista']['entry']
       # First VistA condition with all fields
-      parsed_condition = adapter.parse_single_condition(vista_records[3])
+      parsed_condition = adapter.parse_single_condition(vista_records[3].merge('source' => 'vista'))
 
       expect(parsed_condition).to have_attributes(
         id: '6f5683ba-2ae8-4d8d-85ff-24babcfbabde',
@@ -58,13 +64,14 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         date: '2024-01-03T04:00:00Z',
         provider: 'MCGUIRE,MARCI P',
         facility: 'CHYSHR TEST LAB',
-        comments: ['Carcinoma of right ear']
+        comments: ['Carcinoma of right ear'],
+        source: 'vista'
       )
     end
 
     it 'returns the expected fields with Oracle Health sample data' do
       oh_records = conditions_sample_response['oracle-health']['entry']
-      parsed_condition = adapter.parse_single_condition(oh_records[1])
+      parsed_condition = adapter.parse_single_condition(oh_records[1].merge('source' => 'oracle-health'))
 
       expect(parsed_condition).to have_attributes(
         id: 'p1533314061',
@@ -72,7 +79,8 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         date: '2025-01-20',
         provider: 'SYSTEM, SYSTEM Cerner, Cerner Managed Acct',
         facility: 'WAMC Bariatric Surgery',
-        comments: ['This problem was added by Discern Expert for positive COVID-19 lab test.']
+        comments: ['This problem was added by Discern Expert for positive COVID-19 lab test.'],
+        source: 'oracle-health'
       )
     end
 
@@ -125,6 +133,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
       it 'includes conditions with active clinical status' do
         records = [
           {
+            'source' => 'vista',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '1',
@@ -144,11 +153,13 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(result.first.name).to eq('Active Condition')
         expect(result.first.date).to eq('2024-01-15')
         expect(result.first.id).to eq('1')
+        expect(result.first.source).to eq('vista')
       end
 
       it 'filters mixed active and inactive conditions' do
         records = [
           {
+            'source' => 'vista',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '1',
@@ -162,6 +173,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
             }
           },
           {
+            'source' => 'vista',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '2',
@@ -175,6 +187,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
             }
           },
           {
+            'source' => 'oracle-health',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '3',
@@ -188,6 +201,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
             }
           },
           {
+            'source' => 'vista',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '4',
@@ -198,6 +212,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
             }
           },
           {
+            'source' => 'oracle-health',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '5',
@@ -215,6 +230,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(result.length).to eq(3)
         expect(result.map(&:name)).to contain_exactly('Active Condition', 'Another Active Condition',
                                                       'No Date Condition')
+        expect(result.map(&:source)).to contain_exactly('vista', 'oracle-health', 'oracle-health')
       end
     end
 
@@ -222,6 +238,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
       it 'includes conditions with any clinical status when filter_by_status is false' do
         records = [
           {
+            'source' => 'vista',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '1',
@@ -235,6 +252,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
             }
           },
           {
+            'source' => 'oracle-health',
             'resource' => {
               'resourceType' => 'Condition',
               'id' => '2',
@@ -252,6 +270,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         result = adapter.parse(records, filter_by_status: false)
         expect(result.length).to eq(2)
         expect(result.map(&:name)).to contain_exactly('Resolved Condition', 'Active Condition')
+        expect(result.map(&:source)).to contain_exactly('vista', 'oracle-health')
       end
     end
 
@@ -276,6 +295,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
 
       it 'returns condition object for active condition' do
         record = {
+          'source' => 'vista',
           'resource' => {
             'resourceType' => 'Condition',
             'id' => '1',
@@ -294,10 +314,12 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(result.name).to eq('Active Test')
         expect(result.date).to eq('2024-01-15')
         expect(result.id).to eq('1')
+        expect(result.source).to eq('vista')
       end
 
       it 'returns condition object regardless of clinical status when filter_by_status is false' do
         record = {
+          'source' => 'oracle-health',
           'resource' => {
             'resourceType' => 'Condition',
             'id' => '1',
@@ -315,6 +337,7 @@ RSpec.describe UnifiedHealthData::Adapters::ConditionsAdapter, type: :service do
         expect(result).not_to be_nil
         expect(result.name).to eq('Resolved Test')
         expect(result.date).to eq('2024-01-15')
+        expect(result.source).to eq('oracle-health')
       end
     end
   end
