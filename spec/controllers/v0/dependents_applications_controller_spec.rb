@@ -97,7 +97,6 @@ RSpec.describe V0::DependentsApplicationsController do
       context 'when claim is not pension related' do
         it 'does not track pension related submission' do
           allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(false)
-          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(false)
 
           monitor_double = instance_double(Dependents::Monitor)
           allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
