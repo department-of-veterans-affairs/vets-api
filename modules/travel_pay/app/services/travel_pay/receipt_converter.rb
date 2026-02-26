@@ -14,7 +14,7 @@ module TravelPay
     # @return [Hash] params with receipt converted to JPG if it was HEIC/HEIF
     # @raise [Common::Exceptions::UnprocessableEntity] if conversion fails
     def convert_if_heic(params)
-      receipt = params['receipt']
+      receipt = params['expenseReceipt']
       return params unless receipt.present? && heic_image?(receipt['contentType'])
 
       unless Flipper.enabled?(:travel_pay_enable_heic_conversion)
@@ -27,7 +27,7 @@ module TravelPay
       Rails.logger.info('Converting HEIC receipt to JPG')
 
       converted_receipt = convert_heic_to_jpg(receipt)
-      params.merge('receipt' => converted_receipt)
+      params.merge('expenseReceipt' => converted_receipt)
     rescue Common::Exceptions::UnprocessableEntity
       raise
     rescue => e

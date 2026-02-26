@@ -20,7 +20,7 @@ RSpec.describe TravelPay::ReceiptConverter do
         {
           'claimId' => '123',
           'expenseType' => 'parking',
-          'receipt' => {
+          'expenseReceipt' => {
             'fileName' => 'receipt.heic',
             'contentType' => 'image/heic',
             'fileData' => test_image_base64,
@@ -31,7 +31,7 @@ RSpec.describe TravelPay::ReceiptConverter do
 
       it 'converts the receipt to JPG and preserves other params' do
         result = converter.convert_if_heic(params)
-        receipt = result['receipt']
+        receipt = result['expenseReceipt']
 
         expect(receipt['contentType']).to eq('image/jpeg')
         expect(receipt['fileName']).to eq('receipt.jpg')
@@ -43,17 +43,17 @@ RSpec.describe TravelPay::ReceiptConverter do
       end
 
       it 'does not mutate the original params' do
-        original_content_type = params['receipt']['contentType']
+        original_content_type = params['expenseReceipt']['contentType']
         converter.convert_if_heic(params)
 
-        expect(params['receipt']['contentType']).to eq(original_content_type)
+        expect(params['expenseReceipt']['contentType']).to eq(original_content_type)
       end
     end
 
     context 'when params contain a HEIF receipt' do
       let(:params) do
         {
-          'receipt' => {
+          'expenseReceipt' => {
             'fileName' => 'photo.heif',
             'contentType' => 'image/heif',
             'fileData' => test_image_base64,
@@ -65,15 +65,15 @@ RSpec.describe TravelPay::ReceiptConverter do
       it 'converts HEIF to JPG' do
         result = converter.convert_if_heic(params)
 
-        expect(result['receipt']['contentType']).to eq('image/jpeg')
-        expect(result['receipt']['fileName']).to eq('photo.jpg')
+        expect(result['expenseReceipt']['contentType']).to eq('image/jpeg')
+        expect(result['expenseReceipt']['fileName']).to eq('photo.jpg')
       end
     end
 
     context 'when content type casing varies' do
       let(:params) do
         {
-          'receipt' => {
+          'expenseReceipt' => {
             'fileName' => 'receipt.HEIC',
             'contentType' => 'IMAGE/HEIC',
             'fileData' => test_image_base64,
@@ -85,20 +85,20 @@ RSpec.describe TravelPay::ReceiptConverter do
       it 'detects HEIC regardless of case' do
         result = converter.convert_if_heic(params)
 
-        expect(result['receipt']['contentType']).to eq('image/jpeg')
+        expect(result['expenseReceipt']['contentType']).to eq('image/jpeg')
       end
     end
 
     context 'when receipt is not HEIC/HEIF' do
       it 'returns params unchanged for JPEG' do
-        params = { 'receipt' => { 'fileName' => 'receipt.jpg', 'contentType' => 'image/jpeg',
-                                  'fileData' => test_image_base64, 'length' => '500' } }
+        params = { 'expenseReceipt' => { 'fileName' => 'receipt.jpg', 'contentType' => 'image/jpeg',
+                                         'fileData' => test_image_base64, 'length' => '500' } }
         expect(converter.convert_if_heic(params)).to eq(params)
       end
 
       it 'returns params unchanged for PDF' do
-        params = { 'receipt' => { 'fileName' => 'receipt.pdf', 'contentType' => 'application/pdf',
-                                  'fileData' => 'some-data', 'length' => '1000' } }
+        params = { 'expenseReceipt' => { 'fileName' => 'receipt.pdf', 'contentType' => 'application/pdf',
+                                         'fileData' => 'some-data', 'length' => '1000' } }
         expect(converter.convert_if_heic(params)).to eq(params)
       end
     end
@@ -116,7 +116,7 @@ RSpec.describe TravelPay::ReceiptConverter do
     context 'when conversion fails' do
       let(:params) do
         {
-          'receipt' => {
+          'expenseReceipt' => {
             'fileName' => 'receipt.heic',
             'contentType' => 'image/heic',
             'fileData' => 'invalid-base64-data!!!',
@@ -140,7 +140,7 @@ RSpec.describe TravelPay::ReceiptConverter do
 
       let(:heic_params) do
         {
-          'receipt' => {
+          'expenseReceipt' => {
             'fileName' => 'receipt.heic',
             'contentType' => 'image/heic',
             'fileData' => test_image_base64,
@@ -151,7 +151,7 @@ RSpec.describe TravelPay::ReceiptConverter do
 
       let(:jpeg_params) do
         {
-          'receipt' => {
+          'expenseReceipt' => {
             'fileName' => 'receipt.jpg',
             'contentType' => 'image/jpeg',
             'fileData' => test_image_base64,
