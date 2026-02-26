@@ -85,4 +85,82 @@ RSpec.describe AccreditedOrganization, type: :model do
       end
     end
   end
+
+  describe '#validate_address' do
+    let(:raw_address_data) do
+      {
+        'address_line1' => '123 Main St',
+        'city' => 'Brooklyn',
+        'state_code' => 'NY',
+        'zip_code' => '11249'
+      }
+    end
+    let(:organization) { create(:accredited_organization, raw_address: raw_address_data) }
+    let(:mock_service) { instance_double(RepresentationManagement::AddressValidationService) }
+
+    before do
+      allow(RepresentationManagement::AddressValidationService).to receive(:new).and_return(mock_service)
+    end
+
+    context 'when raw_address is blank' do
+      let(:organization) { create(:accredited_organization, raw_address: nil) }
+
+      it 'returns false' do
+        expect(organization.validate_address).to be false
+      end
+    end
+
+    context 'when address validation succeeds' do
+      let(:validated_attrs) do
+        {
+          address_line1: '123 Main St',
+          city: 'Brooklyn',
+          state_code: 'NY',
+          lat: 40.717029,
+          long: -73.964956,
+          location: 'POINT(-73.964956 40.717029)'
+        }
+      end
+
+      before do
+        allow(mock_service).to receive(:validate_address).and_return(validated_attrs)
+      end
+
+      it 'updates the record with validated attributes' do
+        organization.validate_address
+        organization.reload
+        expect(organization.lat).to eq(40.717029)
+        expect(organization.long).to eq(-73.964956)
+      end
+
+      it 'returns true' do
+        expect(organization.validate_address).to be true
+      end
+    end
+
+    context 'when address validation returns nil' do
+      before do
+        allow(mock_service).to receive(:validate_address).and_return(nil)
+      end
+
+      it 'returns false' do
+        expect(organization.validate_address).to be false
+      end
+    end
+
+    context 'when an error occurs' do
+      before do
+        allow(mock_service).to receive(:validate_address).and_raise(StandardError.new('Service error'))
+      end
+
+      it 'returns false' do
+        expect(organization.validate_address).to be false
+      end
+
+      it 'logs the error' do
+        expect(Rails.logger).to receive(:error).with(/Address validation failed for AccreditedOrganization/)
+        organization.validate_address
+      end
+    end
+  end
 end
