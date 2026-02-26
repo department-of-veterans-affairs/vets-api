@@ -64,6 +64,10 @@ module DecisionReviews
     end
 
     def fill_and_write_pdf(form_data, output_path, email_delivery_failure)
+      if Flipper.enabled?(:acroform_debug_logs)
+        Rails.logger.info("DecisionReviews::PdfTemplateStamper HexaPDF template: #{@template_path}")
+      end
+
       doc = HexaPDF::Document.open(@template_path)
 
       fill_form_fields(doc, form_data, email_delivery_failure)

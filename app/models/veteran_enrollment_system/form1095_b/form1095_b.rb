@@ -7,6 +7,13 @@ module VeteranEnrollmentSystem
     class Form1095B
       include Vets::Model
 
+      NUMBER_OF_YEARS_AVAILABLE = 3
+      PDF_ATTRIBUTES_FORMAT = {
+        '2023': :pdf_attributes_v1,
+        '2024': :pdf_attributes_v1,
+        '2025': :pdf_attributes_v2
+      }.freeze
+
       attribute :first_name, String
       attribute :middle_name, String
       attribute :last_name, String
@@ -40,7 +47,7 @@ module VeteranEnrollmentSystem
 
       def pdf_file
         template_path = self.class.pdf_template_path(tax_year)
-        unless File.exist?(template_path) && respond_to?("pdf_#{tax_year}_attributes", true)
+        unless File.exist?(template_path) && PDF_ATTRIBUTES_FORMAT.keys.include?(tax_year.to_sym)
           Rails.logger.error "1095-B template for year #{tax_year} does not exist."
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
@@ -76,7 +83,7 @@ module VeteranEnrollmentSystem
           new(prepared_data)
         end
 
-        def available_years(periods)
+        def available_years(user, periods)
           years = periods.each_with_object([]) do |period, array|
             start_date = period['startDate'].to_date.year
             # if no end date, the user is still enrolled
@@ -88,13 +95,19 @@ module VeteranEnrollmentSystem
               array.concat(intervening_years)
             end
           end.uniq.sort
-          years.filter { |year| year.between?(*available_years_range) }
+          years_range = available_years_range(user)
+          years.filter { |year| year.between?(*years_range) }
         end
 
-        def available_years_range
-          current_tax_year = Date.current.year - 1
-          # using a range of years because more years of form data will be available in the future
-          [current_tax_year, current_tax_year]
+        def available_years_range(user)
+          current_year = Date.current.year
+          current_tax_year = current_year - 1
+          if Flipper.enabled?(:form1095b_multiple_years, user)
+            starting_year = (current_year - NUMBER_OF_YEARS_AVAILABLE)
+            [starting_year, current_tax_year]
+          else
+            [current_tax_year, current_tax_year]
+          end
         end
 
         def pdf_template_path(year)
@@ -156,10 +169,12 @@ module VeteranEnrollmentSystem
       end
 
       def generate_pdf(pdftk, tmp_file, template_path)
+        form_data = pdf_data
+
         pdftk.fill_form(
           template_path,
           tmp_file,
-          pdf_data,
+          form_data,
           flatten: true
         )
         ret_pdf = tmp_file.read
@@ -170,9 +185,15 @@ module VeteranEnrollmentSystem
         ret_pdf
       end
 
-      # rubocop:disable Metrics/MethodLength
       def pdf_data
-        year_specific_attributes = send("pdf_#{tax_year}_attributes")
+        variable_attributes_function_name = PDF_ATTRIBUTES_FORMAT[tax_year.to_sym]
+        year_specific_attributes = send(variable_attributes_function_name)
+        shared_attributes = shared_pdf_attributes
+        shared_attributes.merge(year_specific_attributes)
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      def shared_pdf_attributes
         {
           'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': is_corrected && 2,
           'topmostSubform[0].Page1[0].Part1Contents[0].f1_10[0]': 'C',
@@ -201,11 +222,11 @@ module VeteranEnrollmentSystem
           'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_11[0]': coverage_months[10] && 1,
           'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_12[0]': coverage_months[11] && 1,
           'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_13[0]': coverage_months[12] && 1
-        }.merge(year_specific_attributes)
+        }
       end
       # rubocop:enable Metrics/MethodLength
 
-      def pdf_2024_attributes
+      def pdf_attributes_v1
         {
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_01[0]': first_name,
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]': middle_name,
@@ -219,7 +240,7 @@ module VeteranEnrollmentSystem
         }
       end
 
-      def pdf_2025_attributes
+      def pdf_attributes_v2
         {
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_1[0]': first_name,
           'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_2[0]': middle_name,

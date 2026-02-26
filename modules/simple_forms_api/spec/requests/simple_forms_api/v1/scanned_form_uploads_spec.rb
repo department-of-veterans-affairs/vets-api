@@ -66,13 +66,19 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'saves the FormSubmission and FormSubmissionAttempt' do
+    it 'saves the FormSubmission and FormSubmissionAttempt with flat data structure' do
       form_submission = double
+      expected_form_data = params['form_data'].merge(
+        'confirmation_code' => params['confirmation_code'],
+        'supporting_documents' => params['supporting_documents'] || []
+      ).to_json
+
       expect(FormSubmission).to receive(:create).with(
         form_type: form_number,
-        form_data: params['form_data'].to_json,
+        form_data: expected_form_data,
         user_account: user.user_account
       ).and_return(form_submission)
+
       expect(FormSubmissionAttempt).to receive(:create).with(
         form_submission:,
         benefits_intake_uuid: anything
@@ -101,6 +107,68 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context 'when supporting documents feature is enabled' do
+      let(:upload_service) { instance_double(SimpleFormsApi::ScannedFormUploadService) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+        allow(SimpleFormsApi::ScannedFormUploadService).to receive(:new).and_return(upload_service)
+        allow(upload_service).to receive(:upload_with_supporting_documents).and_return([200, 'uuid-123'])
+      end
+
+      it 'returns success response' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['status']).to eq(200)
+        expect(resp['confirmation_number']).to eq('uuid-123')
+      end
+
+      it 'passes normalized params with symbol keys to the service' do
+        post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+        expect(SimpleFormsApi::ScannedFormUploadService).to have_received(:new) do |args|
+          expect(args[:params][:form_number]).to eq(form_number)
+          expect(args[:params][:confirmation_code]).to eq(confirmation_code)
+          expect(args[:params][:form_data]).to be_a(Hash)
+          expect(args[:params][:form_data][:full_name]).to eq({ first: 'John', last: 'Veteran' })
+          expect(args[:params][:form_data][:email]).to be_present
+          expect(args[:params][:supporting_documents]).to eq([
+                                                               {
+                                                                 confirmation_code: '23456'
+                                                               },
+                                                               {
+                                                                 confirmation_code: '34567'
+                                                               }
+                                                             ])
+        end
+      end
+
+      context 'with supporting documents' do
+        let(:params_with_supporting_docs) do
+          parsed = JSON.parse(fixture_path.read)
+          parsed['supporting_documents'] = [
+            { 'confirmation_code' => 'support-1' },
+            { 'confirmation_code' => 'support-2' }
+          ]
+          parsed
+        end
+
+        it 'passes supporting documents with symbol keys to the service' do
+          post('/simple_forms_api/v1/submit_scanned_form', params: params_with_supporting_docs)
+
+          expect(SimpleFormsApi::ScannedFormUploadService).to have_received(:new) do |args|
+            expect(args[:params][:supporting_documents]).to eq([
+                                                                 { confirmation_code: 'support-1' },
+                                                                 { confirmation_code: 'support-2' }
+                                                               ])
+          end
+        end
+      end
     end
 
     context 'when supporting document submission fails at Lighthouse' do
@@ -132,21 +200,161 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   end
 
   describe '#upload_scanned_form' do
-    it 'renders the attachment as json' do
-      clamscan = double(safe?: true)
-      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      file = fixture_file_upload('doctors-note.gif')
+    before do
+      allow(Common::VirusScan).to receive(:scan).and_return(true)
+    end
 
+    it 'renders the attachment as json' do
+      file = fixture_file_upload('doctors-note.gif', 'image/gif')
       params = { form_id: form_number, file: }
 
-      expect do
-        post '/simple_forms_api/v1/scanned_form_upload', params:
-      end.to change(PersistentAttachment, :count).by(1)
+      post('/simple_forms_api/v1/scanned_form_upload', params:)
 
       expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
       expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size warnings])
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+    end
+
+    context 'with multiple file formats' do
+      it 'processes PDF files successfully' do
+        file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        expect do
+          post '/simple_forms_api/v1/scanned_form_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+      end
+
+      it 'processes JPEG files successfully' do
+        file = fixture_file_upload('doctors-note.jpg', 'image/jpeg')
+        params = { form_id: form_number, file: }
+
+        expect do
+          post '/simple_forms_api/v1/scanned_form_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+      end
+    end
+
+    context 'with corrupt and malformed files' do
+      it 'handles malformed PDF gracefully' do
+        file = fixture_file_upload('malformed-pdf.pdf', 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/scanned_form_upload', params:)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns error for completely corrupt non-PDF data' do
+        corrupt_file = Tempfile.new(['corrupt', '.pdf'])
+        corrupt_file.write('This is not a valid PDF file, just random text data')
+        corrupt_file.rewind
+        file = Rack::Test::UploadedFile.new(corrupt_file.path, 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        expect do
+          post '/simple_forms_api/v1/scanned_form_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to be_in(['File conversion error', 'File validation error'])
+
+        corrupt_file.close
+        corrupt_file.unlink
+      end
+
+      it 'returns error for zero-byte file' do
+        empty_file = Tempfile.new(['empty', '.pdf'])
+        empty_file.rewind
+        file = Rack::Test::UploadedFile.new(empty_file.path, 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        expect do
+          post '/simple_forms_api/v1/scanned_form_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        empty_file.close
+        empty_file.unlink
+      end
+    end
+
+    context 'with encrypted PDFs' do
+      it 'returns error for encrypted PDF without password' do
+        file = fixture_file_upload('test_encryption.pdf', 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/scanned_form_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['detail']).to match(/password|locked|encrypted/i)
+      end
+
+      it 'processes encrypted PDF with correct password' do
+        file = fixture_file_upload('test_encryption.pdf', 'application/pdf')
+        params = { form_id: form_number, file:, password: 'test' }
+
+        expect do
+          post '/simple_forms_api/v1/scanned_form_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with edge case filenames' do
+      it 'handles very long filenames' do
+        file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        long_name = "medical-records-#{'x' * 200}.pdf"
+        allow(file).to receive(:original_filename).and_return(long_name)
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/scanned_form_upload', params:)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'handles unicode characters in filenames' do
+        file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        allow(file).to receive(:original_filename).and_return('médical-récörds-日本語.pdf')
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/scanned_form_upload', params:)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'handles shell special characters in filenames' do
+        file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        allow(file).to receive(:original_filename).and_return("'; rm -rf /; echo '.pdf")
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/scanned_form_upload', params:)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with virus scanning' do
+      it 'rejects file when virus is detected' do
+        allow(Common::VirusScan).to receive(:scan).and_return(false)
+
+        file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/scanned_form_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 
@@ -156,8 +364,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:large_file) { fixture_file_upload('too_large.pdf', 'application/pdf') }
 
     before do
-      clamscan = double(safe?: true)
-      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      allow(Common::VirusScan).to receive(:scan).and_return(true)
     end
 
     context 'when feature toggles' do
@@ -167,11 +374,16 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       it 'processes files through ScannedFormProcessor and returns success' do
-        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment|
+        pdf_fixture_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+
+        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment, **_kwargs|
           expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
           expect(attachment.form_id).to eq(form_number)
           processor = double('ScannedFormProcessor')
           allow(processor).to receive(:process!) do
+            File.open(pdf_fixture_path, 'rb') do |f|
+              attachment.file = f
+            end
             attachment.save!
             attachment
           end
@@ -299,13 +511,6 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
     end
 
-    context 'when basic attachment validation fails' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
-                                                  an_instance_of(User)).and_return(true)
-      end
-    end
-
     context 'when feature toggle is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
@@ -330,11 +535,16 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       it 'passes password to processor and processes successfully' do
-        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment, password:|
+        pdf_fixture_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+
+        expect(SimpleFormsApi::ScannedFormProcessor).to receive(:new) do |attachment, **kwargs|
           expect(attachment).to be_a(PersistentAttachments::MilitaryRecords)
-          expect(password).to eq(correct_password)
+          expect(kwargs[:password]).to eq(correct_password)
           processor = double('ScannedFormProcessor')
           allow(processor).to receive(:process!) do
+            File.open(pdf_fixture_path, 'rb') do |f|
+              attachment.file = f
+            end
             attachment.save!
             attachment
           end
@@ -396,6 +606,112 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         expect(resp['errors'].first['detail']).to match(/password|locked|encrypted/i)
       end
     end
+
+    context 'with corrupt and malformed files' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'handles malformed PDF gracefully' do
+        malformed_file = fixture_file_upload('malformed-pdf.pdf', 'application/pdf')
+        params = { form_id: form_number, file: malformed_file }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns conversion error for corrupt non-PDF data' do
+        corrupt_file = Tempfile.new(['corrupt', '.pdf'])
+        corrupt_file.write('This is not a valid PDF file')
+        corrupt_file.rewind
+        file = Rack::Test::UploadedFile.new(corrupt_file.path, 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.not_to change(PersistentAttachment, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'].first['title']).to be_in(['File conversion error', 'File validation error'])
+
+        corrupt_file.close
+        corrupt_file.unlink
+      end
+    end
+
+    context 'with multiple file formats' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'handles JPEG files successfully' do
+        jpg_file = fixture_file_upload('doctors-note.jpg', 'image/jpeg')
+        params = { form_id: form_number, file: jpg_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+
+      it 'handles GIF files successfully' do
+        gif_file = fixture_file_upload('doctors-note.gif', 'image/gif')
+        params = { form_id: form_number, file: gif_file }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params:
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    end
+
+    context 'with multiple sequential uploads' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'handles multiple uploads for same form' do
+        file1 = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        file2 = fixture_file_upload('doctors-note.jpg', 'image/jpeg')
+
+        params1 = { form_id: form_number, file: file1 }
+        params2 = { form_id: form_number, file: file2 }
+
+        expect do
+          post '/simple_forms_api/v1/supporting_documents_upload', params: params1
+          post '/simple_forms_api/v1/supporting_documents_upload', params: params2
+        end.to change(PersistentAttachment, :count).by(2)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with virus scanning failures' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:simple_forms_upload_supporting_documents,
+                                                  an_instance_of(User)).and_return(true)
+      end
+
+      it 'rejects file when virus is detected' do
+        allow(Common::VirusScan).to receive(:scan).and_return(false)
+
+        file = fixture_file_upload('doctors-note.pdf', 'application/pdf')
+        params = { form_id: form_number, file: }
+
+        post('/simple_forms_api/v1/supporting_documents_upload', params:)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
   end
 
   describe 'PII/PHI filtering in logs' do
@@ -422,7 +738,8 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       end
 
       allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
-                                                              form_number:, timestamp: anything).and_return(pdf_stamper)
+                                                              form_number:,
+                                                              timestamp: anything).and_return(pdf_stamper)
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
 

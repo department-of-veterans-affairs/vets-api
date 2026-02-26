@@ -9,8 +9,7 @@ module VAOS
     class PatientsService < VAOS::SessionService
       def get_patient_appointment_metadata(clinic_service_id, facility_id, type)
         with_monitoring do
-          response = if Flipper.enabled?(:va_online_scheduling_use_vpg, user) &&
-                        Flipper.enabled?(:va_online_scheduling_enable_OH_eligibility, user)
+          response = if Flipper.enabled?(:va_online_scheduling_use_vpg, user)
                        get_patient_appointment_metadata_vpg(clinic_service_id, facility_id, type)
                      else
                        get_patient_appointment_metadata_vaos(clinic_service_id, facility_id, type)
@@ -29,7 +28,9 @@ module VAOS
           type:
         }
 
-        perform(:get, "/#{base_vaos_route}/patients/#{user.icn}/eligibility", params, headers)
+        with_monitoring do
+          perform(:get, "/#{base_vaos_route}/patients/#{user.icn}/eligibility", params, headers)
+        end
       end
 
       def get_patient_appointment_metadata_vpg(clinic_service_id, facility_id, type)
@@ -39,7 +40,9 @@ module VAOS
           type:
         }
 
-        perform(:get, "/vpg/v1/patients/#{user.icn}/eligibility", params, headers)
+        with_monitoring do
+          perform(:get, "/vpg/v1/patients/#{user.icn}/eligibility", params, headers)
+        end
       end
     end
   end

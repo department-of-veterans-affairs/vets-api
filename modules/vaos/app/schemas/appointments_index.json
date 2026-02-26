@@ -109,6 +109,7 @@
             }
           },
           "description": { "type": "string" },
+          "type_of_care": { "type": "string" },
           "priority": { "type": "number" },
           "patient_icn": { "type": "string" },
           "location_id": { "type": "string" },

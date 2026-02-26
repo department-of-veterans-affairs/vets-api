@@ -39,6 +39,7 @@ module MyHealth
       attribute :is_refillable
       attribute :is_renewable
       attribute :is_trackable
+      attribute :source_ehr
     end
   end
 end

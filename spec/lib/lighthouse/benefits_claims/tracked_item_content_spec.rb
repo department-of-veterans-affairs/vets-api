@@ -31,10 +31,36 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
     end
   end
 
+  describe 'CONTENT_PATH' do
+    it 'points to an existing content file' do
+      expect(File).to exist(described_class::CONTENT_PATH)
+    end
+
+    it 'contains valid JSON' do
+      content = File.read(described_class::CONTENT_PATH)
+
+      expect { JSON.parse(content) }.not_to raise_error
+    end
+  end
+
   describe 'CONTENT' do
-    it 'is a frozen hash' do
+    it 'successfully loads content in normal conditions' do
       expect(described_class::CONTENT).to be_a(Hash)
       expect(described_class::CONTENT).to be_frozen
+      expect(described_class::CONTENT).not_to be_empty
+    end
+
+    it 'has no keys that collide after normalization' do
+      seen = Hash.new { |h, k| h[k] = [] }
+
+      described_class::CONTENT.each_key do |key|
+        seen[described_class.normalize_key(key)] << key
+      end
+
+      collisions = seen.select { |_, keys| keys.length > 1 }
+      expect(collisions).to be_empty, lambda {
+        collisions.map { |norm, keys| "#{norm.inspect} <- #{keys.inspect}" }.join("\n")
+      }
     end
 
     it 'contains entries that all pass schema validation' do
@@ -50,6 +76,14 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
       stub_const("#{described_class}::SCHEMA", nil)
       errors = described_class.validate_all_entries
       expect(errors).to eq({ 'schema' => ['Schema failed to load'] })
+    end
+
+    it 'returns empty hash when CONTENT is empty' do
+      stub_const("#{described_class}::CONTENT", {}.freeze)
+
+      errors = described_class.validate_all_entries
+
+      expect(errors).to be_empty
     end
 
     it 'returns no errors when all entries are valid' do
@@ -243,6 +277,15 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
       expect(result).to be_nil
     end
 
+    it 'returns nil when CONTENT is empty' do
+      stub_const("#{described_class}::CONTENT", {}.freeze)
+      stub_const("#{described_class}::CONTENT_NORMALIZED", {}.freeze)
+
+      result = described_class.find_by_display_name('21-4142/21-4142a')
+
+      expect(result).to be_nil
+    end
+
     it 'returns content merged with defaults for existing display name' do
       skip 'CONTENT is empty' if described_class::CONTENT.empty?
 
@@ -270,6 +313,31 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
       # Fields not in entry should have default values
       (described_class::DEFAULTS.keys - entry.keys).each do |key|
         expect(result[key]).to eq(described_class::DEFAULTS[key])
+      end
+    end
+
+    context 'with normalized fallback' do
+      {
+        'no spaces around hyphen' => ['AO-med evid of disab fm herbicide needed',
+                                      'Medical documentation of herbicide exposure'],
+        'hyphen-space (no leading space)' => ['AO- med evid of disab fm herbicide needed',
+                                              'Medical documentation of herbicide exposure'],
+        'space-hyphen (no trailing space)' => ['AO -med evid of disab fm herbicide needed',
+                                               'Medical documentation of herbicide exposure'],
+        'exact match (space-hyphen-space)' => ['AO - med evid of disab fm herbicide needed',
+                                               'Medical documentation of herbicide exposure'],
+        'form numbers with hyphens' => ['Unemployability-21-8940 needed and 4192(s) requested',
+                                        'Work status information'],
+        'different letter casing' => ['RADIATION - tell us how you were exposed',
+                                      'Radiation exposure information'],
+        'different casing and hyphen spacing' => ['radiation-tell us how you were exposed',
+                                                  'Radiation exposure information']
+      }.each do |description, (display_name, expected_friendly_name)|
+        it "matches with #{description}" do
+          result = described_class.find_by_display_name(display_name)
+          expect(result).not_to be_nil
+          expect(result[:friendlyName]).to eq(expected_friendly_name)
+        end
       end
     end
   end

@@ -14,11 +14,16 @@ require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
 require_relative 'logging'
 require_relative 'client'
+require_relative 'source_constants'
+require_relative 'concerns/clinical_notes_logging'
+require_relative 'concerns/facility_cache_warming'
 
 module UnifiedHealthData
   class Service
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
+    include Concerns::ClinicalNotesLogging
+    include Concerns::FacilityCacheWarming
 
     def initialize(user)
       super()
@@ -29,14 +34,20 @@ module UnifiedHealthData
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
+        warnings = extract_warnings(body)
 
         combined_records = fetch_combined_records(body)
+
+        # Pre-warm facility cache to avoid N+1 API calls during parsing
+        # Each unique station number is fetched once and cached for 12 hours
+        prewarm_facility_cache(combined_records)
+
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
 
         # Log test code distribution
         logger.log_test_code_distribution(parsed_records)
 
-        parsed_records
+        { records: parsed_records, warnings: }
       end
     end
 
@@ -102,6 +113,7 @@ module UnifiedHealthData
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         result = parse_refill_response(response)
         validate_refill_response_count(normalized_orders, result)
+        increment_refill(result[:success].size) if result[:success].present?
         result
       end
     rescue Common::Exceptions::BackendServiceException => e
@@ -113,6 +125,9 @@ module UnifiedHealthData
 
     def get_care_summaries_and_notes(start_date: nil, end_date: nil)
       with_monitoring do
+        # Treat blank as "use default" so filtering still runs with a valid range
+        start_date = nil if start_date.blank?
+        end_date = nil if end_date.blank?
         # Validate user-provided dates BEFORE applying defaults
         validate_date_param(start_date, 'start_date') if start_date
         validate_date_param(end_date, 'end_date') if end_date
@@ -123,34 +138,30 @@ module UnifiedHealthData
 
         response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
+        warnings = extract_warnings(body)
 
         remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
-        filtered = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        doc_ref_records = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
+        parsed_notes = parse_notes(doc_ref_records)
 
-        parsed_notes = parse_notes(filtered)
+        # Filter by date range on parsed notes (single source of truth for what we return).
+        # SCDF may return notes outside the requested range; this ensures only in-range notes are returned.
+        parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
         log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
+        clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
+        clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
 
-        parsed_notes
+        { records: parsed_notes, warnings: }
       end
     end
 
-    def get_single_summary_or_note(note_id)
+    def get_single_summary_or_note(note_id, source: nil)
       with_monitoring do
-        # TODO: we will replace this with a direct call to the API once available
-        start_date = default_start_date
-        end_date = default_end_date
-
-        response = uhd_client.get_notes_by_date(patient_id: @user.icn, start_date:, end_date:)
-        body = response.body
-
-        remap_vista_uid(body)
-        combined_records = fetch_combined_records(body)
-        filtered = combined_records.find { |record| record['resource']['id'] == note_id }
-        return nil unless filtered
-
-        parse_single_note(filtered)
+        result = fetch_oracle_health_note(note_id, source || SourceConstants::ORACLE_HEALTH)
+        clinical_notes_logging_enabled? && log_notes_show_metrics(source, result)
+        result
       end
     end
 
@@ -275,18 +286,26 @@ module UnifiedHealthData
 
     private
 
-    # Shared
+    # Extracts and removes warning metadata injected by the client's OperationOutcome detection.
+    # Returns an empty array if no warnings are present.
+    def extract_warnings(body)
+      return [] unless body.is_a?(Hash)
+
+      body.delete('_warnings') || []
+    end
+
     def fetch_combined_records(body)
       return [] if body.nil?
 
-      vista_records = (body.dig('vista', 'entry') || []).map { |r| r.merge('source' => 'vista') }
-      oracle_health_records = (body.dig('oracle-health', 'entry') || []).map do |r|
-        r.merge('source' => 'oracle-health')
+      vista_records = (body.dig(SourceConstants::VISTA, 'entry') || []).map do |r|
+        r.merge('source' => SourceConstants::VISTA)
+      end
+      oracle_health_records = (body.dig(SourceConstants::ORACLE_HEALTH, 'entry') || []).map do |r|
+        r.merge('source' => SourceConstants::ORACLE_HEALTH)
       end
       vista_records + oracle_health_records
     end
 
-    # Prescription refill helper methods
     def build_refill_request_body(orders)
       {
         patientId: @user.icn,
@@ -320,14 +339,8 @@ module UnifiedHealthData
 
     def parse_refill_response(response)
       body = response.body
-
-      # Ensure we have an array response format
       refill_items = body.is_a?(Array) ? body : []
-
-      # Parse successful refills
       successes = extract_successful_refills(refill_items)
-
-      # Parse failed refills
       failures = extract_failed_refills(refill_items)
 
       {
@@ -349,7 +362,6 @@ module UnifiedHealthData
     end
 
     def extract_successful_refills(refill_items)
-      # Parse successful refills from API response array
       successful_refills = refill_items.select { |item| item['success'] == true }
       successful_refills.map do |refill|
         order = refill['order'] || refill
@@ -362,7 +374,6 @@ module UnifiedHealthData
     end
 
     def extract_failed_refills(refill_items)
-      # Parse failed refills from API response array
       failed_refills = refill_items.select { |item| item['success'] == false }
       failed_refills.map do |failure|
         order = failure['order'] || failure
@@ -374,10 +385,8 @@ module UnifiedHealthData
       end
     end
 
-    # Allergies methods
     def remap_vista_identifier(records)
-      # TODO: Placeholder; will transition to a vista_uid
-      records['vista']['entry']&.each do |allergy|
+      records[SourceConstants::VISTA]['entry']&.each do |allergy|
         vista_identifier = allergy['resource']['identifier']&.find do |id|
           id['system'].starts_with?('https://va.gov/systems/')
         end
@@ -387,9 +396,32 @@ module UnifiedHealthData
       end
     end
 
-    # Care Summaries and Notes methods
+    # Keeps only parsed notes whose date falls within [start_date, end_date] (inclusive).
+    # Filtering on parsed notes (same objects we return) so the response is guaranteed correct.
+    def filter_parsed_notes_by_date_range(notes, start_date, end_date)
+      return notes if notes.blank?
+      return notes if start_date.blank? || end_date.blank?
+
+      start_d = DateTime.parse(start_date.to_s).to_date
+      end_d = DateTime.parse(end_date.to_s).to_date
+
+      notes.select do |note|
+        next false if note.blank? || note.date.blank?
+
+        note_date = DateTime.parse(note.date.to_s).to_date
+        note_date >= start_d && note_date <= end_d
+      rescue ArgumentError, TypeError
+        Rails.logger.warn(
+          'UnifiedHealthData::Service#filter_parsed_notes_by_date_range ' \
+          "excluding note due to invalid date. note_id=#{note&.id.inspect} " \
+          "note_date=#{note&.date.inspect}"
+        )
+        false
+      end
+    end
+
     def remap_vista_uid(records)
-      records['vista']['entry']&.each do |note|
+      records[SourceConstants::VISTA]['entry']&.each do |note|
         vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }
         next unless vista_uid_identifier && vista_uid_identifier['value']
 
@@ -408,14 +440,48 @@ module UnifiedHealthData
     def parse_single_note(record)
       return nil if record.blank?
 
-      clinical_notes_adapter.parse(record)
+      clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
     end
 
-    def log_loinc_codes_enabled?
-      Flipper.enabled?(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, @user)
+    # Fetches a single Oracle Health note directly via the SCDF source-specific endpoint.
+    # The SCDF response is a FHIR Bundle containing Patient, DocumentReference, and
+    # OperationOutcome entries. We extract the DocumentReference for parsing.
+    def fetch_oracle_health_note(note_id, source)
+      response = uhd_client.get_note_by_source(
+        patient_id: @user.icn,
+        source:,
+        record_id: note_id,
+        start_date: default_start_date,
+        end_date: default_end_date
+      )
+      body = response.body
+      return nil if body.blank?
+
+      doc_ref = extract_document_reference(body)
+      return nil unless doc_ref
+
+      record = { 'resource' => doc_ref }
+      record['source'] = source
+      parse_single_note(record)
     end
 
-    # Instantiate client, adapters, etc. once per service instance
+    # Extracts the DocumentReference resource from a FHIR Bundle response.
+    # The SCDF API always returns a Bundle, so we only look for entries within it.
+    def extract_document_reference(body)
+      return nil unless body.is_a?(Hash)
+
+      entries = body['entry']
+      return nil unless entries.is_a?(Array)
+
+      doc_entry = entries.find do |entry|
+        entry.dig('resource', 'resourceType') == 'DocumentReference'
+      end
+      doc_entry&.dig('resource')
+    end
+
+    def increment_refill(count = 1)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count)
+    end
 
     def uhd_client
       @uhd_client ||= UnifiedHealthData::Client.new
@@ -449,7 +515,6 @@ module UnifiedHealthData
       @logger ||= UnifiedHealthData::Logging.new(@user)
     end
 
-    # Date helpers (single source for default UHD date range)
     def default_start_date
       '1900-01-01'
     end

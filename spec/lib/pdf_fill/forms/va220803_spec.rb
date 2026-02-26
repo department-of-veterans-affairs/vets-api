@@ -53,6 +53,12 @@ describe PdfFill::Forms::Va220803 do
       expect(merged_data['dateSigned']).to eq('01/01/2025')
     end
 
+    it 'formats the cost correctly' do
+      merged_data = subject.merge_fields
+
+      expect(merged_data['testCost']).to eq('$55')
+    end
+
     context 'with a chapter 35 form' do
       let(:form_data) do
         JSON.parse(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0803', 'chapter35.json').read)

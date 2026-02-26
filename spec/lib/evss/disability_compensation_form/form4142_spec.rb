@@ -8,7 +8,7 @@ describe EVSS::DisabilityCompensationForm::Form4142 do
 
   let(:form_content) do
     JSON.parse(
-      File.read('spec/support/disability_compensation_form/all_claims_with_4142_fe_submission.json')
+      File.read('spec/support/disability_compensation_form/submit_all_claim/4142.json')
     )
   end
   let(:expected_output) { JSON.parse(File.read('spec/support/disability_compensation_form/form_4142.json')) }
