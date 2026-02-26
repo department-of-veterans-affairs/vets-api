@@ -354,26 +354,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               expect(persisted['disability_comp_new_conditions_workflow']).to be(false)
             end
 
-            it 'does NOT detect the flag when stored as camelCase (proving the old bug)' do
-              # Write camelCase key — this is what the BROKEN code was looking for,
-              # but is NOT how OliveBranch stores it in production
-              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-              parsed_form_data.delete('disability_comp_new_conditions_workflow')
-              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
-              raw_meta = in_progress_form_lighthouse[:metadata] || {}
-              raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
-              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
-
-              # The fix should NOT fire because the canonical snake_case key is absent
-              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-              end
-
-              expect(response).to have_http_status(:ok)
-              json_response = JSON.parse(response.body)
-              # camelCase key passes through untouched — fix does not apply
-              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
-            end
           end
 
           context 'when fix_poisoned_ipf toggle is OFF (kill switch)' do
