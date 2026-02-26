@@ -16,7 +16,8 @@ module FormIntake
     # Non-retryable HTTP status codes (fail immediately)
     NON_RETRYABLE_ERRORS = [400, 401, 403, 404, 422].freeze
 
-    STATSD_KEY_PREFIX = 'worker.form_intake.submit_form_data'
+    # Metrics prefix includes "mms" to clarify this submits to GCIO/IBM MMS
+    STATSD_KEY_PREFIX = 'worker.form_intake_mms.submit_form_data'
 
     sidekiq_retries_exhausted do |msg, _ex|
       form_submission_id = msg['args'].first

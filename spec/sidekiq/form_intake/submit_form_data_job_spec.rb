@@ -75,7 +75,7 @@ RSpec.describe FormIntake::SubmitFormDataJob, type: :job do
         job.perform(form_submission.id, benefits_intake_uuid)
 
         expect(StatsD).to have_received(:increment).with(
-          'worker.form_intake.submit_form_data.success',
+          'worker.form_intake_mms.submit_form_data.success',
           hash_including(tags: array_including('form_type:21P-601'))
         )
       end
@@ -107,7 +107,7 @@ RSpec.describe FormIntake::SubmitFormDataJob, type: :job do
         job.perform(form_submission.id, benefits_intake_uuid)
 
         expect(StatsD).to have_received(:increment).with(
-          'worker.form_intake.submit_form_data.skipped',
+          'worker.form_intake_mms.submit_form_data.skipped',
           hash_including(tags: array_including('reason:form_not_eligible'))
         )
       end
@@ -168,7 +168,7 @@ RSpec.describe FormIntake::SubmitFormDataJob, type: :job do
         expect { job.perform(form_submission.id, benefits_intake_uuid) }.to raise_error(FormIntake::ServiceError)
 
         expect(StatsD).to have_received(:increment).with(
-          'worker.form_intake.submit_form_data.retryable_error',
+          'worker.form_intake_mms.submit_form_data.retryable_error',
           hash_including(tags: array_including('status:504'))
         )
       end
@@ -218,7 +218,7 @@ RSpec.describe FormIntake::SubmitFormDataJob, type: :job do
         job.perform(form_submission.id, benefits_intake_uuid)
 
         expect(StatsD).to have_received(:increment).with(
-          'worker.form_intake.submit_form_data.non_retryable_error',
+          'worker.form_intake_mms.submit_form_data.non_retryable_error',
           hash_including(tags: array_including('status:400'))
         )
       end
@@ -254,7 +254,7 @@ RSpec.describe FormIntake::SubmitFormDataJob, type: :job do
         expect { job.perform(form_submission.id, benefits_intake_uuid) }.to raise_error(StandardError)
 
         expect(StatsD).to have_received(:increment).with(
-          'worker.form_intake.submit_form_data.unexpected_error',
+          'worker.form_intake_mms.submit_form_data.unexpected_error',
           hash_including(tags: array_including('error_class:StandardError'))
         )
       end
@@ -324,7 +324,7 @@ RSpec.describe FormIntake::SubmitFormDataJob, type: :job do
         described_class.handle_exhaustion(form_submission.id, 'Max retries exceeded')
 
         expect(StatsD).to have_received(:increment).with(
-          'worker.form_intake.submit_form_data.exhausted'
+          'worker.form_intake_mms.submit_form_data.exhausted'
         )
       end
     end
