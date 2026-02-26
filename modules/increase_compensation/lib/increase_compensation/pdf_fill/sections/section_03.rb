@@ -223,6 +223,7 @@ module IncreaseCompensation
         }
 
       }.freeze
+      # TODO: deal with form218940_leaving_last_position explainations
       def expand(form_data = {})
         form_data = format_employment(form_data) if form_data.key?('previousEmployers')
         form_data = format_applications(form_data) if form_data.key?('appliedEmployers')
