@@ -13,6 +13,7 @@ module UnifiedHealthData
     attribute :provider, String
     attribute :facility, String
     attribute :comments, Array
+    attribute :source, String
 
     default_sort_by sort_date: :desc
   end
