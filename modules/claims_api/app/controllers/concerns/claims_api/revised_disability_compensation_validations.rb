@@ -3,9 +3,11 @@
 require 'common/exceptions'
 require 'brd/brd'
 require 'bgs_service/standard_data_service'
+require 'claims_api/v2/disability_compensation_shared_service_module'
 
 module ClaimsApi
   module RevisedDisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
+    include ClaimsApi::V2::DisabilityCompensationSharedServiceModule
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -113,7 +115,9 @@ module ClaimsApi
       service_periods = form_attributes.dig('serviceInformation', 'servicePeriods') || []
       return unless end_date_beyond_180_days?(service_periods)
 
-      unless eligible_for_future_end_date?(service_periods)
+      max_period = service_periods.max_by { |sp| sp['activeDutyEndDate'] }
+
+      unless eligible_for_future_end_date?(max_period, service_periods)
         # NOTE: this error message doesn't really cover all the ways this validation could
         # fail, but for backwards compatibility, it has not been changed.
         raise ::Common::Exceptions::InvalidFieldValue.new(
@@ -146,20 +150,6 @@ module ClaimsApi
           detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is " \
                   "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
         )
-      end
-    end
-
-    def eligible_for_future_end_date?(service_periods)
-      reserves_national_guard_service = form_attributes.dig('serviceInformation', 'reservesNationalGuardService')
-      reserves_national_guard_service.present? && past_service_period?(service_periods)
-    end
-
-    def past_service_period?(service_periods)
-      service_periods.any? do |sp|
-        end_date = sp['activeDutyEndDate']
-        next false if end_date.blank?
-
-        Date.parse(end_date) <= Time.zone.today.end_of_day
       end
     end
 

@@ -639,28 +639,6 @@ module ClaimsApi
                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
       end
 
-      def eligible_for_future_end_date?(max_period, service_periods)
-        most_recent_service_branch_is_reserves_or_guard?(max_period) && past_service_period?(service_periods)
-      end
-
-      def most_recent_service_branch_is_reserves_or_guard?(max_period)
-        most_recent_service_branch_name = max_period['serviceBranch']&.upcase
-        return false if most_recent_service_branch_name.blank?
-
-        VALID_RESERVES_BRANCH_NAMES.any? { |name| most_recent_service_branch_name.include?(name) }
-      end
-
-      def past_service_period?(service_periods)
-        return false if service_periods.blank?
-
-        service_periods.any? do |sp|
-          end_date = sp['activeDutyEndDate']
-          next false if end_date.blank?
-
-          Date.parse(end_date) <= Time.zone.today.end_of_day
-        end
-      end
-
       def alt_rev_validate_service_periods(service_information)
         return unless service_periods_present?(service_information)
 
