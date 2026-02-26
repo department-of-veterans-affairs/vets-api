@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'unified_health_data/adapters/lab_or_test_adapter'
+require 'medical_records/medical_records_log'
 
 RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
   let(:adapter) { UnifiedHealthData::Adapters::LabOrTestAdapter.new }
@@ -3005,6 +3006,144 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           expect(result.facility_timezone).to be_nil
           expect(result.date_completed).to eq('2025-01-23T22:06:02Z')
         end
+      end
+    end
+  end
+
+  describe 'mr_log structured logging (dual-path)' do
+    let(:mr_log) { instance_double(MedicalRecords::MedicalRecordsLog) }
+    let(:adapter_with_log) { described_class.new(mr_log:) }
+
+    let(:base_record) do
+      {
+        'resource' => {
+          'resourceType' => 'DiagnosticReport',
+          'id' => 'mr-log-test-123',
+          'status' => 'final',
+          'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+          'code' => { 'text' => 'Chemistry Panel' },
+          'effectiveDateTime' => '2024-06-01T00:00:00Z',
+          'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'encoded-data' }]
+        }
+      }
+    end
+
+    before do
+      allow(StatsD).to receive(:increment)
+    end
+
+    describe '#log_filtered_diagnostic_report' do
+      it 'uses mr_log.info with structured opts when mr_log present' do
+        expect(mr_log).to receive(:info).with(
+          resource: 'labs_and_tests',
+          action: 'filter',
+          report_id: 'mr-log-test-123',
+          status: 'preliminary',
+          reason: 'disallowed_status',
+          filtering: true
+        )
+
+        record = base_record.deep_dup
+        record['resource']['status'] = 'preliminary'
+        adapter_with_log.send(:log_filtered_diagnostic_report, record, 'disallowed_status')
+      end
+
+      it 'falls back to Rails.logger when mr_log is nil' do
+        expect(Rails.logger).to receive(:info).with(
+          /Filtered DiagnosticReport.*disallowed_status/,
+          hash_including(service: 'unified_health_data')
+        )
+
+        record = base_record.deep_dup
+        record['resource']['status'] = 'preliminary'
+        adapter.send(:log_filtered_diagnostic_report, record, 'disallowed_status')
+      end
+    end
+
+    describe '#log_filtered_observations' do
+      it 'uses mr_log.info with structured opts when mr_log present' do
+        expect(mr_log).to receive(:info).with(
+          resource: 'labs_and_tests',
+          action: 'filter_observations',
+          report_id: 'mr-log-test-123',
+          filtered: 2,
+          total: 5,
+          filtering: true
+        )
+
+        adapter_with_log.send(:log_filtered_observations, base_record, 2, 5)
+      end
+    end
+
+    describe '#log_final_status_warning' do
+      it 'uses mr_log.warn with structured opts when mr_log present' do
+        expect(mr_log).to receive(:warn).with(
+          resource: 'labs_and_tests',
+          action: 'parse',
+          anomaly: 'final_status_empty_data',
+          report_id: 'mr-log-test-123'
+        )
+
+        adapter_with_log.send(:log_final_status_warning, base_record, 'final', nil, nil)
+      end
+
+      it 'does not log when status is not final' do
+        expect(mr_log).not_to receive(:warn)
+        adapter_with_log.send(:log_final_status_warning, base_record, 'preliminary', nil, nil)
+      end
+    end
+
+    describe '#log_missing_date_warning' do
+      it 'uses mr_log.warn for missing dates when mr_log present' do
+        record = base_record.deep_dup
+        record['resource'].delete('effectiveDateTime')
+
+        expect(mr_log).to receive(:warn).with(
+          resource: 'labs_and_tests',
+          action: 'parse',
+          anomaly: 'missing_date',
+          report_id: 'mr-log-test-123',
+          detail: 'missing effectiveDateTime and effectivePeriod'
+        )
+
+        adapter_with_log.send(:log_missing_date_warning, record)
+      end
+
+      it 'does not log when effectiveDateTime is present' do
+        expect(mr_log).not_to receive(:warn)
+        adapter_with_log.send(:log_missing_date_warning, base_record)
+      end
+    end
+
+    describe '#convert_to_facility_time with mr_log' do
+      it 'uses mr_log.warn on timezone conversion error' do
+        expect(mr_log).to receive(:warn).with(
+          hash_including(
+            resource: 'labs_and_tests',
+            action: 'timezone_conversion',
+            date_string: 'not-a-date',
+            timezone: 'America/New_York'
+          )
+        )
+
+        result = adapter_with_log.send(:convert_to_facility_time, 'not-a-date', 'America/New_York')
+        expect(result).to eq('not-a-date')
+      end
+    end
+
+    describe '#format_observation_value with mr_log' do
+      it 'uses mr_log.error for unsupported Attachment type' do
+        expect(mr_log).to receive(:error).with(
+          resource: 'labs_and_tests',
+          action: 'parse',
+          anomaly: 'unsupported_value_type',
+          observation_id: 'obs-42',
+          value_type: 'Attachment'
+        )
+
+        obs = { 'id' => 'obs-42', 'valueAttachment' => { 'url' => 'http://example.com' } }
+        expect { adapter_with_log.send(:format_observation_value, obs) }
+          .to raise_error(Common::Exceptions::NotImplemented)
       end
     end
   end

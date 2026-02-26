@@ -13,6 +13,12 @@ module UnifiedHealthData
       include FhirHelpers
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
+      LABS = MedicalRecords::MedicalRecordsLog::LABS_AND_TESTS
+
+      # @param mr_log [MedicalRecords::MedicalRecordsLog, nil] Structured logger (nil = Rails.logger fallback)
+      def initialize(mr_log: nil)
+        @mr_log = mr_log
+      end
 
       # HL7 v2-0074 diagnostic service section codes and LOINC codes to user-friendly display names
       TEST_CODE_DISPLAY_MAP = {
@@ -79,6 +85,15 @@ module UnifiedHealthData
         ALLOWED_STATUSES.include?(status)
       end
 
+      # Dual-path logging: structured mr_log when available, Rails.logger fallback otherwise.
+      def log_adapter(level, structured_opts, fallback_message, fallback_opts = {})
+        if @mr_log
+          @mr_log.public_send(level, **structured_opts)
+        else
+          Rails.logger.public_send(level, fallback_message, fallback_opts.presence)
+        end
+      end
+
       def build_lab_or_test(record, code, encoded_data, observations, contained) # rubocop:disable Metrics/MethodLength
         resource = record['resource']
         date_completed_value, facility_timezone = resolve_date_and_timezone(resource, contained)
@@ -121,25 +136,26 @@ module UnifiedHealthData
 
       def log_filtered_diagnostic_report(record, reason)
         resource = record['resource']
-        status = resource['status']
-
-        Rails.logger.info(
-          "Filtered DiagnosticReport: id=#{resource['id']}, status=#{status}, reason=#{reason}",
+        log_adapter(
+          :info,
+          { resource: LABS, action: 'filter', report_id: resource['id'],
+            status: resource['status'], reason:, filtering: true },
+          "Filtered DiagnosticReport: id=#{resource['id']}, status=#{resource['status']}, reason=#{reason}",
           { service: 'unified_health_data', filtering: true }
         )
-
         StatsD.increment('unified_health_data.lab_or_test.filtered_diagnostic_report',
                          tags: ["reason:#{reason}"])
       end
 
       def log_filtered_observations(record, filtered_count, total_count)
         resource = record['resource']
-
-        Rails.logger.info(
+        log_adapter(
+          :info,
+          { resource: LABS, action: 'filter_observations', report_id: resource['id'],
+            filtered: filtered_count, total: total_count, filtering: true },
           "Filtered #{filtered_count}/#{total_count} Observations from DiagnosticReport #{resource['id']}",
           { service: 'unified_health_data', filtering: true }
         )
-
         # Increment the counter once per DiagnosticReport that has filtered observations
         StatsD.increment('unified_health_data.lab_or_test.filtered_observations')
       end
@@ -147,15 +163,18 @@ module UnifiedHealthData
       def log_final_status_warning(record, status, encoded_data, observations)
         return unless status == 'final' && encoded_data.blank? && observations.blank?
 
-        patient_reference = record['resource']&.dig('subject', 'reference')
-        # Last four of FHIR Patient.id
-        patient_last_four = patient_reference&.split('/')&.last&.last(4) || 'unknown'
-
-        Rails.logger.warn(
-          "DiagnosticReport #{record['resource']['id']} has status 'final' but is missing " \
-          "both encoded data and observations (Patient: #{patient_last_four})",
-          { service: 'unified_health_data' }
-        )
+        report_id = record['resource']['id']
+        if @mr_log
+          @mr_log.warn(resource: LABS, action: 'parse', anomaly: 'final_status_empty_data', report_id:)
+        else
+          patient_ref = record['resource']&.dig('subject', 'reference')
+          patient_last_four = patient_ref&.split('/')&.last&.last(4) || 'unknown'
+          Rails.logger.warn(
+            "DiagnosticReport #{report_id} has status 'final' but is missing " \
+            "both encoded data and observations (Patient: #{patient_last_four})",
+            { service: 'unified_health_data' }
+          )
+        end
       end
 
       def log_missing_date_warning(record)
@@ -163,19 +182,19 @@ module UnifiedHealthData
         effective_date_time = resource['effectiveDateTime']
         effective_period = resource['effectivePeriod']
 
-        # effectiveDateTime and effectivePeriod are mutually exclusive per FHIR R4
-        # Log when both are missing OR when effectivePeriod exists but has no start
-        if effective_date_time.blank? && effective_period.blank?
-          Rails.logger.warn(
-            "DiagnosticReport #{resource['id']} is missing effectiveDateTime and effectivePeriod",
-            { service: 'unified_health_data' }
-          )
-        elsif effective_period.present? && effective_period['start'].blank?
-          Rails.logger.warn(
-            "DiagnosticReport #{resource['id']} is missing effectivePeriod.start",
-            { service: 'unified_health_data' }
-          )
-        end
+        detail = if effective_date_time.blank? && effective_period.blank?
+                   'missing effectiveDateTime and effectivePeriod'
+                 elsif effective_period.present? && effective_period['start'].blank?
+                   'missing effectivePeriod.start'
+                 end
+        return unless detail
+
+        log_adapter(
+          :warn,
+          { resource: LABS, action: 'parse', anomaly: 'missing_date', report_id: resource['id'], detail: },
+          "DiagnosticReport #{resource['id']} is #{detail}",
+          { service: 'unified_health_data' }
+        )
       end
 
       def get_location(record)
@@ -365,8 +384,11 @@ module UnifiedHealthData
                      elsif obs['valueDateTime']
                        ['date-time', obs['valueDateTime']]
                      elsif obs['valueAttachment']
-                       Rails.logger.error(
-                         message: "Observation with ID #{obs['id']} has unsupported value type: Attachment"
+                       log_adapter(
+                         :error,
+                         { resource: LABS, action: 'parse', anomaly: 'unsupported_value_type',
+                           observation_id: obs['id'], value_type: 'Attachment' },
+                         { message: "Observation with ID #{obs['id']} has unsupported value type: Attachment" }
                        )
                        raise Common::Exceptions::NotImplemented
                      else
@@ -553,7 +575,9 @@ module UnifiedHealthData
           local_time = parsed_time.in_time_zone(timezone)
           local_time.iso8601
         rescue ArgumentError, TypeError, TZInfo::InvalidTimezoneIdentifier, TZInfo::UnknownTimezone => e
-          Rails.logger.warn(
+          log_adapter(
+            :warn,
+            { resource: LABS, action: 'timezone_conversion', error_message: e.message, date_string:, timezone: },
             "Failed to convert time to facility timezone: #{e.message}",
             { service: 'unified_health_data', date_string:, timezone: }
           )

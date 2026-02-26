@@ -12,7 +12,6 @@ require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
 require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
-require_relative 'logging'
 require_relative 'client'
 require_relative 'source_constants'
 require_relative 'concerns/clinical_notes_logging'
@@ -507,7 +506,7 @@ module UnifiedHealthData
     end
 
     def lab_or_test_adapter
-      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
+      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new(mr_log:)
     end
 
     def clinical_notes_adapter
@@ -524,10 +523,6 @@ module UnifiedHealthData
 
     def immunization_adapter
       @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new(@user)
-    end
-
-    def logger
-      @logger ||= UnifiedHealthData::Logging.new(@user)
     end
 
     def default_start_date
