@@ -107,7 +107,7 @@ exception</medium>
     - [ ] Code follows namespace convention (MODULE_ERROR_NAME)
     - [ ] Existing clients are not broken by the change
 
-    [Play: Make Error Codes Stable, Unique, and Traceable](plays/stable-unique-error-codes.md)
+    [Play: Make Error Codes Stable, Unique, and Traceable](15-stable-unique-error-codes.md)
   </pr_comment_template>
 
 </agent_play>

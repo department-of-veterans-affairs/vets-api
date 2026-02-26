@@ -92,7 +92,7 @@ severity: CRITICAL
     - [ ] No nil/false return for failures
     - [ ] Cause chain preserved with `cause: e`
 
-    [Play: Never Use Broad or Bare Rescues](plays/never-use-bare-rescues.md)
+    [Play: Never Use Broad or Bare Rescues](03-never-use-bare-rescues.md)
   </pr_comment_template>
 
 </agent_play>

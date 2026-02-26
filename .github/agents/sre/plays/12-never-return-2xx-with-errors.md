@@ -107,7 +107,7 @@ controller for the same error type</high>
     - [ ] No custom `success: false` envelope fields
     - [ ] Specs assert correct error status codes
 
-    [Play: Never Return 2xx with Errors](plays/never-return-2xx-with-errors.md)
+    [Play: Never Return 2xx with Errors](12-never-return-2xx-with-errors.md)
   </pr_comment_template>
 
 </agent_play>

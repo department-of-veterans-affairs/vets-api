@@ -118,7 +118,7 @@ meta.upstream_status context</medium>
     - [ ] Preserves upstream context: `meta.upstream_status`, `meta.upstream_service`
     - [ ] Cause chain preserved with `cause: e`
 
-    [Play: Handle 401 Authentication Errors](plays/handle-401-token-ownership.md)
+    [Play: Handle 401 Authentication Errors](06-handle-401-token-ownership.md)
   </pr_comment_template>
 
 </agent_play>

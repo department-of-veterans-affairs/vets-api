@@ -112,7 +112,7 @@ same module</medium>
     - [ ] Service methods raise on failure (no error objects returned)
     - [ ] Changing HTTP client only requires service layer updates
 
-    [Play: Don't mix error concerns across layers](plays/dont-mix-error-concerns.md)
+    [Play: Don't mix error concerns across layers](14-dont-mix-error-concerns.md)
   </pr_comment_template>
 
 </agent_play>

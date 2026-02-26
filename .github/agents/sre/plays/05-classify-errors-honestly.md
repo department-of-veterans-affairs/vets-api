@@ -119,7 +119,7 @@ exceptions that could be narrowed further</medium>
     - [ ] Cause chain preserved with `cause: e`
     - [ ] Metrics correctly split client errors vs server errors
 
-    [Play: Match Status Codes to the Source](plays/match-status-codes-to-the-source.md)
+    [Play: Match Status Codes to the Source](05-classify-errors-honestly.md)
   </pr_comment_template>
 
 </agent_play>

@@ -111,7 +111,7 @@ with no external dependencies</medium>
     - [ ] Callers updated to handle exception (not checking for nil)
     - [ ] APM would see this error
 
-    [Play: Don't Swallow Errors](plays/dont-swallow-errors.md)
+    [Play: Don't Swallow Errors](16-dont-swallow-errors.md)
   </pr_comment_template>
 
 </agent_play>

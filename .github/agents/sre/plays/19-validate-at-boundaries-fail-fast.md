@@ -108,7 +108,7 @@ mutation</medium>
     - [ ] Returns correct 4xx status code (not 500)
     - [ ] No side effects occur before validation completes
 
-    [Play: Validate before you fail](plays/validate-at-boundaries-fail-fast.md)
+    [Play: Validate before you fail](19-validate-at-boundaries-fail-fast.md)
   </pr_comment_template>
 
 </agent_play>

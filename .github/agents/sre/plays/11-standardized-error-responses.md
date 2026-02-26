@@ -127,7 +127,7 @@ error instead of errors array)</medium>
     - [ ] HTTP status code is correct (not 200 OK)
     - [ ] No custom `render_error` methods remain
 
-    [Play: Standardized Error Responses](plays/standardized-error-responses.md)
+    [Play: Standardized Error Responses](11-standardized-error-responses.md)
   </pr_comment_template>
 
 </agent_play>

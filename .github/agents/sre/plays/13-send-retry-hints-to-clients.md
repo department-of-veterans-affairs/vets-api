@@ -115,7 +115,7 @@ but header is present</medium>
     - [RFC 6585 Section 4](https://tools.ietf.org/html/rfc6585#section-4)
     - [RFC 7231 Retry-After](https://tools.ietf.org/html/rfc7231#section-7.1.3)
 
-    [Play: Send Retry Hints](plays/send-retry-hints-to-clients.md)
+    [Play: Send Retry Hints](13-send-retry-hints-to-clients.md)
   </pr_comment_template>
 
 </agent_play>

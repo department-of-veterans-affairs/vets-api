@@ -118,7 +118,7 @@ cardinality values</medium>
     - [ ] No manual `backtrace:` field (Semantic Logger handles it)
     - [ ] All structured fields are safe to log (no PII/PHI/secrets)
 
-    [Play: Prefer structured logs](plays/prefer-structured-logs.md)
+    [Play: Prefer structured logs](17-prefer-structured-logs.md)
   </pr_comment_template>
 
 </agent_play>

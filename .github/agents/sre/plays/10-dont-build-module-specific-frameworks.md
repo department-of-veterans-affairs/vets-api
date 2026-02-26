@@ -126,7 +126,7 @@ proposing centralized requirements</medium>
     - [ ] Exceptions bubble up to ExceptionHandling
     - [ ] No manual span.set_error in module code
 
-    [Play: Don't Build Module-Specific Frameworks](plays/dont-build-module-specific-frameworks.md)
+    [Play: Don't Build Module-Specific Frameworks](10-dont-build-module-specific-frameworks.md)
   </pr_comment_template>
 
 </agent_play>

@@ -104,7 +104,7 @@ impact is lower</medium>
     - [ ] One exception generates one signal in APM (not two)
     - [ ] If wrapping, cause chain preserved with `cause: e`
 
-    [Play: Don't catch, log, and re-raise](plays/dont-catch-log-reraise.md)
+    [Play: Don't catch, log, and re-raise](20-dont-catch-log-reraise.md)
   </pr_comment_template>
 
 </agent_play>

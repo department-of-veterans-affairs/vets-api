@@ -1,6 +1,6 @@
 ---
 id: respect-retry-headers
-title: 'Retry smart: respect signals, fail fast, don't spam logs'
+title: 'Retry smart: respect signals, fail fast, don''t spam logs'
 severity: HIGH
 ---
 
@@ -126,7 +126,7 @@ blindly</medium>
     - [Sidekiq Error Handling](https://github.com/sidekiq/sidekiq/wiki/Error-Handling)
     - [RFC 7231 Retry-After](https://tools.ietf.org/html/rfc7231#section-7.1.3)
 
-    [Play: Retry Smart](plays/respect-retry-headers-when-calling-upstream.md)
+    [Play: Retry Smart](21-respect-retry-headers-when-calling-upstream.md)
   </pr_comment_template>
 
 </agent_play>

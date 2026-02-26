@@ -131,7 +131,7 @@ warn)</medium>
     - [ ] APM error rate reflects only 5xx system failures
     - [ ] 4xx spike monitoring in place (Error Code Paradox)
 
-    [Play: Expected vs Unexpected Errors](plays/expected-vs-unexpected-errors.md)
+    [Play: Expected vs Unexpected Errors](09-expected-vs-unexpected-errors.md)
   </pr_comment_template>
 
 </agent_play>

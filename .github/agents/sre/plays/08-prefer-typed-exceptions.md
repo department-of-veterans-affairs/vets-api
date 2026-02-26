@@ -103,7 +103,7 @@ request path</medium>
     - [ ] Includes structured metadata (detail, source)
     - [ ] Framework exception handler recognizes the new type
 
-    [Play: Prefer Typed Exceptions](plays/prefer-typed-exceptions.md)
+    [Play: Prefer Typed Exceptions](08-prefer-typed-exceptions.md)
   </pr_comment_template>
 
 </agent_play>

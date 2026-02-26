@@ -107,7 +107,7 @@ client files</high>
     - [ ] Sibling API client files checked for same pattern
     - [ ] Meta fields use allowlisted safe fields only
 
-    [Play: Don't leak PII, PHI, or secrets](plays/dont-leak-pii-phi-secrets.md)
+    [Play: Don't leak PII, PHI, or secrets](01-dont-leak-pii-phi-secrets.md)
   </pr_comment_template>
 
 </agent_play>

@@ -96,7 +96,7 @@ knowledge</medium>
     - [ ] `meta.required_permission` included in 403 responses
     - [ ] `find_by` used instead of `find` for unified 404 pattern
 
-    [Play: Handle 403 Authorization Errors](plays/handle-403-permission-vs-existence.md)
+    [Play: Handle 403 Authorization Errors](07-handle-403-permission-vs-existence.md)
   </pr_comment_template>
 
 </agent_play>

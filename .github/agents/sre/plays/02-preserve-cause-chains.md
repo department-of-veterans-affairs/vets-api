@@ -117,7 +117,7 @@ dependencies or retry behavior</medium>
     - [ ] APM traces show full chain: wrapper -> original exception
     - [ ] Stack trace shows original failure location
 
-    [Play: Always Preserve the Cause Chain](plays/preserve-cause-chains.md)
+    [Play: Always Preserve the Cause Chain](02-preserve-cause-chains.md)
   </pr_comment_template>
 
 </agent_play>

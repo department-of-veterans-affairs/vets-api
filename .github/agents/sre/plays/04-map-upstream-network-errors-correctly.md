@@ -125,7 +125,7 @@ meta.upstream_status</medium>
     - [ ] Cause chain preserved with `cause: e`
     - [ ] Metrics separate our bugs (500) from upstream issues (502/503/504)
 
-    [Play: Map Upstream Network Errors Correctly](plays/map-upstream-network-errors-correctly.md)
+    [Play: Map Upstream Network Errors Correctly](04-map-upstream-network-errors-correctly.md)
   </pr_comment_template>
 
 </agent_play>

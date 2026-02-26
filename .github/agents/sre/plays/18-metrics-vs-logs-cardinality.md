@@ -128,7 +128,7 @@ could grow beyond 100 unique values</medium>
     - [ ] High-cardinality data captured in structured log line
     - [ ] Total cardinality across all tags < 10,000 time series
 
-    [Play: Understand Cardinality: Metrics vs Logs](plays/metrics-vs-logs-cardinality.md)
+    [Play: Understand Cardinality: Metrics vs Logs](18-metrics-vs-logs-cardinality.md)
   </pr_comment_template>
 
 </agent_play>
