@@ -10,6 +10,7 @@ RSpec.describe Dependents::Monitor do
       .to receive(:fill_form) { |saved_claim, *_|
         "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
       }
+    allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
   end
 
   let(:claim) { create(:dependency_claim) }
@@ -104,77 +105,172 @@ RSpec.describe Dependents::Monitor do
   describe '#track_event' do
     let(:tags) { ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2'] }
 
-    it 'handles an error' do
-      expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-      expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-      expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags:)
-      expect(Rails.logger).to receive(:error).with('Error!', {
-                                                     context: {
-                                                       claim_id: claim_v2.id,
-                                                       confirmation_number: claim_v2.confirmation_number,
-                                                       error: 'test',
-                                                       form_id: '686C-674-V2',
+    context 'when v3 flipper is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+      end
+
+      it 'handles an error' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.exhaustion', tags:)
+        expect(Rails.logger).to receive(:error).with('Error!', {
+                                                       context: {
+                                                         claim_id: claim_v2.id,
+                                                         confirmation_number: claim_v2.confirmation_number,
+                                                         error: 'test',
+                                                         form_id: '686C-674-V2',
+                                                         service: 'dependents-application',
+                                                         tags: ['form_id:686C-674-V2',
+                                                                'service:dependents-application'],
+                                                         user_account_uuid: nil
+                                                       },
+                                                       file: a_kind_of(String),
+                                                       function: 'track_event',
+                                                       line: a_kind_of(Integer),
                                                        service: 'dependents-application',
-                                                       tags: ['form_id:686C-674-V2',
-                                                              'service:dependents-application'],
-                                                       user_account_uuid: nil
-                                                     },
-                                                     file: a_kind_of(String),
-                                                     function: 'track_event',
-                                                     line: a_kind_of(Integer),
-                                                     service: 'dependents-application',
-                                                     statsd: 'test.monitor.exhaustion'
-                                                   })
+                                                       statsd: 'test.monitor.exhaustion'
+                                                     })
 
-      monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', error: 'test')
+        monitor_v2.track_event('error', 'Error!', 'test.monitor.exhaustion', error: 'test')
+      end
+
+      it 'handles an info log' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
+        expect(Rails.logger).to receive(:info).with('Success!', {
+                                                      context: {
+                                                        claim_id: claim_v2.id,
+                                                        confirmation_number: claim_v2.confirmation_number,
+                                                        error: 'test',
+                                                        form_id: '686C-674-V2',
+                                                        service: 'dependents-application',
+                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.success'
+                                                    })
+
+        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+      end
+
+      it 'handles a warning' do
+        expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
+        expect(StatsD).to receive(:increment).with('test.monitor.failure', tags:)
+        expect(Rails.logger).to receive(:warn).with('Oops!', {
+                                                      context: {
+                                                        claim_id: claim_v2.id,
+                                                        confirmation_number: claim_v2.confirmation_number,
+                                                        error: 'test',
+                                                        form_id: '686C-674-V2',
+                                                        service: 'dependents-application',
+                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.failure'
+                                                    })
+
+        monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', error: 'test')
+      end
     end
 
-    it 'handles an info log' do
-      expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-      expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-      expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
-      expect(Rails.logger).to receive(:info).with('Success!', {
-                                                    context: {
-                                                      claim_id: claim_v2.id,
-                                                      confirmation_number: claim_v2.confirmation_number,
-                                                      error: 'test',
-                                                      form_id: '686C-674-V2',
-                                                      service: 'dependents-application',
-                                                      tags: ['form_id:686C-674-V2', 'service:dependents-application'],
-                                                      user_account_uuid: nil
-                                                    },
-                                                    file: a_kind_of(String),
-                                                    function: 'track_event',
-                                                    line: a_kind_of(Integer),
-                                                    service: 'dependents-application',
-                                                    statsd: 'test.monitor.success'
-                                                  })
+    context 'when there is a user but v3 flipper is off' do
+      let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
 
-      monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+      it 'tracks an event' do
+        allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
+        allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
+        expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
+        expect(Rails.logger).to receive(:info).with('Success!', {
+                                                      context: {
+                                                        claim_id: claim_v2.id,
+                                                        confirmation_number: claim_v2.confirmation_number,
+                                                        error: 'test',
+                                                        form_id: '686C-674-V2',
+                                                        service: 'dependents-application',
+                                                        tags: ['form_id:686C-674-V2',
+                                                               'service:dependents-application'],
+                                                        user_account_uuid: nil
+                                                      },
+                                                      file: a_kind_of(String),
+                                                      function: 'track_event',
+                                                      line: a_kind_of(Integer),
+                                                      service: 'dependents-application',
+                                                      statsd: 'test.monitor.success'
+                                                    })
+
+        monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+      end
     end
 
-    it 'handles a warning' do
-      expect(StatsD).to receive(:increment).with('saved_claim.create', anything).at_least(:once)
-      expect(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything).at_least(:once)
-      expect(StatsD).to receive(:increment).with('test.monitor.failure', tags:)
-      expect(Rails.logger).to receive(:warn).with('Oops!', {
-                                                    context: {
-                                                      claim_id: claim_v2.id,
-                                                      confirmation_number: claim_v2.confirmation_number,
-                                                      error: 'test',
-                                                      form_id: '686C-674-V2',
-                                                      service: 'dependents-application',
-                                                      tags: ['form_id:686C-674-V2', 'service:dependents-application'],
-                                                      user_account_uuid: nil
-                                                    },
-                                                    file: a_kind_of(String),
-                                                    function: 'track_event',
-                                                    line: a_kind_of(Integer),
-                                                    service: 'dependents-application',
-                                                    statsd: 'test.monitor.failure'
-                                                  })
+    context 'when v3 flipper is on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
+      end
 
-      monitor_v2.track_event('warn', 'Oops!', 'test.monitor.failure', error: 'test')
+      context 'when removal flow flag is off' do
+        let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
+        let(:tags) do
+          ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:true',
+           'v3_removal:false']
+        end
+
+        it 'tracks an event with v3 tag' do
+          allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
+          allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
+          expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
+          expect(Rails.logger).to receive(:info).with('Success!',
+                                                      hash_including(
+                                                        context: hash_including(
+                                                          tags: ['form_id:686C-674-V2',
+                                                                 'service:dependents-application',
+                                                                 'use_v3:true',
+                                                                 'v3_removal:false']
+                                                        )
+                                                      ))
+
+          monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+        end
+      end
+
+      context 'when removal flow flag is on' do
+        let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
+        let(:tags) do
+          ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:true',
+           'v3_removal:true']
+        end
+
+        before do
+          claim_v2.update(form: { 'is_v3_removal_flow' => true }.to_json)
+        end
+
+        it 'tracks an event with v3 and removal tags' do
+          allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
+          allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
+          expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
+          expect(Rails.logger).to receive(:info).with('Success!',
+                                                      hash_including(
+                                                        context: hash_including(
+                                                          tags: ['form_id:686C-674-V2',
+                                                                 'service:dependents-application',
+                                                                 'use_v3:true',
+                                                                 'v3_removal:true']
+                                                        )
+                                                      ))
+
+          monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+        end
+      end
     end
   end
 
