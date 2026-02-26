@@ -451,6 +451,117 @@ RSpec.describe EventBusGateway::LetterReadyNotificationJob, type: :job do
             .and not_change(EventBusGatewayPushNotification, :count)
         end
       end
+
+      context 'when only email is requested and it fails' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job failed')
+        end
+
+        it 'raises error because all requested notifications failed' do
+          expect do
+            subject.new.perform(participant_id, email_template_id, nil, nil)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
+            .and not_change(EventBusGatewayNotification, :count)
+            .and not_change(EventBusGatewayPushNotification, :count)
+        end
+      end
+
+      context 'when only email and push are requested and both fail' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job failed')
+          allow(EventBusGateway::LetterReadyPushJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Push job failed')
+        end
+
+        it 'raises error because all requested notifications failed' do
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id, nil)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
+            .and not_change(EventBusGatewayNotification, :count)
+            .and not_change(EventBusGatewayPushNotification, :count)
+        end
+      end
+
+      context 'when email and push are requested but only email fails' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job failed')
+        end
+
+        it 'sends push notification and logs partial failure' do
+          expect(va_notify_service).to receive(:send_push)
+          expect(Rails.logger).to receive(:warn).with(
+            'LetterReadyNotificationJob partial failure',
+            {
+              successful: 'push',
+              failed: 'email: Email job failed'
+            }
+          )
+
+          result = subject.new.perform(participant_id, email_template_id, push_template_id, nil)
+          expect(result).to eq([{ type: 'email', error: 'Email job failed' }])
+        end
+
+        it 'creates push notification record but not email' do
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id, nil)
+          end.to not_change(EventBusGatewayNotification, :count)
+            .and change(EventBusGatewayPushNotification, :count).by(1)
+        end
+      end
+
+      context 'when sms template is nil and both email and push fail' do
+        before do
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job failed')
+          allow(EventBusGateway::LetterReadyPushJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Push job failed')
+        end
+
+        it 'raises error because all requested notifications (email, push) failed' do
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id, nil)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
+        end
+      end
+
+      context 'when sms feature flag is disabled and both email and push fail' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:event_bus_gateway_letter_ready_sms_notifications, instance_of(Flipper::Actor))
+            .and_return(false)
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job failed')
+          allow(EventBusGateway::LetterReadyPushJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Push job failed')
+        end
+
+        it 'raises error because all enabled notifications (email, push) failed' do
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id, sms_template_id)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
+        end
+      end
+
+      context 'when push feature flag is disabled and both email and sms fail' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:event_bus_gateway_letter_ready_push_notifications, instance_of(Flipper::Actor))
+            .and_return(false)
+          allow(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Email job failed')
+          allow(EventBusGateway::LetterReadySmsJob).to receive(:perform_async)
+            .and_raise(StandardError, 'Sms job failed')
+        end
+
+        it 'raises error because all enabled notifications (email, sms) failed' do
+          expect do
+            subject.new.perform(participant_id, email_template_id, push_template_id, sms_template_id)
+          end.to raise_error(EventBusGateway::Errors::NotificationEnqueueError, /All notifications failed/)
+        end
+      end
     end
 
     describe 'error handling' do
