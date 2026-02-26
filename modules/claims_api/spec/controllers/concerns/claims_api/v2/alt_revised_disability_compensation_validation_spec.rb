@@ -561,6 +561,19 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'when the type is temporary with mixed case and begin date is chronological with endDate' do
+      it 'does not return an error' do
+        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'tEMpORARy'
+        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.next_day(1).iso8601
+        subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(2).iso8601
+
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+
+        expect(res).to be_nil
+        expect(current_error_array).to be_nil
+      end
+    end
+
     context 'when the type is temporary and begin date is today' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'

@@ -92,7 +92,7 @@ module ClaimsApi
       # rubocop:disable Metrics/MethodLength
       def alt_rev_validate_form_526_change_of_address_beginning_date
         # beginning date only needs to be validated for TEMPORARY address changes
-        return unless form_attributes['changeOfAddress']&.dig('typeOfAddressChange') == 'TEMPORARY'
+        return unless form_attributes['changeOfAddress']&.dig('typeOfAddressChange')&.upcase == 'TEMPORARY'
 
         change_of_address = form_attributes['changeOfAddress']
         begin_date = change_of_address.dig('dates', 'beginDate')
