@@ -4,6 +4,10 @@ class FormSubmission < ApplicationRecord
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
 
+  # form_intake_submissions used when retrying to send structured data to MMS
+  # see https://github.com/department-of-veterans-affairs/vets-api/pull/25889
+  has_many :form_intake_submissions, dependent: :destroy
+
   has_many :form_submission_attempts, dependent: :destroy
   belongs_to :saved_claim, optional: true
   belongs_to :user_account, optional: true

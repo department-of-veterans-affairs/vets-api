@@ -1,0 +1,225 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [
+        "data",
+        "meta"
+    ],
+    "properties": {
+        "data": {
+            "type": "object",
+            "required": [
+                "id",
+                "type",
+                "attributes"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "authorized_services"
+                    ]
+                },
+                "attributes": {
+                    "type": "object",
+                    "required": [
+                        "authorizedServices"
+                    ],
+                    "properties": {
+                        "authorizedServices": {
+                            "type": "object",
+                            "required": [
+                                "appeals",
+                                "appointments",
+                                "claims",
+                                "decisionLetters",
+                                "directDepositBenefits",
+                                "directDepositBenefitsUpdate",
+                                "disabilityRating",
+                                "genderIdentity",
+                                "lettersAndDocuments",
+                                "militaryServiceHistory",
+                                "paymentHistory",
+                                "preferredName",
+                                "prescriptions",
+                                "scheduleAppointments",
+                                "secureMessaging",
+                                "userProfileUpdate"
+                            ],
+                            "properties": {
+                                "allergiesOracleHealthEnabled": {
+                                    "type": "boolean"
+                                },
+                                "appeals": {
+                                    "type": "boolean"
+                                },
+                                "appointments": {
+                                    "type": "boolean"
+                                },
+                                "claims": {
+                                    "type": "boolean"
+                                },
+                                "decisionLetters": {
+                                    "type": "boolean"
+                                },
+                                "directDepositBenefits": {
+                                    "type": "boolean"
+                                },
+                                "directDepositBenefitsUpdate": {
+                                    "type": "boolean"
+                                },
+                                "disabilityRating": {
+                                    "type": "boolean"
+                                },
+                                "genderIdentity": {
+                                    "type": "boolean"
+                                },
+                                "labsAndTestsEnabled": {
+                                    "type": "boolean"
+                                },
+                                "lettersAndDocuments": {
+                                    "type": "boolean"
+                                },
+                                "medicationsOracleHealthEnabled": {
+                                    "type": "boolean"
+                                },
+                                "militaryServiceHistory": {
+                                    "type": "boolean"
+                                },
+                                "paymentHistory": {
+                                    "type": "boolean"
+                                },
+                                "preferredName": {
+                                    "type": "boolean"
+                                },
+                                "prescriptions": {
+                                    "type": "boolean"
+                                },
+                                "scheduleAppointments": {
+                                    "type": "boolean"
+                                },
+                                "secureMessaging": {
+                                    "type": "boolean"
+                                },
+                                "secureMessagingOracleHealthEnabled": {
+                                    "type": "boolean"
+                                },
+                                "userProfileUpdate": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "meta": {
+            "type": "object",
+            "required": [
+                "isUserAtPretransitionedOhFacility",
+                "isUserFacilityReadyForInfoAlert",
+                "migratingFacilitiesList"
+            ],
+            "properties": {
+                "isUserAtPretransitionedOhFacility": {
+                    "type": "boolean"
+                },
+                "isUserFacilityReadyForInfoAlert": {
+                    "type": "boolean"
+                },
+                "migratingFacilitiesList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "migrationDate",
+                            "facilities",
+                            "migrationStatus",
+                            "phases"
+                        ],
+                        "properties": {
+                            "migrationDate": {
+                                "type": "string"
+                            },
+                            "facilities": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "facilityId",
+                                        "facilityName"
+                                    ],
+                                    "properties": {
+                                        "facilityId": {
+                                            "type": "string"
+                                        },
+                                        "facilityName": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "migrationStatus": {
+                                "type": "string",
+                                "enum": [
+                                    "NOT_STARTED",
+                                    "ACTIVE",
+                                    "COMPLETE"
+                                ]
+                            },
+                            "phases": {
+                                "type": "object",
+                                "required": [
+                                    "current",
+                                    "p0",
+                                    "p1",
+                                    "p2",
+                                    "p3",
+                                    "p4",
+                                    "p5",
+                                    "p6",
+                                    "p7"
+                                ],
+                                "properties": {
+                                    "current": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "p0": {
+                                        "type": "string"
+                                    },
+                                    "p1": {
+                                        "type": "string"
+                                    },
+                                    "p2": {
+                                        "type": "string"
+                                    },
+                                    "p3": {
+                                        "type": "string"
+                                    },
+                                    "p4": {
+                                        "type": "string"
+                                    },
+                                    "p5": {
+                                        "type": "string"
+                                    },
+                                    "p6": {
+                                        "type": "string"
+                                    },
+                                    "p7": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

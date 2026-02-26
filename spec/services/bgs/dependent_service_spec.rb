@@ -474,8 +474,7 @@ RSpec.describe BGS::DependentService do
 
   describe '#submit_pdf_job' do
     let(:pa) { build(:claim_evidence, id: 23) }
-    let(:ssn) { '123456789' }
-    let(:folder_identifier) { "VETERAN:SSN:#{ssn}" }
+    let(:folder_identifier) { 'VETERAN:PARTICIPANT_ID:600061742' }
     let(:uploader) { ClaimsEvidenceApi::Uploader.new(folder_identifier) }
     let(:service) { BGS::DependentService.new(user) }
     let(:monitor) { Dependents::Monitor.new(claim.id) }
@@ -489,8 +488,6 @@ RSpec.describe BGS::DependentService do
 
       allow(ClaimsEvidenceApi::Uploader).to receive(:new).with(folder_identifier).and_return(uploader)
       allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
-
-      service.instance_variable_set(:@ssn, ssn)
     end
 
     it 'submits evidence pdf via claims evidence uploader' do

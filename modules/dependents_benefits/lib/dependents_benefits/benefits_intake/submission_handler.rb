@@ -31,7 +31,7 @@ module DependentsBenefits
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#notification_email
       def notification_email
-        @notification_email ||= Dependents::NotificationEmail.new(claim.id)
+        @notification_email ||= DependentsBenefits::NotificationEmail.new(claim.id)
       end
 
       # handle a failure result

@@ -3,6 +3,7 @@
 require 'unified_health_data/service'
 require 'unified_health_data/serializers/prescription_serializer'
 require 'unified_health_data/serializers/prescriptions_refills_serializer'
+require 'mhv/prescriptions/oh_transition_refill_filter'
 require 'securerandom'
 require 'unique_user_events'
 
@@ -31,14 +32,26 @@ module Mobile
       end
 
       def refill
-        result = unified_health_service.refill_prescription(orders)
-        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, result)
+        parsed_orders = orders
+        allowed_orders, blocked_failures = oh_transition_filter.partition_orders(parsed_orders)
+
+        # Only call upstream service if there are non-blocked orders
+        api_result = if allowed_orders.present?
+                       unified_health_service.refill_prescription(allowed_orders)
+                     else
+                       { success: [], failed: [] }
+                     end
+
+        merged_result = MHV::Prescriptions::OhTransitionRefillFilter.merge_results(api_result, blocked_failures)
+        response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, merged_result)
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
 
-        # Log unique user event for prescription refill requested
+        # Log unique user event for prescription refill requested (includes OH tracking for matching facilities)
+        event_facility_ids = parsed_orders.map { |order| order['stationNumber'] }.compact.uniq
         UniqueUserEvents.log_event(
           user: @current_user,
-          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+          event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+          event_facility_ids:
         )
 
         render json: response.serializable_hash
@@ -48,6 +61,10 @@ module Mobile
 
       def unified_health_service
         @unified_health_service ||= UnifiedHealthData::Service.new(@current_user)
+      end
+
+      def oh_transition_filter
+        @oh_transition_filter ||= MHV::Prescriptions::OhTransitionRefillFilter.new(@current_user)
       end
 
       def fetch_prescriptions

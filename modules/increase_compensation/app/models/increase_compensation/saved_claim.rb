@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'increase_compensation/benefits_intake/submit_claim_job'
+require 'increase_compensation/pdf_stamper'
 require 'pdf_fill/filler'
+require 'increase_compensation/ibm_converter'
 
 module IncreaseCompensation
   ##
@@ -11,6 +13,7 @@ module IncreaseCompensation
   class SavedClaim < ::SavedClaim
     # Increase Compensation Form ID
     FORM = IncreaseCompensation::FORM_ID
+    FORM_REAL_ID = IncreaseCompensation::FORM_REAL_ID
 
     # the predefined regional office address
     #
@@ -58,24 +61,13 @@ module IncreaseCompensation
       parsed_form.dig('veteranFullName', 'last')
     end
 
-    ##
-    # claim attachment list
-    #
-    # @see PersistentAttachment
-    #
-    # @return [Array<String>] list of attachments
-    #
-    def attachment_keys
-      [:files].freeze
-    end
-
     # Run after a claim is saved, this processes any files and workflows that are present
     # and sends them to our internal partners for processing.
     # Only removed Sidekiq call from super
-    def process_attachments!
-      refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
-      files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
-      files.find_each { |f| f.update(saved_claim_id: id) }
+    def process_attachments!(docs = nil)
+      refs = docs || parsed_form['files'] || []
+      files = PersistentAttachment.where(guid: refs.map { |f| f['confirmationCode'] })
+      files.find_each { |f| f.update(saved_claim_id: id, form_id: FORM_REAL_ID) }
 
       # Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
     end
@@ -88,7 +80,24 @@ module IncreaseCompensation
     # @return [String] Path to the generated PDF file
     #
     def to_pdf(file_name = nil, fill_options = {})
-      ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      pdf_path = ::PdfFill::Filler.fill_form(self, file_name, fill_options)
+      # test fails because form is nil
+      if form && pdf_path.present?
+        signed_path = IncreaseCompensation::PdfStamper.stamp_signature(pdf_path, parsed_form)
+
+        # stamp_signature will return the original file_path if signature is blank OR on failure
+        if pdf_path != signed_path
+          # Pdf Stamper changes the file name so change it back here
+          FileUtils.mv(signed_path, pdf_path, force: true)
+        end
+      end
+      pdf_path
+    end
+
+    ## Converts parsed_form into the IBM readable format
+    #
+    def to_ibm
+      IncreaseCompensation::IbmConverter.convert(parsed_form)
     end
 
     ##

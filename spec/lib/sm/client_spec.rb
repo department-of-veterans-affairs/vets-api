@@ -95,6 +95,75 @@ describe SM::Client do
     end
   end
 
+  describe '#track_with_status' do
+    before do
+      allow(client).to receive(:mobile_client?).and_return(false)
+    end
+
+    context 'when the block succeeds' do
+      it 'returns the block result and tracks a success metric' do
+        expect(StatsD).to receive(:increment).with(
+          'mhv.sm.api.client.some_operation',
+          tags: ['platform:web', 'ehr_source:vista', 'status:success']
+        )
+
+        result = client.send(:track_with_status, 'some_operation') { 'ok' }
+        expect(result).to eq('ok')
+      end
+    end
+
+    context 'when the block raises an exception' do
+      let(:error) { StandardError.new('something went wrong') }
+
+      it 'logs the exception to Sentry with the metric key context' do
+        allow(StatsD).to receive(:increment)
+
+        expect(client).to receive(:log_exception_to_sentry).with(
+          error, { metric_key: 'some_operation' }, {}, 'error'
+        )
+
+        expect { client.send(:track_with_status, 'some_operation') { raise error } }
+          .to raise_error(StandardError, 'something went wrong')
+      end
+
+      it 'tracks a failure metric' do
+        allow(client).to receive(:log_exception_to_sentry)
+
+        expect(StatsD).to receive(:increment).with(
+          'mhv.sm.api.client.some_operation',
+          tags: ['platform:web', 'ehr_source:vista', 'status:failure']
+        )
+
+        expect { client.send(:track_with_status, 'some_operation') { raise error } }
+          .to raise_error(StandardError)
+      end
+
+      it 're-raises the original exception after logging' do
+        allow(client).to receive(:log_exception_to_sentry)
+        allow(StatsD).to receive(:increment)
+
+        expect { client.send(:track_with_status, 'some_operation') { raise error } }
+          .to raise_error(error)
+      end
+    end
+
+    context 'when is_oh is true' do
+      let(:error) { StandardError.new('oh error') }
+
+      it 'passes is_oh tag to the failure metric' do
+        allow(client).to receive(:log_exception_to_sentry)
+
+        expect(StatsD).to receive(:increment).with(
+          'mhv.sm.api.client.some_operation',
+          tags: ['platform:web', 'ehr_source:oracle_health', 'status:failure']
+        )
+
+        expect { client.send(:track_with_status, 'some_operation', is_oh: true) { raise error } }
+          .to raise_error(StandardError)
+      end
+    end
+  end
+
   describe 'Test new API gateway methods' do
     let(:config) { SM::Configuration.instance }
 

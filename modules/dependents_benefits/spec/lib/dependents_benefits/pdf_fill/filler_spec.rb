@@ -48,14 +48,27 @@ describe DependentsBenefits::PdfFill::Filler, type: :model do
                 end
               end
 
+              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
+              student = form_id == '21-674' ? form_data['dependents_application']['student_information'][0] : nil
+
+              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
+
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
-                                                              { extras_redesign:, show_jumplinks: })
+                                                              { extras_redesign:, student:, show_jumplinks: })
 
               fixture_pdf_base = "modules/dependents_benefits/spec/fixtures/pdf_fill/#{form_id}/#{type}"
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
                 fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
+
+                # This gives more detailed output on where the PDFs differ
+                file_texts = [extras_path, fixture_pdf].map do |path|
+                  reader1 = PDF::Reader.new(path)
+                  reader1.pages.map(&:text).join('\n').squeeze
+                end
+                expect(file_texts[0]).to eq(file_texts[1])
+
                 expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)

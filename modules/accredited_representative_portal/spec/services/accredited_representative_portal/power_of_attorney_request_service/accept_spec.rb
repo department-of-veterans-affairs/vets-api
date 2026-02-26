@@ -81,7 +81,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
         service_response: response_body.to_json,
         error_message: message
       )
-      monitor.track_duration('ar.poa.submission.duration', from: poa_request.created_at)
+
       monitor.track_duration('ar.poa.submission.enqueue_failed.duration', from: poa_request.created_at)
     end
   end
@@ -227,8 +227,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Ac
       expect(failed.status).to eq('enqueue_failed')
       expect(failed.error_message).to eq('bad request')
 
-      expect(monitor).to have_received(:track_duration)
-        .with('ar.poa.submission.duration', from: poa_request.created_at)
       expect(monitor).to have_received(:track_duration)
         .with('ar.poa.submission.enqueue_failed.duration', from: poa_request.created_at)
       expect(monitor).to have_received(:track_count).with(

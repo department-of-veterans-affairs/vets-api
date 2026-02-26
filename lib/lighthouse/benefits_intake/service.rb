@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/exceptions'
 require 'lighthouse/benefits_intake/configuration'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_utilities/pdf_validator'
@@ -18,19 +19,27 @@ module BenefitsIntake
     configuration BenefitsIntake::Configuration
 
     # TODO: process document error similar to service exception
+
+    # error - document does not meet the pdf validator options
     class InvalidDocumentError < StandardError; end
+
+    # error - tota upload size exceeds the limit
+    class UploadSizeExceeded < StandardError; end
 
     # tracking metric prefix
     STATSD_KEY_PREFIX = 'api.benefits_intake'
 
     # values for a valid pdf
     PDF_VALIDATOR_OPTIONS = {
-      size_limit_in_bytes: 100_000_000, # 100 MB
+      size_limit_in_bytes: 100.megabytes,
       check_page_dimensions: true,
       check_encryption: true,
       width_limit_in_inches: 78,
       height_limit_in_inches: 101
     }.freeze
+
+    # total upload size limit
+    UPLOAD_SIZE_LIMIT = 5.gigabytes
 
     attr_reader :location, :uuid
 
@@ -47,8 +56,8 @@ module BenefitsIntake
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
       upload_url, _uuid = request_upload unless upload_url
 
-      metadata = JSON.parse(metadata)
-      meta_tmp = Common::FileHelpers.generate_random_file(metadata.to_json)
+      check_upload_size(metadata:, document:, attachments:)
+      meta_tmp = Common::FileHelpers.generate_random_file(metadata)
 
       params = {}
       params[:metadata] = Faraday::UploadIO.new(meta_tmp, Mime[:json].to_s, 'metadata.json')
@@ -63,7 +72,7 @@ module BenefitsIntake
     end
 
     # Instantiates a new location and uuid for upload to BenefitsIntake
-    # - the upload muse be performed within 15 minutes of this request
+    # - the upload must be performed within 15 minutes of this request
     #
     # @param refresh [Boolean] request location and uuid again
     # @return [Array<String>] the upload location and uuid to be used
@@ -89,7 +98,12 @@ module BenefitsIntake
     # Get the status for a set of prior uploads
     #
     # @param uuids [Array<String>] the uuids to check
+    # @raise [Common::Exceptions::MaxArraySizeExceeded] if more than 1000 uuids are provided
     def bulk_status(uuids:)
+      if Flipper.enabled?(:vba_documents_uploads_report_uuid_limit) && uuids.size > 1000
+        raise Common::Exceptions::MaxArraySizeExceeded.new('uuids', uuids.size, 1000)
+      end
+
       headers = { 'Content-Type' => Mime[:json].to_s, 'Accept' => Mime[:json].to_s }
       data = { ids: uuids }.to_json
       perform :post, 'uploads/report', data, headers
@@ -142,11 +156,27 @@ module BenefitsIntake
     #
     # @return [Hash] payload for upload
     def valid_upload?(metadata:, document:, attachments: [])
-      {
+      upload = {
         metadata: valid_metadata?(metadata:),
         document: valid_document?(document:),
         attachments: attachments.map { |attachment| valid_document?(document: attachment) }
       }
+
+      check_upload_size(metadata: metadata.to_json, document:, attachments:)
+      upload
+    end
+
+    private
+
+    # validate the entire upload size does not exceed the limit
+    def check_upload_size(metadata:, document:, attachments: [])
+      metadata = JSON.parse(metadata)
+      meta_tmp = Common::FileHelpers.generate_random_file(metadata.to_json)
+
+      upload_size = ([meta_tmp, document] + attachments).map { |f| File.size(f) }
+      raise UploadSizeExceeded if upload_size.sum.to_i >= UPLOAD_SIZE_LIMIT
+    ensure
+      Common::FileHelpers.delete_file_if_exists(meta_tmp) if meta_tmp
     end
 
     # end Service

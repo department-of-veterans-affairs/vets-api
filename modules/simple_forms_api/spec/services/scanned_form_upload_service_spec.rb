@@ -29,7 +29,8 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
       form_data: {
         full_name: { first: 'John', last: 'Doe' },
         id_number: { ssn: '123-45-6789' },
-        postal_code: '12345'
+        postal_code: '12345',
+        email: 'john.doe@example.com'
       },
       supporting_documents: []
     }
@@ -83,11 +84,16 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
         expect(pdf_stamper).to have_received(:stamp_pdf)
       end
 
-      it 'creates form submission and attempt' do
+      it 'creates form submission with flat data structure preserving form_data fields at top level' do
         form_submission = double
+        expected_form_data = params[:form_data].to_h.merge(
+          confirmation_code: params[:confirmation_code],
+          supporting_documents: []
+        ).to_json
+
         expect(FormSubmission).to receive(:create).with(
           form_type: form_number,
-          form_data: params[:form_data].to_json,
+          form_data: expected_form_data,
           user_account: user.user_account
         ).and_return(form_submission)
 
@@ -127,7 +133,8 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           form_data: {
             full_name: { first: 'John', last: 'Doe' },
             id_number: { ssn: '123-45-6789' },
-            postal_code: '12345'
+            postal_code: '12345',
+            email: 'john.doe@example.com'
           },
           supporting_documents: [
             { confirmation_code: 'support-1' },
@@ -155,6 +162,27 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           upload_url: upload_location,
           attachments: [support_path1, support_path2]
         )
+      end
+
+      it 'creates form submission with flat data structure including supporting document confirmation codes' do
+        form_submission = double
+        expected_form_data = params[:form_data].to_h.merge(
+          confirmation_code: params[:confirmation_code],
+          supporting_documents: params[:supporting_documents]
+        ).to_json
+
+        expect(FormSubmission).to receive(:create).with(
+          form_type: form_number,
+          form_data: expected_form_data,
+          user_account: user.user_account
+        ).and_return(form_submission)
+
+        expect(FormSubmissionAttempt).to receive(:create).with(
+          form_submission:,
+          benefits_intake_uuid: upload_uuid
+        )
+
+        service.upload_with_supporting_documents
       end
     end
 
@@ -198,7 +226,8 @@ RSpec.describe SimpleFormsApi::ScannedFormUploadService do
           form_data: {
             full_name: { first: 'John', last: 'Doe' },
             id_number: { va_file_number: 'VA123456' },
-            postal_code: '12345'
+            postal_code: '12345',
+            email: 'john.doe@example.com'
           },
           supporting_documents: []
         }
