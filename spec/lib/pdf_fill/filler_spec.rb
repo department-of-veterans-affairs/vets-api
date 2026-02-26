@@ -4,8 +4,10 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
-# This whole suite is approx 57 tests as of this review. It looks deceptively smaller
-# than it is.
+# Unit tests and fill_form integration tests for PdfFill::Filler.
+# Ancillary form fill tests are split into separate files for CI parallelization:
+#   - filler_ancillary_forms_1_spec.rb (heavy forms: 22-10215, 21-674, 21-0781V2, etc.)
+#   - filler_ancillary_forms_2_spec.rb (lighter forms: 21-4142, 28-1900, 5655, etc.)
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
@@ -62,63 +64,6 @@ describe PdfFill::Filler, type: :model do
       { form_id: '686C-674-V2', factory: :dependency_claim_v2 }
     ].each do |options|
       it_behaves_like 'a form filler', options
-    end
-  end
-
-  # there are approx. 46 tests here which is deceptive.
-  describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    def overflow_file_suffix(extras_redesign, show_jumplinks)
-      return '_extras.pdf' unless extras_redesign
-
-      show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
-    end
-
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 26-1880 5655
-       22-10216 22-10215 22-10215a 22-1919 22-10275 22-10272].each do |form_id|
-      context "form #{form_id}" do
-        form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
-        form_types.push(['overflow', true, false], ['overflow', true, true]) if form_id == '21-0781V2'
-        form_types.each do |type, extras_redesign, show_jumplinks|
-          context "with type=#{type} extras_redesign=#{extras_redesign} show_jumplinks=#{show_jumplinks}" do
-            let(:form_data) do
-              get_fixture("pdf_fill/#{form_id}/#{type}")
-            end
-
-            it 'fills the form correctly' do
-              if type == 'overflow'
-                the_extras_generator = nil
-                expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
-                  the_extras_generator = extras_generator
-                  old_file_path
-                end
-              end
-
-              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
-              student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
-
-              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
-
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
-                                                              { extras_redesign:, student:, show_jumplinks: })
-
-              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
-
-              if type == 'overflow'
-                extras_path = the_extras_generator.generate
-                fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
-                expect(extras_path).to match_file_exactly(fixture_pdf)
-
-                File.delete(extras_path)
-              end
-
-              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
-              expect(file_path).to match_pdf_fields(fixture_pdf)
-
-              File.delete(file_path)
-            end
-          end
-        end
-      end
     end
   end
 
