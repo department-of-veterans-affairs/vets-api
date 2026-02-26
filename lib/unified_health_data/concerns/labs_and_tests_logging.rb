@@ -31,6 +31,16 @@ module UnifiedHealthData
         "#{self.class::STATSD_KEY_PREFIX}.labs_and_tests"
       end
 
+      # StatsD tags array including caller when present.
+      def labs_statsd_tags
+        @labs_caller ? ["caller:#{@labs_caller}"] : []
+      end
+
+      # Base metadata included in every structured log entry.
+      def labs_caller_metadata
+        @labs_caller ? { caller: @labs_caller } : {}
+      end
+
       # Logs test code and display name distribution (migrated from Logging class).
       def log_test_code_distribution(records)
         return unless labs_logging_enabled?
@@ -63,15 +73,17 @@ module UnifiedHealthData
           resource: LABS, action: 'test_code_distribution',
           test_code_distribution: sorted_codes.map { |code, c| "#{code}:#{c}" }.join(','),
           test_name_distribution: sorted_names.map { |name, c| "#{name}:#{c}" }.join(','),
-          total_codes: sorted_codes.size, total_names: sorted_names.size, total_records:
+          total_codes: sorted_codes.size, total_names: sorted_names.size, total_records:,
+          **labs_caller_metadata
         )
-        StatsD.gauge("#{labs_statsd_prefix}.diagnostic.test_code_count", sorted_codes.size)
+        StatsD.gauge("#{labs_statsd_prefix}.diagnostic.test_code_count", sorted_codes.size, tags: labs_statsd_tags)
       end
 
       def log_labs_response_count(raw_count, parsed_count)
         mr_log.diagnostic(
           resource: LABS, action: 'filter',
-          total_entries: raw_count, returned: parsed_count, filtered: raw_count - parsed_count
+          total_entries: raw_count, returned: parsed_count, filtered: raw_count - parsed_count,
+          **labs_caller_metadata
         )
       end
 
@@ -84,17 +96,17 @@ module UnifiedHealthData
           resource: LABS, action: 'index', total_labs: total, vista_count:,
           oracle_health_count: oh_count, total_observations: total_obs,
           avg_observations_per_report: total.positive? ? (total_obs.to_f / total).round(1) : 0,
-          start_date:, end_date:
+          start_date:, end_date:, **labs_caller_metadata
         )
-        StatsD.gauge("#{labs_statsd_prefix}.index.total", total)
-        StatsD.gauge("#{labs_statsd_prefix}.index.vista", vista_count)
-        StatsD.gauge("#{labs_statsd_prefix}.index.oracle_health", oh_count)
+        StatsD.gauge("#{labs_statsd_prefix}.index.total", total, tags: labs_statsd_tags)
+        StatsD.gauge("#{labs_statsd_prefix}.index.vista", vista_count, tags: labs_statsd_tags)
+        StatsD.gauge("#{labs_statsd_prefix}.index.oracle_health", oh_count, tags: labs_statsd_tags)
       end
 
       # Shared helper for always-on anomaly warnings: logs + increments StatsD.
       def emit_anomaly(action:, anomaly:, **metadata)
-        mr_log.warn(resource: LABS, action:, anomaly:, **metadata)
-        StatsD.increment("#{labs_statsd_prefix}.anomaly.#{anomaly}")
+        mr_log.warn(resource: LABS, action:, anomaly:, **metadata, **labs_caller_metadata)
+        StatsD.increment("#{labs_statsd_prefix}.anomaly.#{anomaly}", tags: labs_statsd_tags)
       end
 
       # Warns when >50% of DiagnosticReports are dropped during parsing.
@@ -135,9 +147,9 @@ module UnifiedHealthData
         mr_log.error(
           resource: LABS, action: 'index',
           error_class: error.class.name, error_message: error.message,
-          start_date:, end_date:
+          start_date:, end_date:, **labs_caller_metadata
         )
-        StatsD.increment("#{labs_statsd_prefix}.error")
+        StatsD.increment("#{labs_statsd_prefix}.error", tags: labs_statsd_tags)
       end
 
       # Orchestrates index-level metrics and proactive warnings for get_labs.

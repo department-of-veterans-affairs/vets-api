@@ -31,7 +31,8 @@ module UnifiedHealthData
       @user = user
     end
 
-    def get_labs(start_date:, end_date:)
+    def get_labs(start_date:, end_date:, caller: nil)
+      @labs_caller = caller
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body

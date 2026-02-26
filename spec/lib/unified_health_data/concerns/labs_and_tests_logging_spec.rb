@@ -15,6 +15,8 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
     klass = Class.new do
       include UnifiedHealthData::Concerns::LabsAndTestsLogging
 
+      attr_writer :labs_caller
+
       def initialize(user)
         @user = user
       end
@@ -106,7 +108,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
       instance.send(:log_test_code_distribution, records)
 
       expect(StatsD).to have_received(:gauge)
-        .with('api.uhd.labs_and_tests.diagnostic.test_code_count', 2)
+        .with('api.uhd.labs_and_tests.diagnostic.test_code_count', 2, tags: [])
     end
 
     it 'does not log when all test codes and names are blank' do
@@ -204,9 +206,9 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
     it 'emits StatsD gauges for each source' do
       instance.send(:log_labs_index_metrics, parsed_labs, '2024-01-01', '2025-06-01')
 
-      expect(StatsD).to have_received(:gauge).with('api.uhd.labs_and_tests.index.total', 3)
-      expect(StatsD).to have_received(:gauge).with('api.uhd.labs_and_tests.index.vista', 2)
-      expect(StatsD).to have_received(:gauge).with('api.uhd.labs_and_tests.index.oracle_health', 1)
+      expect(StatsD).to have_received(:gauge).with('api.uhd.labs_and_tests.index.total', 3, tags: [])
+      expect(StatsD).to have_received(:gauge).with('api.uhd.labs_and_tests.index.vista', 2, tags: [])
+      expect(StatsD).to have_received(:gauge).with('api.uhd.labs_and_tests.index.oracle_health', 1, tags: [])
     end
 
     it 'handles empty labs array gracefully' do
@@ -243,7 +245,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
       instance.send(:warn_labs_high_filter_rate, 10, 4)
 
       expect(StatsD).to have_received(:increment)
-        .with('api.uhd.labs_and_tests.anomaly.high_filter_rate')
+        .with('api.uhd.labs_and_tests.anomaly.high_filter_rate', tags: [])
     end
 
     it 'does not warn when filter rate is at or below 50%' do
@@ -281,7 +283,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
       instance.send(:warn_missing_dates, 3, 20)
 
       expect(StatsD).to have_received(:increment)
-        .with('api.uhd.labs_and_tests.anomaly.elevated_missing_dates')
+        .with('api.uhd.labs_and_tests.anomaly.elevated_missing_dates', tags: [])
     end
 
     it 'does not warn when missing date count is below the threshold' do
@@ -313,7 +315,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
       instance.send(:warn_empty_observations, 3, 15)
 
       expect(StatsD).to have_received(:increment)
-        .with('api.uhd.labs_and_tests.anomaly.elevated_empty_observations')
+        .with('api.uhd.labs_and_tests.anomaly.elevated_empty_observations', tags: [])
     end
 
     it 'does not warn when empty count is below the threshold' do
@@ -345,7 +347,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
       instance.send(:warn_short_test_names, 2, 10)
 
       expect(StatsD).to have_received(:increment)
-        .with('api.uhd.labs_and_tests.anomaly.short_test_names')
+        .with('api.uhd.labs_and_tests.anomaly.short_test_names', tags: [])
     end
 
     it 'does not warn when short name count is zero' do
@@ -487,7 +489,81 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
       instance.send(:log_labs_error, error, '2024-01-01', '2025-06-01')
 
       expect(StatsD).to have_received(:increment)
-        .with('api.uhd.labs_and_tests.error')
+        .with('api.uhd.labs_and_tests.error', tags: [])
+    end
+  end
+
+  describe 'caller tagging' do
+    let(:obs) { double('Observation') }
+    let(:vista_lab) { double('LabOrTest', source: 'vista', observations: [obs], date_completed: '2024-06-01') }
+    let(:parsed_labs) { [vista_lab] }
+    let(:combined_records) { [double, double] }
+
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_medical_records_labs_and_tests_diagnostic, user)
+        .and_return(true)
+      instance.labs_caller = 'mobile_v1'
+    end
+
+    it 'includes caller in structured log entries' do
+      instance.send(:log_labs_index_metrics, parsed_labs, '2024-01-01', '2025-06-01')
+
+      expect(Rails.logger).to have_received(:info).with(
+        hash_including(caller: 'mobile_v1', action: 'index')
+      )
+    end
+
+    it 'tags StatsD gauges with caller' do
+      instance.send(:log_labs_index_metrics, parsed_labs, '2024-01-01', '2025-06-01')
+
+      expect(StatsD).to have_received(:gauge)
+        .with('api.uhd.labs_and_tests.index.total', 1, tags: ['caller:mobile_v1'])
+    end
+
+    it 'tags anomaly StatsD increments with caller' do
+      instance.send(:warn_labs_high_filter_rate, 10, 3)
+
+      expect(StatsD).to have_received(:increment)
+        .with('api.uhd.labs_and_tests.anomaly.high_filter_rate', tags: ['caller:mobile_v1'])
+    end
+
+    it 'includes caller in error logs' do
+      error = StandardError.new('timeout')
+      instance.send(:log_labs_error, error, '2024-01-01', '2025-06-01')
+
+      expect(Rails.logger).to have_received(:error).with(
+        hash_including(caller: 'mobile_v1')
+      )
+      expect(StatsD).to have_received(:increment)
+        .with('api.uhd.labs_and_tests.error', tags: ['caller:mobile_v1'])
+    end
+
+    it 'includes caller in anomaly warn logs' do
+      instance.send(:warn_missing_dates, 5, 10)
+
+      expect(Rails.logger).to have_received(:warn).with(
+        hash_including(caller: 'mobile_v1', anomaly: 'elevated_missing_dates')
+      )
+    end
+
+    context 'when caller is nil' do
+      before { instance.labs_caller = nil }
+
+      it 'omits caller from structured logs' do
+        instance.send(:log_labs_index_metrics, parsed_labs, '2024-01-01', '2025-06-01')
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_not_including(:caller)
+        )
+      end
+
+      it 'passes empty tags array to StatsD' do
+        instance.send(:log_labs_index_metrics, parsed_labs, '2024-01-01', '2025-06-01')
+
+        expect(StatsD).to have_received(:gauge)
+          .with('api.uhd.labs_and_tests.index.total', 1, tags: [])
+      end
     end
   end
 end
