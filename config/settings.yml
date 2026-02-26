@@ -1034,6 +1034,7 @@ mhv:
     app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
     host: <%= ENV['mhv__uhd__host'] %>
     labs_logging_date_range_days: <%= ENV['mhv__uhd__labs_logging_date_range_days'] %>
+    medication_filtered_statuses: <%= ENV['mhv__uhd__medication_filtered_statuses'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
@@ -1294,6 +1295,8 @@ res:
   base_url: <%= ENV['res__base_url'] %>
   ch_31_case_details:
     mock: <%= ENV['res__ch_31_case_details__mock'] %>
+  ch_31_case_milestones:
+    mock: <%= ENV['res__ch_31_case_milestones__mock'] %>
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
@@ -1403,11 +1406,16 @@ travel_pay:
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
@@ -1631,6 +1639,15 @@ vanotify:
           template_id: ~
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
+          template_id: ~
+    "22_0989":
+      api_key: ~
+      email:
+        error:
+          flipper_id: ~
+          template_id: ~
+        received:
+          flipper_id: ~
           template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
