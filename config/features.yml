@@ -18,6 +18,10 @@ features:
   this_is_only_a_test_two:
     actor_type: user
     description: Used in feature toggle specs.
+  accredited_entity_models_populate_with_xlsx_data:
+    actor_type: user
+    description: Enables the population of accredited entity models with data from the GCLAWS Accreditation XLSX file
+    enable_in_development: true
   accredited_representative_portal_claimant_details:
     actor_type: user
     description: Enables the claimant details page on the frontend
@@ -289,6 +293,9 @@ features:
   champva_vanotify_custom_confirmation_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
+  champva_vanotify_custom_pega_alert_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending missing Pega status alert emails with VA Notify
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
@@ -895,6 +902,12 @@ features:
       Enables content and design enhancements for supporting evidence
       in the 526 disability compensation workflow.
     enable_in_development: false
+  disability_526_supporting_evidence_file_input_v3:
+    actor_type: user
+    description: >
+      Enables the v3 file input component for supporting evidence uploads
+      in the 526 disability compensation workflow.
+    enable_in_development: false
   disability_compensation_new_conditions_workflow_metadata:
     actor_type: user
     description: enables adding new conditions workflow indicator to in progress 526 forms
@@ -969,6 +982,10 @@ features:
   event_bus_gateway_retry_emails:
     actor_type: user
     description: When enabled, vets-api retries event bus gateway emails that VA Notify marks temporary-failure
+    enable_in_development: true
+  event_bus_gateway_retry_sms:
+    actor_type: user
+    description: When enabled, vets-api retries event bus gateway sms that VA Notify marks temporary-failure
     enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
@@ -1436,9 +1453,18 @@ features:
     actor_type: user
     description: Enables logging for UHD immunizations vaccine group name processing to debug vaccine name extraction issues
     enable_in_development: false
-  mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled:
+  mhv_medical_records_diagnostic_logging:
     actor_type: user
-    description: Control whether vets-api logs clinical notes filtering and response counts from UHD
+    description: >
+      Global fallback toggle for Medical Records diagnostic logging. Enables verbose instrumentation
+      across ALL domains (clinical notes, allergies, conditions, labs, vitals, vaccines). Use during
+      incidents when you need full visibility. Per-domain toggles take priority when enabled.
+    enable_in_development: true
+  mhv_medical_records_clinical_notes_diagnostic:
+    actor_type: user
+    description: >
+      Enables diagnostic logging for clinical notes only (response counts, filtering metrics,
+      LOINC distributions). Falls back to mhv_medical_records_diagnostic_logging if not enabled.
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
@@ -1447,10 +1473,6 @@ features:
   mhv_accelerated_delivery_uhd_vista_lab_type_logging_enabled:
     actor_type: user
     description: Control whether vets-api logs lab types returned for VistA patients
-    enable_in_development: false
-  mhv_accelerated_delivery_uhd_loinc_logging_enabled:
-    actor_type: user
-    description: Control whether vets-api logs LOINC codes returned from UHD notes records
     enable_in_development: false
   mhv_landing_page_aal_notice:
     actor_type: user
@@ -1952,6 +1974,10 @@ features:
   schema_contract_claims_and_appeals_get_claim:
     actor_type: user
     description: Enables schema validation for the claims and appeals service get claim fetch.
+  search_gov_maintenance:
+    actor_type: user
+    description: Use when Search.gov system maintenance impacts sitewide search
+    enable_in_development: true
   schema_contract_get_awards_pension:
     actor_type: user
     description: Enables schema validation for the pensions service get awards pension fetch.
@@ -1959,10 +1985,9 @@ features:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
     enable_in_development: true
-  search_gov_maintenance:
+  search_results_ui_update:
     actor_type: user
-    description: Use when Search.gov system maintenance impacts sitewide search
-    enable_in_development: true
+    description: Enables the updated search results UI
   show526_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
@@ -2687,6 +2712,13 @@ features:
       A switch that toggles the use of the v4 Travel Pay API for /appointments/find-or-add.
       Enabled - The find_or_create method will use Travel Pay API v4.
       Disabled - The find_or_create method will use Travel Pay API v2.
+  travel_pay_enable_community_care:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles the availability of community care features for Travel Pay.
+      Enabled - Community care features are available to users.
+      Disabled - Community care features are not available. Server returns a 503 (Service Unavailable) until re-enabled.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
@@ -3000,9 +3032,6 @@ features:
     actor_type: user
     description: Enable debug logging for Facilities API for errors
     enable_in_development: false
-  vets_model_nested_array:
-    actor_type: user
-    description: If enabled, allows Vets::Model to serialize nested array of objects
   vre_form_submission_tracking:
     actor_type: user
     description: If enabled, track form submissions for VR&E application Form 28-1900
