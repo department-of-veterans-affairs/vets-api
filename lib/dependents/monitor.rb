@@ -26,9 +26,6 @@ module Dependents
     # statsd key for pension-related submissions
     PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
 
-    # statsd key for no SSN claims
-    NO_SSN_SUBMISSION_STATS_KEY = 'dependents.no_ssn_claims'
-
     # allowed logging params
     ALLOWLIST = %w[
       proc_id
@@ -49,9 +46,7 @@ module Dependents
 
       super('dependents-application', allowlist: ALLOWLIST)
 
-      @use_v3 = get_use_v3
-      @use_v3_removal = get_use_v3_removal(@claim)
-      @tags = get_tags
+      @tags += ["service:#{service}"]
     end
 
     def name
@@ -64,25 +59,6 @@ module Dependents
 
     def submission_stats_key
       SUBMISSION_STATS_KEY
-    end
-
-    # tag used for logging to identify ALL claims with v3 flipper active
-    def get_use_v3
-      Flipper.enabled?(:va_dependents_v3, user)
-    end
-
-    # tag used for logging to identify claims with v3 removal flow active
-    def get_use_v3_removal(claim)
-      claim&.parsed_form&.dig('dependents_application', 'is_v3_removal_flow') || false
-    end
-
-    def get_tags
-      @tags += ["service:#{service}"]
-      @tags += ["use_v3:#{@use_v3}", "v3_removal:#{@use_v3_removal}"] if @use_v3
-    end
-
-    def user
-      @user ||= @claim&.user_account&.user
     end
 
     def claim(claim_id)
@@ -204,15 +180,6 @@ module Dependents
 
       StatsD.increment(metric, tags:)
       Rails.logger.info("Pension-related claim submitted: #{form_type}", payload)
-    end
-
-    def track_no_ssn_claims(form_id:, type:)
-      tags = ["form_id:#{form_id}"]
-      metric = "#{NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
-      payload = default_payload.merge({ statsd: metric, form_id:, claim_id: @claim_id })
-
-      StatsD.increment(metric, tags:)
-      Rails.logger.info("No-SSN claim #{type}", payload)
     end
 
     def track_event(level, message, stats_key, payload = {})
