@@ -7,7 +7,21 @@ module SimpleFormsApi
 
       sidekiq_options retry: 10, backtrace: true
 
-      HOUR_TO_SEND_NOTIFICATIONS = 9
+      def sidekiq_retries_exhausted(msg)
+        begin
+          form_no = msg['args'].second
+          comf_no = msg['args'].third
+        rescue
+          form_no = 'NOT FOUND'
+          comf_no = 'NOT FOUND'
+        end
+
+        Rails.logger.error(
+          'Sidekiq: Simple Forms API - MMS IbmUploadJob retries exhausted',
+          guid: comf_no,
+          form_number: form_no
+        )
+      end
 
       def perform(ibm_payload, form_number, confirmation_number)
         ibm_service = Ibm::Service.new
@@ -16,9 +30,15 @@ module SimpleFormsApi
           guid: confirmation_number
         )
 
-        if ibm_response
+        if ibm_response && ibm_response.status == 200
           Rails.logger.info(
             'Simple Forms API - MMS submission complete',
+            guid: confirmation_number,
+            form_number: form_number
+          )
+        elsif ibm_response
+          Rails.logger.error(
+            "Simple Forms API - MMS submission failed: IBM upload returned status #{ibm_response.status}",
             guid: confirmation_number,
             form_number: form_number
           )
@@ -35,7 +55,7 @@ module SimpleFormsApi
           guid: confirmation_number,
           form_number: form_number
         )
-	  end
+      end
     end
   end
 end
