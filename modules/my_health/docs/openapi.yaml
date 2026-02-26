@@ -2368,6 +2368,127 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Internal Server Error
       summary: /v2/prescriptions/refill
+  /v2/medical_records/clinical_notes:
+    get:
+      description: |
+        List clinical notes (care summaries and notes) for the current user within a specified date range.
+        Returns notes from both VistA and Oracle Health sources. Each note includes a `source` field
+        indicating which system the record originated from.
+      operationId: listClinicalNotesV2
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for clinical notes query (format YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for clinical notes query (format YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        "200":
+          description: Clinical notes list response
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClinicalNotesResponse.yml
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request - Invalid date parameter format
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+        "502":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Gateway - upstream service error
+      summary: /v2/medical_records/clinical_notes
+  /v2/medical_records/clinical_notes/{id}:
+    get:
+      description: |
+        Get a single clinical note by ID. The `source` query parameter is required and must be set
+        to `oracle-health` to retrieve the note directly from the Oracle Health source-specific endpoint.
+        Requests with `source=vista` or without a `source` parameter will receive a 404 response.
+      operationId: getClinicalNoteV2
+      parameters:
+        - name: id
+          in: path
+          description: Clinical note record ID
+          required: true
+          schema:
+            type: string
+        - name: source
+          in: query
+          description: >
+            The data source of the note. Must be `oracle-health` for direct retrieval from the
+            Oracle Health endpoint. Requests with `vista` or without this parameter return 404.
+          required: true
+          schema:
+            type: string
+            enum:
+              - oracle-health
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        "200":
+          description: Single clinical note response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './schemas/ClinicalNotesResponse.yml#/definitions/ClinicalNote'
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request - source parameter is missing, unsupported (e.g. vista), or invalid
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not Found - no note matching the given ID
+        "502":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Gateway - upstream service error
+      summary: /v2/medical_records/clinical_notes/{id}
 
 components:
   securitySchemes:

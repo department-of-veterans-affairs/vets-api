@@ -98,7 +98,7 @@ class FormProfile
     dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990EZ
-            22-10297 22-0803 22-10272 22-10278 22-0989],
+            22-10297 22-0803 22-10272 22-10278 22-0989 22-0810],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_mock_prefill: ['FORM-MOCK-PREFILL'],
@@ -127,6 +127,12 @@ class FormProfile
       21P-530a-UPLOAD
       21P-8049-UPLOAD
       21P-535-UPLOAD
+      21-4170-UPLOAD
+      21P-524-UPLOAD
+      21P-601-UPLOAD
+      21P-4706b-UPLOAD
+      21P-4171-UPLOAD
+      21P-8924-UPLOAD
       20-10208-UPLOAD
     ],
     fsr: ['5655'],
@@ -163,6 +169,7 @@ class FormProfile
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-0803' => ::FormProfiles::VA0803,
+    '22-0810' => ::FormProfiles::VA0810,
     '22-10203' => ::FormProfiles::VA10203,
     '22-10272' => ::FormProfiles::VA10272,
     '22-10297' => ::FormProfiles::VA10297,
@@ -212,6 +219,12 @@ class FormProfile
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4170-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-524-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-601-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4171-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4706B-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-8924-UPLOAD' => ::FormProfiles::FormUpload,
     '20-10208-UPLOAD' => ::FormProfiles::FormUpload
   }.freeze
 

@@ -57,7 +57,6 @@ module BenefitsClaims
               friendly_description: data['friendlyDescription'],
               activity_description: data['activityDescription'],
               short_description: data['shortDescription'],
-              # New content override fields (populated when cst_evidence_requests_content_override is enabled)
               support_aliases: data['supportAliases'],
               long_description: data['longDescription'],
               next_steps: data['nextSteps'],
