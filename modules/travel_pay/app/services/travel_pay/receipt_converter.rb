@@ -30,8 +30,8 @@ module TravelPay
       params.merge('expenseReceipt' => converted_receipt)
     rescue Common::Exceptions::UnprocessableEntity
       raise
-    rescue => e
-      error_message = "HEIC conversion failed: #{e.message}"
+    rescue => _e
+      error_message = 'HEIC conversion failed'
       Rails.logger.error(error_message)
       raise Common::Exceptions::UnprocessableEntity.new(detail: error_message)
     end
