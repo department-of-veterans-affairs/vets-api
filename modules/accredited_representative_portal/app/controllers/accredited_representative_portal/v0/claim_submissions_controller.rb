@@ -50,7 +50,7 @@ module AccreditedRepresentativePortal
       end
 
       def claim_submissions
-        scope = policy_scope(SavedClaimClaimantRepresentative)
+        scope = policy_scope(SavedClaimClaimantRepresentative).preload(scope_includes)
 
         if params[:id].present?
           raise NotFound unless claimant_profile
@@ -61,7 +61,6 @@ module AccreditedRepresentativePortal
 
         scope
           .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
-          .preload(scope_includes)
           .paginate(page:, per_page:)
       end
 
@@ -79,13 +78,15 @@ module AccreditedRepresentativePortal
         ] }]
       end
 
-      def saved_claim_matches_claimant?(sccr)
-        saved_claim = sccr.saved_claim
+      def saved_claim_matches_claimant?(saved_claim_claimant_representative)
+        saved_claim = saved_claim_claimant_representative.saved_claim
+        claimant_type = saved_claim_claimant_representative.claimant_type
+        parsed_form = saved_claim&.parsed_form
 
-        first_name = saved_claim&.parsed_form&.[](sccr.claimant_type)&.dig('name', 'first')
-        last_name = saved_claim&.parsed_form&.[](sccr.claimant_type)&.dig('name', 'last')
-        ssn = saved_claim&.parsed_form&.[](sccr.claimant_type)&.[]('ssn')
-        birth_date = saved_claim&.parsed_form&.[](sccr.claimant_type)&.[]('dateOfBirth')&.gsub(/-/, '')
+        first_name = parsed_form&.[](claimant_type)&.dig('name', 'first')
+        last_name = parsed_form&.[](claimant_type)&.dig('name', 'last')
+        ssn = parsed_form&.[](claimant_type)&.[]('ssn')
+        birth_date = parsed_form&.[](claimant_type)&.[]('dateOfBirth')&.gsub(/-/, '')
         [
           first_name.present?,
           (first_name&.downcase == claimant_profile.given_names&.first&.downcase),
