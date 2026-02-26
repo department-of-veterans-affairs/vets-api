@@ -54,7 +54,8 @@ module RuboCop
           # Walk up the const chain looking for :Faraday as the root
           current = node
           while current&.const_type?
-            return true if current.children[1] == :Faraday && current.children[0].nil?
+            return true if current.children[1] == :Faraday &&
+                            (current.children[0].nil? || current.children[0].cbase_type?)
 
             current = current.children[0]
           end

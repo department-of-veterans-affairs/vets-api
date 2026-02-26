@@ -45,7 +45,7 @@ module RuboCop
         private
 
         def last_expression(node)
-          node.begin_type? ? node.children.last : node
+          node.begin_type? || node.kwbegin_type? ? node.children.last : node
         end
 
         def swallowed_value(node)
