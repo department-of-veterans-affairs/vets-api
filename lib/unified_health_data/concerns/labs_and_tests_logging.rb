@@ -130,6 +130,16 @@ module UnifiedHealthData
                      short_name_count:, total_count:)
       end
 
+      # Structured error log for get_labs failures — provides domain context for triage.
+      def log_labs_error(error, start_date, end_date)
+        mr_log.error(
+          resource: LABS, action: 'index',
+          error_class: error.class.name, error_message: error.message,
+          start_date:, end_date:
+        )
+        StatsD.increment("#{labs_statsd_prefix}.error")
+      end
+
       # Orchestrates index-level metrics and proactive warnings for get_labs.
       def log_labs_metrics(combined_records, parsed_labs, start_date, end_date)
         labs_logging_enabled? && log_labs_response_count(combined_records.size, parsed_labs.size)

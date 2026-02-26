@@ -49,6 +49,9 @@ module UnifiedHealthData
         log_labs_metrics(combined_records, parsed_records, start_date, end_date)
 
         { records: parsed_records, warnings: }
+      rescue => e
+        log_labs_error(e, start_date, end_date)
+        raise
       end
     end
 

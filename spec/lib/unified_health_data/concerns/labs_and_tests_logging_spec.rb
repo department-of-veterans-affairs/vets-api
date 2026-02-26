@@ -26,6 +26,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:warn)
+    allow(Rails.logger).to receive(:error)
     allow(StatsD).to receive(:gauge)
     allow(StatsD).to receive(:increment)
   end
@@ -460,6 +461,33 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
           hash_including(anomaly: 'elevated_empty_observations')
         )
       end
+    end
+  end
+
+  describe '#log_labs_error' do
+    let(:error) { StandardError.new('connection timed out') }
+
+    it 'logs an error with domain context' do
+      instance.send(:log_labs_error, error, '2024-01-01', '2025-06-01')
+
+      expect(Rails.logger).to have_received(:error).with(
+        hash_including(
+          service: 'medical_records',
+          resource: 'labs_and_tests',
+          action: 'index',
+          error_class: 'StandardError',
+          error_message: 'connection timed out',
+          start_date: '2024-01-01',
+          end_date: '2025-06-01'
+        )
+      )
+    end
+
+    it 'increments the error StatsD counter' do
+      instance.send(:log_labs_error, error, '2024-01-01', '2025-06-01')
+
+      expect(StatsD).to have_received(:increment)
+        .with('api.uhd.labs_and_tests.error')
     end
   end
 end

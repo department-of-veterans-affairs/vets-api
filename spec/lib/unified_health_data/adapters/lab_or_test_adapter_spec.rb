@@ -3087,9 +3087,21 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         adapter_with_log.send(:log_final_status_warning, base_record, 'final', nil, nil)
       end
 
-      it 'does not log when status is not final' do
+      it 'increments the StatsD counter for final_status_empty_data' do
+        allow(mr_log).to receive(:warn)
+
+        adapter_with_log.send(:log_final_status_warning, base_record, 'final', nil, nil)
+
+        expect(StatsD).to have_received(:increment)
+          .with('unified_health_data.lab_or_test.final_status_empty_data')
+      end
+
+      it 'does not log or increment when status is not final' do
         expect(mr_log).not_to receive(:warn)
         adapter_with_log.send(:log_final_status_warning, base_record, 'preliminary', nil, nil)
+
+        expect(StatsD).not_to have_received(:increment)
+          .with('unified_health_data.lab_or_test.final_status_empty_data')
       end
     end
 

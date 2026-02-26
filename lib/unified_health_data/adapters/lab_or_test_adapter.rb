@@ -175,6 +175,7 @@ module UnifiedHealthData
             { service: 'unified_health_data' }
           )
         end
+        StatsD.increment('unified_health_data.lab_or_test.final_status_empty_data')
       end
 
       def log_missing_date_warning(record)
