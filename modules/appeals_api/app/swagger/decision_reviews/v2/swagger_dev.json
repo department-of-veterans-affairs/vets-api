@@ -5970,7 +5970,8 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "contestableIssue",
+                    "appealableIssue"
                   ]
                 },
                 "id": {
@@ -7703,7 +7704,8 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "contestableIssue",
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {
@@ -8103,7 +8105,8 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "contestableIssue",
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {
@@ -8782,7 +8785,8 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "contestableIssue",
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {
