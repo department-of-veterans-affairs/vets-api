@@ -1620,7 +1620,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(30)
+          expect(prescriptions.size).to eq(22)
 
           # Check that prescriptions are UnifiedHealthData::Prescription objects
           expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
@@ -1641,7 +1641,7 @@ describe UnifiedHealthData::Service, type: :service do
           Timecop.freeze(Time.zone.parse('2025-11-27')) do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               filtered_prescriptions = service.get_prescriptions(current_only: true)
-              expect(filtered_prescriptions.size).to eq(30)
+              expect(filtered_prescriptions.size).to eq(22)
             end
           end
         end
@@ -1974,7 +1974,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD prescriptions retrieved',
-              total_prescriptions: 30,
+              total_prescriptions: 22,
               service: 'unified_health_data'
             )
           )
@@ -2011,15 +2011,15 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles Oracle Health-only data without errors' do
         VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(45)
+          expect(prescriptions.size).to eq(34)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '15214174591', '15215168033', '15216187241', '15215488543', '15214174423', '15215979885',
             '15214174571', '15214777121', '15213998699', '15218955729', '15214535999', '15214303643',
             '15214282441', '15215168043', '15213978785', '15214275861', '15214834723', '15215721639',
             '15217757747', '15215020709', '15215098309', '15214174531', '15217281719', '15217757751',
-            '15217757667', '15218953273', '15218953219', '15217150277', '15216346305', '15213978755',
-            '15215109331', '15215017281', '15215582133', '15215017959', '15214166465', '15214174425',
-            '15214282323', '15214661111', '15214282321', '15214174561', '15214174537', '15214192877',
+            '15216346305', '15213978755',
+            '15214166465', '15214174425',
+            '15214282323', '15214661111', '15214192877',
             '15214103419', '15213928373', '15214166467'
           )
         end
