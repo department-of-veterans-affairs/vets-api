@@ -45,9 +45,11 @@ module AccreditedRepresentativePortal
     def safe_intent_to_file(icn, benefit_type)
       intent_to_file_check_service(icn).get_intent_to_file(benefit_type)
     rescue => e
+      # Avoid logging e.message to reduce the risk of unintentionally exposing
+      # sensitive data from upstream services (e.g., identifiers in error text).
       Rails.logger.warn(
         'ClaimantDetailsService ITF lookup failed',
-        { icn:, benefit_type:, error: e.class.name, message: e.message }
+        { benefit_type:, error: e.class.name }
       )
       nil
     end

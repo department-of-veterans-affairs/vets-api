@@ -119,10 +119,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
         expect(Rails.logger).to receive(:warn).with(
           'ClaimantDetailsService ITF lookup failed',
           hash_including(
-            icn:,
             benefit_type: 'compensation',
-            error: 'StandardError',
-            message: 'itf down'
+            error: 'StandardError'
           )
         )
 
