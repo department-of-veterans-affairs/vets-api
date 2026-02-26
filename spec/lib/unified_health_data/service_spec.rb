@@ -64,9 +64,9 @@ describe UnifiedHealthData::Service, type: :service do
         it 'returns specific VistA lab with expected attributes' do
           labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
-          chem_lab = labs.find { |lab| lab.id == 'df64e7c7-d354-43a1-ab57-445844b59b52' }
+          chem_lab = labs.find { |lab| lab.id == 'CH-6749875-829848' }
           expect(chem_lab).to have_attributes(
-            'id' => 'df64e7c7-d354-43a1-ab57-445844b59b52',
+            'id' => 'CH-6749875-829848',
             'display' => 'Laboratory procedure',
             'test_code' => 'CH',
             'date_completed' => '2025-01-23T22:01:52+00:00',
@@ -332,7 +332,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'remaps lab IDs using vista-uid with urn:va: prefix' do
         result = service.send(:fetch_combined_records, body)
         lab = result.find { |r| r['resource']['resourceType'] == 'Observation' }
-        expect(lab['resource']['id']).to eq('F253-7227761-MI;6749872.83748')
+        expect(lab['resource']['id']).to eq('F253-7227761-MI-6749872-83748')
       end
 
       it 'preserves original ID when no matching identifier exists' do

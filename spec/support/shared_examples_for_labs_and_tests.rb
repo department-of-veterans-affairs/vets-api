@@ -214,8 +214,8 @@ RSpec.shared_examples 'labs and tests specific data validation' do |response_dat
 
   # Verify specific Vista lab record with encodedData
   it 'contains the Vista lab record with expected ID and encodedData' do
-    vista_lab = labs_data.find { |lab| lab['id'] == 'F253-7227761-MI;6749771.884876' }
-    expect(vista_lab).not_to be_nil, 'Expected to find Vista lab with ID F253-7227761-MI;6749771.884876'
+    vista_lab = labs_data.find { |lab| lab['id'] == 'F253-7227761-MI-6749771-884876' }
+    expect(vista_lab).not_to be_nil, 'Expected to find Vista lab with ID F253-7227761-MI-6749771-884876'
 
     attributes = vista_lab['attributes']
     expect(attributes['testCode']).to eq('urn:va:lab-category:MI')
