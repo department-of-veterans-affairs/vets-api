@@ -332,6 +332,9 @@ module ClaimsApi
         def establish_and_upload(pending_claim)
           if pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == true)
 
+            pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
+            pending_claim.save!
+
             if fes_enabled?
               fes_claim_establishment_and_upload(pending_claim)
             else
@@ -355,17 +358,17 @@ module ClaimsApi
 
         # pre-FES claim establishment process
         def claim_establishment_and_upload(pending_claim)
-          pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
-          pending_claim.save!
-
           ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
           ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
           ClaimsApi::ClaimUploader.perform_async(pending_claim.id, 'claim')
         end
 
-        # FES claim establishment process - ClaimEstablisher is depreciated with FES
+        # FES claim establishment process - ClaimEstablisher is deprecated with FES
         # and replaced by Form526EstablishmentUpload (for upload, not PDF generation)
         def fes_claim_establishment_and_upload(pending_claim)
+          ClaimsApi::Logger.log(
+            '526', claim_id: pending_claim.id, detail: 'Starting FES claim establishment and upload'
+          )
           ClaimsApi::V1::Form526EstablishmentUpload.perform_async(pending_claim&.id)
         end
 
