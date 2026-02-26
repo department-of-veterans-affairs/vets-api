@@ -105,10 +105,6 @@ module V0
     # If the new-conditions-workflow flag is true and returnUrl points to an
     # old-flow conditions page, reset the flag to false. This prevents the
     # RJSF crash (follow-up) and redirect loops (all other old-flow pages).
-    #
-    # NOTE: form_data is stored with snake_case keys in the DB (OliveBranch
-    # converts incoming camelCase params), so the canonical key is
-    # 'disability_comp_new_conditions_workflow'.
     WORKFLOW_FLAG_KEY = 'disability_comp_new_conditions_workflow'
 
     def fix_new_conditions_workflow_flag(form_data, metadata)
