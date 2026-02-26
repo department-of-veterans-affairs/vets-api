@@ -409,7 +409,7 @@ module SimpleFormsApi
       end
 
       def submit_to_mms_if_applicable(form, confirmation_number)
-        return unless Flipper.enabled?(:simple_forms_mms_submit)
+        return unless Flipper.enabled?("#{form_id}_ibm_mms_connection")
         return unless confirmation_number.present?
 
         converter_class = mms_converter_for(params[:form_number])
