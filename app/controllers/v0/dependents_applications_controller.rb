@@ -90,7 +90,7 @@ module V0
 
       upload_evidence_documents(claim, participant_id)
 
-      respone.body['submission'] || {}
+      response.body['submission'] || {}
     end
 
     # upload evidence documents - temp for FDF pilot
