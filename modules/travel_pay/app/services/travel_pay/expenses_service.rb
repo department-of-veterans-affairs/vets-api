@@ -147,7 +147,7 @@ module TravelPay
     end
 
     def receipt_converter
-      @receipt_converter ||= TravelPay::ReceiptConverter.new
+      @receipt_converter ||= TravelPay::ReceiptConverter.new(@auth_manager.user)
     end
   end
 end

@@ -8,16 +8,21 @@ module TravelPay
   # Converts HEIC/HEIF receipt images to JPG format.
   #
   class ReceiptConverter
+    # @param user [User] the current user for feature flag checks
+    def initialize(user)
+      @user = user
+    end
+
     # Processes expense params and converts HEIC receipt to JPG if present
     #
-    # @param params [Hash] expense params hash that may contain a 'receipt' key
+    # @param params [Hash] expense params hash that may contain an 'expenseReceipt' key
     # @return [Hash] params with receipt converted to JPG if it was HEIC/HEIF
     # @raise [Common::Exceptions::UnprocessableEntity] if conversion fails
     def convert_if_heic(params)
       receipt = params['expenseReceipt']
       return params unless receipt.present? && heic_image?(receipt['contentType'])
 
-      unless Flipper.enabled?(:travel_pay_enable_heic_conversion)
+      unless Flipper.enabled?(:travel_pay_enable_heic_conversion, @user)
         Rails.logger.warn('Unsupported HEIC/HEIF receipt rejected')
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'HEIC/HEIF images are not currently supported. Please convert to JPG or PNG before uploading.'
