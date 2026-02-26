@@ -184,7 +184,7 @@ module V0
     end
 
     def monitor(claim_id = nil)
-      @monitor ||= Dependents::Monitor.new(claim_id)
+      @monitor ||= Dependents::Monitor.new(claim_id, nil, current_user)
     end
   end
 end
