@@ -6,7 +6,7 @@ module V0
   module Profile
     class TelephoneValidationController < ApplicationController
       service_tag 'profile'
-      skip_before_action :authenticate, only: [:create]
+      # skip_before_action :authenticate, only: [:create]
 
       def create
         upstream = service.validate(telephone_params.to_h)
