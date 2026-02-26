@@ -38,49 +38,16 @@ severity: CRITICAL
       span.set_error — they are normal business outcomes.
     </rule>
     <rule enforcement="must">
-      Log unexpected errors (5xx) as ERROR and call span.set_error —
-      they need investigation.
+      Log unexpected errors (5xx) as ERROR and call span.set_error
+      — they need investigation.
     </rule>
     <rule enforcement="must">
-      ExceptionHandling must check va_exception.status_code >= 500
-      before calling span.set_error.
-    </rule>
-    <rule enforcement="must_not">
-      Never call span.set_error for 4xx exceptions — this floods APM
-      with expected business outcomes.
-    </rule>
-    <rule enforcement="must_not">
-      Never manually tag spans with error metadata in controllers —
-      let ExceptionHandling decide.
+      Let ExceptionHandling own APM error classification — do not
+      manually tag spans with error metadata in controllers.
     </rule>
     <rule enforcement="should">
-      Monitor 4xx spike patterns (baseline x 3 anomaly detection) to
-      catch validation bugs that return "correct" 422s.
-    </rule>
-    <rule enforcement="verify">
-      ExceptionHandling checks `status >= 500` before calling
-      `span.set_error`
-    </rule>
-    <rule enforcement="verify">
-      APM error rate reflects only 5xx (system failures, not client
-      mistakes)
-    </rule>
-    <rule enforcement="verify">
-      Validation errors (422) logged as WARN, NOT in APM error
-      dashboards
-    </rule>
-    <rule enforcement="verify">
-      Alerts fire only for unexpected failures (bugs, timeouts,
-      infrastructure)
-    </rule>
-    <rule enforcement="verify">
-      Log level matches expectedness, not just status code
-    </rule>
-    <rule enforcement="verify">
-      SLI measures system health (5xx) not client behavior (4xx)
-    </rule>
-    <rule enforcement="verify">
-      Baseline 4xx rates documented and monitored for anomalies
+      Monitor 4xx spike patterns (baseline x 3 anomaly detection)
+      to catch validation bugs that return "correct" 422s.
     </rule>
   </rules>
 

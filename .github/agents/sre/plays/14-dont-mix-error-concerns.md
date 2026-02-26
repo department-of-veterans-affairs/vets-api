@@ -40,37 +40,19 @@ severity: HIGH
     </rule>
     <rule enforcement="must">
       Controllers must catch only domain exceptions, never
-      infrastructure library classes.
+      infrastructure library classes directly.
     </rule>
     <rule enforcement="must">
       Service methods must return data on success and raise on
       failure — not return error objects.
     </rule>
-    <rule enforcement="must_not">
-      Domain layer must not render responses; controllers must not
-      compensate domain logic.
+    <rule enforcement="must">
+      Keep rendering in controllers and domain logic in services —
+      neither layer should cross into the other's responsibility.
     </rule>
     <rule enforcement="should">
-      Controllers should rely on centralized `rescue_from` to render
-      standardized error responses.
-    </rule>
-    <rule enforcement="should">
-      All services within a module should use the same error
-      handling convention (raise, not return error objects).
-    </rule>
-    <rule enforcement="verify">
-      Controllers only catch domain exceptions (not infrastructure
-      classes)
-    </rule>
-    <rule enforcement="verify">
-      Service layer owns infrastructure exception wrapping
-    </rule>
-    <rule enforcement="verify">
-      All service methods use Ruby exception convention (raise on
-      failure)
-    </rule>
-    <rule enforcement="verify">
-      Changing HTTP client only requires service layer updates
+      Rely on centralized `rescue_from` in ExceptionHandling to
+      render standardized error responses.
     </rule>
   </rules>
 

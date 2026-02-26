@@ -30,38 +30,18 @@ severity: HIGH
 
   <rules>
     <rule enforcement="must">
-      Every `render json:` call in an error path MUST include an
-      explicit `status:` parameter — Rails defaults to 200 OK.
-    </rule>
-    <rule enforcement="must_not">
-      Never return 200 OK, 201 Created, or any 2xx status code when
-      the response body contains an error.
-    </rule>
-    <rule enforcement="must_not">
-      Never use custom `success: false` fields in response bodies —
-      HTTP status codes are the sole indicator of success or
-      failure.
+      Include an explicit `status:` parameter on every
+      `render json:` call in error paths — Rails defaults to 200
+      OK, which makes errors invisible to CDN, monitoring, and
+      clients.
     </rule>
     <rule enforcement="must">
-      Use 4xx status codes for client errors (bad request,
-      validation, not found) and 5xx for server errors (upstream
-      failures, internal errors).
+      Use HTTP status codes as the sole indicator of success or
+      failure — no custom `success: false` envelope fields.
     </rule>
     <rule enforcement="should">
-      Use the standardized error response format with `errors` array
-      of structured objects, not ad-hoc error hashes.
-    </rule>
-    <rule enforcement="verify">
-      All error responses have explicit status parameter
-    </rule>
-    <rule enforcement="verify">
-      No 200 responses containing error/success fields
-    </rule>
-    <rule enforcement="verify">
-      Monitoring dashboards count errors accurately
-    </rule>
-    <rule enforcement="verify">
-      CDN doesn't cache error responses
+      Use the standardized error response format with `errors`
+      array of structured objects, not ad-hoc error hashes.
     </rule>
   </rules>
 

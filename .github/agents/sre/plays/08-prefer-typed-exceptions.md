@@ -35,29 +35,18 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      Use typed exception classes instead of `raise 'string'` in all
-      HTTP request paths. String raises create RuntimeError that
-      defaults to 500.
+      Use typed exception classes instead of `raise 'string'` in
+      all HTTP request paths — string raises create RuntimeError
+      that defaults to 500.
     </rule>
     <rule enforcement="must">
       Choose exception classes that map to the correct HTTP status
       code for the failure mode (e.g., ParameterMissing for 400,
       UnprocessableEntity for 422).
     </rule>
-    <rule enforcement="must_not">
-      Never use `raise 'message'` for client errors (missing params,
-      validation failures, auth issues) — these become
-      indistinguishable 500s.
-    </rule>
     <rule enforcement="should">
-      Create domain-specific exception hierarchies when a module has
-      multiple failure modes that need distinct handling.
-    </rule>
-    <rule enforcement="verify">
-      No untyped string raises remain in HTTP request paths
-    </rule>
-    <rule enforcement="verify">
-      Client errors return correct 4xx status (not 500)
+      Create domain-specific exception hierarchies when a module
+      has multiple failure modes that need distinct handling.
     </rule>
   </rules>
 

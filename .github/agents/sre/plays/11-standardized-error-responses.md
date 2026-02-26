@@ -31,56 +31,24 @@ severity: CRITICAL
   </related_plays>
 
   <rules>
-    <rule enforcement="must_not">
-      Never manually render error responses in controllers — no
-      `render json: { error: ... }` in error paths.
+    <rule enforcement="must">
+      Raise typed exceptions from `Common::Exceptions` and let
+      ExceptionHandling render responses — no manual
+      `render json: { error: ... }` or custom `render_error`
+      methods in error paths.
     </rule>
     <rule enforcement="must">
-      Always raise typed exceptions from `Common::Exceptions` and
-      let ExceptionHandling render the standardized format.
+      Use `errors` array (not singular `error` key) following
+      JSON:API specification, with machine-readable `code` field
+      for programmatic client handling.
     </rule>
     <rule enforcement="must">
-      Always use `errors` array (not singular `error` key) following
-      JSON:API specification.
-    </rule>
-    <rule enforcement="must">
-      Always include machine-readable `code` field in error
-      responses for programmatic client handling.
-    </rule>
-    <rule enforcement="must_not">
-      Never define custom `render_error` methods in controllers —
-      this duplicates ExceptionHandling.
-    </rule>
-    <rule enforcement="must_not">
-      Never use custom fields like `success: false` in error
-      responses — HTTP status code indicates failure.
+      Use HTTP status codes as the sole indicator of success or
+      failure — no custom `success: false` envelope fields.
     </rule>
     <rule enforcement="should">
       Return all validation errors in a single response instead of
       failing on the first invalid field.
-    </rule>
-    <rule enforcement="verify">
-      All error responses use `errors:` array (not singular
-      `error:`)
-    </rule>
-    <rule enforcement="verify">
-      Each error object has `status`, `code`, `title`, `detail`
-      fields
-    </rule>
-    <rule enforcement="verify">
-      Controllers raise exceptions (no manual `render json:` in
-      error paths)
-    </rule>
-    <rule enforcement="verify">
-      ExceptionHandling concern handles ALL exceptions (no custom
-      renderers)
-    </rule>
-    <rule enforcement="verify">
-      Multiple validation errors returned in single response
-    </rule>
-    <rule enforcement="verify">
-      APM/Sentry captures happen automatically (no manual
-      integration code)
     </rule>
   </rules>
 

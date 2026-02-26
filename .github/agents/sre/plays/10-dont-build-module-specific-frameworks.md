@@ -32,47 +32,16 @@ severity: CRITICAL
   </related_plays>
 
   <rules>
-    <rule enforcement="must_not">
-      Do NOT create module-specific error handlers, logging
-      services, monitoring classes, or tracing wrappers.
+    <rule enforcement="must">
+      Use the centralized ExceptionHandling concern and standard
+      APIs (Datadog::Tracing, Rails.logger, StatsD) directly — do
+      not create module-specific wrappers for error handling,
+      logging, monitoring, or tracing.
     </rule>
     <rule enforcement="must">
-      Use the ExceptionHandling concern for error handling -- let
-      exceptions bubble up through the centralized handler.
-    </rule>
-    <rule enforcement="must">
-      Propose requirements for centralized framework to platform
-      team rather than building module-specific solutions.
-    </rule>
-    <rule enforcement="must_not">
-      Never wrap Datadog::Tracing, Rails.logger, or StatsD in
-      module-specific custom classes -- this fragments the API and
-      introduces infrastructure bugs.
-    </rule>
-    <rule enforcement="must_not">
-      Never build module-specific rescue_from handlers -- this
-      bypasses ExceptionHandling concern.
-    </rule>
-    <rule enforcement="should">
-      Use standard Rails/Datadog APIs directly until the centralized
-      observability framework exists.
-    </rule>
-    <rule enforcement="should">
-      Contribute observability requirements to central
-      infrastructure so one framework serves all modules.
-    </rule>
-    <rule enforcement="verify">
-      No new custom logging/tracing/monitoring classes in modules
-    </rule>
-    <rule enforcement="verify">
-      All modules use ExceptionHandling concern for errors
-    </rule>
-    <rule enforcement="verify">
-      Bug fixes applied once (centralized), not 24 times
-      (fragmented)
-    </rule>
-    <rule enforcement="verify">
-      Consistent API across all modules
+      Propose requirements for missing centralized capabilities to
+      the platform team rather than building module-specific
+      solutions.
     </rule>
   </rules>
 

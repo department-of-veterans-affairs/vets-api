@@ -34,40 +34,17 @@ severity: HIGH
 
   <rules>
     <rule enforcement="must">
-      Include Retry-After header when upstream provides it or when
-      you enforce rate limits.
+      Include Retry-After header on all 429 Too Many Requests
+      responses, propagating upstream timing when available.
     </rule>
     <rule enforcement="must">
-      Always include Retry-After with 429 Too Many Requests
-      responses.
+      Preserve 429 status code semantic meaning — do not convert
+      to 503, which loses the "rate limit" signal.
     </rule>
-    <rule enforcement="must_not">
-      Never send Retry-After for permanent failures (404, 410, 403)
-      — retrying will not help.
-    </rule>
-    <rule enforcement="must_not">
-      Never send Retry-After for bugs/crashes (500 without upstream
-      guidance).
-    </rule>
-    <rule enforcement="must_not">
-      Never convert 429 to 503 — preserve the "rate limit" semantic
-      meaning.
-    </rule>
-    <rule enforcement="should">
-      Propagate upstream Retry-After timing through exception
-      metadata to the client.
-    </rule>
-    <rule enforcement="verify">
-      All 429 responses include Retry-After header
-    </rule>
-    <rule enforcement="verify">
-      Upstream retry timing propagates to clients
-    </rule>
-    <rule enforcement="verify">
-      Clients respect retry guidance (no immediate retry storms)
-    </rule>
-    <rule enforcement="verify">
-      Frontend shows "retry in X seconds" message to users
+    <rule enforcement="must">
+      Send Retry-After only for transient failures (429, 503, 504)
+      — permanent failures (404, 410, 403) and code bugs (500)
+      will not resolve with a retry.
     </rule>
   </rules>
 
