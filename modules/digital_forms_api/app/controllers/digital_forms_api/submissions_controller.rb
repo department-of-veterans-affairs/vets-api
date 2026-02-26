@@ -8,22 +8,21 @@ module DigitalFormsApi
   class SubmissionsController < ApplicationController
     service_tag 'digital-forms'
 
+    before_action :check_flipper_flag
+
     # Fetch form submission and template from Forms API
     def show
-      check_flipper_flag
-      begin
-        submission = submissions_service.retrieve(params[:id])
-        template = forms_service.template('21-686c')
-        render json: { submission: submission.body, template: template.body['formTemplate'] }
-      rescue Common::Client::Errors::ClientError => e
-        if e.status == 404
-          render json: { error: 'Not found' }, status: :not_found
-        else
-          render json: { error: 'Internal server error' }, status: :internal_server_error
-        end
-      rescue
+      submission = submissions_service.retrieve(params[:id])
+      template = forms_service.template('21-686c')
+      render json: { submission: submission.body, template: template.body['formTemplate'] }
+    rescue Common::Client::Errors::ClientError => e
+      if e.status == 404
+        render json: { error: 'Not found' }, status: :not_found
+      else
         render json: { error: 'Internal server error' }, status: :internal_server_error
       end
+    rescue
+      render json: { error: 'Internal server error' }, status: :internal_server_error
     end
 
     private
