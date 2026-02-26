@@ -37,7 +37,8 @@ module UnifiedHealthData
           name: resource.dig('code', 'coding', 0, 'display') || resource.dig('code', 'text') || '',
           provider: extract_condition_provider(resource),
           facility: extract_condition_facility(resource),
-          comments: extract_condition_comments(resource)
+          comments: extract_condition_comments(resource),
+          source: record['source']
         )
       end
 
