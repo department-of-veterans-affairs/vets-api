@@ -179,7 +179,7 @@ RSpec.shared_examples 'labs and tests response structure validation' do |respons
         expect(value).to have_key('text')
         expect(value).to have_key('type')
 
-        # Optional fields should be strings when present
+        # Optional fields should be strings when present, except comments which is an array
         expect(obs['referenceRange']).to be_a(String) if obs['referenceRange'].present?
         expect(obs['comments']).to be_an(Array) if obs['comments'].present?
         expect(obs['bodySite']).to be_a(String) if obs['bodySite'].present?
