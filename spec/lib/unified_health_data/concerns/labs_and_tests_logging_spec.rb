@@ -358,8 +358,10 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
 
   describe '#log_labs_metrics' do
     let(:obs) { double('Observation') }
-    let(:vista_lab) { double('LabOrTest', source: 'vista', observations: [obs]) }
-    let(:oh_lab) { double('LabOrTest', source: 'oracle-health', observations: [obs, obs]) }
+    let(:vista_lab) { double('LabOrTest', source: 'vista', observations: [obs], date_completed: '2024-06-01') }
+    let(:oh_lab) do
+      double('LabOrTest', source: 'oracle-health', observations: [obs, obs], date_completed: '2024-07-01')
+    end
     let(:parsed_labs) { [vista_lab, oh_lab] }
 
     # combined_records simulates unfiltered FHIR entries (4 total, 2 survived parsing)
@@ -399,6 +401,28 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
           hash_including(anomaly: 'high_filter_rate', filter_rate: 60.0)
         )
       end
+
+      it 'triggers missing dates warning when threshold met' do
+        missing_date_labs = Array.new(3) do
+          double('LabOrTest', source: 'vista', observations: [obs], date_completed: nil)
+        end
+        instance.send(:log_labs_metrics, combined_records, missing_date_labs, '2024-01-01', '2025-06-01')
+
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(anomaly: 'elevated_missing_dates', missing_count: 3, total_count: 3)
+        )
+      end
+
+      it 'triggers empty observations warning when threshold met' do
+        empty_obs_labs = Array.new(3) do
+          double('LabOrTest', source: 'vista', observations: [], date_completed: '2024-06-01')
+        end
+        instance.send(:log_labs_metrics, combined_records, empty_obs_labs, '2024-01-01', '2025-06-01')
+
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(anomaly: 'elevated_empty_observations', empty_count: 3, total_count: 3)
+        )
+      end
     end
 
     context 'when logging is disabled' do
@@ -417,8 +441,23 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
         instance.send(:log_labs_metrics, big_combined, parsed_labs, '2024-01-01', '2025-06-01')
 
         expect(Rails.logger).not_to have_received(:info)
+          .with(hash_including(action: 'filter'))
         expect(Rails.logger).to have_received(:warn).with(
           hash_including(anomaly: 'high_filter_rate')
+        )
+      end
+
+      it 'still emits missing dates and empty observations warnings when disabled' do
+        missing_and_empty = Array.new(3) do
+          double('LabOrTest', source: 'vista', observations: [], date_completed: nil)
+        end
+        instance.send(:log_labs_metrics, combined_records, missing_and_empty, '2024-01-01', '2025-06-01')
+
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(anomaly: 'elevated_missing_dates')
+        )
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(anomaly: 'elevated_empty_observations')
         )
       end
     end
