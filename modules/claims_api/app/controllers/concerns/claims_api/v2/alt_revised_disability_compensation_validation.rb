@@ -135,7 +135,7 @@ module ClaimsApi
             )
           end
         when 'TEMPORARY'
-          # if the address type is TEMPORARY, the endDate must exist and be in chonological order from beginDate
+          # if the address type is TEMPORARY, the endDate must exist and be in chronological order from beginDate
           if end_date.blank?
             collect_error_messages(
               detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
