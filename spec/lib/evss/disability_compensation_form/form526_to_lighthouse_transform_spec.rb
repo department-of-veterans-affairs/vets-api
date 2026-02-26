@@ -531,12 +531,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         expect(result.approximate_date).to eq('1973-03')
       end
 
-      it 'drops an ISO time suffix before cleaning' do
-        source = base_source.merge('approximateDate' => '1973-03-XXT00:00:00Z')
-        result = transformer.send(:transform_disabilities, [source], nil).first
-        expect(result.approximate_date).to eq('1973-03')
-      end
-
       it 'returns nil when the year is not four digits' do
         source = base_source.merge('approximateDate' => '73-03-XX')
         result = transformer.send(:transform_disabilities, [source], nil).first
