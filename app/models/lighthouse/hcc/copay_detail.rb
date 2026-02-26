@@ -63,7 +63,7 @@ module Lighthouse
       end
 
       def assign_associated_statements
-        return [] if @associated_statements.blank?
+        return [] if @associated_statements_data.blank?
 
         @associated_statements = @associated_statements_data.map do |statement|
           {
