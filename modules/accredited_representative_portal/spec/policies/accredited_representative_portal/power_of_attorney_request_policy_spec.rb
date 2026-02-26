@@ -126,8 +126,70 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
 
         expect(policy.create_decision?).to be true
       end
+
+      it "allows when join table acceptance_mode is 'self_only' and the user matches the representative" do
+        org_rep = instance_double(
+          Veteran::Service::OrganizationRepresentative,
+          acceptance_mode: 'self_only',
+          registration_number: 'REG1'
+        )
+
+        relation = instance_double(ActiveRecord::Relation)
+        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
+        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+
+        expect(policy.create_decision?).to be true
+      end
+
+      it "disallows when join table acceptance_mode is 'no_acceptance'" do
+        org_rep = instance_double(
+          Veteran::Service::OrganizationRepresentative,
+          acceptance_mode: 'no_acceptance'
+        )
+
+        relation = instance_double(ActiveRecord::Relation)
+        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
+        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+
+        expect(policy.create_decision?).to be false
+      end
     end
 
+    describe '#create_decision? (individual accept flag OFF)' do
+      context 'when the POA holder can accept digital POA requests' do
+        let(:power_of_attorney_holders) do
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code: '123',
+              name: 'Org Name',
+              can_accept_digital_poa_requests: true
+            )
+          ]
+        end
+
+        it 'allows creating a decision via the legacy authorization path' do
+          expect(policy.create_decision?).to be true
+        end
+      end
+
+      context 'when the POA holder does not accept digital POA requests' do
+        let(:power_of_attorney_holders) do
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code: '123',
+              name: 'Org Name',
+              can_accept_digital_poa_requests: false
+            )
+          ]
+        end
+
+        it 'disallows creating a decision via the legacy authorization path' do
+          expect(policy.create_decision?).to be false
+        end
+      end
+    end
     describe 'Scope' do
       subject(:resolved_scope) { described_class::Scope.new(user, scope).resolve }
 
