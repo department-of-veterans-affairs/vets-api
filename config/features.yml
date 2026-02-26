@@ -2677,7 +2677,7 @@ features:
     description: >-
       A switch that enables automatic conversion of HEIC/HEIF image receipts to JPG format when expenses are submitted.
       Enabled - HEIC/HEIF receipts are automatically converted to JPG before processing.
-      Disabled - HEIC/HEIF receipts are passed through without conversion (may cause issues with downstream systems).
+      Disabled - HEIC/HEIF receipts are rejected with a 422 Unprocessable Entity error; other supported image types are processed normally.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
