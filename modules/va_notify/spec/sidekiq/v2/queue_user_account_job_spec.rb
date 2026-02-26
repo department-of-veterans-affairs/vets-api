@@ -49,6 +49,24 @@ RSpec.describe VANotify::V2::QueueUserAccountJob, type: :job do
       described_class.enqueue(user_account.id, template_id, personalisation, api_key_path)
     end
 
+    context 'when api_key_path does not start with Settings.' do
+      it 'raises ArgumentError' do
+        expect do
+          described_class.enqueue(user_account.id, template_id, personalisation, 'invalid_path', callback_options)
+        end.to raise_error(ArgumentError, "API key path must start with 'Settings.': invalid_path")
+      end
+
+      it 'does not create an AttrPackage' do
+        expect(Sidekiq::AttrPackage).not_to receive(:create)
+
+        begin
+          described_class.enqueue(user_account.id, template_id, personalisation, 'invalid_path', callback_options)
+        rescue ArgumentError
+          nil
+        end
+      end
+    end
+
     context 'when Redis fails' do
       it 'logs error, increments StatsD, and re-raises' do
         error = Redis::ConnectionError.new('Connection refused')

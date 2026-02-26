@@ -191,10 +191,12 @@ module V0
 
       credential_type = session.user_verification.credential_type
 
+      session_created_at = session.created_at
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
 
-      sign_in_logger.info('logout', @access_token.to_s)
+      session_duration = Time.zone.now.to_i - session_created_at.to_i
+      sign_in_logger.info('logout', @access_token.to_s.merge(session_duration:))
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
       logout_redirect = SignIn::LogoutRedirectGenerator.new(credential_type:,
