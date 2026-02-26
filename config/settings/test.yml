@@ -1047,6 +1047,7 @@ mhv:
     app_token: faketoken
     host: https://mhv-api.example.com
     labs_logging_date_range_days: 30
+    medication_filtered_statuses:
     mock: false
     security_host: https://mhv-api.example.com
     subject: "Proxy Client"
