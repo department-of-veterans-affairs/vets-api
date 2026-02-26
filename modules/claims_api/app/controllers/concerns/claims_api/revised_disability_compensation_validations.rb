@@ -250,7 +250,7 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
 
         beginning_date = change_of_address['beginningDate']
-        if Date.parse(beginning_date) >= Date.parse(ending_date)
+        if Date.parse(beginning_date) > Date.parse(ending_date)
           raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
         end
       end

@@ -538,6 +538,19 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         end
       end
 
+      context 'when the begin date is the same as the end date' do
+        it 'does not return an error' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.next_day(3).iso8601
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(3).iso8601
+
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+          expect(res).to be_nil
+          expect(current_error_array).to be_nil
+        end
+      end
+
       context 'when the type is temporary and begin date equals end date' do
         it 'does not return an error' do
           subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'

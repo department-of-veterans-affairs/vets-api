@@ -145,7 +145,7 @@ module ClaimsApi
           end
           begin
             begin_date = change_of_address.dig('dates', 'beginDate')
-            unless Date.strptime(begin_date, '%Y-%m-%d') <= Date.strptime(end_date, '%Y-%m-%d')
+            if Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
               collect_error_messages(
                 detail: 'endDate needs to be after beginDate.',
                 source: '/changeOfAddress/dates/endDate'
