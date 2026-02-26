@@ -353,7 +353,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               expect(persisted).not_to have_key('disabilityCompNewConditionsWorkflow')
               expect(persisted['disability_comp_new_conditions_workflow']).to be(false)
             end
-
           end
 
           context 'when fix_poisoned_ipf toggle is OFF (kill switch)' do
