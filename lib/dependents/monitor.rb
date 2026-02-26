@@ -31,6 +31,8 @@ module Dependents
 
     # allowed logging params
     ALLOWLIST = %w[
+      proc_id
+      response
       tags
     ].freeze
 

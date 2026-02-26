@@ -40,7 +40,7 @@ module CheckIn
         TravelClaimStatusCheckJob.perform_in(5.minutes, uuid, appointment_date)
         [nil, nil] # Return nil values to prevent notification job from running
       else
-        handle_response(claims_resp:, facility_type:)
+        handle_response(claims_resp:, facility_type:, uuid:)
       end
     rescue => e
       handle_submit_error(e, opts, facility_type)
@@ -49,8 +49,8 @@ module CheckIn
     private
 
     def handle_submit_error(error, opts, facility_type)
-      self.class.log_with_context(:error, "Error calling BTSSS Service: #{error.message}",
-                                  { status: 'failed' }.merge(opts))
+      self.class.log_with_context(:error, 'Error calling BTSSS Service',
+                                  { error_class: error.class.name, status: 'failed' }.merge(opts))
       if 'oh'.casecmp?(facility_type)
         StatsD.increment(Constants::OH_STATSD_BTSSS_ERROR)
         template_id = Constants::OH_ERROR_TEMPLATE_ID
@@ -67,6 +67,14 @@ module CheckIn
       facility_type = opts[:facility_type] || ''
 
       statsd_metric, template_id = facility_type.downcase == 'oh' ? OH_RESPONSES[code] : CIE_RESPONSES[code]
+
+      if code != TravelClaim::Response::CODE_SUCCESS
+        self.class.log_with_context(:error, 'BTSSS claim response error', {
+                                      response_code: code,
+                                      uuid: opts[:uuid],
+                                      facility_type:
+                                    })
+      end
 
       StatsD.increment(statsd_metric)
       [claim_number, template_id]
