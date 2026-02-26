@@ -18,7 +18,7 @@ module TravelPay
       return params unless receipt.present? && heic_image?(receipt['contentType'])
 
       unless Flipper.enabled?(:travel_pay_enable_heic_conversion)
-        Rails.logger.warn("Unsupported HEIC/HEIF receipt rejected: #{receipt['fileName']}")
+        Rails.logger.warn('Unsupported HEIC/HEIF receipt rejected')
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'HEIC/HEIF images are not currently supported. Please convert to JPG or PNG before uploading.'
         )
