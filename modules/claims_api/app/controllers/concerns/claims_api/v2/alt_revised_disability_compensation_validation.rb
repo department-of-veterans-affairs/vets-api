@@ -618,7 +618,8 @@ module ClaimsApi
         ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
         return unless service_periods_present?(service_information)
 
-        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        service_periods = service_information['servicePeriods']
+        max_period = service_periods.max_by { |sp| sp['activeDutyEndDate'] }
         max_active_duty_end_date = max_period['activeDutyEndDate']
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
@@ -627,7 +628,7 @@ module ClaimsApi
 
         beyond_180_days = duty_end_date_check(max_period) || anticipated_separation_date_check(ant_sep_date)
 
-        return if !beyond_180_days || eligible_for_future_end_date?(service_information)
+        return if !beyond_180_days || eligible_for_future_end_date?(max_period, service_periods)
 
         collect_error_messages(
           detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
@@ -643,12 +644,20 @@ module ClaimsApi
         Date.strptime(ant_sep_date, '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
       end
 
-      def eligible_for_future_end_date?(service_information)
-        reserves_national_guard_service = service_information['reservesNationalGuardService']
-        reserves_national_guard_service.present? && past_service_period?(service_information['servicePeriods'])
+      def eligible_for_future_end_date?(max_period, service_periods)
+        most_recent_service_branch_is_reverse_or_guard?(max_period) && past_service_period?(service_periods)
+      end
+
+      def most_recent_service_branch_is_reverse_or_guard?(max_period)
+        most_recent_service_branch_name = max_period['serviceBranch']&.upcase
+        return false if most_recent_service_branch_name.blank?
+
+        VALID_RESERVES_BRANCH_NAMES.any? { |name| most_recent_service_branch_name.include?(name) }
       end
 
       def past_service_period?(service_periods)
+        return false if service_periods.blank?
+
         service_periods.any? do |sp|
           end_date = sp['activeDutyEndDate']
           next false if end_date.blank?

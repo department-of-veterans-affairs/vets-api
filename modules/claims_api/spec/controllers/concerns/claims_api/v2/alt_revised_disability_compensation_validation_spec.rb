@@ -147,10 +147,12 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
           },
           'servicePeriods' => [
             {
+              'serviceBranch' => 'Army',
               'activeDutyBeginDate' => 3.years.ago.to_date.iso8601,
               'activeDutyEndDate' => 1.year.ago.to_date.iso8601
             },
             {
+              'serviceBranch' => 'Army',
               'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
               'activeDutyEndDate' => 7.years.ago.to_date.iso8601
             }
@@ -204,10 +206,10 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     context 'when the active duty end date is beyond 180 days from the claim date, but current branch is reserves' do
       it 'does not raise a 422' do
         valid_attributes = form_attributes.deep_dup
-        valid_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        valid_attributes['serviceInformation']['servicePeriods'].last['serviceBranch'] = 'AIR_NATIONAL_GUARD'
         valid_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
           200.days.from_now.to_date.iso8601
-        valid_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+        valid_attributes['serviceInformation']['servicePeriods'].last['activeDutyEndDate'] =
           200.days.from_now.to_date.iso8601
 
         subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, valid_attributes['serviceInformation'])

@@ -5,6 +5,12 @@ require 'brd/brd'
 module ClaimsApi
   module V2
     module DisabilityCompensationSharedServiceModule
+      VALID_RESERVES_BRANCH_NAMES = %w[
+        RESERVES
+        AIR_NATIONAL_GUARD
+        ARMY_NATIONAL_GUARD
+      ].freeze
+
       def brd
         @brd ||= BRD.new
       end
