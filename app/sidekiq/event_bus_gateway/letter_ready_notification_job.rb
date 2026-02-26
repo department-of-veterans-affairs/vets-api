@@ -7,6 +7,7 @@ require_relative 'errors'
 require_relative 'letter_ready_job_concern'
 require_relative 'letter_ready_email_job'
 require_relative 'letter_ready_push_job'
+require_relative 'letter_ready_sms_job'
 
 module EventBusGateway
   class LetterReadyNotificationJob
