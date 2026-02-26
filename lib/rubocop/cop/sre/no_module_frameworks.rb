@@ -49,7 +49,8 @@ module RuboCop
         private
 
         def in_modules_dir?
-          processed_source.file_path.include?('/modules/')
+          path = processed_source.file_path
+          path.include?('/modules/') || path.start_with?('modules/')
         end
       end
     end
