@@ -33,13 +33,9 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      Ask "Whose credentials failed?" before choosing a status code
-      for upstream 401 errors.
-    </rule>
-    <rule enforcement="must">
-      Return 500 (not 401) when our service account credentials fail
-      upstream — this is our configuration error, not the client's
-      authentication failure.
+      Check whose credentials failed before choosing a status code
+      for upstream 401 errors: return 500 when our service account
+      credentials fail, 401 when the user's token fails.
     </rule>
     <rule enforcement="must">
       Include `meta.auth_type` ("user_token" or "service_account")
@@ -50,25 +46,10 @@ severity: CRITICAL
       Preserve upstream context with `meta.upstream_status: 401`,
       `meta.upstream_service`, and `cause: e`.
     </rule>
-    <rule enforcement="must_not">
-      Never pass through all upstream 401 errors blindly as 401 to
-      clients — check token ownership first.
-    </rule>
     <rule enforcement="should">
       Include actionable detail messages: "Session expired. Please
       sign in again." for user tokens, "Service authentication
       configuration error" for service accounts.
-    </rule>
-    <rule enforcement="verify">
-      APM can distinguish user auth failures from service account
-      config errors
-    </rule>
-    <rule enforcement="verify">
-      Service account failures return 500 (not 401)
-    </rule>
-    <rule enforcement="verify">
-      Status code matches "whose credentials failed" (user/service
-      account)
     </rule>
   </rules>
 

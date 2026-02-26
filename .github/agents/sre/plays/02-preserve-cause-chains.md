@@ -35,40 +35,13 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      When catching an exception to add context, always wrap it in a
-      new typed exception with `cause: e`.
-    </rule>
-    <rule enforcement="must_not">
-      Never catch and re-raise without setting `cause:` — the
-      original stack trace will be lost.
-    </rule>
-    <rule enforcement="must_not">
-      Never use `raise "error: #{e}"` — this creates a RuntimeError
-      and destroys the original exception class, backtrace, and
-      cause chain.
-    </rule>
-    <rule enforcement="must">
-      APM tools and logs need the full cause chain to trace root
-      causes — always preserve it.
+      When catching an exception to add context, wrap it in a new
+      typed exception with `cause: e` to preserve the full chain
+      (class, backtrace, root cause).
     </rule>
     <rule enforcement="should">
       If not adding context when re-raising, use bare `raise` to
       preserve the original exception automatically.
-    </rule>
-    <rule enforcement="verify">
-      APM traces show full chain: RuntimeError -> ServiceException
-      -> Faraday::ServerError
-    </rule>
-    <rule enforcement="verify">
-      Stack trace shows original failure location (not just wrapper
-      line)
-    </rule>
-    <rule enforcement="verify">
-      Sidekiq can inspect exception type for retry strategy
-    </rule>
-    <rule enforcement="verify">
-      HTTP status codes visible in APM (from original Faraday
-      exception)
     </rule>
   </rules>
 

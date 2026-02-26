@@ -32,35 +32,22 @@ severity: CRITICAL
   </related_plays>
 
   <rules>
-    <rule enforcement="must_not">
-      Never include PII (names, emails, SSNs), PHI (medical info),
-      or secrets (API keys, tokens) in error messages or logs.
-    </rule>
     <rule enforcement="must">
-      Use safe identifiers (UUIDs, internal IDs, case IDs) for
-      debugging context in error messages.
+      Use safe identifiers (UUIDs, internal IDs, case IDs) in error
+      messages and logs — never PII (names, emails, SSNs), PHI
+      (medical info), or secrets (API keys, tokens).
     </rule>
     <rule enforcement="must">
       Scrub sensitive data from stack traces and exception messages
       before they reach logging infrastructure.
     </rule>
     <rule enforcement="must">
-      Use allowlists for meta fields in structured logs -- never
+      Use allowlists for meta fields in structured logs — never
       blindly include user data or response bodies.
     </rule>
     <rule enforcement="should">
       Apply DataScrubber for automatic PII/PHI redaction on any log
       payload that could contain user data.
-    </rule>
-    <rule enforcement="verify">
-      Search logs for sample SSN/email -- nothing found
-    </rule>
-    <rule enforcement="verify">
-      Code review error handlers for response body logging
-    </rule>
-    <rule enforcement="verify">
-      No `resp.body`, `params`, or `user.to_json` in raise/log
-      statements
     </rule>
   </rules>
 

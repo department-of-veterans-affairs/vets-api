@@ -36,25 +36,13 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      Always specify exception classes in rescue blocks.
-    </rule>
-    <rule enforcement="must_not">
-      Never use bare `rescue` (catches everything including typos).
-    </rule>
-    <rule enforcement="must_not">
-      Never use `rescue => e` without an exception class.
-    </rule>
-    <rule enforcement="must_not">
-      Never use `rescue Exception` (catches system signals).
+      Always specify exception classes in rescue blocks — bare
+      `rescue`, `rescue => e`, and `rescue Exception` all catch
+      too broadly (typos, system signals, load errors).
     </rule>
     <rule enforcement="should">
-      Use `rescue StandardError` only at controller/job boundaries.
-    </rule>
-    <rule enforcement="verify">
-      Tests verify correct exceptions are caught
-    </rule>
-    <rule enforcement="verify">
-      APM can see code bugs (NoMethodError, ArgumentError)
+      Use `rescue StandardError` only at controller/job boundaries
+      as the outermost handler.
     </rule>
   </rules>
 

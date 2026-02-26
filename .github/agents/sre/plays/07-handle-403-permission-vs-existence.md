@@ -30,25 +30,15 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      Use 403 only for authenticated users who lack permission to
-      access a resource or perform an action.
-    </rule>
-    <rule enforcement="must_not">
-      Never return 403 for expired or missing tokens — use 401
-      (authentication failure).
-    </rule>
-    <rule enforcement="must_not">
-      Never return 403 for non-existent resources — use 404 (not
-      found).
-    </rule>
-    <rule enforcement="must_not">
-      Never return 403 for validation failures — use 422
-      (unprocessable entity).
+      Match status code to the actual problem: 401 for expired or
+      missing tokens, 403 only for authenticated users who lack
+      permission, 404 for non-existent resources, 422 for
+      validation failures.
     </rule>
     <rule enforcement="must">
-      Return 404 instead of 403 when the resource's existence should
-      be hidden from unauthorized users to prevent enumeration
-      attacks.
+      Return 404 instead of 403 when the resource's existence
+      should be hidden from unauthorized users to prevent
+      enumeration attacks.
     </rule>
     <rule enforcement="should">
       Include `meta.required_permission` in 403 responses to guide

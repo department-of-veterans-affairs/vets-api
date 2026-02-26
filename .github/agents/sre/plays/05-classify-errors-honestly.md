@@ -36,40 +36,19 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      Choose HTTP status code by ownership of fix: 4xx when client
-      must change their request, 5xx when our code or upstream is at
-      fault.
-    </rule>
-    <rule enforcement="must_not">
-      Never rebrand 5xx errors as 4xx to quiet dashboards — this
-      hides real problems from the team that can fix them.
-    </rule>
-    <rule enforcement="must_not">
-      Never rebrand client 4xx as 5xx to get attention — this
-      creates false alarms and alert fatigue.
+      Choose HTTP status code by ownership of fix: 4xx when the
+      client must change their request, 500 when our code is at
+      fault, 502/503/504 when upstream is at fault.
     </rule>
     <rule enforcement="must">
-      When transforming an upstream status, preserve the original by
-      including meta.upstream_status and meta.upstream_service on
-      the error.
+      When transforming an upstream status, preserve the original
+      by including meta.upstream_status and meta.upstream_service
+      on the error.
     </rule>
     <rule enforcement="must">
-      Catch only specific validation exceptions before returning 422
-      — never use bare rescue with UnprocessableEntity.
-    </rule>
-    <rule enforcement="should">
-      Ask "Who fixes this?" before choosing a status code family:
-      client (4xx), our team (500), upstream (502/503/504).
-    </rule>
-    <rule enforcement="verify">
-      APM shows code bugs as 500 (not 4xx)
-    </rule>
-    <rule enforcement="verify">
-      Metrics accurately split: client errors vs our bugs vs
-      upstream issues
-    </rule>
-    <rule enforcement="verify">
-      Status code matches "who fixes it" (client/us/upstream)
+      Catch only specific validation exceptions before returning
+      422 — broad rescues misclassify server errors as client
+      errors.
     </rule>
   </rules>
 

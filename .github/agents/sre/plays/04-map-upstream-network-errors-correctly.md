@@ -35,41 +35,14 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      Catch network-level failures (timeouts, connection/DNS, TLS,
-      malformed responses) and map each to a specific 5xx status
-      code.
-    </rule>
-    <rule enforcement="must_not">
-      Never map upstream network errors to 500 Internal Server Error
-      — 500 means our code is broken, not that an upstream service
-      failed.
-    </rule>
-    <rule enforcement="must">
-      Map connection/DNS failures to 503 Service Unavailable,
-      timeouts to 504 Gateway Timeout, and upstream server errors to
-      502 Bad Gateway.
-    </rule>
-    <rule enforcement="must_not">
-      Never catch all Faraday errors with a single rescue clause
-      that returns one status code — each failure mode requires a
-      distinct HTTP status.
+      Map each upstream network failure to a specific HTTP status:
+      timeouts to 504 Gateway Timeout, connection/DNS failures to
+      503 Service Unavailable, upstream server errors to 502 Bad
+      Gateway. Reserve 500 for our own code bugs.
     </rule>
     <rule enforcement="should">
       Include `meta.upstream_status` when wrapping upstream server
       errors as 502 so dashboards can show who is at fault.
-    </rule>
-    <rule enforcement="verify">
-      Timeouts return 504 (not 500)
-    </rule>
-    <rule enforcement="verify">
-      Connection failures return 503 (not 500)
-    </rule>
-    <rule enforcement="verify">
-      Upstream 500s return 502 with upstream status preserved
-    </rule>
-    <rule enforcement="verify">
-      Metrics separate our bugs (500) from upstream issues
-      (502/503/504)
     </rule>
   </rules>
 
