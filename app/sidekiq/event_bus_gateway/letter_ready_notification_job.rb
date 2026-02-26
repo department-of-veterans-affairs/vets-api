@@ -33,6 +33,12 @@ module EventBusGateway
       # Fetch participant data upfront
       icn = get_icn(participant_id)
 
+      # Determine which notification types are requested based on template IDs
+      requested_types = []
+      requested_types << 'email' if email_template_id.present?
+      requested_types << 'sms' if sms_template_id.present?
+      requested_types << 'push' if push_template_id.present?
+
       errors = []
       errors << handle_email_notification(participant_id, email_template_id, icn)
       errors << handle_sms_notification(participant_id, sms_template_id, icn)
@@ -40,7 +46,7 @@ module EventBusGateway
       errors.compact!
 
       log_completion(email_template_id, push_template_id, sms_template_id, errors)
-      handle_errors(errors)
+      handle_errors(errors, requested_types, icn)
 
       errors
     rescue => e
@@ -197,16 +203,23 @@ module EventBusGateway
       )
     end
 
-    def handle_errors(errors)
+    def handle_errors(errors, requested_types, icn)
       return if errors.empty?
 
-      if errors.length == 3
-        # All notifications failed to enqueue
+      failed_types = errors.map { |e| e[:type] }
+
+      # Filter requested types by feature flags (some may have been skipped)
+      # SMS and push may not be attempted even if template_id was provided if feature flag is off
+      actually_requested_types = filter_by_feature_flags(requested_types, icn)
+
+      # Check if all requested (and not feature-flag-skipped) notifications failed
+      if actually_requested_types.present? && (failed_types.to_set == actually_requested_types.to_set)
+        # All actually requested notifications failed to enqueue
         error_details = errors.map { |e| "#{e[:type]}: #{e[:error]}" }.join('; ')
         raise Errors::NotificationEnqueueError, "All notifications failed to enqueue: #{error_details}"
       else
-        failed_types = errors.map { |e| e[:type] }
-        successful_types = %w[email sms push] - failed_types
+        # Partial failure - some succeeded
+        successful_types = actually_requested_types - failed_types
         error_messages = errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', ')
 
         ::Rails.logger.warn(
@@ -217,6 +230,22 @@ module EventBusGateway
           }
         )
       end
+    end
+
+    def filter_by_feature_flags(requested_types, icn)
+      actually_requested_types = requested_types.dup
+
+      if requested_types.include?('sms') &&
+         !Flipper.enabled?(:event_bus_gateway_letter_ready_sms_notifications, Flipper::Actor.new(icn))
+        actually_requested_types.delete('sms')
+      end
+
+      if requested_types.include?('push') &&
+         !Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(icn))
+        actually_requested_types.delete('push')
+      end
+
+      actually_requested_types
     end
   end
 end
