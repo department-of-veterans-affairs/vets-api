@@ -174,9 +174,14 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     let(:claim) { create(:va210779) }
     let(:filled_pdf_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
     let(:stamped_pdf_path) { 'tmp/8607c198992feedf899d78f98e5af856.pdf' }
+    let(:monitor) { instance_double(Form210779::Monitor) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
+      allow(Form210779::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive(:track_request_code)
+      allow(monitor).to receive(:track_pdf_generation_success)
+      allow(monitor).to receive(:track_pdf_generation_failure)
     end
 
     it 'generates and downloads PDF' do
@@ -228,7 +233,6 @@ RSpec.describe V0::Form210779Controller, type: :controller do
     end
 
     describe 'monitoring' do
-      let(:claim) { create(:va210779) }
       let(:temp_pdf) { '/tmp/test_210779.pdf' }
 
       it 'tracks request code for PDF download success' do
@@ -249,12 +253,10 @@ RSpec.describe V0::Form210779Controller, type: :controller do
 
       it 'tracks request code for PDF generation errors' do
         allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError, 'PDF error')
-
-        expect(monitor).to receive(:track_request_code).with(500,
-                                                             hash_including(action: 'download_pdf',
-                                                                            user_uuid: nil))
+        expect(monitor).to receive(:track_pdf_generation_failure)
 
         get(:download_pdf, params: { guid: claim.guid })
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
 

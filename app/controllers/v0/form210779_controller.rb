@@ -48,8 +48,9 @@ module V0
 
     # rubocop:disable Metrics/MethodLength
     def download_pdf
-      claim = saved_claim_class.find_by!(guid: params[:guid])
       pdf_start_time = Time.current
+
+      claim = saved_claim_class.find_by!(guid: params[:guid])
 
       source_file_path = with_retries('Generate 21-0779 PDF') { claim.to_pdf }
 
@@ -58,7 +59,7 @@ module V0
               ArgumentError.new('Failed to generate PDF')
       end
 
-      track_pdf_success(pdf_start_time)
+      monitor.track_pdf_generation_success(pdf_start_time)
       send_data File.read(source_file_path),
                 filename: download_file_name(claim),
                 type: 'application/pdf',
@@ -66,7 +67,6 @@ module V0
     rescue ActiveRecord::RecordNotFound
       raise Common::Exceptions::RecordNotFound, params[:guid]
     rescue => e
-      StatsD.increment("#{stats_key}.pdf_generation.failure")
       handle_pdf_generation_error(e)
     ensure
       if response.status
@@ -81,12 +81,6 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     private
-
-    def track_pdf_success(start_time)
-      pdf_duration = Time.current - start_time
-      StatsD.measure("#{stats_key}.pdf_generation.duration", pdf_duration * 1000)
-      StatsD.increment("#{stats_key}.pdf_generation.success")
-    end
 
     def filtered_params
       params.require(:form)
@@ -104,25 +98,12 @@ module V0
       'api.form210779'
     end
 
-    def monitor
-      @monitor ||= Form210779::Monitor.new
-    end
-
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_0779_enabled, current_user)
     end
 
     def handle_pdf_generation_error(error)
-      Rails.logger.error(
-        'Form210779: Error generating PDF',
-        {
-          form: '21-0779',
-          guid: params[:guid],
-          user_id: current_user&.uuid,
-          error: error.message,
-          backtrace: error.backtrace
-        }
-      )
+      monitor.track_pdf_generation_failure(error)
       render json: {
         errors: [{
           title: 'PDF Generation Failed',
@@ -130,6 +111,10 @@ module V0
           status: '500'
         }]
       }, status: :internal_server_error
+    end
+
+    def monitor
+      @monitor ||= Form210779::Monitor.new
     end
   end
 end
