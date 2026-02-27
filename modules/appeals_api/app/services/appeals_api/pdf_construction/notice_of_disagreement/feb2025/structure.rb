@@ -205,11 +205,9 @@ module AppealsApi
         def overflow_issues?
           return true if form_data.contestable_issues.length > MAX_ISSUES_ON_MAIN_FORM
 
-          form_data.contestable_issues.take(MAX_ISSUES_ON_MAIN_FORM).any? do |issue|
+          form_data.contestable_issues.any? do |issue|
             self.class.issue_text_exceeds_column_width?(issue)
           end
-
-          false
         end
 
         def insert_issues_into_text_boxes(pdf, text_opts)
