@@ -271,6 +271,82 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
           expect(received_body['expenseReceipt']['contentType']).to eq('image/jpeg')
           expect(received_body['expenseReceipt']['fileName']).to eq('receipt.jpg')
         end
+
+        context 'when file_data is nil' do
+          let(:heic_receipt_nil_data) do
+            {
+              'content_type' => 'image/heic',
+              'length' => '0',
+              'file_name' => 'receipt.heic',
+              'file_data' => nil
+            }
+          end
+          let(:expense_params_with_nil_file_data) do
+            {
+              purchase_date: 1.day.ago.iso8601,
+              description: 'Parking with HEIC receipt missing data',
+              cost_requested: 15.00,
+              receipt: heic_receipt_nil_data
+            }
+          end
+
+          it 'skips conversion and passes receipt through unchanged' do
+            expenses_client = instance_double(TravelPay::ExpensesClient)
+            allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+
+            received_body = nil
+            allow(expenses_client).to receive(:add_expense) do |_veis, _btsss, _type, body|
+              received_body = body
+              OpenStruct.new(body: { 'data' => { 'id' => expense_id } })
+            end
+
+            post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+                 params: expense_params_with_nil_file_data,
+                 headers: { 'Authorization' => 'Bearer vagov_token' }
+
+            expect(response).to have_http_status(:created)
+            expect(received_body['expenseReceipt']['contentType']).to eq('image/heic')
+            expect(received_body['expenseReceipt']['fileName']).to eq('receipt.heic')
+          end
+        end
+
+        context 'when file_data is an empty string' do
+          let(:heic_receipt_empty_data) do
+            {
+              'content_type' => 'image/heic',
+              'length' => '0',
+              'file_name' => 'receipt.heic',
+              'file_data' => ''
+            }
+          end
+          let(:expense_params_with_empty_file_data) do
+            {
+              purchase_date: 1.day.ago.iso8601,
+              description: 'Parking with HEIC receipt empty data',
+              cost_requested: 15.00,
+              receipt: heic_receipt_empty_data
+            }
+          end
+
+          it 'skips conversion and passes receipt through unchanged' do
+            expenses_client = instance_double(TravelPay::ExpensesClient)
+            allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+
+            received_body = nil
+            allow(expenses_client).to receive(:add_expense) do |_veis, _btsss, _type, body|
+              received_body = body
+              OpenStruct.new(body: { 'data' => { 'id' => expense_id } })
+            end
+
+            post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+                 params: expense_params_with_empty_file_data,
+                 headers: { 'Authorization' => 'Bearer vagov_token' }
+
+            expect(response).to have_http_status(:created)
+            expect(received_body['expenseReceipt']['contentType']).to eq('image/heic')
+            expect(received_body['expenseReceipt']['fileName']).to eq('receipt.heic')
+          end
+        end
       end
 
       context 'when HEIC conversion flag is disabled' do
