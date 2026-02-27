@@ -111,6 +111,18 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         form_data: { 'autoCestPDFGenerationDisabled' => auto_cest_pdf_generation_disabled }
       )
     end
+    let(:attachment) do
+      Rack::Test::UploadedFile.new(
+        Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'extras.pdf'),
+        'application/pdf'
+      )
+    end
+    let(:request_params) do
+      ActionController::Parameters.new(
+        'id' => pending_claim&.id || '123',
+        'attachment' => attachment
+      )
+    end
 
     # common error messages
     let(:field_required_error) do
@@ -120,15 +132,10 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
     let(:not_found_error) { 'Resource not found' }
 
-    # expect document validations to pass
     before do
-      allow(controller).to receive_messages(
-        validate_document_provided: nil,
-        validate_documents_content_type: nil,
-        validate_documents_page_size: nil,
-        claims_v1_logging: nil,
-        render: nil
-      )
+      allow(controller).to receive(:claims_v1_logging)
+      allow(controller).to receive(:render)
+      allow(controller).to receive(:params).and_return(request_params)
     end
 
     describe 'with FES service enabled' do
