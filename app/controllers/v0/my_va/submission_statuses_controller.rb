@@ -84,14 +84,16 @@ module V0
       end
 
       def gateway_options_for_user
-        {
+        options = {
           # ALWAYS enable benefits intake for backward compatibility
           # The feature flag only controls whether to show ALL forms vs restricted list
           benefits_intake_enabled: true,
           decision_reviews_enabled: display_decision_reviews_forms?,
-          ivc_champva_enabled: display_ivc_champva_forms?,
-          user_email: @current_user.email
+          ivc_champva_enabled: display_ivc_champva_forms?
         }
+
+        options[:user_email] = @current_user.email if options[:ivc_champva_enabled]
+        options
       end
 
       def display_all_forms?
