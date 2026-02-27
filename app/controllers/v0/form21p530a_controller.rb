@@ -33,7 +33,8 @@ module V0
     def download_pdf
       pdf_start_time = Time.current
       parsed_form = parse_and_transform_payload
-      source_file_path = generate_and_stamp_pdf(parsed_form)
+      source_file_path = generate_pdf(parsed_form)
+      source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
 
       monitor.track_pdf_generation_success(pdf_start_time)
 
@@ -95,11 +96,10 @@ module V0
       JSON.parse(transformed_payload)
     end
 
-    def generate_and_stamp_pdf(parsed_form)
-      source_file_path = with_retries('Generate 21P-530A PDF') do
+    def generate_pdf(parsed_form)
+      with_retries('Generate 21P-530A PDF') do
         PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530A')
       end
-      PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
     end
 
     def track_response_code(action, claim = nil)
