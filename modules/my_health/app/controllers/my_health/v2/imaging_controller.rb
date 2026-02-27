@@ -15,12 +15,14 @@ module MyHealth
         start_date = params[:start_date]
         end_date = params[:end_date]
         imaging_study_type = params[:imaging_study_type].presence || 'ALL'
+        site_ids = user_site_ids
 
         imaging_studies = sort_records(
           service.get_imaging_studies(
             start_date:,
             end_date:,
-            imaging_study_type:
+            imaging_study_type:,
+            site_ids:
           ),
           params[:sort]
         )
@@ -35,15 +37,12 @@ module MyHealth
       end
 
       def thumbnails
-        start_date = params[:start_date]
-        end_date = params[:end_date]
-
         # NOTE: params[:id] is a FHIR imaging study identifier URN (e.g. 'urn-vastudy-...')
         record_id = params[:id]
 
         imaging_studies = service.get_imaging_study(
-          start_date:,
-          end_date:,
+          start_date: default_start_date,
+          end_date: default_end_date,
           record_id:
         )
         serialized_studies = UnifiedHealthData::Serializers::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
@@ -57,15 +56,12 @@ module MyHealth
       end
 
       def dicom
-        start_date = params[:start_date]
-        end_date = params[:end_date]
-
         # NOTE: params[:id] is a FHIR imaging study identifier URN (e.g. 'urn-vastudy-...')
         record_id = params[:id]
 
         imaging_studies = service.get_dicom_zip(
-          start_date:,
-          end_date:,
+          start_date: default_start_date,
+          end_date: default_end_date,
           record_id:
         )
         serialized_studies = UnifiedHealthData::Serializers::ImagingStudySerializer.new(imaging_studies).serializable_hash[:data]
@@ -169,6 +165,33 @@ module MyHealth
 
       def service
         @service ||= UnifiedHealthData::ImagingService.new(@current_user)
+      end
+
+      # SCDF requires date params for thumbnails and DICOM but they do not
+      # affect results. Provide a wide window so every study qualifies.
+      def default_start_date
+        10.years.ago.strftime('%Y-%m-%d')
+      end
+
+      def default_end_date
+        Time.zone.today.strftime('%Y-%m-%d')
+      end
+
+      # Combines the user's VistA treatment facility IDs and Cerner (Oracle Health)
+      # facility IDs to build the full list of sites for SCDF imaging queries.
+      def user_site_ids
+        vista_ids = @current_user.va_treatment_facility_ids || []
+        cerner_ids = @current_user.cerner_facility_ids || []
+        site_ids = (vista_ids + cerner_ids).map(&:to_s).uniq
+
+        if site_ids.empty?
+          Rails.logger.warn(
+            message: 'ImagingController#user_site_ids resolved to empty site_ids',
+            icn: @current_user.icn
+          )
+        end
+
+        site_ids
       end
     end
   end
