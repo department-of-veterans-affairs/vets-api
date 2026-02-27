@@ -11,7 +11,7 @@ module DisabilityCompensation
   #
   module DownloadClaimDocuments
     class << self
-      def perform(file_io, claim_id:, icn:) # rubocop:disable Metrics/MethodLength
+      def perform(file_io, claim_id:, icn:)
         profile_service = MPI::Service.new
         profile = fetch_profile(profile_service, icn)
 
@@ -21,10 +21,7 @@ module DisabilityCompensation
         claim = fetch_claim(claims_service, claim_id)
         claim_documents = get_claim_documents(claim)
 
-        vbms_document_uuids = fetch_vbms_document_uuids(
-          documents_service,
-          profile.participant_id
-        )
+        vbms_document_uuids = fetch_vbms_document_uuids(documents_service, profile.participant_id)
 
         directory = Rails.root / 'tmp' / name.underscore / claim_id
         file_io.mkdir_p(directory)
@@ -37,11 +34,7 @@ module DisabilityCompensation
           file = download_document(documents_service, uuid, profile.birls_id)
 
           filenames << document[:type]
-          filename = [
-            document[:type],
-            filenames.count(document[:type]),
-            document[:extname]
-          ].join
+          filename = [document[:type], filenames.count(document[:type]), document[:extname]].join
 
           file_io.binwrite(directory / filename, file)
         end
