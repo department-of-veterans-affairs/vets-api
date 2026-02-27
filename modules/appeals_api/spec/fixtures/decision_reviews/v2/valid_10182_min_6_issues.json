@@ -1,0 +1,74 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "homeless": true,
+        "phone": {
+          "phoneNumber": "8001111"
+        },
+        "email": "clause@north.com",
+        "timezone": "America/Chicago"
+      },
+      "boardReviewOption": "evidence_submission",
+      "requestingExtension": false,
+      "appealingVhaDenial": false
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus2",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus3",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus4",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus5",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus6",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    }
+  ]
+}

@@ -117,7 +117,7 @@ module IvcChampva
           case config[:type]
           when :text
             Rails.logger.info 'IVC Champva Forms - PdfStamper: multistamp drawing text'
-            pdf.draw_text signature_text, at: config[:position], size: font_size
+            pdf.draw_text I18n.transliterate(signature_text), at: config[:position], size: font_size
           when :new_page
             Rails.logger.info 'IVC Champva Forms - PdfStamper: multistamp starting new page'
             pdf.start_new_page
