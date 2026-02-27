@@ -1048,6 +1048,7 @@ mhv:
     app_token: faketoken
     host: https://example.myhealth.va.gov
     labs_logging_date_range_days: 30
+    medication_filtered_statuses:
     mock: true
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
