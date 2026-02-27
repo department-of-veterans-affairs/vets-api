@@ -299,6 +299,113 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
     end
 
+    context 'with bare 3-digit station number (no suffix)' do
+      let(:dispense_bare_station) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-bare',
+          'location' => { 'display' => '648' }
+        }
+      end
+
+      before do
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+      end
+
+      it 'resolves facility name for bare 3-digit station' do
+        result = subject.resolve_facility_name(dispense_bare_station)
+        expect(result).to eq('Portland VA Medical Center')
+      end
+    end
+
+    context 'with 5-digit numeric identifier (non-VA)' do
+      let(:dispense_five_digit) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-5digit',
+          'location' => { 'display' => '12345-RX-MAIN' }
+        }
+      end
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns nil and logs non-VA identifier skip' do
+        result = subject.resolve_facility_name(dispense_five_digit)
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Skipping non-VA station identifier: 12345-RX-MAIN'
+        )
+      end
+
+      it 'does not attempt facility lookup' do
+        expect(HealthFacility).not_to receive(:find_by)
+        subject.resolve_facility_name(dispense_five_digit)
+      end
+    end
+
+    context 'with DoD clinic 0378-RX-CLINIC (4-digit starting with 0)' do
+      let(:dispense_dod_four_digit) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-dod-0378',
+          'location' => { 'display' => '0378-RX-CLINIC' }
+        }
+      end
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns nil and logs non-VA identifier skip' do
+        result = subject.resolve_facility_name(dispense_dod_four_digit)
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Skipping non-VA station identifier: 0378-RX-CLINIC'
+        )
+      end
+
+      it 'does not attempt facility lookup' do
+        expect(HealthFacility).not_to receive(:find_by)
+        subject.resolve_facility_name(dispense_dod_four_digit)
+      end
+    end
+
+    context 'with 3-digit station where neither DB nor API finds facility' do
+      let(:dispense_unknown_station) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-unknown',
+          'location' => { 'display' => '999-RX-MAIN' }
+        }
+      end
+
+      let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
+
+      before do
+        allow(Rails.cache).to receive_messages(read: nil, exist?: false)
+        allow(Rails.cache).to receive(:write)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:increment)
+        allow(HealthFacility).to receive(:find_by).and_return(nil)
+        allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+        allow(mock_client).to receive(:get_facilities).and_return([])
+      end
+
+      it 'returns nil when no facility is found' do
+        result = subject.resolve_facility_name(dispense_unknown_station)
+        expect(result).to be_nil
+      end
+
+      it 'attempts lookup for 3-digit station' do
+        subject.resolve_facility_name(dispense_unknown_station)
+        expect(HealthFacility).to have_received(:find_by).with(station_number: '999')
+      end
+    end
+
     context 'with nil dispense' do
       it 'returns nil' do
         result = subject.resolve_facility_name(nil)
