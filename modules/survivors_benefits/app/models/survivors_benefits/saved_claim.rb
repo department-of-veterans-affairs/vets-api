@@ -109,174 +109,12 @@ module SurvivorsBenefits
 
     # BEGIN IBM
 
-    # Number of DIC treatment facility rows expected
-    TREATMENT_FACILITY_COUNT = 3
-
-    # Number of income and asset rows expected
-    INCOME_AND_ASSETS_COUNT = 4
-
-    # Number of in-home or care facility rows expected
-    IN_HOME_OR_CARE_FACILITY_COUNT = 3
-
-    # Number of medical, last, and/or burial expense rows expected
-    MEDICAL_LAST_BURIAL_EXPENSE_COUNT = 6
-
     ##
     # Converts the form_data into json that can be read by the IBM - GOVCIO mms connection
     #
     def to_ibm
-      build_ibm_payload(parsed_form)
-    end
-
-    # Build the structured data dictionary payload from the parsed claim form.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    ##
-    def build_ibm_payload(form)
-      build_veterans_id_info(form)
-        .merge!(build_claimants_id_info(form))
-        .merge!(build_veterans_service_info(form))
-        .merge!(build_marital_info(form))
-        .merge!(build_marital_history(form))
-        .merge!(build_child_of_veteran_info(form))
-        .merge!(build_dic_info(form))
-        .merge!(build_nursing_home_info(form))
-        .merge!(build_income_and_assets_info(form))
-    end
-
-    ##
-    # Section I
-    # Build the veteran-specific structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_veterans_id_info(form)
-      build_name_fields(form['veteranFullName'], 'VETERAN')
-        .merge!(radio_value(form['vaClaimsHistory'], 'VETSPCHPAR_FILECLAIM_Y', 'VETSPCHPAR_FILECLAIM_N'))
-        .merge!(radio_value(form['diedOnDuty'], 'VETDIED_ACTIVEDUTY_Y', 'VETDIED_ACTIVEDUTY_N'))
-        .merge!(
-          {
-            'VETERAN_SSN' => form['veteranSocialSecurityNumber'],
-            'VETERAN_DOB' => format_date(form['veteranDateOfBirth']),
-            'VA_FILE_NUMBER' => form['vaFileNumber'],
-            'VETERANS_SERVICE_NUMBER' => form['veteranServiceNumber'],
-            'VETERAN_DATE_OF_DEATH' => format_date(form['veteranDateOfDeath'])
-          }
-        )
-    end
-
-    ##
-    # Section II
-    # Build the claimant-specific structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_claimants_id_info(form)
-      primary_phone = { 'contact' => form['claimantPhone'], 'countryCode' => form['claimantAddress']['country'] }
-      build_name_fields(form['claimantFullName'], 'CLAIMANT')
-        .merge!(build_claimant_address_fields(form['claimantAddress']))
-        .merge!(build_relationship(form['claimantRelationship']))
-        .merge!(build_claim_type_fields(form['claims']))
-        .merge!(radio_value(form['claimantIsVeteran'], 'CLAIMANT_IS_VETERAN_YES', 'CLAIMANT_IS_VETERAN_NO'))
-        .merge!(
-          {
-            'CLAIMANT_SSN' => form['claimantSocialSecurityNumber'],
-            'CLAIMANT_DOB' => format_date(form['claimantDateOfBirth']),
-            'PHONE_NUMBER' => primary_phone['contact'],
-            'INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
-            'EMAIL' => form['claimantEmail']
-          }
-        )
-    end
-
-    ##
-    # Section III
-    # Build the veteran service info structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_veterans_service_info(form)
-      build_vet_aliases(form['veteranPreviousNames'].length.positive?, form['veteranPreviousNames'])
-        .merge!(build_service_branch_fields(form['serviceBranch']))
-        .merge!(radio_value(form['nationalGuardActivated'], 'ACTIVATED_TO_FED_DUTY_YES', 'ACTIVATED_TO_FED_DUTY_NO'))
-        .merge!(radio_value(form['pow'], 'POW_YES', 'POW_NO'))
-        .merge!(
-          {
-            'DATE_ENTERED_TO_SERVICE' => format_date(form['activeServiceDateRange']['from']),
-            'DATE_SEPARATED_FROM_SERVICE' => format_date(form['activeServiceDateRange']['to']),
-            'PLACE_SEPARATED_FROM_SERVICE_1' => form['placeOfSeparation'],
-            'DATE_OF_ACTIVATION' => format_date(form['nationalGuardActivationDate']),
-            'NAME_ADDRESS_RESERVE_UNIT' => form['unitNameAndAddress'],
-            'RESERVE_PHONE_NUMBER' => form['unitPhone'],
-            'DATE_OF_CONFINEMENT_START' => form['pow'] ? format_date(form['powDateRange']['from']) : nil,
-            'DATE_OF_CONFINEMENT_END' => form['pow'] ? format_date(form['powDateRange']['to']) : nil
-          }
-        )
-    end
-
-    ##
-    # Section IV
-    # Build the marital information structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_marital_info(form)
-      pregnant_with_veteran, lived_with_veteran, discordant_separation, marriage_type = marital_info_data(form)
-      build_claimant_remarriage_fields(form)
-        .merge!(radio_value(form['validMarriage'], 'AWARE_OF_MARRIAGE_VALIDITY_YES', 'AWARE_OF_MARRIAGE_VALIDITY_NO'))
-        .merge!(build_veteran_separation_fields(form))
-        .merge!(radio_value(form['childWithVeteran'], 'CHILD_DURING_MARRIAGE_YES', 'CHILD_DURING_MARRIAGE_NO'))
-        .merge!(radio_value(pregnant_with_veteran, 'EXPECTING_BIRTH_VET_CHILD_YES', 'EXPECTING_BIRTH_VET_CHILD_NO'))
-        .merge!(radio_value(lived_with_veteran, 'LIVE_WITH_VET_TILL_DEATH_YES', 'LIVED_WITH_VET_CONTINUOUSLY_NO'))
-        .merge!(radio_value(discordant_separation, 'MARITAL_DISCORD_SEPARATION_Y', 'MARITAL_DISCORD_SEPARATION_N'))
-        .merge!(radio_value(marriage_type == 'ceremonial', 'CB_CL_MARR_1_TYPE_CEREMONIAL', 'CB_CL_MARR_1_TYPE_OTHER'))
-        .merge!(
-          {
-            'VET_CLAIMANT_MARRIAGE_1_DATE' => format_date(form.dig('marriageDates', 'from')),
-            'VET_CLAIMANT_MARRIAGE_1_DATE_ENDED' => format_date(form.dig('marriageDates', 'to')),
-            'VET_CLAIMANT_MARRIAGE_1_PLACE' => form['placeOfMarriage'],
-            'VET_CLAIMANT_MARRIAGE_1_PLACE_ENDED' => form['placeOfMarriageTermination'],
-            'CL_MARR_1_TYPE_OTHEREXPLAIN' => form['marriageTypeExplanation'],
-            'MARITAL_DISCORD_SEPARATION_EXP' => form['separationExplanation']
-          }
-        )
-    end
-
-    ##
-    # Section V
-    # Build the marital history structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_marital_history(form)
-      vet_prev_marriages = form['veteranMarriages'] || []
-      spouse_prev_marriages = form['spouseMarriages'] || []
-      build_previous_marriage_fields(form, vet_prev_marriages, 'VETERAN', 'veteranHasAdditionalMarriages')
-        .merge!(
-          build_previous_marriage_fields(form, spouse_prev_marriages, 'CLAIMANT', 'spouseHasAdditionalMarriages')
-        )
-    end
-
-    ##
-    # Section VI
-    # Build the child of the veteran information structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_child_of_veteran_info(form)
-      live_w_children = form['childrenLiveTogetherButNotWithSpouse']
-      children = form['veteransChildren'] || []
-      fields = { 'NUMBER_OF_DEP_CHILD' => form['veteranChildrenCount}'] }
-      fields.merge!(radio_value(live_w_children, 'CHILD_DO_NOT_LIVE_WITH_CL_Y', 'CHILD_DO_NOT_LIVE_WITH_CL_N'))
-            .merge!(build_custodian_fields(form))
-      children.each_with_index do |child, index|
-        child_num = index + 1
-        fields.merge!(
-          build_child(child, child_num)
-        )
-      end
-      fields
+      structured_data_service = SurvivorsBenefits::StructuredData::StructuredDataService.new(parsed_form)
+      structured_data_service.build_structured_data
     end
 
     ##
@@ -288,7 +126,7 @@ module SurvivorsBenefits
     def build_dic_info(form)
       fields = build_dic_type_fields(form['benefit'])
       treatments = form['treatments'] || []
-      treatments.each_with_index do |treatment, index|
+      treatments&.each_with_index do |treatment, index|
         center_num = index + 1
         fields.merge!(
           {
@@ -302,17 +140,6 @@ module SurvivorsBenefits
     end
 
     ##
-    # Section VIII
-    # Build nursing home or increased survivors entitlement structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_nursing_home_info(form)
-      radio_value(form['claimantLivesInANursingHome'], 'CL_IN_NURSING_HOME_Y', 'CL_IN_NURSING_HOME_N')
-        .merge!(radio_value(form['claimingMonthlySpecialPension'], 'SPECIAL_ISSUE_YES', 'SPECIAL_ISSUE_NO'))
-    end
-
-    ##
     # Section IX
     # Build Income and Asset structured data entries.
     #
@@ -320,13 +147,13 @@ module SurvivorsBenefits
     # @return [Hash]
     def build_income_and_assets_info(form)
       build_income_fields(form['incomeEntries'])
-        .merge!(radio_value(form['landMarketable'], 'MARKETABLE_LAND_2ACR_Y', 'MARKETABLE_LAND_2ACR_N'))
-        .merge!(radio_value(form['transferredAssets'], 'TRANSFER_ASSETS_LAST3Y_Y', 'TRANSFER_ASSETS_LAST3Y_N'))
-        .merge!(radio_value(form['homeOwnership'], 'OWN_PRIMARY_RESIDENCE_Y', 'OWN_PRIMARY_RESIDENCE_N'))
-        .merge!(radio_value(form['homeAcreageMoreThanTwo'], 'RESLOT_OVER_2ACR_Y', 'RESLOT_OVER_2ACR_N'))
-        .merge!(radio_value(form['moreThanFourIncomeSources'], 'MORETHAN4_INCSOURCE_Y', 'MORETHAN4_INCSOURCE_N'))
-        .merge!(radio_value(form['otherIncome'], 'PREV_YEAR_OTHER_INCOME_YES', 'PREV_YEAR_OTHER_INCOME_NO'))
-        .merge!(radio_value(form['totalNetWorth'], 'ASSETS_OVER_25K_Y', 'ASSETS_OVER_25K_N'))
+        .merge!(y_n_pair(form['landMarketable'], 'MARKETABLE_LAND_2ACR_Y', 'MARKETABLE_LAND_2ACR_N'))
+        .merge!(y_n_pair(form['transferredAssets'], 'TRANSFER_ASSETS_LAST3Y_Y', 'TRANSFER_ASSETS_LAST3Y_N'))
+        .merge!(y_n_pair(form['homeOwnership'], 'OWN_PRIMARY_RESIDENCE_Y', 'OWN_PRIMARY_RESIDENCE_N'))
+        .merge!(y_n_pair(form['homeAcreageMoreThanTwo'], 'RESLOT_OVER_2ACR_Y', 'RESLOT_OVER_2ACR_N'))
+        .merge!(y_n_pair(form['moreThanFourIncomeSources'], 'MORETHAN4_INCSOURCE_Y', 'MORETHAN4_INCSOURCE_N'))
+        .merge!(y_n_pair(form['otherIncome'], 'PREV_YEAR_OTHER_INCOME_YES', 'PREV_YEAR_OTHER_INCOME_NO'))
+        .merge!(y_n_pair(form['totalNetWorth'], 'ASSETS_OVER_25K_Y', 'ASSETS_OVER_25K_N'))
         .merge!(
           {
             'AMNT_ESTIMATE_ASSETS' => form['netWorthEstimation'] || 0,
@@ -335,243 +162,58 @@ module SurvivorsBenefits
         )
     end
 
-    def build_name_fields(name, individual)
-      name = build_name(name)
+    ##
+    # Section X
+    # Build the medical, last, and/or burial expenses structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_medical_last_burial_expenses(form)
+      fields = y_n_pair(reportable_reimbursment?(form), 'UNREIMBURSED_MED_EXPENSES_Y', 'UNREIMBURSED_MED_EXPENSES_N')
+      fields.merge!(build_care_expense_fields(form['careExpenses'] || []))
+            .merge!(build_medical_expense_fields(form['medicalExpenses'] || []))
+    end
+
+    ##
+    # Section XI
+    # Build claimant direct deposit structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_claimant_direct_deposit_fields(account)
+      return {} unless account
+
       {
-        "#{individual}_NAME" => name[:full],
-        "#{individual}_FIRST_NAME" => name[:first],
-        "#{individual}_MIDDLE_INITIAL" => name[:middle_initial],
-        "#{individual}_LAST_NAME" => name[:last]
+        'NAME_FINANCIAL_INSTITUTE' => account['bankName'],
+        'ROUTING_TRANSIT_NUMBER' => account['routingNumber'],
+        'CHECKING_ACCOUNT_CB' => account['accountType'] == 'CHECKING',
+        'SAVINGS_ACCOUNT_CB' => account['accountType'] == 'SAVINGS',
+        'NO_ACCOUNT_CB' => account['accountType'] == 'NO_ACCOUNT',
+        'AccountNumber' => account['accountNumber']
       }
     end
 
-    def build_claimant_address_fields(claimant_address)
+    ##
+    # Section XII
+    # Build claim certification structured data entries.
+    #
+    # @param form [Hash]
+    # @return [Hash]
+    def build_claim_certification_fields(form)
       {
-        'CLAIMANT_ADDRESS_FULL_BLOCK' => build_address_block(claimant_address),
-        'CLAIMANT_ADDRESS_LINE1' => claimant_address['street'],
-        'CLAIMANT_ADDRESS_LINE2' => claimant_address['street2'],
-        'CLAIMANT_ADDRESS_CITY' => claimant_address['city'],
-        'CLAIMANT_ADDRESS_STATE' => claimant_address['state'],
-        'CLAIMANT_ADDRESS_COUNTRY' => claimant_address['country'],
-        'CLAIMANT_ADDRESS_ZIP5' => claimant_address['postalCode']['firstFive']
+        'CB_FURTHER_EVD_CLAIM_SUPPORT' => false,
+        'CLAIM_TYPE_FULLY_DEVELOPED_CHK' => true,
+        'CLAIMANT_SIGNATURE_X' => form['claimantSignatureX'],
+        'CLAIMANT_SIGNATURE' => form['claimantSignature'],
+        'DATE_OF_CLAIMANT_SIGNATURE' => format_date(form['claimantSignatureDate'])
       }
     end
 
-    def build_relationship(relationship)
-      {
-        'RELATIONSHIP_SURVIVING_SPOUSE' => relationship == 'SURVIVING_SPOUSE',
-        'RELATIONSHIP_CHILD' => relationship == 'CHILD_18-23_IN_SCHOOL',
-        'RELATIONSHIP_CUSTODIAN' => relationship == 'CUSTODIAN_FILING_FOR_CHILD_UNDER_18',
-        'RELATIONSHIP_HELPLESSCHILD' => relationship == 'HELPLESS_ADULT_CHILD'
-      }
-    end
-
-    def build_claim_type_fields(claims = {})
-      {
-        'CLAIM_TYPE_DIC' => claims['DIC'],
-        'CLAIM_TYPE_SURVIVOR_PENSION' => claims['survivorsPension'],
-        'CLAIM_TYPE_ACCRUED_BENEFITS' => claims['accruedBenefits']
-      }
-    end
-
-    def build_vet_aliases(has_aliases, aliases = [])
-      n1 = aliases[0] || {}
-      n2 = aliases[1] || {}
-      alias_fields = {
-        'VET_NAME_OTHER_Y' => has_aliases == true,
-        'VET_NAME_OTHER_N' => has_aliases == false,
-        'VET_NAME_OTHER_1' => [n1['first'], n1['middle'], n1['last'], n1['suffix']].compact.join(' ').presence,
-        'VET_NAME_OTHER_2' => [n2['first'], n2['middle'], n2['last'], n2['suffix']].compact.join(' ').presence
-      }
-      radio_value(has_aliases, 'VET_NAME_OTHER_Y', 'VET_NAME_OTHER_N')
-        .merge!(alias_fields)
-    end
-
-    def build_service_branch_fields(branch)
-      {
-        'BRANCH_OF_SERVICE_ARMY' => branch == 'army',
-        'BRANCH_OF_SERVICE_NAVY' => branch == 'navy',
-        'BRANCH_OF_SERVICE_AIR-FORCE' => branch == 'airForce',
-        'BRANCH_OF_SERVICE_MARINE' => branch == 'marineCorps',
-        'BRANCH_OF_SERVICE_COAST-GUARD' => branch == 'coastGuard',
-        'BRANCH_OF_SERVICE_SPACE' => branch == 'spaceForce',
-        'BRANCH_OF_SERVICE_NOAA' => branch == 'usphs',
-        'BRANCH_OF_SERVICE_USPHS' => branch == 'noaa'
-      }
-    end
-
-    def build_veteran_separation_fields(form)
-      married_at_death = form['marriedToVeteranAtTimeOfDeath']
-      result =
-        if married_at_death
-          {
-            'CB_MARR_TO_VET_ENDED_DEATH' => form['howMarriageEnded'] == 'death',
-            'CB_MARR_TO_VET_ENDED_DIVORCE' => form['howMarriageEnded'] == 'divorce',
-            'CB_MARR_TO_VET_ENDED_OTHER' => form['howMarriageEnded'] == 'other',
-            'MARR_TO_VET_ENDED_OTHEREXPLAIN' => form['howMarriageEndedExplanation']
-          }
-        else
-          {}
-        end
-      result.merge!(radio_value(married_at_death, 'MARRIED_WHILE_VET_DEATH_Y', 'MARRIED_WHILE_VET_DEATH_N'))
-    end
-
-    def build_claimant_remarriage_fields(form)
-      has_remarried = form['remarriageAfterVeteralDeath']
-      expand_remarriage_end_cause(has_remarried, form['remarriageEndCause'])
-        .merge!(radio_value(has_remarried, 'REMARRIED_AFTER_VET_DEATH_YES', 'REMARRIED_AFTER_VET_DEATH_NO'))
-        .merge!(radio_value(form['claimantHasAdditionalMarriages'], 'ADDITIONAL_MARRIAGES_Y', 'ADDITIONAL_MARRIAGES_N'))
-        .merge!(
-          {
-            'CLAIMANT_REMARRIAGE_1_DATE' => format_date(form.dig('remarriageDates', 'from')),
-            'CLAIMANT_REMARRIAGE_1_DATE_ENDED' => format_date(form.dig('remarriageDates', 'to')),
-            'REMARRIAGE_OTHER_EXPLANATION' => form['remarriageEndCauseExplanation']
-          }
-        )
-    end
-
-    def expand_remarriage_end_cause(has_remarried, remarriage_end_cause)
-      {
-        'CB_REMARRIAGE_END_BY_DEATH' => has_remarried ? remarriage_end_cause == 'death' : nil,
-        'CB_REMARRIAGE_END_BY_DIVORCE' => has_remarried ? remarriage_end_cause == 'divorce' : nil,
-        'CB_MARRIAGE_DID_NOT_END' => has_remarried ? remarriage_end_cause == 'didNotEnd' : nil,
-        'CB_REMARRIAGE_END_BY_OTHER' => has_remarried ? remarriage_end_cause == 'other' : nil
-      }
-    end
-
-    def marital_info_data(form)
-      [
-        form['pregnantWithVeteran'],
-        form['livedContinuouslyWithVeteran'],
-        form['separationDueToAssignedReasons'],
-        form['marriageType']
-      ]
-    end
-
-    def build_previous_marriage_fields(form, marriages, individual, add_marr_field)
-      indv_s, indv_m, indv_l = individuals_permutations(individual) # s, m, l versions of individual for field naming
-      additional_marriages_yes, additional_marriages_no = additional_marriages_boolean_fields(individual)
-      fields = radio_value(form[add_marr_field], additional_marriages_yes, additional_marriages_no)
-      marriages.each_with_index do |marriage, index|
-        marriage_num = index + 1
-        fields
-          .merge!(build_spouse_name_fields(marriage['spouseFullName'], indv_l, marriage_num))
-          .merge!(previous_marriage_separation_type_fields(indv_s, marriage['reasonForSeparation'], marriage_num))
-          .merge!(
-            {
-              "#{indv_m}_MARR#{marriage_num}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
-              "#{indv_l}_MARRIAGE_#{marriage_num}_DATE" => format_date(marriage['dateOfMarriage']),
-              "#{indv_l}_MARRIAGE_#{marriage_num}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
-              "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE" => marriage['locationOfMarriage'],
-              "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE_ENDED" => marriage['locationOfSeparation']
-            }
-          )
-      end
-      fields
-    end
-
-    def build_child(child, child_num)
-      child_name = build_name(child['childFullName'])
-      build_child_relationship_fields(child['relationship'], child_num)
-        .merge!(
-          {
-            "NAME_OF_CHILD_#{child_num}" => child_name[:full],
-            "FIRST_NAME_OF_CHILD_#{child_num}" => child_name[:first],
-            "MID_INT_OF_CHILD_#{child_num}" => child_name[:middle_initial],
-            "LAST_NAME_OF_CHILD_#{child_num}" => child_name[:last],
-            "DATE_OF_BIRTH_CHILD_#{child_num}" => format_date(child['childDateOfBirth']),
-            "CHILD_#{child_num}_SSN" => child['childSocialSecurityNumber'],
-            "PLACE_OF_BIRTH_CHILD_#{child_num}" => format_place(child['birthPlace']),
-            "CHILD_#{child_num}_18_TO_23" => child['inSchool'],
-            "CHILD_#{child_num}_DISABLED" => child['seriouslyDisabled'],
-            "CHILD_#{child_num}_PREV_MARRIED" => child['hasBeenMarried'],
-            "CB_CHILD#{child_num}_LIVE_WITH_OTHERS" => child['livesWith'],
-            "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => child['childSupport']
-          }
-        )
-    end
-
-    def individuals_permutations(individual)
-      if individual == 'VETERAN'
-        %w[VET VET VETERAN]
-      elsif individual == 'CLAIMANT'
-        %w[CL CB_CL CLAIMANT]
-      end
-    end
-
-    def additional_marriages_boolean_fields(individual)
-      ["#{individual}_ADDITIONAL_MARRIAGES_Y", "#{individual}_ADDITIONAL_MARRIAGES_N"]
-    end
-
-    def previous_marriage_separation_type_fields(individual, reason, marriage_num)
-      {
-        "CB_#{individual}_MARR#{marriage_num}_ENDED_DEATH" => reason == 'DEATH',
-        "CB_#{individual}_MARR#{marriage_num}_ENDED_DIVORCE" => reason == 'DIVORCE',
-        "CB_#{individual}_MARR#{marriage_num}_ENDED_OTHER" => reason == 'OTHER'
-      }
-    end
-
-    def build_spouse_name_fields(name, individual, marriage_num)
-      spouse_name = build_name(name)
-      {
-        "#{individual}_MARRIAGE_#{marriage_num}_TO" => spouse_name[:full],
-        "#{individual}_MARRIAGE_#{marriage_num}_TO_FIRST_NAME" => spouse_name[:first],
-        "#{individual}_MARRIAGE_#{marriage_num}_TO_MID_INT" => spouse_name[:middle_initial],
-        "#{individual}_MARRIAGE_#{marriage_num}_TO_LAST_NAME" => spouse_name[:last]
-      }
-    end
-
-    def build_child_relationship_fields(relationship, child_num)
-      relationship_fields = {
-        "BIOLOGICAL_CHILD_#{child_num}" => false,
-        "ADOPTED_CHILD_#{child_num}" => false,
-        "STEPCHILD_#{child_num}" => false
-      }
-      case relationship
-      when 'BIOLOGICAL'
-        relationship_fields["BIOLOGICAL_CHILD_#{child_num}"] = true
-      when 'ADOPTED'
-        relationship_fields["ADOPTED_CHILD_#{child_num}"] = true
-      when 'STEPCHILD'
-        relationship_fields["STEPCHILD_#{child_num}"] = true
-      end
-      relationship_fields
-    end
-
-    def build_custodian_fields(form)
-      custodian_name = build_name(form['custodianFullName'])
-      custodian_address = form['custodianAddress']
-      {
-        'CUSTODIAN_CHILD1_NAME' => custodian_name[:full],
-        'CUSTODIAN_CHILD1_FIRST_NAME' => custodian_name[:first],
-        'CUSTODIAN_CHILD1_MID_INT' => custodian_name[:middle_initial],
-        'CUSTODIAN_CHILD1_LAST_NAME' => custodian_name[:last],
-        'CUSTODIAN_ADDRESS_LINE_1' => custodian_address['street'],
-        'CUSTODIAN_ADDRESS_LINE_2' => custodian_address['street2'],
-        'CUSTODIAN_ADDRESS_CITY' => custodian_address['city'],
-        'CUSTODIAN_ADDRESS_STATE' => custodian_address['state'],
-        'CUSTODIAN_ADDRESS_COUNTRY' => custodian_address['country'],
-        'CUSTODIAN_ADDRESS_ZIP' => custodian_address['zip'],
-        'CUSTODIAN_CHILD_NAME_ADDRESS' => [
-          custodian_name[:full],
-          build_address_block(custodian_address)
-        ].compact.join(', ')
-      }
-    end
-
-    def build_dic_type_fields(benefit)
-      {
-        'BENEFIT_DIC' => benefit == 'DIC',
-        'BENEFIT_DIC38' => benefit == '1151DIC',
-        'CLAIM_TYPE_DIC_PACTACT' => benefit == 'pactActDIC'
-      }
-    end
-
-    def build_income_fields(incomes)
-      fields = {}
-      incomes.each_with_index do |income, index|
+    def build_income_fields(incomes, fields = {})
+      incomes&.each_with_index do |income, index|
         income_num = index + 1
         fields.merge!(expand_monthly_income_fields(income_num, income['monthlyIncome']))
+        fields.merge!(build_currency_fields(income['monthlyIncome'], monthly_income_keys(income_num)))
         fields.merge!(
           {
             "CB_INC_RECIPIENT#{income_num}_SP" => income['recipient'] == 'SURVIVING_SPOUSE',
@@ -590,6 +232,15 @@ module SurvivorsBenefits
       fields
     end
 
+    def monthly_income_keys(income_num)
+      {
+        full: "MONTHLY_GROSS_#{income_num}",
+        thousands: "MONTHLY_GROSS_#{income_num}_THSNDS",
+        hundreds: "MONTHLY_GROSS_#{income_num}_HNDRDS",
+        cents: "MONTHLY_GROSS_#{income_num}_CENTS" 
+      }
+    end
+
     def expand_monthly_income_fields(income_num, monthly_income)
       {
         "MONTHLY_GROSS_#{income_num}" => monthly_income || 0,
@@ -599,12 +250,72 @@ module SurvivorsBenefits
       }
     end
 
-    def radio_value(field, yes, no)
-      return {} if field.nil?
+    def reportable_reimbursment?(form)
+      form['careExpenses'].blank? && form['medicalExpenses'].blank?
+    end
 
+    def build_care_expense_fields(care_expenses, fields = {})
+      care_expenses&.each_with_index do |expense, index|
+        expense_num = index + 1
+        fields.merge!(build_currency_fields(expense['paymentAmount'], care_expense_keys(expense_num)))
+        fields.merge!(
+          {
+            "CB_EXPENSES_PAID_SP#{expense_num}" => expense['recipient'] == 'SURVIVING_SPOUSE',
+            "CB_EXPENSES_PAID_OTHER#{expense_num}" => expense['recipient'] == 'OTHER',
+            "NAME_OF_DEPENDENT#{expense_num}" => expense['recipientName'],
+            "NAME_OF_PROVIDER#{expense_num}" => expense['provider'],
+            "CB_PROVIDER_TYPE_CAREFACILITY#{expense_num}" => expense['careType'] == 'CARE_FACILITY',
+            "CB_PROVIDER_TYPE_INHOMECARE#{expense_num}" => expense['careType'] == 'IN_HOME_CARE_ATTENDANT',
+            "PMNT_RATE_INHOMECARE#{expense_num}" => expense['ratePerHour'],
+            "HRS_PER_WEEK#{expense_num}" => expense['hoursPerWeek'],
+            "PROVIDER_START_DATE#{expense_num}" => format_date(expense.dig('careDateRange', 'from')),
+            "PROVIDER_END_DATE#{expense_num}" => format_date(expense.dig('careDateRange', 'to')),
+            "CB_NO_END_DATE#{expense_num}" => expense['noCareEndDate'] || false,
+            "CB_PAYMENT_MONTHLY#{expense_num}" => expense['paymentFrequency'] == 'MONTHLY',
+            "CB_PAYMENT_ANNUALLY#{expense_num}" => expense['paymentFrequency'] == 'ANNUALLY'
+          }
+        )
+      end
+      fields
+    end
+
+    def build_medical_expense_fields(medical_expenses, fields = {})
+      medical_expenses&.each_with_index do |expense, index|
+        expense_num = index + 1
+        fields.merge!(build_currency_fields(expense['paymentAmount'], medical_expense_keys(expense_num)))
+        fields.merge!(
+          {
+            "MED_EXPENSES_SP#{expense_num}" => expense['recipient'] == 'SURVIVING_SPOUSE',
+            "MED_EXPENSES_VET#{expense_num}" => expense['recipient'] == 'VETERAN',
+            "MED_EXPENSES_CHILD#{expense_num}" => expense['recipient'] == 'CHILD',
+            "MED_EXPENSES_CHILDNAME#{expense_num}" => expense['childName'],
+            "PAID_TO_PROVIDER#{expense_num}" => expense['provider'],
+            "PAID_TO_PURPOSE#{expense_num}" => expense['purpose'],
+            "DATE_COSTS_INCURRED_START#{expense_num}" => format_date(expense.dig('medicalDateRange', 'from')),
+            "CB_PMNT_FREQUENCY_MONTHLY#{expense_num}" => expense['paymentFrequency'] == 'MONTHLY',
+            "CB_PMNT_FREQUENCY_ANNUALLY#{expense_num}" => expense['paymentFrequency'] == 'ANNUALLY',
+            "CB_PMNT_FREQUENCY_ONETIME#{expense_num}" => expense['paymentFrequency'] == 'ONE_TIME'
+          }
+        )
+      end
+      fields
+    end
+
+    def care_expense_keys(expense_num)
       {
-        yes => field == true,
-        no => field == false
+        full: "AMNT_YOU_PAY#{expense_num}",
+        thousands: "AMNT_YOU_PAY_#{expense_num}_THSNDS",
+        hundreds: "AMNT_YOU_PAY_#{expense_num}_HNDRDS",
+        cents: "AMNT_YOU_PAY_#{expense_num}_CENTS"
+      }
+    end
+
+    def medical_expense_keys(expense_num)
+      {
+        full: "MEDAMNT_YOU_PAY#{expense_num}",
+        thousands: "MEDAMNT_YOU_PAY#{expense_num}_THSNDS",
+        hundreds: "MEDAMNT_YOU_PAY#{expense_num}_HNDRDS",
+        cents: "MEDAMNT_YOU_PAY#{expense_num}_CENTS"
       }
     end
   end

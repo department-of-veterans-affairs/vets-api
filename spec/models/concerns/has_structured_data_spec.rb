@@ -319,12 +319,12 @@ RSpec.describe HasStructuredData do
   describe '#format_currency' do
     it 'formats a number as currency with two decimal places' do
       result = subject.format_currency(123_456.789)
-      expect(result).to eq('123,456.79')
+      expect(result).to eq('$123,456.79')
     end
 
     it 'formats a number as currency with no decimal places when zero' do
       result = subject.format_currency(1000)
-      expect(result).to eq('1,000.00')
+      expect(result).to eq('$1,000.00')
     end
 
     it 'returns nil when given nil' do
@@ -352,6 +352,23 @@ RSpec.describe HasStructuredData do
     it 'returns an empty string when given an empty string' do
       result = subject.sanitize_phone('')
       expect(result).to eq('')
+    end
+  end
+
+  describe '#y_n_pair' do
+    it 'returns an empty hash when the field is nil' do
+      result = subject.y_n_pair(nil, 'YES_FIELD', 'NO_FIELD')
+      expect(result).to eq({})
+    end
+
+    it 'returns a hash with the yes field set to true when the field is true' do
+      result = subject.y_n_pair(true, 'YES_FIELD', 'NO_FIELD')
+      expect(result).to eq({ 'YES_FIELD' => true, 'NO_FIELD' => false })
+    end
+
+    it 'returns a hash with the no field set to true when the field is false' do
+      result = subject.y_n_pair(false, 'YES_FIELD', 'NO_FIELD')
+      expect(result).to eq({ 'YES_FIELD' => false, 'NO_FIELD' => true })
     end
   end
 end

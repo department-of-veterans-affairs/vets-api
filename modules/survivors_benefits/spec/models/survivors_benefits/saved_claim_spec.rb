@@ -106,4 +106,6 @@ RSpec.describe SurvivorsBenefits::SavedClaim do
       claim.send_email(email_type)
     end
   end
+
+  # BEGIN IBM
 end
