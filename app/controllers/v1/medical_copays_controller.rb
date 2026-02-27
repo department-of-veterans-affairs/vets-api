@@ -4,11 +4,10 @@ module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
     before_action :authorize_icn
-    before_action :validate_pagination_params, only: :index
     rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
 
     def index
-      invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
+      invoice_bundle = medical_copay_service.list_months
 
       render json: Lighthouse::HCC::InvoiceSerializer.new(
         invoice_bundle.entries, links: invoice_bundle.links, meta: invoice_bundle.meta
@@ -36,12 +35,6 @@ module V1
 
     def medical_copay_service
       MedicalCopays::LighthouseIntegration::Service.new(current_user.icn)
-    end
-
-    def validate_pagination_params
-      if params[:count] && params[:count].to_i <= 0
-        render json: { error: 'Invalid count parameter' }, status: :bad_request
-      end
     end
 
     def service_error
