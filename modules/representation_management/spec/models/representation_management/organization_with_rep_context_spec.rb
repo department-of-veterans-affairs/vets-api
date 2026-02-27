@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::OrganizationWithRepContext do
+  subject { described_class.new(organization, representative:) }
+
   let(:organization) { create(:organization, poa: 'ABC', can_accept_digital_poa_requests: true) }
   let(:representative) { create(:representative, representative_id: '12345') }
-
-  subject { described_class.new(organization, representative: representative) }
 
   describe '#can_accept_digital_poa_requests' do
     context 'when the organization cannot accept digital POA requests' do

@@ -6,8 +6,8 @@ module RepresentationManagement
       return false unless __getobj__.can_accept_digital_poa_requests
 
       Veteran::Service::OrganizationRepresentative.active
-        .where(organization_poa: __getobj__.poa, acceptance_mode: 'any_request')
-        .exists?
+                                                  .exists?(organization_poa: __getobj__.poa,
+                                                           acceptance_mode: 'any_request')
     end
   end
 end

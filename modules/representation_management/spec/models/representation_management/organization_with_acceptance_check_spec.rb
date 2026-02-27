@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::OrganizationWithAcceptanceCheck do
-  let(:organization) { create(:organization, poa: 'ABC', can_accept_digital_poa_requests: true) }
-
   subject { described_class.new(organization) }
+
+  let(:organization) { create(:organization, poa: 'ABC', can_accept_digital_poa_requests: true) }
 
   describe '#can_accept_digital_poa_requests' do
     context 'when the organization cannot accept digital POA requests' do
