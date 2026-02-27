@@ -36,7 +36,6 @@ describe MHV::AccountCreation::Service do
 
     before do
       allow(Rails.logger).to receive(:info)
-      allow(Rails.logger).to receive(:debug)
       allow(Rails.logger).to receive(:error)
       allow_any_instance_of(SignInService::Sts).to receive(:base_url).and_return('https://staging-api.va.gov')
       allow(Time).to receive(:current).and_return(start_time, end_time)
