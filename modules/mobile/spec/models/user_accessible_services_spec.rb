@@ -82,7 +82,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       end
 
       context 'when cst_multi_claim_provider_mobile flag is disabled' do
-        before { Flipper.disable(:cst_multi_claim_provider_mobile) }
+        before { allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, instance_of(Flipper::Actor)).and_return(false) }
 
         it 'is false' do
           expect(user_services.service_auth_map[:cstMultiClaimProvider]).to be(false)
@@ -90,7 +90,7 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
       end
 
       context 'when user has an icn and cst_multi_claim_provider_mobile flag is enabled' do
-        before { Flipper.enable(:cst_multi_claim_provider_mobile) }
+        before { allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, instance_of(Flipper::Actor)).and_return(true) }
 
         it 'is true' do
           expect(user_services.service_auth_map[:cstMultiClaimProvider]).to be(true)
