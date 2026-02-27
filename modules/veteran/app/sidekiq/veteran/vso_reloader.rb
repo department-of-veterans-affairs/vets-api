@@ -102,6 +102,10 @@ module Veteran
 
     private
 
+    def normalize_poa(poa)
+      poa&.gsub(/\W/, '')
+    end
+
     # Setup methods for perform
 
     def setup_ingestion
@@ -227,22 +231,24 @@ module Veteran
     def find_or_create_vso(vso)
       unless vso['Representative']&.match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/)
         ClaimsApi::Logger.log('VSO', detail: "Rep name not in expected format: #{vso['Registration Num']}")
-        return
+        return nil
       end
 
       rep = find_or_initialize_by_id(convert_vso_to_useable_hash(vso), USER_TYPE_VSO)
       rep.save
+      rep
     end
 
     def convert_vso_to_useable_hash(vso)
-      last_name, first_name, middle_initial = vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures # rubocop:disable Layout/LineLength
+      last_name, first_name, middle_initial =
+        vso['Representative'].match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
 
       {
-        'Last Name' => last_name,
-        'First Name' => first_name,
-        'Middle Initial' => middle_initial || '',
+        'Last Name' => last_name&.strip,
+        'First Name' => first_name&.strip,
+        'Middle Initial' => (middle_initial || '').strip,
         'Registration Num' => vso['Registration Num'],
-        'POA Code' => vso['POA'],
+        'POA Code' => normalize_poa(vso['POA']),
         'Phone' => vso['Rep Phone'] || vso['Org Phone'],
         'City' => vso['Rep City'] || vso['Org City'],
         'State' => vso['Rep State'] || vso['Org State'],
@@ -253,9 +259,11 @@ module Veteran
     def log_to_slack(message)
       return unless Settings.vsp_environment == 'production'
 
-      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
-                                       channel: '#benefits-representation-management-notifications',
-                                       username: 'VSOReloader')
+      client = SlackNotify::Client.new(
+        webhook_url: Settings.edu.slack.webhook_url,
+        channel: '#benefits-representation-management-notifications',
+        username: 'VSOReloader'
+      )
       client.notify(message)
     end
 
@@ -263,8 +271,7 @@ module Veteran
       {
         attorneys: Veteran::Service::Representative.where("'#{USER_TYPE_ATTORNEY}' = ANY(user_types)").count,
         claims_agents: Veteran::Service::Representative.where("'#{USER_TYPE_CLAIM_AGENT}' = ANY(user_types)").count,
-        vso_representatives: Veteran::Service::Representative
-          .where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
+        vso_representatives: Veteran::Service::Representative.where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
         vso_organizations: Veteran::Service::Organization.count
       }
     end
@@ -315,10 +322,13 @@ module Veteran
                 'Action: Update skipped, manual review required'
 
       log_to_slack(message)
-      log_message_to_sentry("VSO Reloader threshold exceeded for #{rep_type}", :warn,
-                            previous_count:,
-                            new_count:,
-                            decrease_percentage:)
+      log_message_to_sentry(
+        "VSO Reloader threshold exceeded for #{rep_type}",
+        :warn,
+        previous_count:,
+        new_count:,
+        decrease_percentage:
+      )
     end
 
     def save_accreditation_totals
@@ -340,37 +350,80 @@ module Veteran
     end
 
     def calculate_vso_counts(vso_data)
+      normalized_poas =
+        vso_data
+        .map { |v| normalize_poa(v['POA']) }
+        .compact_blank
+        .uniq
+
       {
         reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
-        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count
+        orgs: normalized_poas.count
       }
     end
 
     def process_vso_data(vso_data)
-      vso_reps = []
-      vso_orgs = vso_data.map do |vso_rep|
-        next unless vso_rep['Representative']
+      vso_reps, rep_org_pairs, vso_orgs = extract_vso_entities(vso_data)
 
-        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
-        vso_reps << vso_rep['Registration Num']
-        {
-          poa: vso_rep['POA'].gsub(/\W/, ''),
-          name: vso_rep['Organization Name'],
-          phone: vso_rep['Org Phone'],
-          state: vso_rep['Org State']
-        }
-      end.compact.uniq
-
-      # Extract current POA codes from incoming data
       current_poa_codes = vso_orgs.map { |org| org[:poa] }.compact_blank.uniq
 
       # Always import organizations when processing VSO data to maintain referential integrity
-      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
+      Veteran::Service::Organization.transaction do
+        import_vso_organizations(vso_orgs)
 
-      # Remove stale organizations that are no longer in the OGC data
-      Veteran::Service::Organization.where.not(poa: current_poa_codes).destroy_all
+        Veteran::RepresentativeRelationshipsSync.sync!(
+          rep_org_pairs:,
+          current_poa_codes:
+        )
+      end
 
       vso_reps
+    end
+
+    def extract_vso_entities(vso_data)
+      vso_reps = []
+      rep_org_pairs = []
+
+      vso_orgs =
+        vso_data.filter_map do |row|
+          next unless row['Representative']
+
+          rep_id = row['Registration Num']
+          poa = normalize_poa(row['POA'])
+
+          append_seen_rep_id!(vso_reps, rep_id)
+          rep = create_vso_rep_if_valid(row)
+
+          rep_org_pairs << [rep_id, poa] if rep.present? && rep.persisted? && rep_id.present? && poa.present?
+          build_org_hash(row, poa)
+        end.compact.uniq
+
+      [vso_reps, rep_org_pairs, vso_orgs]
+    end
+
+    def append_seen_rep_id!(vso_reps, rep_id)
+      vso_reps << rep_id if rep_id.present?
+    end
+
+    def create_vso_rep_if_valid(row)
+      return nil if row['Registration Num'].blank?
+
+      find_or_create_vso(row)
+    end
+
+    def build_org_hash(row, poa)
+      return nil if poa.blank?
+
+      {
+        poa:,
+        name: row['Organization Name'],
+        phone: row['Org Phone'],
+        state: row['Org State']
+      }
+    end
+
+    def import_vso_organizations(vso_orgs)
+      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
     end
 
     # Maps VSOReloader's rep_type symbols to AccreditationDataIngestionLog entity types

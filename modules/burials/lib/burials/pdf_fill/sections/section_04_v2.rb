@@ -70,7 +70,7 @@ module Burials
           dollar: true,
           question_label: 'Amount Of Government Or Employer Contribution',
           question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
-          limit: 5
+          limit: 8
         },
         # 25
         'plotExpenseResponsibility' => {
