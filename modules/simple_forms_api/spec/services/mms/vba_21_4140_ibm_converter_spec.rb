@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 # spec/services/mss/form4140_ibm_converter_spec.rb
 require 'rails_helper'
-
 
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
@@ -16,13 +17,13 @@ RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
   let(:ibm_fixture_path) do
     Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', ibm_fixture_file)
   end
-  let(:ibm_payload) { JSON.parse(File.read(ibm_fixture_path)) } 
+  let(:ibm_payload) { JSON.parse(File.read(ibm_fixture_path)) }
 
   describe '.convert' do
     subject(:payload) { described_class.convert(form) }
 
     it 'converts a parsed form to the keys and formats expected by IBM' do
-      ibm_payload['DATE_SIGNED'] = Date.today.strftime('%m%d%Y')
+      ibm_payload['DATE_SIGNED'] = Time.zone.today.strftime('%m%d%Y')
 
       expect(payload).to eq(ibm_payload)
     end
@@ -40,7 +41,8 @@ RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
     end
 
     it 'includes employer info' do
-      expect(payload['EMPLOYER_NAME_ADDRESS']).to eq('Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America')
+      expect(payload['EMPLOYER_NAME_ADDRESS'])
+        .to eq('Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America')
     end
 
     it 'includes full name correctly' do
@@ -52,7 +54,7 @@ RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
     end
 
     it 'sets DATE_SIGNED as the current date' do
-      expect(payload['DATE_SIGNED']).to eq(Date.today.strftime('%m%d%Y'))
+      expect(payload['DATE_SIGNED']).to eq(Time.zone.today.strftime('%m%d%Y'))
     end
   end
 end

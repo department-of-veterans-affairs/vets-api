@@ -30,31 +30,37 @@ module SimpleFormsApi
           guid: confirmation_number
         )
 
+        handle_response(ibm_response, form_number, confirmation_number)
+      rescue => e
+        Rails.logger.error(
+          "Simple Forms API - MMS submission failed: #{e.message}",
+          guid: confirmation_number,
+          form_number:
+        )
+      end
+
+      private
+
+      def handle_response(ibm_response, form_number, confirmation_number)
         if ibm_response && ibm_response.status == 200
           Rails.logger.info(
             'Simple Forms API - MMS submission complete',
             guid: confirmation_number,
-            form_number: form_number
+            form_number:
           )
         elsif ibm_response
           Rails.logger.error(
             "Simple Forms API - MMS submission failed: IBM upload returned status #{ibm_response.status}",
             guid: confirmation_number,
-            form_number: form_number
+            form_number:
           )
         else
           Rails.logger.error(
             'Simple Forms API - MMS submission failed: IBM upload returned no response',
             guid: confirmation_number,
-            form_number: form_number
+            form_number:
           )
         end
-      rescue => e
-        Rails.logger.error(
-          "Simple Forms API - MMS submission failed: #{e.message}",
-          guid: confirmation_number,
-          form_number: form_number
-        )
       end
     end
   end
