@@ -431,11 +431,11 @@
       ]
     }
   },
-  "AO- Tell us specific disability fm herbicides": {
+  "AO-Tell us specific disability fm herbicides": {
     "friendlyName": "Disease or disability related to herbicide exposure",
     "shortDescription": "To process your disability claim, we need to know the disease or disability caused by the herbicide exposure.",
     "supportAliases": [
-      "AO- Tell us specific disability fm herbicides"
+      "AO - Tell us specific disability fm herbicides"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -566,7 +566,7 @@
     "friendlyName": "Asbestos exposure medical documentation",
     "shortDescription": "We need medical documentation that supports your claim.",
     "supportAliases": [
-      "ASB-medical evid of disease (biopsy) needed"
+      "ASB - medical evid of disease (biopsy) needed"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -618,7 +618,7 @@
   "ASB-tell us specific disability fm asbestos exposure": {
     "friendlyName": "Disease or disability related to the asbestos exposure",
     "supportAliases": [
-      "ASB-tell us specific disability fm asbestos exposure"
+      "ASB - tell us specific disability fm asbestos exposure"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -1272,7 +1272,7 @@
     "friendlyName": "Radiation exposure information",
     "shortDescription": "To process your disability claim for radiation exposure, we need more information from you.",
     "supportAliases": [
-      "Radiation-tell us how you were exposed"
+      "Radiation - tell us how you were exposed"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -1301,7 +1301,7 @@
     "friendlyName": "disease or disability related to the radiation exposure",
     "shortDescription": "To process your disability claim, we need to know the disease or disability caused by the radiation exposure.",
     "supportAliases": [
-      "Radiation-tell us specific disability fm exposure"
+      "Radiation - tell us specific disability fm exposure"
     ],
     "canUploadFile": true,
     "isSensitive": true,

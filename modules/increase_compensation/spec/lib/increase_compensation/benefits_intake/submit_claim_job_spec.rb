@@ -221,9 +221,9 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     it 'errors and logs but does not reraise' do
       expect(IncreaseCompensation::NotificationEmail).to receive(:new).with(claim.id, 'test_guid')
-      expect(notification).to receive(:deliver).with(:submitted)
+      expect(notification).to receive(:deliver).with(:received)
       expect(monitor).to receive(:track_send_email_failure)
-      job.send(:send_submitted_email)
+      job.send(:send_received_email)
       # IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
     end
   end

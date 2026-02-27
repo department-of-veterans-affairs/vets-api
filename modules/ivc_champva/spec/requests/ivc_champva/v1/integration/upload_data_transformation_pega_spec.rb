@@ -5,7 +5,8 @@ require 'ves_api/client'
 
 RSpec.describe 'Transformation Pega', type: :request do
   let(:ves_client) { double('IvcChampva::VesApi::Client') }
-  let(:s3_client) { instance_double(Aws::S3::Client) }
+  let(:s3_client) { instance_double(IvcChampva::S3) }
+  let(:aws_client) { instance_double(Aws::S3::Client) }
   let(:uuid) { SecureRandom.uuid }
 
   before do
@@ -37,16 +38,33 @@ RSpec.describe 'Transformation Pega', type: :request do
         allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
           .and_return(double('Record1', created_at: 1.day.ago,
                                         id: 'some_uuid', file: double(id: 'file0')))
-        allow(s3_client).to receive(:put_object).and_return(
+
+        # Mock PDF generation
+        [IvcChampva::VHA1010d2027, IvcChampva::VHA1010d, IvcChampva::VHA107959a, IvcChampva::VHA107959cRev2025,
+         IvcChampva::VHA107959c, IvcChampva::VHA107959f1, IvcChampva::VHA107959f2,
+         IvcChampva::VHA107959f22025].each do |form|
+          allow_any_instance_of(form).to receive(:handle_attachments).and_return([pdf_path])
+        end
+        allow_any_instance_of(IvcChampva::PdfFiller).to receive(:generate).and_return(pdf_path)
+
+        allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:create_custom_attachment).and_return({})
+        allow_any_instance_of(IvcChampva::V1::UploadsController).to receive(:add_supporting_doc)
+
+        allow(IvcChampva::PdfStamper).to receive(:stamp_metadata_items)
+
+        allow(s3_client).to receive(:put_object).and_return({ success: true })
+        allow(aws_client).to receive(:put_object).and_return(
           double('response',
                  context: double('context', http_response: double('http_response', status_code: 200)))
         )
-        allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+        allow_any_instance_of(IvcChampva::S3).to receive(:client).and_return(aws_client)
       end
 
       describe '10_10d' do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json')
         data = JSON.parse(fixture_path.read)
+
+        let(:pdf_path) { Rails.root.join('tmp', "#{uuid}_vha_10_10d-tmp.pdf").to_s }
 
         before do
           allow(Flipper).to receive(:enabled?)
@@ -58,11 +76,78 @@ RSpec.describe 'Transformation Pega', type: :request do
         end
 
         it 'submits the form and verifies the transformed data going to Pega/S3' do
+          metadata_json = {
+            veteranFirstName: data.dig('veteran', 'full_name', 'first'),
+            veteranMiddleName: data.dig('veteran', 'full_name', 'middle'),
+            veteranLastName: data.dig('veteran', 'full_name', 'last'),
+            veteranEmail: data.dig('veteran', 'email'),
+            sponsorFirstName: data.fetch('applicants').first.dig('applicant_name', 'first'),
+            sponsorMiddleName: data.fetch('applicants').first.dig('applicant_name', 'middle'),
+            sponsorLastName: data.fetch('applicants').first.dig('applicant_name', 'last'),
+            fileNumber: data.dig('veteran', 'va_claim_number'),
+            zipCode: data.dig('veteran', 'address', 'postal_code'),
+            country: data.dig('veteran', 'address', 'country'),
+            source: 'VA Platform Digital Forms',
+            docType: data['form_number'],
+            businessLine: 'CMP',
+            ssn_or_tin: data.dig('veteran', 'ssn_or_tin'),
+            uuid:,
+            primaryContactInfo: {
+              name: data.dig('primary_contact_info', 'name'),
+              email: data.dig('primary_contact_info', 'email').to_s
+            },
+            hasApplicantOver65: data['has_applicant_over65'].to_s,
+            primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
+            formExpiration: '12/31/2027',
+            'applicant_0' => {
+              applicant_name: {
+                first: data.fetch('applicants').first.dig('applicant_name', 'first'),
+                middle: data.fetch('applicants').first.dig('applicant_name', 'middle'),
+                last: data.fetch('applicants').first.dig('applicant_name', 'last')
+              },
+              applicant_dob: data.fetch('applicants').first['applicant_dob']
+            }.to_json,
+            'applicant_1' => {
+              applicant_name: {
+                first: data.fetch('applicants').second.dig('applicant_name', 'first'),
+                middle: data.fetch('applicants').second.dig('applicant_name', 'middle'),
+                last: data.fetch('applicants').second.dig('applicant_name', 'last')
+              },
+              applicant_dob: data.fetch('applicants').second['applicant_dob']
+            }.to_json,
+            'applicant_2' => {
+              applicant_name: {
+                first: data.fetch('applicants').third.dig('applicant_name', 'first'),
+                middle: data.fetch('applicants').third.dig('applicant_name', 'middle'),
+                last: data.fetch('applicants').third.dig('applicant_name', 'last')
+              },
+              applicant_dob: data.fetch('applicants').third['applicant_dob']
+            }.to_json,
+            'applicant_3' => {
+              applicant_name: {
+                first: data.fetch('applicants').fourth.dig('applicant_name', 'first'),
+                middle: data.fetch('applicants').fourth.dig('applicant_name', 'middle'),
+                last: data.fetch('applicants').fourth.dig('applicant_name', 'last')
+              },
+              applicant_dob: data.fetch('applicants').fourth['applicant_dob']
+            }.to_json,
+            'applicant_4' => {
+              applicant_name: {
+                first: data.fetch('applicants').fifth.dig('applicant_name', 'first'),
+                middle: data.fetch('applicants').fifth.dig('applicant_name', 'middle'),
+                last: data.fetch('applicants').fifth.dig('applicant_name', 'last')
+              },
+              applicant_dob: data.fetch('applicants').fifth['applicant_dob']
+            }.to_json,
+            attachment_ids: ['vha_10_10d', 'vha_10_10d', 'Birth certificate']
+          }.to_json
+
+          allow_any_instance_of(IvcChampva::S3).to receive(:read_file).and_return(metadata_json)
+
           post '/ivc_champva/v1/forms', params: data
           expect(response).to have_http_status(:ok)
 
-          # Expect the PDF and it's corresponding metadata was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_10d.pdf",
               metadata: {
@@ -130,74 +215,10 @@ RSpec.describe 'Transformation Pega', type: :request do
           )
 
           # Expect the metadata.json file was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_10d_metadata.json",
-              body: {
-                veteranFirstName: data.dig('veteran', 'full_name', 'first'),
-                veteranMiddleName: data.dig('veteran', 'full_name', 'middle'),
-                veteranLastName: data.dig('veteran', 'full_name', 'last'),
-                veteranEmail: data.dig('veteran', 'email'),
-                sponsorFirstName: data.fetch('applicants').first.dig('applicant_name', 'first'),
-                sponsorMiddleName: data.fetch('applicants').first.dig('applicant_name', 'middle'),
-                sponsorLastName: data.fetch('applicants').first.dig('applicant_name', 'last'),
-                fileNumber: data.dig('veteran', 'va_claim_number'),
-                zipCode: data.dig('veteran', 'address', 'postal_code'),
-                country: data.dig('veteran', 'address', 'country'),
-                source: 'VA Platform Digital Forms',
-                docType: data['form_number'],
-                businessLine: 'CMP',
-                ssn_or_tin: data.dig('veteran', 'ssn_or_tin'),
-                uuid:,
-                primaryContactInfo: {
-                  name: data.dig('primary_contact_info', 'name'),
-                  email: data.dig('primary_contact_info', 'email').to_s
-                },
-                hasApplicantOver65: data['has_applicant_over65'].to_s,
-                primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
-                formExpiration: '12/31/2027',
-                'applicant_0' => {
-                  applicant_name: {
-                    first: data.fetch('applicants').first.dig('applicant_name', 'first'),
-                    middle: data.fetch('applicants').first.dig('applicant_name', 'middle'),
-                    last: data.fetch('applicants').first.dig('applicant_name', 'last')
-                  },
-                  applicant_dob: data.fetch('applicants').first['applicant_dob']
-                }.to_json,
-                'applicant_1' => {
-                  applicant_name: {
-                    first: data.fetch('applicants').second.dig('applicant_name', 'first'),
-                    middle: data.fetch('applicants').second.dig('applicant_name', 'middle'),
-                    last: data.fetch('applicants').second.dig('applicant_name', 'last')
-                  },
-                  applicant_dob: data.fetch('applicants').second['applicant_dob']
-                }.to_json,
-                'applicant_2' => {
-                  applicant_name: {
-                    first: data.fetch('applicants').third.dig('applicant_name', 'first'),
-                    middle: data.fetch('applicants').third.dig('applicant_name', 'middle'),
-                    last: data.fetch('applicants').third.dig('applicant_name', 'last')
-                  },
-                  applicant_dob: data.fetch('applicants').third['applicant_dob']
-                }.to_json,
-                'applicant_3' => {
-                  applicant_name: {
-                    first: data.fetch('applicants').fourth.dig('applicant_name', 'first'),
-                    middle: data.fetch('applicants').fourth.dig('applicant_name', 'middle'),
-                    last: data.fetch('applicants').fourth.dig('applicant_name', 'last')
-                  },
-                  applicant_dob: data.fetch('applicants').fourth['applicant_dob']
-                }.to_json,
-                'applicant_4' => {
-                  applicant_name: {
-                    first: data.fetch('applicants').fifth.dig('applicant_name', 'first'),
-                    middle: data.fetch('applicants').fifth.dig('applicant_name', 'middle'),
-                    last: data.fetch('applicants').fifth.dig('applicant_name', 'last')
-                  },
-                  applicant_dob: data.fetch('applicants').fifth['applicant_dob']
-                }.to_json,
-                attachment_ids: ['vha_10_10d', 'vha_10_10d', 'Birth certificate']
-              }.to_json,
+              body: metadata_json,
               metadata: {}
             )
           )
@@ -208,12 +229,37 @@ RSpec.describe 'Transformation Pega', type: :request do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959c.json')
         data = JSON.parse(fixture_path.read)
 
+        let(:pdf_path) { Rails.root.join('tmp', "#{uuid}_vha_10_7959c.pdf").to_s }
+
         it 'submits the form and verifies the transformed data going to Pega/S3' do
+          metadata_json = {
+            veteranFirstName: data.dig('applicant_name', 'first'),
+            veteranMiddleName: data.dig('applicant_name', 'middle'),
+            veteranLastName: data.dig('applicant_name', 'last'),
+            fileNumber: data['applicant_ssn'],
+            zipCode: data.dig('applicant_address', 'postal_code'),
+            country: data.dig('applicant_address', 'country'),
+            source: 'VA Platform Digital Forms',
+            ssn_or_tin: data['applicant_ssn'],
+            docType: data['form_number'],
+            businessLine: 'CMP',
+            uuid:,
+            primaryContactInfo: {
+              name: data.dig('primary_contact_info', 'name'),
+              email: data.dig('primary_contact_info', 'email').to_s
+            },
+            primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
+            applicantEmail: data['applicant_email'],
+            attachment_ids: ['vha_10_7959c']
+          }.to_json
+
+          allow_any_instance_of(IvcChampva::S3).to receive(:read_file).and_return(metadata_json)
+
           post '/ivc_champva/v1/forms', params: data
           expect(response).to have_http_status(:ok)
 
           # Expect the PDF and it's corresponding metadata was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959c.pdf",
               metadata: {
@@ -235,30 +281,10 @@ RSpec.describe 'Transformation Pega', type: :request do
             )
           )
 
-          # Expect the metadata.json file was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959c_metadata.json",
-              body: {
-                veteranFirstName: data.dig('applicant_name', 'first'),
-                veteranMiddleName: data.dig('applicant_name', 'middle'),
-                veteranLastName: data.dig('applicant_name', 'last'),
-                fileNumber: data['applicant_ssn'],
-                zipCode: data.dig('applicant_address', 'postal_code'),
-                country: data.dig('applicant_address', 'country'),
-                source: 'VA Platform Digital Forms',
-                ssn_or_tin: data['applicant_ssn'],
-                docType: data['form_number'],
-                businessLine: 'CMP',
-                uuid:,
-                primaryContactInfo: {
-                  name: data.dig('primary_contact_info', 'name'),
-                  email: data.dig('primary_contact_info', 'email').to_s
-                },
-                primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
-                applicantEmail: data['applicant_email'],
-                attachment_ids: ['vha_10_7959c']
-              }.to_json,
+              body: metadata_json,
               metadata: {}
             )
           )
@@ -269,12 +295,38 @@ RSpec.describe 'Transformation Pega', type: :request do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959a.json')
         data = JSON.parse(fixture_path.read)
 
+        let(:pdf_path) { Rails.root.join('tmp', "#{uuid}_vha_10_7959a.pdf").to_s }
+
         it 'submits the form and verifies the transformed data going to Pega/S3' do
+          metadata_json = {
+            veteranFirstName: data.dig('applicant_name', 'first'),
+            veteranLastName: data.dig('applicant_name', 'last'),
+            zipCode: data.dig('applicant_address', 'postal_code'),
+            source: 'VA Platform Digital Forms',
+            docType: data['form_number'],
+            businessLine: 'CMP',
+            ssn_or_tin: data['applicant_member_number'],
+            member_number: data['applicant_member_number'],
+            fileNumber: data['applicant_member_number'],
+            country: data.dig('applicant_address', 'country'),
+            uuid:,
+            primaryContactInfo: {
+              name: data.dig('primary_contact_info', 'name'),
+              email: data.dig('primary_contact_info', 'email').to_s,
+              phone: data.dig('primary_contact_info', 'phone')
+            },
+            primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
+            claim_type: data['claim_type'],
+            attachment_ids: %w[vha_10_7959a vha_10_7959a 0 1]
+          }.to_json
+
+          allow_any_instance_of(IvcChampva::S3).to receive(:read_file).and_return(metadata_json)
+
           post '/ivc_champva/v1/forms', params: data
           expect(response).to have_http_status(:ok)
 
           # Expect the PDF and it's corresponding metadata was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959a.pdf",
               metadata: {
@@ -297,30 +349,10 @@ RSpec.describe 'Transformation Pega', type: :request do
           )
 
           # Expect the metadata.json file was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959a_metadata.json",
-              body: {
-                veteranFirstName: data.dig('applicant_name', 'first'),
-                veteranLastName: data.dig('applicant_name', 'last'),
-                zipCode: data.dig('applicant_address', 'postal_code'),
-                source: 'VA Platform Digital Forms',
-                docType: data['form_number'],
-                businessLine: 'CMP',
-                ssn_or_tin: data['applicant_member_number'],
-                member_number: data['applicant_member_number'],
-                fileNumber: data['applicant_member_number'],
-                country: data.dig('applicant_address', 'country'),
-                uuid:,
-                primaryContactInfo: {
-                  name: data.dig('primary_contact_info', 'name'),
-                  email: data.dig('primary_contact_info', 'email').to_s,
-                  phone: data.dig('primary_contact_info', 'phone')
-                },
-                primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
-                claim_type: data['claim_type'],
-                attachment_ids: %w[vha_10_7959a vha_10_7959a 0 1]
-              }.to_json,
+              body: metadata_json,
               metadata: {}
             )
           )
@@ -331,12 +363,36 @@ RSpec.describe 'Transformation Pega', type: :request do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959f_1.json')
         data = JSON.parse(fixture_path.read)
 
+        let(:pdf_path) { Rails.root.join('tmp', "#{uuid}_vha_10_7959f_1.pdf").to_s }
+
         it 'submits the form and verifies the transformed data going to Pega/S3' do
+          metadata_json = {
+            veteranFirstName: data.dig('veteran', 'full_name', 'first'),
+            veteranMiddleName: data.dig('veteran', 'full_name', 'middle'),
+            veteranLastName: data.dig('veteran', 'full_name', 'last'),
+            fileNumber: data.dig('veteran', 'va_claim_number'),
+            zipCode: data.dig('veteran', 'mailing_address', 'postal_code'),
+            country: data.dig('veteran', 'mailing_address', 'country'),
+            source: 'VA Platform Digital Forms',
+            ssn_or_tin: data.dig('veteran', 'ssn'),
+            docType: data['form_number'],
+            businessLine: 'CMP',
+            uuid:,
+            primaryContactInfo: {
+              name: data.dig('primary_contact_info', 'name'),
+              email: data.dig('primary_contact_info', 'email').to_s
+            },
+            primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
+            attachment_ids: %w[vha_10_7959f_1]
+          }.to_json
+
+          allow_any_instance_of(IvcChampva::S3).to receive(:read_file).and_return(metadata_json)
+
           post '/ivc_champva/v1/forms', params: data
           expect(response).to have_http_status(:ok)
 
           # Expect the PDF and it's corresponding metadata was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959f_1.pdf",
               metadata: {
@@ -358,28 +414,10 @@ RSpec.describe 'Transformation Pega', type: :request do
           )
 
           # Expect the metadata.json file was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959f_1_metadata.json",
-              body: {
-                veteranFirstName: data.dig('veteran', 'full_name', 'first'),
-                veteranMiddleName: data.dig('veteran', 'full_name', 'middle'),
-                veteranLastName: data.dig('veteran', 'full_name', 'last'),
-                fileNumber: data.dig('veteran', 'va_claim_number'),
-                zipCode: data.dig('veteran', 'mailing_address', 'postal_code'),
-                country: data.dig('veteran', 'mailing_address', 'country'),
-                source: 'VA Platform Digital Forms',
-                ssn_or_tin: data.dig('veteran', 'ssn'),
-                docType: data['form_number'],
-                businessLine: 'CMP',
-                uuid:,
-                primaryContactInfo: {
-                  name: data.dig('primary_contact_info', 'name'),
-                  email: data.dig('primary_contact_info', 'email').to_s
-                },
-                primaryContactEmail: data.dig('primary_contact_info', 'email').to_s,
-                attachment_ids: %w[vha_10_7959f_1]
-              }.to_json,
+              body: metadata_json,
               metadata: {}
             )
           )
@@ -390,12 +428,38 @@ RSpec.describe 'Transformation Pega', type: :request do
         fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_7959f_2.json')
         data = JSON.parse(fixture_path.read)
 
+        let(:pdf_path) { Rails.root.join('tmp', "#{uuid}_vha_10_7959f_2_combined.pdf").to_s }
+
         it 'submits the form and verifies the transformed data going to Pega/S3' do
+          metadata_json = {
+            veteranFirstName: data.dig('veteran', 'full_name', 'first'),
+            veteranMiddleName: data.dig('veteran', 'full_name', 'middle'),
+            veteranLastName: data.dig('veteran', 'full_name', 'last'),
+            fileNumber: data.dig('veteran', 'va_claim_number'),
+            zipCode: data.dig('veteran', 'mailing_address', 'postal_code'),
+            country: data.dig('veteran', 'mailing_address', 'country'),
+            source: 'VA Platform Digital Forms',
+            ssn_or_tin: data.dig('veteran', 'ssn'),
+            docType: data['form_number'],
+            businessLine: 'CMP',
+            uuid:,
+            primaryContactInfo: {
+              name: data.dig('primary_contact_info', 'name'),
+              email: data.dig('primary_contact_info', 'email')
+            },
+            primaryContactEmail: data.dig('primary_contact_info', 'email'),
+            formExpiration: '12/31/2027',
+            attachment_ids: %w[vha_10_7959f_2]
+          }.to_json
+
+          allow_any_instance_of(IvcChampva::S3).to receive(:read_file).and_return(metadata_json)
+          allow(IvcChampva::PdfCombiner).to receive(:combine).and_return(pdf_path)
+
           post '/ivc_champva/v1/forms', params: data
           expect(response).to have_http_status(:ok)
 
           # Expect the PDF and it's corresponding metadata was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959f_2_combined.pdf",
               metadata: {
@@ -418,29 +482,10 @@ RSpec.describe 'Transformation Pega', type: :request do
           )
 
           # Expect the metadata.json file was uploaded
-          expect(s3_client).to have_received(:put_object).once.with(
+          expect(aws_client).to have_received(:put_object).once.with(
             hash_including(
               key: "#{uuid}_vha_10_7959f_2_metadata.json",
-              body: {
-                veteranFirstName: data.dig('veteran', 'full_name', 'first'),
-                veteranMiddleName: data.dig('veteran', 'full_name', 'middle'),
-                veteranLastName: data.dig('veteran', 'full_name', 'last'),
-                fileNumber: data.dig('veteran', 'va_claim_number'),
-                zipCode: data.dig('veteran', 'mailing_address', 'postal_code'),
-                country: data.dig('veteran', 'mailing_address', 'country'),
-                source: 'VA Platform Digital Forms',
-                ssn_or_tin: data.dig('veteran', 'ssn'),
-                docType: data['form_number'],
-                businessLine: 'CMP',
-                uuid:,
-                primaryContactInfo: {
-                  name: data.dig('primary_contact_info', 'name'),
-                  email: data.dig('primary_contact_info', 'email')
-                },
-                primaryContactEmail: data.dig('primary_contact_info', 'email'),
-                formExpiration: '12/31/2027',
-                attachment_ids: %w[vha_10_7959f_2]
-              }.to_json,
+              body: metadata_json,
               metadata: {}
             )
           )
