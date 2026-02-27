@@ -115,8 +115,9 @@ web:
       periodSeconds:
   service:
     enabled: true
-    annotations:
-      traefik.backend.loadbalancer.sticky: "true"
+    # DO NOT ENABLE STICKY SESSIONS!
+    # traefik.backend.loadbalancer.sticky: "true"
+    annotations: {}
     ports:
       # port is what this service should serve on, and targetPort is the port in the container.
       - port: 3004
