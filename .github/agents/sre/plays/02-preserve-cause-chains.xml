@@ -1,21 +1,10 @@
----
-id: preserve-cause-chains
-title: Always Preserve the Cause Chain When Wrapping Exceptions
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="preserve-cause-chains" title="Always Preserve the Cause Chain When Wrapping Exceptions" severity="CRITICAL">
 
   <context>
-    APM shows "ServiceException at line 46" but the original
-    Faraday::ServerError is lost and the HTTP 503 status becomes
-    invisible. The stack trace shows only the re-raise line, destroying
-    the root cause location so you cannot find where the connection
-    failed. Sidekiq sees a RuntimeError instead of a TimeoutError,
-    applies the wrong retry strategy, and the job fails permanently.
-    When 500 errors spike, you cannot tell a timeout from a 404 from a
-    bug, requiring manual log grep that wastes hours.
+    Wrapping an exception with `raise "error: #{e}"` destroys the
+    original class, backtrace, and cause chain. APM can no longer
+    distinguish a timeout from a bug, Sidekiq applies the wrong retry
+    strategy, and on-call wastes hours grepping logs for root cause.
   </context>
 
   <applies_to>
@@ -27,11 +16,6 @@ severity: CRITICAL
     <glob>modules/*/app/sidekiq/**/*.rb</glob>
     <glob>lib/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="bare-rescue" relationship="complementary" />
-    <play id="prefer-typed-exceptions" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -78,6 +62,14 @@ facing requests</high>
 propagate for correct error responses</high>
     <medium>cause chain lost in internal utility with no external
 dependencies or retry behavior</medium>
+    <false_positive>Intentional cause-chain breaks for PII scrubbing —
+when the original exception contains PII/PHI in its message (e.g.,
+upstream errors that echo veteran data), raising a new exception
+without the cause is a deliberate security measure. Also, custom
+exception constructors that chain internally (e.g., `initialize`
+calls `super` and stores the original exception as an attribute)
+preserve the chain through a different mechanism than Ruby's implicit
+`cause` — read the exception class definition before flagging.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
@@ -103,97 +95,68 @@ dependencies or retry behavior</medium>
     - [ ] APM traces show full chain: wrapper -> original exception
     - [ ] Stack trace shows original failure location
 
-    [Play: Always Preserve the Cause Chain](02-preserve-cause-chains.md)
+    [Play: Always Preserve the Cause Chain](02-preserve-cause-chains.xml)
   </pr_comment_template>
 
-</agent_play>
--->
+  <examples>
+    <example name="Stringified re-raise destroys cause chain">
+      <bad>
+rescue => e
+  raise "error: #{e}"
+  # Creates NEW RuntimeError — original class, backtrace, and cause chain destroyed
+      </bad>
+      <good>
+rescue
+  raise  # Re-raises original exception with full context
+  # Or if adding context:
+  # raise ImportError.new("CSV import failed")
+  # Ruby automatically sets $!.cause to the caught exception
+      </good>
+    </example>
 
-### Do
-
-- `raise` (no arguments) — re-raises the original exception unchanged when no context needed
-- Raise a typed `Common::Exceptions` class inside a rescue — Ruby sets cause automatically:
-  ```ruby
-  rescue Faraday::TimeoutError
-    raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')
-    # Ruby automatically sets $!.cause to the caught Faraday::TimeoutError
-  end
-  ```
-
-### Don't
-
-- `raise "error: #{e}"` — creates a RuntimeError (loses class, backtrace, cause chain)
-- `raise ServiceException.new(e.message)` — extracts only the string (loses everything else)
-- `raise Common::Exceptions::BadRequest.new(detail: e.message, cause: e)` — `cause: e` is silently ignored by `Common::Exceptions` (Ruby handles cause automatically)
-
-## Anti-Patterns
-
-### Lighthouse Benefits Claims Service
-
-```ruby
+    <example name="Lighthouse Benefits Claims — missing cause chain">
+      <bad>
 rescue Faraday::ClientError, Faraday::ServerError => e
   raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
   # Missing cause: parameter — original Faraday exception lost
-end
-```
-
-**Corrected:**
-
-```ruby
+      </bad>
+      <good>
 rescue Faraday::ClientError, Faraday::ServerError
   raise BenefitsClaims::ServiceException.new(e.response, 'Lighthouse Error')
   # Ruby automatically sets $!.cause to the caught Faraday exception
-end
-```
+      </good>
+    </example>
 
-### Mobile Dependents Controller
-
-```ruby
-rescue => e  # Catches ALL exceptions (typos, timeouts, DB errors)
+    <example name="Mobile Dependents — wraps only message string">
+      <bad>
+rescue => e
   raise Common::Exceptions::BackendServiceException.new(
     nil,
     detail: e.message  # Only string — loses stack trace, exception type, cause chain
   )
-end
-```
-
-**Corrected:**
-
-```ruby
+      </bad>
+      <good>
 rescue BGS::ServiceError
   raise Common::Exceptions::BackendServiceException.new(
     'BGS',
     detail: 'BGS service unavailable'
   )
   # Ruby automatically preserves the cause chain
-rescue ActiveRecord::RecordNotFound
-  raise Common::Exceptions::RecordNotFound.new(
-    detail: 'Dependent not found'
-  )
-  # Ruby automatically preserves the cause chain
-end
-```
+      </good>
+    </example>
 
-### Income Limit Import Jobs — Stringified Re-raise
+    <example name="Re-raise typed Common::Exceptions — do NOT use cause: e">
+      <bad>
+rescue Faraday::TimeoutError => e
+  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out', cause: e)
+  # cause: e is silently ignored by Common::Exceptions
+      </bad>
+      <good>
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')
+  # Ruby automatically sets $!.cause to the caught Faraday::TimeoutError
+      </good>
+    </example>
+  </examples>
 
-```ruby
-def perform
-  # ... CSV import logic ...
-rescue => e
-  raise "error: #{e}"
-  # Creates NEW RuntimeError — original class, backtrace, and cause chain destroyed
-end
-```
-
-**Corrected:**
-
-```ruby
-def perform
-  # ... CSV import logic ...
-rescue
-  raise  # Re-raises original exception with full context
-  # Or if adding context:
-  # raise ImportError.new("CSV import failed")
-  # Ruby automatically sets $!.cause to the caught exception
-end
-```
+</play>

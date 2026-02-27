@@ -1,23 +1,10 @@
----
-id: map-upstream-network-errors
-title: Don't let all upstream network errors fall through as 500 errors
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="map-upstream-network-errors" title="Don't let all upstream network errors fall through as 500 errors" severity="CRITICAL">
 
   <context>
-    When an upstream timeout falls through as a generic 500, metrics
-    blame our team and alerts page us, even though the actual problem is
-    the upstream service's slow response. The client sees 500 and will
-    not retry because the HTTP spec treats 500 as non-retryable, but a
-    504 would signal a gateway timeout and trigger automatic retries.
-    APM shows generic 500 errors with no way to distinguish our code
-    bugs from upstream timeouts, requiring manual log grep to identify
-    the root cause. SRE investigates our code and wastes hours when the
-    actual problem is an upstream DNS failure that should have returned
-    503.
+    Upstream timeouts and connection failures that fall through as 500
+    blame our team instead of the upstream service. Use 504 for
+    timeouts, 503 for connection/DNS failures, and 502 for upstream
+    server errors. Reserve 500 for our own code bugs.
   </context>
 
   <applies_to>
@@ -27,11 +14,6 @@ severity: CRITICAL
     <glob>app/services/**/*.rb</glob>
     <glob>modules/*/app/services/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="classify-errors" relationship="prerequisite" />
-    <play id="preserve-cause-chains" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -55,7 +37,7 @@ severity: CRITICAL
     <step>**Non-HTTP context check.** If the code is in a Sidekiq job,
     rake task, or other non-HTTP context, HTTP status mapping does
     not apply. Sidekiq jobs should re-raise for retry or swallow
-    for non-retryable errors (see Play 16). Rake tasks may log and
+    for non-retryable errors. Rake tasks may log and
     continue. Do NOT recommend mapping to Common::Exceptions gateway
     status codes in non-HTTP contexts — these exceptions are
     meaningless without an HTTP response. Skip or downgrade the
@@ -97,7 +79,7 @@ for rake tasks).</false_positive>
       raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')  # 503
     rescue Faraday::ServerError => e
       raise Common::Exceptions::BadGateway.new(
-        detail: "Upstream service error (status: #{e.response&.[](:status)})"
+        detail: "Upstream service error (status: #{e.response&amp;.[](:status)})"
       )
     end
     # Ruby automatically preserves cause chain when raising inside rescue
@@ -110,48 +92,29 @@ for rake tasks).</false_positive>
     - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
     - [ ] Metrics separate our bugs (500) from upstream issues (502/503/504)
 
-    [Play: Map Upstream Network Errors Correctly](04-map-upstream-network-errors-correctly.md)
+    [Play: Map Upstream Network Errors Correctly](04-map-upstream-network-errors-correctly.xml)
   </pr_comment_template>
 
-</agent_play>
--->
-
-### Do
-
-- `rescue Faraday::TimeoutError => e` then raise 504 — upstream was too slow
-- `rescue Faraday::ConnectionFailed => e` then raise 503 — upstream is unreachable
-- `rescue Faraday::ServerError => e` then raise 502 with `meta.upstream_status` — upstream broke
-
-### Don't
-
-- `rescue Faraday::ClientError, Faraday::ServerError => e` in one clause — conflates failure modes
-- `raise InternalServerError, exception: e` — 500 means our code is broken, not upstream
-
-## Anti-Patterns
-
-### Travel Pay Claims Controller
-
-```ruby
+  <examples>
+    <example name="Travel Pay Claims — all Faraday errors mapped to 500">
+      <bad>
 rescue Faraday::ClientError, Faraday::ServerError => e
   raise Common::Exceptions::InternalServerError, exception: e
   # Maps ALL Faraday errors to 500 (our fault)
   # Should distinguish: timeout→504, connection→503, server→502
-end
-```
-
-**Corrected:**
-
-```ruby
+      </bad>
+      <good>
 rescue Faraday::TimeoutError
   raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')  # 504
-
 rescue Faraday::ConnectionFailed
   raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')  # 503
-
 rescue Faraday::ServerError => e
   raise Common::Exceptions::BadGateway.new(
-    detail: "Upstream service error (status: #{e.response&.[](:status)})"
+    detail: "Upstream service error (status: #{e.response&amp;.[](:status)})"
   )
   # Ruby automatically preserves the cause chain when raising inside rescue
-end
-```
+      </good>
+    </example>
+  </examples>
+
+</play>

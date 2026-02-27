@@ -1,20 +1,10 @@
----
-id: bare-rescue
-title: Never Use Broad or Bare Rescues
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="bare-rescue" title="Never Use Broad or Bare Rescues" severity="CRITICAL">
 
   <context>
-    A bare rescue swallows everything: typos become nil, Ctrl+C hangs
-    processes, and SystemExit is ignored. APM never sees the error, so
-    code bugs ship to production with zero alerts and zero visibility. A
-    BGS timeout returns nil, missing data returns nil, and a database
-    error returns nil, making it impossible to tell which failure
-    occurred. A NoMethodError from a code bug looks like "veteran has no
-    file number," leading to the wrong diagnosis and the wrong fix.
+    Bare `rescue` catches everything — typos, Ctrl+C, SystemExit — and
+    typically returns nil. APM never sees the error, so bugs ship with
+    zero alerts and every failure looks identical (nil), making root
+    cause impossible to determine.
   </context>
 
   <applies_to>
@@ -26,13 +16,6 @@ severity: CRITICAL
     <glob>modules/*/app/sidekiq/**/*.rb</glob>
     <glob>lib/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="dont-swallow-errors" relationship="complementary" />
-    <play id="preserve-cause-chains" relationship="complementary" />
-    <play id="classify-errors" relationship="complementary" />
-    <play id="dont-catch-log-reraise" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -110,93 +93,54 @@ clause, but do not flag as CRITICAL or WARNING.</false_positive>
     - [ ] No nil/false return for failures
     - [ ] Cause chain preserved (raise inside rescue block; Ruby sets `$!.cause` automatically)
 
-    [Play: Never Use Broad or Bare Rescues](03-never-use-bare-rescues.md)
+    [Play: Never Use Broad or Bare Rescues](03-never-use-bare-rescues.xml)
   </pr_comment_template>
 
-</agent_play>
--->
-
-### Do
-
-- `rescue BGS::ServiceError, Faraday::Error => e` — catches only expected failures
-- `rescue StandardError => e` at controller boundary — outermost handler only
-
-### Don't
-
-- `rescue` (bare) — catches everything including typos and system signals
-- `rescue => e` — identical to bare rescue, just assigns the exception
-- `rescue Exception` — catches `Interrupt`, `SystemExit`, and load errors
-
-## Anti-Patterns
-
-### VRE Veteran Claim
-
-```ruby
-def veteran_va_file_number(user)
-  response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
-  response.file_number
+  <examples>
+    <example name="VRE Veteran Claim — bare rescue returns nil">
+      <bad>
+response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
+response.file_number
 rescue  # Bare rescue catches ALL exceptions
-  Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user&.uuid })
+  Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user&amp;.uuid })
   nil  # Returns nil for ALL failures
-end
-```
-
-**Corrected:**
-
-```ruby
-def veteran_va_file_number(user)
-  response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
-  response.file_number
+      </bad>
+      <good>
+response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
+response.file_number
 rescue BGS::ServiceError, Faraday::Error => e
-  Rails.logger.warn('BGS unavailable', { user_uuid: user&.uuid, error: e.class })
+  Rails.logger.warn('BGS unavailable', { user_uuid: user&amp;.uuid, error: e.class })
   raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS service unavailable')
-end
-```
+      </good>
+    </example>
 
-### Cemeteries Controller
-
-```ruby
-def index
-  cemeteries = SimpleFormsApi::CemeteryService.all
-  render json: { data: cemeteries.map { |cemetery| format_cemetery(cemetery) } }
+    <example name="Cemeteries Controller — rescue => e catches everything">
+      <bad>
 rescue => e  # Same as bare rescue — catches EVERYTHING
   Rails.logger.error "Cemetery controller error: #{e.message}"
   Rails.logger.error e.backtrace.join("\n")
   render json: { error: 'Unable to load cemetery data' }, status: :internal_server_error
-end
-```
-
-**Corrected:**
-
-```ruby
-def index
-  cemeteries = SimpleFormsApi::CemeteryService.all
-  render json: { data: cemeteries.map { |cemetery| format_cemetery(cemetery) } }
+      </bad>
+      <good>
 rescue SimpleFormsApi::ServiceError, Faraday::Error => e
   render_api_exception(e)
-end
 # NoMethodError raises to APM — code bugs visible
-```
+      </good>
+    </example>
 
-### SAML User
-
-```ruby
-def authn_context
-  saml_response.authn_context_text
+    <example name="SAML User — bare rescue tags all exceptions">
+      <bad>
 rescue  # Bare rescue catches everything just to set Sentry tags
   Sentry.set_tags(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
   raise  # Re-raises after catching — tags ALL exceptions including bugs
-end
-```
-
-**Corrected:**
-
-```ruby
-def authn_context
-  saml_response.authn_context_text
+      </bad>
+      <good>
 rescue SAML::ValidationError, SAML::MissingAttributeError => e
   Sentry.set_tags(controller_name: 'sessions', sign_in_method: 'not-signed-in:saml-error')
   raise
-end
 # Unexpected errors raise without misleading tags
-```
+      </good>
+    </example>
+  </examples>
+
+</play>

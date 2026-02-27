@@ -1,32 +1,16 @@
----
-id: handle-403-permission
-title: Handle 403 Authorization Errors (Permission vs Existence)
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="handle-403-permission" title="Handle 403 Authorization Errors (Permission vs Existence)" severity="CRITICAL">
 
   <context>
-    Returning 403 for unauthorized access tells an attacker "this claim
-    exists but you cannot see it," whereas 404 would reveal nothing, so
-    the distinction enables enumeration attacks. An attacker looping
-    through IDs sees 404, 404, 403, 404, and the 403 leaks which claim
-    ID is valid. When an expired token returns 403 instead of 401, the
-    client does not know to refresh its token and the user gets stuck. A
-    validation error that returns 403 instead of 422 gives the client no
-    field-level errors to fix, and the wrong team investigates.
+    Returning 403 for a missing resource tells attackers "this exists
+    but you can't see it," enabling enumeration. Use 404 to hide
+    resource existence, 401 for expired tokens, and 403 only when an
+    authenticated user genuinely lacks permission.
   </context>
 
   <applies_to>
     <glob>app/controllers/**/*.rb</glob>
     <glob>modules/*/app/controllers/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="handle-401-token-ownership" relationship="complementary" />
-    <play id="dont-leak-pii" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -65,6 +49,13 @@ instead of 401</critical>
 guidance for remediation</high>
     <medium>403 used for resource where existence is already public
 knowledge</medium>
+    <false_positive>Public resources where enumeration is not a risk —
+if the resource type is publicly known (e.g., facility IDs, form
+types, public announcements), returning 403 instead of 404 does not
+leak sensitive information. Admin-only endpoints where all callers
+are authenticated staff with known permissions. Nested resources
+accessed through a parent that was already authorized — the child
+resource's existence is already implied by the parent access.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
@@ -86,83 +77,51 @@ knowledge</medium>
     - [ ] `meta.required_permission` included in 403 responses
     - [ ] `find_by` used instead of `find` for unified 404 pattern
 
-    [Play: Handle 403 Authorization Errors](07-handle-403-permission-vs-existence.md)
+    [Play: Handle 403 Authorization Errors](07-handle-403-permission-vs-existence.xml)
   </pr_comment_template>
 
-</agent_play>
--->
-
-### Do
-
-- Return 404 for both "not found" and "not authorized" on private resources — prevents enumeration
-- Use `find_by` + nil check instead of `find` + rescue `RecordNotFound`
-- Include `meta.required_permission` in 403 responses
-
-### Don't
-
-- Return 403 for expired tokens — use 401 (authentication failure)
-- Return 403 for missing resources — use 404 (not found)
-- Return 403 for validation failures — use 422 (unprocessable entity)
-- Split 403/404 on the same resource type — enables enumeration attacks
-
-## Anti-Patterns
-
-### Information Leakage via Split Status Codes
-
-```ruby
+  <examples>
+    <example name="Information leakage via split 403/404 status codes">
+      <bad>
 def show
   claim = Claim.find(params[:id])
-
   unless current_user.can_access?(claim)
-    # Returns 403 — tells attacker claim ID exists!
     raise Common::Exceptions::Forbidden.new(detail: "Access denied")
+    # Returns 403 — tells attacker claim ID exists!
   end
-
   render json: claim
 rescue ActiveRecord::RecordNotFound
-  # Returns 404 — tells attacker claim ID doesn't exist
   raise Common::Exceptions::RecordNotFound.new(params[:id])
+  # Returns 404 — tells attacker claim ID doesn't exist
 end
-```
-
-**Corrected:**
-
-```ruby
+      </bad>
+      <good>
 def show
   claim = Claim.find_by(id: params[:id])
-
   # Return 404 for both "doesn't exist" AND "exists but you can't access"
-  unless claim && current_user.can_access?(claim)
+  unless claim &amp;&amp; current_user.can_access?(claim)
     raise Common::Exceptions::RecordNotFound.new(params[:id])
   end
-
   render json: claim
 end
-```
+      </good>
+    </example>
 
-### Wrong Status for Expired Token
-
-```ruby
-def show
-  # Expired token returns 403 instead of 401
-  raise Common::Exceptions::Forbidden.new(
-    detail: "Access denied"
-  ) unless current_user.token_valid?
-
-  render json: resource
+    <example name="Wrong status for expired token">
+      <bad>
+raise Common::Exceptions::Forbidden.new(
+  detail: "Access denied"
+) unless current_user.token_valid?
+# Expired token returns 403 instead of 401
+      </bad>
+      <good>
+unless current_user.token_valid?
+  raise Common::Exceptions::Unauthorized.new(
+    detail: "Session expired. Please sign in again."
+  )
 end
-```
+      </good>
+    </example>
+  </examples>
 
-**Corrected:**
-
-```ruby
-def show
-  unless current_user.token_valid?
-    raise Common::Exceptions::Unauthorized.new(
-      detail: "Session expired. Please sign in again."
-    )
-  end
-
-  render json: resource
-end
-```
+</play>

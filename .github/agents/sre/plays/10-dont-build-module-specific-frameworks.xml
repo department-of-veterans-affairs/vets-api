@@ -1,23 +1,11 @@
----
-id: dont-build-module-frameworks
-title: Don't build module-specific error handling/logging frameworks
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="dont-build-module-frameworks" title="Don't build module-specific error handling/logging frameworks" severity="CRITICAL">
 
   <context>
-    The codebase contains 24 custom error-handling frameworks with 24
-    different APIs, so a single bug fix must be applied 24 separate
-    times. When a LogService catches an exception and never re-raises,
-    the span stays open, creating a memory leak that corrupts APM timing
-    and hides infrastructure bugs. All 24 frameworks call set_error for
-    every exception, marking 4xx client errors as APM errors and
-    flooding dashboards with the same misclassification in 24 places. A
-    new engineer learns the LogService API, then moves to claims_api and
-    encounters a completely different LighthouseErrorHandler API,
-    multiplying onboarding friction.
+    Custom LogService, ErrorHandler, and Monitor classes duplicate
+    platform infrastructure with inconsistent APIs. Bug fixes must be
+    applied N times, span leaks hide failures, and new engineers face
+    a different framework in every module. Use Rails.logger, StatsD,
+    Datadog::Tracing, and ExceptionHandling directly.
   </context>
 
   <applies_to>
@@ -25,11 +13,6 @@ severity: CRITICAL
     <glob>modules/*/lib/**/*.rb</glob>
     <glob>modules/*/app/controllers/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="expected-vs-unexpected" relationship="complementary" />
-    <play id="standardized-error-responses" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -66,6 +49,15 @@ regardless of status code</high>
 custom class</high>
     <medium>existing monitor class extended with new methods instead of
 proposing centralized requirements</medium>
+    <false_positive>Domain exception hierarchies that define typed
+exceptions for a module's specific error conditions (e.g.,
+`ClaimsApi::UnprocessableEntityError &lt; StandardError`) — these are
+domain modeling, not framework building. Faraday middleware classes
+that configure connection behavior (timeouts, headers, auth) — these
+are client configuration, not monitoring wrappers. Thin convenience
+wrappers that delegate directly to a platform method with no added
+logic (e.g., a one-line `def log_error(e)` that calls
+`Rails.logger.error`).</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
@@ -95,105 +87,58 @@ proposing centralized requirements</medium>
     - [ ] Exceptions bubble up to ExceptionHandling
     - [ ] No manual span.set_error in module code
 
-    [Play: Don't Build Module-Specific Frameworks](10-dont-build-module-specific-frameworks.md)
+    [Play: Don't Build Module-Specific Frameworks](10-dont-build-module-specific-frameworks.xml)
   </pr_comment_template>
 
-</agent_play>
--->
-
-### Do
-
-- Let exceptions bubble up through `ExceptionHandling` concern -- no module-level rescue needed
-  ```ruby
-  # Controller inherits ExceptionHandling automatically
-  class MyController < ApplicationController
-    def show
-      result = MyService.call(params[:id])
-      render json: result
-      # No rescue needed -- ExceptionHandling handles it
-    end
-  end
-  ```
-- Use standard APIs directly: `Datadog::Tracing.trace`, `Rails.logger`, `StatsD`
-  ```ruby
-  Datadog::Tracing.trace('my_module.operation') do |span|
-    span.set_tag('module', 'my_module')
-    result = do_work
-  end
-  ```
-- Propose requirements for centralized framework to platform team rather than building module-specific solutions
-
-### Don't
-
-- Create module-specific `LogService`, `Monitor`, or `ErrorHandler` classes
-  ```ruby
-  # Bad: module-specific wrapper
-  class LogService
-    def call(action, &block)
-      @tracer.trace(action) { |span| block.call(span) }
-    rescue => e
-      handle_logging_error(action, e, span)
-      # Missing: raise -- span leak!
-    end
-  end
-  ```
-- Wrap `Datadog::Tracing`, `Rails.logger`, or `StatsD` in module-specific custom classes
-- Build module-specific `rescue_from` handlers that bypass `ExceptionHandling`
-  ```ruby
-  # Bad: bypasses centralized error handling
-  class MyModuleController < ApplicationController
-    rescue_from StandardError, with: :handle_error
-
-    def handle_error(e)
-      render json: { error: e.message }, status: 500
-    end
-  end
-  ```
-
-## Anti-Patterns
-
-### ask_va_api/LogService
-
-```ruby
+  <examples>
+    <example name="ask_va_api LogService with span leak">
+      <bad>
 class LogService
-  def call(action, tags: {}, &block)
+  def call(action, tags: {}, &amp;block)
     span = nil
     trace_and_annotate_action(action, tags) do |s|
       @span = span = s
-      if block.arity == 1
-        block.call(span)
-      else
-        @elapsed_time = Benchmark.realtime { @result = block.call }
-      end
+      @elapsed_time = Benchmark.realtime { @result = block.call }
     end
     log_timing_metric(action)
     result
   rescue => e
     handle_logging_error(action, e, span)  # Bug: Never re-raises exception
-    # Missing: raise
-  end
-
-  private
-
-  def trace_and_annotate_action(action, tags)
-    @tracer.trace(action) do |span|
-      set_tags_and_metrics(span, action, tags)
-      yield(span) if block_given?
-    end  # Span never closes properly if exception caught above
-  end
-
-  def handle_logging_error(action, error, span)
-    @logger.error("Error logging action #{action}: #{error.message}")
-    if span
-      span.set_error(error)  # Calls span.set_error for ALL errors (violates playbook)
-    end
+    # Missing: raise — span leak!
   end
 end
-```
-
-```ruby
-rescue => e
-  handle_logging_error(action, e, span)
-  raise  # Re-raise to allow Datadog to close span properly
+      </bad>
+      <good>
+# Use standard APIs directly — no wrapper needed
+Datadog::Tracing.trace('my_module.operation') do |span|
+  span.set_tag('module', 'my_module')
+  result = do_work
 end
-```
+# Datadog handles span lifecycle automatically
+      </good>
+    </example>
+
+    <example name="Module-specific rescue_from bypasses ExceptionHandling">
+      <bad>
+class MyModuleController &lt; ApplicationController
+  rescue_from StandardError, with: :handle_error
+
+  def handle_error(e)
+    render json: { error: e.message }, status: 500
+  end
+end
+# Bypasses centralized ExceptionHandling concern
+      </bad>
+      <good>
+class MyModuleController &lt; ApplicationController
+  def show
+    result = MyService.call(params[:id])
+    render json: result
+    # No rescue needed — ExceptionHandling handles it
+  end
+end
+      </good>
+    </example>
+  </examples>
+
+</play>

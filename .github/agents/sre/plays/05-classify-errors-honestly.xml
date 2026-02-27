@@ -1,24 +1,10 @@
----
-id: classify-errors
-title: Match status codes to the source (4xx vs 5xx)
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="classify-errors" title="Match status codes to the source (4xx vs 5xx)" severity="CRITICAL">
 
   <context>
-    When a NoMethodError is caught by a bare rescue and returns 422,
-    metrics incorrectly count a server bug as a client error, and the
-    team investigates a "validation failure" that does not exist. A
-    database outage that returns 422 tells the client their data is
-    invalid, when in reality the infrastructure has failed and the
-    client can do nothing to fix it. A BGS timeout that returns 422
-    causes the client to retry with the same data, which will never help
-    because the upstream service is timing out. Dashboards show rising
-    client errors, but the actual problems are our bugs, our database,
-    and upstream timeouts, so the wrong team investigates with the wrong
-    fix.
+    Broad rescues that return 422 disguise server bugs and upstream
+    failures as client validation errors. Dashboards show rising client
+    errors, the wrong team investigates, and the client retries with
+    the same data — which never helps when the real problem is ours.
   </context>
 
   <applies_to>
@@ -27,12 +13,6 @@ severity: CRITICAL
     <glob>lib/**/*.rb</glob>
     <glob>app/sidekiq/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="handle-401-token-ownership" relationship="complementary" />
-    <play id="handle-403-permission" relationship="complementary" />
-    <play id="map-upstream-network-errors" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -106,53 +86,26 @@ without an HTTP response</false_positive>
     - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
     - [ ] Metrics correctly split client errors vs server errors
 
-    [Play: Match Status Codes to the Source](05-classify-errors-honestly.md)
+    [Play: Match Status Codes to the Source](05-classify-errors-honestly.xml)
   </pr_comment_template>
 
-</agent_play>
--->
-
-### Do
-
-- `rescue ValidationError, ArgumentError => e` then raise 422 — client can fix their data
-- Let `NoMethodError` propagate — our bug, should be 500
-- Let `Faraday::TimeoutError` propagate — upstream issue, should be 504
-
-### Don't
-
-- `rescue => e` then raise 422 — catches everything, blames client for our bugs
-- Rebrand 5xx as 4xx to quiet dashboards — hides real problems
-- Rebrand 4xx as 5xx for attention — creates false alarms
-
-## Anti-Patterns
-
-### Dependents Benefits UserData
-
-```ruby
-def initialize(user, claim_data)
-  @first_name = user.first_name.presence || claim_data.dig('veteran_information', 'full_name', 'first')
-  # ... more assignments ...
+  <examples>
+    <example name="DependentsBenefits UserData — bare rescue returns 422 for all failures">
+      <bad>
 rescue => e  # Bare rescue catches ALL errors
   monitor.track_user_data_error('DependentsBenefits::UserData#initialize error',
                                 'user_hash.failure', error: e)
   raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not initialize user data')
   # Returns 422 (client error) for ALL failures — even our bugs!
-end
-```
-
-**Corrected:**
-
-```ruby
-def initialize(user, claim_data)
-  @first_name = user.first_name.presence || claim_data.dig('veteran_information', 'full_name', 'first')
-  # ... more assignments ...
-  validate_required_fields!
+      </bad>
+      <good>
 rescue ArgumentError, ValidationError => e
   monitor.track_user_data_error('Validation failed', 'user_hash.validation_error', error: e)
-  raise Common::Exceptions::UnprocessableEntity.new(
-    detail: e.message
-  )
+  raise Common::Exceptions::UnprocessableEntity.new(detail: e.message)
   # Ruby automatically preserves the cause chain
 # Don't catch NoMethodError, BGS::ServiceError, etc. — let them raise as 500s
-end
-```
+      </good>
+    </example>
+  </examples>
+
+</play>

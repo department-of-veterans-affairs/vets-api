@@ -1,22 +1,11 @@
----
-id: handle-401-token-ownership
-title: Handle 401 Authentication Errors (Token Ownership Matters!)
-severity: CRITICAL
----
-
-<!--
-<agent_play>
+<play id="handle-401-token-ownership" title="Handle 401 Authentication Errors (Token Ownership Matters!)" severity="CRITICAL">
 
   <context>
-    When our service account credentials fail, returning 401 makes the
-    client think they failed, so metrics blame the client and the wrong
-    team gets paged. The client retries with a refresh token, but that
-    will never work because our configuration is broken, not theirs.
-    Dashboards show "authentication errors" and the team investigates
-    user auth, when the actual problem is that our MPI credentials have
-    expired. A 401 means "client, fix your credentials" while a 500
-    means "we need to fix this," so getting the code wrong misdirects
-    the entire incident response.
+    When our service account credentials fail upstream, returning 401
+    tells the client their credentials are wrong — but the problem is
+    ours. The client retries uselessly while the wrong team
+    investigates. Return 500 for our credential failures, 401 only
+    when the user's token actually failed.
   </context>
 
   <applies_to>
@@ -25,11 +14,6 @@ severity: CRITICAL
     <glob>lib/**/*.rb</glob>
     <glob>modules/*/lib/**/*.rb</glob>
   </applies_to>
-
-  <related_plays>
-    <play id="handle-403-permission" relationship="complementary" />
-    <play id="classify-errors" relationship="complementary" />
-  </related_plays>
 
   <rules>
     <rule enforcement="must">
@@ -73,6 +57,13 @@ distinguish user token from service account failures</high>
 it to client authentication</high>
     <medium>401 exception missing meta.upstream_service or
 meta.upstream_status context</medium>
+    <false_positive>Proxy endpoints where the service account IS the
+user — some integrations use a single credential model where the
+upstream 401 genuinely means the user's session is invalid (e.g.,
+token exchange flows where vets-api forwards the user's token
+directly). Also, hybrid auth scenarios where the code explicitly
+checks credential ownership before deciding the status code — if
+the check is present and correct, do not flag.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
@@ -100,46 +91,23 @@ meta.upstream_status context</medium>
     - [ ] Preserves upstream context: `meta.upstream_status`, `meta.upstream_service`
     - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
 
-    [Play: Handle 401 Authentication Errors](06-handle-401-token-ownership.md)
+    [Play: Handle 401 Authentication Errors](06-handle-401-token-ownership.xml)
   </pr_comment_template>
 
-</agent_play>
--->
-
-### Do
-
-- Check `using_service_account_credentials?` before choosing status code
-- Return 500 with `meta.auth_type: "service_account"` for service account failures
-- Return 401 with `meta.auth_type: "user_token"` for user token failures
-- Include `meta.upstream_status: 401` and `meta.upstream_service` for context
-
-### Don't
-
-- `rescue Faraday::UnauthorizedError => e` then always raise 401 — blind pass-through
-- Omit `meta.auth_type` — monitoring can't distinguish failure modes
-
-## Anti-Patterns
-
-### Blind Pass-Through
-
-```ruby
+  <examples>
+    <example name="Blind pass-through of upstream 401">
+      <bad>
 rescue Faraday::UnauthorizedError
-  # BAD: Always returns 401, regardless of whose credentials failed
   raise Common::Exceptions::Unauthorized.new(
     detail: 'Upstream authentication failed'
   )
+  # Always returns 401, regardless of whose credentials failed
   # If OUR service account is misconfigured, we blame the CLIENT!
-  # Missing meta.auth_type — can't tell whose credentials failed
-end
-```
-
-**Corrected:**
-
-```ruby
+      </bad>
+      <good>
 rescue Faraday::UnauthorizedError => e
   if using_service_account_credentials?
     # Our service account failed — this is OUR problem, return 500
-    # InternalServerError takes a single Exception argument
     raise Common::Exceptions::InternalServerError.new(e)
   else
     # User's token failed — this is THEIR problem, return 401
@@ -148,5 +116,8 @@ rescue Faraday::UnauthorizedError => e
     )
   end
   # Ruby automatically preserves the cause chain
-end
-```
+      </good>
+    </example>
+  </examples>
+
+</play>
