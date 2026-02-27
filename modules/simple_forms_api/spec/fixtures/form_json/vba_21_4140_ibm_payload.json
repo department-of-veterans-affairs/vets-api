@@ -17,10 +17,10 @@
   "VETERAN_ADDRESS_ZIP5": "90210",
   "VETERAN_ADDRESS_FULL_BLOCK" :  "123 Fake St\nApt 123\nLos Angeles, CA 90210\nUS",
   "EMPLOYER_NAME_ADDRESS": "Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America",
-  "FORM_TYPE_1": "21-4140",
+  "FORM_TYPE_1": "VA FORM 21-4140, AUG 2024",
   "EMPLOYER_NAME_ADDRESS1": "Freelancer\\n123 Test St\\nTest City, CA 90210\\nUnited States of America",
   "EMPLOYER_NAME_ADDRESS2": "Example Construction Company\\n4321 Example Ave\\nTest City, NS M4B 1G5\\nCanada",
   "EMPLOYER_NAME_ADDRESS3": "",
   "VETERAN_SIGNATURE": "Example Test User",
-  "FORM_TYPE": "21-4140"
+  "FORM_TYPE": "VA FORM 21-4140, AUG 2024"
  }
