@@ -153,7 +153,7 @@ module MedicalCopays
           account_data: invoice_deps[:account],
           charge_items: invoice_deps[:charge_items],
           encounters: charge_item_deps[:encounters],
-          associated_statements: associated_statements,
+          associated_statements:,
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
           payments: invoice_deps[:payments],
@@ -161,17 +161,20 @@ module MedicalCopays
           patient_data:
         )
       end
+      # rubocop:enable Metrics/MethodLength
 
       def invoices_for_organization(month_count, count, organization_id, current_invoice_id)
         result = collect_invoices_in_range(month_count, count)
 
-        result['entries'].select do |entry|
+        filtered = result['entries'].select do |entry|
           next if entry.dig('resource', 'id') == current_invoice_id # do not return the current invoice data
 
           issuer_ref = entry.dig('resource', 'issuer', 'reference')
           entry_org_id = issuer_ref.split('/').last
           entry_org_id == organization_id
-        end.sort_by { |entry| entry.dig('resource', 'date') }.reverse
+        end
+
+        filtered.sort_by { |entry| entry.dig('resource', 'date') }.reverse
       end
 
       def build_invoice_entries(raw_invoices)
@@ -211,7 +214,6 @@ module MedicalCopays
           state: address['state'],
           postalCode: address['postalCode']
         }
-
       rescue => e
         Rails.logger.error { "Failed to fetch organization address: #{e.class}" }
         raise e
