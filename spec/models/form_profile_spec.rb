@@ -796,7 +796,10 @@ RSpec.describe FormProfile, type: :model do
       'currentlyActiveDuty' => {
         'yes' => false
       },
-      'activeDuty' => false
+      'activeDuty' => false,
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863'
+      }
     }
   end
   let(:v28_8832_expected) do
@@ -2611,9 +2614,18 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '.load_form_mapping' do
-    it 'handles uppercase form ID 1330M with lowercase filename' do
-      expect { FormProfile.load_form_mapping('1330M') }.not_to raise_error
+  describe '.for with newly added form_upload forms' do
+    %w[
+      21-4170-UPLOAD
+      21P-524-UPLOAD
+      21P-601-UPLOAD
+      21P-4706b-UPLOAD
+      21P-4171-UPLOAD
+      21P-8924-UPLOAD
+    ].each do |form_id|
+      it "routes #{form_id} to FormProfiles::FormUpload" do
+        expect(described_class.for(form_id:, user:)).to be_a(FormProfiles::FormUpload)
+      end
     end
   end
 end

@@ -86,7 +86,17 @@ module AskVAApi
 
       def post_data(payload)
         response = service.call(endpoint: ENDPOINT, method: :put, payload:)
-        handle_response(response)
+        data = handle_response(response)
+        log_inquiry_result_context(data)
+        data
+      end
+
+      def log_inquiry_result_context(data)
+        return if data.blank?
+
+        context = { inquiry_number: data[:InquiryNumber] }
+
+        Rails.logger.info('Inquiry Submission Result Context', context)
       end
 
       def handle_response(response)

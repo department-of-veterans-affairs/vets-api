@@ -245,7 +245,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       let(:merged_pdf_payload) do
         {
           'form_uuid' => form_uuid,
-          'file_names' => ["#{form_uuid}_merged.pdf"],
+          'file_names' => ["#{form_uuid}_vha_10_7959f_2_combined.pdf"],
           'case_id' => 'ABC-1234',
           'status' => 'Processed'
         }
@@ -264,7 +264,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: "#{form_uuid}_merged.pdf",
+          file_name: "#{form_uuid}_vha_10_7959f_2_combined.pdf",
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil,
@@ -309,7 +309,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: "#{form_uuid}_merged.pdf",
+          file_name: "#{form_uuid}_vha_10_7959f_2_combined.pdf",
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil,
@@ -353,7 +353,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: "#{form_uuid}_merged.pdf",
+          file_name: "#{form_uuid}_vha_10_7959f_2_combined.pdf",
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil,

@@ -53,7 +53,7 @@
 
   <%# 9. Claimant's Current Mailing Address %>
   "form1[0].#subform[2].ClaimantsCurrentMailingAddress_NumberAndStreet[0]": "<%= form.data.dig('claimant', 'address', 'street')&.[](0..29) %>",
-  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data.dig('claimant', 'address', 'street2')&.gsub(/\D/, '')&.[](0..4) %>",
+  "form1[0].#subform[2].ClaimantsCurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data.dig('claimant', 'address', 'street2')&.gsub(/\W/, '')&.[](0..4) %>",
   "form1[0].#subform[2].ClaimantsCurrentMailingAddress_City[0]": "<%= form.data.dig('claimant', 'address', 'city')&.[](0..17) %>",
   "form1[0].#subform[2].ClaimantsCurrentMailingAddress_StateOrProvince[0]": "<%= form.data.dig('claimant', 'address', 'state')&.[](0..1) %>",
   "form1[0].#subform[2].ClaimantsCurrentMailingAddress_Country[0]": "<%= form.data.dig('claimant', 'address', 'country')&.[](0..1) %>",

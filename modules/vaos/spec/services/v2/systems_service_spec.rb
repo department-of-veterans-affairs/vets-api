@@ -73,7 +73,6 @@ describe VAOS::V2::SystemsService do
   describe '#get_available_slots' do
     context 'using VAOS' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
       end
 

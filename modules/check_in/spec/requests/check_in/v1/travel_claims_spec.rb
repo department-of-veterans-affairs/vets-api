@@ -45,6 +45,10 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
 
     allow_any_instance_of(CheckIn::V1::TravelClaimsController).to receive(:low_auth_token).and_return(low_auth_token)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_reimbursement').and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:check_in_experience_use_btsss_v2_claim_submission_endpoints)
+      .and_return(false)
+    allow(StatsD).to receive(:increment)
   end
 
   describe 'POST /check_in/v1/travel_claims' do
@@ -156,7 +160,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           json_response = JSON.parse(response.body)
           expect(json_response).to include('errors')
           expect(json_response['errors']).to be_an(Array)
-          expect(json_response['errors'].first['detail']).to include('Missing required arguments: ICN')
+          expect(json_response['errors'].first['detail']).to include('Patient ICN not found')
         end
       end
 
@@ -207,7 +211,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           json_response = JSON.parse(response.body)
           expect(json_response).to include('errors')
           expect(json_response['errors']).to be_an(Array)
-          expect(json_response['errors'].first['detail']).to include('Missing required arguments: ICN')
+          expect(json_response['errors'].first['detail']).to include('Patient ICN not found')
         end
       end
 
@@ -226,6 +230,7 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
             expect(response).to have_http_status(:bad_request)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR)
           end
 
           it 'returns error message about missing travel_claims key' do
@@ -320,16 +325,17 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
                                                headers: { 'Authorization' => "Bearer #{low_auth_token}" }
 
             expect(response).to have_http_status(:bad_request)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_VALIDATION_ERROR)
           end
         end
       end
 
       context 'when claim already exists for appointment' do
         it 'returns specific error message from Travel Pay API' do
-          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
-            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200', allow_playback_repeats: true do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200', allow_playback_repeats: true do
               VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_200' do
-                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate' do
+                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate', allow_playback_repeats: true do
                   post '/check_in/v1/travel_claims', params: valid_params,
                                                      headers: { 'Authorization' => "Bearer #{low_auth_token}" }
                 end
@@ -351,10 +357,10 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
           allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_log_api_error_details)
                                               .and_return(true)
 
-          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
-            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200', allow_playback_repeats: true do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200', allow_playback_repeats: true do
               VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_200' do
-                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate' do
+                VCR.use_cassette 'check_in/travel_claim/claims_create_400_duplicate', allow_playback_repeats: true do
                   post '/check_in/v1/travel_claims', params: valid_params,
                                                      headers: { 'Authorization' => "Bearer #{low_auth_token}" }
                 end
@@ -362,31 +368,22 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify client-level logging: external API error with details
           expect(Rails.logger).to have_received(:error).with(
             hash_including(
-              message: 'TravelPayClient: BTSSS API Error',
+              message: "#{CheckIn::Constants::LOG_PREFIX}: BTSSS API Error",
               operation: 'create_claim',
               http_status: 400,
               api_error_message: 'Validation failed: A claim has already been created for this appointment.'
             )
-          )
-
-          # Verify service-level logging: step failure with context
-          expect(Rails.logger).to have_received(:error).with(
-            hash_including(
-              message: 'Travel Claim Submission: FAILURE',
-              failed_step: 'create_claim'
-            )
-          )
+          ).at_least(:once)
         end
       end
 
       context 'when service raises an error' do
         it 'returns bad request status' do
-          VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
-            VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
-              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_400' do
+          VCR.use_cassette 'check_in/travel_claim/veis_token_200', allow_playback_repeats: true do
+            VCR.use_cassette 'check_in/travel_claim/system_access_token_200', allow_playback_repeats: true do
+              VCR.use_cassette 'check_in/travel_claim/appointments_find_or_add_400', allow_playback_repeats: true do
                 post '/check_in/v1/travel_claims', params: valid_params,
                                                    headers: { 'Authorization' => "Bearer #{low_auth_token}" }
               end
@@ -441,8 +438,9 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
         end
 
         it 'handles 401 error and retries with fresh tokens' do
-          # Mock Rails.logger to capture log calls
-          allow(Rails.logger).to receive(:error)
+          # Enable logging feature flag for AuthManager
+          allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_logging).and_return(true)
+          allow(Rails.logger).to receive(:info)
 
           VCR.use_cassette 'check_in/travel_claim/veis_token_200' do
             VCR.use_cassette 'check_in/travel_claim/system_access_token_200' do
@@ -463,14 +461,10 @@ RSpec.describe 'CheckIn::V1::TravelClaims', type: :request do
             end
           end
 
-          # Verify that the auth retry log was called
-          expect(Rails.logger).to have_received(:error).with(
-            'TravelPayClient 401 error - retrying authentication',
+          expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              correlation_id: be_present,
-              check_in_uuid: uuid,
-              veis_token_present: true,
-              btsss_token_present: true
+              message: "#{CheckIn::Constants::LOG_PREFIX} AuthManager: 401 error - refreshing all tokens",
+              correlation_id: be_present
             )
           )
 

@@ -6,6 +6,12 @@ module UnifiedHealthData
   module Adapters
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
+      # DoD (Department of Defense) facility identifiers typically start with:
+      # - 'zz' prefix (most common)
+      # - 'x' followed by a letter (e.g., 'xNHOH')
+      # These are not valid VA station numbers and should be handled gracefully.
+      DOD_PREFIX_PATTERN = /^(zz|x[A-Z])/i
+
       # Extracts facility name from a FHIR MedicationDispense resource
       #
       # @param dispense [Hash] FHIR MedicationDispense resource
@@ -16,6 +22,7 @@ module UnifiedHealthData
         # Get .location.display from dispense
         location_display = dispense.dig('location', 'display')
         return nil unless location_display
+        return if dod_identifier?(location_display)
 
         # First try the legacy 3-digit station number
         three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
@@ -28,10 +35,15 @@ module UnifiedHealthData
         valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
         if facility_identifier.present? && facility_identifier != three_digit_station &&
            facility_identifier.match?(valid_station_regex)
-          return lookup(facility_identifier)
+          facility_identifier_lookup = lookup(facility_identifier)
+          if facility_identifier_lookup.nil?
+            Rails.logger.info("No facility name found for facility identifier: #{facility_identifier}
+            or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display")
+          end
+          return facility_identifier_lookup
         end
 
-        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
+        Rails.logger.warn("Unable to extract valid station number from: #{location_display}")
 
         nil
       end
@@ -47,10 +59,27 @@ module UnifiedHealthData
         cached_name = Rails.cache.read(cache_key)
         return cached_name if Rails.cache.exist?(cache_key)
 
+        db_facility = HealthFacility.find_by(station_number: station_identifier)
+        if db_facility
+          Rails.cache.write(cache_key, db_facility.name, expires_in: 4.hours)
+          return db_facility.name
+        end
+
         fetch_from_api(station_identifier)
       end
 
       private
+
+      # Checks if the location display value is a DoD facility identifier
+      #
+      # @param location_display [String] Location display value from FHIR resource
+      # @return [Boolean] true if the identifier is a DoD facility
+      def dod_identifier?(location_display)
+        return false unless location_display.match?(DOD_PREFIX_PATTERN)
+
+        Rails.logger.info("Skipping DoD facility identifier: #{location_display}")
+        true
+      end
 
       # Fetches facility name from Lighthouse API
       #

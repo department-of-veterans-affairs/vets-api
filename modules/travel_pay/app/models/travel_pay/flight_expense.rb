@@ -73,7 +73,7 @@ module TravelPay
     def departure_date_must_be_before_return_date
       return unless departure_date.present? && return_date.present?
 
-      errors.add(:return_date, 'must be after departure date') if departure_date >= return_date
+      errors.add(:return_date, 'must be after departure date') if departure_date.to_date > return_date.to_date
     end
   end
 end

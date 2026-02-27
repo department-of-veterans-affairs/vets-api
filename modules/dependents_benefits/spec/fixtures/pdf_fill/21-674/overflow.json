@@ -29,23 +29,23 @@
     "student_information": [
       {
         "student_networth_information": {
-          "savings": "100",
-          "securities": "100",
-          "real_estate": "100",
-          "other_assets": "100",
-          "total_value": "100"
+          "savings": "10000000.00",
+          "securities": "11111100.00",
+          "real_estate": "11111100.00",
+          "other_assets": "11111100.00",
+          "total_value": "11111100.00"
         },
         "student_expected_earnings_next_year": {
-          "earnings_from_all_employment": "100",
-          "annual_social_security_payments": "100",
-          "other_annuities_income": "100",
-          "all_other_income": "100"
+          "earnings_from_all_employment": "1234567.00",
+          "annual_social_security_payments": "12345678.00",
+          "other_annuities_income": "1234567890.00",
+          "all_other_income": "11111111.00"
         },
         "student_earnings_from_school_year": {
-          "earnings_from_all_employment": "100",
-          "annual_social_security_payments": "100",
-          "other_annuities_income": "100",
-          "all_other_income": "100"
+          "earnings_from_all_employment": "111222333.00",
+          "annual_social_security_payments": "333222111.00",
+          "other_annuities_income": "123123123.00",
+          "all_other_income": "321321321.00"
         },
         "school_information": {
           "isSchoolAccredited": true,
@@ -60,7 +60,8 @@
           "last_term_school_information": {
             "term_begin": "2025-01-12",
             "date_term_ended": "2025-05-22"
-          }
+          },
+          "name": "Quest for Knowledge Trade programs"
         },
         "was_married": false,
         "view:program_examples": {},
@@ -72,7 +73,7 @@
           "state": "AL",
           "postal_code": "12345"
         },
-        "student_income": "N",
+        "student_income": false,
         "ssn": "000000000",
         "full_name": {
           "first": "Studentttttttttttt",
@@ -92,7 +93,7 @@
     ],
     "child_stopped_attending_school": [
       {
-        "dependent_income": "N",
+        "dependent_income": false,
         "date_child_left_school": "2020-05-19",
         "full_name": {
           "first": "Jane",
@@ -104,7 +105,7 @@
     ],
     "child_marriage": [
       {
-        "dependent_income": "N",
+        "dependent_income": false,
         "date_married": "2020-01-01",
         "full_name": {
           "first": "Child",

@@ -24,7 +24,7 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     context 'when user has no letter' do
-      it 'renders an empty response' do
+      it 'renders 200 without data' do
         VCR.use_cassette('tsa_letters/show_success_empty', { match_requests_on: %i[method uri body] }) do
           get '/v0/tsa_letter'
           expect(response).to have_http_status(:ok)
@@ -34,19 +34,65 @@ RSpec.describe 'VO::TsaLetter', type: :request do
     end
 
     context 'when upstream returns 403' do
-      it 'renders 404' do
+      it 'logs and renders 200 without data' do
         VCR.use_cassette('tsa_letters/show_not_found', { match_requests_on: %i[method uri body] }) do
+          allow(Rails.logger).to receive(:info)
           get '/v0/tsa_letter'
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq({ data: nil }.to_json)
+          expect(Rails.logger).to have_received(:info).with('TSA Letter Error',
+                                                            error_status: 403,
+                                                            user_account_id: user.user_account_uuid)
         end
       end
     end
 
-    context 'when upstream renders other error' do
-      it 'renders 503' do
-        VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
+    context 'when upstream returns 400' do
+      it 'logs and renders 200 without data' do
+        VCR.use_cassette('tsa_letters/show_bad_request', { match_requests_on: %i[method uri body] }) do
+          allow(Rails.logger).to receive(:info)
           get '/v0/tsa_letter'
-          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq({ data: nil }.to_json)
+          expect(Rails.logger).to have_received(:info).with('TSA Letter Error',
+                                                            error_status: 400,
+                                                            user_account_id: user.user_account_uuid)
+        end
+      end
+    end
+
+    context 'when upstream returns 401' do
+      it 'raises Unauthorized exception' do
+        VCR.use_cassette('tsa_letters/show_unauthorized', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:unauthorized)
+          expect(response.parsed_body).to include('errors')
+          expect(response.parsed_body['errors'].first['title']).to eq('Not authorized')
+          expect(response.parsed_body['errors'].first['status']).to eq('401')
+        end
+      end
+    end
+
+    context 'when upstream returns 500' do
+      it 'raises ExternalServerInternalServerError exception' do
+        VCR.use_cassette('tsa_letters/show_internal_error', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:internal_server_error)
+          expect(response.parsed_body).to include('errors')
+          expect(response.parsed_body['errors'].first['title']).to eq('Internal server error')
+          expect(response.parsed_body['errors'].first['status']).to eq('500')
+        end
+      end
+    end
+
+    context 'when upstream returns 501' do
+      it 'raises NotImplemented exception' do
+        VCR.use_cassette('tsa_letters/show_not_implemented', { match_requests_on: %i[method uri body] }) do
+          get '/v0/tsa_letter'
+          expect(response).to have_http_status(:not_implemented)
+          expect(response.parsed_body).to include('errors')
+          expect(response.parsed_body['errors'].first['title']).to eq('Not Implemented')
+          expect(response.parsed_body['errors'].first['status']).to eq('501')
         end
       end
     end
@@ -78,26 +124,24 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
 
       it 'logs error and renders 422' do
-        VCR.use_cassette('tsa_letters/show_error', { match_requests_on: %i[method uri body] }) do
-          # mocking this because I don't know if it's a real possibility
-          mocked_response = Faraday::Response.new(response_body: bad_response, status: 200)
-          mocked_env = Faraday::Env.new(response: mocked_response).tap do |e|
-            e.status = mocked_response.status
-            e.body = mocked_response.body
-          end
-          allow_any_instance_of(Faraday::Connection).to receive(:post).with('folders/files:search',
-                                                                            any_args).and_return(mocked_response)
-          allow(mocked_response).to receive(:env).and_return(mocked_env)
-          get '/v0/tsa_letter'
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.parsed_body.dig('errors', 0, 'detail'))
-            .to eq('Invalid datetime format found in TSA letters data: 2025-09-09T14:18:53, null')
+        # mocking this because I don't know if it's a real possibility
+        mocked_response = Faraday::Response.new(response_body: bad_response, status: 200)
+        mocked_env = Faraday::Env.new(response: mocked_response).tap do |e|
+          e.status = mocked_response.status
+          e.body = mocked_response.body
         end
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with('folders/files:search',
+                                                                          any_args).and_return(mocked_response)
+        allow(mocked_response).to receive(:env).and_return(mocked_env)
+        get '/v0/tsa_letter'
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body.dig('errors', 0, 'detail'))
+          .to eq('Invalid datetime format found in TSA letters data: 2025-09-09T14:18:53, null')
       end
     end
 
-    context 'when user does not have an ICN' do
-      let(:user) { build(:user, icn: nil) }
+    context 'when user is not loa3 or does not have an icn' do
+      let(:user) { build(:user, :loa1, icn: nil) }
 
       it 'renders 403' do
         get '/v0/tsa_letter'
@@ -133,8 +177,8 @@ RSpec.describe 'VO::TsaLetter', type: :request do
       end
     end
 
-    context 'when user does not have an ICN' do
-      let(:user) { build(:user, icn: nil) }
+    context 'when user is not loa3 or does not have an icn' do
+      let(:user) { build(:user, :loa1, icn: nil) }
 
       it 'renders 403' do
         get "/v0/tsa_letter/#{document_id}/version/#{version_id}/download"

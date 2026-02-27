@@ -5,6 +5,7 @@ require_relative 'fhir_helpers'
 require_relative 'oracle_health_categorizer'
 require_relative 'oracle_health_refill_helper'
 require_relative 'oracle_health_renewability_helper'
+require_relative 'oracle_health_tracking_helper'
 
 module UnifiedHealthData
   module Adapters
@@ -13,12 +14,17 @@ module UnifiedHealthData
       include OracleHealthCategorizer
       include OracleHealthRefillHelper
       include OracleHealthRenewabilityHelper
+      include OracleHealthTrackingHelper
+
+      DEFAULT_FILTERED_STATUSES = %w[cancelled entered-in-error].freeze
+
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
       # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid/filtered
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
+        return nil if filtered_status?(resource['status'])
 
         category = categorize_medication(resource)
 
@@ -35,6 +41,25 @@ module UnifiedHealthData
 
       private
 
+      def filtered_status?(status)
+        filtered_statuses.include?(status)
+      end
+
+      # Returns the list of FHIR MedicationRequest statuses to filter out.
+      # Configurable via Settings.mhv.uhd.medication_filtered_statuses (comma-separated).
+      # Defaults to cancelled and entered-in-error. Set to "none" to disable filtering.
+      def filtered_statuses
+        @filtered_statuses ||= begin
+          configured = Settings.mhv.uhd.medication_filtered_statuses
+          if configured.present?
+            values = configured.to_s.split(',').map(&:strip)
+            values == ['none'] ? [] : values
+          else
+            DEFAULT_FILTERED_STATUSES
+          end
+        end
+      end
+
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
@@ -45,6 +70,7 @@ module UnifiedHealthData
           .merge(build_contact_and_source_attributes(resource, dispenses_data))
           .merge(dispenses: dispenses_data)
           .merge(refill_metadata)
+          .merge(source_ehr: UnifiedHealthData::Prescription::SOURCE_EHR_ORACLE_HEALTH)
       end
 
       # Builds core prescription attributes from the FHIR MedicationRequest resource.
@@ -97,37 +123,6 @@ module UnifiedHealthData
           indication_for_use: extract_indication_for_use(resource),
           remarks: extract_remarks(resource),
           disp_status: map_refill_status_to_disp_status(refill_status, prescription_source)
-        }
-      end
-
-      def build_tracking_information(resource)
-        contained_resources = resource['contained'] || []
-        dispenses = contained_resources.select { |c| c['resourceType'] == 'MedicationDispense' }
-
-        dispenses.filter_map do |dispense|
-          extract_tracking_from_dispense(resource, dispense)
-        end
-      end
-
-      def extract_tracking_from_dispense(resource, dispense)
-        identifiers = dispense['identifier'] || []
-
-        tracking_number = find_identifier_value(identifiers, 'Tracking Number')
-        return nil unless tracking_number # Only create tracking record if we have a tracking number
-
-        prescription_number = find_identifier_value(identifiers, 'Prescription Number')
-        carrier = find_identifier_value(identifiers, 'Carrier')
-        shipped_date = find_identifier_value(identifiers, 'Shipped Date')
-
-        {
-          prescription_name: extract_prescription_name(resource),
-          prescription_number: prescription_number || extract_prescription_number(resource),
-          ndc_number: extract_ndc_number(dispense),
-          prescription_id: resource['id'],
-          tracking_number:,
-          shipped_date:,
-          carrier:,
-          other_prescriptions: [] # TODO: Implement logic to find other prescriptions in this package
         }
       end
 

@@ -3,12 +3,25 @@
 module V1
   class MedicalCopaysController < ApplicationController
     service_tag 'debt-resolution'
+    before_action :authorize_icn
+    rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
 
     def index
-      invoice_bundle = medical_copay_service.list(count: params[:count] || 10, page: params[:page] || 1)
+      invoice_bundle = medical_copay_service.list_months
 
       render json: Lighthouse::HCC::InvoiceSerializer.new(
         invoice_bundle.entries, links: invoice_bundle.links, meta: invoice_bundle.meta
+      )
+    end
+
+    def summary
+      result = medical_copay_service.summary(
+        month_count: params[:months]&.to_i || 6
+      )
+
+      render json: Lighthouse::HCC::InvoiceSerializer.new(
+        result[:entries],
+        meta: result[:meta]
       )
     end
 
@@ -22,6 +35,14 @@ module V1
 
     def medical_copay_service
       MedicalCopays::LighthouseIntegration::Service.new(current_user.icn)
+    end
+
+    def service_error
+      render json: { error: 'External service error' }, status: :bad_gateway
+    end
+
+    def authorize_icn
+      raise Common::Exceptions::Forbidden, detail: 'User ICN is required' if current_user.icn.blank?
     end
   end
 end

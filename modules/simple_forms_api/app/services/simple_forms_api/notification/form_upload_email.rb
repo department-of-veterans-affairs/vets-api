@@ -37,6 +37,14 @@ module SimpleFormsApi
         21P-0519S-1
         21P-530a
         21P-8049
+        21P-535
+        21-4170
+        21P-524
+        21P-601
+        21P-4706B
+        21P-4171
+        21P-8924
+        20-10208
       ].freeze
 
       def initialize(config, notification_type:)

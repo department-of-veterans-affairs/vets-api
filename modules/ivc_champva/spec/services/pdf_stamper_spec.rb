@@ -39,6 +39,19 @@ describe IvcChampva::PdfStamper do
       end
     end
 
+    # Test for https://github.com/department-of-veterans-affairs/va.gov-team/issues/127995
+    context 'when given characters outside of the Windows-1252 character set' do
+      let(:data) do
+        JSON.parse(File.read("modules/ivc_champva/spec/fixtures/form_json/#{test_payload}.json")).tap do |d|
+          d['statement_of_truth_signature'] = 'Eylül Çamcı'
+        end
+      end
+
+      it 'removes the unsupported characters and does not throw an error' do
+        expect { stamp_pdf }.not_to raise_error
+      end
+    end
+
     context 'when the file at the stamped_template_path is missing' do
       before do
         FileUtils.rm_f(path)
@@ -108,7 +121,8 @@ describe IvcChampva::PdfStamper do
         stamp_signature
       end
 
-      let(:test_payload) { 'vha_10_7959c' }
+      # Use a form that is NOT in FORM_REQUIRES_STAMP (10-7959F-2 doesn't require stamping)
+      let(:test_payload) { 'vha_10_7959f_2' }
       let(:stamps) { [] }
 
       it 'does not call :stamp' do

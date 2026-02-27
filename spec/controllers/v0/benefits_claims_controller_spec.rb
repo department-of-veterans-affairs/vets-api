@@ -127,14 +127,14 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(death_claims.count).to eq(1)
       end
 
-      it 'sets correct disaply title and claim type base for Death claims using title generator' do
+      it 'sets correct display title and claim type base for Death claims using title generator' do
         allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
         VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
           get(:index)
         end
         parsed_body = JSON.parse(response.body)
         death_claims = parsed_body['data'].select do |claim|
-          claim['attributes']['claimType'] == 'Death'
+          claim['attributes']['claimType'] == 'expenses related to death or burial'
         end
 
         expect(death_claims.count).to eq(1)
@@ -983,6 +983,51 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
+      it 'returns tracked items with content override fields from TrackedItemContent' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        parsed_body = JSON.parse(response.body)
+        tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+        form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+        # Content override fields are populated from TrackedItemContent
+        expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+        expect(form_item['canUploadFile']).to be true
+        expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+        expect(form_item['longDescription']).to be_a(Hash)
+        expect(form_item['longDescription']).to have_key('blocks')
+        expect(form_item['nextSteps']).to be_a(Hash)
+        expect(form_item['nextSteps']).to have_key('blocks')
+        expect(form_item).to have_key('noActionNeeded')
+        expect(form_item).to have_key('isDBQ')
+        expect(form_item).to have_key('isProperNoun')
+        expect(form_item).to have_key('isSensitive')
+        expect(form_item).to have_key('noProvidePrefix')
+      end
+
+      context 'when a tracked item does not have content overrides' do
+        let(:test_display_name) { 'Submit buddy statement(s)' }
+
+        before do
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+            .with(test_display_name).and_return(nil)
+        end
+
+        it 'does not add content override fields' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+
+          parsed_body = JSON.parse(response.body)
+          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+          buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
+          expect(buddy_statement_item).not_to have_key('longDescription')
+          expect(buddy_statement_item).not_to have_key('nextSteps')
+        end
+      end
+
       context 'when :cst_show_document_upload_status is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(
@@ -1603,7 +1648,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
       context 'claim title generator' do
         it 'returns claimType language modifications' do
-          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
           VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
             get(:show, params: { id: '600229972' })
           end
@@ -1611,17 +1656,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
           expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
           expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
-        end
-
-        it 'does not return claimType language modifications' do
-          allow(Flipper).to receive(:enabled?).with(:cst_use_claim_title_generator_web).and_return(true)
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
-            get(:show, params: { id: '600229972' })
-          end
-          parsed_body = JSON.parse(response.body)
-
-          expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be false
-          expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be true
         end
       end
     end
@@ -1633,6 +1667,57 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context "when 'cst_multi_claim_provider' is disabled" do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider, anything).and_return(false)
+      end
+
+      it 'returns tracked items with content override fields from TrackedItemContent' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
+        end
+
+        parsed_body = JSON.parse(response.body)
+        tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+        form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+        # Content override fields are populated from TrackedItemContent
+        expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+        expect(form_item['canUploadFile']).to be true
+        expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+        expect(form_item['longDescription']).to be_a(Hash)
+        expect(form_item['longDescription']).to have_key('blocks')
+        expect(form_item['nextSteps']).to be_a(Hash)
+        expect(form_item['nextSteps']).to have_key('blocks')
+        expect(form_item).to have_key('noActionNeeded')
+        expect(form_item).to have_key('isDBQ')
+        expect(form_item).to have_key('isProperNoun')
+        expect(form_item).to have_key('isSensitive')
+        expect(form_item).to have_key('noProvidePrefix')
+      end
+
+      context 'when a tracked item does not have content overrides' do
+        let(:test_display_name) { 'Submit buddy statement(s)' }
+
+        before do
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+            .with(test_display_name).and_return(nil)
+        end
+
+        it 'does not add content override fields' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+
+          parsed_body = JSON.parse(response.body)
+          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+          buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
+          expect(buddy_statement_item).not_to have_key('longDescription')
+          expect(buddy_statement_item).not_to have_key('nextSteps')
+        end
       end
     end
   end

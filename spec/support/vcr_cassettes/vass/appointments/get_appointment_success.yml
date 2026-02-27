@@ -43,7 +43,17 @@ http_interactions:
               "appointmentStatusCode": 1,
               "appointmentStatus": "Confirmed",
               "cohortStartUtc": "2026-01-05T00:00:00Z",
-              "cohortEndUtc": "2026-02-28T23:59:59Z"
+              "cohortEndUtc": "2026-02-28T23:59:59Z",
+              "agentSkills": [
+                {
+                  "skillId": "d7374595-5e53-f011-bec2-001dd806389e",
+                  "skillName": "Benefits"
+                },
+                {
+                  "skillId": "5fe0bd9f-5e53-f011-bec2-001dd806389e",
+                  "skillName": "Example Services"
+                }
+              ]
             }
           }
     recorded_at: Mon, 13 Jan 2026 12:00:00 GMT

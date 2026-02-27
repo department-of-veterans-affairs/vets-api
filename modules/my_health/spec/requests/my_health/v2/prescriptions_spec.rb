@@ -78,12 +78,51 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
             expect(data['attributes']).to have_key('errors')
             expect(data['attributes']).to have_key('info_messages')
 
-            # Verify event logging was called
+            # Verify event logging was called with station numbers from orders
             expect(UniqueUserEvents).to have_received(:log_event).with(
               user: anything,
-              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+              event_facility_ids: %w[556 570]
             )
           end
+        end
+
+        it 'logs event with station numbers from the request' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '757', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+            event_facility_ids: %w[757 570]
+          )
+        end
+
+        it 'logs event with unique station numbers when duplicates exist' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '757', id: '15220389459' },
+                   { stationNumber: '757', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+            event_facility_ids: %w[757]
+          )
         end
       end
 
@@ -182,6 +221,189 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response.parsed_body['data']['attributes']['failed_prescription_ids'].length).to eq(3)
+        end
+      end
+
+      context 'OH facility refill blocking' do
+        let(:mock_service) { instance_double(UnifiedHealthData::Service) }
+        let(:mock_oh_helper) { instance_double(MHV::OhFacilitiesHelper::Service) }
+
+        before do
+          allow(UnifiedHealthData::Service).to receive(:new).and_return(mock_service)
+          allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(mock_oh_helper)
+          allow(UniqueUserEvents).to receive(:log_event)
+        end
+
+        context 'when mhv_medications_oh_transition_refill_block flag is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medications_oh_transition_refill_block,
+                                                      anything).and_return(true)
+          end
+
+          it 'blocks all orders when all facilities are in blocked phases (p4-p6)' do
+            allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+              .with(%w[556 570])
+              .and_return({ '556' => 'p5', '570' => 'p4' })
+            allow(mock_service).to receive(:refill_prescription)
+
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:ok)
+            attrs = response.parsed_body['data']['attributes']
+
+            # All orders should be in failed lists
+            expect(attrs['failed_prescription_ids']).to contain_exactly('15220389459', '0000000000001')
+            expect(attrs['failed_station_list']).to contain_exactly('556', '570')
+            expect(attrs['successful_station_list']).to be_empty
+            expect(attrs['prescription_list']).to be_empty
+
+            # Errors should contain OH migration message
+            attrs['errors'].each do |error|
+              expect(error['developer_message']).to eq(
+                'Refill blocked: facility is transitioning to Oracle Health'
+              )
+            end
+
+            # Upstream service should NOT be called
+            expect(mock_service).not_to have_received(:refill_prescription)
+          end
+
+          it 'blocks only OH-transitioning facilities and processes others normally' do
+            allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+              .with(%w[556 570])
+              .and_return({ '556' => 'p5', '570' => nil })
+
+            allow(mock_service).to receive(:refill_prescription)
+              .with([{ 'stationNumber' => '570', 'id' => '0000000000001' }])
+              .and_return({
+                            success: [{ id: '0000000000001', status: 'submitted', station_number: '570' }],
+                            failed: []
+                          })
+
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:ok)
+            attrs = response.parsed_body['data']['attributes']
+
+            # Blocked facility in failed lists
+            expect(attrs['failed_prescription_ids']).to contain_exactly('15220389459')
+            expect(attrs['failed_station_list']).to contain_exactly('556')
+
+            # Non-blocked facility in success lists
+            expect(attrs['successful_station_list']).to contain_exactly('570')
+            expect(attrs['prescription_list'].length).to eq(1)
+
+            # Upstream service called with only the allowed order
+            expect(mock_service).to have_received(:refill_prescription)
+              .with([{ 'stationNumber' => '570', 'id' => '0000000000001' }])
+          end
+
+          it 'does not block facilities in non-blocking phases (p3 and p7)' do
+            allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+              .with(%w[556 570])
+              .and_return({ '556' => 'p3', '570' => 'p7' })
+
+            allow(mock_service).to receive(:refill_prescription)
+              .and_return({
+                            success: [
+                              { id: '15220389459', status: 'submitted', station_number: '556' },
+                              { id: '0000000000001', status: 'submitted', station_number: '570' }
+                            ],
+                            failed: []
+                          })
+
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:ok)
+            attrs = response.parsed_body['data']['attributes']
+
+            expect(attrs['failed_prescription_ids']).to be_empty
+            expect(attrs['successful_station_list']).to contain_exactly('556', '570')
+
+            # Both orders passed to upstream service
+            expect(mock_service).to have_received(:refill_prescription).with(
+              [
+                { 'stationNumber' => '556', 'id' => '15220389459' },
+                { 'stationNumber' => '570', 'id' => '0000000000001' }
+              ]
+            )
+          end
+
+          it 'logs all station numbers including blocked ones in UniqueUserEvents' do
+            allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+              .and_return({ '556' => 'p5', '570' => nil })
+
+            allow(mock_service).to receive(:refill_prescription)
+              .and_return({ success: [{ id: '0000000000001', status: 'submitted', station_number: '570' }],
+                            failed: [] })
+
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(UniqueUserEvents).to have_received(:log_event).with(
+              user: anything,
+              event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+              event_facility_ids: %w[556 570]
+            )
+          end
+        end
+
+        context 'when mhv_medications_oh_transition_refill_block flag is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medications_oh_transition_refill_block,
+                                                      anything).and_return(false)
+          end
+
+          it 'sends all orders to upstream service without checking OH phases' do
+            allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+            allow(mock_service).to receive(:refill_prescription)
+              .and_return({
+                            success: [
+                              { id: '15220389459', status: 'submitted', station_number: '556' },
+                              { id: '0000000000001', status: 'submitted', station_number: '570' }
+                            ],
+                            failed: []
+                          })
+
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+
+            expect(response).to have_http_status(:ok)
+
+            # OH helper should NOT be called to check phases
+            expect(mock_oh_helper).not_to have_received(:get_phases_for_station_numbers)
+
+            # All orders sent to upstream service
+            expect(mock_service).to have_received(:refill_prescription).with(
+              [
+                { 'stationNumber' => '556', 'id' => '15220389459' },
+                { 'stationNumber' => '570', 'id' => '0000000000001' }
+              ]
+            )
+          end
         end
       end
     end
@@ -330,6 +552,9 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
 
           # Verify prescription_source is valid for Oracle (VA indicates Oracle Health/Cerner system)
           expect(oracle_attrs['prescription_source']).to eq('VA')
+
+          # Verify source_ehr identifies this as an Oracle Health prescription
+          expect(oracle_attrs['source_ehr']).to eq('OH')
         end
       end
 
@@ -1211,6 +1436,14 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
     context 'when feature flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
+      end
+
+      it 'returns 400 when station_number parameter is missing' do
+        get('/my_health/v2/prescriptions/12345', headers:)
+
+        expect(response).to have_http_status(:bad_request)
+        error = response.parsed_body['errors']&.first
+        expect(error['detail']).to include('station_number')
       end
 
       it 'returns a successful response when prescription is found' do

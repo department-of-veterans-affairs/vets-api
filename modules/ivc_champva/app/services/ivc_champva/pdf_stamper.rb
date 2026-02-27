@@ -5,7 +5,7 @@ require 'ivc_champva/monitor'
 
 module IvcChampva
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[10-10D 10-10D-EXTENDED 10-7959F-1 10-7959A 10-7959C-REV2025].freeze
+    FORM_REQUIRES_STAMP = %w[10-10D 10-10D-EXTENDED 10-7959F-1 10-7959A 10-7959C].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
@@ -117,7 +117,7 @@ module IvcChampva
           case config[:type]
           when :text
             Rails.logger.info 'IVC Champva Forms - PdfStamper: multistamp drawing text'
-            pdf.draw_text signature_text, at: config[:position], size: font_size
+            pdf.draw_text I18n.transliterate(signature_text), at: config[:position], size: font_size
           when :new_page
             Rails.logger.info 'IVC Champva Forms - PdfStamper: multistamp starting new page'
             pdf.start_new_page

@@ -3,14 +3,21 @@
 require 'sidekiq'
 
 module RepresentationManagement
-  # This is the second job in a two job process for updating accredited entities.
   # Processes address validation for AccreditedIndividual records by ID.
   # This class finds AccreditedIndividual records and calls their validate_address method.
   # Works for all individual types: agents, attorneys, and representatives.
-  # Note: This job only processes individuals. VSOs (AccreditedOrganization records) do not require
-  # address validation as the API does not provide address data for organizations.
+  # Contact field updates (email, phone, raw_address) are written directly by
+  # AccreditationXlsxProcessor before this job is queued.
   class AccreditedIndividualsUpdate
     include Sidekiq::Job
+
+    sidekiq_options retry: 10 # Retry for about 21 hours
+
+    sidekiq_retries_exhausted do |msg, _ex|
+      job = new
+      job.send(:log_error, "retries exhausted: #{msg['error_message']}", send_to_slack: true)
+      job.send(:log_to_slack, job.slack_messages.join("\n")) if job.slack_messages.any?
+    end
 
     RATE_LIMIT_SECONDS = 2
 
@@ -22,15 +29,13 @@ module RepresentationManagement
     end
 
     # Processes address validation for AccreditedIndividuals by ID.
-    # This method finds records by ID and calls validate_address on each one.
-    # For records where address validation fails, enqueues geocoding jobs.
-    # Works for all individual types: agents, attorneys, and representatives.
-    # @param record_ids [Array<Integer>] Array of AccreditedIndividual IDs to validate.
+    # @param record_ids [Array<String>] Array of AccreditedIndividual IDs
     def perform(record_ids)
       record_ids.each { |record_id| process_record(record_id) }
       enqueue_geocoding_jobs
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
+      raise
     ensure
       @slack_messages.unshift('RepresentationManagement::AccreditedIndividualsUpdate') if @slack_messages.any?
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
@@ -42,7 +47,7 @@ module RepresentationManagement
     # Finds the record and calls validate_address on it.
     # If validation fails, adds the record to the geocoding queue.
     # If the record is not found or validation fails, the error is logged.
-    # @param record_id [Integer] The AccreditedIndividual ID.
+    # @param record_id [String] The AccreditedIndividual ID.
     def process_record(record_id)
       record = AccreditedIndividual.find_by(id: record_id)
 

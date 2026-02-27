@@ -3,6 +3,7 @@
 require 'benefits_claims/title_generator'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
+require 'lighthouse/benefits_claims/tracked_item_content'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_claims/utilities/helpers'
 require 'lighthouse/benefits_documents/documents_status_polling_service'
@@ -142,7 +143,7 @@ module V0
     end
 
     def service
-      @service ||= BenefitsClaims::Service.new(@current_user.icn)
+      @service ||= BenefitsClaims::Service.new(@current_user)
     end
 
     def check_for_birls_id
@@ -177,11 +178,13 @@ module V0
       if Flipper.enabled?(:cst_use_claim_title_generator_web)
         # Adds displayTitle and claimTypeBase to the claim response object
         BenefitsClaims::TitleGenerator.update_claim_title(claim)
-      else
-        language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
-        if language_map.key?(claim.dig('attributes', 'claimType'))
-          claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
-        end
+      end
+
+      # always map "Death" claimType to "expenses related to death or burial"
+      # TODO: #131812 [CST/MyVA] Remove claimType mapping from api responses (blocked)
+      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+      if language_map.key?(claim.dig('attributes', 'claimType'))
+        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
     end
 
@@ -248,13 +251,14 @@ module V0
       filtered_evidence_submissions
     end
 
-    def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
+    def build_filtered_evidence_submission_record(evidence_submission, tracked_items) # rubocop:disable Metrics/MethodLength
       personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
       tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
         evidence_submission.tracked_item_id,
         tracked_items
       )
-      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
+      tracked_item_friendly_name = BenefitsClaims::TrackedItemContent.find_by_display_name(tracked_item_display_name) # rubocop:disable Rails/DynamicFindBy
+                                                                     &.dig(:friendlyName)
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,

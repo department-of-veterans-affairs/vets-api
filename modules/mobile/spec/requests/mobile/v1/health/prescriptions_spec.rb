@@ -302,10 +302,11 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
                 expect(data['attributes']).to have_key('errors')
                 expect(data['attributes']).to have_key('infoMessages')
 
-                # Verify event logging was called
+                # Verify event logging was called with station numbers from orders
                 expect(UniqueUserEvents).to have_received(:log_event).with(
                   user: anything,
-                  event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED
+                  event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+                  event_facility_ids: %w[556 570]
                 )
               end
             end
@@ -464,6 +465,189 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
             expect(response).to have_http_status(:ok)
             data = response.parsed_body['data']
             expect(data['type']).to eq('PrescriptionRefills')
+          end
+        end
+
+        context 'OH facility refill blocking' do
+          let(:mock_service) { instance_double(UnifiedHealthData::Service) }
+          let(:mock_oh_helper) { instance_double(MHV::OhFacilitiesHelper::Service) }
+
+          before do
+            allow(UnifiedHealthData::Service).to receive(:new).and_return(mock_service)
+            allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(mock_oh_helper)
+            allow(UniqueUserEvents).to receive(:log_event)
+          end
+
+          context 'when mhv_medications_oh_transition_refill_block flag is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medications_oh_transition_refill_block,
+                                                        anything).and_return(true)
+            end
+
+            it 'blocks all orders when all facilities are in blocked phases (p4-p6)' do
+              allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+                .with(%w[556 570])
+                .and_return({ '556' => 'p5', '570' => 'p4' })
+              allow(mock_service).to receive(:refill_prescription)
+
+              put '/mobile/v1/health/rx/prescriptions/refill',
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
+
+              expect(response).to have_http_status(:ok)
+              attrs = response.parsed_body['data']['attributes']
+
+              # All orders should be in failed lists
+              expect(attrs['failedPrescriptionIds']).to contain_exactly('15220389459', '0000000000001')
+              expect(attrs['failedStationList']).to contain_exactly('556', '570')
+              expect(attrs['successfulStationList']).to be_empty
+              expect(attrs['prescriptionList']).to be_empty
+
+              # Errors should contain OH migration message
+              attrs['errors'].each do |error|
+                expect(error['developerMessage']).to eq(
+                  'Refill blocked: facility is transitioning to Oracle Health'
+                )
+              end
+
+              # Upstream service should NOT be called
+              expect(mock_service).not_to have_received(:refill_prescription)
+            end
+
+            it 'blocks only OH-transitioning facilities and processes others normally' do
+              allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+                .with(%w[556 570])
+                .and_return({ '556' => 'p5', '570' => nil })
+
+              allow(mock_service).to receive(:refill_prescription)
+                .with([{ 'stationNumber' => '570', 'id' => '0000000000001' }])
+                .and_return({
+                              success: [{ id: '0000000000001', status: 'submitted', station_number: '570' }],
+                              failed: []
+                            })
+
+              put '/mobile/v1/health/rx/prescriptions/refill',
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
+
+              expect(response).to have_http_status(:ok)
+              attrs = response.parsed_body['data']['attributes']
+
+              # Blocked facility in failed lists
+              expect(attrs['failedPrescriptionIds']).to contain_exactly('15220389459')
+              expect(attrs['failedStationList']).to contain_exactly('556')
+
+              # Non-blocked facility in success lists
+              expect(attrs['successfulStationList']).to contain_exactly('570')
+              expect(attrs['prescriptionList'].length).to eq(1)
+
+              # Upstream service called with only the allowed order
+              expect(mock_service).to have_received(:refill_prescription)
+                .with([{ 'stationNumber' => '570', 'id' => '0000000000001' }])
+            end
+
+            it 'does not block facilities in non-blocking phases (p3 and p7)' do
+              allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+                .with(%w[556 570])
+                .and_return({ '556' => 'p3', '570' => 'p7' })
+
+              allow(mock_service).to receive(:refill_prescription)
+                .and_return({
+                              success: [
+                                { id: '15220389459', status: 'submitted', station_number: '556' },
+                                { id: '0000000000001', status: 'submitted', station_number: '570' }
+                              ],
+                              failed: []
+                            })
+
+              put '/mobile/v1/health/rx/prescriptions/refill',
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
+
+              expect(response).to have_http_status(:ok)
+              attrs = response.parsed_body['data']['attributes']
+
+              expect(attrs['failedPrescriptionIds']).to be_empty
+              expect(attrs['successfulStationList']).to contain_exactly('556', '570')
+
+              # Both orders passed to upstream service
+              expect(mock_service).to have_received(:refill_prescription).with(
+                [
+                  { 'stationNumber' => '556', 'id' => '15220389459' },
+                  { 'stationNumber' => '570', 'id' => '0000000000001' }
+                ]
+              )
+            end
+
+            it 'logs all station numbers including blocked ones in UniqueUserEvents' do
+              allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+                .and_return({ '556' => 'p5', '570' => nil })
+
+              allow(mock_service).to receive(:refill_prescription)
+                .and_return({ success: [{ id: '0000000000001', status: 'submitted', station_number: '570' }],
+                              failed: [] })
+
+              put '/mobile/v1/health/rx/prescriptions/refill',
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
+
+              expect(UniqueUserEvents).to have_received(:log_event).with(
+                user: anything,
+                event_name: UniqueUserEvents::EventRegistry::PRESCRIPTIONS_REFILL_REQUESTED,
+                event_facility_ids: %w[556 570]
+              )
+            end
+          end
+
+          context 'when mhv_medications_oh_transition_refill_block flag is disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medications_oh_transition_refill_block,
+                                                        anything).and_return(false)
+            end
+
+            it 'sends all orders to upstream service without checking OH phases' do
+              allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+              allow(mock_service).to receive(:refill_prescription)
+                .and_return({
+                              success: [
+                                { id: '15220389459', status: 'submitted', station_number: '556' },
+                                { id: '0000000000001', status: 'submitted', station_number: '570' }
+                              ],
+                              failed: []
+                            })
+
+              put '/mobile/v1/health/rx/prescriptions/refill',
+                  params: [
+                    { stationNumber: '556', id: '15220389459' },
+                    { stationNumber: '570', id: '0000000000001' }
+                  ].to_json,
+                  headers: sis_headers.merge('Content-Type' => 'application/json')
+
+              expect(response).to have_http_status(:ok)
+
+              # OH helper should NOT be called to check phases
+              expect(mock_oh_helper).not_to have_received(:get_phases_for_station_numbers)
+
+              # All orders sent to upstream service
+              expect(mock_service).to have_received(:refill_prescription).with(
+                [
+                  { 'stationNumber' => '556', 'id' => '15220389459' },
+                  { 'stationNumber' => '570', 'id' => '0000000000001' }
+                ]
+              )
+            end
           end
         end
       end

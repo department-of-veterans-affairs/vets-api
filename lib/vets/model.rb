@@ -55,15 +55,7 @@ module Vets
     # @return [Hash] nested attributes
     def nested_attributes(values)
       values.transform_values do |value|
-        if Flipper.enabled?(:vets_model_nested_array) && value.is_a?(Array)
-          value.map do |item|
-            if item.respond_to?(:attribute_values)
-              nested_attributes(item.attribute_values)
-            else
-              item
-            end
-          end
-        elsif value.respond_to?(:attribute_values)
+        if value.respond_to?(:attribute_values)
           nested_attributes(value.attribute_values)
         else
           value

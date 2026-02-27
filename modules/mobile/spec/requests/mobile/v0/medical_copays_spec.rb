@@ -8,6 +8,37 @@ RSpec.describe 'Mobile::V0::MedicalCopays', type: :request do
 
   let!(:user) { sis_user }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mobile_medical_copays_enabled, anything).and_return(true)
+  end
+
+  context 'when mobile_medical_copays_enabled feature flag is disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mobile_medical_copays_enabled, anything).and_return(false)
+    end
+
+    it 'returns forbidden for index' do
+      get '/mobile/v0/medical_copays', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
+
+    it 'returns forbidden for show' do
+      get '/mobile/v0/medical_copays/abc123', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
+
+    it 'returns forbidden for download' do
+      get '/mobile/v0/medical_copays/download/abc123', headers: sis_headers
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.parsed_body['error']['code']).to eq('FEATURE_NOT_AVAILABLE')
+    end
+  end
+
   describe 'GET medical_copays#index' do
     let(:copays) { { data: [], status: 200 } }
 

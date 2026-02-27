@@ -74,6 +74,7 @@
     "type": "VA",
     "status": "booked",
     "service_type": "optometry",
+    "type_of_care": "Optometry",
     "patient_icn": "1012853802V084487",
     "location_id": "442",
     "clinic": "408",
@@ -1218,7 +1219,7 @@
         ],
         "note_type": "ambulatory_patient_summary",
         "content_type": "application/pdf",
-        "binary": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e"
+        "binary": null
       }
     ],
     "avs_error": "Unable to retrieve AVS at this time"
