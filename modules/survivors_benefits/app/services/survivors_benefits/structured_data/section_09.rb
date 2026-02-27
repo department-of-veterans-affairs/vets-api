@@ -32,17 +32,18 @@ module SurvivorsBenefits::StructuredData::Section09
   def merge_income_fields(incomes)
     incomes&.each_with_index do |income, index|
       income_num = index + 1
+      income_type = income['incomeType']
       fields.merge!(build_currency_fields(income['monthlyIncome'], monthly_income_keys(income_num)))
       fields.merge!(
         {
           "CB_INC_RECIPIENT#{income_num}_SP" => income['recipient'] == 'SURVIVING_SPOUSE',
           "CB_INC_RECIPIENT#{income_num}_CHILD" => income['recipient'] == 'CHILD',
           "NAME_OF_CHILD_INCOMETYPE#{income_num}" => income['recipientName'],
-          "CB_INCOMETYPE#{income_num}_SS" => income['incomeType'] == 'SOCIAL_SECURITY',
-          "CB_INCOMETYPE#{income_num}_PENSION" => income['incomeType'] == 'PENSION_RETIREMENT',
-          "CB_INCOMETYPE#{income_num}_CIVIL" => income['incomeType'] == 'CIVIL_SERVICE',
-          "CB_INCOMETYPE#{income_num}_INTEREST" => income['incomeType'] == 'INTEREST_DIVIDENDS',
-          "CB_INCOMETYPE#{income_num}_OTHER" => income['incomeType'] == 'OTHER',
+          "CB_INCOMETYPE#{income_num}_SS" => income_type == 'SOCIAL_SECURITY',
+          "CB_INCOMETYPE#{income_num}_PENSION" => income_type == 'PENSION_RETIREMENT',
+          "CB_INCOMETYPE#{income_num}_CIVIL" => income_type == 'CIVIL_SERVICE',
+          "CB_INCOMETYPE#{income_num}_INTEREST" => income_type == 'INTEREST_DIVIDENDS',
+          "CB_INCOMETYPE#{income_num}_OTHER" => income_type == 'OTHER',
           "CB_INCOMETYPE#{income_num}_OTHERSPECIFY" => income['incomeTypeOther'],
           "INCOME_PAYER_#{income_num}" => income['incomePayer']
         }

@@ -43,7 +43,7 @@ module SurvivorsBenefits::StructuredData::Section04
   # Build and merge the veteran separation fields
   def merge_veteran_separation_fields
     married_at_death = form['marriedToVeteranAtTimeOfDeath'] || false
-    form['howMarriageEnded'] = married_at_death ? 'death' : form['howMarriageEnded']
+    form['howMarriageEnded'] = 'death' if married_at_death
     fields.merge!(y_n_pair(married_at_death, 'MARRIED_WHILE_VET_DEATH_Y', 'MARRIED_WHILE_VET_DEATH_N'))
     fields.merge!(
       {
