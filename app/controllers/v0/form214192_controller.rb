@@ -10,20 +10,13 @@ module V0
     skip_before_action :authenticate, only: %i[create download_pdf]
     before_action :load_user, :check_feature_enabled
 
-    # rubocop:disable Metrics/MethodLength
     def create
-      # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.raw_post
-
-      claim = SavedClaim::Form214192.new(form: payload)
-
+      claim = build_claim
       monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
 
       if claim.save
         claim.process_attachments!
-
         monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
-
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
@@ -36,51 +29,25 @@ module V0
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
       raise
     ensure
-      if response.status
-        monitor.track_request_code(
-          response.status,
-          action: 'create',
-          user_uuid: current_user&.uuid,
-          claim_guid: claim&.guid
-        )
-      end
+      track_response_code('create', claim)
     end
-    # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength
     def download_pdf
       pdf_start_time = Time.current
-
-      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
       parsed_form = JSON.parse(request.raw_post)
-
-      source_file_path = with_retries('Generate 21-4192 PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
-      end
-
-      # Stamp signature (SignatureStamper returns original path if signature is blank)
-      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
+      source_file_path = generate_and_stamp_pdf(parsed_form)
 
       monitor.track_pdf_generation_success(pdf_start_time)
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
-
       file_contents = File.read(source_file_path)
-
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     rescue => e
       handle_pdf_generation_error(e)
     ensure
-      if response.status
-        monitor.track_request_code(
-          response.status,
-          action: 'download_pdf',
-          user_uuid: current_user&.uuid
-        )
-      end
+      track_response_code('download_pdf')
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -105,6 +72,29 @@ module V0
 
     def monitor
       @monitor ||= Form214192::Monitor.new
+    end
+
+    def build_claim
+      payload = request.raw_post
+      SavedClaim::Form214192.new(form: payload)
+    end
+
+    def generate_and_stamp_pdf(parsed_form)
+      source_file_path = with_retries('Generate 21-4192 PDF') do
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
+      end
+      PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
+    end
+
+    def track_response_code(action, claim = nil)
+      return unless response.status
+
+      monitor.track_request_code(
+        response.status,
+        action:,
+        user_uuid: current_user&.uuid,
+        claim_guid: claim&.guid
+      )
     end
   end
 end
