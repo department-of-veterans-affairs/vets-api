@@ -52,6 +52,14 @@ severity: CRITICAL
     <step>Check whether the code is in a controller (boundary) or service layer. Controllers should map to HTTP status codes. Service layers may need to raise module-specific exceptions that controllers then translate.</step>
     <step>Verify that `Common::Exceptions::GatewayTimeout`, `ServiceUnavailable`, and `BadGateway` are available in the module's namespace.</step>
     <step>Check if the upstream response object (`e.response`) is available for the caught exception type — `Faraday::ConnectionFailed` has no response. Do not suggest adding `meta.upstream_status` for exceptions that lack a response object (e.g., TimeoutError, ConnectionFailed).</step>
+    <step>**Non-HTTP context check.** If the code is in a Sidekiq job,
+    rake task, or other non-HTTP context, HTTP status mapping does
+    not apply. Sidekiq jobs should re-raise for retry or swallow
+    for non-retryable errors (see Play 16). Rake tasks may log and
+    continue. Do NOT recommend mapping to Common::Exceptions gateway
+    status codes in non-HTTP contexts — these exceptions are
+    meaningless without an HTTP response. Skip or downgrade the
+    finding.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -63,6 +71,11 @@ and client retry failure</critical>
 timeout from connection failure</high>
     <medium>upstream errors mapped to correct gateway status but missing
 meta.upstream_status</medium>
+    <false_positive>Faraday error handling in Sidekiq jobs, rake tasks,
+or other non-HTTP contexts — HTTP status mapping is meaningless
+without an HTTP response. These contexts have their own error
+handling patterns (retry/dead-queue for Sidekiq, log-and-continue
+for rake tasks).</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

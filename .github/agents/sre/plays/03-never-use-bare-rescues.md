@@ -52,6 +52,30 @@ severity: CRITICAL
     <step>Determine if at boundary (controller/job) or inner code</step>
     <step>Check if typed exceptions exist in the module's namespace</step>
     <step>Check what callers expect — nil returns or exceptions</step>
+    <step>**Defensive-rescue context check (MANDATORY).** Bare rescue
+    is acceptable in these specific contexts where failure of the
+    rescued code must never crash the caller. If ANY of these apply,
+    downgrade to INFO or skip entirely:
+    - **Healthcheck endpoints**: `rescue => e` returning a status
+      hash (e.g., `{ status: 'degraded' }`) is intentional —
+      healthchecks must never raise
+    - **Feature flag checks**: `rescue; false; end` around
+      `Flipper.enabled?` is standard — if Redis/Flipper is down,
+      the feature should be off, not crash the request
+    - **Cache operations**: `rescue; nil; end` around
+      `Rails.cache.fetch` or Redis calls is correct — cache failure
+      should fall through to the uncached path
+    - **Serializer fields**: `rescue; nil; end` on a non-critical
+      display field (date formatting, optional association) is
+      acceptable — one broken field should not crash the response
+    - **Monitoring/instrumentation**: `rescue; end` around StatsD,
+      Datadog, or Sentry calls is correct — metrics/telemetry
+      failure must never affect the request
+    - **Initialization/config**: `rescue; DEFAULT; end` for loading
+      optional configuration with a safe fallback is standard
+    In these cases the bare rescue is still not ideal (should narrow
+    to specific exception classes), but it is LOW severity, not
+    CRITICAL. Flag as INFO with a note suggesting narrowing.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -60,6 +84,12 @@ severity: CRITICAL
     <critical>bare rescue + nil return in code calling external services</critical>
     <high>bare rescue in service layer calling external APIs</high>
     <medium>bare rescue in internal utility with no external dependencies</medium>
+    <false_positive>bare rescue in healthcheck endpoints, feature flag
+checks, cache operations, serializer fields, monitoring/instrumentation
+code, or initialization/config with safe defaults — these are
+defensive patterns where the rescued code must never crash the
+caller. Downgrade to INFO with a suggestion to narrow the rescue
+clause, but do not flag as CRITICAL or WARNING.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

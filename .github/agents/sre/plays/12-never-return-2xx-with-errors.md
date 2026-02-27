@@ -51,6 +51,12 @@ severity: HIGH
     <step>Check whether the controller uses the `ExceptionHandling` concern. If so, determine whether raising a `Common::Exceptions` error would be better than manually rendering JSON.</step>
     <step>Check for custom envelope fields (`success`, `error_type`, `status` in body) that should be replaced with the standardized error format.</step>
     <step>Verify whether other actions in the same controller have consistent error handling. Flag inconsistencies across the controller.</step>
+    <step>**Healthcheck exclusion (MANDATORY).** If the action is a
+    healthcheck endpoint (MetadataController#healthcheck,
+    StatusController, or any endpoint reporting service health), returning
+    200 OK with `{ status: 'degraded' }` is the correct pattern. The
+    200 means the endpoint itself worked; the body conveys service health.
+    Do NOT flag healthcheck endpoints.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -64,6 +70,13 @@ status code — violates standardized format</high>
 controller for the same error type</high>
     <medium>ad-hoc error hash format instead of standardized errors array
 (style violation, not semantic)</medium>
+    <false_positive>Healthcheck endpoints that return 200 OK with a
+status hash like `{ status: 'degraded' }` or `{ status: 'unavailable' }`.
+These are monitoring endpoints with a well-defined contract — returning
+200 with a degraded status is intentional so that load balancers and
+monitoring tools can parse the response. The 200 status means "the
+healthcheck endpoint itself worked," while the body conveys the
+service health. Do NOT flag healthcheck endpoints.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

@@ -58,6 +58,13 @@ severity: HIGH
     <step>Check if the method is inside a retry loop. If so, determine whether retries emit metrics and whether exhaustion raises or returns nil.</step>
     <step>Determine the correct typed exception from `Common::Exceptions` based on the failure mode (timeout vs connection failure vs malformed response). Do not suggest fixes based on the rescue block alone. The correct remediation depends on what callers expect and how the failure should propagate.</step>
     <step>**Sidekiq non-retryable error check (MANDATORY).** If the code is in a Sidekiq job and the rescue block intentionally does NOT re-raise to PREVENT Sidekiq retries for non-retryable errors (e.g., upstream 400, permanent validation failure), this is NOT a violation — it is correct behavior. Re-raising in a Sidekiq job triggers retries, so swallowing after logging/notification for permanently-failing work is the right pattern. Check: (1) Is this a Sidekiq job? (2) Does the rescue distinguish retryable from non-retryable errors? (3) Does it log, notify, or emit metrics before swallowing? If all three are true, this is a FALSE POSITIVE — do not flag it. NEVER recommend re-raising non-retryable errors in Sidekiq jobs — this causes repeated retries of permanently failing work.</step>
+    <step>**Defensive-rescue context check (MANDATORY).** Returning a
+    sentinel value (nil, false, default) is correct in these contexts
+    where failure of the rescued code must never crash the caller:
+    healthcheck endpoints, feature flag checks, cache operations,
+    serializer fields, monitoring/instrumentation, initialization/config,
+    and rake task batch loops. If the code is in one of these contexts,
+    downgrade to INFO or skip entirely.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -75,6 +82,24 @@ with no external dependencies</medium>
 errors after logging/notification/metrics — re-raising would cause
 unwanted retries of permanently failing work. This is correct
 Sidekiq error handling, not error swallowing.</false_positive>
+    <false_positive>Defensive-rescue contexts where returning a sentinel
+value is intentional and correct:
+- **Healthcheck endpoints**: returning `{ status: 'degraded' }` on
+  failure is the point — healthchecks must never raise
+- **Feature flag checks**: `rescue; false; end` around Flipper —
+  if Redis is down, feature should be off, not crash the request
+- **Cache operations**: `rescue; nil; end` around Redis/cache calls —
+  cache miss should fall through to uncached path
+- **Serializer fields**: `rescue; nil; end` on optional display fields —
+  one broken field should not crash the entire response
+- **Monitoring/instrumentation**: `rescue; end` around StatsD/Datadog/
+  Sentry — metrics failure must never affect the request
+- **Initialization/config**: `rescue; DEFAULT; end` for optional config
+  with safe fallback
+- **Rake tasks**: `rescue; log; next; end` in batch-processing loops —
+  one record failing should not abort the entire batch
+Downgrade to INFO with a suggestion to narrow the rescue clause,
+but do not flag as HIGH or CRITICAL.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

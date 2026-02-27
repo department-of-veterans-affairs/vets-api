@@ -62,6 +62,16 @@ severity: HIGH
     <step>Check if the controller's rescue block does anything beyond what centralized `rescue_from` would handle (custom response rendering, business logic).</step>
     <step>For response object violations, identify all callers of the service method to understand the impact of changing from error objects to exceptions.</step>
     <step>Verify whether domain exception classes need to be created or already exist in the module's `exceptions/` or `errors/` directory.</step>
+    <step>**Sidekiq jobs are boundary layers (MANDATORY).** Sidekiq jobs
+    act as entry points (like controllers) — there is no higher layer
+    to translate exceptions. A Sidekiq job that catches
+    `Faraday::TimeoutError` directly is acceptable because it IS the
+    boundary. The rule "controllers must catch only domain exceptions"
+    applies to controllers because services sit between them and
+    infrastructure. Sidekiq jobs often call services directly with no
+    intermediate layer. Do NOT flag Sidekiq jobs for catching
+    infrastructure exceptions unless a service layer already exists
+    that should be doing the wrapping.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -75,6 +85,11 @@ service call</high>
 raising exceptions</high>
     <medium>inconsistent error handling patterns between services in the
 same module</medium>
+    <false_positive>Sidekiq jobs catching infrastructure exceptions
+(Faraday::TimeoutError, etc.) directly — jobs are boundary layers
+with no higher translation layer. Only flag if a service layer exists
+between the job and the infrastructure call that should be doing the
+wrapping.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

@@ -60,6 +60,12 @@ severity: CRITICAL
     <step>Check if the error path needs to return multiple validation errors. If so, use `Common::Exceptions::ValidationErrors` with an ActiveModel object or construct a multi-error exception. Do not suggest fixes based on the render call alone. The correct typed exception depends on the semantic meaning of the error condition.</step>
     <step>**Check for business logic in custom render methods.** If a custom `render_errors` or `render_error` method contains business logic beyond rendering (e.g., modifying error messages, conditionally adjusting error details based on field names), the recommendation must account for preserving that logic. Do not simply say "remove the method and raise instead" — explain where the business logic should move to (e.g., into a before_action validation, a custom exception class, or a concern).</step>
     <step>**Flag ALL manual renders in the controller, not just the broadest rescue.** If a controller has multiple rescue clauses that each manually render errors, flag each one individually. A controller with 5 manual renders is 5 violations, not 1.</step>
+    <step>**Healthcheck exclusion (MANDATORY).** If the controller or
+    action is a healthcheck endpoint (MetadataController#healthcheck,
+    StatusController, or any endpoint whose purpose is reporting service
+    health to monitoring systems), manual `render json:` with a status
+    hash is the correct pattern. These endpoints intentionally bypass
+    ExceptionHandling. Do NOT flag healthcheck endpoints.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -73,6 +79,12 @@ functionality</high>
     <high>success: false or custom fields in error response format</high>
     <medium>manual render with correct status but wrong format (singular
 error instead of errors array)</medium>
+    <false_positive>Healthcheck endpoints (e.g., MetadataController#healthcheck,
+StatusController) that render `{ status: 'ok' }` or `{ status: 'degraded' }`
+with manual `render json:`. These are monitoring endpoints with a
+well-defined contract — they intentionally bypass ExceptionHandling
+because their purpose is to report service health, not serve API
+consumers. Do not flag healthcheck endpoints.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

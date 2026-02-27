@@ -56,6 +56,17 @@ severity: CRITICAL
     <step>Check if typed exceptions already exist in the module's namespace or in `Common::Exceptions` for the specific failure mode.</step>
     <step>Identify whether this raise is in an HTTP request path (controller, service called from controller) or in a background job / rake task, as the impact differs significantly.</step>
     <step>Look for other `raise 'string'` patterns in the same file or module — if there are several, recommend creating a domain-specific exception hierarchy. Do not suggest a fix without understanding what semantic error type the string raise represents. The correct typed exception depends on the failure mode.</step>
+    <step>**Non-HTTP context check (MANDATORY).** If the code is in a
+    Sidekiq job, rake task, or other non-HTTP context, do NOT recommend
+    `Common::Exceptions` classes (these map to HTTP status codes that
+    are meaningless without an HTTP response). Instead, recommend:
+    - Domain-specific exception classes for Sidekiq jobs (these control
+      retry behavior — different exception types can be matched in
+      `sidekiq_retries_exhausted`)
+    - `ArgumentError` or domain exceptions for rake tasks
+    - The severity is MEDIUM (not CRITICAL) in non-HTTP contexts because
+      RuntimeError still works for retry/dead-queue decisions, it just
+      lacks semantic meaning in APM.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -69,6 +80,12 @@ service called from controller)</high>
 inappropriate retries</high>
     <medium>untyped raise in rake task, utility, or code not in HTTP
 request path</medium>
+    <false_positive>Untyped raise in guard clauses of private methods
+deep in the call stack where the exception is always caught by a
+typed rescue higher up — the string raise acts as an internal
+assertion, not a user-facing error. Check callers before flagging.
+Also, in non-HTTP contexts (Sidekiq, rake), do not recommend
+Common::Exceptions classes — suggest domain exceptions instead.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

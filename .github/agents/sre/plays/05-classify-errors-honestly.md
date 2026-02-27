@@ -58,6 +58,11 @@ severity: CRITICAL
     <step>Determine whether typed validation exceptions already exist in the module's namespace (check for `ValidationError` or similar classes).</step>
     <step>Check if the method calls external services (BGS, MPI, Faraday) whose failures should NOT be classified as client errors.</step>
     <step>Verify that `Common::Exceptions::UnprocessableEntity`, `InternalServerError`, and gateway exceptions are available in the module's namespace. Do not suggest returning 422 for any exception type that represents a server-side or upstream failure. The "who fixes it" question determines the status family.</step>
+    <step>**Non-HTTP context check.** If the code is in a Sidekiq job
+    or rake task, HTTP status classification does not apply. These
+    contexts do not return HTTP responses. Error handling in Sidekiq
+    is about retry vs dead-queue decisions, not 4xx vs 5xx. Skip
+    the finding for non-HTTP contexts.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -69,6 +74,9 @@ complete misattribution in metrics</critical>
 APIs (BGS, MPI, Lighthouse)</high>
     <medium>rescue returns 422 but catches a reasonably narrow set of
 exceptions that could be narrowed further</medium>
+    <false_positive>error classification in Sidekiq jobs, rake tasks,
+or other non-HTTP contexts — HTTP status codes are meaningless
+without an HTTP response</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
