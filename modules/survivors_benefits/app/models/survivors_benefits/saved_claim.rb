@@ -108,61 +108,12 @@ module SurvivorsBenefits
       SurvivorsBenefits::NotificationEmail.new(id).deliver(email_type)
     end
 
-    # BEGIN IBM
-
     ##
     # Converts the form_data into json that can be read by the IBM - GOVCIO mms connection
     #
     def to_ibm
       structured_data_service = SurvivorsBenefits::StructuredData::StructuredDataService.new(parsed_form)
       structured_data_service.build_structured_data
-    end
-
-    ##
-    # Section X
-    # Build the medical, last, and/or burial expenses structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_medical_last_burial_expenses(form)
-      fields = y_n_pair(reportable_reimbursment?(form), 'UNREIMBURSED_MED_EXPENSES_Y', 'UNREIMBURSED_MED_EXPENSES_N')
-      fields.merge!(build_care_expense_fields(form['careExpenses'] || []))
-            .merge!(build_medical_expense_fields(form['medicalExpenses'] || []))
-    end
-
-    ##
-    # Section XI
-    # Build claimant direct deposit structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_claimant_direct_deposit_fields(account)
-      return {} unless account
-
-      {
-        'NAME_FINANCIAL_INSTITUTE' => account['bankName'],
-        'ROUTING_TRANSIT_NUMBER' => account['routingNumber'],
-        'CHECKING_ACCOUNT_CB' => account['accountType'] == 'CHECKING',
-        'SAVINGS_ACCOUNT_CB' => account['accountType'] == 'SAVINGS',
-        'NO_ACCOUNT_CB' => account['accountType'] == 'NO_ACCOUNT',
-        'AccountNumber' => account['accountNumber']
-      }
-    end
-
-    ##
-    # Section XII
-    # Build claim certification structured data entries.
-    #
-    # @param form [Hash]
-    # @return [Hash]
-    def build_claim_certification_fields(form)
-      {
-        'CB_FURTHER_EVD_CLAIM_SUPPORT' => false,
-        'CLAIM_TYPE_FULLY_DEVELOPED_CHK' => true,
-        'CLAIMANT_SIGNATURE_X' => form['claimantSignatureX'],
-        'CLAIMANT_SIGNATURE' => form['claimantSignature'],
-        'DATE_OF_CLAIMANT_SIGNATURE' => format_date(form['claimantSignatureDate'])
-      }
     end
   end
 end
