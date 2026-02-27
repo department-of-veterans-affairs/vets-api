@@ -60,7 +60,8 @@
           "last_term_school_information": {
             "term_begin": "2025-01-12",
             "date_term_ended": "2025-05-22"
-          }
+          },
+          "name": "Quest for Knowledge Trade programs"
         },
         "was_married": false,
         "view:program_examples": {},
@@ -72,7 +73,7 @@
           "state": "AL",
           "postal_code": "12345"
         },
-        "student_income": "N",
+        "student_income": false,
         "ssn": "000000000",
         "full_name": {
           "first": "Studentttttttttttt",
@@ -92,7 +93,7 @@
     ],
     "child_stopped_attending_school": [
       {
-        "dependent_income": "N",
+        "dependent_income": false,
         "date_child_left_school": "2020-05-19",
         "full_name": {
           "first": "Jane",
@@ -104,7 +105,7 @@
     ],
     "child_marriage": [
       {
-        "dependent_income": "N",
+        "dependent_income": false,
         "date_married": "2020-01-01",
         "full_name": {
           "first": "Child",

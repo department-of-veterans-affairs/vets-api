@@ -38,13 +38,7 @@ module RepresentationManagement
     # @param types [Array<String>] API-level entity types to process (defaults to all)
     #   Valid types: 'agents', 'attorneys', 'representatives', 'veteran_service_organizations'
     def perform(types = VALID_TYPES)
-      unless Flipper.enabled?(:accredited_entity_models_populate_with_xlsx_data)
-        log_info('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
-                 'accredited_entity_models_populate_with_xlsx_data is disabled. Job skipped.')
-        log_to_slack('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
-                     'accredited_entity_models_populate_with_xlsx_data is disabled. Job skipped.')
-        return
-      end
+      return unless feature_enabled?
 
       @report = []
       @start_time = Time.current
@@ -66,9 +60,22 @@ module RepresentationManagement
       log_error("AccreditationXlsxProcessor failed: #{e.message}")
       @report << "ERROR: #{e.message}"
       finalize_report
+      raise
     end
 
     private
+
+    # Checks if the feature flag is enabled; logs and returns false if not
+    # @return [Boolean]
+    def feature_enabled?
+      return true if Flipper.enabled?(:accredited_entity_models_populate_with_xlsx_data)
+
+      log_info('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
+               'accredited_entity_models_populate_with_xlsx_data is disabled. Job skipped.')
+      log_to_slack('RepresentationManagement::AccreditationXlsxProcessor: Feature flag ' \
+                   'accredited_entity_models_populate_with_xlsx_data is disabled. Job skipped.')
+      false
+    end
 
     # Validates and normalizes the types parameter
     # @param types [Array<String>] The types to validate
@@ -116,7 +123,7 @@ module RepresentationManagement
       if parsed_data.empty?
         log_error('XLSX file parsing returned no data')
         @report << 'XLSX Parsing: No data returned'
-        return
+        raise StandardError, 'XLSX file parsing returned no data'
       end
 
       individual_ids, organization_ids = apply_updates_and_collect_ids(parsed_data)
@@ -275,6 +282,7 @@ module RepresentationManagement
         @report << "Individual address validation: #{ids.size} records in #{slices_count} batches"
       rescue => e
         log_error("Error queuing individual updates: #{e.message}")
+        raise
       end
     end
 
@@ -299,6 +307,7 @@ module RepresentationManagement
         @report << "Organization address validation: #{ids.size} records in #{slices_count} batches"
       rescue => e
         log_error("Error queuing organization updates: #{e.message}")
+        raise
       end
     end
 
@@ -308,6 +317,7 @@ module RepresentationManagement
       error_msg = "XLSX download failed: #{result[:error]} (status: #{result[:status]})"
       log_error(error_msg)
       @report << "XLSX Download: FAILED - #{result[:error]}"
+      raise StandardError, error_msg
     end
 
     # Finalizes and sends the report to Slack

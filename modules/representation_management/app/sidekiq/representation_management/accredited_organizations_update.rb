@@ -34,6 +34,7 @@ module RepresentationManagement
       enqueue_geocoding_jobs
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
+      raise
     ensure
       @slack_messages.unshift('RepresentationManagement::AccreditedOrganizationsUpdate') if @slack_messages.any?
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?

@@ -181,7 +181,7 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
           /XLSX download failed/
         ).at_least(:once)
 
-        subject.perform
+        expect { subject.perform }.to raise_error(StandardError, /XLSX download failed/)
       end
 
       it 'does not queue any update jobs' do
@@ -191,7 +191,7 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
         expect(RepresentationManagement::AccreditedIndividualsUpdate).not_to receive(:perform_in)
         expect(RepresentationManagement::AccreditedOrganizationsUpdate).not_to receive(:perform_in)
 
-        subject.perform
+        expect { subject.perform }.to raise_error(StandardError)
       end
     end
 
@@ -246,7 +246,7 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
         expect(RepresentationManagement::GCLAWS::XlsxClient)
           .not_to receive(:download_accreditation_xlsx)
 
-        subject.perform
+        expect { subject.perform }.to raise_error(StandardError)
       end
     end
 
