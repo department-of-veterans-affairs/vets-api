@@ -26,6 +26,9 @@ module Dependents
     # statsd key for pension-related submissions
     PENSION_SUBMISSION_STATS_KEY = 'dependents.pension_submission'
 
+    # statsd key for no SSN claims
+    NO_SSN_SUBMISSION_STATS_KEY = 'dependents.no_ssn_claims'
+
     # allowed logging params
     ALLOWLIST = %w[
       proc_id
