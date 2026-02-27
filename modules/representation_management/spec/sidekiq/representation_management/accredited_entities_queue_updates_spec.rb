@@ -7,7 +7,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   subject(:job) { described_class.new }
 
   let(:client) { RepresentationManagement::GCLAWS::Client }
-  let(:batch) { instance_double(Sidekiq::Batch) }
+  let(:batch) { double('Sidekiq::Batch', description: nil, 'description=': nil) }
 
   before do
     stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)

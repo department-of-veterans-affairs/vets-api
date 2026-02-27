@@ -60,6 +60,24 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
         described_class.enqueue(email, template_id, personalisation, api_key_path, callback_options)
       end.to raise_error(Sidekiq::AttrPackageError, /Connection refused/)
     end
+
+    context 'when api_key_path does not start with Settings.' do
+      it 'raises ArgumentError' do
+        expect do
+          described_class.enqueue(email, template_id, personalisation, 'invalid_path', callback_options)
+        end.to raise_error(ArgumentError, "API key path must start with 'Settings.': invalid_path")
+      end
+
+      it 'does not create an AttrPackage' do
+        expect(Sidekiq::AttrPackage).not_to receive(:create)
+
+        begin
+          described_class.enqueue(email, template_id, personalisation, 'invalid_path', callback_options)
+        rescue ArgumentError
+          nil
+        end
+      end
+    end
   end
 
   context 'when errors occur' do
