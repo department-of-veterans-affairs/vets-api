@@ -20,7 +20,8 @@ RSpec.describe V0::SignInController, type: :controller do
           version: access_token_object.version,
           last_regeneration_time: access_token_object.last_regeneration_time.to_i,
           created_time: access_token_object.created_time.to_i,
-          expiration_time: access_token_object.expiration_time.to_i
+          expiration_time: access_token_object.expiration_time.to_i,
+          session_duration: kind_of(Integer)
         }
       end
       let(:expected_status) { :redirect }

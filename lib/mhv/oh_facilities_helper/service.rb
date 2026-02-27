@@ -17,7 +17,9 @@ module MHV
         p4: -3,
         p5: 0,
         p6: 2,
-        p7: 7
+        p7: 7,
+        p8: 30,
+        p9: 45
       }.freeze
 
       MIGRATION_STATUS = {
@@ -37,9 +39,14 @@ module MHV
       def user_facility_ready_for_info_alert?
         return false if @current_user.va_treatment_facility_ids.blank?
 
-        @current_user.va_treatment_facility_ids.any? do |facility|
+        return false unless @current_user.va_treatment_facility_ids.any? do |facility|
           facilities_ready_for_info_alert.include?(facility.to_s)
         end
+
+        return false unless Flipper.enabled?(:portal_notice_interstitial_enabled, @current_user)
+
+        StatsD.increment('mhv.oh_facilities_helper.info_alert.success')
+        true
       end
 
       # Returns migration schedule information for facilities the user is associated with.
@@ -245,10 +252,20 @@ module MHV
         { current: }.merge(phase_dates)
       end
 
+      # Returns the active set of phases based on feature toggle
+      # @return [Hash] phases to use for calculations
+      def active_phases
+        if Flipper.enabled?(:mhv_oh_migration_extended_phases)
+          PHASES
+        else
+          PHASES.except(:p8, :p9)
+        end
+      end
+
       # Calculates absolute dates for each phase based on migration date
       # @return [Hash] Phase keys with formatted date strings
       def calculate_phase_dates(migration_date)
-        PHASES.transform_values do |day_offset|
+        active_phases.transform_values do |day_offset|
           "#{format_phase_date(migration_date + day_offset)} at 12:00AM ET"
         end
       end
@@ -260,9 +277,11 @@ module MHV
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
+        phases = active_phases
+
         # Find the current phase by checking from latest phase to earliest
         # Phase boundaries are inclusive - if today is day -45, we're in p1
-        sorted_phases = PHASES.sort_by { |_, offset| -offset }
+        sorted_phases = phases.sort_by { |_, offset| -offset }
 
         sorted_phases.each do |phase_name, day_offset|
           return phase_name.to_s if days_until_migration <= -day_offset
@@ -278,12 +297,13 @@ module MHV
         today = Time.use_zone('Eastern Time (US & Canada)') { Date.current }
         days_until_migration = (migration_date - today).to_i
 
-        p0_offset = PHASES[:p0] # -60
-        p7_offset = PHASES[:p7] # 7
+        phases = active_phases
+        p0_offset = phases[:p0]
+        last_phase_offset = phases.values.max
 
         if days_until_migration > -p0_offset
           MIGRATION_STATUS[:not_started]
-        elsif days_until_migration >= -p7_offset
+        elsif days_until_migration >= -last_phase_offset
           MIGRATION_STATUS[:active]
         else
           MIGRATION_STATUS[:complete]

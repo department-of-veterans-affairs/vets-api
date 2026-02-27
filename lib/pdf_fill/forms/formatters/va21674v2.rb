@@ -7,6 +7,37 @@ module PdfFill
     module Formatters
       class Va21674v2 < Base
         class << self
+          ##
+          # Expands cases where a student has no SSN
+          #
+          # When a student has no SSN, replaces the SSN field with "See ad d'l "
+          # placeholder text and adds the no-SSN reason to the remarks section.
+          # Assumes only one student per form instance.
+          #
+          # @param form_data [Hash] The complete form data hash
+          # @return [void] Modifies form_data in place
+          def expand_no_ssn_cases(form_data)
+            # We can assume 1 student in the array since this filler
+            # gets called on every student in the students array within the saved claim
+            student_info = form_data.dig('dependents_application', 'student_information', 0)
+            return unless student_info
+
+            no_ssn = student_info['no_ssn']
+            no_ssn_reason = student_info['no_ssn_reason']
+
+            return unless no_ssn
+
+            student_info['ssn'] = {
+              'first' => 'See',
+              'second' => 'ad',
+              'third' => "d'l "
+            }
+
+            return if no_ssn_reason.blank?
+
+            reason_text = "5. Student no SSN reason: #{no_ssn_reason}"
+            student_info['remarks'] = reason_text
+          end
           INCOME_CHAR_LIMIT = 8
           NETWORTH_CHAR_LIMIT = 10
 
@@ -39,13 +70,14 @@ module PdfFill
             type_mapping = {
               'ch35' => 'Chapter 35',
               'fry' => 'Fry Scholarship',
-              'feca' => 'FECA',
-              'other' => 'Other Benefit'
+              'feca' => 'FECA'
             }
             # sanitize object of false values
-            parent_object.compact_blank!
+            parent_object = parent_object.compact_blank
+            return nil if parent_object.blank?
 
-            parent_object.map { |key, _value| type_mapping[key] }.join(', ')
+            # concat and sanitize values not in type_mapping
+            parent_object.map { |key, _value| type_mapping[key] }.compact_blank.join(', ')
           end
 
           # rubocop:disable Metrics/MethodLength

@@ -12,7 +12,7 @@ module CheckIn
   # @example Enqueue the job with required parameters
   #   CheckIn::TravelClaimNotificationJob.perform_async(
   #     'uuid-123-456',                       # Required - Appointment UUID
-  #     '2023-05-15',                         # Required - Appointment date in YYYY-MM-DD format
+  #     '2023-05-15',                         # Optional - Appointment date in YYYY-MM-DD format
   #     'template-id-123',                    # Required - VaNotify template ID
   #     '1234'                                # Required - Last four digits of claim number
   #   )
@@ -24,17 +24,17 @@ module CheckIn
     # be sent to the dead queue where it can be manually retried once it is confirmed the service
     # is back up.
     sidekiq_options retry: 14
-    REQUIRED_FIELDS = %i[phone_number template_id appointment_date].freeze
+    REQUIRED_FIELDS = %i[phone_number template_id].freeze
 
     ##
     # Performs the job of sending an SMS notification via VaNotify
     #
     # Validates input parameters, parses the appointment date, and sends the SMS.
-    # Returns early if required parameters are missing or date parsing fails.
+    # Returns early if required parameters are missing.
     # Logs success or failure messages and handles retries via exception re-raising.
     #
     # @param uuid [String] The appointment UUID used to retrieve mobile phone from Redis
-    # @param appointment_date [String] The appointment date in YYYY-MM-DD format
+    # @param appointment_date [String, nil] The appointment date in YYYY-MM-DD format (optional)
     # @param template_id [String] The VaNotify template ID to use for SMS content
     # @param claim_number_last_four [String] The last four digits of claim number for personalization
     # @return [void]
@@ -45,7 +45,8 @@ module CheckIn
 
       # Early return here because there is no sense in retrying if the required fields are missing
       return unless validate_and_log_missing_fields(opts)
-      return unless (parsed_date = parse_appointment_date(opts))
+
+      parsed_date = parse_appointment_date(opts)
 
       begin
         va_notify_send_sms(opts, parsed_date)
@@ -226,15 +227,18 @@ module CheckIn
     ##
     # Parses the appointment date string into a Date object
     #
-    # On parsing failure, logs the error and increments failure metrics.
+    # Returns nil for blank dates (allowing notification to proceed with fallback).
+    # Logs a warning for present but unparseable dates.
     #
     # @param opts [Hash] Options hash containing the appointment_date field
-    # @return [Date, nil] Parsed date if format is valid, nil if parsing fails
+    # @return [Date, nil] Parsed date if format is valid, nil if blank or unparseable
     def parse_appointment_date(opts)
       date_string = opts[:appointment_date]
+      return nil if date_string.blank?
+
       DateTime.strptime(date_string.to_s, '%Y-%m-%d').to_date
     rescue
-      self.class.log_failure_no_retry('invalid appointment date format', opts)
+      Rails.logger.warn("#{self.class.name}: invalid appointment date format, continuing with fallback")
       nil
     end
 
@@ -290,12 +294,12 @@ module CheckIn
     # Builds personalisation hash for SMS template
     #
     # @param opts [Hash] Options hash containing claim_number_last_four
-    # @param parsed_date [Date] Validated appointment date
+    # @param parsed_date [Date, nil] Parsed appointment date, or nil for fallback display
     # @return [Hash] Personalisation data for SMS template
     def build_personalisation(opts, parsed_date)
       {
         claim_number: opts[:claim_number_last_four].presence || 'unknown',
-        appt_date: parsed_date.strftime('%b %d')
+        appt_date: parsed_date&.strftime('%b %d') || 'N/A'
       }
     end
 

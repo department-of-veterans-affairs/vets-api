@@ -161,7 +161,7 @@ module BGS
     # Chooses the first available identifier from ssn, participant_id, or icn.
     def folder_identifier
       fid = 'VETERAN'
-      { ssn:, participant_id:, icn: }.each do |k, v|
+      { participant_id:, ssn:, icn: }.each do |k, v|
         if v.present?
           fid += ":#{k.to_s.upcase}:#{v}"
           break

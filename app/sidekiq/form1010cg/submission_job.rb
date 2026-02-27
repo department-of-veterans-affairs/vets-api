@@ -22,6 +22,7 @@ require 'sidekiq/monitored_worker'
 module Form1010cg
   class SubmissionJob
     STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
+    API_KEY_PATH = 'Settings.vanotify.services.health_apps_1010.api_key'
 
     DD_ZSF_TAGS = [
       'service:caregiver-application',
@@ -102,18 +103,37 @@ module Form1010cg
         first_name = parsed_form.dig('veteran', 'fullName', 'first')
         email = parsed_form.dig('veteran', 'email')
         template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email
-        api_key = Settings.vanotify.services.health_apps_1010.api_key
         salutation = first_name ? "Dear #{first_name}," : ''
 
+        if Flipper.enabled?(:va_notify_v2_form1010cg_submission)
+          send_v2_failure_email(email, template_id, salutation)
+        else
+          send_v1_failure_email(email, template_id, salutation)
+        end
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"])
+      end
+
+      private
+
+      def send_v2_failure_email(email, template_id, salutation)
+        VANotify::V2::QueueEmailJob.enqueue(
+          email,
+          template_id,
+          { 'salutation' => salutation },
+          API_KEY_PATH,
+          CALLBACK_METADATA
+        )
+      end
+
+      def send_v1_failure_email(email, template_id, salutation)
         VANotify::EmailJob.perform_async(
           email,
           template_id,
           { 'salutation' => salutation },
-          api_key,
+          Settings.vanotify.services.health_apps_1010.api_key,
           CALLBACK_METADATA
         )
-
-        StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"])
       end
     end
 

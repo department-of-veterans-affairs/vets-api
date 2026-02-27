@@ -378,10 +378,48 @@ RSpec.describe Dependents::Monitor do
 
       # Allow any StatsD calls to happen for test setup or the test will fail
       allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
 
       expect(StatsD).to receive(:increment).with(metric, tags: ["form_id:#{form_id}"])
+      expect(Rails.logger).to receive(:info).with('Pension-related claim submitted: 686c-674', {
+                                                    service: 'dependents-application',
+                                                    claim: claim_v2,
+                                                    user_account_uuid: nil,
+                                                    tags: ["form_id:#{form_id}", 'service:dependents-application'],
+                                                    statsd: metric,
+                                                    form_id:,
+                                                    form_type: claim_v2.claim_form_type
+                                                  })
 
       monitor_v2.track_pension_related_submission(form_id:, form_type: '686c-674')
+    end
+  end
+
+  describe '#track_no_ssn_claims' do
+    it 'tracks no SSN claims with correct tags' do
+      form_id = '686C-674-V2'
+      type = 'submitted'
+      metric = "#{described_class::NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
+      method_tags = ["form_id:#{form_id}"]
+      payload_tags = ["form_id:#{form_id}", 'service:dependents-application']
+      payload = {
+        claim: claim_v2,
+        service: 'dependents-application',
+        tags: payload_tags,
+        user_account_uuid: nil,
+        statsd: metric,
+        form_id:,
+        claim_id: claim_v2.id
+      }
+
+      # Allow any StatsD calls to happen for test setup or the test will fail
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+
+      expect(StatsD).to receive(:increment).with(metric, tags: method_tags)
+      expect(Rails.logger).to receive(:info).with("No-SSN claim #{type}", payload)
+
+      monitor_v2.track_no_ssn_claims(form_id:, type:)
     end
   end
 

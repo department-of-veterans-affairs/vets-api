@@ -15,7 +15,7 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
     end
 
     context 'with forms that do not have stamps' do
-      %w[21-4192 21-509 99-9999].each do |form_number|
+      %w[21-4192 21-509 21P-4706B 99-9999].each do |form_number|
         it "returns false for #{form_number}" do
           expect(described_class.stamps?(form_number)).to be false
         end
@@ -74,6 +74,19 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
 
       it 'uses custom coordinates for line two' do
         expect(stamps[1][:coords]).to eq([460, 640])
+      end
+    end
+
+    context 'with form 21P-601 (page override only)' do
+      subject(:stamps) { described_class.new('21P-601').submission_date_stamps(timestamp) }
+
+      it 'stamps on the third page (page index 2)' do
+        expect(stamps.map { |s| s[:page] }).to all(eq(2))
+      end
+
+      it 'uses default coordinates' do
+        expect(stamps[0][:coords]).to eq(described_class::TIMESTAMP_LINE_1_COORDS)
+        expect(stamps[1][:coords]).to eq(described_class::TIMESTAMP_LINE_2_COORDS)
       end
     end
 

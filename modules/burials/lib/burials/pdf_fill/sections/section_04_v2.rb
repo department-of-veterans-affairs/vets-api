@@ -70,7 +70,7 @@ module Burials
           dollar: true,
           question_label: 'Amount Of Government Or Employer Contribution',
           question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
-          limit: 5
+          limit: 8
         },
         # 25
         'plotExpenseResponsibility' => {
@@ -100,9 +100,8 @@ module Burials
         expand_cemetery_location(form_data)
         expand_location_question(form_data)
         expand_tribal_land_location(form_data)
-        format_currency_spacing(form_data)
 
-        form_data['plotExpenseResponsibility'] = select_radio(form_data['plotExpenseResponsibility'])
+        form_data['plotExpenseResponsibility'] = select_radio(form_data['plotExpenseResponsibility'] || false)
 
         form_data
       end
@@ -149,16 +148,6 @@ module Burials
 
         form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?
         form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
-      end
-
-      ##
-      # Adjusts the spacing of the 'amountGovtContribution' value by right-justifying it
-      #
-      # @return [void, nil]
-      def format_currency_spacing(form_data)
-        return if form_data['amountGovtContribution'].blank?
-
-        form_data['amountGovtContribution'] = form_data['amountGovtContribution'].rjust(5)
       end
 
       ##
