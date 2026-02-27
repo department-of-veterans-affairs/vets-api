@@ -2,7 +2,7 @@
 
 module SAML
   class SAMLError < StandardError
-    attr_reader :code, :tag, :level, :context
+    attr_reader :code, :tag, :level, :context, :force_logout
   end
 
   class UserAttributeError < SAMLError
@@ -40,12 +40,13 @@ module SAML
 
     attr_reader :identifier
 
-    def initialize(message:, code:, tag:, context: {}, identifier: nil)
+    def initialize(message:, code:, tag:, context: {}, identifier: nil, force_logout: false) # rubocop:disable Metrics/ParameterLists
       @code = code
       @tag = tag
       @level = :warning
       @context = context
       @identifier = identifier
+      @force_logout = force_logout
       super(message)
     end
   end

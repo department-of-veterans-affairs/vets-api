@@ -47,6 +47,7 @@ RSpec.describe V0::DependentsApplicationsController do
       before do
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(true)
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
       end
 
@@ -103,6 +104,48 @@ RSpec.describe V0::DependentsApplicationsController do
           allow(monitor_double).to receive(:track_create_success)
 
           expect(monitor_double).not_to receive(:track_pension_related_submission)
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
+      end
+
+      context 'when claim has no SSN' do
+        it 'tracks no SSN claim' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:pension_related_submission?).and_return(false)
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:no_ssn_claim?).and_return(true)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+          allow(monitor_double).to receive(:track_no_ssn_claims)
+
+          expect(monitor_double)
+            .to receive(:track_no_ssn_claims)
+            .with(form_id: '686C-674-V2', type: 'created')
+
+          expect(monitor_double)
+            .to receive(:track_no_ssn_claims)
+            .with(form_id: '686C-674-V2', type: 'submitted')
+
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            post(:create, params: test_form_v2, as: :json)
+          end
+        end
+      end
+
+      context 'when claim does not have no SSN' do
+        it 'does not track no SSN claim' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:no_ssn_claim?).and_return(false)
+
+          monitor_double = instance_double(Dependents::Monitor)
+          allow_any_instance_of(V0::DependentsApplicationsController).to receive(:monitor).and_return(monitor_double)
+          allow(monitor_double).to receive(:track_create_attempt)
+          allow(monitor_double).to receive(:track_create_success)
+
+          expect(monitor_double).not_to receive(:track_no_ssn_claims)
 
           VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
             post(:create, params: test_form_v2, as: :json)

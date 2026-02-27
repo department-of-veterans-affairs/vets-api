@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'medical_records/medical_records_log'
 require_relative '../models/clinical_notes'
 require_relative '../models/avs'
 require_relative '../models/binary_data'
@@ -38,17 +39,34 @@ module UnifiedHealthData
 
       ALLOWED_DOC_STATUSES = %w[final amended].freeze
 
-      def parse(note, logging_enabled: true)
+      def initialize(user: nil)
+        @mr_log = MedicalRecords::MedicalRecordsLog.new(user:)
+      end
+
+      def parse(note)
         record = note['resource']
         return nil unless record
 
         unless allowed_doc_status?(record['docStatus'])
           reason = record['docStatus'].blank? ? 'missing_doc_status' : 'disallowed_doc_status'
-          log_filtered_clinical_note(record, reason, logging_enabled:)
+          log_filtered_clinical_note(record, reason)
           return nil
         end
 
         note_content = get_note(record)
+
+        # Proactive: warn when a note passes docStatus filtering but has no content.
+        # Veterans see a title but click into an empty page.
+        if note_content.blank?
+          @mr_log.warn(
+            resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+            action: 'parse',
+            anomaly: 'empty_note_content',
+            record_id: record['id'],
+            note_type: get_record_type(record)
+          )
+          StatsD.increment('unified_health_data.clinical_note.empty_content')
+        end
 
         UnifiedHealthData::ClinicalNotes.new(build_clinical_note_attributes(record, note_content,
                                                                             source: note['source']))
@@ -138,13 +156,14 @@ module UnifiedHealthData
         ALLOWED_DOC_STATUSES.include?(doc_status&.downcase)
       end
 
-      def log_filtered_clinical_note(record, reason, logging_enabled: true)
-        if logging_enabled
-          Rails.logger.info(
-            "Filtered DocumentReference: id=#{record['id']}, docStatus=#{record['docStatus']}, reason=#{reason}",
-            { service: 'unified_health_data', filtering: true }
-          )
-        end
+      def log_filtered_clinical_note(record, reason)
+        @mr_log.diagnostic(
+          resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+          action: 'filter',
+          record_id: record['id'],
+          doc_status: record['docStatus'],
+          reason:
+        )
 
         StatsD.increment('unified_health_data.clinical_note.filtered_document_reference',
                          tags: ["reason:#{reason}"])
@@ -154,6 +173,21 @@ module UnifiedHealthData
         LOINC_CODES.each do |key, value|
           return value if record['type']['coding']&.any? { |coding| coding['code'] == key }
         end
+
+        # Diagnostic: log when a LOINC code is not in our known mapping.
+        # Toggle-gated because LOINC_CODES only has 3 entries, so many legitimate
+        # codes (e.g. AVS codes) will hit this path in normal operation.
+        # StatsD counter still fires always-on for DataDog monitoring.
+        codes = record['type']['coding']&.map { |c| c['code'] }&.compact
+        @mr_log.diagnostic(
+          resource: MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES,
+          action: 'parse',
+          anomaly: 'unknown_loinc_code',
+          record_id: record['id'],
+          loinc_codes: codes&.join(',')
+        )
+        StatsD.increment('unified_health_data.clinical_note.unknown_loinc_code')
+
         'other'
       end
 

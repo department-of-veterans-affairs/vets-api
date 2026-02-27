@@ -60,7 +60,16 @@ RSpec.describe UserSessionForm, type: :model do
         .and_return(find_profile_response)
 
       expect { UserSessionForm.new(saml_response) }
-        .to raise_error(SAML::UserAttributeError, expected_error_message)
+        .to raise_error(SAML::UserAttributeError, expected_error_message) do |error|
+          expect(error.code).to eq(SAML::UserAttributeError::SSN_MISMATCH_CODE)
+          expect(error.tag).to eq(:ssn_mismatch)
+          expect(error.context).to include(
+            icn: saml_attributes[:va_eauth_icn],
+            credential_uuid: identifier,
+            type: identifier_type
+          )
+          expect(error.force_logout).to be(true)
+        end
     end
   end
 
