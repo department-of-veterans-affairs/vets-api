@@ -33,13 +33,14 @@ module Pensions
           # TODO: Set this back to claim&.user_account_id once the DB migration is done
           user_icn = UserAccount.find_by(id: msg['args'][1])&.icn.to_s
           participant_id = msg['args'][2]
+          labeled_pid = participant_id.present? ? "participant_id:#{participant_id}" : nil
 
           Kafka.submit_event(
             icn: user_icn,
             current_id: claim&.confirmation_number.to_s,
             submission_name: Pensions::FORM_ID,
             state: Kafka::State::ERROR,
-            additional_ids: [participant_id].compact
+            additional_ids: [labeled_pid].compact
           )
         end
 
@@ -174,13 +175,15 @@ module Pensions
 
       # Build payload and submit to EventBusSubmissionJob
       def submit_traceability_to_event_bus
+        labeled_pid = @participant_id.present? ? "participant_id:#{@participant_id}" : nil
+
         Kafka.submit_event(
           icn: @user_account&.icn.to_s,
           current_id: @claim&.confirmation_number.to_s,
           submission_name: Pensions::FORM_ID,
           state: Kafka::State::SENT,
           next_id: @intake_service&.uuid.to_s,
-          additional_ids: [@participant_id].compact
+          additional_ids: [labeled_pid].compact
         )
       end
 

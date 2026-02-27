@@ -323,7 +323,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
         expect(Kafka).to receive(:submit_event).with(
           hash_including(
-            additional_ids: ['99887766'],
+            additional_ids: ['participant_id:99887766'],
             state: Kafka::State::SENT,
             next_id: 'intake-uuid-123'
           )
@@ -396,7 +396,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2, pid] }) do
             allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
             expect(Kafka).to receive(:submit_event).with(
-              hash_including(additional_ids: [pid], state: Kafka::State::ERROR)
+              hash_including(additional_ids: ["participant_id:#{pid}"], state: Kafka::State::ERROR)
             )
 
             exhaustion_msg['args'] = [claim.id, 2, pid]

@@ -271,7 +271,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
 
       it 'includes participant_id in additional_ids' do
         expect(Kafka).to receive(:submit_event).with(
-          hash_including(additional_ids: [pid])
+          hash_including(additional_ids: ["participant_id:#{pid}"])
         )
 
         subject.send(:submit_traceability_to_event_bus, claim)
