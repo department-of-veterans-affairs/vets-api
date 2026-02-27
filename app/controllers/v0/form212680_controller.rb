@@ -9,15 +9,10 @@ module V0
     before_action :check_feature_enabled
 
     def create
-      claim = saved_claim_class.new(
-        form: filtered_params,
-        user_account_id: current_user&.user_account_uuid
-      )
-
+      claim = build_claim
       monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
 
       if claim.save
-        # NOTE: we are not calling process_attachments! because we are not submitting yet
         monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
@@ -126,6 +121,13 @@ module V0
 
     def cleanup_pdf_file(source_file_path)
       File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
+    end
+
+    def build_claim
+      saved_claim_class.new(
+        form: filtered_params,
+        user_account_id: current_user&.user_account_uuid
+      )
     end
   end
 end
