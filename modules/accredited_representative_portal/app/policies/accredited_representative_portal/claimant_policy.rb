@@ -22,7 +22,7 @@ module AccreditedRepresentativePortal
         power_of_attorney_holder_memberships:
           @user.power_of_attorney_holder_memberships
       )
-    rescue ActiveRecord::RecordNotFound
+    rescue ClaimantRepresentative::Finder::Error
       nil
     end
   end

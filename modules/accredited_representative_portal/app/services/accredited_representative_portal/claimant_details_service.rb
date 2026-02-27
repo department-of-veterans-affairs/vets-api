@@ -53,7 +53,7 @@ module AccreditedRepresentativePortal
           first_name: profile.given_names&.first,
           last_name: profile.family_name,
           birth_date: profile.birth_date,
-          ssn: profile.ssn,
+          ssn: profile.ssn&.last(4),
           phone: profile.home_phone,
           address: claimant_address(profile)
         }

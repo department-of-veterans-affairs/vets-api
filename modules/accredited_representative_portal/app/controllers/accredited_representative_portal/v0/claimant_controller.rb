@@ -3,6 +3,11 @@
 module AccreditedRepresentativePortal
   module V0
     class ClaimantController < ApplicationController
+      BENEFIT_TYPES = %w[compensation pension survivor].freeze
+
+      before_action :validate_benefit_type!, only: :show
+      before_action :ensure_claimant_details_enabled!, only: :show
+
       def search # rubocop:disable Metrics/MethodLength
         authorize nil, policy_class: ClaimantPolicy
         claimant_profile =
@@ -58,6 +63,24 @@ module AccreditedRepresentativePortal
         render json: payload
       rescue ActiveRecord::RecordNotFound
         raise Common::Exceptions::RecordNotFound, 'Claimant not found'
+      end
+
+      private
+
+      def ensure_claimant_details_enabled!
+        return if Flipper.enabled?(:accredited_representative_portal_claimant_details, current_user)
+
+        routing_error
+      end
+
+      def validate_benefit_type!
+        benefit_type = params[:benefitType]
+        return if benefit_type.blank?
+        return if BENEFIT_TYPES.include?(benefit_type)
+
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: "benefitType must be one of: #{BENEFIT_TYPES.join(', ')}"
+        )
       end
     end
   end

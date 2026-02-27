@@ -10,6 +10,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     login_as(test_user)
     travel_to(time)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+
+    allow(Flipper)
+      .to receive(:enabled?)
+      .with(:accredited_representative_portal_claimant_details, anything)
+      .and_return(feature_flag_state)
   end
 
   let!(:poa_code) { '067' }
@@ -39,6 +44,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
+
   let(:feature_flag_state) { true }
 
   describe 'GET /accredited_representative_portal/v0/claimant/search' do
@@ -159,7 +165,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
     let(:path) { "/accredited_representative_portal/v0/claimant/#{identifier_id}" }
 
-    # MPI test style aligned with other parts of the codebase
     let(:mpi_profile) do
       build(
         :mpi_profile,
@@ -182,30 +187,20 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     let(:icn) { mpi_profile.icn }
     let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    let(:itf_service) { instance_double(BenefitsClaims::Service) }
-
-    # allow have_received assertions without expect_any_instance_of
     let(:mpi_service) { instance_double(MPI::Service) }
-
     let(:claimant_details_service) { instance_double(AccreditedRepresentativePortal::ClaimantDetailsService) }
 
     before do
-      # Ensure the controller's top-level constant exists in *all* envs (CI included)
       stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
 
-      # show uses lookup_icn per review
       allow(IcnTemporaryIdentifier).to receive(:lookup_icn).with(identifier_id).and_return(icn)
 
-      # Policy: allow happy path POA check
-      allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find)
+      allow(AccreditedRepresentativePortal::ClaimantRepresentative)
+        .to receive(:find)
         .and_return(instance_double(AccreditedRepresentativePortal::ClaimantRepresentative))
 
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
       allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
-
-      # instantiates BenefitsClaims::Service per call; allow multiple instantiations.
-      allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service, itf_service, itf_service)
-      allow(itf_service).to receive(:get_intent_to_file).with(benefit_type).and_return({ 'status' => 'ok' })
 
       allow(AccreditedRepresentativePortal::ClaimantDetailsService).to receive(:new).with(
         icn:,
@@ -218,14 +213,33 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
             first_name: 'John',
             last_name: 'Smith',
             birth_date: '1980-01-01',
+            ssn: '6666', # NEW: masked
             itf: [{ 'status' => 'ok' }]
           }
         }
       )
     end
 
+    context 'when feature flag is disabled' do
+      let(:feature_flag_state) { false }
+
+      it 'returns 404 not found (routing error)' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when benefitType is invalid' do
+      let(:benefit_type) { 'burial' }
+
+      it 'returns 422 unprocessable entity' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
     context 'when the claimant exists in MPI' do
-      it 'returns claimant profile fields' do
+      it 'returns claimant profile fields (SSN masked to last 4)' do
         get(path, params: { benefitType: benefit_type }, headers: json_headers)
 
         expect(response).to have_http_status(:ok)
@@ -233,6 +247,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         expect(data['first_name']).to eq('John')
         expect(data['last_name']).to eq('Smith')
         expect(data['birth_date']).to eq('1980-01-01')
+        expect(data['ssn']).to eq('6666')
       end
 
       it 'includes itf payload' do
@@ -245,14 +260,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
     context 'when itf lookup fails' do
       before do
-        allow(itf_service).to receive(:get_intent_to_file).with(benefit_type).and_raise(StandardError, 'itf down')
-
         allow(claimant_details_service).to receive(:call).and_return(
           {
             data: {
               first_name: 'John',
               last_name: 'Smith',
               birth_date: '1980-01-01',
+              ssn: '6666',
               itf: []
             }
           }
@@ -267,6 +281,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         expect(data['first_name']).to eq('John')
         expect(data['last_name']).to eq('Smith')
         expect(data['birth_date']).to eq('1980-01-01')
+        expect(data['ssn']).to eq('6666')
         expect(data['itf']).to eq([])
       end
     end
@@ -275,7 +290,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       before do
         allow(AccreditedRepresentativePortal::ClaimantRepresentative)
           .to receive(:find)
-          .and_raise(ActiveRecord::RecordNotFound)
+          .and_raise(AccreditedRepresentativePortal::ClaimantRepresentative::Finder::Error)
       end
 
       it 'returns 403 forbidden' do
@@ -287,7 +302,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     context 'when MPI returns no profile' do
       before do
         allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile: nil))
-
         allow(claimant_details_service).to receive(:call)
           .and_raise(Common::Exceptions::RecordNotFound, 'Claimant not found')
       end
