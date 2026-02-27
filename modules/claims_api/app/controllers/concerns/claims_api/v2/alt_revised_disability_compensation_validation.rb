@@ -243,6 +243,11 @@ module ClaimsApi
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
           )
+        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA (international).'
+          )
         end
       end
 

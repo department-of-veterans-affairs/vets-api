@@ -530,6 +530,29 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         expect(res).to be_nil
       end
     end
+
+    context 'when the country is not USA and internationalPostalCode is missing' do
+      it 'returns an error array' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Canada'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = nil
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
+        expect(res[0][:detail]).to eq('The internationalPostalCode is required if the country is not USA (international).')
+        expect(res[0][:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
+      end
+    end
+
+    context 'when the country is not USA and internationalPostalCode is present' do
+      it 'responds with nil' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Japan'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
+        expect(res).to be_nil
+      end
+    end
   end
 
   describe 'validation of claimant change of address elements' do
