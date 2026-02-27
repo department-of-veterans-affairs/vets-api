@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module SurvivorsBenefits::StructuredData::Section06
-  include HasStructuredData
   ##
   # Section VI
   # Build and mergethe children of the veteran structured data entries.
@@ -80,7 +79,7 @@ module SurvivorsBenefits::StructuredData::Section06
         "CHILD_#{child_num}_DISABLED" => child['seriouslyDisabled'],
         "CHILD_#{child_num}_PREV_MARRIED" => child['hasBeenMarried'],
         "CB_CHILD#{child_num}_LIVE_WITH_OTHERS" => child['livesWith'],
-        "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => child['childSupport']
+        "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => format_currency(child['childSupport'])
       }
     )
   end

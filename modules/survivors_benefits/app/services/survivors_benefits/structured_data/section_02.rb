@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module SurvivorsBenefits::StructuredData::Section02
-  include HasStructuredData
   ##
   # Section II
   # Build and merge the claimant-specific structured data entries.

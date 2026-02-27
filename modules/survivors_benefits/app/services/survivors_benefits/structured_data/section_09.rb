@@ -37,14 +37,14 @@ module SurvivorsBenefits::StructuredData::Section09
         {
           "CB_INC_RECIPIENT#{income_num}_SP" => income['recipient'] == 'SURVIVING_SPOUSE',
           "CB_INC_RECIPIENT#{income_num}_CHILD" => income['recipient'] == 'CHILD',
-          "NAME_OF_CHILD_INCOMETYPE#{income_num}" => income['recipientName'] || '',
+          "NAME_OF_CHILD_INCOMETYPE#{income_num}" => income['recipientName'],
           "CB_INCOMETYPE#{income_num}_SS" => income['incomeType'] == 'SOCIAL_SECURITY',
           "CB_INCOMETYPE#{income_num}_PENSION" => income['incomeType'] == 'PENSION_RETIREMENT',
           "CB_INCOMETYPE#{income_num}_CIVIL" => income['incomeType'] == 'CIVIL_SERVICE',
           "CB_INCOMETYPE#{income_num}_INTEREST" => income['incomeType'] == 'INTEREST_DIVIDENDS',
           "CB_INCOMETYPE#{income_num}_OTHER" => income['incomeType'] == 'OTHER',
-          "CB_INCOMETYPE#{income_num}_OTHERSPECIFY" => income['incomeTypeOther'] || '',
-          "INCOME_PAYER_#{income_num}" => income['incomePayer'] || ''
+          "CB_INCOMETYPE#{income_num}_OTHERSPECIFY" => income['incomeTypeOther'],
+          "INCOME_PAYER_#{income_num}" => income['incomePayer']
         }
       )
     end

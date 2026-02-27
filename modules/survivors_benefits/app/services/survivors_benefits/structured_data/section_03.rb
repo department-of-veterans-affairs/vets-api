@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module SurvivorsBenefits::StructuredData::Section03
-  include HasStructuredData
   ##
   # Section III
   # Build the veteran service info structured data entries.

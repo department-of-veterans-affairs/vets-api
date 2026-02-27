@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module SurvivorsBenefits::StructuredData::Section04
-  include HasStructuredData
   ##
   # Section IV
   # Build and merge the marital information structured data entries.

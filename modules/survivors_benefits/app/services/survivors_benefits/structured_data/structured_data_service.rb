@@ -3,6 +3,7 @@
 module SurvivorsBenefits
   module StructuredData
     class StructuredDataService
+      include HasStructuredData
       include SurvivorsBenefits::StructuredData::Section01
       include SurvivorsBenefits::StructuredData::Section02
       include SurvivorsBenefits::StructuredData::Section03
@@ -12,6 +13,9 @@ module SurvivorsBenefits
       include SurvivorsBenefits::StructuredData::Section07
       include SurvivorsBenefits::StructuredData::Section08
       include SurvivorsBenefits::StructuredData::Section09
+      include SurvivorsBenefits::StructuredData::Section10
+      include SurvivorsBenefits::StructuredData::Section11
+      include SurvivorsBenefits::StructuredData::Section12
 
       attr_reader :form
       attr_accessor :fields
@@ -41,8 +45,9 @@ module SurvivorsBenefits
         merge_dic_info # Section07
         merge_nursing_home_info # Section08
         merge_income_and_assets_info # Section09
-        # merge_medical_last_burial_expenses # Section10
-        # merge_claimant_direct_deposit_fields(form['bankAccount']) # Section11
+        merge_medical_last_burial_expenses # Section10
+        merge_claimant_direct_deposit_fields(form['bankAccount']) # Section11
+        merge_claim_certification_fields # Section12
 
         fields
       end
