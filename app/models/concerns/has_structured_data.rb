@@ -125,14 +125,8 @@ module HasStructuredData
   #
   # @return [Hash]
   def build_witness_fields
-    {
-      'WITNESS_1_NAME' => nil,
-      'WITNESS_1_SIGNATURE' => nil,
-      'WITNESS_1_ADDRESS' => nil,
-      'WITNESS_2_NAME' => nil,
-      'WITNESS_2_ADDRESS' => nil,
-      'WITNESS_2_SIGNATURE' => nil
-    }
+    %w[WITNESS_1_NAME WITNESS_1_SIGNATURE WITNESS_1_ADDRESS WITNESS_2_NAME WITNESS_2_ADDRESS WITNESS_2_SIGNATURE]
+      .index_with(nil)
   end
 
   # Format a numeric amount for IBM (commas + two decimals).
@@ -142,14 +136,25 @@ module HasStructuredData
   def format_currency(value)
     return unless value
 
-    cleaned = value.to_s.gsub(/[^\d.-]/, '')
-    number = BigDecimal(cleaned)
-    formatted = format('%.2f', number)
-    parts = formatted.split('.')
-    whole = parts[0].reverse.scan(/\d{1,3}/).join(',').reverse
-    "#{whole}.#{parts[1]}"
+    number = BigDecimal(value.to_s.gsub(/[^\d.-]/, ''))
+    parts = format('%.2f', number).split('.')
+    "$#{parts[0].reverse.scan(/\d{1,3}/).join(',').reverse}.#{parts[1]}"
   rescue ArgumentError
     nil
+  end
+
+  # Build a set of IBM fields for a currency amount, breaking it into full, thousands, hundreds, and cents.
+  #
+  # @param amount [Numeric, nil]
+  # @param keys [Hash] A hash with keys :full, :thousands, :hundreds, and :cents mapping to the corresponding IBM fields
+  # @return [Hash]
+  def build_currency_fields(amount, keys)
+    {
+      keys[:full] => format_currency(amount || 0),
+      keys[:thousands] => amount ? (amount / 1000).floor : 0,
+      keys[:hundreds] => amount ? (amount.floor % 1000) : 0,
+      keys[:cents] => amount ? ((amount * 100).to_i % 100) : 0
+    }
   end
 
   # Normalize a date to MM/DD/YYYY for IBM.
@@ -172,9 +177,22 @@ module HasStructuredData
   def format_place(place)
     return unless place
 
-    city = place['city']
-    state = place['state']
-    country = place['otherCountry']
-    [city, state || country].compact.join(', ')
+    [place['city'], place['state'] || place['otherCountry']].compact.join(', ')
+  end
+
+  ##
+  # Build a yes/no pair of fields for IBM based on a boolean value.
+  #
+  # @param field [Boolean, nil]
+  # @param yes [String] The IBM field name to use for the "yes" value.
+  # @param no [String] The IBM field name to use for the "no" value.
+  # @return [Hash] A hash with the yes and no field names as keys, and boolean values indicating which one is true.
+  def y_n_pair(field, yes, no)
+    return {} if field.nil?
+
+    {
+      yes => field == true,
+      no => field == false
+    }
   end
 end
