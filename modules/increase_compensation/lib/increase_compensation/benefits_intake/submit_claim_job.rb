@@ -39,10 +39,12 @@ module IncreaseCompensation
       #
       # @return [UUID] benefits intake upload uuid
       #
-      def perform(saved_claim_id, user_account_uuid = nil, benefits_intake_service = nil)
+      def perform(saved_claim_id, user_account_uuid = nil)
         return unless Flipper.enabled?(:increase_compensation_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
+        # benefits_intake_uuid come from here
+        @intake_service ||= reset_intake_service
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
@@ -50,9 +52,6 @@ module IncreaseCompensation
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
         @ibm_payload = @claim.to_ibm
-        # benefits_intake_uuid come from here
-        @intake_service ||= benefits_intake_service
-        reset_intake_service if @intake_service.nil?
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -148,10 +147,8 @@ module IncreaseCompensation
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
-        if response.success?
-          update_form_submission_attempt # these are created in the s3 upload so update if different or on retry
-          govcio_upload
-        end
+        update_form_submission_attempt # these are created in the s3 upload so update if different or on retry
+        govcio_upload if response.success?
         raise IncreaseCompensationBenefitIntakeError, response.to_s unless response.success?
       end
 
