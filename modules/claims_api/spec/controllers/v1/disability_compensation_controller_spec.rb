@@ -105,6 +105,10 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
   end
 
   describe '#upload_form_526' do
+    def upload_form_526!
+      subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+    end
+
     let(:pending_claim) do
       create(
         :auto_established_claim,
@@ -117,7 +121,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         'application/pdf'
       )
     end
-    let(:request_params) do
+    let(:upload_form_526_params) do
       ActionController::Parameters.new(
         'id' => pending_claim&.id || '123',
         'attachment' => attachment
@@ -135,7 +139,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
     before do
       allow(controller).to receive(:claims_v1_logging)
       allow(controller).to receive(:render)
-      allow(controller).to receive(:params).and_return(request_params)
+      allow(controller).to receive(:params).and_return(upload_form_526_params)
     end
 
     describe 'with FES service enabled' do
@@ -148,7 +152,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         let(:auto_cest_pdf_generation_disabled) { false }
 
         it 'throws an UnprocessableEntity error with the expected detail message' do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
               expect(error.errors.first.detail.squish).to eq(field_required_error)
             }
@@ -163,7 +167,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         end
 
         it 'calls the FES claim establishment and upload method' do
-          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          upload_form_526!
           expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(
             :perform_async
           ).with(pending_claim&.id).once
@@ -172,7 +176,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         it 'does not call the ClaimEstablisher and ClaimUploader jobs' do
           allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
           allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
-          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          upload_form_526!
           expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
           expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async)
         end
@@ -183,7 +187,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
             expect(args[:json].serializable_hash[:data][:id]).to eq(pending_claim.id)
           end
 
-          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          upload_form_526!
         end
       end
 
@@ -191,7 +195,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         let(:auto_cest_pdf_generation_disabled) { nil }
 
         it "returns a 'resource not found' error" do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
               expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
@@ -202,7 +206,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         let(:pending_claim) { create(:auto_established_claim, form_data: {}) }
 
         it "returns a 'resource not found' error" do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
               expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
@@ -215,7 +219,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         end
 
         it "returns a 'resource not found' error" do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
               expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
@@ -233,7 +237,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         let(:auto_cest_pdf_generation_disabled) { false }
 
         it 'throws an UnprocessableEntity error with the expected detail message' do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
               expect(error.errors.first.detail.squish).to eq(field_required_error)
             }
@@ -249,7 +253,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         end
 
         it 'calls the claim establishment and upload method' do
-          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          upload_form_526!
           expect(ClaimsApi::ClaimEstablisher).to have_received(
             :perform_async
           ).with(pending_claim.id).once
@@ -260,7 +264,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
         it 'does not call the FES Form526EstablishmentUpload job' do
           allow(ClaimsApi::V1::Form526EstablishmentUpload).to receive(:perform_async)
-          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          upload_form_526!
           expect(ClaimsApi::V1::Form526EstablishmentUpload).not_to have_received(:perform_async)
         end
 
@@ -270,7 +274,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
             expect(args[:json].serializable_hash[:data][:id]).to eq(pending_claim.id)
           end
 
-          subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+          upload_form_526!
         end
       end
 
@@ -278,7 +282,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         let(:auto_cest_pdf_generation_disabled) { nil }
 
         it "returns a 'resource not found' error" do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
               expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
@@ -289,7 +293,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         let(:pending_claim) { create(:auto_established_claim, form_data: {}) }
 
         it "returns a 'resource not found' error" do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
               expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
@@ -302,7 +306,7 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
         end
 
         it "returns a 'resource not found' error" do
-          expect { subject.send(:upload_form_526) } # rubocop:disable Naming/VariableNumber
+          expect { upload_form_526! }
             .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
               expect(error.errors.first.detail.squish).to eq(not_found_error)
             }
