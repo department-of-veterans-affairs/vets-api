@@ -5,19 +5,18 @@ require_relative 'vcr_endpoint_matchers'
 require 'support/disability_compensation/service_configuration_helper'
 
 module SubmitAllClaimSpec
-  module Helper # rubocop:disable Metrics/ModuleLength
+  module Helper
     extend ActiveSupport::Concern
     include DisabilityCompensation::ServiceConfigurationHelper
 
     class_methods do
-      def define_example(description, **metadata, &) # rubocop:disable Metrics/MethodLength
+      def define_example(description, **metadata, &)
         definition = ExampleDefinition.build!(&)
         metadata = { caller: caller(1, 1) }.merge(metadata)
 
         it description, **metadata do
           definition.before and instance_exec(&definition.before)
-          user = build(:user, :loa3, icn: definition.user_icn)
-          sign_in_as(user)
+          sign_in_as(build(:user, :loa3, icn: definition.user_icn))
 
           VCR.use_cassette(CASSETTE_PATH_PREFIX / description, VCR_OPTIONS) do |cassette|
             Sidekiq::Testing.inline! do
@@ -132,16 +131,9 @@ module SubmitAllClaimSpec
         # TODO: Explain this.
         #
         ARTIFICIAL_TOGGLE_VALUES.each do |toggle, value|
-          toggles = [
-            toggle.to_sym,
-            toggle.to_s
-          ]
-
-          toggles.each do |t|
+          [toggle.to_sym, toggle.to_s].each do |t|
             allow(Flipper).to(
-              receive(:enabled?)
-                .with(t, any_args)
-                .and_return(value)
+              receive(:enabled?).with(t, any_args).and_return(value)
             )
           end
         end
