@@ -10,24 +10,19 @@ module V0
     before_action :load_user
     before_action :check_feature_enabled
 
-    # rubocop:disable Metrics/MethodLength
     def create
-      claim = saved_claim_class.new(form: filtered_params)
-
+      claim = build_claim
       monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
 
       if claim.save
         claim.process_attachments!
-
         monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
-
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
         raise Common::Exceptions::ValidationErrors, claim
       end
     rescue Common::Exceptions::ValidationErrors => e
-      # Track ActiveRecord validation errors
       monitor.track_request_validation_error(error: e, request:, claim:)
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
       raise
@@ -35,29 +30,15 @@ module V0
       monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
       raise
     ensure
-      if response.status
-        monitor.track_request_code(
-          response.status,
-          action: 'create',
-          user_uuid: current_user&.uuid,
-          claim_guid: claim&.guid
-        )
-      end
+      track_response_code('create', claim)
     end
-    # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength
     def download_pdf
       pdf_start_time = Time.current
-
       claim = saved_claim_class.find_by!(guid: params[:guid])
 
-      source_file_path = with_retries('Generate 21-0779 PDF') { claim.to_pdf }
-
-      unless source_file_path
-        raise Common::Exceptions::InternalServerError,
-              ArgumentError.new('Failed to generate PDF')
-      end
+      source_file_path = generate_pdf_with_retry(claim)
+      validate_pdf_generated!(source_file_path)
 
       monitor.track_pdf_generation_success(pdf_start_time)
       send_data File.read(source_file_path),
@@ -69,16 +50,9 @@ module V0
     rescue => e
       handle_pdf_generation_error(e)
     ensure
-      if response.status
-        monitor.track_request_code(
-          response.status,
-          action: 'download_pdf',
-          user_uuid: current_user&.uuid
-        )
-      end
-      File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
+      track_response_code('download_pdf')
+      cleanup_pdf_file(source_file_path)
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -115,6 +89,36 @@ module V0
 
     def monitor
       @monitor ||= Form210779::Monitor.new
+    end
+
+    def build_claim
+      saved_claim_class.new(form: filtered_params)
+    end
+
+    def generate_pdf_with_retry(claim)
+      with_retries('Generate 21-0779 PDF') { claim.to_pdf }
+    end
+
+    def validate_pdf_generated!(source_file_path)
+      return if source_file_path
+
+      raise Common::Exceptions::InternalServerError,
+            ArgumentError.new('Failed to generate PDF')
+    end
+
+    def track_response_code(action, claim = nil)
+      return unless response.status
+
+      monitor.track_request_code(
+        response.status,
+        action:,
+        user_uuid: current_user&.uuid,
+        claim_guid: claim&.guid
+      )
+    end
+
+    def cleanup_pdf_file(source_file_path)
+      File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
   end
 end
