@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 85c8e3f3def88f2aef09a0dae1f34c9e554baf3a
+  revision: 22e03a18004294ea1c60f32b4bd6df88d7c0da3e
   branch: master
   specs:
-    vets_json_schema (25.2.50)
+    vets_json_schema (25.2.51)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -302,7 +302,7 @@ GEM
     blueprinter (1.2.1)
     bootsnap (1.22.0)
       msgpack (~> 1.2)
-    brakeman (8.0.2)
+    brakeman (8.0.4)
       racc
     breakers (1.0)
       base64 (~> 0.2)
