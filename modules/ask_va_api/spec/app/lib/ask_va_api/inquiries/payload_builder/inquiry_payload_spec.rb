@@ -39,6 +39,43 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
       end
     end
 
+    context 'when logging inquiry context' do
+      let(:params) do
+        inquiry_params[:inquiry].merge(
+          business_phone: '3035551212',
+          email_address: nil
+        )
+      end
+
+      it 'logs expected context fields' do
+        expect(Rails.logger).to receive(:info).with(
+          'Inquiry Context',
+          hash_including(
+            attachments: true,
+            business_email_domain: '.gov',
+            category: inquiry_params[:inquiry][:select_category],
+            has_business_email: true,
+            has_business_phone: true,
+            has_personal_email: false,
+            has_personal_phone: true,
+            is_question_about_veteran_or_someone_else:
+              inquiry_params[:inquiry][:is_question_about_veteran_or_someone_else],
+            level_of_authentication: inquiry_details[:level_of_authentication],
+            personal_email_domain: nil,
+            relationship_to_veteran: inquiry_params[:inquiry][:relationship_to_veteran],
+            subtopic: inquiry_params[:inquiry][:select_subtopic],
+            topic: inquiry_params[:inquiry][:select_topic],
+            user_is_authenticated: true,
+            user_loa: authorized_user.loa.fetch(:current, nil),
+            who: inquiry_params[:inquiry][:who_is_your_question_about],
+            your_role: inquiry_params[:inquiry][:your_role]
+          )
+        )
+
+        builder.call
+      end
+    end
+
     context 'when your_health_facility is nil' do
       let(:params) { i_am_veteran_edu[:inquiry] }
 

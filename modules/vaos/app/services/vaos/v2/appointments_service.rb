@@ -113,6 +113,14 @@ module VAOS
 
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
+        if Flipper.enabled?(:va_online_scheduling_log_mobile, user) && tp_client == 'mobile'
+          # Log upcoming mobile appointments when feature flag is enabled
+          # Appointments have already been prepared so can check :pending (and also determine)
+          # if :pending can be used in the later adapter
+          some_appointments = appointments.any? { |appt| appt[:pending] == true }
+          Rails.logger.info("VAOS: include: #{include} statuses: #{statuses} pending?: #{some_appointments}")
+        end
+
         # Merge travel claims - either from parallel fetch or sequential fetch
         if should_fetch_travel_claims
           appointments = if parallelize_fetch && travel_claims_result
