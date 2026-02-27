@@ -31,7 +31,9 @@ module Auth
       def self.generate_token(client_id, aud_claim_url, key_location, kid = nil)
         p "~~~~~ jwt_generator for service_history #generate_token, #{[client_id, aud_claim_url, key_location, kid]}"
         claims = build_claims(client_id, aud_claim_url)
+        p "~~~~~ jwt_generator for service_history #generate_token claims, #{claims}"
         rsa_instance = build_rsa_instance(key_location)
+        p "~~~~~ jwt_generator for service_history #generate_token rsa_instance, #{rsa_instance}"
         headers = {}
         headers[:kid] = kid if kid.present?
 
