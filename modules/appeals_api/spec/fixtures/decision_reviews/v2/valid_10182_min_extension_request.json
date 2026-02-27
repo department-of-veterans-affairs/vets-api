@@ -1,0 +1,30 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "homeless": true,
+        "phone": {
+          "phoneNumber": "8001111"
+        },
+        "email": "clause@north.com",
+        "timezone": "America/Chicago"
+      },
+      "boardReviewOption": "evidence_submission",
+      "requestingExtension": true,
+      "extensionReason": "good cause substantive reason",
+      "appealingVhaDenial": false
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2"
+      }
+    }
+  ]
+}
