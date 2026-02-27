@@ -22,6 +22,8 @@ module DependentsBenefits
     MODULE_STATS_KEY = 'module.dependents_benefits'
     # statsd key for pension-related submissions
     PENSION_SUBMISSION_STATS_KEY = 'dependents_benefits.pension_submission'
+    # statsd key for no SSN claims
+    NO_SSN_SUBMISSION_STATS_KEY = 'dependents_benefits.no_ssn_claims'
 
     # Allowed context keys for logging
     ALLOWLIST = %w[
