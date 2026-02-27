@@ -7,7 +7,13 @@ module Forms
     module Gateways
       class IvcChampvaGateway < BaseGateway
         def submissions
-          return [] if options[:user_email].blank?
+          if options[:user_email].blank?
+            Rails.logger.info(
+              'Skipping IVC CHAMPVA submission status lookup due to missing user email',
+              service: 'ivc_champva'
+            )
+            return []
+          end
 
           IvcChampvaForm.where(email: options[:user_email]).order(created_at: :asc).to_a
         end

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'forms/submission_statuses/dataset'
+require 'forms/submission_statuses/error_handler'
 require 'forms/submission_statuses/gateways/ivc_champva_gateway'
 
 describe Forms::SubmissionStatuses::Gateways::IvcChampvaGateway,
@@ -21,8 +23,13 @@ describe Forms::SubmissionStatuses::Gateways::IvcChampvaGateway,
 
     it 'returns empty list when user email is missing' do
       gateway = described_class.new(user_account:, user_email: nil)
+      allow(Rails.logger).to receive(:info)
 
       expect(gateway.submissions).to eq([])
+      expect(Rails.logger).to have_received(:info).with(
+        'Skipping IVC CHAMPVA submission status lookup due to missing user email',
+        hash_including(service: 'ivc_champva')
+      )
     end
   end
 
