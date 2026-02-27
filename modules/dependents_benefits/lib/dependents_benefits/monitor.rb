@@ -205,10 +205,31 @@ module DependentsBenefits
     def get_use_v3_removal(claim)
       return false if claim.nil?
 
-      parsed_form = claim.parsed_form
+      # The code below is really just for spec purposes, since in prod the claim.parsed_form should always be present
+      # and return a Hash object. If for some reason it doesn't, we don't want the entire monitor to fail,
+      # so we rescue and return false.
+      begin
+        parsed_form = claim.parsed_form
+      rescue
+        return false
+      end
+
       return false if parsed_form.nil?
 
-      parsed_form['is_v3_removal_flow'] || false
+      # Handle parsed_form being a JSON string, nil, or a Hash-like object
+      parsed = if parsed_form.is_a?(String)
+                 begin
+                   JSON.parse(parsed_form)
+                 rescue JSON::ParserError
+                   {}
+                 end
+               else
+                 parsed_form
+               end
+
+      parsed = parsed.with_indifferent_access if parsed.respond_to?(:with_indifferent_access)
+
+      !!parsed['is_v3_removal_flow']
     end
 
     ##
