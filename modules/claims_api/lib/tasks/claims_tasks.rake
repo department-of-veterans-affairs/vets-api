@@ -61,23 +61,23 @@ namespace :claims do
                              middle_name[0]
                            end
 
-          Logger.info("Sending claim #{claim_id} to DisabilityCompensationPdfGenerator job")
+          Rails.logger.info("Sending claim #{claim_id} to DisabilityCompensationPdfGenerator job")
           ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_inline(claim.id, middle_initial)
         else
-          Logger.info("Sending claim #{claim_id} to ClaimEstablisher job")
+          Rails.logger.info("Sending claim #{claim_id} to ClaimEstablisher job")
           ClaimsApi::ClaimEstablisher.perform_inline(claim.id)
         end
 
       elsif claim.form_data.present? && claim.form_data['autoCestPDFGenerationDisabled'] == true
         # if FES enabled, use Form526EstablishmentUpload service
         if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
-          Logger.info("Sending claim #{claim_id} to Form526EstablishmentUpload job")
-          ClaimsApi::Form526EstablishmentUpload.perform_inline(claim.id)
+          Rails.logger.info("Sending claim #{claim_id} to Form526EstablishmentUpload job")
+          ClaimsApi::V1::Form526EstablishmentUpload.perform_inline(claim.id)
         # else use ClaimEstablisher and ClaimUploader
         else
-          Logger.info("Sending claim #{claim_id} to ClaimEstablisher job")
+          Rails.logger.info("Sending claim #{claim_id} to ClaimEstablisher job")
           ClaimsApi::ClaimEstablisher.perform_inline(claim.id)
-          Logger.info("Sending claim #{claim_id} to ClaimUploader job")
+          Rails.logger.info("Sending claim #{claim_id} to ClaimUploader job")
           ClaimsApi::ClaimUploader.perform_inline(claim.id, 'claim')
         end
 
