@@ -2,7 +2,6 @@
 
 require 'zero_silent_failures/monitor'
 require 'logging/base_monitor'
-require 'json'
 
 module Dependents
   ##
