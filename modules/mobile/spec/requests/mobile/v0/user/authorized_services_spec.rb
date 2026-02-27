@@ -182,7 +182,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
     context 'when user has no ICN' do
       let!(:user) { sis_user(vha_facility_ids: [402, 555], icn: nil) }
 
-      it 'excludes cstMultiClaimProvider' do
+      it 'returns false for cstMultiClaimProvider' do
         get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                    params: { 'appointmentIEN' => '123', 'locationId' => '123' }
         assert_schema_conform(200)
