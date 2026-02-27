@@ -538,7 +538,8 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
         subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
         res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
-        expect(res[0][:detail]).to eq('The internationalPostalCode is required if the country is not USA (international).')
+        expect(res[0][:detail])
+          .to eq('The internationalPostalCode is required if the country is not USA (international).')
         expect(res[0][:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
       end
     end
