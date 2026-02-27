@@ -68,20 +68,20 @@ module SurvivorsBenefits::StructuredData::Section06
   def build_child(child, child_num)
     child_name = build_name(child['childFullName'])
     fields.merge!(
-        {
-          "NAME_OF_CHILD_#{child_num}" => child_name[:full],
-          "FIRST_NAME_OF_CHILD_#{child_num}" => child_name[:first],
-          "MID_INT_OF_CHILD_#{child_num}" => child_name[:middle_initial],
-          "LAST_NAME_OF_CHILD_#{child_num}" => child_name[:last],
-          "DATE_OF_BIRTH_CHILD_#{child_num}" => format_date(child['childDateOfBirth']),
-          "CHILD_#{child_num}_SSN" => child['childSocialSecurityNumber'],
-          "PLACE_OF_BIRTH_CHILD_#{child_num}" => format_place(child['birthPlace']),
-          "CHILD_#{child_num}_18_TO_23" => child['inSchool'],
-          "CHILD_#{child_num}_DISABLED" => child['seriouslyDisabled'],
-          "CHILD_#{child_num}_PREV_MARRIED" => child['hasBeenMarried'],
-          "CB_CHILD#{child_num}_LIVE_WITH_OTHERS" => child['livesWith'],
-          "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => child['childSupport']
-        }
-      )
+      {
+        "NAME_OF_CHILD_#{child_num}" => child_name[:full],
+        "FIRST_NAME_OF_CHILD_#{child_num}" => child_name[:first],
+        "MID_INT_OF_CHILD_#{child_num}" => child_name[:middle_initial],
+        "LAST_NAME_OF_CHILD_#{child_num}" => child_name[:last],
+        "DATE_OF_BIRTH_CHILD_#{child_num}" => format_date(child['childDateOfBirth']),
+        "CHILD_#{child_num}_SSN" => child['childSocialSecurityNumber'],
+        "PLACE_OF_BIRTH_CHILD_#{child_num}" => format_place(child['birthPlace']),
+        "CHILD_#{child_num}_18_TO_23" => child['inSchool'],
+        "CHILD_#{child_num}_DISABLED" => child['seriouslyDisabled'],
+        "CHILD_#{child_num}_PREV_MARRIED" => child['hasBeenMarried'],
+        "CB_CHILD#{child_num}_LIVE_WITH_OTHERS" => child['livesWith'],
+        "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => child['childSupport']
+      }
+    )
   end
 end

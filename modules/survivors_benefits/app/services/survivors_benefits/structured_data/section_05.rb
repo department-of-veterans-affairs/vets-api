@@ -29,14 +29,14 @@ module SurvivorsBenefits::StructuredData::Section05
       merge_spouse_name_fields(marriage['spouseFullName'], indv_l, marriage_num)
       merge_previous_marriage_separation_type_fields(indv_s, marriage['reasonForSeparation'], marriage_num)
       fields.merge!(
-          {
-            "#{indv_m}_MARR#{marriage_num}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
-            "#{indv_l}_MARRIAGE_#{marriage_num}_DATE" => format_date(marriage['dateOfMarriage']),
-            "#{indv_l}_MARRIAGE_#{marriage_num}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
-            "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE" => marriage['locationOfMarriage'],
-            "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE_ENDED" => marriage['locationOfSeparation']
-          }
-        )
+        {
+          "#{indv_m}_MARR#{marriage_num}_ENDED_OTHEREXPLAIN" => marriage['reasonForSeparationExplanation'],
+          "#{indv_l}_MARRIAGE_#{marriage_num}_DATE" => format_date(marriage['dateOfMarriage']),
+          "#{indv_l}_MARRIAGE_#{marriage_num}_DATE_ENDED" => format_date(marriage['dateOfSeparation']),
+          "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE" => marriage['locationOfMarriage'],
+          "#{indv_l}_MARRIAGE_#{marriage_num}_PLACE_ENDED" => marriage['locationOfSeparation']
+        }
+      )
     end
   end
 
