@@ -4,10 +4,10 @@ require 'survivors_benefits/benefits_intake/submit_claim_job'
 require 'pdf_fill/filler'
 
 module SurvivorsBenefits
+  # SurvivorsBenefits 21P-534EZ Active::Record
+  # @see app/model/saved_claim
+  #
   class SavedClaim < ::SavedClaim
-    # SurvivorsBenefits 21P-534EZ Active::Record
-    # @see app/model/saved_claim
-    #
     include HasStructuredData
 
     # Survivors Benefits Form ID
