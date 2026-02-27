@@ -3028,9 +3028,6 @@ features:
     actor_type: user
     description: Enable debug logging for Facilities API for errors
     enable_in_development: false
-  vets_model_nested_array:
-    actor_type: user
-    description: If enabled, allows Vets::Model to serialize nested array of objects
   vre_form_submission_tracking:
     actor_type: user
     description: If enabled, track form submissions for VR&E application Form 28-1900
