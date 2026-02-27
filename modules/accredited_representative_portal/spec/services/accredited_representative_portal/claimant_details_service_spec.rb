@@ -46,6 +46,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
     allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
 
+    # The service instantiates a new BenefitsClaims::Service per ITF call; returning
+    # a fresh double each time keeps the spec aligned with that behavior.
     allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service)
 
     # Factory sometimes normalizes/overrides address; ensure the service sees what it expects.
@@ -55,6 +57,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
   describe '#call' do
     context 'when MPI returns a profile and ITF lookup succeeds' do
       before do
+        allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service)
         allow(itf_service).to receive(:get_intent_to_file).with('compensation').and_return({ 'status' => 'ok' })
       end
 
@@ -88,18 +91,33 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
     context 'when benefit_type_param is nil' do
       let(:benefit_type_param) { nil }
 
+      let(:itf_service_comp) { instance_double(BenefitsClaims::Service) }
+      let(:itf_service_pension) { instance_double(BenefitsClaims::Service) }
+      let(:itf_service_survivor) { instance_double(BenefitsClaims::Service) }
+
       before do
-        allow(itf_service).to receive(:get_intent_to_file).with('compensation').and_return({ 'type' => 'comp' })
-        allow(itf_service).to receive(:get_intent_to_file).with('pension').and_return({ 'type' => 'pension' })
-        allow(itf_service).to receive(:get_intent_to_file).with('survivor').and_return({ 'type' => 'survivor' })
+        allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(
+          itf_service_comp,
+          itf_service_pension,
+          itf_service_survivor
+        )
+
+        allow(itf_service_comp).to receive(:get_intent_to_file).with('compensation').and_return({ 'type' => 'comp' })
+        allow(itf_service_pension).to receive(:get_intent_to_file).with('pension').and_return({ 'type' => 'pension' })
+        allow(itf_service_survivor)
+          .to receive(:get_intent_to_file)
+          .with('survivor')
+          .and_return({ 'type' => 'survivor' })
       end
 
       it 'requests all supported ITF types and returns them as an array' do
         payload = service_call
 
-        expect(itf_service).to have_received(:get_intent_to_file).with('compensation')
-        expect(itf_service).to have_received(:get_intent_to_file).with('pension')
-        expect(itf_service).to have_received(:get_intent_to_file).with('survivor')
+        expect(BenefitsClaims::Service).to have_received(:new).with(icn).exactly(3).times
+
+        expect(itf_service_comp).to have_received(:get_intent_to_file).with('compensation')
+        expect(itf_service_pension).to have_received(:get_intent_to_file).with('pension')
+        expect(itf_service_survivor).to have_received(:get_intent_to_file).with('survivor')
 
         itfs = payload.dig(:data, :itf)
         expect(itfs).to contain_exactly(
@@ -111,8 +129,12 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
     end
 
     context 'when ITF lookup raises' do
+      let(:itf_service_raising) { instance_double(BenefitsClaims::Service) }
+
       before do
-        allow(itf_service).to receive(:get_intent_to_file).with('compensation').and_raise(StandardError, 'itf down')
+        allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service_raising)
+        allow(itf_service_raising).to receive(:get_intent_to_file).with('compensation').and_raise(StandardError,
+                                                                                                  'itf down')
       end
 
       it 'logs and returns an empty itf array' do

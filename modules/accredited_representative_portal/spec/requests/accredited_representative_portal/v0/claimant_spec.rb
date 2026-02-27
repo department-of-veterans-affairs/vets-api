@@ -187,7 +187,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     # allow have_received assertions without expect_any_instance_of
     let(:mpi_service) { instance_double(MPI::Service) }
 
-    # NEW: service double (controller now delegates to this)
     let(:claimant_details_service) { instance_double(AccreditedRepresentativePortal::ClaimantDetailsService) }
 
     before do
@@ -201,14 +200,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find)
         .and_return(instance_double(AccreditedRepresentativePortal::ClaimantRepresentative))
 
-      # Keep existing stubs (even if controller no longer calls these directly)
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
       allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
 
-      allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service)
+      # instantiates BenefitsClaims::Service per call; allow multiple instantiations.
+      allow(BenefitsClaims::Service).to receive(:new).with(icn).and_return(itf_service, itf_service, itf_service)
       allow(itf_service).to receive(:get_intent_to_file).with(benefit_type).and_return({ 'status' => 'ok' })
 
-      # NEW: default happy-path service behavior
       allow(AccreditedRepresentativePortal::ClaimantDetailsService).to receive(:new).with(
         icn:,
         benefit_type_param: benefit_type
@@ -247,10 +245,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
     context 'when itf lookup fails' do
       before do
-        # keep your old stub (even if unused now)
         allow(itf_service).to receive(:get_intent_to_file).with(benefit_type).and_raise(StandardError, 'itf down')
 
-        # what matters now: service returns empty itf array
         allow(claimant_details_service).to receive(:call).and_return(
           {
             data: {
@@ -263,7 +259,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         )
       end
 
-      it 'still returns claimant profile fields and itf is nil' do
+      it 'still returns claimant profile fields and itf is an empty array' do
         get(path, params: { benefitType: benefit_type }, headers: json_headers)
 
         expect(response).to have_http_status(:ok)
@@ -290,10 +286,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
     context 'when MPI returns no profile' do
       before do
-        # keep your old stub (even if unused now)
         allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile: nil))
 
-        # what matters now: service raises not found
         allow(claimant_details_service).to receive(:call)
           .and_raise(Common::Exceptions::RecordNotFound, 'Claimant not found')
       end
