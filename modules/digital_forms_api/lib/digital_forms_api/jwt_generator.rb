@@ -13,7 +13,7 @@ module DigitalFormsApi
   # > token = encoder.encode_jwt
   class JwtGenerator
     # Algorithm used to encode and decode the JWT
-    ALGORITHM = 'HS256'
+    ALGORITHM = 'RS256'
 
     # Issuer assigned
     ISSUER = 'VAGOV'
