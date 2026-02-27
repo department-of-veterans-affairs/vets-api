@@ -28,7 +28,7 @@
     },
     "student_information": [
       {
-      "student_networth_information": {
+        "student_networth_information": {
           "savings": "1.00",
           "securities": "10000.00",
           "real_estate": "1000.00",
@@ -61,7 +61,7 @@
             "term_begin": "2025-01-12",
             "date_term_ended": "2025-05-22"
           },
-          "name": "Quest for Knowledge Trade programs"
+          "name": "Name of School"
         },
         "was_married": true,
         "marriage_date": "2023-07-04",
@@ -74,8 +74,9 @@
           "state": "AL",
           "postal_code": "12345"
         },
-        "student_income": "N",
-        "ssn": "000000000",
+        "student_income": false,
+        "no_ssn": true,
+        "no_ssn_reason": "Nonresident Alien",
         "full_name": {
           "first": "Student",
           "middle": "",
@@ -94,7 +95,7 @@
     ],
     "child_stopped_attending_school": [
       {
-        "dependent_income": "N",
+        "dependent_income": false,
         "date_child_left_school": "2020-05-19",
         "full_name": {
           "first": "Jane",

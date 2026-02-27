@@ -158,10 +158,12 @@ module Vass
 
     ##
     # Retrieves a specific appointment.
+    # Transforms topics from VASS format (skill_id/skill_name) to
+    # frontend format (topic_id/topic_name).
     #
     # @param appointment_id [String] Appointment ID to retrieve
     #
-    # @return [Hash] Appointment data
+    # @return [Hash] Appointment data with transformed topics
     #
     # @example
     #   service.get_appointment(appointment_id: 'appt-123')
@@ -172,7 +174,8 @@ module Vass
         appointment_id:
       )
 
-      parse_response(response)
+      parsed = parse_response(response)
+      transform_appointment_topics(parsed)
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
            Common::Client::Errors::ClientError => e
@@ -266,20 +269,25 @@ module Vass
     end
 
     ##
-    # Retrieves available agent skills for appointment scheduling.
+    # Retrieves available topics for appointment scheduling.
+    # Transforms VASS API response format (skill_id/skill_name) to
+    # frontend format (topic_id/topic_name).
     #
-    # @return [Hash] Response with success flag and agent skills data
+    # @return [Array<Hash>] Topics with topic_id and topic_name
     #
     # @example
-    #   service.get_agent_skills
+    #   service.get_topics
+    #   # => [{ 'topic_id' => 'abc-123', 'topic_name' => 'Benefits' }]
     #
-    def get_agent_skills
+    def get_topics
       response = client.get_agent_skills
-      parse_response(response)
+      parsed = parse_response(response)
+      raw_topics = parsed.dig('data', 'agent_skills') || []
+      map_topics_for_frontend(raw_topics)
     rescue Vass::ServiceException,
            Common::Exceptions::GatewayTimeout,
            Common::Client::Errors::ClientError => e
-      handle_error(e, 'get_agent_skills')
+      handle_error(e, 'get_topics')
     end
 
     ##
@@ -299,6 +307,41 @@ module Vass
     end
 
     private
+
+    ##
+    # Maps topics from the VASS client format to the frontend format.
+    # Upstream VASS responses use camelCase fields (skillId/skillName), which are
+    # converted to snake_case (skill_id/skill_name) by Faraday's snakecase middleware.
+    # This method expects the already-snake_cased hashes and maps skill_id/skill_name
+    # to topic_id/topic_name for consumption by the frontend.
+    #
+    # @param raw_topics [Array<Hash>] Topics after middleware, with skill_id/skill_name
+    # @return [Array<Hash>] Topics with topic_id/topic_name for frontend
+    #
+    def map_topics_for_frontend(raw_topics)
+      raw_topics.map do |topic|
+        {
+          'topic_id' => topic['skill_id'],
+          'topic_name' => topic['skill_name']
+        }
+      end
+    end
+
+    ##
+    # Transforms agent_skills within an appointment response to topics.
+    # VASS returns agentSkills (camelCase), which becomes agent_skills after snakecase middleware.
+    # This transforms to topics with topic_id/topic_name for the frontend.
+    #
+    # @param response [Hash] Parsed appointment response from VASS
+    # @return [Hash] Response with agent_skills transformed to topics
+    #
+    def transform_appointment_topics(response)
+      return response unless response.dig('data', 'agent_skills')
+
+      raw_topics = response['data'].delete('agent_skills')
+      response['data']['topics'] = map_topics_for_frontend(raw_topics)
+      response
+    end
 
     ##
     # Formats a date/time object to ISO8601 format for VASS API.

@@ -7,14 +7,14 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
   before do
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(mock_monitor)
-    allow(mock_monitor).to receive(:track_processor_info)
-    allow(mock_monitor).to receive(:track_processor_error)
-    allow(mock_monitor).to receive(:track_pension_related_submission)
+    allow(mock_monitor).to receive(:track_info_event)
+    allow(mock_monitor).to receive(:track_error_event)
 
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(processor).to receive(:collect_child_claims).and_return([form_686_claim, form_674_claim])
   end
 
+  let(:component) { described_class.name }
   let(:parent_claim) { create(:dependents_claim) }
   let(:form_674_claim) { create(:student_claim) }
   let(:form_686_claim) { create(:add_remove_dependents_claim) }
@@ -53,17 +53,83 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
     it 'monitors submissions' do
       processor.enqueue_submissions
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Starting claim submission processing', 'start', { parent_claim_id: }
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Starting claim submission processing',
+        action: 'start',
+        component:,
+        parent_claim_id:
       )
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Successfully enqueued all submission jobs', 'enqueue_success', { parent_claim_id:, jobs_count: 2 }
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Successfully enqueued all submission jobs',
+        action: 'enqueue_success',
+        component:,
+        parent_claim_id:,
+        jobs_count: 2
+      )
+    end
+
+    it 'monitors pension-related submissions' do
+      allow(form_686_claim).to receive_messages(
+        pension_related_submission?: true,
+        no_ssn_claim?: false
+      )
+      allow(form_674_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+
+      processor.enqueue_submissions
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Submitted pension-related claim',
+        action: 'pension.submission',
+        component:,
+        parent_claim_id:,
+        form_type: parent_claim.claim_form_type,
+        module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
+      )
+    end
+
+    it 'monitors no-SSN claim submissions' do
+      allow(form_686_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: true
+      )
+      allow(form_674_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+
+      processor.enqueue_submissions
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Submitted no-SSN claim',
+        action: 'no_ssn_claim.submission',
+        component:,
+        parent_claim_id:,
+        form_type: parent_claim.claim_form_type,
+        module_stats_key: DependentsBenefits::Monitor::NO_SSN_SUBMISSION_STATS_KEY
+      )
+    end
+
+    it 'does not monitor no-SSN claim submissions when no child claims have no SSN' do
+      allow(form_686_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+      allow(form_674_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+
+      processor.enqueue_submissions
+      expect(mock_monitor).not_to have_received(:track_info_event).with(
+        'Submitted no-SSN claim',
+        hash_including(action: 'no_ssn_claim.submission')
       )
     end
 
     it 'handles enqueue failures' do
       error = StandardError.new('Enqueue failed')
-      allow(mock_monitor).to receive(:track_processor_info).and_raise(error)
+      allow(mock_monitor).to receive(:track_info_event).and_raise(error)
 
       expect(processor).to receive(:handle_enqueue_failure).with(error)
       expect { processor.enqueue_submissions }.to raise_error(StandardError, 'Enqueue failed')
@@ -83,8 +149,12 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       result = processor.send(:collect_child_claims)
 
       expect(result).to contain_exactly(form_674_claim, form_686_claim)
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Collected child claims for processing', 'collect_children', { parent_claim_id:, child_claims_count: 2 }
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Collected child claims for processing',
+        action: 'collect_children',
+        component:,
+        parent_claim_id:,
+        child_claims_count: 2
       )
     end
 
@@ -102,10 +172,14 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     it 'tracks failure' do
       error = StandardError.new('Original error')
       allow(SavedClaimGroup).to receive(:find_by).and_return(claim_group)
-      allow(mock_monitor).to receive(:track_processor_error)
+      allow(mock_monitor).to receive(:track_error_event)
 
-      expect(mock_monitor).to receive(:track_processor_error).with(
-        'Failed to enqueue submission jobs', 'enqueue_failure', instance_of(Hash)
+      expect(mock_monitor).to receive(:track_error_event).with(
+        'Failed to enqueue submission jobs',
+        action: 'enqueue_failure',
+        component:,
+        parent_claim_id:,
+        error: 'Original error'
       )
 
       processor.send(:handle_enqueue_failure, error)
@@ -115,13 +189,21 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
     it 'logs any errors during failure handling' do
       error = StandardError.new('Original error')
       allow(SavedClaimGroup).to receive(:find_by).and_raise(StandardError.new('DB error'))
-      allow(mock_monitor).to receive(:track_processor_error)
+      allow(mock_monitor).to receive(:track_error_event)
 
-      expect(mock_monitor).to receive(:track_processor_error).with(
-        'Failed to enqueue submission jobs', 'enqueue_failure', { parent_claim_id:, error: 'Original error' }
+      expect(mock_monitor).to receive(:track_error_event).with(
+        'Failed to enqueue submission jobs',
+        action: 'enqueue_failure',
+        component:,
+        parent_claim_id:,
+        error: 'Original error'
       )
-      expect(mock_monitor).to receive(:track_processor_error).with(
-        'Failed to update ClaimGroup status', 'status_update', { parent_claim_id:, error: 'DB error' }
+      expect(mock_monitor).to receive(:track_error_event).with(
+        'Failed to update ClaimGroup status',
+        action: 'status_update',
+        component:,
+        parent_claim_id:,
+        error: 'DB error'
       )
 
       processor.send(:handle_enqueue_failure, error)
@@ -133,8 +215,12 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
     it 'logs error' do
       processor.send(:handle_permanent_failure, 'Some error message')
-      expect(mock_monitor).to have_received(:track_processor_error).with(
-        'Error submitting DependentsBenefits::ClaimProcessor', 'error.permanent', { parent_claim_id:, error: 'Some error message' }
+      expect(mock_monitor).to have_received(:track_error_event).with(
+        "Error submitting #{component}",
+        action: 'error.permanent',
+        component:,
+        error: 'Some error message',
+        parent_claim_id:
       )
     end
 
@@ -183,16 +269,22 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
     it 'logs start of success check' do
       processor.send(:handle_successful_submission)
-      expect(mock_monitor).to have_received(:track_processor_info).with(
-        'Checking if claim submissions succeeded', 'success_check', { parent_claim_id: }
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Checking if claim submissions succeeded',
+        action: 'success_check',
+        component:,
+        parent_claim_id:
       )
     end
 
     it 'handles errors during success handling' do
       allow(processor).to receive(:parent_claim_group).and_raise(StandardError.new('DB error'))
-      expect(mock_monitor).to receive(:track_processor_error).with(
-        'Error handling successful submission for DependentsBenefits::ClaimProcessor', 'success.error',
-        { parent_claim_id:, error: instance_of(StandardError) }
+      expect(mock_monitor).to receive(:track_error_event).with(
+        "Error handling successful submission for #{component}",
+        action: 'success.error',
+        component:,
+        error: instance_of(StandardError),
+        parent_claim_id:
       )
       processor.send(:handle_successful_submission)
     end
@@ -230,20 +322,68 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
           it 'tracks pension-related submission when any child claim is pension-related' do
             allow(processor).to receive(:child_claims).and_return([pension_claim, regular_claim])
-            expect(mock_monitor).to receive(:track_pension_related_submission).with(
-              'Submitted pension-related claim', parent_claim_id:, form_type: '686c-674'
+            expect(mock_monitor).to receive(:track_info_event).with(
+              'Successful pension-related claim submission',
+              action: 'pension.submission',
+              component:,
+              parent_claim_id:,
+              form_type: '686c-674',
+              module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
             )
             processor.send(:handle_successful_submission)
           end
 
           it 'does not track pension-related submission if no child is pension-related' do
             allow(processor).to receive(:child_claims).and_return([regular_claim])
-            expect(mock_monitor).not_to receive(:track_pension_related_submission)
+            expect(mock_monitor).not_to receive(:track_info_event).with(
+              'Successful pension-related claim submission',
+              hash_including(action: 'submission', component: 'pension')
+            )
             processor.send(:handle_successful_submission)
           end
         end
 
-        context 'when feature flag is disabled' do
+        context 'with no-SSN claims' do
+          let(:no_ssn_claim) do
+            claim = create(:add_remove_dependents_claim)
+            claim.parsed_form['dependents_application']['children_to_add'] = [{ 'no_ssn' => true }]
+            claim
+          end
+
+          it 'tracks no-SSN claim submission when any child claim has no SSN' do
+            # Mock all the necessary dependencies to get to the tracking call
+            allow(processor).to receive(:child_claims).and_return([no_ssn_claim, regular_claim])
+            allow(no_ssn_claim).to receive_messages(submissions_succeeded?: true)
+            allow(regular_claim).to receive_messages(submissions_succeeded?: true)
+            allow(processor).to receive(:mark_parent_claim_group_succeeded)
+            allow_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_received_notification)
+
+            processor.send(:handle_successful_submission)
+
+            expect(mock_monitor).to have_received(:track_info_event).with(
+              'Successful no-SSN claim submission',
+              action: 'no_ssn_claim.submission',
+              component:,
+              parent_claim_id:,
+              form_type: '686c-674',
+              module_stats_key: DependentsBenefits::Monitor::NO_SSN_SUBMISSION_STATS_KEY
+            )
+          end
+
+          it 'does not track no-SSN submission if no child claims have no SSN' do
+            allow(processor).to receive(:child_claims).and_return([regular_claim])
+            allow(regular_claim).to receive(:no_ssn_claim?).and_return(false)
+
+            processor.send(:handle_successful_submission)
+
+            expect(mock_monitor).not_to have_received(:track_info_event).with(
+              'Successful no-SSN claim submission',
+              hash_including(action: 'no_ssn_claim.submission')
+            )
+          end
+        end
+
+        context 'when pension feature flag is disabled' do
           let(:claim_with_pension_data) { create(:student_claim) }
 
           before do
@@ -252,7 +392,31 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           end
 
           it 'does not track pension-related submission when feature flag is disabled' do
-            expect(mock_monitor).not_to receive(:track_pension_related_submission)
+            expect(mock_monitor).not_to receive(:track_info_event).with(
+              'Submitted pension-related claim',
+              hash_including(action: 'submission', component: 'pension')
+            )
+            processor.send(:handle_successful_submission)
+          end
+        end
+
+        context 'when no-SSN feature flag is disabled' do
+          let(:no_ssn_claim) do
+            claim = create(:add_remove_dependents_claim)
+            claim.parsed_form['dependents_application']['children_to_add'] = [{ 'no_ssn' => true }]
+            claim
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(false)
+            allow(processor).to receive(:child_claims).and_return([no_ssn_claim])
+          end
+
+          it 'does not track no-SSN claim submission when feature flag is disabled' do
+            expect(mock_monitor).not_to receive(:track_info_event).with(
+              'Successful no-SSN claim submission',
+              hash_including(action: 'no_ssn_claim.submission')
+            )
             processor.send(:handle_successful_submission)
           end
         end
@@ -266,7 +430,10 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
         it 'does not mark parent claim group or send notification' do
           expect(processor).not_to receive(:mark_parent_claim_group_succeeded)
           expect_any_instance_of(DependentsBenefits::NotificationEmail).not_to receive(:send_received_notification)
-          expect(mock_monitor).not_to receive(:track_pension_related_submission)
+          expect(mock_monitor).not_to receive(:track_info_event).with(
+            'Submitted pension-related claim',
+            hash_including(action: 'submission', component: 'pension')
+          )
           processor.send(:handle_successful_submission)
         end
       end
@@ -281,7 +448,10 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       it 'does not mark parent claim group or send notification' do
         expect(processor).not_to receive(:mark_parent_claim_group_succeeded)
         expect_any_instance_of(DependentsBenefits::NotificationEmail).not_to receive(:send_received_notification)
-        expect(mock_monitor).not_to receive(:track_pension_related_submission)
+        expect(mock_monitor).not_to receive(:track_info_event).with(
+          'Submitted pension-related claim',
+          hash_including(action: 'submission', component: 'pension')
+        )
         processor.send(:handle_successful_submission)
       end
     end
@@ -289,7 +459,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
   describe '#send_backup_job' do
     it 'enqueues backup submission job' do
-      expect(DependentsBenefits::Sidekiq::DependentBackupJob).to receive(:perform_async).with(parent_claim_id)
+      expect(DependentsBenefits::Sidekiq::BenefitsIntakeJob).to receive(:perform_async).with(parent_claim_id)
       processor.send(:send_backup_job)
     end
   end

@@ -48,10 +48,12 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns all lab records with encodedData and/or observations' do
         json_response = JSON.parse(response.body)
-        expect(json_response).to be_an(Array)
-        expect(json_response.length).to be_positive
+        expect(json_response).to have_key('data')
+        labs_data = json_response['data']
+        expect(labs_data).to be_an(Array)
+        expect(labs_data.length).to be_positive
 
-        json_response.each do |lab_record|
+        labs_data.each do |lab_record|
           attributes = lab_record['attributes']
           has_encoded_data = attributes['encodedData'].present?
           has_observations = attributes['observations'].present? && attributes['observations'].any?
@@ -61,8 +63,9 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct count of lab records from cassette' do
         json_response = JSON.parse(response.body)
+        labs_data = json_response['data']
         # The cassette has 29 DiagnosticReports with presentedForm or result
-        expect(json_response.length).to eq(29)
+        expect(labs_data.length).to eq(29)
       end
     end
 
@@ -74,8 +77,8 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
         end
       end
 
-      include_examples 'labs and tests response structure validation', nil
-      include_examples 'labs and tests specific data validation'
+      include_examples 'labs and tests response structure validation', ['data']
+      include_examples 'labs and tests specific data validation', ['data']
     end
 
     context 'errors' do

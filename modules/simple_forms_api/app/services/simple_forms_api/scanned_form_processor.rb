@@ -61,8 +61,14 @@ module SimpleFormsApi
       pdf_path = Common::ConvertToPdf.new(attachment.file).run
       Rails.logger.info('Successfully converted file to PDF')
       pdf_path
-    rescue => e
-      Rails.logger.error("PDF conversion failed: #{e.message}")
+    rescue
+      Rails.logger.error(
+        'Simple forms api - PDF conversion failed',
+        {
+          attachment_guid: attachment.guid,
+          attachment_type: attachment.class.name
+        }
+      )
       raise ConversionError.new(
         'File conversion failed',
         [{
@@ -77,8 +83,14 @@ module SimpleFormsApi
       Common::PdfHelpers.unlock_pdf(pdf_path, password, output_path)
       @decrypted_file_path = output_path
       output_path
-    rescue Common::Exceptions::UnprocessableEntity => e
-      Rails.logger.error("PDF decryption failed: #{e.message}")
+    rescue Common::Exceptions::UnprocessableEntity
+      Rails.logger.error(
+        'Simple forms api - PDF decryption failed',
+        {
+          attachment_guid: attachment.guid,
+          attachment_type: attachment.class.name
+        }
+      )
       raise ValidationError.new(
         'PDF decryption failed',
         [{
@@ -117,6 +129,7 @@ module SimpleFormsApi
 
       File.open(pdf_path, 'rb') do |pdf_file|
         attachment.file = pdf_file
+        validate_attachment!
         attachment.save!
       end
     rescue ActiveRecord::RecordInvalid => e
@@ -126,10 +139,19 @@ module SimpleFormsApi
         resolved_persistence_errors(e, preexisting_error_details)
       )
     rescue => e
-      raise if e.is_a?(PersistenceError)
+      raise if e.is_a?(PersistenceError) || e.is_a?(ValidationError)
 
       Rails.logger.error("Attachment persistence failed: #{e.message}")
       raise PersistenceError.new('File upload failed', default_persistence_errors)
+    end
+
+    def validate_attachment!
+      attacher = attachment.file_attacher
+      attacher.validate
+      return if attacher.errors.empty?
+
+      formatted = attacher.errors.map { |e| { title: 'File validation error', detail: e } }
+      raise ValidationError.new('File validation failed', formatted)
     end
 
     def resolved_persistence_errors(exception, preexisting_error_details)

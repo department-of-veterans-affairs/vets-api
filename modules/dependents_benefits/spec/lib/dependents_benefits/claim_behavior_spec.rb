@@ -94,9 +94,19 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
   end
 
   describe '#to_pdf' do
-    it 'does not fail' do
-      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(child_claim, nil).and_call_original
-      expect { child_claim.to_pdf }.not_to raise_error
+    it 'works with legacy string filename argument' do
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, 'custom_filename', {})
+      child_claim.to_pdf('custom_filename')
+    end
+
+    it 'works with keyword arguments and uses claim ID as filename' do
+      student_data = { name: 'Test Student' }
+
+      expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form)
+        .with(child_claim, child_claim.id.to_s, hash_including(form_id: '21-674', student: student_data))
+
+      child_claim.to_pdf(form_id: '21-674', student: student_data)
     end
 
     context 'when veteran_information is missing' do
@@ -118,7 +128,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       end
 
       it 'builds the pdf correctly' do
-        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil).and_call_original
+        expect(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).with(student_claim, nil,
+                                                                                {}).and_call_original
         expect { student_claim.to_pdf }.not_to raise_error
       end
 
@@ -163,7 +174,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         expect(claim.form_matches_schema).to be false
         expect(monitor_double).to have_received(:track_error_event).with(
           'Dependents Benefits schema failed validation.',
-          'api.dependents_claim.schema_error',
+          action: 'schema_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
           form_id: claim.form_id,
           errors: [{ fragment: '#/veteran_information', message: 'is missing' }]
         ).at_least(:once)
@@ -187,7 +199,8 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         expect(claim.form_schema(form_id)).to be_nil
         expect(monitor_double).to have_received(:track_error_event).with(
           'Dependents Benefits form schema could not be loaded.',
-          'api.dependents_claim.schema_load_error',
+          action: 'schema_load_error',
+          component: 'DependentsBenefits::PrimaryDependencyClaim',
           form_id:,
           error: "No such file or directory - #{error_message}"
         )
@@ -225,6 +238,71 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
         it 'returns false' do
           expect(child_claim.pension_related_submission?).to be false
         end
+      end
+    end
+  end
+
+  describe '#no_ssn_claim?' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(child_claim.no_ssn_claim?).to be false
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(true)
+      end
+
+      it 'returns false if no relevant sections are present' do
+        child_claim.parsed_form['dependents_application']['spouse_information']['no_ssn'] = false
+        child_claim.parsed_form['dependents_application']['children_to_add']&.each { |child| child['no_ssn'] = false }
+        child_claim.parsed_form['dependents_application']['student_information']&.each do |student|
+          student['no_ssn'] = false
+        end
+
+        expect(child_claim.no_ssn_claim?).to be false
+      end
+
+      it 'handles missing sections gracefully' do
+        child_claim.parsed_form['dependents_application'].delete('spouse_information')
+        child_claim.parsed_form['dependents_application'].delete('children_to_add')
+        child_claim.parsed_form['dependents_application'].delete('student_information')
+
+        expect { child_claim.no_ssn_claim? }.not_to raise_error
+        expect(child_claim.no_ssn_claim?).to be false
+      end
+
+      it 'returns true if spouse is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['spouse_information']['no_ssn'] = true
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+
+      it 'returns true if any child/student is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['children_to_add'] = [{ 'no_ssn' => true }]
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+
+      it 'returns true if any student is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['student_information'] = [{ 'no_ssn' => true }]
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+
+      it 'returns true if a combination of dependents is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['spouse_information']['no_ssn'] = true
+        child_claim.parsed_form['dependents_application']['children_to_add'] = [
+          { 'no_ssn' => true },
+          { 'no_ssn' => false }
+        ]
+        child_claim.parsed_form['dependents_application']['student_information'] = [
+          { 'no_ssn' => false },
+          { 'no_ssn' => true }
+        ]
+        expect(child_claim.no_ssn_claim?).to be true
       end
     end
   end
@@ -292,12 +370,12 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
       before do
         allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor_double)
         allow(claim).to receive(:submittable_686?).and_raise(StandardError.new('Unknown form type'))
-        allow(monitor_double).to receive(:track_unknown_claim_type)
+        allow(monitor_double).to receive(:track_warning_event)
       end
 
       it 'returns nil and tracks the unknown claim type' do
         expect(claim.claim_form_type).to be_nil
-        expect(monitor_double).to have_received(:track_unknown_claim_type)
+        expect(monitor_double).to have_received(:track_warning_event)
       end
     end
   end

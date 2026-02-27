@@ -17,7 +17,7 @@ module UnifiedHealthData
     attribute :value, UnifiedHealthData::ObservationValue
     attribute :reference_range, String
     attribute :status, String
-    attribute :comments, String
+    attribute :comments, String, array: true
     attribute :body_site, String
     attribute :sample_tested, String
   end
@@ -29,6 +29,7 @@ module UnifiedHealthData
     attribute :type, String
     attribute :display, String
     attribute :test_code, String
+    attribute :test_code_display, String
     attribute :date_completed, String
     attribute :sort_date, String # Normalized date for sorting (internal use only)
     attribute :sample_tested, String
@@ -36,8 +37,10 @@ module UnifiedHealthData
     attribute :location, String
     attribute :ordered_by, String
     attribute :body_site, String
+    attribute :comments, String, array: true
     attribute :status, String
     attribute :source, String
+    attribute :facility_timezone, String # IANA timezone ID (e.g., 'America/New_York') for the facility
     attribute :observations, UnifiedHealthData::Observation, array: true
 
     default_sort_by sort_date: :desc

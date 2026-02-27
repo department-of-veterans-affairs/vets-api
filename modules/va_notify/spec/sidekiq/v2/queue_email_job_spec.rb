@@ -21,11 +21,62 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
   it 'stores and retrieves personalisation securely' do
     allow(VaNotify::Service).to receive(:new).and_return(instance_double(VaNotify::Service, send_email: true))
     Sidekiq::Testing.inline! do
-      key = Sidekiq::AttrPackage.create(attrs: { email:, personalisation: })
-      expect(Sidekiq::AttrPackage.find(key)).to eq(attrs: { email:, personalisation: })
+      key = Sidekiq::AttrPackage.create(email:, personalisation:)
+      expect(Sidekiq::AttrPackage.find(key)).to eq(email:, personalisation:)
 
       VANotify::V2::QueueEmailJob.perform_async(template_id, key, api_key_path, callback_options)
-      expect(Sidekiq::AttrPackage.find(key)).to eq(attrs: { email:, personalisation: })
+      expect(Sidekiq::AttrPackage.find(key)).to eq(email:, personalisation:)
+    end
+  end
+
+  describe '.enqueue' do
+    it 'creates an AttrPackage and calls perform_async with correct arguments' do
+      expect(Sidekiq::AttrPackage).to receive(:create)
+        .with(email:, personalisation:)
+        .and_return(key)
+
+      expect(described_class).to receive(:perform_async)
+        .with(template_id, key, api_key_path, callback_options)
+
+      described_class.enqueue(email, template_id, personalisation, api_key_path, callback_options)
+    end
+
+    it 'defaults callback_options to an empty hash' do
+      expect(Sidekiq::AttrPackage).to receive(:create)
+        .with(email:, personalisation:)
+        .and_return(key)
+
+      expect(described_class).to receive(:perform_async)
+        .with(template_id, key, api_key_path, {})
+
+      described_class.enqueue(email, template_id, personalisation, api_key_path)
+    end
+
+    it 'raises Sidekiq::AttrPackageError when AttrPackage creation fails' do
+      allow(Sidekiq::AttrPackage).to receive(:create)
+        .and_raise(Sidekiq::AttrPackageError.new('create', 'Connection refused'))
+
+      expect do
+        described_class.enqueue(email, template_id, personalisation, api_key_path, callback_options)
+      end.to raise_error(Sidekiq::AttrPackageError, /Connection refused/)
+    end
+
+    context 'when api_key_path does not start with Settings.' do
+      it 'raises ArgumentError' do
+        expect do
+          described_class.enqueue(email, template_id, personalisation, 'invalid_path', callback_options)
+        end.to raise_error(ArgumentError, "API key path must start with 'Settings.': invalid_path")
+      end
+
+      it 'does not create an AttrPackage' do
+        expect(Sidekiq::AttrPackage).not_to receive(:create)
+
+        begin
+          described_class.enqueue(email, template_id, personalisation, 'invalid_path', callback_options)
+        rescue ArgumentError
+          nil
+        end
+      end
     end
   end
 
@@ -56,7 +107,7 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'handles VANotify::Error (400) and calls handle_backend_exception' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { email:, personalisation: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(email:, personalisation:)
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::BadRequest.new(400, 'bad request')
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
@@ -67,7 +118,7 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'raises and logs for VANotify::Error (5xx)' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { email:, personalisation: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(email:, personalisation:)
       va_notify_service = instance_double(VaNotify::Service)
       error = VANotify::ServerError.new(500, 'server error')
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
@@ -79,7 +130,7 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'raises ArgumentError when api_key_path does not start with Settings.' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { email:, personalisation: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(email:, personalisation:)
 
       expect do
         described_class.new.perform(template_id, key, 'vanotify.services.va_gov.api_key', callback_options)
@@ -87,7 +138,7 @@ RSpec.describe VANotify::V2::QueueEmailJob, type: :job do
     end
 
     it 'raises ArgumentError when api_key_path is invalid' do
-      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(attrs: { email:, personalisation: })
+      allow(Sidekiq::AttrPackage).to receive(:find).with(key).and_return(email:, personalisation:)
 
       expect do
         described_class.new.perform(template_id, key, 'Settings.invalid.path.to.api_key', callback_options)

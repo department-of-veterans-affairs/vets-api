@@ -1,0 +1,44 @@
+{
+  "applicantName": {
+    "first": "John",
+    "last": "Doe"
+  },
+  "mailingAddress": {
+    "street": "111 2nd St S",
+    "city": "Seattle",
+    "state": "WA",
+    "postalCode": "98101",
+    "country": "USA"
+  },
+  "emailAddress": "john@example.com",
+  "homePhone": "5557771234",
+  "mobilePhone": "5558881234",
+  "statementOfTruthSignature": "John Doe",
+  "dateSigned": "2025-01-01",
+  "ssn": "123456789",
+  "schoolWasClosed": true,
+  "closedSchoolName": "Test U",
+  "closedSchoolAddress": {
+    "street": "111 2nd St S",
+    "city": "Seattle",
+    "state": "WA",
+    "postalCode": "98101",
+    "country": "USA"
+  },
+  "didCompleteProgramOfStudy": true,
+  "didReceiveCredit": true,
+  "wasEnrolledWhenSchoolClosed": true,
+  "wasOnApprovedLeave": true,
+  "withdrewPriorToClosing": true,
+  "dateOfWithdraw": "2020-01-01",
+  "enrolledAtNewSchool": true,
+  "newSchoolName": "New School",
+  "newProgramName": "Physics 2.0",
+  "isUsingTeachoutAgreement": true,
+  "newSchoolGrants12OrMoreCredits": true,
+  "schoolDidTransferCredits": true,
+  "lastDateOfAttendance": "2025-01-01",
+  "attestationName": "John Doe",
+  "attestationDate": "2025-01-01",
+  "remarks": "lorem ipsum"
+}

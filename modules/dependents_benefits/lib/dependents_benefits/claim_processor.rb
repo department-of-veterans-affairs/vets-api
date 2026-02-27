@@ -13,6 +13,8 @@ module DependentsBenefits
   # Tracks submission status and handles failures during the enqueueing process.
   #
   class ClaimProcessor
+    include DependentsBenefits::DependentsHelper
+
     attr_reader :parent_claim_id
 
     # Initializes a new ClaimProcessor
@@ -44,7 +46,13 @@ module DependentsBenefits
     # @return [Hash] Success result with :jobs_enqueued count and :error nil
     # @raise [StandardError] If enqueueing fails
     def enqueue_submissions
-      monitor.track_processor_info('Starting claim submission processing', 'start', parent_claim_id:)
+      monitor.track_info_event('Starting claim submission processing', action: 'start', component:, parent_claim_id:)
+
+      if child_claims.any?(&:pension_related_submission?)
+        track_pension_related_submission('Submitted pension-related claim')
+      end
+
+      track_no_ssn_claim_submission('Submitted no-SSN claim') if child_claims.any?(&:no_ssn_claim?)
 
       jobs_enqueued = 0
       DependentsBenefits::Sidekiq::BGS::BGSFormJob.perform_async(parent_claim_id)
@@ -52,8 +60,8 @@ module DependentsBenefits
       DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob.perform_async(parent_claim_id)
       jobs_enqueued += 1
 
-      monitor.track_processor_info('Successfully enqueued all submission jobs', 'enqueue_success',
-                                   parent_claim_id:, jobs_count: jobs_enqueued)
+      monitor.track_info_event('Successfully enqueued all submission jobs',
+                               action: 'enqueue_success', component:, parent_claim_id:, jobs_count: jobs_enqueued)
 
       # Records successful enqueueing by updating claim group status
       record_enqueue_completion
@@ -83,8 +91,9 @@ module DependentsBenefits
       @child_claims = ::SavedClaim.where(id: claim_ids)
       raise StandardError, "No child claims found for parent claim #{parent_claim_id}" if child_claims.empty?
 
-      monitor.track_processor_info('Collected child claims for processing', 'collect_children',
-                                   parent_claim_id:, child_claims_count: child_claims.count)
+      monitor.track_info_event('Collected child claims for processing',
+                               action: 'collect_children', component:,
+                               parent_claim_id:, child_claims_count: child_claims.count)
 
       @child_claims
     end
@@ -97,8 +106,8 @@ module DependentsBenefits
     # @param exception [Exception] The exception that caused the failure
     # @return [void]
     def handle_permanent_failure(exception)
-      monitor.track_processor_error("Error submitting #{self.class}", 'error.permanent', error: exception,
-                                                                                         parent_claim_id:)
+      monitor.track_error_event("Error submitting #{self.class}",
+                                action: 'error.permanent', component:, error: exception, parent_claim_id:)
       ActiveRecord::Base.transaction do
         parent_claim_group.with_lock do
           unless parent_claim_group&.completed?
@@ -124,24 +133,25 @@ module DependentsBenefits
     #
     # @return [void]
     def handle_successful_submission
-      monitor.track_processor_info('Checking if claim submissions succeeded', 'success_check', parent_claim_id:)
+      monitor.track_info_event('Checking if claim submissions succeeded',
+                               action: 'success_check', component:, parent_claim_id:)
 
       ActiveRecord::Base.transaction do
         parent_claim_group.with_lock do
           if child_claims.all?(&:submissions_succeeded?) && !parent_claim_group.completed?
-            monitor.track_processor_info('All claim submissions succeeded', 'success', parent_claim_id:)
+            monitor.track_info_event('All claim submissions succeeded', action: 'success', component:, parent_claim_id:)
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
             if child_claims.any?(&:pension_related_submission?)
-              form_type = parent_claim&.claim_form_type
-              monitor.track_pension_related_submission('Submitted pension-related claim', parent_claim_id:, form_type:)
+              track_pension_related_submission('Successful pension-related claim submission')
             end
+            track_no_ssn_claim_submission('Successful no-SSN claim submission') if child_claims.any?(&:no_ssn_claim?)
           end
         end
       end
     rescue => e
-      monitor.track_processor_error("Error handling successful submission for #{self.class}", 'success.error',
-                                    error: e, parent_claim_id:)
+      monitor.track_error_event("Error handling successful submission for #{self.class}",
+                                action: 'success.error', component:, error: e, parent_claim_id:)
     end
 
     private
@@ -154,13 +164,13 @@ module DependentsBenefits
     # @param error [Exception] The error that occurred during enqueueing
     # @return [void]
     def handle_enqueue_failure(error)
-      monitor.track_processor_error('Failed to enqueue submission jobs', 'enqueue_failure',
-                                    parent_claim_id:, error: error.message)
+      monitor.track_error_event('Failed to enqueue submission jobs',
+                                action: 'enqueue_failure', component:, parent_claim_id:, error: error.message)
 
       parent_claim_group.update!(status: SavedClaimGroup::STATUSES[:FAILURE])
     rescue => e
-      monitor.track_processor_error('Failed to update ClaimGroup status', 'status_update',
-                                    parent_claim_id:, error: e.message)
+      monitor.track_error_event('Failed to update ClaimGroup status',
+                                action: 'status_update', component:, parent_claim_id:, error: e.message)
     end
 
     # Records successful enqueueing by updating claim group status
@@ -184,7 +194,7 @@ module DependentsBenefits
     #
     # @return [String] Sidekiq job ID
     def send_backup_job
-      DependentsBenefits::Sidekiq::DependentBackupJob.perform_async(parent_claim_id)
+      DependentsBenefits::Sidekiq::BenefitsIntakeJob.perform_async(parent_claim_id)
     end
 
     # Returns a notification email handler for the claim
@@ -226,6 +236,26 @@ module DependentsBenefits
     # @return [Array<DependentClaim>]
     def child_claims
       @child_claims ||= collect_child_claims
+    end
+
+    # Tracks pension-related claim submission
+    # @param message [String] The message to log for the pension-related submission
+    # @return [void]
+    def track_pension_related_submission(message)
+      form_type = parent_claim&.claim_form_type
+      monitor.track_info_event(message,
+                               action: 'pension.submission',
+                               component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY)
+    end
+
+    # Tracks no-SSN claim submission
+    # @param message [String] The message to log for the no-SSN claim submission
+    # @return [void]
+    def track_no_ssn_claim_submission(message)
+      form_type = parent_claim&.claim_form_type
+      monitor.track_info_event(message,
+                               action: 'no_ssn_claim.submission',
+                               component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::NO_SSN_SUBMISSION_STATS_KEY)
     end
   end
 end

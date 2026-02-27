@@ -77,11 +77,23 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :multi_party_forms do
+      resources :primary, only: %i[create show] do
+        member do
+          post :complete
+        end
+      end
+      resources :secondary, only: [:show] do
+        member do
+          post :start
+          post :complete
+        end
+      end
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
-
-    get 'enrollment_periods', to: 'enrollment_periods#index'
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
@@ -410,7 +422,11 @@ Rails.application.routes.draw do
     end
 
     resource :post911_gi_bill_status, only: [:show]
-    resources :medical_copays, only: %i[index show]
+    resources :medical_copays, only: %i[index show] do
+      collection do
+        get :summary
+      end
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -427,6 +443,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount BioHeartApi::Engine, at: '/bio_heart_api'
   mount BPDS::Engine, at: '/bpds'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
@@ -436,7 +453,6 @@ Rails.application.routes.draw do
   mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount DigitalFormsApi::Engine, at: '/digital_forms_api'
-  mount EmploymentQuestionnaires::Engine, at: '/employment_questionnaires'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IncreaseCompensation::Engine, at: '/increase_compensation'

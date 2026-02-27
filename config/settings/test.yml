@@ -299,6 +299,14 @@ covid_vaccine:
 database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  appealable_issues:
+    auth:
+      aud_claim_url: ~
+      client_id: ~
+      rsa_key: ~
+      token_url: ~
+    mock: false
+    url: https://sandbox-api.va.gov/services/appeals/appealable-issues/v0
   benchmark_performance: true
   delete_saved_claim_records_job_enabled: true
   email_pdf_upload_cutoff_date: ~
@@ -356,6 +364,16 @@ dhp:
     aws_secret_access_key: ''
     bucket: ''
     region: us-gov-west-1
+digital_forms_api:
+  base_url: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: fake-secret
+  mock: false
+  ssl: false
+  timeout:
+    open: 30
+    read: 30
 directory:
   apikey: "<fake_api_key>"
   health_server_id: ~
@@ -548,6 +566,13 @@ form_10_10cg:
       bucket: my-bucket
       enabled: true
       region: us-gov-west-1
+form_intake:
+  api_version: 'v1'
+  breakers_error_threshold: 80
+  host: 'http://localhost:3000'
+  path: 'api/validated-forms'
+  timeout: 5
+  use_mocks: true
 form_mock_ae_design_patterns:
   prefill: true
 form_mock_prefill:
@@ -576,6 +601,10 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
+  accreditation_xlsx:
+    password: ~
+    url: ~
+    username: ~
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
@@ -1018,6 +1047,7 @@ mhv:
     app_token: faketoken
     host: https://mhv-api.example.com
     labs_logging_date_range_days: 30
+    medication_filtered_statuses:
     mock: false
     security_host: https://mhv-api.example.com
     subject: "Proxy Client"
@@ -1116,6 +1146,7 @@ ppms:
     fakekey: fakevalue
     ocp-apim-subscription-key: ~
   apim_url: ~
+  mock: false
   open_timeout: 15
   read_timeout: 55
   url: https://some.fakesite.com
@@ -1147,6 +1178,23 @@ reports:
     bucket: bucket
     region: region
     secret_access_key: secret
+  bio_submission_status:
+    emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
+    expected_annual_submissions:
+      '21-0779': 0
+      '21-2680': 0
+      '21-4192': 0
+      '21P-530a': 0
+    form_types:
+      - '21-4192'
+      - '21-0779'
+      - '21P-530a'
+      - '21-2680'
+    staging_emails:
+      - Cameron.Testerman@va.gov
+      - Leah.Keeler@va.gov
   send_email: true
   spool10203_submission:
     emails:
@@ -1262,6 +1310,8 @@ res:
   base_url: https://fake_url.com
   ch_31_case_details:
     mock: ~
+  ch_31_case_milestones:
+    mock: ~
   ch_31_eligibility:
     mock: ~
   mock_ch_31: ~
@@ -1295,6 +1345,7 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  get_awards_pension: modules/mobile/app/schemas/get_awards_pension.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: TESTKEY
@@ -1356,6 +1407,7 @@ travel_pay:
   client_number: '12345'
   mobile_client_number: '56789'
   mock: false
+  open_timeout: 15
   service_name: BTSSS-API
   sts:
     scope: ~
@@ -1363,6 +1415,7 @@ travel_pay:
   subscription_key: api_key
   subscription_key_e: ~
   subscription_key_s: ~
+  timeout: 90
   veis:
     auth_url: https://auth.veis.gov
     client_id: client_id
@@ -1370,6 +1423,17 @@ travel_pay:
     resource: resource_id
     tenant_id: tenant_id
 unique_user_metrics:
+  oracle_health_tracked_facility_ids:
+  - '506'
+  - '515'
+  - '553'
+  - '556'
+  - '653'
+  - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: 500
     max_iterations: 20
@@ -1594,6 +1658,15 @@ vanotify:
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
           template_id: form8416_submitted_email_template_id
+    "22_0989":
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: false
+          template_id: form0989_error_email_template_id
+        received:
+          flipper_id: false
+          template_id: form0989_received_email_template_id
     accredited_representative_portal:
       api_key: fake_secret
       email:

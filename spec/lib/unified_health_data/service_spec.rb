@@ -15,98 +15,220 @@ describe UnifiedHealthData::Service, type: :service do
   end
 
   describe '#get_labs' do
-    context 'with valid lab responses', :vcr do
-      it 'returns all labs/tests with encodedData and/or observations' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
-          expect(labs.size).to eq(29)
+    let(:labs_sample_response) do
+      JSON.parse(Rails.root.join(
+        'spec', 'fixtures', 'unified_health_data', 'labs_response.json'
+      ).read)
+    end
 
-          # Verify that labs with encodedData are returned
+    let(:sample_client_response) do
+      Faraday::Response.new(
+        body: labs_sample_response
+      )
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:warn)
+      allow_any_instance_of(UnifiedHealthData::Client)
+        .to receive(:get_labs_by_date)
+        .and_return(sample_client_response)
+    end
+
+    context 'happy path' do
+      context 'when data exists for both VistA + OH' do
+        it 'returns all labs/tests with encodedData and/or observations' do
+          result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+          labs = result[:records]
+          # 12 total records: 1 VistA filtered (nil status), 1 OH filtered (nil status) = 11 parsed
+          expect(labs.size).to eq(11)
+
           labs_with_encoded_data = labs.select { |lab| lab.encoded_data.present? }
           expect(labs_with_encoded_data).not_to be_empty
 
-          # Verify that labs with observations are returned
           labs_with_observations = labs.select { |lab| lab.observations.present? }
           expect(labs_with_observations).not_to be_empty
         end
-      end
 
-      it 'returns labs sorted by date_completed in descending order' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30').sort
+        it 'returns labs sorted by date_completed in descending order' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records].sort
 
           labs_with_dates = labs.select { |lab| lab.date_completed.present? }
-          dates = labs_with_dates.map { |lab| Time.zone.parse(lab.date_completed) }
+          dates = labs_with_dates.map(&:sort_date)
           expect(dates).to eq(dates.sort.reverse)
 
-          last_labs = labs.last(5)
-          if last_labs.any? { |lab| lab.date_completed.nil? }
-            expect(labs.select { |lab| lab.date_completed.nil? }).to eq(last_labs.select { |lab|
-              lab.date_completed.nil?
-            })
-          end
-        end
-      end
-
-      it 'logs test code distribution from parsed records' do
-        allow(Rails.logger).to receive(:info)
-
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+          labs_without_dates = labs.select { |lab| lab.date_completed.nil? }
+          expect(labs.last(labs_without_dates.size)).to eq(labs_without_dates) if labs_without_dates.any?
         end
 
-        expect(Rails.logger).to have_received(:info).with(
-          hash_including(
-            message: 'UHD test code and name distribution',
-            service: 'unified_health_data'
+        it 'returns specific VistA lab with expected attributes' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+
+          chem_lab = labs.find { |lab| lab.id == 'df64e7c7-d354-43a1-ab57-445844b59b52' }
+          expect(chem_lab).to have_attributes(
+            'id' => 'df64e7c7-d354-43a1-ab57-445844b59b52',
+            'display' => 'Laboratory procedure',
+            'test_code' => 'CH',
+            'date_completed' => '2025-01-23T22:01:52+00:00',
+            'location' => 'CHYSHR TEST LAB',
+            'source' => 'vista',
+            'status' => 'final'
           )
-        )
-      end
+          expect(chem_lab.comments).to be_an(Array)
+          expect(chem_lab.comments.any? { |c| c.include?('TEST COMMENT') }).to be true
+          expect(chem_lab.observations.size).to eq(7)
+        end
 
-      it 'returns labs with only encodedData' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+        it 'returns specific Oracle Health lab with expected attributes' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
-          # Find labs that have encoded data but no observations
-          labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
-          expect(labs_with_encoded_only).not_to be_empty
+          oh_lab = labs.find { |lab| lab.id == '15248982124' }
+          oh_lab_with_note = labs.find { |lab| lab.id == 'a21b3621-4f42-4504-b41c-6598c8537212' }
+
+          expect(oh_lab).to have_attributes(
+            'id' => '15248982124',
+            'display' => 'Blood Culture',
+            'test_code' => 'MB',
+            'date_completed' => '2025-03-13T17:28:00Z',
+            'source' => 'oracle-health',
+            'status' => 'final',
+            'comments' => nil
+          )
+          expect(oh_lab.observations.size).to eq(2)
+
+          expect(oh_lab_with_note).to have_attributes(
+            'id' => 'a21b3621-4f42-4504-b41c-6598c8537212',
+            'display' => 'CRP',
+            'test_code' => 'CH',
+            'date_completed' => '2025-12-10T01:25:00+00:00',
+            'source' => 'oracle-health',
+            'status' => 'final',
+            'comments' => ['Comment on the ORDER (not on the result) for testing']
+          )
+          expect(oh_lab_with_note.observations.size).to eq(1)
+        end
+
+        it 'returns labs with expected attribute types' do
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+
+          expect(labs).to all(have_attributes(
+                                'id' => be_a(String),
+                                'type' => be_a(String),
+                                'display' => be_a(String),
+                                'test_code' => be_a(String),
+                                'test_code_display' => be_a(String).or(be_nil),
+                                'date_completed' => be_a(String).or(be_nil),
+                                'sort_date' => be_a(String).or(be_nil),
+                                'sample_tested' => be_a(String).or(be_nil),
+                                'encoded_data' => be_a(String).or(be_nil),
+                                'location' => be_a(String).or(be_nil),
+                                'ordered_by' => be_a(String).or(be_nil),
+                                'body_site' => be_a(String).or(be_nil),
+                                'comments' => be_an(Array).or(be_nil),
+                                'status' => be_a(String),
+                                'source' => be_a(String),
+                                'facility_timezone' => be_a(String).or(be_nil),
+                                'observations' => be_an(Array)
+                              ))
         end
       end
 
-      it 'returns labs with only observations' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+      context 'when data exists for only VistA or OH' do
+        it 'returns labs for VistA only' do
+          modified_response = labs_sample_response.deep_dup
+          modified_response['oracle-health'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_labs_by_date)
+            .and_return(Faraday::Response.new(body: modified_response))
 
-          # Find labs that have observations but no encoded data
-          labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
-          expect(labs_with_observations_only).not_to be_empty
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+          # 8 VistA records, 1 filtered (nil status) = 7 parsed
+          expect(labs.size).to eq(7)
+          expect(labs.map(&:source)).to all(eq('vista'))
+        end
+
+        it 'returns labs for OH only' do
+          modified_response = labs_sample_response.deep_dup
+          modified_response['vista'] = {}
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_labs_by_date)
+            .and_return(Faraday::Response.new(body: modified_response))
+
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+          # 5 OH records, 1 filtered (nil status) = 4 parsed
+          expect(labs.size).to eq(4)
+          expect(labs.map(&:source)).to all(eq('oracle-health'))
         end
       end
 
-      it 'returns labs with both encodedData and observations' do
-        VCR.use_cassette('mobile/unified_health_data/get_labs') do
-          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30')
+      context 'when there are no records in VistA or OH' do
+        it 'returns empty array' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_labs_by_date)
+            .and_return(Faraday::Response.new(body: { 'vista' => {}, 'oracle-health' => {} }))
 
-          # Check if any labs have both (may or may not exist in cassette)
-          labs_with_both = labs.select { |lab| lab.encoded_data.present? && lab.observations.present? }
-          # This is just checking the structure works - we don't require cassette to have this combination
-          expect(labs_with_both).to be_an(Array)
+          labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+          expect(labs.size).to eq(0)
         end
       end
     end
 
+    it 'returns labs with only encodedData' do
+      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+
+      labs_with_encoded_only = labs.select { |lab| lab.encoded_data.present? && lab.observations.blank? }
+      expect(labs_with_encoded_only).not_to be_empty
+    end
+
+    it 'returns labs with only observations' do
+      labs = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
+
+      labs_with_observations_only = labs.select { |lab| lab.observations.present? && lab.encoded_data.blank? }
+      expect(labs_with_observations_only).not_to be_empty
+    end
+
+    it 'logs test code distribution from parsed records' do
+      service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+
+      expect(Rails.logger).to have_received(:info).with(
+        hash_including(
+          message: 'UHD test code and name distribution',
+          service: 'unified_health_data'
+        )
+      )
+    end
+
     context 'with malformed response' do
-      before do
+      it 'handles gracefully' do
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_labs_by_date)
-          .and_return(Faraday::Response.new(
-                        body: nil
-                      ))
+          .and_return(Faraday::Response.new(body: nil))
+
+        expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31') }.not_to raise_error
+      end
+    end
+
+    context 'warning propagation' do
+      it 'returns warnings when _warnings are present in the response body' do
+        response_with_warnings = labs_sample_response.deep_dup
+        response_with_warnings['_warnings'] = [
+          { source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }
+        ]
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_labs_by_date)
+          .and_return(Faraday::Response.new(body: response_with_warnings))
+
+        result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        expect(result[:warnings]).to eq(
+          [{ source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }]
+        )
+        expect(result[:records]).to be_an(Array)
+        expect(result[:records]).not_to be_empty
       end
 
-      it 'handles gracefully' do
-        allow(Flipper).to receive(:enabled?).and_return(true)
-        expect { service.get_labs(start_date: '2025-01-01', end_date: '2025-09-30') }.not_to raise_error
+      it 'returns empty warnings when no _warnings in response body' do
+        result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        expect(result[:warnings]).to eq([])
       end
     end
   end
@@ -625,6 +747,8 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     before do
+      allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:gauge)
       allow_any_instance_of(UnifiedHealthData::Client)
         .to receive(:get_notes_by_date)
         .and_return(sample_client_response)
@@ -633,7 +757,7 @@ describe UnifiedHealthData::Service, type: :service do
     context 'happy path' do
       context 'when data exists for both VistA + OH' do
         it 'returns care summaries and notes' do
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(6)
           expect(notes.map(&:note_type)).to contain_exactly(
             'physician_procedure_note',
@@ -680,7 +804,7 @@ describe UnifiedHealthData::Service, type: :service do
         end
 
         it 'returns clinical notes sorted by date in descending order' do
-          notes = service.get_care_summaries_and_notes.sort
+          notes = service.get_care_summaries_and_notes[:records].sort
 
           dates = notes.map { |note| Time.zone.parse(note.date) }
           expect(dates).to eq(dates.sort.reverse)
@@ -695,7 +819,7 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(
                           body: notes_no_oh_response
                         ))
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(4)
           expect(notes.map(&:note_type)).to contain_exactly(
             'physician_procedure_note',
@@ -727,7 +851,7 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(
                           body: notes_no_vista_response
                         ))
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(2)
           expect(notes.map(&:note_type)).to contain_exactly(
             'discharge_summary',
@@ -759,7 +883,7 @@ describe UnifiedHealthData::Service, type: :service do
             .and_return(Faraday::Response.new(
                           body: notes_empty_response
                         ))
-          notes = service.get_care_summaries_and_notes
+          notes = service.get_care_summaries_and_notes[:records]
           expect(notes.size).to eq(0)
         end
       end
@@ -774,10 +898,10 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Get all notes first (no date filtering applied by service when using wide range)
-        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')[:records]
 
         # Now get filtered notes for Dec 2024 only
-        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')[:records]
 
         # Verify filtering actually excluded some notes
         expect(notes.size).to be < all_notes.size
@@ -797,10 +921,10 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Get all notes first
-        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')
+        all_notes = service.get_care_summaries_and_notes(start_date: '2024-01-01', end_date: '2025-12-31')[:records]
 
         # Now get filtered notes for 2025 only
-        notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')
+        notes = service.get_care_summaries_and_notes(start_date: '2025-01-01', end_date: '2025-12-31')[:records]
 
         # Verify filtering actually excluded some notes (2024 notes should be filtered out)
         expect(notes.size).to be < all_notes.size
@@ -820,27 +944,31 @@ describe UnifiedHealthData::Service, type: :service do
           .and_return(sample_client_response)
 
         # Blank strings should be treated as nil and use defaults
-        notes = service.get_care_summaries_and_notes(start_date: '', end_date: '')
+        result = service.get_care_summaries_and_notes(start_date: '', end_date: '')
 
-        # Should return notes (defaults applied, no filtering errors)
-        expect(notes).to be_an(Array)
+        # Should return hash with records array (defaults applied, no filtering errors)
+        expect(result).to be_a(Hash)
+        expect(result[:records]).to be_an(Array)
       end
 
       it 'excludes notes with blank or invalid dates and logs a warning' do
-        # Disable LOINC logging to simplify test
+        # Disable logging to simplify test
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, anything)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, anything)
           .and_return(false)
 
         # Create mock notes with various date conditions
         note_with_blank_date = instance_double(
-          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil
+          UnifiedHealthData::ClinicalNotes, id: 'blank-date-note', date: nil, source: 'vista'
         )
         note_with_invalid_date = instance_double(
-          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date'
+          UnifiedHealthData::ClinicalNotes, id: 'invalid-date-note', date: 'not-a-date', source: 'vista'
         )
         note_with_valid_date = instance_double(
-          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z'
+          UnifiedHealthData::ClinicalNotes, id: 'valid-note', date: '2024-12-15T10:00:00Z', source: 'oracle-health'
         )
 
         # Stub the service to return our test notes
@@ -853,10 +981,11 @@ describe UnifiedHealthData::Service, type: :service do
           [note_with_blank_date, note_with_invalid_date, note_with_valid_date]
         )
 
-        # Expect warning to be logged for invalid date
+        # Expect warning to be logged for invalid date (allow other warn calls like high_filter_rate)
+        allow(Rails.logger).to receive(:warn)
         expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
 
-        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')
+        notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')[:records]
 
         # Only the valid note should be returned
         expect(notes.size).to eq(1)
@@ -914,37 +1043,225 @@ describe UnifiedHealthData::Service, type: :service do
       end
     end
 
+    context 'warning propagation' do
+      it 'returns warnings when _warnings are present in the response body' do
+        response_with_warnings = notes_sample_response.deep_dup
+        response_with_warnings['_warnings'] = [
+          { source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }
+        ]
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(Faraday::Response.new(body: response_with_warnings))
+
+        result = service.get_care_summaries_and_notes
+        expect(result[:warnings]).to eq(
+          [{ source: 'oracle-health', code: 'not-found', diagnostics: 'Binary/abc123 not found', severity: 'warning' }]
+        )
+        expect(result[:records]).to be_an(Array)
+        expect(result[:records]).not_to be_empty
+      end
+
+      it 'returns empty warnings when no _warnings in response body' do
+        result = service.get_care_summaries_and_notes
+        expect(result[:warnings]).to eq([])
+      end
+    end
+
     context 'LOINC code logging' do
       before do
         allow_any_instance_of(UnifiedHealthData::Client)
           .to receive(:get_notes_by_date)
           .and_return(sample_client_response)
         allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:gauge)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
 
         service.get_care_summaries_and_notes
 
         expect(Rails.logger).to have_received(:info).with(
-          {
-            message: 'Clinical Notes LOINC code distribution',
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            record_type: 'Clinical Notes',
             loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
             total_codes: 6,
             total_records: 6,
-            service: 'unified_health_data'
-          }
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log LOINC code distribution when flipper disabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
+          .with(hash_including(action: 'loinc_distribution'))
         service.get_care_summaries_and_notes
+      end
+    end
+
+    context 'clinical notes logging' do
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:gauge)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
+      end
+
+      it 'logs notes response count when flipper enabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
+
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+
+      it 'does not log notes response count when flipper disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
+
+        expect(Rails.logger).not_to receive(:info)
+          .with(hash_including(resource: 'clinical_notes', action: 'filter'))
+        service.get_care_summaries_and_notes
+      end
+    end
+
+    context 'global toggle fallback (integration)' do
+      # Integration-style test: verifies that enabling ONLY the global toggle
+      # (not the domain toggle) activates diagnostic logging in both the
+      # service concern AND the adapter, proving the full fallback path works.
+
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:gauge)
+        allow(StatsD).to receive(:increment)
+
+        # Domain toggle OFF, global toggle ON
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(true)
+      end
+
+      it 'activates diagnostic logging in the service concern via global fallback' do
+        service.get_care_summaries_and_notes
+
+        # Service concern: log_notes_response_count fires
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            log_level_context: 'diagnostic'
+          )
+        )
+
+        # Service concern: log_notes_index_metrics fires
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'index',
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+
+      it 'activates diagnostic logging in the adapter via global fallback' do
+        # Verify the adapter's MedicalRecordsLog instance also picks up the global toggle.
+        # The adapter is created inside the service with `ClinicalNotesAdapter.new(user: @user)`,
+        # so its @mr_log must independently evaluate the global fallback.
+        adapter = UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user:)
+        expect(adapter.instance_variable_get(:@mr_log).diagnostic_enabled?(
+                 MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES
+               )).to be true
+      end
+
+      it 'activates LOINC distribution logging via global fallback' do
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+    end
+
+    context 'index metrics and logging' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:gauge)
+      end
+
+      it 'logs source breakdown for the index response' do
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'index',
+            total_notes: 6,
+            vista_count: be_a(Integer),
+            oracle_health_count: be_a(Integer),
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+
+      it 'emits StatsD gauges for note counts by source' do
+        service.get_care_summaries_and_notes
+
+        expect(StatsD).to have_received(:gauge).with('api.uhd.clinical_notes.index.total', 6)
+        expect(StatsD).to have_received(:gauge).with('api.uhd.clinical_notes.index.vista', be_a(Integer))
+        expect(StatsD).to have_received(:gauge).with('api.uhd.clinical_notes.index.oracle_health', be_a(Integer))
       end
     end
   end
@@ -962,37 +1279,127 @@ describe UnifiedHealthData::Service, type: :service do
       )
     end
 
-    before do
-      allow_any_instance_of(UnifiedHealthData::Client)
-        .to receive(:get_notes_by_date)
-        .and_return(sample_client_response)
+    context 'when source is not provided (defaults to oracle-health)' do
+      let(:single_oh_note_response) do
+        JSON.parse(Rails.root.join(
+          'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+        ).read)
+      end
+
+      let(:oh_client_response) do
+        Faraday::Response.new(body: single_oh_note_response)
+      end
+
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(oh_client_response)
+      end
+
+      it 'fetches the note via get_note_by_source defaulting to oracle-health' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .with(hash_including(source: 'oracle-health'))
+          .and_return(oh_client_response)
+
+        note = service.get_single_summary_or_note('20875576613')
+        expect(note).not_to be_nil
+        expect(note.id).to eq('20875576613')
+      end
+
+      it 'does not call get_notes_by_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .not_to receive(:get_notes_by_date)
+
+        service.get_single_summary_or_note('20875576613')
+      end
     end
 
-    context 'happy path' do
-      context 'when data exists for both VistA + OH' do
-        it 'returns care summaries and notes' do
-          note = service.get_single_summary_or_note('F253-7227761-1834074')
-          expect(note).to have_attributes(
-            {
-              'id' => 'F253-7227761-1834074',
-              'name' => 'CARE COORDINATION HOME TELEHEALTH DISCHARGE NOTE',
-              'loinc_codes' => ['11506-3'],
-              'note_type' => 'physician_procedure_note',
-              'date' => '2025-01-14T09:18:00.000+00:00',
-              'date_signed' => '2025-01-14T09:29:26+00:00',
-              'written_by' => 'MARCI P MCGUIRE',
-              'signed_by' => 'MARCI P MCGUIRE',
-              'admission_date' => nil,
-              'discharge_date' => nil,
-              'location' => 'CHYSHR TEST LAB',
-              'note' => /VGhpcyBpcyBhIHRlc3QgdGVsZWhlYWx0aCBka/i
-            }
-          )
-        end
+    context 'when source is oracle-health' do
+      let(:single_oh_note_response) do
+        JSON.parse(Rails.root.join(
+          'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+        ).read)
+      end
+
+      let(:oh_client_response) do
+        Faraday::Response.new(body: single_oh_note_response)
+      end
+
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(oh_client_response)
+      end
+
+      it 'calls the source-specific endpoint and returns the note' do
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+        expect(note).not_to be_nil
+        expect(note.id).to eq('20875576613')
+        expect(note.source).to eq('oracle-health')
+      end
+
+      it 'parses the DocumentReference fields correctly' do
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+        expect(note.name).to eq('Abbreviated Visit Summary')
+        expect(note.date).to eq('2026-02-02T21:13:27Z')
+        expect(note.signed_by).to eq('Victoria A Borland')
+        expect(note.location).to eq('668 Mann-Grandstaff WA VA Medical Center')
+        expect(note.note).to be_present
+      end
+
+      it 'calls get_note_by_source with the correct params' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .with(patient_id: user.icn, source: 'oracle-health', record_id: '20875576613',
+                start_date: '1900-01-01', end_date: Time.zone.today.to_s)
+          .and_return(oh_client_response)
+
+        service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+      end
+
+      it 'does not call get_notes_by_date' do
+        expect_any_instance_of(UnifiedHealthData::Client)
+          .not_to receive(:get_notes_by_date)
+
+        service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+      end
+
+      it 'returns nil when the response body is blank' do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(Faraday::Response.new(body: nil))
+
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+        expect(note).to be_nil
+      end
+
+      it 'returns nil when the Bundle has no DocumentReference entry' do
+        bundle_without_doc_ref = {
+          'resourceType' => 'Bundle',
+          'entry' => [
+            { 'resource' => { 'resourceType' => 'Patient', 'id' => '123' } }
+          ]
+        }
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_note_by_source)
+          .and_return(Faraday::Response.new(body: bundle_without_doc_ref))
+
+        note = service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+        expect(note).to be_nil
       end
     end
 
     context 'error handling' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+      end
+
       it 'handles unknown errors' do
         uhd_service = double
         allow(UnifiedHealthData::Service).to receive(:new).with(user).and_return(uhd_service)
@@ -1001,6 +1408,117 @@ describe UnifiedHealthData::Service, type: :service do
         expect do
           uhd_service.get_single_summary_or_note('banana')
         end.to raise_error(StandardError, 'Unknown fetch error')
+      end
+    end
+
+    context 'show metrics and logging' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, anything)
+          .and_return(true)
+      end
+
+      context 'when fetching a note without source (defaults to oracle-health)' do
+        let(:single_oh_note_response) do
+          JSON.parse(Rails.root.join(
+            'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+          ).read)
+        end
+
+        before do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: single_oh_note_response))
+        end
+
+        it 'logs with source not specified and note_found true' do
+          service.get_single_summary_or_note('20875576613')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              service: 'medical_records',
+              resource: 'clinical_notes',
+              action: 'show',
+              source: 'source not specified',
+              note_found: true,
+              note_type: be_a(String),
+              log_level_context: 'diagnostic'
+            )
+          )
+        end
+
+        it 'emits StatsD increment with source tag source not specified' do
+          service.get_single_summary_or_note('20875576613')
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.uhd.clinical_notes.show.source', tags: ['source:source not specified'])
+        end
+
+        it 'emits StatsD not_found increment when note is missing' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: nil))
+
+          service.get_single_summary_or_note('nonexistent-id')
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.uhd.clinical_notes.show.not_found')
+        end
+
+        it 'logs note_found false when note is not found' do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: nil))
+
+          service.get_single_summary_or_note('nonexistent-id')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              resource: 'clinical_notes',
+              action: 'show',
+              note_found: false,
+              note_type: nil
+            )
+          )
+        end
+      end
+
+      context 'when fetching an Oracle Health note' do
+        let(:single_oh_note_response) do
+          JSON.parse(Rails.root.join(
+            'spec', 'fixtures', 'unified_health_data', 'single_oh_note_response.json'
+          ).read)
+        end
+
+        before do
+          allow_any_instance_of(UnifiedHealthData::Client)
+            .to receive(:get_note_by_source)
+            .and_return(Faraday::Response.new(body: single_oh_note_response))
+        end
+
+        it 'logs with source oracle-health and note_found true' do
+          service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+
+          expect(Rails.logger).to have_received(:info).with(
+            hash_including(
+              service: 'medical_records',
+              resource: 'clinical_notes',
+              action: 'show',
+              source: 'oracle-health',
+              note_found: true,
+              log_level_context: 'diagnostic'
+            )
+          )
+        end
+
+        it 'emits StatsD increment with source tag oracle-health' do
+          service.get_single_summary_or_note('20875576613', source: 'oracle-health')
+
+          expect(StatsD).to have_received(:increment)
+            .with('api.uhd.clinical_notes.show.source', tags: ['source:oracle-health'])
+        end
       end
     end
   end
@@ -1114,27 +1632,36 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
 
         service.get_appt_avs(appt_id: '12345', include_binary: true)
 
         expect(Rails.logger).to have_received(:info).with(
-          {
-            message: 'AVS LOINC code distribution',
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            record_type: 'AVS',
             loinc_code_distribution: '4189669:2,96345-4:2',
             total_codes: 2,
             total_records: 2,
-            service: 'unified_health_data'
-          }
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log LOINC code distribution when flipper disabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
+          .with(hash_including(action: 'loinc_distribution'))
         service.get_appt_avs(appt_id: '12345', include_binary: true)
       end
     end
@@ -1202,7 +1729,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(30)
+          expect(prescriptions.size).to eq(22)
 
           # Check that prescriptions are UnifiedHealthData::Prescription objects
           expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
@@ -1223,7 +1750,7 @@ describe UnifiedHealthData::Service, type: :service do
           Timecop.freeze(Time.zone.parse('2025-11-27')) do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               filtered_prescriptions = service.get_prescriptions(current_only: true)
-              expect(filtered_prescriptions.size).to eq(30)
+              expect(filtered_prescriptions.size).to eq(22)
             end
           end
         end
@@ -1556,7 +2083,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD prescriptions retrieved',
-              total_prescriptions: 30,
+              total_prescriptions: 22,
               service: 'unified_health_data'
             )
           )
@@ -1593,15 +2120,15 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles Oracle Health-only data without errors' do
         VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(45)
+          expect(prescriptions.size).to eq(34)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '15214174591', '15215168033', '15216187241', '15215488543', '15214174423', '15215979885',
             '15214174571', '15214777121', '15213998699', '15218955729', '15214535999', '15214303643',
             '15214282441', '15215168043', '15213978785', '15214275861', '15214834723', '15215721639',
             '15217757747', '15215020709', '15215098309', '15214174531', '15217281719', '15217757751',
-            '15217757667', '15218953273', '15218953219', '15217150277', '15216346305', '15213978755',
-            '15215109331', '15215017281', '15215582133', '15215017959', '15214166465', '15214174425',
-            '15214282323', '15214661111', '15214282321', '15214174561', '15214174537', '15214192877',
+            '15216346305', '15213978755',
+            '15214166465', '15214174425',
+            '15214282323', '15214661111', '15214192877',
             '15214103419', '15213928373', '15214166467'
           )
         end

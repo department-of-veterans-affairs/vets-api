@@ -312,6 +312,8 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
         double(validate: double(valid_pdf?: true, errors: []))
       )
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_correct_form)
+      allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_pdf_integrity)
+
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_pdf_page_count)
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_unlocked_pdf)
       allow_any_instance_of(FormUpload::Uploader::Attacher).to receive(:validate_max_width)
@@ -331,7 +333,6 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
     it 'raises PersistenceError with validation messages when save! fails' do
       attachment.errors.add(:base, 'database unavailable')
       allow(attachment).to receive(:save!).and_raise(ActiveRecord::RecordInvalid.new(attachment))
-
       expect { processor.process! }
         .to raise_error(SimpleFormsApi::ScannedFormProcessor::PersistenceError) do |error|
           expect(error.errors.first[:detail]).to eq('database unavailable')
@@ -345,7 +346,7 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       expect { processor.process! }
         .to raise_error(SimpleFormsApi::ScannedFormProcessor::PersistenceError) do |error|
           expect(error.errors.first[:detail]).to include('save your file')
-        end
+      end
     end
   end
 
@@ -396,6 +397,131 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       expect(attachment).to receive(:valid?).and_call_original
 
       processor.process!
+    end
+  end
+
+  context 'with malformed and corrupt PDFs' do
+    before do
+      allow(PDFUtilities::PDFValidator::Validator).to receive(:new).and_return(
+        double(validate: double(valid_pdf?: true, errors: []))
+      )
+    end
+
+    it 'rejects a zero-page PDF with a ValidationError' do
+      zero_page_pdf = Tempfile.new(['zero_pages', '.pdf'])
+      zero_page_pdf.binmode
+      zero_page_pdf.write(<<~PDF)
+        %PDF-1.4
+        1 0 obj
+        << /Type /Catalog /Pages 2 0 R >>
+        endobj
+        2 0 obj
+        << /Type /Pages /Kids [] /Count 0 >>
+        endobj
+        xref
+        0 3
+        0000000000 65535 f#{' '}
+        0000000009 00000 n#{' '}
+        0000000058 00000 n#{' '}
+        trailer
+        << /Size 3 /Root 1 0 R >>
+        startxref
+        109
+        %%EOF
+      PDF
+      zero_page_pdf.close
+
+      attachment = PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file_attacher.attach(File.open(zero_page_pdf.path, 'rb'), validate: false)
+      end
+      processor = described_class.new(attachment)
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
+          expect(error.errors.first[:title]).to eq('File validation error')
+          expect(error.errors
+            .first[:detail]).to eq('We couldn’t open your PDF. Please save it and try uploading it again.')
+        end
+      zero_page_pdf.unlink
+    end
+
+    it 'rejects a PDF with invalid structure' do
+      malformed_pdf = Tempfile.new(['malformed', '.pdf'])
+      malformed_pdf.binmode
+      malformed_pdf.write('%PDF-1.4 this is not valid pdf content but has the header')
+      malformed_pdf.close
+
+      attachment = PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file_attacher.attach(File.open(malformed_pdf.path, 'rb'), validate: false)
+      end
+      processor = described_class.new(attachment)
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ValidationError) do |error|
+          expect(error.errors.first[:title]).to eq('File validation error')
+          expect(error.errors.first[:detail]).to match(/corrupt|unreadable/)
+        end
+
+      malformed_pdf.unlink
+    end
+
+    it 'rejects a file with no valid PDF content' do
+      not_a_pdf = Tempfile.new(['not_a_pdf', '.pdf'])
+      not_a_pdf.binmode
+      not_a_pdf.write('Just some random text that is definitely not a PDF file at all')
+      not_a_pdf.close
+
+      attachment = PersistentAttachments::VAForm.new.tap do |att|
+        att.form_id = '21-0779'
+        att.file_attacher.attach(File.open(not_a_pdf.path, 'rb'), validate: false)
+      end
+      processor = described_class.new(attachment)
+
+      expect { processor.process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError) do |error|
+          expect(error.errors.first[:title]).to eq('File conversion error')
+      end
+
+      not_a_pdf.unlink
+    end
+  end
+
+  context 'logging' do
+    before { allow(Rails.logger).to receive(:error) }
+
+    it 'logs conversion failure with structured fields and no PII' do
+      allow(Common::ConvertToPdf).to receive(:new).and_raise(StandardError.new('some/path/with/pii.jpg'))
+      attachment = PersistentAttachments::VAForm.new.tap do |a|
+        a.form_id = '21-0779'
+        a.file = File.open(jpg_path, 'rb')
+      end
+
+      expect { described_class.new(attachment).process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'Simple forms api - PDF conversion failed',
+        hash_including(attachment_guid: attachment.guid, attachment_type: 'PersistentAttachments::VAForm')
+      )
+      expect(Rails.logger).not_to have_received(:error).with(anything, hash_including(message: anything))
+    end
+
+    it 'logs attachment_type correctly for MilitaryRecords' do
+      allow(Common::ConvertToPdf).to receive(:new).and_raise(StandardError)
+      attachment = PersistentAttachments::MilitaryRecords.new.tap do |a|
+        a.form_id = '21-0779'
+        a.file = File.open(jpg_path, 'rb')
+      end
+
+      expect { described_class.new(attachment).process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'Simple forms api - PDF conversion failed',
+        hash_including(attachment_type: 'PersistentAttachments::MilitaryRecords')
+      )
     end
   end
 end

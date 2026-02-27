@@ -16,12 +16,15 @@ module UnifiedHealthData
       include OracleHealthRenewabilityHelper
       include OracleHealthTrackingHelper
 
+      DEFAULT_FILTERED_STATUSES = %w[cancelled entered-in-error].freeze
+
       # Parses an Oracle Health FHIR MedicationRequest into a UnifiedHealthData::Prescription
       #
       # @param resource [Hash] FHIR MedicationRequest resource from Oracle Health
       # @return [UnifiedHealthData::Prescription, nil] Parsed prescription or nil if invalid/filtered
       def parse(resource)
         return nil if resource.nil? || resource['id'].nil?
+        return nil if filtered_status?(resource['status'])
 
         category = categorize_medication(resource)
 
@@ -38,6 +41,25 @@ module UnifiedHealthData
 
       private
 
+      def filtered_status?(status)
+        filtered_statuses.include?(status)
+      end
+
+      # Returns the list of FHIR MedicationRequest statuses to filter out.
+      # Configurable via Settings.mhv.uhd.medication_filtered_statuses (comma-separated).
+      # Defaults to cancelled and entered-in-error. Set to "none" to disable filtering.
+      def filtered_statuses
+        @filtered_statuses ||= begin
+          configured = Settings.mhv.uhd.medication_filtered_statuses
+          if configured.present?
+            values = configured.to_s.split(',').map(&:strip)
+            values == ['none'] ? [] : values
+          else
+            DEFAULT_FILTERED_STATUSES
+          end
+        end
+      end
+
       def build_prescription_attributes(resource)
         tracking_data = build_tracking_information(resource)
         dispenses_data = build_dispenses_information(resource)
@@ -48,6 +70,7 @@ module UnifiedHealthData
           .merge(build_contact_and_source_attributes(resource, dispenses_data))
           .merge(dispenses: dispenses_data)
           .merge(refill_metadata)
+          .merge(source_ehr: UnifiedHealthData::Prescription::SOURCE_EHR_ORACLE_HEALTH)
       end
 
       # Builds core prescription attributes from the FHIR MedicationRequest resource.

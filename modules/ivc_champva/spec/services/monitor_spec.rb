@@ -130,6 +130,61 @@ RSpec.describe IvcChampva::Monitor do
     end
   end
 
+  describe '#track_pega_alert_email_sent' do
+    it 'calls track_request with correct parameters' do
+      form_id = 'vha_10_10d'
+
+      additional_context = {
+        form_id:
+      }
+
+      expect(monitor).to receive(:track_request).with(
+        'info',
+        "IVC ChampVA Forms - #{form_id} missing pega status alert sent",
+        "#{IvcChampva::Monitor::STATS_KEY}.form_missing_pega_status_alert_email_sent",
+        call_location: anything,
+        **additional_context
+      )
+
+      monitor.track_pega_alert_email_sent(form_id)
+    end
+
+    it 'handles nil form_id gracefully' do
+      expect(monitor).to receive(:track_request)
+      expect { monitor.track_pega_alert_email_sent(nil) }.not_to raise_error
+    end
+  end
+
+  describe '#track_pega_alert_email_failed' do
+    it 'calls track_request with correct parameters' do
+      form_id = 'vha_10_10d'
+      status = 'permanent-failure'
+      status_reason = 'It done broke real good'
+
+      additional_context = {
+        form_id:,
+        status:,
+        status_reason:
+      }
+
+      expect(monitor).to receive(:track_request).with(
+        'warn',
+        "IVC ChampVA Forms - #{form_id} missing pega status alert failed to send, " \
+        "status: #{status}, reason: #{status_reason}",
+        "#{IvcChampva::Monitor::STATS_KEY}.form_missing_pega_status_alert_email_failed",
+        call_location: anything,
+        **additional_context
+      )
+
+      monitor.track_pega_alert_email_failed(form_id, status, status_reason)
+    end
+
+    it 'handles nil arguments gracefully' do
+      expect(monitor).to receive(:track_request)
+      expect { monitor.track_pega_alert_email_failed(nil, nil, nil) }.not_to raise_error
+    end
+  end
+
   describe '#track_send_zsf_notification_to_pega' do
     it 'calls track_request with correct parameters' do
       form_uuid = '12345678-1234-5678-1234-567812345678'

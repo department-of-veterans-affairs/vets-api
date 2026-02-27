@@ -14,28 +14,24 @@ module PdfFill
             key: 'fullName',
             limit: 31,
             question_num: 1,
-            question_suffix: 'A',
             question_text: 'NAME OF CLAIMANT'
           },
           'ssn' => {
             key: 'ssn',
             limit: 10,
             question_num: 2,
-            question_suffix: 'A',
             question_text: 'SOCIAL SECURITY NUMBER'
           },
           'vaFileNumber' => {
             key: 'vaFileNumber',
             limit: 9,
             question_num: 3,
-            question_suffix: 'A',
             question_text: 'VA FILE NUMBER'
           },
           'dateOfBirth' => {
             key: 'dateOfBirth',
             limit: 20,
             question_num: 4,
-            question_suffix: 'A',
             question_text: 'DATE OF BIRTH'
           }
         },
@@ -43,7 +39,6 @@ module PdfFill
           key: 'claimantAddress',
           limit: 500,
           question_num: 5,
-          question_suffix: 'A',
           question_text: 'CLAIMANT ADDRESS'
         },
         'claimantContactInformation' => {
@@ -51,14 +46,12 @@ module PdfFill
             key: 'phoneNumber',
             limit: 13,
             question_num: 6,
-            question_suffix: 'A',
             question_text: 'PHONE NUMBER'
           },
           'emailAddress' => {
             key: 'emailAddress',
             limit: 30,
             question_num: 7,
-            question_suffix: 'A',
             question_text: 'EMAIL ADDRESS'
           }
         },
@@ -66,14 +59,12 @@ module PdfFill
           key: 'thirdPartyPersonName',
           limit: 12,
           question_num: 8,
-          question_suffix: 'A',
           question_text: 'NAME OF PERSON TO RECEIVE INFORMATION'
         },
         'thirdPartyPersonAddress' => {
           key: 'thirdPartyPersonAddress',
           limit: 500,
           question_num: 9,
-          question_suffix: 'A',
           question_text: 'ADDRESS OF PERSON TO RECEIVE INFORMATION'
         },
         'thirdPartyOrganizationInformation' => {
@@ -81,14 +72,12 @@ module PdfFill
             key: 'organizationName',
             limit: 30,
             question_num: 10,
-            question_suffix: 'A',
             question_text: 'NAME OF ORGANIZATION TO RECEIVE INFORMATION'
           },
           'organizationAddress' => {
             key: 'organizationAddress',
             limit: 300,
             question_num: 11,
-            question_suffix: 'A',
             question_text: 'ADDRESS OF ORGANIZATION TO RECEIVE INFORMATION'
           }
         },
@@ -96,7 +85,6 @@ module PdfFill
           key: "organizationRepresentatives#{ITERATOR}",
           limit: 6,
           question_num: 12,
-          question_suffix: 'A',
           question_text: 'ORGANIZATION REPRESENTATIVES',
           iterator: ITERATOR
         },
@@ -104,117 +92,99 @@ module PdfFill
           'statusOfClaim' => {
             key: 'statusOfClaim',
             question_num: 13,
-            question_suffix: 'A',
             question_text: 'STATUS OF CLAIM'
           },
           'currentBenefit' => {
             key: 'currentBenefit',
             question_num: 14,
-            question_suffix: 'A',
             question_text: 'CURRENT BENEFIT'
           },
           'paymentHistory' => {
             key: 'paymentHistory',
             question_num: 15,
-            question_suffix: 'A',
             question_text: 'PAYMENT HISTORY'
           },
           'amountOwed' => {
             key: 'amountOwed',
             question_num: 16,
-            question_suffix: 'A',
             question_text: 'AMOUNT OWED'
           },
           'minor' => {
             key: 'minor',
             question_num: 17,
-            question_suffix: 'A',
             question_text: 'MINOR'
           },
           'other' => {
             key: 'other',
             question_num: 18,
-            question_suffix: 'A',
             question_text: 'OTHER'
           },
           'otherText' => {
             key: 'otherText',
             limit: 30,
             question_num: 19,
-            question_suffix: 'A',
             question_text: 'OTHER TEXT'
           }
         },
         'isLimited' => {
           key: 'isLimited',
           question_num: 20,
-          question_suffix: 'A',
           question_text: 'IS LIMITED'
         },
         'isNotLimited' => {
           key: 'isNotLimited',
           question_num: 21,
-          question_suffix: 'A',
           question_text: 'IS NOT LIMITED'
         },
         'lengthOfRelease' => {
           'isOngoing' => {
             key: 'isOngoing',
             question_num: 22,
-            question_suffix: 'A',
             question_text: 'IS ONGOING'
           },
           'isDated' => {
             key: 'isDated',
             question_num: 23,
-            question_suffix: 'A',
             question_text: 'IS DATED'
           },
           'releaseDate' => {
             key: 'releaseDate',
             question_num: 24,
-            question_suffix: 'A',
             question_text: 'RELEASE DATE'
           }
         },
         'securityQuestion' => {
           key: 'question',
           question_num: 25,
-          question_suffix: 'A',
           question_text: 'SECURITY QUESTION'
         },
         'securityAnswer' => {
           key: 'answer',
           question_num: 26,
-          question_suffix: 'A',
           question_text: 'SECURITY ANSWER'
         },
         'statementOfTruthSignature' => {
           key: 'statementOfTruthSignature',
           limit: 50,
           question_num: 27,
-          question_suffix: 'A',
           question_text: 'STATEMENT OF TRUTH SIGNATURE'
         },
         'dateSigned' => {
           key: 'dateSigned',
           limit: 20,
           question_num: 28,
-          question_suffix: 'A',
           question_text: 'DATE SIGNED'
         },
         'ssn2' => {
           key: 'ssn2',
           limit: 10,
           question_num: 29,
-          question_suffix: 'A',
           question_text: 'SSN PART 2'
         },
         'ssn3' => {
           key: 'ssn3',
           limit: 10,
           question_num: 30,
-          question_suffix: 'A',
           question_text: 'SSN PART 3'
         }
       }.freeze
@@ -360,11 +330,11 @@ module PdfFill
         q_key = @form_data['securityQuestion']['question']
         if q_key == 'create'
           if @form_data['securityAnswer'] && @form_data['securityAnswer']['securityAnswerCreate']
-            @form_data['securityQuestion']['question'] =
+            @form_data['securityQuestion'] =
               @form_data['securityAnswer']['securityAnswerCreate']['question']
           end
         else
-          @form_data['securityQuestion']['question'] = SECURITY_QUESTIONS[q_key]
+          @form_data['securityQuestion'] = SECURITY_QUESTIONS[q_key]
         end
       end
 
@@ -373,12 +343,12 @@ module PdfFill
 
         ans = @form_data['securityAnswer']
         if ans['securityAnswerText']
-          @form_data['securityAnswer']['answer'] = ans['securityAnswerText']
+          @form_data['securityAnswer'] = ans['securityAnswerText']
         elsif ans['securityAnswerLocation']
           loc = ans['securityAnswerLocation']
-          @form_data['securityAnswer']['answer'] = "#{loc['city']}, #{loc['state']}"
+          @form_data['securityAnswer'] = "#{loc['city']}, #{loc['state']}"
         elsif ans['securityAnswerCreate']
-          @form_data['securityAnswer']['answer'] = ans['securityAnswerCreate']['answer']
+          @form_data['securityAnswer'] = ans['securityAnswerCreate']['answer']
         end
       end
 

@@ -6,7 +6,7 @@ require 'unified_health_data/client'
 RSpec.describe UnifiedHealthData::Client do
   subject(:client) { described_class.new }
 
-  describe '#check_for_partial_failures!' do
+  describe '#check_for_operation_outcomes!' do
     let(:success_body) do
       {
         'vista' => {
@@ -53,7 +53,7 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'does not raise an exception' do
         expect do
-          client.send(:check_for_partial_failures!, success_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, success_response, '/uhd/v1/allergies?patientId=123')
         end.not_to raise_error
       end
     end
@@ -68,19 +68,19 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'raises UpstreamPartialFailure exception' do
         expect do
-          client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
         end.to raise_error(Common::Exceptions::UpstreamPartialFailure)
       end
 
       it 'includes failed_sources in the exception' do
-        client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+        client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
       rescue Common::Exceptions::UpstreamPartialFailure => e
         expect(e.failed_sources).to eq(['oracle-health'])
       end
 
       it 'logs the partial failure' do
         begin
-          client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
         rescue Common::Exceptions::UpstreamPartialFailure
           # expected
         end
@@ -96,7 +96,7 @@ RSpec.describe UnifiedHealthData::Client do
 
       it 'increments StatsD counter' do
         begin
-          client.send(:check_for_partial_failures!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, partial_failure_response, '/uhd/v1/allergies?patientId=123')
         rescue Common::Exceptions::UpstreamPartialFailure
           # expected
         end
@@ -126,10 +126,34 @@ RSpec.describe UnifiedHealthData::Client do
       end
       let(:warning_response) { Faraday::Response.new(body: warning_body) }
 
+      before do
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:increment)
+      end
+
       it 'does not raise an exception' do
         expect do
-          client.send(:check_for_partial_failures!, warning_response, '/uhd/v1/allergies?patientId=123')
+          client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
         end.not_to raise_error
+      end
+
+      it 'injects _warnings into the response body' do
+        client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
+        expect(warning_response.body['_warnings']).to be_an(Array)
+        expect(warning_response.body['_warnings'].size).to eq(1)
+        expect(warning_response.body['_warnings'].first).to include(source: 'oracle-health', severity: 'warning')
+      end
+
+      it 'logs the warning and increments StatsD' do
+        client.send(:check_for_operation_outcomes!, warning_response, '/uhd/v1/allergies?patientId=123')
+
+        expect(Rails.logger).to have_received(:warn).with(
+          hash_including(message: 'UHD upstream source returned OperationOutcome warning', resource_type: 'allergies')
+        )
+        expect(StatsD).to have_received(:increment).with(
+          'api.uhd.partial_warning',
+          tags: ['source:oracle-health', 'resource_type:allergies']
+        )
       end
     end
 
@@ -137,9 +161,9 @@ RSpec.describe UnifiedHealthData::Client do
       let(:array_response) { Faraday::Response.new(body: [{ 'success' => true }]) }
 
       it 'does not raise an exception' do
-        # Detector handles arrays gracefully - body['vista'] returns nil, so no failure detected
+        # Detector only parses when body.is_a?(Hash), so array bodies are skipped entirely
         expect do
-          client.send(:check_for_partial_failures!, array_response, '/uhd/v1/refill')
+          client.send(:check_for_operation_outcomes!, array_response, '/uhd/v1/refill')
         end.not_to raise_error
       end
     end
@@ -156,9 +180,78 @@ RSpec.describe UnifiedHealthData::Client do
       it 'does not raise an exception' do
         # Detector looks for body['vista'] and body['oracle-health'], finds neither
         expect do
-          client.send(:check_for_partial_failures!, response, '/some/unknown/path')
+          client.send(:check_for_operation_outcomes!, response, '/some/unknown/path')
         end.not_to raise_error
       end
+    end
+  end
+
+  # WebMock is used instead of VCR cassettes here because these tests verify URL-encoding
+  # of path segments (slashes, spaces, `#`). VCR matches on the final URI so it cannot
+  # assert that the client correctly encodes special characters before the request is sent.
+  describe '#get_note_by_source' do
+    let(:host) { Settings.mhv.uhd.host }
+    let(:security_host) { Settings.mhv.uhd.security_host }
+    let(:patient_id) { '12345V67890' }
+    let(:source) { UnifiedHealthData::SourceConstants::ORACLE_HEALTH }
+    let(:record_id) { '20875576613' }
+    let(:start_date) { '2024-01-01' }
+    let(:end_date) { '2025-06-01' }
+    let(:expected_query) { { 'patientId' => patient_id, 'startDate' => start_date, 'endDate' => end_date } }
+
+    before do
+      stub_request(:post, "#{security_host}/mhvapi/security/v1/login")
+        .to_return(status: 200, headers: { 'authorization' => 'Bearer test-token' })
+      stub_request(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/notes})
+        .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
+    end
+
+    it 'constructs the correct URL with oracle-health source' do
+      client.get_note_by_source(patient_id:, source:, record_id:, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle-health/20875576613")
+        .with(query: expected_query)
+    end
+
+    it 'constructs the correct URL with vista source' do
+      vista_source = UnifiedHealthData::SourceConstants::VISTA
+
+      client.get_note_by_source(patient_id:, source: vista_source, record_id:, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/vista/20875576613")
+        .with(query: expected_query)
+    end
+
+    it 'URL-encodes slashes and hashes in record_id' do
+      special_record_id = 'F253/7227761#1834074'
+
+      client.get_note_by_source(patient_id:, source:, record_id: special_record_id, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle-health/F253%2F7227761%231834074")
+        .with(query: expected_query)
+    end
+
+    it 'URL-encodes spaces in record_id' do
+      spaced_record_id = 'note 123'
+
+      client.get_note_by_source(patient_id:, source:, record_id: spaced_record_id, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle-health/note%20123")
+        .with(query: expected_query)
+    end
+
+    it 'URL-encodes special characters in source' do
+      weird_source = 'oracle/health'
+
+      client.get_note_by_source(patient_id:, source: weird_source, record_id:, start_date:, end_date:)
+
+      expect(WebMock).to have_requested(:get,
+                                        "#{host}/v1/medicalrecords/notes/oracle%2Fhealth/20875576613")
+        .with(query: expected_query)
     end
   end
 

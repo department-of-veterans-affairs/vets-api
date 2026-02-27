@@ -24,6 +24,16 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
 
         expect(result).to be_a(UnifiedHealthData::Prescription)
         expect(result.id).to eq('12345')
+        expect(result.source_ehr).to eq('OH')
+      end
+
+      it 'sets source_ehr to OH even when station_number is nil' do
+        resource = fhir_resource(source: 'VA')
+        resource['contained'] = [] # No dispenses means no station_number
+        result = subject.parse(resource)
+
+        expect(result.station_number).to be_nil
+        expect(result.source_ehr).to eq('OH')
       end
 
       it 'returns nil for nil resource' do
@@ -77,6 +87,38 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
           'category' => [{ 'coding' => [{ 'code' => 'charge-only' }] }]
         )
         expect(subject.parse(resource)).to be_nil
+      end
+
+      it 'filters out cancelled medications by default' do
+        resource = base_fhir_resource.merge('status' => 'cancelled')
+        expect(subject.parse(resource)).to be_nil
+      end
+
+      it 'filters out entered-in-error medications by default' do
+        resource = base_fhir_resource.merge('status' => 'entered-in-error')
+        expect(subject.parse(resource)).to be_nil
+      end
+
+      it 'uses configured filtered_statuses from Settings when present' do
+        allow(Settings.mhv.uhd).to receive(:medication_filtered_statuses).and_return('cancelled,stopped')
+        adapter = described_class.new
+
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'cancelled'))).to be_nil
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'stopped'))).to be_nil
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'entered-in-error'))).not_to be_nil
+      end
+
+      it 'disables status filtering when configured as "none"' do
+        allow(Settings.mhv.uhd).to receive(:medication_filtered_statuses).and_return('none')
+        adapter = described_class.new
+
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'cancelled'))).not_to be_nil
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'entered-in-error'))).not_to be_nil
+      end
+
+      it 'does not filter active medications' do
+        resource = base_fhir_resource.merge('status' => 'active')
+        expect(subject.parse(resource)).not_to be_nil
       end
     end
 
@@ -194,9 +236,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.refill_status).to eq('providerHold')
       end
 
-      it 'maps cancelled status to "discontinued" refill_status' do
-        resource = base_fhir_resource.merge('status' => 'cancelled')
-        result = subject.parse(resource)
+      it 'maps stopped status to "discontinued" refill_status' do
+        allow(Settings.mhv.uhd).to receive(:medication_filtered_statuses).and_return('none')
+        resource = base_fhir_resource.merge('status' => 'stopped')
+        result = described_class.new.parse(resource)
         expect(result.refill_status).to eq('discontinued')
       end
 
