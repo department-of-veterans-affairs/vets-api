@@ -19,7 +19,7 @@ module SurvivorsBenefits::StructuredData::Section02
         'CLAIMANT_SSN' => form['claimantSocialSecurityNumber'],
         'CLAIMANT_DOB' => format_date(form['claimantDateOfBirth']),
         'PHONE_NUMBER' => primary_phone['contact'],
-        'INT_PHONE_NUMBER' => international_phone_number(form, primary_phone),
+        'INT_PHONE_NUMBER' => international_phone_number(form, primary_phone, 'claimantInternationalPhone'),
         'EMAIL' => form['claimantEmail']
       }
     )

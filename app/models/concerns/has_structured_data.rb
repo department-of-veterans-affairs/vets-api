@@ -80,8 +80,8 @@ module HasStructuredData
   # @param form [Hash]
   # @param primary_phone [Hash]
   # @return [String, nil]
-  def international_phone_number(form, primary_phone)
-    return format_phone(form['internationalPhone']) if form['internationalPhone'].present?
+  def international_phone_number(form, primary_phone, international_key = 'internationalPhone')
+    return format_phone(form[international_key]) if form[international_key].present?
     return format_phone(primary_phone['contact']) unless primary_phone['countryCode']&.casecmp?('US')
 
     nil
