@@ -13,7 +13,7 @@ module SurvivorsBenefits::StructuredData::Section10
   ##
   # Check if there are any reimbursements for care or medical expenses
   #
-  # @return [Boolean] True if there are any reimbursements, false otherwise 
+  # @return [Boolean] True if there are any reimbursements, false otherwise
   def any_reimbursment?
     form['careExpenses'].present? || form['medicalExpenses'].present?
   end
