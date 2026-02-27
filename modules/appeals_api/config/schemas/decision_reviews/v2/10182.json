@@ -143,7 +143,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "type": { "type": "string", "enum": ["contestableIssue"] },
+              "type": { "type": "string", "enum": ["contestableIssue", "appealableIssue"] },
               "attributes": {
                 "type": "object",
                 "properties": {
