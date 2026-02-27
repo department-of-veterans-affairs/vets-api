@@ -74,7 +74,7 @@ RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
 
       expect(SavedClaim).to receive(:find).with(itf_saved_claim.id).and_return(itf_saved_claim)
 
-      allow_any_instance_of(described_class).to receive(:email).and_return('rep@example.com')
+      allow_any_instance_of(described_class).to receive(:email).and_return('example@email.com')
 
       expected_personalization = {
         'form_id' => '21-0966',
