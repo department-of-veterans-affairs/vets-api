@@ -3005,6 +3005,9 @@ features:
   survivors_benefits_idp:
     actor_type: user
     description: Enables IDP (Intelligent Document Processing) for survivors benefits supporting document uploads
+  survivors_benefits_form_2025_version_enabled:
+    actor_type: user
+    description: Enables the use of the 2025 version of the Survivors Benefits form (Form 21P-534EZ)
   sob_claimant_service:
     actor_type: user
     description: If enabled, use the new claimant service for SOB
