@@ -50,6 +50,26 @@ describe 'rake claims', type: :task do
 
     let(:task_name) { 'claims:fix_failed_claims' }
 
+    def execute_fix_failed_claims(*claims)
+      claim_ids = claims.flatten.map { |claim| claim.respond_to?(:id) ? claim.id : claim }.join(',')
+      args = Rake::TaskArguments.new([:claim_ids], [claim_ids])
+      task.execute(args)
+    end
+
+    def set_auto_cest_pdf_flag(claim, value)
+      claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => value))
+    end
+
+    def clear_auto_cest_pdf_flag(claim)
+      claim.update!(form_data: (claim.form_data || {}).except('autoCestPDFGenerationDisabled'))
+    end
+
+    def expect_supporting_documents_uploaded(claim)
+      claim.supporting_documents.each do |supporting_document|
+        expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(supporting_document.id, 'document').once
+      end
+    end
+
     before do
       # Mock ClaimEstablisher to update claim status
       allow(ClaimsApi::ClaimEstablisher).to receive(:perform_inline) do |claim_id|
@@ -81,8 +101,7 @@ describe 'rake claims', type: :task do
       end
 
       it 'logs a warning and skips to the next claim' do
-        args = Rake::TaskArguments.new([:claim_ids], ['non-existent-claim-id'])
-        expect { task.execute(args) }.not_to raise_error
+        expect { execute_fix_failed_claims('non-existent-claim-id') }.not_to raise_error
         expect(Rails.logger).to have_received(:warn).with('Could not find claim with id non-existent-claim-id').once
       end
     end
@@ -94,7 +113,7 @@ describe 'rake claims', type: :task do
 
       before do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
-        claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
+        set_auto_cest_pdf_flag(claim, true)
 
         # Mock ClaimEstablisher to keep claim in errored state
         allow(ClaimsApi::ClaimEstablisher).to receive(:perform_inline) do |claim_id|
@@ -105,8 +124,7 @@ describe 'rake claims', type: :task do
 
       it 'logs the error and skips to the next claim' do
         allow(Rails.logger).to receive(:error)
-        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        expect { task.execute(args) }.not_to raise_error
+        expect { execute_fix_failed_claims(claim) }.not_to raise_error
         expect(Rails.logger).to have_received(:error).with(
           /Error processing claim #{claim.id}/
         )
@@ -120,9 +138,8 @@ describe 'rake claims', type: :task do
 
       before do
         allow(Rails.logger).to receive(:warn)
-        claim.update!(form_data: (claim.form_data || {}).except('autoCestPDFGenerationDisabled'))
-        args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-        task.execute(args)
+        clear_auto_cest_pdf_flag(claim)
+        execute_fix_failed_claims(claim)
       end
 
       it 'logs a warning and skips to the next claim' do
@@ -144,35 +161,29 @@ describe 'rake claims', type: :task do
           end
 
           before do
-            claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
+            set_auto_cest_pdf_flag(claim, true)
           end
 
           it 'reestablishes the claim' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim.id).once
           end
 
           it 'uploads the 526EZ PDF' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(claim.id, 'claim').once
           end
 
           it 'uploads each supporting document' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
-              claim.supporting_documents.first.id, 'document'
-            ).once
+            expect_supporting_documents_uploaded(claim)
           end
 
           it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim) }.not_to raise_error
           end
         end
 
@@ -189,41 +200,29 @@ describe 'rake claims', type: :task do
           end
 
           before do
-            claim1.update!(form_data: (claim1.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
-            claim2.update!(form_data: (claim2.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
+            set_auto_cest_pdf_flag(claim1, true)
+            set_auto_cest_pdf_flag(claim2, true)
           end
 
           it 'reestablishes all claims' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
+            execute_fix_failed_claims(claim1, claim2)
 
             expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim1.id).once
             expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim2.id).once
           end
 
           it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim1, claim2) }.not_to raise_error
           end
 
           it 'runs the ClaimUploader for all claims and their supporting documents' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
+            execute_fix_failed_claims(claim1, claim2)
 
             expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(claim1.id, 'claim').once
             expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(claim2.id, 'claim').once
 
-            claim1.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_inline).with(sup.id, 'document').once
-            end
-
-            claim2.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_inline).with(sup.id, 'document').once
-            end
+            expect_supporting_documents_uploaded(claim1)
+            expect_supporting_documents_uploaded(claim2)
 
             # expect the claim uploader to have been called the correct number of times
             # (1 for each claim + 1 for each supporting document)
@@ -242,43 +241,36 @@ describe 'rake claims', type: :task do
         end
 
         before do
-          claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => false))
+          set_auto_cest_pdf_flag(claim, false)
         end
 
         context 'for a single claim' do
           it 'reestablishes the claim' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::ClaimEstablisher).to have_received(:perform_inline).with(claim.id).once
           end
 
           it 'does NOT upload the 526EZ PDF' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_inline).with(claim.id, 'claim')
           end
 
           it 'does NOT use the DisabilityCompensationPdfGenerator' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
               .not_to have_received(:perform_inline).with(claim.id, '')
           end
 
           it 'uploads each supporting document' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
-              claim.supporting_documents.first.id, 'document'
-            ).once
+            expect_supporting_documents_uploaded(claim)
           end
 
           it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim) }.not_to raise_error
           end
         end
       end
@@ -296,35 +288,29 @@ describe 'rake claims', type: :task do
           end
 
           before do
-            claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
+            set_auto_cest_pdf_flag(claim, true)
           end
 
           it 'reestablishes the claim with Form526EstablishmentUpload' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(:perform_inline).with(claim.id).once
           end
 
           it 'uploads the 526EZ PDF' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_inline).with(claim.id, 'claim')
           end
 
           it 'uploads each supporting document' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
-              claim.supporting_documents.first.id, 'document'
-            ).once
+            expect_supporting_documents_uploaded(claim)
           end
 
           it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim) }.not_to raise_error
           end
         end
 
@@ -341,41 +327,29 @@ describe 'rake claims', type: :task do
           end
 
           before do
-            claim1.update!(form_data: (claim1.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
-            claim2.update!(form_data: (claim2.form_data || {}).merge('autoCestPDFGenerationDisabled' => true))
+            set_auto_cest_pdf_flag(claim1, true)
+            set_auto_cest_pdf_flag(claim2, true)
           end
 
           it 'reestablishes all claims' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
+            execute_fix_failed_claims(claim1, claim2)
 
             expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(:perform_inline).with(claim1.id).once
             expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(:perform_inline).with(claim2.id).once
           end
 
           it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim1, claim2) }.not_to raise_error
           end
 
           it 'runs the ClaimUploader for all claims and their supporting documents' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
+            execute_fix_failed_claims(claim1, claim2)
 
             expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(:perform_inline).with(claim1.id).once
             expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(:perform_inline).with(claim2.id).once
 
-            claim1.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_inline).with(sup.id, 'document').once
-            end
-
-            claim2.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_inline).with(sup.id, 'document').once
-            end
+            expect_supporting_documents_uploaded(claim1)
+            expect_supporting_documents_uploaded(claim2)
           end
         end
       end
@@ -398,12 +372,11 @@ describe 'rake claims', type: :task do
           end
 
           before do
-            claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => false))
+            set_auto_cest_pdf_flag(claim, false)
           end
 
           it 'reestablishes the claim' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim.id,
@@ -413,31 +386,25 @@ describe 'rake claims', type: :task do
           end
 
           it 'does NOT upload the 526EZ PDF using Form526EstablishmentUpload' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
             expect(ClaimsApi::V1::Form526EstablishmentUpload).not_to have_received(:perform_inline).with(claim.id)
           end
 
           it 'uses the DisabilityCompensationPdfGenerator' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
               .to have_received(:perform_inline).with(claim.id, 'M')
           end
 
           it 'uploads each supporting document' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
 
-            expect(ClaimsApi::ClaimUploader).to have_received(:perform_inline).with(
-              claim.supporting_documents.first.id, 'document'
-            ).once
+            expect_supporting_documents_uploaded(claim)
           end
 
           it 'completes successfully' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim) }.not_to raise_error
           end
         end
 
@@ -454,13 +421,12 @@ describe 'rake claims', type: :task do
           end
 
           before do
-            claim1.update!(form_data: (claim1.form_data || {}).merge('autoCestPDFGenerationDisabled' => false))
-            claim2.update!(form_data: (claim2.form_data || {}).merge('autoCestPDFGenerationDisabled' => false))
+            set_auto_cest_pdf_flag(claim1, false)
+            set_auto_cest_pdf_flag(claim2, false)
           end
 
           it 'reestablishes all claims with the DisabilityCompensationPdfGenerator' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
+            execute_fix_failed_claims(claim1, claim2)
 
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim1.id,
@@ -474,28 +440,17 @@ describe 'rake claims', type: :task do
           end
 
           it 'does NOT upload the 526EZ PDF using Form526EstablishmentUpload' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            task.execute(args)
+            execute_fix_failed_claims(claim1, claim2)
 
             expect(ClaimsApi::V1::Form526EstablishmentUpload).not_to have_received(:perform_inline).with(claim1.id)
             expect(ClaimsApi::V1::Form526EstablishmentUpload).not_to have_received(:perform_inline).with(claim2.id)
           end
 
           it 'completes successfully and uploads each supporting document' do
-            args = Rake::TaskArguments.new([:claim_ids], ["#{claim1.id},#{claim2.id}"])
-            expect { task.execute(args) }.not_to raise_error
+            expect { execute_fix_failed_claims(claim1, claim2) }.not_to raise_error
 
-            claim1.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_inline).with(sup.id, 'document').once
-            end
-
-            claim2.supporting_documents.each do |sup|
-              expect(
-                ClaimsApi::ClaimUploader
-              ).to have_received(:perform_inline).with(sup.id, 'document').once
-            end
+            expect_supporting_documents_uploaded(claim1)
+            expect_supporting_documents_uploaded(claim2)
           end
         end
 
@@ -512,12 +467,11 @@ describe 'rake claims', type: :task do
             allow(MPI::Service).to receive(:new).and_return(
               double(find_profile_by_attributes: double(profile: double(given_names: %w[John])))
             )
-            claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => false))
+            set_auto_cest_pdf_flag(claim, false)
           end
 
           it 'passes an empty string for the middle initial' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
               .to have_received(:perform_inline).with(claim.id, '')
           end
@@ -536,12 +490,11 @@ describe 'rake claims', type: :task do
             allow(MPI::Service).to receive(:new).and_return(
               double(find_profile_by_attributes: double(profile: double(given_names: %w[John Null])))
             )
-            claim.update!(form_data: (claim.form_data || {}).merge('autoCestPDFGenerationDisabled' => false))
+            set_auto_cest_pdf_flag(claim, false)
           end
 
           it 'passes an empty string for the middle initial' do
-            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
-            task.execute(args)
+            execute_fix_failed_claims(claim)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
               .to have_received(:perform_inline).with(claim.id, '')
           end
