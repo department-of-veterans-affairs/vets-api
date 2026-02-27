@@ -160,6 +160,10 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
+  disability_526_new_bdd_sha_enforcement_workflow_enabled:
+    actor_type: user
+    description: If enabled, Form 21-526EZ will show new UI to encourage veterans to upload a Separation Health Assessment (SHA).
+    enable_in_development: false
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
@@ -1747,10 +1751,6 @@ features:
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
-  mhv_vaccine_lighthouse_name_logging:
-    actor_type: user
-    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
-    enable_in_development: true
   mhv_vaccine_mobile_return_empty_location_data:
     actor_type: user
     description: Returns empty response for mobile health locations endpoint when enabled
