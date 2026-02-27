@@ -3,7 +3,7 @@
 module SimpleFormsApi
   module Mms
     module VBA214140IbmConverter
-      FORM_TYPE_LABEL = '21-4140'
+      FORM_TYPE_LABEL = 'VA FORM 21-4140, AUG 2024'
       MAPPINGS = {
         'VETERAN_FULL_NAME' => ->(form) { full_name(form) },
         'VETERAN_FIRST_NAME' => ->(form) { form.first_name.to_s },
