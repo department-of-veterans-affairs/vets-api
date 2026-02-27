@@ -608,7 +608,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     it 'renders the attachment as json' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      allow_any_instance_of(RTesseract).to receive(:to_s).and_return('')
       file = fixture_file_upload('doctors-note.gif')
 
       params = { form_id: form_number, file: }
@@ -638,7 +637,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     it 'returns an error if the document is invalid' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      allow_any_instance_of(RTesseract).to receive(:to_s).and_return('')
       file = fixture_file_upload('doctors-note.gif')
 
       params = { form_id: form_number, file: }
