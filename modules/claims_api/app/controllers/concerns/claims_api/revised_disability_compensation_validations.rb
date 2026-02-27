@@ -3,11 +3,11 @@
 require 'common/exceptions'
 require 'brd/brd'
 require 'bgs_service/standard_data_service'
-require 'claims_api/v2/disability_compensation_shared_service_module'
+require 'claims_api/disability_compensation_validations_helper'
 
 module ClaimsApi
   module RevisedDisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
-    include ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+    include ClaimsApi::DisabilityCompensationValidationsHelper
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #

@@ -1,12 +1,14 @@
 # frozen_string_literal: false
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
+require 'claims_api/disability_compensation_validations_helper'
 require 'claims_api/lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
     module AltRevisedDisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
       include DisabilityCompensationSharedServiceModule
+      include ClaimsApi::DisabilityCompensationValidationsHelper
       include LighthouseMilitaryAddressValidator
 
       DATE_FORMATS = {
