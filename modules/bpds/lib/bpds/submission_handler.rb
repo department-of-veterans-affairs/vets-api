@@ -40,6 +40,8 @@ module BPDS
     def submit_claim_to_bpds(claim)
       return false unless Flipper.enabled?(:bpds_service_enabled)
 
+      bpds_monitor.track_service_begun(claim.id)
+
       payload = retrieve_user_identifier_for_bpds
 
       if payload.nil? || (payload[:participant_id].blank? && payload[:file_number].blank?)

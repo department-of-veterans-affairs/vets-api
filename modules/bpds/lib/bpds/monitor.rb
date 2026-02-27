@@ -25,6 +25,20 @@ module BPDS
       super('bpds-service', allowlist: ALLOWLIST)
     end
 
+    # Track service started
+    #
+    # @param claim_id [Integer] the SavedClaim id
+    def track_service_begun(claim_id)
+      context = { claim_id: }
+      track_request(
+        :info,
+        "#{SERVICE_NAME} begun for saved_claim ##{claim_id}",
+        "#{STATSD_KEY_PREFIX}.service_json.begun",
+        call_location: caller_locations.first,
+        **context
+      )
+    end
+
     # Track submission request started
     #
     # @param claim_id [Integer] the SavedClaim id

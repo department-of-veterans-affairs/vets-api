@@ -13,6 +13,19 @@ RSpec.describe BPDS::Monitor do
   let(:is_pid_present) { true }
   let(:is_file_number_present) { false }
 
+  describe '#track_service_begun' do
+    it 'tracks the service begun event' do
+      expect(monitor).to receive(:track_request).with(
+        :info,
+        "#{BPDS::Monitor::SERVICE_NAME} begun for saved_claim ##{claim_id}",
+        'api.bpds_service.service_json.begun',
+        call_location: instance_of(Thread::Backtrace::Location),
+        claim_id:
+      )
+      monitor.track_service_begun(claim_id)
+    end
+  end
+
   describe '#track_submit_begun' do
     it 'tracks the submit begun event' do
       expect(monitor).to receive(:track_request).with(
