@@ -174,6 +174,28 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
           expect(JSON.parse(response.body).dig('data', 'attributes', 'status')).to eq 'active'
         end
       end
+
+      it 'sends a VA Notify confirmation email' do
+        notification_email = instance_double(AccreditedRepresentativePortal::NotificationEmail)
+        allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_email)
+        allow(notification_email).to receive(:deliver)
+
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+          post('/accredited_representative_portal/v0/intent_to_file', params:)
+        end
+
+        expect(notification_email).to have_received(:deliver).with(:confirmation)
+      end
+
+      it 'does not fail the request if the confirmation email fails' do
+        allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new)
+          .and_raise(StandardError, 'email service down')
+
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+          post('/accredited_representative_portal/v0/intent_to_file', params:)
+          expect(response).to have_http_status(:created)
+        end
+      end
     end
 
     context 'valid params - claimant survivor' do

@@ -70,6 +70,7 @@ module AccreditedRepresentativePortal
           end
 
           Rails.logger.info('ARP ITF: SavedClaimClaimantRepresentative created')
+          send_confirmation_email(saved_claim)
           monitoring.track_count(SUCCESS_METRIC, tags: default_tags)
           render json: parsed_response, status: :created
         end
@@ -155,6 +156,13 @@ module AccreditedRepresentativePortal
         )
       rescue Common::Exceptions::RecordNotFound => e
         raise Common::Exceptions::BadRequest.new(detail: e.message)
+      end
+
+      def send_confirmation_email(saved_claim)
+        AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
+      rescue => e
+        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, current_user.user_account_uuid,
+                                                      'confirmation', e)
       end
 
       def validate_file_type

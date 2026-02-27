@@ -62,4 +62,51 @@ RSpec.describe AccreditedRepresentativePortal::NotificationEmail do
       described_class.new(saved_claim.id).deliver(:error)
     end
   end
+
+  describe '#deliver for ITF claims' do
+    let(:itf_saved_claim) { create(:saved_claim_intent_to_file) }
+
+    it 'successfully sends a confirmation email for an ITF claim' do
+      saved_claim_claimant_representative = create(:saved_claim_claimant_representative,
+                                                   saved_claim: itf_saved_claim)
+      create(:representative,
+             representative_id: saved_claim_claimant_representative.accredited_individual_registration_number)
+
+      expect(SavedClaim).to receive(:find).with(itf_saved_claim.id).and_return(itf_saved_claim)
+
+      allow_any_instance_of(described_class).to receive(:email).and_return('rep@example.com')
+
+      expected_personalization = {
+        'form_id' => '21-0966',
+        'confirmation_number' => itf_saved_claim.confirmation_number,
+        'date_submitted' => itf_saved_claim.created_at,
+        'first_name' => 'Bob',
+        'submission_date' => itf_saved_claim.created_at&.strftime('%B %-d, %Y')
+      }
+
+      api_key = Settings.vanotify.services.accredited_representative_portal.api_key
+      callback_options = {
+        callback_klass: AccreditedRepresentativePortal::NotificationCallback.to_s,
+        callback_metadata: {
+          claim_id: itf_saved_claim.id,
+          email_template_id:
+            Settings.vanotify.services.accredited_representative_portal.email.confirmation.template_id,
+          email_type: :confirmation, form_id: '21-0966',
+          saved_claim_id: itf_saved_claim.id,
+          service_name: 'accredited_representative_portal'
+        }
+      }
+
+      expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(vanotify)
+      expect(vanotify).to receive(:send_email).with(
+        {
+          email_address: 'example@email.com',
+          template_id: Settings.vanotify.services.accredited_representative_portal.email.confirmation.template_id,
+          personalisation: expected_personalization
+        }.compact
+      )
+
+      described_class.new(itf_saved_claim.id).deliver(:confirmation)
+    end
+  end
 end
