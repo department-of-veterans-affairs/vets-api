@@ -39,7 +39,8 @@ namespace :claims do
       end
 
       # prompt the user to enter if the failed request came from POST or PUT endpoint
-      puts "Claim ID #{claim_id} is in an errored state. Did the failed request come from the PUT endpoint?"
+      puts "Claim ID #{claim_id} is in an errored state. Did the failed request come from the PUT \n
+      endpoint (upload_form_526)?\n"
       puts 'i.e., do you need to create and upload a 526EZ PDF (y/n)'
       response = $stdin.gets.chomp.downcase
       unless %w[y n].include?(response)
@@ -49,14 +50,24 @@ namespace :claims do
 
       # DisabilityCompensationPdfGenerator is used for POST request with FES enabled.
       if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES) && response == 'n'
-        # Attempt to get veteran middle initial from form data alternateNames
-        # alternateNames is an array, so find the first entry with a middle name and extract the initial
-        alternate_names = claim.form_data.dig('serviceInformation', 'alternateNames') || []
-        veteran_middle_initial = alternate_names.find do |name|
-          name['middleName'].present?
-        end&.dig('middleName')&.first&.upcase || ''
+        # use header info to get veteran info from MPI
 
-        ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_inline(claim.id, veteran_middle_initial)
+        mpi_profile = MPI::Service.new.find_profile_by_attributes(
+          first_name: claim.auth_headers['va_eauth_firstName'],
+          last_name: claim.auth_headers['va_eauth_lastName'],
+          birth_date: claim.auth_headers['va_eauth_birthdate']&.to_date&.to_s,
+          ssn: claim.auth_headers['va_eauth_pnid']
+        )&.profile
+        middle_name = mpi_profile&.given_names&.second
+
+        # middle initial can be nil or 'Null' in MPI, so check for both cases before assigning value to variable
+        middle_initial = if mpi_profile&.given_names&.second.nil? || mpi_profile&.given_names&.second&.downcase == 'null'
+                           ''
+                         else
+                           middle_name[0]
+                         end
+
+        ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_inline(claim.id, middle_initial)
       else
         ClaimsApi::ClaimEstablisher.perform_inline(claim.id)
       end

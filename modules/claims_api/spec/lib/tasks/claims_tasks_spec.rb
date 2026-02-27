@@ -278,6 +278,9 @@ describe 'rake claims', type: :task do
             claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
             claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
           end
+          allow(MPI::Service).to receive(:new).and_return(
+            double(find_profile_by_attributes: double(profile: double(given_names: %w[John Middle])))
+          )
         end
 
         context 'for a single claim' do
@@ -291,7 +294,7 @@ describe 'rake claims', type: :task do
 
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim.id,
-              ''
+              'M'
             ).once
             expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_inline)
           end
@@ -307,7 +310,7 @@ describe 'rake claims', type: :task do
             args = Rake::TaskArguments.new([:claim_ids], [claim.id])
             task.execute(args)
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
-              .to have_received(:perform_inline).with(claim.id, '')
+              .to have_received(:perform_inline).with(claim.id, 'M')
           end
 
           it 'uploads each supporting document' do
@@ -343,11 +346,11 @@ describe 'rake claims', type: :task do
 
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim1.id,
-              ''
+              'M'
             ).once
             expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to have_received(:perform_inline).with(
               claim2.id,
-              ''
+              'M'
             ).once
             expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_inline)
           end
@@ -375,6 +378,52 @@ describe 'rake claims', type: :task do
                 ClaimsApi::ClaimUploader
               ).to have_received(:perform_inline).with(sup.id, 'document').once
             end
+          end
+        end
+
+        context 'when MPI does not have a middle name for the veteran' do
+          let(:claim) do
+            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+          end
+
+          before do
+            allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_inline) do |claim_id, _|
+              claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+            end
+            allow(MPI::Service).to receive(:new).and_return(
+              double(find_profile_by_attributes: double(profile: double(given_names: %w[John])))
+            )
+          end
+
+          it 'passes an empty string for the middle initial' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
+              .to have_received(:perform_inline).with(claim.id, '')
+          end
+        end
+
+        context 'when MPI has a middle name of "Null" for the veteran' do
+          let(:claim) do
+            create(:auto_established_claim_with_supporting_documents, status: ClaimsApi::AutoEstablishedClaim::ERRORED)
+          end
+
+          before do
+            allow(ClaimsApi::V1::DisabilityCompensationPdfGenerator).to receive(:perform_inline) do |claim_id, _|
+              claim_record = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              claim_record.update!(status: ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+            end
+            allow(MPI::Service).to receive(:new).and_return(
+              double(find_profile_by_attributes: double(profile: double(given_names: %w[John Null])))
+            )
+          end
+
+          it 'passes an empty string for the middle initial' do
+            args = Rake::TaskArguments.new([:claim_ids], [claim.id])
+            task.execute(args)
+            expect(ClaimsApi::V1::DisabilityCompensationPdfGenerator)
+              .to have_received(:perform_inline).with(claim.id, '')
           end
         end
       end
