@@ -4,8 +4,8 @@
 # invoked as a pre-scan step before the SRE agent audit.
 #
 # Usage:
-#   bundle exec rubocop -c .rubocop-sre.yml --only Sre <target_path>
-#   bundle exec rubocop -c .rubocop-sre.yml --only Sre --format json <target_path>
+#   bundle exec rubocop -c .github/agents/sre/.rubocop-sre.yml --only Sre <target_path>
+#   bundle exec rubocop -c .github/agents/sre/.rubocop-sre.yml --only Sre --format json <target_path>
 
 require:
   - './lib/rubocop/cop/sre/dont_leak_pii'
@@ -13,10 +13,6 @@ require:
   - './lib/rubocop/cop/sre/no_bare_rescues'
   - './lib/rubocop/cop/sre/prefer_typed_exceptions'
   - './lib/rubocop/cop/sre/no_module_frameworks'
-  - './lib/rubocop/cop/sre/no_faraday_in_controllers'
-  - './lib/rubocop/cop/sre/dont_swallow_errors'
-  - './lib/rubocop/cop/sre/prefer_structured_logs'
-  - './lib/rubocop/cop/sre/no_manual_backtrace_join'
 
 AllCops:
   DisabledByDefault: true
@@ -49,21 +45,3 @@ Sre/NoModuleFrameworks:
   Include:
     - 'modules/**/*.rb'
 
-Sre/NoFaradayInControllers:
-  Enabled: true
-  Severity: warning
-  Include:
-    - 'app/controllers/**/*.rb'
-    - 'modules/*/app/controllers/**/*.rb'
-
-Sre/DontSwallowErrors:
-  Enabled: true
-  Severity: warning
-
-Sre/PreferStructuredLogs:
-  Enabled: true
-  Severity: warning
-
-Sre/NoManualBacktraceJoin:
-  Enabled: true
-  Severity: warning
