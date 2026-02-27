@@ -15,11 +15,7 @@ module EducationForm
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
-      claim = begin
-        SavedClaim.find(msg['args'].first)
-      rescue
-        nil
-      end
+      claim = SavedClaim.find_by(id: msg['args'].first)
       monitor = EducationBenefitsClaims::Monitor.new(claim)
       monitor.track_submission_exhaustion(msg, claim)
     end
@@ -128,8 +124,9 @@ module EducationForm
     def cleanup_file_paths
       Common::FileHelpers.delete_file_if_exists(@form_path) if @form_path
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
-    rescue
+    rescue => e
       # don't raise on file removal failure
+      monitor.track_file_cleanup_error(claim, intake_service, @user_account_uuid, e)
     end
   end
 end

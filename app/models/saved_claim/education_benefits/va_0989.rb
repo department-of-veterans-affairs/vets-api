@@ -29,7 +29,7 @@ class SavedClaim::EducationBenefits::VA0989 < SavedClaim::EducationBenefits
   # job is exhausted (`monitor.track_submission_exhaustion`).
   # Otherwise, the email_types can pretty much be whatever you
   # want. It's common to have a `:received` type also for when
-  # the sumbmission reaches VBMS state in the benefits intake API
+  # the submission reaches VBMS state in the benefits intake API
   def send_email(email_type)
     EducationBenefitsClaims::NotificationEmail.new(id).deliver(email_type)
   end
