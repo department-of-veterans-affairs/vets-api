@@ -23,8 +23,6 @@ module EducationForm
       email_address
       country
       state
-      race_ethnicity
-      gender
       education_level
       employment_status
       salary

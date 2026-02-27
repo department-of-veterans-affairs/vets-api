@@ -86,6 +86,22 @@ module DependentsBenefits
 
         !!(household_income_present || student_income_present)
       end
+
+      # Check if the submission includes any dependents without SSNs
+      #
+      # @return [Boolean] true if spouse or any child/student is marked as having no SSN, false otherwise
+      def no_ssn_claim?
+        return false unless Flipper.enabled?(:va_dependents_no_ssn)
+
+        no_spouse_ssn = parsed_form.dig('dependents_application', 'spouse_information', 'no_ssn')
+        no_child_ssn = parsed_form.dig('dependents_application', 'children_to_add')&.any? do |child|
+          child['no_ssn']
+        end
+        no_student_ssn = parsed_form.dig('dependents_application', 'student_information')&.any? do |student|
+          student['no_ssn']
+        end
+        !!(no_spouse_ssn || no_child_ssn || no_student_ssn)
+      end
     end
   end
 end
