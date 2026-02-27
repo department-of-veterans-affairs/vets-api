@@ -58,7 +58,11 @@ module Burials
 
         # Extract account type and convert to radiobutton value
         account_type = bank_account['accountType']
-        form_data['bankAccountType'] = Constants::BANK_ACCOUNT_TYPES[account_type] if account_type.present?
+        form_data['bankAccountType'] = case account_type
+                                       when 'checking' then 0
+                                       when 'savings' then 1
+                                       else 2 if form_data['bankAccountType'].nil?
+                                       end
 
         # Extract routing number
         form_data['bankRoutingNumber'] = bank_account['routingNumber'] if bank_account['routingNumber'].present?
