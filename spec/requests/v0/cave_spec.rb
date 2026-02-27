@@ -9,7 +9,7 @@ RSpec.describe 'CAVE API', type: :request do
 
   before do
     Flipper.enable(:cave_idp)
-    allow(Idp::Client).to receive(:new).and_return(client)
+    allow(Idp).to receive(:client).and_return(client)
   end
 
   after { Flipper.disable(:cave_idp) }
@@ -17,9 +17,7 @@ RSpec.describe 'CAVE API', type: :request do
   describe 'feature flag' do
     it 'returns 404 when cave_idp is disabled' do
       Flipper.disable(:cave_idp)
-
       post '/v0/cave', params: { pdf_b64: 'ZmlsZQ==', file_name: 'test.pdf' }
-
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -38,7 +36,7 @@ RSpec.describe 'CAVE API', type: :request do
     end
 
     it 'returns bad gateway when upstream fails' do
-      allow(client).to receive(:intake).and_raise(Idp::Client::Error, 'boom')
+      allow(client).to receive(:intake).and_raise(Idp::Error, 'boom')
 
       post('/v0/cave', params:)
 
@@ -49,7 +47,6 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'validates required params' do
       post '/v0/cave', params: { pdf_b64: 'oops' }
-
       expect(response).to have_http_status(:bad_request)
     end
   end
@@ -86,7 +83,6 @@ RSpec.describe 'CAVE API', type: :request do
   describe 'GET /v0/cave/:id/download' do
     it 'requires kvpid' do
       get '/v0/cave/abc123/download'
-
       expect(response).to have_http_status(:bad_request)
     end
 
