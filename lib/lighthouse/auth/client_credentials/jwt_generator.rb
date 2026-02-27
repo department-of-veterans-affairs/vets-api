@@ -20,12 +20,16 @@ module Auth
       end
 
       def self.build_rsa_instance(key_location)
-        key = File.exist?(key_location) ? File.read(key_location) : key_location
+        file_exist = File.exist?(key_location)
+        p "~~~~~ jwt_generator for service_history #build_rsa_instance, #{[key_location, file_exist]}"
+        key = file_exist ? File.read(key_location) : key_location
+        p "~~~~~ jwt_generator for service_history #build_rsa_instance key, #{key}"
 
         OpenSSL::PKey::RSA.new(key)
       end
 
       def self.generate_token(client_id, aud_claim_url, key_location, kid = nil)
+        p "~~~~~ jwt_generator for service_history #generate_token, #{[client_id, aud_claim_url, key_location, kid]}"
         claims = build_claims(client_id, aud_claim_url)
         rsa_instance = build_rsa_instance(key_location)
         headers = {}
