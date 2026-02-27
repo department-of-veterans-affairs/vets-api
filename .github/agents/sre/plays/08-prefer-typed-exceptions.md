@@ -1,5 +1,5 @@
 ---
-id: prefer-typed-exceptions-v2
+id: prefer-typed-exceptions
 title: Prefer Typed Exceptions with Domain-Specific Subclasses
 severity: CRITICAL
 ---

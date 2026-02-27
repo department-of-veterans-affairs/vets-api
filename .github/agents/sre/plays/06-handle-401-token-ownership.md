@@ -43,8 +43,9 @@ severity: CRITICAL
       to distinguish failure modes.
     </rule>
     <rule enforcement="must">
-      Preserve upstream context with `meta.upstream_status: 401`,
-      `meta.upstream_service`, and `cause: e`.
+      Preserve upstream context with `meta.upstream_status: 401`
+      and `meta.upstream_service`. Ruby's implicit cause chain
+      preserves the original exception automatically.
     </rule>
     <rule enforcement="should">
       Include actionable detail messages: "Session expired. Please
@@ -97,7 +98,7 @@ meta.upstream_status context</medium>
     - [ ] Service account failures return 500, user token failures return 401
     - [ ] Includes `meta.auth_type` ("user_token" or "service_account")
     - [ ] Preserves upstream context: `meta.upstream_status`, `meta.upstream_service`
-    - [ ] Cause chain preserved with `cause: e`
+    - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
 
     [Play: Handle 401 Authentication Errors](06-handle-401-token-ownership.md)
   </pr_comment_template>
@@ -122,11 +123,10 @@ meta.upstream_status context</medium>
 ### Blind Pass-Through
 
 ```ruby
-rescue Faraday::UnauthorizedError => e
+rescue Faraday::UnauthorizedError
   # BAD: Always returns 401, regardless of whose credentials failed
   raise Common::Exceptions::Unauthorized.new(
-    detail: "Upstream authentication failed",
-    cause: e
+    detail: 'Upstream authentication failed'
   )
   # If OUR service account is misconfigured, we blame the CLIENT!
   # Missing meta.auth_type — can't tell whose credentials failed
@@ -139,27 +139,14 @@ end
 rescue Faraday::UnauthorizedError => e
   if using_service_account_credentials?
     # Our service account failed — this is OUR problem, return 500
-    raise Common::Exceptions::InternalServerError.new(
-      code: "UPSTREAM_AUTH_CONFIG_ERROR",
-      detail: "Service authentication configuration error",
-      meta: {
-        upstream_status: 401,
-        upstream_service: "mpi",
-        auth_type: "service_account"
-      },
-      cause: e
-    )
+    # InternalServerError takes a single Exception argument
+    raise Common::Exceptions::InternalServerError.new(e)
   else
     # User's token failed — this is THEIR problem, return 401
     raise Common::Exceptions::Unauthorized.new(
-      detail: "User authentication failed. Please re-authenticate.",
-      meta: {
-        upstream_status: 401,
-        upstream_service: "mpi",
-        auth_type: "user_token"
-      },
-      cause: e
+      detail: 'User authentication failed. Please re-authenticate.'
     )
   end
+  # Ruby automatically preserves the cause chain
 end
 ```

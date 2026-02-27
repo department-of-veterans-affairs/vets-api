@@ -47,7 +47,8 @@ severity: HIGH
   </rules>
 
   <investigate_before_answering>
-    <step>Read the full rescue block to determine whether the log adds ANY context not already captured by APM (request/response payloads, business context, correlation IDs). If it does, this may not be a violation.</step>
+    <step>**Meaningful context check (MANDATORY EXCLUSION).** Read the full rescue block and identify every piece of data in the log call. Compare each field against what APM automatically captures (exception class, message, backtrace, request params, user context, timing). If the log includes ANY business-context identifier that APM does NOT have — such as `poa_request_id`, `claim_id`, `appeal_id`, `veteran_icn`, upstream HTTP status, or other domain-specific correlation IDs — then this is NOT a catch-log-reraise violation. The log adds value that APM cannot provide. Do NOT flag it. Instead, if the log level is wrong (e.g., ERROR for a retryable failure), flag that under Play 21 instead.</step>
+    <step>**Check for side effects beyond logging.** If the rescue block performs meaningful work (e.g., `update_status!`, database writes, metric emission, notification) in addition to logging, the rescue block is justified. Only the redundant LOG LINE is the issue, not the rescue block itself. Describe the finding accurately: "the log is redundant but the rescue block is needed for [side effect]."</step>
     <step>Check whether the rescue block re-raises the same exception or wraps it in a new typed exception. Re-raising the same exception after logging is the violation. Wrapping with a new exception and cause chain is acceptable.</step>
     <step>Determine whether the code is at a controller boundary where the ExceptionHandling concern would catch the exception automatically. If so, the entire rescue block may be unnecessary.</step>
     <step>Check for StatsD metric calls in the rescue block — these are acceptable and should be preserved even if the logging is removed.</step>
@@ -63,6 +64,13 @@ calling external APIs — duplicates telemetry during incidents</high>
 duplicates APM</high>
     <medium>catch-log-reraise in internal utility code where log volume
 impact is lower</medium>
+    <false_positive>rescue block that logs business-context IDs not
+available in APM (poa_request_id, claim_id, upstream HTTP status,
+etc.) before re-raising — the log adds correlation value that APM
+traces do not automatically capture</false_positive>
+    <false_positive>rescue block that performs side effects (status
+updates, DB writes, notifications) in addition to logging — the
+rescue is justified; only the log line may be redundant</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
@@ -82,7 +90,7 @@ impact is lower</medium>
 
     - [ ] No manual backtrace logging (`e.backtrace.join` removed)
     - [ ] One exception generates one signal in APM (not two)
-    - [ ] If wrapping, cause chain preserved with `cause: e`
+    - [ ] If wrapping, cause chain preserved (Ruby sets `$!.cause` automatically within rescue)
 
     [Play: Don't catch, log, and re-raise](20-dont-catch-log-reraise.md)
   </pr_comment_template>
@@ -95,18 +103,21 @@ impact is lower</medium>
 - Catch only when adding meaningful context or converting to a typed exception:
 
   ```ruby
-  rescue CemeteryService::UpstreamError => e
+  rescue CemeteryService::UpstreamError
     raise Common::Exceptions::ServiceUnavailable.new(
-      detail: "NCA cemetery database unavailable",
-      cause: e  # Preserves original exception for APM
+      detail: 'NCA cemetery database unavailable'
     )
+    # Ruby automatically sets $!.cause to the caught UpstreamError
   end
   ```
 
-- Wrap with `cause: e` and re-raise a new typed exception when adding context:
+- Wrap in a new typed exception when adding domain context:
 
   ```ruby
-  raise AppSpecificError.new("meaningful context", cause: e)
+  rescue Faraday::TimeoutError
+    raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service timed out')
+    # Ruby preserves the cause chain automatically within rescue blocks
+  end
   ```
 
 - Emit metrics (StatsD counters) for retry attempts instead of logs:
@@ -176,10 +187,10 @@ def index
 end
 
 # OR if adding meaningful context:
-rescue CemeteryService::UpstreamError => e
+rescue CemeteryService::UpstreamError
   raise Common::Exceptions::ServiceUnavailable.new(
-    detail: "NCA cemetery database unavailable",
-    cause: e  # Preserves original exception for APM
+    detail: 'NCA cemetery database unavailable'
   )
+  # Ruby automatically preserves cause chain within rescue blocks
 end
 ```

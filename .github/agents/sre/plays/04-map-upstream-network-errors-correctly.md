@@ -78,24 +78,23 @@ meta.upstream_status</medium>
 
     **Suggested fix:**
     ```ruby
-    rescue Faraday::TimeoutError => e
-      raise Common::Exceptions::GatewayTimeout.new(cause: e)  # 504
-    rescue Faraday::ConnectionFailed => e
-      raise Common::Exceptions::ServiceUnavailable.new(cause: e)  # 503
+    rescue Faraday::TimeoutError
+      raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')  # 504
+    rescue Faraday::ConnectionFailed
+      raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')  # 503
     rescue Faraday::ServerError => e
       raise Common::Exceptions::BadGateway.new(
-        detail: 'Upstream service error',
-        meta: { upstream_status: e.response[:status] },
-        cause: e
+        detail: "Upstream service error (status: #{e.response&.[](:status)})"
       )
     end
+    # Ruby automatically preserves cause chain when raising inside rescue
     ```
 
     **Verify:**
     - [ ] Timeouts return 504 (not 500)
     - [ ] Connection failures return 503 (not 500)
-    - [ ] Upstream server errors return 502 with `meta.upstream_status`
-    - [ ] Cause chain preserved with `cause: e`
+    - [ ] Upstream server errors return 502
+    - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
     - [ ] Metrics separate our bugs (500) from upstream issues (502/503/504)
 
     [Play: Map Upstream Network Errors Correctly](04-map-upstream-network-errors-correctly.md)
@@ -130,17 +129,16 @@ end
 **Corrected:**
 
 ```ruby
-rescue Faraday::TimeoutError => e
-  raise Common::Exceptions::GatewayTimeout.new(cause: e)  # 504
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')  # 504
 
-rescue Faraday::ConnectionFailed => e
-  raise Common::Exceptions::ServiceUnavailable.new(cause: e)  # 503
+rescue Faraday::ConnectionFailed
+  raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')  # 503
 
 rescue Faraday::ServerError => e
   raise Common::Exceptions::BadGateway.new(
-    detail: 'Upstream service error',
-    meta: { upstream_status: e.response[:status] },
-    cause: e
+    detail: "Upstream service error (status: #{e.response&.[](:status)})"
   )
+  # Ruby automatically preserves the cause chain when raising inside rescue
 end
 ```

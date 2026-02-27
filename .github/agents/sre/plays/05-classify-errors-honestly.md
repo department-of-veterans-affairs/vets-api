@@ -95,7 +95,7 @@ exceptions that could be narrowed further</medium>
     - [ ] Rescue catches only validation exceptions (not bare rescue)
     - [ ] NoMethodError propagates as 500 (not 422)
     - [ ] Upstream timeouts propagate as 504 (not 422)
-    - [ ] Cause chain preserved with `cause: e`
+    - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
     - [ ] Metrics correctly split client errors vs server errors
 
     [Play: Match Status Codes to the Source](05-classify-errors-honestly.md)
@@ -142,10 +142,9 @@ def initialize(user, claim_data)
 rescue ArgumentError, ValidationError => e
   monitor.track_user_data_error('Validation failed', 'user_hash.validation_error', error: e)
   raise Common::Exceptions::UnprocessableEntity.new(
-    code: 'INVALID_USER_DATA',
-    detail: e.message,
-    cause: e
+    detail: e.message
   )
+  # Ruby automatically preserves the cause chain
 # Don't catch NoMethodError, BGS::ServiceError, etc. — let them raise as 500s
 end
 ```

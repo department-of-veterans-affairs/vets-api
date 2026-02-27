@@ -35,13 +35,25 @@ severity: CRITICAL
 
   <rules>
     <rule enforcement="must">
-      When catching an exception to add context, wrap it in a new
-      typed exception with `cause: e` to preserve the full chain
-      (class, backtrace, root cause).
+      When catching an exception and raising a new one, ensure the
+      cause chain is preserved. Ruby automatically sets `$!.cause`
+      when you `raise` a new exception from within a `rescue` block
+      — you do NOT need to pass `cause: e` explicitly.
+    </rule>
+    <rule enforcement="must">
+      Never use `cause: e` with `Common::Exceptions` classes — they
+      do not accept it (it is silently ignored). Ruby's implicit
+      cause chain handles this automatically. See the
+      Common::Exceptions API Reference in sre.agent.md.
     </rule>
     <rule enforcement="should">
       If not adding context when re-raising, use bare `raise` to
       preserve the original exception automatically.
+    </rule>
+    <rule enforcement="should">
+      For custom exception classes, verify the constructor accepts
+      `cause:` before using it. Read the class definition. If it
+      does not accept `cause:`, rely on Ruby's implicit cause chain.
     </rule>
   </rules>
 
@@ -85,8 +97,9 @@ dependencies or retry behavior</medium>
     ```
 
     **Verify:**
-    - [ ] `cause:` passed to exception constructor with the caught exception (or `raise` without arguments used)
-    - [ ] No `raise "error: #{e}"` patterns remain
+    - [ ] Raise happens inside a rescue block (Ruby automatically sets `$!.cause`)
+    - [ ] No `raise "error: #{e}"` patterns remain (destroys cause chain)
+    - [ ] No `cause: e` kwargs used with `Common::Exceptions` classes (silently ignored)
     - [ ] APM traces show full chain: wrapper -> original exception
     - [ ] Stack trace shows original failure location
 
@@ -98,14 +111,20 @@ dependencies or retry behavior</medium>
 
 ### Do
 
-- `raise ServiceException.new("BGS failed", cause: e)` — wraps with context, preserves the chain
 - `raise` (no arguments) — re-raises the original exception unchanged when no context needed
+- Raise a typed `Common::Exceptions` class inside a rescue — Ruby sets cause automatically:
+  ```ruby
+  rescue Faraday::TimeoutError
+    raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')
+    # Ruby automatically sets $!.cause to the caught Faraday::TimeoutError
+  end
+  ```
 
 ### Don't
 
 - `raise "error: #{e}"` — creates a RuntimeError (loses class, backtrace, cause chain)
 - `raise ServiceException.new(e.message)` — extracts only the string (loses everything else)
-- `raise ServiceException.new(e.response)` without `cause: e` — HTTP status lost from APM
+- `raise Common::Exceptions::BadRequest.new(detail: e.message, cause: e)` — `cause: e` is silently ignored by `Common::Exceptions` (Ruby handles cause automatically)
 
 ## Anti-Patterns
 
@@ -121,12 +140,9 @@ end
 **Corrected:**
 
 ```ruby
-rescue Faraday::ClientError, Faraday::ServerError => e
-  raise BenefitsClaims::ServiceException.new(
-    e.response,
-    'Lighthouse Error',
-    cause: e  # Preserves original exception with full stack trace
-  )
+rescue Faraday::ClientError, Faraday::ServerError
+  raise BenefitsClaims::ServiceException.new(e.response, 'Lighthouse Error')
+  # Ruby automatically sets $!.cause to the caught Faraday exception
 end
 ```
 
@@ -144,17 +160,17 @@ end
 **Corrected:**
 
 ```ruby
-rescue BGS::ServiceError => e
+rescue BGS::ServiceError
   raise Common::Exceptions::BackendServiceException.new(
     'BGS',
-    detail: 'BGS service unavailable',
-    cause: e  # Preserves original exception object with stack trace
+    detail: 'BGS service unavailable'
   )
-rescue ActiveRecord::RecordNotFound => e
+  # Ruby automatically preserves the cause chain
+rescue ActiveRecord::RecordNotFound
   raise Common::Exceptions::RecordNotFound.new(
-    detail: "Dependent not found",
-    cause: e  # Preserves ActiveRecord exception with query details
+    detail: 'Dependent not found'
   )
+  # Ruby automatically preserves the cause chain
 end
 ```
 
@@ -174,9 +190,10 @@ end
 ```ruby
 def perform
   # ... CSV import logic ...
-rescue => e
+rescue
   raise  # Re-raises original exception with full context
   # Or if adding context:
-  raise ImportError.new("CSV import failed", cause: e)
+  # raise ImportError.new("CSV import failed")
+  # Ruby automatically sets $!.cause to the caught exception
 end
 ```

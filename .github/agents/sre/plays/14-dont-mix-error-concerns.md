@@ -90,7 +90,7 @@ same module</medium>
     ```
 
     - [ ] Controllers only catch domain exceptions (not infrastructure classes)
-    - [ ] Service layer wraps infrastructure exceptions with `cause: e`
+    - [ ] Service layer wraps infrastructure exceptions (Ruby preserves cause chain automatically)
     - [ ] Service methods raise on failure (no error objects returned)
     - [ ] Changing HTTP client only requires service layer updates
 
@@ -104,9 +104,9 @@ same module</medium>
 
 - Wrap infrastructure exceptions (Faraday) into domain-typed exceptions in the service layer:
   ```ruby
-  # Service layer
+  # Service layer — Ruby preserves cause chain automatically within rescue
   rescue Faraday::ClientError => e
-    raise BenefitsClaims::ServiceException.new(e.response, cause: e)
+    raise BenefitsClaims::ServiceException.new(e.response)
   ```
 - Catch only domain exceptions in controllers:
   ```ruby
@@ -120,7 +120,7 @@ same module</medium>
     response = faraday_client.get('/claims')
     response.body  # return data on success
   rescue Faraday::ClientError => e
-    raise BenefitsClaims::ServiceException.new(cause: e)  # raise on failure
+    raise BenefitsClaims::ServiceException.new(e.response)  # raise on failure; Ruby preserves cause
   end
   ```
 
@@ -172,9 +172,10 @@ def get_claims
   response = faraday_client.get('/claims')
   response.body
 rescue Faraday::ClientError => e
-  raise BenefitsClaims::ServiceException.new(e.response, cause: e)
-rescue Faraday::TimeoutError => e
-  raise Common::Exceptions::GatewayTimeout.new(cause: e)
+  raise BenefitsClaims::ServiceException.new(e.response)
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')
+  # Ruby automatically preserves cause chain when raising inside rescue
 end
 
 # Controller (clean, no HTTP client knowledge)
@@ -231,12 +232,9 @@ def find_profile_by_identifier(identifier:, identifier_type:, search_type:)
     parse_response(raw_response)
   end
   # CONNECTION_ERRORS propagate as exceptions (Ruby convention)
-rescue Faraday::ConnectionFailed => e
-  # Re-raise as domain exception with cause
-  raise MPI::Errors::ServiceUnavailable.new(
-    'MPI service connection failed',
-    cause: e
-  )
+rescue Faraday::ConnectionFailed
+  # Re-raise as domain exception — Ruby preserves cause chain automatically
+  raise MPI::Errors::ServiceUnavailable.new('MPI service connection failed')
 end
 
 # Callers use standard Ruby exception handling

@@ -57,6 +57,7 @@ severity: CRITICAL
     <step>Check if the violation is in ExceptionHandling (centralized fix) or in a specific controller (remove manual span tagging, let ExceptionHandling decide).</step>
     <step>If in a controller, check whether the controller manually tags spans AND re-raises to ExceptionHandling. If so, the fix is to remove manual tagging, not to add status checks in the controller.</step>
     <step>Verify whether the controller's exception will flow to ExceptionHandling. If the controller catches and does not re-raise, that is a separate issue (see Play: Don't Swallow Errors). Do not suggest adding status checks to individual controllers. The fix belongs in ExceptionHandling, which is the single point of responsibility for APM error classification.</step>
+    <step>**Distinguish request-level spans from internal trace spans.** If the `span.set_error` call is inside a generic tracing utility (e.g., a `Monitoring#trace` method that creates Datadog sub-spans via `Datadog::Tracing.trace`), this is NOT the same as the request-level ExceptionHandling span. Internal sub-spans marking all exceptions can be useful for trace debugging — they help pinpoint which internal operation failed within a trace tree. Do NOT flag internal tracing utilities as CRITICAL violations. At most, this is a MEDIUM/INFO finding. The recommendation should NOT be to add status-code checks inside the utility (the utility doesn't know HTTP semantics). Instead, note that the request-level ExceptionHandling concern is the correct place for 4xx/5xx classification.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -70,6 +71,9 @@ error types</high>
 (violates layering)</high>
     <medium>Rails.logger.error used for 4xx validation failures (should be
 warn)</medium>
+    <info>span.set_error in an internal tracing utility (Datadog sub-span,
+not request-level span) — useful for trace debugging, does not
+directly inflate request-level error rate SLIs</info>
   </severity_assessment>
 
   <pr_comment_template>

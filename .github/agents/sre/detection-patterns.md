@@ -30,7 +30,7 @@ Grep helpers:
 ### Play 02: Preserve Cause Chains
 File: [Play 02](.github/agents/sre/plays/02-preserve-cause-chains.md)
 
-**What to look for:** Rescue blocks that catch an exception and raise a new one without passing `cause: e`. Also: converting an exception to a string with `raise "error: #{e}"` which destroys the original class, backtrace, and cause chain. The fix is `raise NewException.new(message, cause: e)` or bare `raise` to preserve automatically.
+**What to look for:** Rescue blocks that catch an exception and raise a new one in a way that destroys the cause chain. The main anti-pattern is converting an exception to a string with `raise "error: #{e}"` which creates a RuntimeError and loses the original class, backtrace, and cause chain. Ruby automatically preserves the cause chain when you `raise` a new exception inside a `rescue` block (`$!.cause` is set implicitly), so the fix is usually `raise TypedError.new(detail)` or bare `raise`. Do NOT recommend `cause: e` with `Common::Exceptions` classes — they don't accept it.
 
 Note: `raise e` inside `rescue => e` DOES preserve the cause chain (Ruby sets `cause` implicitly). Only flag when a *different* exception class is raised without `cause:`.
 

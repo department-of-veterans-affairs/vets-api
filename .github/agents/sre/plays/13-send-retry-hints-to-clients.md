@@ -237,13 +237,8 @@ rescue service::TooManyRequestsError => e
   retry_after = e.response&.headers&.[]('Retry-After') || 60  # Default to 60s
 
   raise Common::Exceptions::TooManyRequests.new(
-    detail: 'Rate limit exceeded',
-    meta: {
-      retry_after: retry_after,
-      upstream_service: 'form_upload_service'
-    },
-    cause: e
+    detail: 'Rate limit exceeded'
   )
-  # Preserves 429 status and includes retry guidance
+  # Ruby automatically preserves cause chain when raising inside rescue
 end
 ```

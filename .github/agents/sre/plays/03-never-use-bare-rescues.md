@@ -78,7 +78,7 @@ severity: CRITICAL
 
     - [ ] Rescue specifies exception class(es)
     - [ ] No nil/false return for failures
-    - [ ] Cause chain preserved with `cause: e`
+    - [ ] Cause chain preserved (raise inside rescue block; Ruby sets `$!.cause` automatically)
 
     [Play: Never Use Broad or Bare Rescues](03-never-use-bare-rescues.md)
   </pr_comment_template>
@@ -119,7 +119,7 @@ def veteran_va_file_number(user)
   response.file_number
 rescue BGS::ServiceError, Faraday::Error => e
   Rails.logger.warn('BGS unavailable', { user_uuid: user&.uuid, error: e.class })
-  raise Common::Exceptions::ServiceUnavailable.new(cause: e)
+  raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS service unavailable')
 end
 ```
 

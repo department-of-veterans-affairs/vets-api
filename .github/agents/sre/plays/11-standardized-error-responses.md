@@ -56,8 +56,10 @@ severity: CRITICAL
     <step>Read the full controller action to understand what error condition triggers the manual render and what exception type best maps to it.</step>
     <step>Check whether the controller already has a custom `render_error` method or concern — the fix may require removing the custom method, not just changing one call site.</step>
     <step>Identify whether the `render json:` call includes a `:status` option. If not, it defaults to 200 OK, which is an additional severity factor.</step>
-    <step>Determine the correct `Common::Exceptions` class based on the error type: parameter missing (400), validation failure (422), not found (404), internal error (500), or upstream failure (502/503/504).</step>
+    <step>Determine the correct `Common::Exceptions` class based on the error type: parameter missing (400), validation failure (422), not found (404), internal error (500), or upstream failure (502/503/504). Verify the constructor signature against the API Reference in sre.agent.md before writing the recommendation.</step>
     <step>Check if the error path needs to return multiple validation errors. If so, use `Common::Exceptions::ValidationErrors` with an ActiveModel object or construct a multi-error exception. Do not suggest fixes based on the render call alone. The correct typed exception depends on the semantic meaning of the error condition.</step>
+    <step>**Check for business logic in custom render methods.** If a custom `render_errors` or `render_error` method contains business logic beyond rendering (e.g., modifying error messages, conditionally adjusting error details based on field names), the recommendation must account for preserving that logic. Do not simply say "remove the method and raise instead" — explain where the business logic should move to (e.g., into a before_action validation, a custom exception class, or a concern).</step>
+    <step>**Flag ALL manual renders in the controller, not just the broadest rescue.** If a controller has multiple rescue clauses that each manually render errors, flag each one individually. A controller with 5 manual renders is 5 violations, not 1.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -202,12 +204,12 @@ end
 def accept
   service.create_agreement!(@current_user)
   render json: @current_user, status: :created
-rescue TermsOfUse::Errors::DuplicateError => e
+rescue TermsOfUse::Errors::DuplicateError
   # Just raise a Common::Exception — ExceptionHandling does the rest
+  # Ruby automatically preserves the cause chain within rescue blocks
   raise Common::Exceptions::UnprocessableEntity.new(
     detail: 'Agreement already exists',
-    source: 'TermsOfUse.create_agreement',
-    cause: e
+    source: 'TermsOfUse.create_agreement'
   )
 end
 
@@ -216,7 +218,7 @@ end
 # - Renders standardized JSON:API format
 # - Logs to Rails, Sentry, APM
 # - Sets correct HTTP status
-# - Includes backtrace, cause chain
+# - Includes backtrace, cause chain (via Ruby's implicit $!.cause)
 ```
 
 ### 3. Singular `error:` String
@@ -236,11 +238,8 @@ end
 
 ```ruby
 rescue => e
-  raise Common::Exceptions::InternalServerError.new(
-    detail: 'Unable to load cemetery data',
-    source: 'CemeteriesController#index',
-    cause: e  # Preserves original exception for APM
-  )
+  # InternalServerError takes a single Exception argument
+  raise Common::Exceptions::InternalServerError.new(e)
   # ExceptionHandling automatically:
   # - Logs to Rails.logger (with correct level)
   # - Captures to Sentry (for 5xx)
