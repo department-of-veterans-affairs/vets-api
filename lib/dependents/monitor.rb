@@ -84,16 +84,20 @@ module Dependents
 
     # tag used for logging to identify claims with v3 removal flow active
     def get_use_v3_removal(claim)
-      return false if !@use_v3 || claim.nil?
+      return false if claim.nil?
 
-      claim&.parsed_form&.[]('is_v3_removal_flow') || false
+      parsed_form = claim.parsed_form
+      return false if parsed_form.nil?
+
+      parsed_form['is_v3_removal_flow'] || false
     end
 
     def get_tags
       additional_tags = @tags.dup || []
       additional_tags << "service:#{service}"
-      additional_tags << "use_v3:#{@use_v3}" if @use_v3
-      additional_tags << "v3_removal:#{@use_v3_removal}" if @use_v3
+      # if user is nil, but claim data has is_v3_removal_flow true, we know that feature flag is ON
+      additional_tags << "use_v3:#{@use_v3 || @use_v3_removal}" if @user.present? || @use_v3_removal
+      additional_tags << "v3_removal:#{@use_v3_removal}" if @claim.present?
       additional_tags
     end
 

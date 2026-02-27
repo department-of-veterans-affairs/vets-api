@@ -309,7 +309,7 @@ RSpec.describe DependentsBenefits::Monitor do
       before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true) }
 
       it 'includes use_v3 and v3_removal:false tags' do
-        m = described_class.new(nil, current_user)
+        m = described_class.new(claim.id, current_user)
         expect(m.tags).to include('use_v3:true')
         expect(m.tags).to include('v3_removal:false')
       end
@@ -352,6 +352,59 @@ RSpec.describe DependentsBenefits::Monitor do
         expect(m.tags).to include('use_v3:true')
         expect(m.tags).to include('v3_removal:true')
       end
+    end
+  end
+
+  describe '#get_tags' do
+    it 'does not include use_v3 or v3_removal when user and claim are absent' do
+      monitor = described_class.new(nil, nil)
+
+      tags = monitor.tags
+
+      expect(tags).to include('service:dependents-benefits-application')
+      expect(tags).not_to include('use_v3:false')
+      expect(tags).not_to include('v3_removal:false')
+    end
+
+    it 'includes use_v3:false when user is present but v3 flipper is off' do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+      monitor = described_class.new(nil, current_user)
+      tags = monitor.tags
+      expect(tags).to include('service:dependents-benefits-application')
+      expect(tags).to include('use_v3:false')
+      expect(tags).not_to include('v3_removal:false')
+    end
+
+    it 'includes use_v3 when user present and includes v3_removal when claim present' do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, current_user).and_return(true)
+      monitor = described_class.new(claim.id, current_user)
+
+      tags = monitor.tags
+      expect(tags).to include('service:dependents-benefits-application')
+      expect(tags).to include('use_v3:true')
+      expect(tags).not_to include('use_v3:false')
+      expect(tags).to include('v3_removal:false')
+    end
+
+    it 'includes use_v3 when user is present' do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, current_user).and_return(true)
+      monitor = described_class.new(nil, current_user)
+
+      tags = monitor.tags
+      expect(tags).to include('service:dependents-benefits-application')
+      expect(tags).to include('use_v3:true')
+      expect(tags).not_to include('use_v3:false')
+      expect(tags).not_to include('v3_removal:false')
+    end
+
+    it 'includes v3_removal when claim is present' do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, current_user).and_return(true)
+      monitor = described_class.new(claim.id, current_user)
+
+      tags = monitor.tags
+      expect(tags).to include('service:dependents-benefits-application')
+      expect(tags).to include('v3_removal:false')
+      expect(tags).to include('use_v3:true')
     end
   end
 end
