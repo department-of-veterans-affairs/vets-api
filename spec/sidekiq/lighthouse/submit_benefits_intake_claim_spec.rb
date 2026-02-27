@@ -35,7 +35,10 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         expect(job).to receive(:send_confirmation_email).once
         expect(service).to receive(:upload_doc)
 
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.started',
+                                                   tags: ['form_id:10-10EZ'])
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success',
+                                                   tags: ['form_id:10-10EZ'])
 
         job.perform(claim.id)
 
@@ -51,7 +54,10 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         expect(job).to receive(:generate_metadata).once
         expect(service).to receive(:upload_doc)
         expect(Rails.logger).to receive(:warn)
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.started',
+                                                   tags: ['form_id:10-10EZ'])
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure',
+                                                   tags: ['form_id:10-10EZ'])
         expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
         expect(response.success?).to be(false)
       end
@@ -59,10 +65,14 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       it 'handles an invalid document' do
         allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
         expect(Rails.logger).to receive(:warn)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.started',
+                                                   tags: ['form_id:10-10EZ'])
         expect(StatsD).to receive(:increment).with(
-          'worker.lighthouse.submit_benefits_intake_claim.document_upload_error'
+          'worker.lighthouse.submit_benefits_intake_claim.document_upload_error',
+          tags: ['form_id:10-10EZ']
         )
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure',
+                                                   tags: ['form_id:10-10EZ'])
         expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
       end
 
@@ -95,7 +105,8 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
             end
             expect(metrics.collect(&:source)).to include(
               'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
-              'worker.lighthouse.submit_benefits_intake_claim.success:1|c'
+              'worker.lighthouse.submit_benefits_intake_claim.started:1|c|#form_id:21-0779',
+              'worker.lighthouse.submit_benefits_intake_claim.success:1|c|#form_id:21-0779'
             )
             expect(va210779claim.form_submissions).not_to be_nil
             expect(va210779claim.business_line).not_to be_nil
@@ -144,7 +155,8 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     it 'logs a distinct error when retries are exhausted' do
       Lighthouse::SubmitBenefitsIntakeClaim.within_sidekiq_retries_exhausted_block do
         expect(Rails.logger).to receive(:error).exactly(:once)
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.exhausted')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.exhausted',
+                                                   tags: [])
       end
     end
   end
@@ -190,6 +202,10 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       it 'uploads to IBM MMS successfully' do
         expect(Rails.logger).to receive(:info).with(
           'Lighthouse::SubmitBenefitsIntakeClaim uploading to IBM MMS',
+          anything
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload succeeded',
           anything
         )
         expect(ibm_service).to receive(:upload_form).with(
