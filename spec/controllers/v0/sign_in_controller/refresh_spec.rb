@@ -2,10 +2,53 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::SignInController, type: :controller do
-  include_context 'refresh_setup'
-
+RSpec.describe V0::SignInController, '#refresh', type: :controller do
   describe 'POST refresh' do
+    subject { post(:refresh, params: {}.merge(refresh_token_param).merge(anti_csrf_token_param)) }
+
+    let!(:user) { create(:user, uuid: user_uuid) }
+    let(:user_uuid) { user_verification.credential_identifier }
+    let(:refresh_token_param) { { refresh_token: } }
+    let(:anti_csrf_token_param) { { anti_csrf_token: } }
+    let(:refresh_token) { 'some-refresh-token' }
+    let(:anti_csrf_token) { 'some-anti-csrf-token' }
+    let(:user_verification) { create(:user_verification) }
+    let(:user_account) { user_verification.user_account }
+    let(:validated_credential) do
+      create(:validated_credential, user_verification:, client_config:)
+    end
+    let(:authentication) { SignIn::Constants::Auth::API }
+    let!(:client_config) { create(:client_config, authentication:, anti_csrf:, enforced_terms:) }
+    let(:enforced_terms) { nil }
+    let(:anti_csrf) { false }
+    let(:expected_error_status) { :unauthorized }
+
+    before { allow(Rails.logger).to receive(:info) }
+
+    shared_examples 'error response' do
+      let(:expected_error_json) { { 'errors' => expected_error } }
+      let(:statsd_refresh_error) { SignIn::Constants::Statsd::STATSD_SIS_REFRESH_FAILURE }
+      let(:expected_error_log) { '[SignInService] [V0::SignInController] refresh error' }
+      let(:expected_error_context) { { errors: expected_error.to_s } }
+
+      it 'renders expected error' do
+        expect(JSON.parse(subject.body)).to eq(expected_error_json)
+      end
+
+      it 'returns expected status' do
+        expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'logs the failed refresh attempt' do
+        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
+        subject
+      end
+
+      it 'updates StatsD with a refresh request failure' do
+        expect { subject }.to trigger_statsd_increment(statsd_refresh_error)
+      end
+    end
+
     context 'when session has been configured with anti csrf enabled' do
       let(:anti_csrf) { true }
       let(:session_container) do
@@ -20,14 +63,14 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:anti_csrf_token_param) { {} }
         let(:anti_csrf_token) { nil }
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and anti_csrf_token has been modified' do
         let(:expected_error) { 'Anti CSRF token is not valid' }
         let(:anti_csrf_token) { 'some-modified-anti-csrf-token' }
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
     end
 
@@ -35,7 +78,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:refresh_token) { 'some-refresh-token' }
       let(:expected_error) { 'Refresh token cannot be decrypted' }
 
-      it_behaves_like 'refresh_error_response'
+      it_behaves_like 'error response'
     end
 
     context 'when refresh_token is the proper encrypted refresh token format' do
@@ -66,7 +109,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
         let(:expected_error) { 'Refresh token cannot be decrypted' }
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and nonce component has been modified' do
@@ -78,7 +121,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
         let(:expected_error) { 'Refresh nonce is invalid' }
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and version has been modified' do
@@ -90,7 +133,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
         let(:expected_error) { 'Refresh token version is invalid' }
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and refresh token is expired' do
@@ -102,7 +145,7 @@ RSpec.describe V0::SignInController, type: :controller do
           session.save!
         end
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and refresh token does not map to an existing session' do
@@ -113,7 +156,7 @@ RSpec.describe V0::SignInController, type: :controller do
           session.destroy!
         end
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and refresh token is not a parent or child according to the session' do
@@ -129,7 +172,7 @@ RSpec.describe V0::SignInController, type: :controller do
           expect { subject }.to change(SignIn::OAuthSession, :count).from(1).to(0)
         end
 
-        it_behaves_like 'refresh_error_response'
+        it_behaves_like 'error response'
       end
 
       context 'and refresh token is unmodified and valid' do
@@ -145,7 +188,7 @@ RSpec.describe V0::SignInController, type: :controller do
             session.save!
           end
 
-          it_behaves_like 'refresh_error_response'
+          it_behaves_like 'error response'
         end
 
         it 'returns ok status' do
@@ -234,7 +277,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:refresh_token) { nil }
       let(:expected_error_status) { :bad_request }
 
-      it_behaves_like 'refresh_error_response'
+      it_behaves_like 'error response'
     end
   end
 end
