@@ -13,7 +13,7 @@ module ClaimsApi
     end
 
     def most_recent_service_branch_is_reserves_or_guard?(max_period)
-      most_recent_service_branch_name = max_period['serviceBranch']&.upcase
+      most_recent_service_branch_name = max_period['serviceBranch']&.upcase&.gsub(/\s+/, '_')
       return false if most_recent_service_branch_name.blank?
 
       VALID_RESERVES_BRANCH_NAMES.any? { |name| most_recent_service_branch_name.include?(name) }

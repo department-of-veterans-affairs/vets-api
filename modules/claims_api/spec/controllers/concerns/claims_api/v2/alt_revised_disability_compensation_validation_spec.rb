@@ -187,7 +187,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     context 'when the active duty end date is beyond 180 days from the claim date, but current branch is reserves' do
       it 'does not raise a 422' do
         valid_attributes = form_attributes.deep_dup
-        valid_attributes['serviceInformation']['servicePeriods'].last['serviceBranch'] = 'AIR_NATIONAL_GUARD'
+        valid_attributes['serviceInformation']['servicePeriods'].last['serviceBranch'] = 'Air National Guard'
         valid_attributes['serviceInformation']['servicePeriods'].last['activeDutyEndDate'] =
           200.days.from_now.to_date.iso8601
 
