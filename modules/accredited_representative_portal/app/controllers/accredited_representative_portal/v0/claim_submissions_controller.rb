@@ -8,10 +8,17 @@ module AccreditedRepresentativePortal
       def index
         authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy
         serializer = SavedClaimClaimantRepresentativeSerializer.new(claim_submissions)
-        render json: {
+        render json: ({
           data: serializer.serializable_hash,
           meta: pagination_meta(claim_submissions)
-        }, status: :ok
+        }.tap do |json|
+          if params[:id].present?
+            json[:claimant] = {
+              'firstName' => claimant_profile.given_names.first,
+              'lastName' => claimant_profile.family_name
+            }
+          end
+        end)
       rescue ActiveRecord::RecordNotFound, NotFound
         render json: { error: 'Claimant id not found.' }, status: :not_found
       end

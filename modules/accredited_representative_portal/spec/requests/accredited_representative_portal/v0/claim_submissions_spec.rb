@@ -168,6 +168,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
                       'total' => 1,
                       'totalPages' => 1
                     }
+                  },
+                  'claimant' => {
+                    'firstName' => 'Maurice',
+                    'lastName' => 'Murphy'
                   }
                 }
               )
