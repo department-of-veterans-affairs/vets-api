@@ -51,8 +51,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_VALIDATION_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
       end
 
@@ -63,8 +63,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS)
         end
       end
 
@@ -75,8 +75,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_VALIDATION_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
 
         it 'does not increment error notification metric' do
@@ -591,8 +591,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
           service.submit_claim
 
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE)
         end
       end
 
@@ -604,8 +604,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
 
           service.submit_claim
 
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE)
         end
       end
     end
@@ -618,8 +618,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_APPOINTMENT_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
 
         context 'with CIE facility type' do
@@ -631,8 +631,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR).once
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE).once
-            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS)
           end
         end
       end
@@ -644,8 +644,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_CLAIM_CREATE_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
 
         context 'with CIE facility type' do
@@ -657,8 +657,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_CLAIM_CREATE_ERROR).once
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE).once
-            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS)
           end
         end
       end
@@ -670,8 +670,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_EXPENSE_ADD_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
 
         context 'with CIE facility type' do
@@ -683,8 +683,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_EXPENSE_ADD_ERROR).once
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE).once
-            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS)
           end
         end
       end
@@ -696,8 +696,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
           expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
 
         context 'with CIE facility type' do
@@ -709,8 +709,8 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
             expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
             expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR).once
-            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE).once
-            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+            expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+            expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS)
           end
         end
       end
@@ -734,9 +734,9 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         it 'increments OH duplicate and failure metrics once each, no success metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_DUPLICATE).once
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
       end
 
@@ -759,9 +759,9 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         it 'increments CIE duplicate and failure metrics once each, no success metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_DUPLICATE).once
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS)
         end
       end
 
@@ -782,9 +782,9 @@ RSpec.describe TravelClaim::ClaimSubmissionService do
         it 'increments duplicate and failure metrics once each, no success metric' do
           expect { service.submit_claim }.to raise_error(Common::Exceptions::BackendServiceException)
 
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE).once
-          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE).once
-          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS)
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_DUPLICATE).once
+          expect(StatsD).to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE).once
+          expect(StatsD).not_to have_received(:increment).with(CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS)
         end
       end
     end
