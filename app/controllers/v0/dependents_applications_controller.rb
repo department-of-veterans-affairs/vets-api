@@ -21,6 +21,7 @@ module V0
       claim = create_claim(dependent_params.to_json)
 
       monitor.track_create_attempt(claim, current_user)
+      monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'created') if claim.no_ssn_claim?
 
       # Populate the form_start_date from the IPF if available
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -166,6 +167,7 @@ module V0
       if claim.pension_related_submission?
         monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
       end
+      monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'submitted') if claim.no_ssn_claim?
     end
 
     def create_dependent_service
