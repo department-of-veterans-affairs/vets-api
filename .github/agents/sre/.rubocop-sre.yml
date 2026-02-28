@@ -17,11 +17,11 @@ require:
 AllCops:
   DisabledByDefault: true
   Exclude:
-    - 'spec/**/*'
-    - 'modules/*/spec/**/*'
-    - 'db/**/*'
-    - 'vendor/**/*'
-    - 'tmp/**/*'
+    - '../../../spec/**/*'
+    - '../../../modules/*/spec/**/*'
+    - '../../../db/**/*'
+    - '../../../vendor/**/*'
+    - '../../../tmp/**/*'
 
 Sre/DontLeakPii:
   Enabled: true
@@ -43,5 +43,5 @@ Sre/NoModuleFrameworks:
   Enabled: true
   Severity: error
   Include:
-    - 'modules/**/*.rb'
+    - '../../../modules/**/*.rb'
 
