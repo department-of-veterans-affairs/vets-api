@@ -8,11 +8,11 @@
 #   bundle exec rubocop -c .github/agents/sre/.rubocop-sre.yml --only Sre --format json <target_path>
 
 require:
-  - './lib/rubocop/cop/sre/dont_leak_pii'
-  - './lib/rubocop/cop/sre/preserve_cause_chains'
-  - './lib/rubocop/cop/sre/no_bare_rescues'
-  - './lib/rubocop/cop/sre/prefer_typed_exceptions'
-  - './lib/rubocop/cop/sre/no_module_frameworks'
+  - '../../../lib/rubocop/cop/sre/dont_leak_pii'
+  - '../../../lib/rubocop/cop/sre/preserve_cause_chains'
+  - '../../../lib/rubocop/cop/sre/no_bare_rescues'
+  - '../../../lib/rubocop/cop/sre/prefer_typed_exceptions'
+  - '../../../lib/rubocop/cop/sre/no_module_frameworks'
 
 AllCops:
   DisabledByDefault: true
