@@ -7,6 +7,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
   let(:template_id) { 'template_123' }
   let(:email_template_id) { 'email_template_456' }
   let(:push_template_id) { 'push_template_789' }
+  let(:sms_template_id) { 'sms_template_101' }
 
   let(:service_account_access_token) do
     instance_double(
@@ -128,6 +129,60 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
     end
   end
 
+  describe 'POST #send_sms' do
+    let(:params) { { template_id: } }
+
+    it 'enqueues LetterReadySmsJob with correct parameters' do
+      expect(EventBusGateway::LetterReadySmsJob)
+        .to receive(:perform_async)
+        .with(participant_id, template_id)
+
+      post :send_sms, params:
+    end
+
+    it 'returns 200 OK status' do
+      allow(EventBusGateway::LetterReadySmsJob).to receive(:perform_async)
+
+      post(:send_sms, params:)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns no content in response body' do
+      allow(EventBusGateway::LetterReadySmsJob).to receive(:perform_async)
+
+      post(:send_sms, params:)
+
+      expect(response.body).to be_empty
+    end
+
+    context 'with missing template_id' do
+      let(:params) { {} }
+
+      it 'returns 400 Bad Request' do
+        post(:send_sms, params:)
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'does not enqueue the job' do
+        expect(EventBusGateway::LetterReadySmsJob).not_to receive(:perform_async)
+        post(:send_sms, params:)
+      end
+    end
+
+    context 'with additional unpermitted parameters' do
+      let(:params) { { template_id:, extra_param: 'should_be_filtered' } }
+
+      it 'filters out unpermitted parameters' do
+        expect(EventBusGateway::LetterReadySmsJob)
+          .to receive(:perform_async)
+          .with(participant_id, template_id)
+
+        post :send_sms, params:
+      end
+    end
+  end
+
   describe 'POST #send_notifications' do
     context 'with both email and push template IDs' do
       let(:params) do
@@ -140,7 +195,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       it 'enqueues LetterReadyNotificationJob with correct parameters' do
         expect(EventBusGateway::LetterReadyNotificationJob)
           .to receive(:perform_async)
-          .with(participant_id, email_template_id, push_template_id)
+          .with(participant_id, email_template_id, push_template_id, nil)
 
         post :send_notifications, params:
       end
@@ -168,7 +223,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       it 'enqueues job with nil push_template_id' do
         expect(EventBusGateway::LetterReadyNotificationJob)
           .to receive(:perform_async)
-          .with(participant_id, email_template_id, nil)
+          .with(participant_id, email_template_id, nil, nil)
 
         post :send_notifications, params:
       end
@@ -180,7 +235,19 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       it 'enqueues job with nil email_template_id' do
         expect(EventBusGateway::LetterReadyNotificationJob)
           .to receive(:perform_async)
-          .with(participant_id, nil, push_template_id)
+          .with(participant_id, nil, push_template_id, nil)
+
+        post :send_notifications, params:
+      end
+    end
+
+    context 'with only sms_template_id' do
+      let(:params) { { sms_template_id: } }
+
+      it 'enqueues job with nil email and push template IDs' do
+        expect(EventBusGateway::LetterReadyNotificationJob)
+          .to receive(:perform_async)
+          .with(participant_id, nil, nil, sms_template_id)
 
         post :send_notifications, params:
       end
@@ -198,7 +265,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
         post(:send_notifications, params:)
         json_response = JSON.parse(response.body)
         expect(json_response['errors'].first['detail'])
-          .to include('At least one of email_template_id or push_template_id is required')
+          .to include('At least one of email_template_id, push_template_id, or sms_template_id is required')
       end
 
       it 'does not enqueue the job' do
@@ -219,7 +286,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       it 'filters out unpermitted parameters' do
         expect(EventBusGateway::LetterReadyNotificationJob)
           .to receive(:perform_async)
-          .with(participant_id, email_template_id, push_template_id)
+          .with(participant_id, email_template_id, push_template_id, nil)
 
         post :send_notifications, params:
       end
@@ -279,6 +346,14 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
         expect(EventBusGateway::LetterReadyPushJob).not_to receive(:perform_async)
 
         post :send_push, params: { template_id: }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'does not enqueue sms job' do
+        expect(EventBusGateway::LetterReadySmsJob).not_to receive(:perform_async)
+
+        post :send_sms, params: { template_id: }
 
         expect(response).to have_http_status(:unauthorized)
       end
