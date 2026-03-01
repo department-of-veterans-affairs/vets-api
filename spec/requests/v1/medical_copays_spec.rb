@@ -98,35 +98,35 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
           expect(data['type']).to eq('medicalCopayDetails')
           expect(data['id']).to be_present
           expect(data['attributes'].keys).to match_array(
-                                               %w[
-            externalId
-            facility
-            patient
-            billNumber
-            status
-            statusDescription
-            invoiceDate
-            paymentDueDate
-            accountNumber
-            originalAmount
-            principalBalance
-            interestBalance
-            administrativeCostBalance
-            principalPaid
-            interestPaid
-            administrativeCostPaid
-            lineItems
-            payments
-            associatedStatements
-          ]
-                                             )
+            %w[
+              externalId
+              facility
+              patient
+              billNumber
+              status
+              statusDescription
+              invoiceDate
+              paymentDueDate
+              accountNumber
+              originalAmount
+              principalBalance
+              interestBalance
+              administrativeCostBalance
+              principalPaid
+              interestPaid
+              administrativeCostPaid
+              lineItems
+              payments
+              associatedStatements
+            ]
+          )
           expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
 
           facility = data['attributes']['facility']
           expect(facility).to be_a(Hash)
           expect(facility['name']).to be_present
           expect(facility['address']).to be_a(Hash)
-          expect(data.dig("attributes", "associatedStatements").pluck('id'))
+          expect(data.dig('attributes', 'associatedStatements').pluck('id'))
             .to eq(%w[4-1abZUKu7LncRZi 4-1abZUKu7LnbLNa])
           address = facility['address']
           expect(address['address_line1']).to eq('3000 CORAL HILLS DR')

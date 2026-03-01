@@ -133,7 +133,6 @@ module MedicalCopays
           'entries' => collected_entries
         }
       end
-      # rubocop:enable Metrics/MethodLength
 
       def build_copay_detail(id)
         invoice_data = invoice_service.read(id)
