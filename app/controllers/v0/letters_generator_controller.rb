@@ -51,7 +51,7 @@ module V0
     end
 
     def validate_letter_type
-      unless service.valid_type?(params[:id])
+      unless service.valid_type?(params[:id], @current_user.icn)
         detail = "Letter type of #{params[:id]} is not one of the expected options"
         raise Common::Exceptions::BadRequest.new({ detail:, source: self.class.name })
       end
