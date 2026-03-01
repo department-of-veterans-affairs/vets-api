@@ -203,6 +203,13 @@ class Swagger::V1::Requests::MedicalCopays
                        format: :float,
                        example: 0.0
 
+              property :associatedStatements, type: :array do
+                items type: :object do
+                  property :id, type: :string, example: '4-1abZUKu7LncRZi'
+                  property :date, type: :string, example: 'April 30, 2025'
+                end
+              end
+
               property :lineItems, type: :array do
                 items do
                   property :billingReference, type: :string, example: '4-6c9ZE23XQjkA9CC'

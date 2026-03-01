@@ -63,13 +63,12 @@ module Lighthouse
       end
 
       def assign_associated_statements
-        return [] if @associated_statements_data.blank?
+        data = @associated_statements_data.presence || []
 
-        @associated_statements = @associated_statements_data.map do |statement|
-          {
-            'id' => statement['resource']['id'],
-            'date' => format_date(statement['resource']['date'])
-          }
+        @associated_statements = data.map do |statement|
+          resource = statement['resource']
+
+          { 'id' => resource['id'], 'date' => format_date(resource['date']) }
         end
       end
 
