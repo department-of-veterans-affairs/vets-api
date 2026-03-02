@@ -8,7 +8,7 @@ require_relative 'fhir_helpers'
 
 module UnifiedHealthData
   module Adapters
-    class LabOrTestAdapter
+    class LabOrTestAdapter # rubocop:disable Metrics/ClassLength
       include DateNormalizer
       include FhirHelpers
 
@@ -39,7 +39,7 @@ module UnifiedHealthData
         end
         filtered.filter_map do |record|
           parse_single_record(record)
-        rescue StandardError => e
+        rescue => e
           log_record_parse_failure(record, e)
           nil
         end
@@ -187,7 +187,8 @@ module UnifiedHealthData
           :error,
           { resource: LABS, action: 'parse', anomaly: 'observation_parse_failure',
             report_id:, observation_id:, error_class: error.class.name, error_message: error.message },
-          "Failed to parse Observation #{observation_id} in DiagnosticReport #{report_id}: #{error.class} - #{error.message}",
+          "Failed to parse Observation #{observation_id} in DiagnosticReport #{report_id}: " \
+          "#{error.class} - #{error.message}",
           { service: 'unified_health_data' }
         )
         StatsD.increment('unified_health_data.lab_or_test.observation_parse_failure')
@@ -387,7 +388,7 @@ module UnifiedHealthData
 
           begin
             build_observation(obs, record['resource']['contained'])
-          rescue StandardError => e
+          rescue => e
             log_observation_parse_failure(record, obs, e)
             nil
           end
