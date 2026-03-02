@@ -678,4 +678,79 @@ RSpec.describe SavedClaim::DependencyClaim do
       end
     end
   end
+
+  describe '#no_ssn_claim?' do
+    context 'when flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(subject.no_ssn_claim?).to be(false)
+      end
+    end
+
+    context 'when flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(true)
+      end
+
+      it 'returns true if spouse is marked as no SSN' do
+        subject.parsed_form['dependents_application']['spouse_information'] = { 'no_ssn' => true }
+        expect(subject.no_ssn_claim?).to be(true)
+      end
+
+      it 'returns true if any child is marked as no SSN' do
+        subject.parsed_form['dependents_application']['children_to_add'] = [
+          { 'no_ssn' => true }
+        ]
+        expect(subject.no_ssn_claim?).to be(true)
+      end
+
+      it 'returns true if any student is marked as no SSN' do
+        subject.parsed_form['dependents_application']['student_information'] = [
+          { 'no_ssn' => true }
+        ]
+        expect(subject.no_ssn_claim?).to be(true)
+      end
+
+      it 'returns false if no dependents are marked as no SSN' do
+        subject.parsed_form['dependents_application']['spouse_information'] = { 'no_ssn' => false }
+        subject.parsed_form['dependents_application']['children_to_add'] = [
+          { 'no_ssn' => false }
+        ]
+        subject.parsed_form['dependents_application']['student_information'] = [
+          { 'no_ssn' => false }
+        ]
+        expect(subject.no_ssn_claim?).to be(false)
+      end
+
+      it 'returns true if some dependents are marked as no SSN and some are not' do
+        subject.parsed_form['dependents_application']['spouse_information'] = { 'no_ssn' => false }
+        subject.parsed_form['dependents_application']['children_to_add'] = [
+          { 'no_ssn' => true },
+          { 'no_ssn' => false }
+        ]
+        subject.parsed_form['dependents_application']['student_information'] = [
+          { 'no_ssn' => false },
+          { 'no_ssn' => true }
+        ]
+        expect(subject.no_ssn_claim?).to be(true)
+      end
+
+      it 'returns false if the relevant sections are missing' do
+        subject.parsed_form['dependents_application'].delete('spouse_information')
+        subject.parsed_form['dependents_application'].delete('children_to_add')
+        subject.parsed_form['dependents_application'].delete('student_information')
+        expect(subject.no_ssn_claim?).to be(false)
+      end
+
+      it 'returns false if no_ssn field is not present' do
+        subject.parsed_form['dependents_application']['spouse_information'] = {}
+        subject.parsed_form['dependents_application']['children_to_add'] = [{}]
+        subject.parsed_form['dependents_application']['student_information'] = [{}]
+        expect(subject.no_ssn_claim?).to be(false)
+      end
+    end
+  end
 end
