@@ -20,7 +20,6 @@ module SimpleFormsApi
 
       # rubocop:disable Metrics/MethodLength
       def scrub_pii(message)
-        binding.pry
         words_to_remove = aggregate_words(JSON.parse(params.to_json))
 
         case params[:form_number]
