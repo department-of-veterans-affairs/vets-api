@@ -64,6 +64,21 @@ token exchange flows where vets-api forwards the user's token
 directly). Also, hybrid auth scenarios where the code explicitly
 checks credential ownership before deciding the status code — if
 the check is present and correct, do not flag.</false_positive>
+    <false_positive>**Token-forwarding services:** When vets-api forwards
+the user's OAuth token directly to the upstream service (look for
+`headers: { 'Authorization' => token }` or `token_headers` methods
+that pass through the user's session token), the upstream 401
+genuinely means the user's token is invalid. Passing through 401 is
+correct. Check the Faraday connection configuration and middleware
+stack to identify whether credentials come from the user's session
+or from service account config before flagging.</false_positive>
+    <false_positive>**Single-endpoint credential check already present:**
+If the rescue block already contains a conditional checking credential
+type (e.g., `if service_account?` / `else`, or `if
+using_service_account_credentials?`), and the check correctly maps
+service account failures to 500 and user token failures to 401, do
+not flag. The play's intent is to catch *missing* credential ownership
+checks, not to second-guess *present* ones.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

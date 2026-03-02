@@ -63,7 +63,7 @@ File: [Play 04](.github/agents/sre/plays/04-map-upstream-network-errors-correctl
 
 Grep helpers:
 - `raise.*InternalServerError.*exception:\s*e` — HIGH: wrapping upstream error as 500
-- `rescue\s+Faraday::ClientError,\s*Faraday::ServerError` — MEDIUM: blanket catch of all Faraday errors
+- `rescue\s+Faraday::ClientError,\s*Faraday::ServerError` — MEDIUM: blanket catch may be intentional in service layer; check if controller or service code before flagging
 
 Context check (search for `rescue\s+Faraday::` then read surrounding lines):
 - Faraday rescue followed by InternalServerError raise — HIGH
@@ -86,7 +86,7 @@ File: [Play 06](.github/agents/sre/plays/06-handle-401-token-ownership.xml)
 **What to look for:** Code that catches upstream 401 errors and blindly passes them through as 401 to clients. When our service account credentials fail upstream, that's our fault (500), not the user's (401). The key question: "Whose credentials failed — the user's or ours?"
 
 Grep helpers:
-- `rescue\s+Faraday::UnauthorizedError` — HIGH: needs context check for user vs service credentials
+- `rescue\s+Faraday::UnauthorizedError` — MEDIUM: requires credential ownership investigation (user token vs service account) before flagging
 
 Context check (search for `Unauthorized` then read the rescue block):
 - Upstream 401 passed through without checking credential ownership — HIGH
@@ -118,8 +118,8 @@ File: [Play 09](.github/agents/sre/plays/09-expected-vs-unexpected-errors.xml)
 **What to look for:** Code that calls `span.set_error` or `set_error()` on 4xx exceptions. Expected client errors (400, 401, 404, 422) should not mark APM spans as errors — this floods error tracking with non-bugs. Only 5xx errors are unexpected and should be marked.
 
 Grep helpers:
-- `set_error\(` — HIGH: check if guarded by status >= 500
-- `span\.set_error` — HIGH: check if inside a conditional for 5xx only
+- `set_error\(` — MEDIUM: must check if request-level span or internal sub-span, and if guarded by status >= 500
+- `span\.set_error` — MEDIUM: must check if request-level span or internal sub-span, and if inside a conditional for 5xx only
 - `span\.set_tag.*error` — MEDIUM: manual error tagging in controllers
 
 ### Play 10: Don't Build Module-Specific Frameworks

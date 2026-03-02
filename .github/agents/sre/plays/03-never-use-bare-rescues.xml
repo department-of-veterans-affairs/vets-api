@@ -71,8 +71,11 @@
 checks, cache operations, serializer fields, monitoring/instrumentation
 code, or initialization/config with safe defaults — these are
 defensive patterns where the rescued code must never crash the
-caller. Downgrade to INFO with a suggestion to narrow the rescue
-clause, but do not flag as CRITICAL or WARNING.</false_positive>
+caller. **Exclude entirely** — do not report these as findings at
+any severity level. An INFO-level finding on correct defensive code
+still wastes developer attention. The defensive-rescue context check
+in investigation step 6 is a **hard gate**: if any of the 6 defensive
+contexts apply, the finding is excluded, not downgraded.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

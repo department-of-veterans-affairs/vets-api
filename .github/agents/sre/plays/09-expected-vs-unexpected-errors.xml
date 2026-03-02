@@ -38,7 +38,7 @@
     <step>Check if the violation is in ExceptionHandling (centralized fix) or in a specific controller (remove manual span tagging, let ExceptionHandling decide).</step>
     <step>If in a controller, check whether the controller manually tags spans AND re-raises to ExceptionHandling. If so, the fix is to remove manual tagging, not to add status checks in the controller.</step>
     <step>Verify whether the controller's exception will flow to ExceptionHandling. If the controller catches and does not re-raise, that is a separate issue. Do not suggest adding status checks to individual controllers. The fix belongs in ExceptionHandling, which is the single point of responsibility for APM error classification.</step>
-    <step>**Distinguish request-level spans from internal trace spans.** If the `span.set_error` call is inside a generic tracing utility (e.g., a `Monitoring#trace` method that creates Datadog sub-spans via `Datadog::Tracing.trace`), this is NOT the same as the request-level ExceptionHandling span. Internal sub-spans marking all exceptions can be useful for trace debugging — they help pinpoint which internal operation failed within a trace tree. Do NOT flag internal tracing utilities as CRITICAL violations. At most, this is a MEDIUM/INFO finding. The recommendation should NOT be to add status-code checks inside the utility (the utility doesn't know HTTP semantics). Instead, note that the request-level ExceptionHandling concern is the correct place for 4xx/5xx classification.</step>
+    <step>**Distinguish request-level spans from internal trace spans (HARD GATE).** If the `span.set_error` call is inside a generic tracing utility (e.g., a `Monitoring#trace` method that creates Datadog sub-spans via `Datadog::Tracing.trace`), this is NOT the same as the request-level ExceptionHandling span. Internal sub-spans marking all exceptions can be useful for trace debugging — they help pinpoint which internal operation failed within a trace tree. **Exclude the finding entirely** — do not report it even as INFO. Internal sub-spans are not request-level error classification and do not inflate request-level error rate SLIs. The recommendation should NOT be to add status-code checks inside the utility (the utility doesn't know HTTP semantics). The request-level ExceptionHandling concern is the correct place for 4xx/5xx classification.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -60,7 +60,10 @@ single request (e.g., `Datadog::Tracing.trace('my_service.call')`)
 where `set_error` marks the sub-span, not the request-level span.
 These do not inflate top-level error rate SLIs and are a legitimate
 tracing pattern for isolating slow or failing subsystems within a
-request.</false_positive>
+request. **This is a hard exclusion gate** — if the `set_error` call
+is inside an internal tracing utility that creates Datadog sub-spans,
+exclude the finding entirely. Do not report it at any severity
+level.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>

@@ -57,6 +57,17 @@ exceptions that could be narrowed further</medium>
     <false_positive>error classification in Sidekiq jobs, rake tasks,
 or other non-HTTP contexts — HTTP status codes are meaningless
 without an HTTP response</false_positive>
+    <false_positive>Rescue blocks where the protected code (between
+`begin`/`def` and `rescue`) only calls methods that raise
+validation-related exceptions — if the rescue is effectively narrow
+because the called methods only raise `ArgumentError`,
+`ActiveRecord::RecordInvalid`, `JSON::ParserError`, or similar
+input-validation exceptions, then `rescue => e; raise
+UnprocessableEntity` is not misclassification even though the rescue
+syntax is broad. Before flagging, read the protected code to identify
+what exceptions are actually possible. If all reachable exceptions
+represent client input problems, the broad rescue is functionally
+equivalent to a typed rescue and should not be flagged.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
