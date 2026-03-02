@@ -87,32 +87,14 @@ module ClaimsApi
         collect_error_if_value_not_present('city', form_object_desc) if city.blank?
       end
 
-      # rubocop:disable Metrics/MethodLength
       def alt_rev_validate_form_526_change_of_address_beginning_date
         # beginning date only needs to be validated for TEMPORARY address changes
-        return unless form_attributes['changeOfAddress']&.dig('typeOfAddressChange')&.upcase == 'TEMPORARY'
+        return unless form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase == 'TEMPORARY'
 
-        change_of_address = form_attributes['changeOfAddress']
-        begin_date = change_of_address.dig('dates', 'beginDate')
+        begin_date = form_attributes&.dig('changeOfAddress', 'dates', 'beginDate')
 
         begin
-          # if the address type is TEMPORARY, the beginDate must exist and be in the future.
-          if begin_date.blank?
-            collect_error_messages(
-              detail: 'Change of address beginDate is required if addressChangeType is TEMPORARY',
-              source: '/changeOfAddress/dates/beginDate'
-            )
-            return
-          end
-
-          begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
-
-          if begins_in_past
-            collect_error_messages(
-              detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
-              source: '/changeOfAddress/dates/beginDate'
-            )
-          end
+          change_of_address_beginning_date_validations(begin_date)
         rescue ArgumentError, TypeError
           # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
@@ -120,44 +102,17 @@ module ClaimsApi
       end
 
       def alt_rev_validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes&.dig('changeOfAddress')
-        end_date = change_of_address&.dig('dates', 'endDate')
+        end_date = form_attributes&.dig('changeOfAddress', 'dates', 'endDate')
 
-        case change_of_address&.dig('typeOfAddressChange')&.upcase
+        case form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase
         when 'PERMANENT'
-          # if the address type is PERMANENT, the endDate should not be included
-          if end_date.present?
-            collect_error_messages(
-              detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
-              source: '/changeOfAddress/dates/endDate'
-            )
-          end
+          change_of_address_end_date_permanent_type_validations(end_date)
+
         when 'TEMPORARY'
-          # if the address type is TEMPORARY, the endDate must exist and be in chronological order from beginDate
-          if end_date.blank?
-            collect_error_messages(
-              detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
-              source: '/changeOfAddress/dates/endDate'
-            )
-            return
-          end
-          begin
-            begin_date = change_of_address.dig('dates', 'beginDate')
-            if Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
-              collect_error_messages(
-                detail: 'endDate needs to be after beginDate.',
-                source: '/changeOfAddress/dates/endDate'
-              )
-            end
-          rescue ArgumentError, TypeError
-            collect_error_messages(
-              detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
-              source: '/changeOfAddress/dates/endDate'
-            )
-          end
+          begin_date = form_attributes.dig('changeOfAddress', 'dates', 'beginDate')
+          change_of_address_end_date_temporary_type_validations(end_date, begin_date)
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def alt_rev_validate_form_526_change_of_address_country
         country = form_attributes.dig('changeOfAddress', 'country')
@@ -1069,6 +1024,61 @@ module ClaimsApi
       def error_collection
         errors_array.uniq! { |e| e[:detail] }
         errors_array # set up the object to match other error returns
+      end
+
+      def change_of_address_beginning_date_validations(begin_date)
+        # if the address type is TEMPORARY, the beginDate must exist and be in the future.
+        if begin_date.blank?
+          collect_error_messages(
+            detail: 'Change of address beginDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+          return
+        end
+
+        begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
+
+        if begins_in_past
+          collect_error_messages(
+            detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+        end
+      end
+
+      # if the address type is PERMANENT, the endDate should not be included
+      def change_of_address_end_date_permanent_type_validations(end_date)
+        if end_date.present?
+          collect_error_messages(
+            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
+      end
+
+      # if the address type is TEMPORARY, the endDate must exist and be in chronological order from beginDate
+      def change_of_address_end_date_temporary_type_validations(end_date, begin_date)
+        if end_date.blank?
+          collect_error_messages(
+            detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/endDate'
+          )
+          return # skip remaining validations if end_date is blank since they are dependent on it being present
+        end
+
+        begin
+          if Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
+            collect_error_messages(
+              detail: 'endDate needs to be after beginDate.',
+              source: '/changeOfAddress/dates/endDate'
+            )
+          end
+        rescue ArgumentError, TypeError
+          collect_error_messages(
+            detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
       end
     end
   end
