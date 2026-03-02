@@ -261,7 +261,7 @@ class RepresentationManagement::RswagConfig
             type: { type: :string, example: 'accredited_organization' },
             attributes: {
               type: :object,
-              properties: organization_limited_properties
+              properties: accredited_organization_limited_properties
             }
           }
         }
@@ -326,7 +326,7 @@ class RepresentationManagement::RswagConfig
     }
   end
 
-  def organization_limited_properties
+  def accredited_organization_limited_properties
     {
       poa_code: { type: :string, example: '123' },
       name: { type: :string, example: 'Organization Name' },
