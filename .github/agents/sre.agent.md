@@ -368,7 +368,7 @@ end
 | [02](.github/agents/sre/plays/02-preserve-cause-chains.xml) | Preserve Cause Chains |
 | [03](.github/agents/sre/plays/03-never-use-bare-rescues.xml) | Never Use Bare Rescues |
 | [04](.github/agents/sre/plays/04-map-upstream-network-errors-correctly.xml) | Map Upstream Network Errors |
-| [05](.github/agents/sre/plays/05-classify-errors-honestly.xml) | Classify Errors Honestly |
+| [05](.github/agents/sre/plays/05-match-status-codes-to-fault-ownership.xml) | Match Status Codes to Fault Ownership |
 | [06](.github/agents/sre/plays/06-handle-401-token-ownership.xml) | Handle 401 Token Ownership |
 | [07](.github/agents/sre/plays/07-handle-403-permission-vs-existence.xml) | Handle 403 Permission vs Existence |
 | [08](.github/agents/sre/plays/08-prefer-typed-exceptions.xml) | Prefer Typed Exceptions |

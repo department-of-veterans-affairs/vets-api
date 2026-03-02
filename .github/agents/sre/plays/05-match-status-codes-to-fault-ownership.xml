@@ -1,10 +1,13 @@
 <play id="classify-errors" title="Match status codes to the source (4xx vs 5xx)" severity="CRITICAL">
 
   <context>
-    Broad rescues that return 422 disguise server bugs and upstream
-    failures as client validation errors. Dashboards show rising client
-    errors, the wrong team investigates, and the client retries with
-    the same data — which never helps when the real problem is ours.
+    Honest status codes make the API's error contract trustworthy.
+    When 4xx means "fix your request" and 5xx means "we have a
+    problem," consumers can build correct retry logic and SREs get
+    accurate dashboards that split client input issues from server
+    failures. Misclassification — returning 4xx for server-side
+    problems — hides outages from alerting, sends consumers on
+    futile retry loops, and erodes confidence in the API's responses.
   </context>
 
   <applies_to>
@@ -71,7 +74,7 @@ equivalent to a typed rescue and should not be flagged.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
-    **Classify errors honestly (4xx vs 5xx)** | `CRITICAL`
+    **Match Status Codes to Fault Ownership (4xx vs 5xx)** | `CRITICAL`
 
     `{{file_path}}:{{line_number}}` — {{one_line_violation_description}}
 
@@ -97,7 +100,7 @@ equivalent to a typed rescue and should not be flagged.</false_positive>
     - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
     - [ ] Metrics correctly split client errors vs server errors
 
-    [Play: Match Status Codes to the Source](05-classify-errors-honestly.xml)
+    [Play: Match Status Codes to the Source](05-match-status-codes-to-fault-ownership.xml)
   </pr_comment_template>
 
   <examples>

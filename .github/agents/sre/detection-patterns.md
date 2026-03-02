@@ -68,8 +68,8 @@ Grep helpers:
 Context check (search for `rescue\s+Faraday::` then read surrounding lines):
 - Faraday rescue followed by InternalServerError raise — HIGH
 
-### Play 05: Classify Errors Honestly
-File: [Play 05](.github/agents/sre/plays/05-classify-errors-honestly.xml)
+### Play 05: Match Status Codes to Fault Ownership (4xx vs 5xx)
+File: [Play 05](.github/agents/sre/plays/05-match-status-codes-to-fault-ownership.xml)
 
 **What to look for:** Broad rescue blocks (bare rescue or `rescue => e`) that raise 422 UnprocessableEntity. This disguises server errors and upstream failures as client validation errors, hiding real problems from dashboards. Only specific validation exceptions should produce 422.
 
