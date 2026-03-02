@@ -487,4 +487,41 @@ RSpec.describe SimpleFormsApi::ScannedFormProcessor do
       not_a_pdf.unlink
     end
   end
+
+  context 'logging' do
+    before { allow(Rails.logger).to receive(:error) }
+
+    it 'logs conversion failure with structured fields and no PII' do
+      allow(Common::ConvertToPdf).to receive(:new).and_raise(StandardError.new('some/path/with/pii.jpg'))
+      attachment = PersistentAttachments::VAForm.new.tap do |a|
+        a.form_id = '21-0779'
+        a.file = File.open(jpg_path, 'rb')
+      end
+
+      expect { described_class.new(attachment).process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'Simple forms api - PDF conversion failed',
+        hash_including(attachment_guid: attachment.guid, attachment_type: 'PersistentAttachments::VAForm')
+      )
+      expect(Rails.logger).not_to have_received(:error).with(anything, hash_including(message: anything))
+    end
+
+    it 'logs attachment_type correctly for MilitaryRecords' do
+      allow(Common::ConvertToPdf).to receive(:new).and_raise(StandardError)
+      attachment = PersistentAttachments::MilitaryRecords.new.tap do |a|
+        a.form_id = '21-0779'
+        a.file = File.open(jpg_path, 'rb')
+      end
+
+      expect { described_class.new(attachment).process! }
+        .to raise_error(SimpleFormsApi::ScannedFormProcessor::ConversionError)
+
+      expect(Rails.logger).to have_received(:error).with(
+        'Simple forms api - PDF conversion failed',
+        hash_including(attachment_type: 'PersistentAttachments::MilitaryRecords')
+      )
+    end
+  end
 end

@@ -37,13 +37,6 @@ module Burials
         'stateVeteransHome' => 3,
         'other' => 4
       }.freeze
-
-      # Bank Account Types
-      BANK_ACCOUNT_TYPES = {
-        'checking' => 0,
-        'savings' => 1,
-        'noAccount' => 2
-      }.freeze
     end
   end
 end
