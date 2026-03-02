@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/submissions/abc123
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Tue, 13 May 2025 19:26:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '33'
+      Connection:
+      - keep-alive
+      Last-Modified:
+      - Mon, 27 Aug 2007 17:15:36 GMT
+      Accept-Ranges:
+      - bytes
+      Vary:
+      - Accept-Encoding
+    body:
+      encoding: UTF-8
+      string: '{
+  "message": "Form not found"
+}'
+  recorded_at: Tue, 13 May 2025 19:26:37 GMT
+recorded_with: VCR 6.3.1
