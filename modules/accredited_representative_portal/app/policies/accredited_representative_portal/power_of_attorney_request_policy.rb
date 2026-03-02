@@ -49,7 +49,6 @@ module AccreditedRepresentativePortal
 
       mode = org_rep.acceptance_mode
 
-      # Unknown acceptance_mode? Deny by default.
       return false unless %w[any_request self_only no_acceptance].include?(mode)
 
       case mode

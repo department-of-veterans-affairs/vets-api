@@ -79,7 +79,6 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           .with(:accredited_representative_portal_individual_accept, user)
           .and_return(true)
 
-        # nit fix: drive registration_numbers off the actual representative record we created
         allow(user).to receive(:registration_numbers).and_return([reg_number])
       end
 
@@ -154,8 +153,6 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
 
       it 'denies when acceptance_mode is unexpected' do
-        # We still create a real record so the query + scopes run against the DB.
-        # But since acceptance_mode has a DB check constraint, we can’t persist an invalid value.
         create(
           :veteran_organization_representative,
           organization: vso_org,
