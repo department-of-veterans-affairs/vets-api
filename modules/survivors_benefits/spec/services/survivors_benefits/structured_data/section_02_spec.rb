@@ -114,7 +114,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       service.merge_claimant_address_fields(form['claimantAddress'])
       expect(service.fields).to include(
-        'CLAIMANT_ADDRESS_FULL_BLOCK' => "123 A St Apt 4 Anytown VA 12345 USA",
+        'CLAIMANT_ADDRESS_FULL_BLOCK' => '123 A St Apt 4 Anytown VA 12345 USA',
         'CLAIMANT_ADDRESS_LINE1' => '123 A St',
         'CLAIMANT_ADDRESS_LINE2' => 'Apt 4',
         'CLAIMANT_ADDRESS_CITY' => 'Anytown',
