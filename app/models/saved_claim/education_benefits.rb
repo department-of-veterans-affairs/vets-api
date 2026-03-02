@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'education_benefits_claims/notification_email'
+
 class SavedClaim::EducationBenefits < SavedClaim
   has_one(:education_benefits_claim, foreign_key: 'saved_claim_id', inverse_of: :saved_claim, dependent: :destroy)
 
