@@ -36,6 +36,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
   before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?)
+      .with(:accredited_representative_portal_individual_accept, anything)
+      .and_return(false)
+
     client_credentials_service = instance_double(Auth::ClientCredentials::Service)
     allow(Auth::ClientCredentials::Service).to receive(:new).and_return(client_credentials_service)
     allow(client_credentials_service).to receive(:get_token).and_return('<TOKEN>')
@@ -86,11 +91,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     context "when user's VSO does not accept digital POAs" do
       before { vso.update!(can_accept_digital_poa_requests: false) }
 
-      it 'returns 403 Forbidden' do
+      it 'returns 404 Not Found' do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance' } }
 
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:not_found)
+        expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
       end
     end
 

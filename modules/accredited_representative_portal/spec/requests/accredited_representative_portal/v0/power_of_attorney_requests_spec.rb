@@ -15,6 +15,11 @@ load_response_fixture('veteran_claimant_power_of_attorney_form.json')
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
   before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?)
+      .with(:accredited_representative_portal_individual_accept, anything)
+      .and_return(false)
+
     login_as(test_user)
     travel_to(time)
     test_user
@@ -600,10 +605,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           vso.update!(can_accept_digital_poa_requests: false)
         end
 
-        it 'returns 403 Forbidden' do
+        it 'returns 404 Not Found' do
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:not_found)
+          expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
         end
       end
 
