@@ -196,8 +196,8 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
         it "returns a 'resource not found' error" do
           expect { upload_form_526! }
-            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
-              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
             }
         end
       end
@@ -207,8 +207,8 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
         it "returns a 'resource not found' error" do
           expect { upload_form_526! }
-            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
-              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
             }
         end
       end
@@ -283,8 +283,8 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
         it "returns a 'resource not found' error" do
           expect { upload_form_526! }
-            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
-              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
             }
         end
       end
@@ -294,8 +294,8 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
 
         it "returns a 'resource not found' error" do
           expect { upload_form_526! }
-            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
-              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
             }
         end
       end

@@ -117,8 +117,10 @@ module ClaimsApi
           validate_documents_page_size
 
           pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless pending_claim
 
           establish_and_upload(pending_claim)
+          render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
         end
 
         # POST to upload additional documents to support relevent disability compensation claim.
@@ -330,7 +332,7 @@ module ClaimsApi
 
         # 526 PDF upload process
         def establish_and_upload(pending_claim)
-          if pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == true)
+          if pending_claim&.form_data&.dig('autoCestPDFGenerationDisabled') == true
 
             pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
             pending_claim.save!
@@ -340,19 +342,13 @@ module ClaimsApi
             else
               claim_establishment_and_upload(pending_claim)
             end
-
-            render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
-
-          elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
+          else
             message = <<-MESSAGE
             Claim submission requires that the "autoCestPDFGenerationDisabled" field
             must be set to "true" in order to allow a 526 PDF to be uploaded
             MESSAGE
             claims_v1_logging('526_upload', message:)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
-          else
-            claims_v1_logging('526_upload', message: 'Resource not found')
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
           end
         end
 
