@@ -369,7 +369,7 @@ module UnifiedHealthData
           value: format_observation_value(obs),
           reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
           status: obs['status'],
-          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
+          comments: obs['note']&.map { |note| note['text'] }&.compact || [],
           sample_tested:,
           body_site:
         )

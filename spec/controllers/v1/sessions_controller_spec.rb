@@ -737,7 +737,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'logs the logout call with session_duration' do
           expect(Rails.logger).to receive(:info).with(
             'SessionsController version:v1 LOGOUT of type slo',
-            hash_including(session_duration: kind_of(Integer))
+            hash_including(session_duration: kind_of(Integer), user_uuid: loa1_user.uuid)
           )
           call_endpoint
         end
