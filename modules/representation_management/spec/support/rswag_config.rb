@@ -46,6 +46,7 @@ class RepresentationManagement::RswagConfig
     {
       accreditedIndividual: accredited_individual_schema,
       accreditedOrganization: accredited_organization_schema,
+      accreditedOrganizationWithLimitedProperties: accredited_organization_with_limited_properties_schema,
       error:,
       errors:,
       errorModel: error_model,
@@ -249,6 +250,25 @@ class RepresentationManagement::RswagConfig
     build_organization_schema
   end
 
+  def accredited_organization_with_limited_properties_schema
+    {
+      type: :object,
+      properties: {
+        data: {
+          type: :object,
+          properties: {
+            id: { type: :string, example: '123' },
+            type: { type: :string, example: 'accredited_organization' },
+            attributes: {
+              type: :object,
+              properties: organization_limited_properties
+            }
+          }
+        }
+      }
+    }
+  end
+
   def veteran_service_organization_schema
     optional_attributes = { can_accept_digital_poa_requests: { type: :boolean, example: true } }
     build_organization_schema(uuid: false, optional_attributes:)
@@ -303,6 +323,19 @@ class RepresentationManagement::RswagConfig
       state_code: { type: :string, example: 'NY' },
       zip_code: { type: :string, example: '12345' },
       zip_suffix: { type: :string, example: '6789', nullable: true }
+    }
+  end
+
+  def organization_limited_properties
+    {
+      poa_code: { type: :string, example: '123' },
+      name: { type: :string, example: 'Organization Name' },
+      phone: { type: :string, example: '555-555-5555', nullable: true },
+      city: { type: :string, example: 'Anytown', nullable: true },
+      state_code: { type: :string, example: 'NY', nullable: true },
+      zip_code: { type: :string, example: '12345', nullable: true },
+      zip_suffix: { type: :string, example: '6789', nullable: true },
+      can_accept_digital_poa_requests: { type: :boolean, example: true }
     }
   end
 
