@@ -745,6 +745,59 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#alt_rev_validate_federal_activation_and_duty_date_order' do
+    let(:past_federal_activation_date) { '1901-01-01' }
+    let(:future_federal_activation_date) { "#{Time.current.year + 1}-12-20" }
+
+    it 'returns a 422 if the activation date is not after the duty begin date' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_and_duty_date_order,
+                                        past_federal_activation_date)
+
+      expect(current_error_array.count).to eq(1)
+      expect(current_error_array[0][:detail]).to eq(
+        'The federalActivation date must be after the earliest service period active duty begin date.'
+      )
+      expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
+    end
+
+    it 'does not raise an error if the activation date is not after the duty begin date' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_and_duty_date_order,
+                                        future_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
+  describe '#alt_rev_validate_federal_activation_date_chronology', run_at: '2024-03-21 00:00:00 EDT' do
+    let(:past_federal_activation_date) { '1901-01-01' }
+    let(:future_federal_activation_date) { "#{Time.current.year + 1}-12-20" }
+    let(:today_federal_activation_date) { Date.current.strftime('%Y-%m-%d') }
+
+    it 'returns a 422 if the activation date is not in the past' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        future_federal_activation_date)
+
+      expect(current_error_array[0][:detail]).to eq(
+        'The federalActivation date must be today or a date in the past.'
+      )
+      expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
+    end
+
+    it 'does not raise an error if the activation date is not in the past' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        past_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+
+    it 'does not raise an error if the activation date is today' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        today_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
   describe 'validation for BDD_PROGRAM claim' do
     future_date = "#{Time.current.year + 1}-12-20"
 

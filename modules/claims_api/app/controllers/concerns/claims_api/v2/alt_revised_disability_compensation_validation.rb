@@ -790,18 +790,30 @@ module ClaimsApi
         # For a valid BDD EP code to be assigned we need these values
         alt_rev_validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
 
-        alt_rev_validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
+        if federal_activation_date.present?
+          alt_rev_validate_federal_activation_and_duty_date_order(federal_activation_date)
+          alt_rev_validate_federal_activation_date_chronology(federal_activation_date)
+        end
+
         if anticipated_separation_date.present?
           alt_rev_validate_anticipated_separation_date_in_past(anticipated_separation_date)
         end
       end
 
-      def alt_rev_validate_federal_activation_date_order(federal_activation_date)
-        # we know the dates are present
+      def alt_rev_validate_federal_activation_and_duty_date_order(federal_activation_date)
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
           collect_error_messages(
             source: '/serviceInformation/federalActivation/',
             detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
+          )
+        end
+      end
+
+      def alt_rev_validate_federal_activation_date_chronology(federal_activation_date)
+        if activation_date_in_future?(federal_activation_date)
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The federalActivation date must be today or a date in the past.'
           )
         end
       end
@@ -841,7 +853,6 @@ module ClaimsApi
 
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
-        # return true if activationDate is an earlier date
         return unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                      'serviceInformation/servicePeriods/activeDutyEndDate', true)
 
@@ -856,6 +867,10 @@ module ClaimsApi
           Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                                       '%Y-%m-%d')
         end
+      end
+
+      def activation_date_in_future?(activation_date)
+        Date.strptime(activation_date, '%Y-%m-%d') > Date.current
       end
 
       def find_earliest_active_duty_begin_date(service_periods)
