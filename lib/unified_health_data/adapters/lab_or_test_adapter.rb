@@ -39,6 +39,8 @@ module UnifiedHealthData
         end
         filtered.filter_map do |record|
           parse_single_record(record)
+        rescue Common::Exceptions::BaseError
+          raise
         rescue => e
           log_record_parse_failure(record, e)
           nil
@@ -388,6 +390,8 @@ module UnifiedHealthData
 
           begin
             build_observation(obs, record['resource']['contained'])
+          rescue Common::Exceptions::BaseError
+            raise
           rescue => e
             log_observation_parse_failure(record, obs, e)
             nil
