@@ -2,6 +2,8 @@
 
 require 'common/virus_scan'
 require 'datadog'
+require 'digest'
+require 'request_store'
 
 class Shrine
   module Plugins
@@ -13,11 +15,27 @@ class Shrine
             temp_file_path = Common::FileHelpers.generate_clamav_temp_file(file_to_scan)
             result = Common::VirusScan.scan(temp_file_path)
             File.delete(temp_file_path)
-            result || add_error_msg(message || "Virus Found + #{temp_file_path}")
+
+            unless result
+              log_virus_detected(temp_file_path)
+              return add_error_msg(message || 'virus or malware detected')
+            end
+
+            true
           end
         end
 
         private
+
+        def log_virus_detected(file_path)
+          Rails.logger.warn(
+            'Virus or malware detected during upload scan',
+            scan_result: 'virus_detected',
+            remote_ip: RequestStore.store.dig('additional_request_attributes', 'remote_ip'),
+            file_name_hash: Digest::SHA256.hexdigest(File.basename(file_path)),
+            upload_context: record&.class&.name
+          )
+        end
 
         def add_error_msg(message)
           if Rails.env.development? && message.match(/nodename nor servname provided/)

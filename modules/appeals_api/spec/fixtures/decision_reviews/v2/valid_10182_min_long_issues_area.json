@@ -1,0 +1,47 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "homeless": true,
+        "phone": {
+          "phoneNumber": "8001111"
+        },
+        "email": "clause@north.com",
+        "timezone": "America/Chicago"
+      },
+      "boardReviewOption": "evidence_submission",
+      "requestingExtension": false,
+      "appealingVhaDenial": false
+    }
+  },
+  "included": [
+        {
+            "type": "contestableIssue",
+            "attributes": {
+                "issue": "bronchitis - 66%",
+                "decisionDate": "2023-11-13",
+                "ratingIssueReferenceId": "657586",
+                "disagreementArea": "effective date 00 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789ZX"
+            }
+        },
+        {
+            "type": "contestableIssue",
+            "attributes": {
+                "issue": " headache - 0% - ",
+                "decisionDate": "2022-06-19",
+                "ratingIssueReferenceId": "56863838",
+                "disagreementArea": "effective date 11 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789ZX"
+            }
+        },
+        {
+            "type": "contestableIssue",
+            "attributes": {
+                "issue": "hearing loss - 0% ",
+                "decisionDate": "2020-09-16",
+                "ratingIssueReferenceId": "977566",
+                "disagreementArea": "effective date 22 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789ZX"
+            }
+        }
+    ]
+}
