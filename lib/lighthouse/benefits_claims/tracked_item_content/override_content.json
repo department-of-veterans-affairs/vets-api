@@ -49,7 +49,8 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -92,7 +93,8 @@
               "type": "link",
               "text": "VA Form 21-4142a",
               "href": "/find-forms/about-form-21-4142a/",
-              "testId": "VA Form 21-4142a"
+              "mobileText": "Get VA Form 21-4142a on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -145,7 +147,8 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -196,7 +199,8 @@
               "type": "link",
               "text": "VA Form 21-4142a",
               "href": "/find-forms/about-form-21-4142a/",
-              "testId": "VA Form 21-4142a"
+              "mobileText": "Get VA Form 21-4142a on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -261,7 +265,8 @@
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "Get VA Form 21-4138 to download"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -305,7 +310,8 @@
               "type": "link",
               "text": "Learn how to request your military service records from the National Archives",
               "href": "/records/get-military-service-records/",
-              "testId": "Learn how to request your military service records from the National Archives"
+              "mobileText": "Learn how to request your military service records on VA.gov",
+              "isWebview": true
             }
           ]
         },
@@ -350,7 +356,8 @@
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "Get VA Form 21-4138 to download"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -405,7 +412,8 @@
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "Get VA Form 21-4138 to download"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -420,7 +428,8 @@
               "type": "link",
               "text": "Get VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "Get VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -473,7 +482,8 @@
               "type": "link",
               "text": "Get VA Form 21-4138 to download",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "Get VA Form 21-4138 to download"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -488,7 +498,8 @@
               "type": "link",
               "text": "Get VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "Get VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -555,7 +566,8 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -608,7 +620,8 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -663,7 +676,8 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -703,7 +717,8 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -894,7 +909,8 @@
               "type": "link",
               "text": "Add or change direct deposit information",
               "href": "/profile/direct-deposit",
-              "testId": "Add or change direct deposit information"
+              "mobileText": null,
+              "isWebview": false
             }
           ]
         },
@@ -910,7 +926,8 @@
               "text": "Set up a bank account through VBBP",
               "href": "https://veteransbenefitsbanking.org/",
               "style": "external",
-              "testId": "Set up a bank account through VBBP"
+              "mobileText": null,
+              "isWebview": false
             }
           ]
         }
@@ -961,7 +978,8 @@
               "type": "link",
               "text": "VA Form 21-4192",
               "href": "/find-forms/about-form-21-4192/",
-              "testId": "VA Form 21-4192"
+              "mobileText": "Get VA Form 21-4192 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -1080,7 +1098,8 @@
               "type": "link",
               "text": "VA Form 21-526EZ",
               "href": "/find-forms/about-form-21-526ez/",
-              "testId": "VA Form 21-526EZ"
+              "mobileText": "Get VA Form 21-526EZ on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -1177,7 +1196,9 @@
             {
               "type": "link",
               "text": "request your military service records",
-              "href": "/records/get-military-service-records/"
+              "href": "/records/get-military-service-records/",
+              "mobileText": null,
+              "isWebview": true
             },
             " yourself from the National Archives."
           ]
@@ -1232,7 +1253,8 @@
               "type": "link",
               "text": "Get VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "Get VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -1257,7 +1279,8 @@
               "type": "link",
               "text": "Get VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "Get VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -1336,8 +1359,10 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4138",
-              "href": "/forms/21-4138/",
-              "style": "default"
+              "href": "/find-forms/about-form-21-4138/",
+              "style": "default",
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -1484,7 +1509,8 @@
               "type": "link",
               "text": "VA Form 21-10210",
               "href": "/find-forms/about-form-21-10210/",
-              "testId": "VA Form 21-10210"
+              "mobileText": "Get VA Form 21-10210 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -1528,7 +1554,8 @@
               "type": "link",
               "text": "VA Form 21-8940",
               "href": "/find-forms/about-form-21-8940/",
-              "testId": "VA Form 21-8940"
+              "mobileText": "Get VA Form 21-8940 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -1548,7 +1575,8 @@
               "type": "link",
               "text": "VA Form 21-4192",
               "href": "/find-forms/about-form-21-4192/",
-              "testId": "VA Form 21-4192"
+              "mobileText": "Get VA Form 21-4192 on VA.gov",
+              "isWebview": false
             }
           ]
         }
