@@ -71,14 +71,16 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
 
       let(:vso_org) { create(:veteran_organization, poa: '123') }
-      let(:vs_rep) { create(:veteran_representative, representative_id: 'REG1') }
+      let(:vs_rep) { create(:veteran_representative) }
+      let(:reg_number) { vs_rep.representative_id }
 
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:accredited_representative_portal_individual_accept, user)
           .and_return(true)
 
-        allow(user).to receive(:registration_numbers).and_return(['REG1'])
+        # nit fix: drive registration_numbers off the actual representative record we created
+        allow(user).to receive(:registration_numbers).and_return([reg_number])
       end
 
       it 'denies when no join table record exists' do
@@ -106,7 +108,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           deactivated_at: nil
         )
 
-        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('REG1')
+        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return(reg_number)
 
         expect(policy.show?).to be true
       end
@@ -120,7 +122,9 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           deactivated_at: nil
         )
 
-        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('SOMEONE_ELSE')
+        allow(power_of_attorney_request)
+          .to receive(:accredited_individual_registration_number)
+          .and_return('SOMEONE_ELSE')
 
         expect(policy.show?).to be false
       end
@@ -145,6 +149,24 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           acceptance_mode: 'any_request',
           deactivated_at: Time.zone.now
         )
+
+        expect(policy.show?).to be false
+      end
+
+      it 'denies when acceptance_mode is unexpected' do
+        # We still create a real record so the query + scopes run against the DB.
+        # But since acceptance_mode has a DB check constraint, we can’t persist an invalid value.
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'any_request',
+          deactivated_at: nil
+        )
+
+        allow_any_instance_of(Veteran::Service::OrganizationRepresentative)
+          .to receive(:acceptance_mode)
+          .and_return('unexpected_value')
 
         expect(policy.show?).to be false
       end
@@ -205,14 +227,15 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
 
       let(:vso_org) { create(:veteran_organization, poa: '123') }
-      let(:vs_rep) { create(:veteran_representative, representative_id: 'REG1') }
+      let(:vs_rep) { create(:veteran_representative) }
+      let(:reg_number) { vs_rep.representative_id }
 
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:accredited_representative_portal_individual_accept, user)
           .and_return(true)
 
-        allow(user).to receive(:registration_numbers).and_return(['REG1'])
+        allow(user).to receive(:registration_numbers).and_return([reg_number])
       end
 
       it "allows when join table acceptance_mode is 'any_request'" do
@@ -236,7 +259,7 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           deactivated_at: nil
         )
 
-        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('REG1')
+        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return(reg_number)
 
         expect(policy.create_decision?).to be true
       end
