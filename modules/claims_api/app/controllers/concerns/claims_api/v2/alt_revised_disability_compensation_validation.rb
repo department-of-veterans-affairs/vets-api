@@ -790,6 +790,13 @@ module ClaimsApi
         # For a valid BDD EP code to be assigned we need these values
         alt_rev_validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
 
+        if federal_activation_date.blank?
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The activationDate must be present for federalActivation.'
+          )
+        end
+
         if federal_activation_date.present?
           alt_rev_validate_federal_activation_and_duty_date_order(federal_activation_date)
           alt_rev_validate_federal_activation_date_chronology(federal_activation_date)
@@ -858,15 +865,8 @@ module ClaimsApi
 
         return false if earliest_active_duty_begin_date['activeDutyBeginDate'].nil?
 
-        if activation_date.blank?
-          collect_error_messages(
-            source: '/serviceInformation/federalActivation/',
-            detail: 'The activationDate must be present for federalActivation.'
-          )
-        else
-          Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                                      '%Y-%m-%d')
-        end
+        Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                                    '%Y-%m-%d')
       end
 
       def activation_date_in_future?(activation_date)
