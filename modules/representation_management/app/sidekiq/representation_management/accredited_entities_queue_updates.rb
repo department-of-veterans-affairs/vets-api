@@ -191,8 +191,9 @@ module RepresentationManagement
         handle_invalid_entity_count(entity_type)
       end
     rescue => e
+      @processing_error_types << entity_type unless @processing_error_types.include?(entity_type)
       @ingestion_log&.mark_entity_failed!(entity_type, error: e.message)
-      raise
+      log_error("Error processing #{entity_type}: #{e.message}")
     end
 
     # Determines if an entity type should be skipped
@@ -278,8 +279,10 @@ module RepresentationManagement
       process_vsos_and_reps
       create_or_update_accreditations
     rescue => e
+      @processing_error_types << VSOS unless @processing_error_types.include?(VSOS)
+      @processing_error_types << REPRESENTATIVES unless @processing_error_types.include?(REPRESENTATIVES)
       mark_orgs_and_reps_failed(e.message)
-      raise
+      log_error("Error processing orgs and reps: #{e.message}")
     end
 
     # Determines if orgs and reps should be skipped

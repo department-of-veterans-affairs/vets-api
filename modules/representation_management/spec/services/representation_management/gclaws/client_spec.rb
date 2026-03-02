@@ -56,7 +56,9 @@ RSpec.describe RepresentationManagement::GCLAWS::Client do
           response = subject.get_accredited_entities(type:)
 
           expect(response.status).to eq(:unauthorized)
-          expect(JSON.parse(response.body)['errors']).to eq('GCLAWS Accreditation unauthorized')
+          expect(response.body['errors']).to eq('GCLAWS Accreditation unauthorized')
+          expect(response.body['items']).to eq([])
+          expect(response.body['totalRecords']).to eq(0)
         end
       end
 
@@ -73,7 +75,9 @@ RSpec.describe RepresentationManagement::GCLAWS::Client do
           response = subject.get_accredited_entities(type:)
 
           expect(response.status).to eq(:service_unavailable)
-          expect(JSON.parse(response.body)['errors']).to eq('GCLAWS Accreditation unavailable')
+          expect(response.body['errors']).to eq('GCLAWS Accreditation unavailable')
+          expect(response.body['items']).to eq([])
+          expect(response.body['totalRecords']).to eq(0)
         end
       end
 
@@ -90,7 +94,9 @@ RSpec.describe RepresentationManagement::GCLAWS::Client do
           response = subject.get_accredited_entities(type:)
 
           expect(response.status).to eq(:request_timeout)
-          expect(JSON.parse(response.body)['errors']).to eq('GCLAWS Accreditation request timed out')
+          expect(response.body['errors']).to eq('GCLAWS Accreditation request timed out')
+          expect(response.body['items']).to eq([])
+          expect(response.body['totalRecords']).to eq(0)
         end
       end
     end

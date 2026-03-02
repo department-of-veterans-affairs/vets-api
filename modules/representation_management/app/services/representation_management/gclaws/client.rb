@@ -128,7 +128,7 @@ module RepresentationManagement
       def self.build_error_response(status, error_message)
         Faraday::Response.new(
           status:,
-          body: { errors: error_message }.to_json
+          body: { 'errors' => error_message, 'items' => [], 'totalRecords' => 0 }
         )
       end
 
