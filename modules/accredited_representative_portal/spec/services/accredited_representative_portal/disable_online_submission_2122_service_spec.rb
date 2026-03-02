@@ -20,6 +20,33 @@ RSpec.describe AccreditedRepresentativePortal::DisableOnlineSubmission2122Servic
       end
     end
 
+    context 'with array input' do
+      let!(:org_svs) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
+      let!(:org_yhz) { create(:veteran_organization, poa: 'YHZ', can_accept_digital_poa_requests: true, name: 'YHZ') }
+      let(:poa_codes) { ['SVS', ['YHZ', 'SVS ']] }
+
+      it 'flattens, normalizes, deduplicates, and updates matching orgs' do
+        result = call_service
+
+        expect(result).to eq(orgs_updated: 2, reps_updated: 0)
+        expect(org_svs.reload.can_accept_digital_poa_requests).to be(false)
+        expect(org_yhz.reload.can_accept_digital_poa_requests).to be(false)
+      end
+    end
+
+    context 'normalization: whitespace and duplicates' do
+      let!(:org_svs) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
+      let!(:org_yhz) { create(:veteran_organization, poa: 'YHZ', can_accept_digital_poa_requests: true, name: 'YHZ') }
+      let(:poa_codes) { ' SVS ,  SVS ,, YHZ  ' }
+
+      it 'trims whitespace, removes duplicates, and updates matching orgs' do
+        result = call_service
+
+        expect(result).to eq(orgs_updated: 2, reps_updated: 0)
+        expect(org_svs.reload.can_accept_digital_poa_requests).to be(false)
+        expect(org_yhz.reload.can_accept_digital_poa_requests).to be(false)
+      end
+    end
     context 'when blank after normalization' do
       let(:poa_codes) { ' , , ' }
 

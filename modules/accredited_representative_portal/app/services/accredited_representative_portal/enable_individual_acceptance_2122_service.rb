@@ -8,12 +8,15 @@ module AccreditedRepresentativePortal
       codes = normalize_codes(poa_codes)
       raise ArgumentError, 'POA codes required' if codes.empty?
 
-      orgs = organizations_for(codes)
+      ActiveRecord::Base.transaction do
+        orgs = organizations_for(codes)
+        reps_updated = set_active_reps_mode!(orgs, 'self_only')
 
-      {
-        orgs_updated: 0,
-        reps_updated: set_active_reps_mode!(orgs, 'self_only')
-      }
+        {
+          orgs_updated: 0,
+          reps_updated:
+        }
+      end
     end
   end
 end

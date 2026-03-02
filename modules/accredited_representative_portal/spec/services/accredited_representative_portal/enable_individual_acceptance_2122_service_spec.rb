@@ -20,6 +20,60 @@ RSpec.describe AccreditedRepresentativePortal::EnableIndividualAcceptance2122Ser
       end
     end
 
+    context 'with array input' do
+      let!(:org_svs) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
+      let!(:org_yhz) { create(:veteran_organization, poa: 'YHZ', can_accept_digital_poa_requests: true, name: 'YHZ') }
+      let(:poa_codes) { ['SVS', 'YHZ'] }
+
+      it 'handles array input equivalently to comma-separated string' do
+        result = call_service
+
+        expect(result).to eq(orgs_updated: 0, reps_updated: 0)
+        expect(org_svs.reload.can_accept_digital_poa_requests).to be(true)
+        expect(org_yhz.reload.can_accept_digital_poa_requests).to be(true)
+      end
+    end
+
+    context 'normalization: whitespace and duplicates' do
+      let!(:org) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
+      let(:poa_codes) { [' SVS', 'SVS ', '  SVS', 'SVS'] }
+
+      let!(:active_needs_update) do
+        create(
+          :veteran_organization_representative,
+          organization: org,
+          acceptance_mode: 'any_request',
+          deactivated_at: nil
+        )
+      end
+
+      let!(:active_already_self_only) do
+        create(
+          :veteran_organization_representative,
+          organization: org,
+          acceptance_mode: 'self_only',
+          deactivated_at: nil
+        )
+      end
+
+      let!(:deactivated_should_not_change) do
+        create(
+          :veteran_organization_representative,
+          organization: org,
+          acceptance_mode: 'any_request',
+          deactivated_at: Time.zone.now
+        )
+      end
+
+      it 'trims whitespace, deduplicates codes, and updates active joins once' do
+        result = call_service
+
+        expect(result).to eq(orgs_updated: 0, reps_updated: 1)
+        expect(active_needs_update.reload.acceptance_mode).to eq('self_only')
+        expect(active_already_self_only.reload.acceptance_mode).to eq('self_only')
+        expect(deactivated_should_not_change.reload.acceptance_mode).to eq('any_request')
+      end
+    end
     context 'when blank after normalization' do
       let(:poa_codes) { ' , , ' }
 
