@@ -7,7 +7,7 @@ module UnifiedHealthData
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
       # Valid VA station numbers start with exactly 3 digits followed by a non-digit
-      # character or end of string (e.g., '648', '648A4', '648-RX-MAIN').
+      # character or end of string (e.g., '648', '648A4', '528GQ01', '648-RX-MAIN').
       # Non-matching identifiers (e.g., DoD 4+ digit codes, zz/x prefixes) are excluded.
       VA_STATION_PATTERN = /^\d{3}(?!\d)/
 
@@ -61,7 +61,7 @@ module UnifiedHealthData
       # Attempts lookup using the extended facility identifier (e.g., 648A4 from '648A4-RX-MAIN')
       def resolve_extended_station(location_display, three_digit_station)
         facility_identifier = location_display.split('-').first
-        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
+        valid_station_regex = /^\d{3}[A-Za-z0-9]+$/
 
         if facility_identifier.present? && facility_identifier != three_digit_station &&
            facility_identifier.match?(valid_station_regex)
