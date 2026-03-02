@@ -13,8 +13,7 @@ namespace :vso do
 
       result = AccreditedRepresentativePortal::EnableOnlineSubmission2122Service.call(poa_codes:)
 
-      Rails.logger.info("Enabled online submission for #{result[:orgs_updated]} organization(s).")
-      Rails.logger.info("Set acceptance_mode=any_request for #{result[:reps_updated]} active rep-org relationship(s).")
+      Rails.logger.info("Enabled online submission for #{result} organization(s).")
     end
   end
 end
