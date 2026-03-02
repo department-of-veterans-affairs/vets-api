@@ -2,29 +2,112 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::SignInController, type: :controller do
-  include_context 'logout_setup'
-
+RSpec.describe V0::SignInController, '#logout', type: :controller do
   describe 'GET logout' do
+    subject { get(:logout, params: logout_params) }
+
+    let(:logout_params) do
+      {}.merge(client_id)
+    end
+    let(:client_id) { { client_id: client_id_value } }
+    let(:client_id_value) { client_config.client_id }
+    let!(:client_config) { create(:client_config, logout_redirect_uri:) }
+    let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
+    let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+    let(:authorization) { "Bearer #{access_token}" }
+    let(:created_at) { 1.day.ago }
+    let(:oauth_session) { create(:oauth_session, user_verification:, created_at:) }
+    let(:user_verification) { create(:user_verification) }
+    let(:access_token_object) do
+      create(:access_token, session_handle: oauth_session.handle, client_id: client_config.client_id, expiration_time:)
+    end
+    let(:expiration_time) { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
+
+    before do
+      request.headers['Authorization'] = authorization
+      allow(Rails.logger).to receive(:info)
+    end
+
+    shared_context 'error response' do
+      let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
+      let(:expected_error_log) { '[SignInService] [V0::SignInController] logout error' }
+      let(:expected_error_context) { { errors: expected_error_message, client_id: client_id_value } }
+      let(:expected_error_status) { :bad_request }
+      let(:expected_error_json) { { 'errors' => expected_error_message } }
+
+      it 'renders expected error' do
+        expect(JSON.parse(subject.body)).to eq(expected_error_json)
+      end
+
+      it 'returns expected status' do
+        expect(subject).to have_http_status(expected_error_status)
+      end
+
+      it 'triggers statsd increment for failed call' do
+        expect { subject }.to trigger_statsd_increment(statsd_failure)
+      end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
+        subject
+      end
+    end
+
+    shared_context 'authorization error response' do
+      let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE }
+      let(:expected_error_log) { '[SignInService] [V0::SignInController] logout error' }
+      let(:expected_error_context) { { errors: expected_error_message, client_id: client_id_value } }
+
+      it 'triggers statsd increment for failed call' do
+        expect { subject }.to trigger_statsd_increment(statsd_failure)
+      end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
+        subject
+      end
+
+      context 'when client configuration has not configured a logout redirect uri' do
+        let(:logout_redirect_uri) { nil }
+        let(:expected_error_status) { :ok }
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+      end
+
+      context 'when client configuration has configured a logout redirect uri' do
+        let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
+        let(:expected_error_status) { :redirect }
+
+        it 'returns expected status' do
+          expect(subject).to have_http_status(expected_error_status)
+        end
+
+        it 'redirects to logout redirect url' do
+          expect(subject).to redirect_to(logout_redirect_uri)
+        end
+      end
+    end
+
     context 'when successfully authenticated' do
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS }
       let(:logingov_uuid) { 'some-logingov-uuid' }
       let(:expected_log) { '[SignInService] [V0::SignInController] logout' }
+      let(:expected_session_duration) { Time.zone.now.to_i - oauth_session.created_at.to_i }
       let(:expected_log_params) do
         {
-          uuid: access_token_object.uuid,
           user_uuid: access_token_object.user_uuid,
           session_handle: access_token_object.session_handle,
           client_id: access_token_object.client_id,
-          audience: access_token_object.audience,
-          version: access_token_object.version,
-          last_regeneration_time: access_token_object.last_regeneration_time.to_i,
-          created_time: access_token_object.created_time.to_i,
-          expiration_time: access_token_object.expiration_time.to_i,
-          session_duration: kind_of(Integer)
+          session_duration: expected_session_duration
         }
       end
       let(:expected_status) { :redirect }
+
+      before { Timecop.freeze }
+
+      after { Timecop.return }
 
       it 'deletes the OAuthSession object matching the session_handle in the access token' do
         expect { subject }.to change {
@@ -119,7 +202,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
         before { oauth_session.destroy! }
 
-        it_behaves_like 'logout_authorization_error_response'
+        it_behaves_like 'authorization error response'
       end
     end
 
@@ -168,7 +251,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error) { SignIn::Errors::LogoutAuthorizationError }
         let(:expected_error_message) { 'Unable to authorize access token' }
 
-        it_behaves_like 'logout_authorization_error_response'
+        it_behaves_like 'authorization error response'
       end
     end
 
@@ -179,7 +262,7 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error_message) { 'Client id is not valid' }
       let(:logout_redirect_uri) { nil }
 
-      it_behaves_like 'logout_error_response'
+      it_behaves_like 'error response'
     end
   end
 end
