@@ -811,7 +811,7 @@ module ClaimsApi
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
           collect_error_messages(
             source: '/serviceInformation/federalActivation/',
-            detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
+            detail: 'The activationDate must be after the earliest service period active duty begin date.'
           )
         end
       end
@@ -820,7 +820,7 @@ module ClaimsApi
         if activation_date_in_future?(federal_activation_date)
           collect_error_messages(
             source: '/serviceInformation/federalActivation/',
-            detail: 'The federalActivation date must be today or a date in the past.'
+            detail: 'The activationDate must be today or a date in the past.'
           )
         end
       end

@@ -755,7 +755,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       expect(current_error_array.count).to eq(1)
       expect(current_error_array[0][:detail]).to eq(
-        'The federalActivation date must be after the earliest service period active duty begin date.'
+        'The activationDate must be after the earliest service period active duty begin date.'
       )
       expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
     end
@@ -778,7 +778,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
                                         future_federal_activation_date)
 
       expect(current_error_array[0][:detail]).to eq(
-        'The federalActivation date must be today or a date in the past.'
+        'The activationDate must be today or a date in the past.'
       )
       expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
     end
