@@ -63,6 +63,13 @@ module ClamAV
       scan(target).all? { |file| file.virus_name.nil? }
     end
 
+    def scan_with_result(file_path)
+      results = scan(file_path)
+      safe = results.all? { |file| file.virus_name.nil? }
+      virus_name = results.find { |file| file.virus_name.present? }&.virus_name
+      { safe: safe, virus_name: virus_name }
+    end
+
     private
 
     def instream(io)
