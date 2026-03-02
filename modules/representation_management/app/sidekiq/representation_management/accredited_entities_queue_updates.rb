@@ -850,10 +850,10 @@ module RepresentationManagement
       return if failed_types.empty?
 
       RepresentationManagement::AccreditationXlsxProcessor.perform_async(failed_types)
-      @report << "\n\u{1F4E6} **XLSX Fallback:** Enqueued for: #{failed_types.join(', ')}\n"
+      @report << "\n📦 **XLSX Fallback:** Enqueued for: #{failed_types.join(', ')}\n"
     rescue => e
       log_error("XLSX fallback enqueue failed: #{e.message}")
-      @report << "\n\u26A0\uFE0F **XLSX Fallback:** FAILED to enqueue - #{e.message}\n"
+      @report << "\n⚠️ **XLSX Fallback:** FAILED to enqueue - #{e.message}\n"
     end
 
     def log_to_slack_channel(message)
