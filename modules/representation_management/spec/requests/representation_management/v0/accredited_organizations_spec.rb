@@ -80,7 +80,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedOrganizations', type: :r
       allow(Flipper).to receive(:enabled?).with(:find_a_representative_use_accredited_models).and_return(true)
     end
 
-    it 'returns the two valid accredited_organizations sorted asc by name' do
+    it 'returns the two valid accredited_organizations sorted by name asc' do
       get path
 
       parsed_response = JSON.parse(response.body)
@@ -96,7 +96,7 @@ RSpec.describe 'RepresentationManagement::V0::AccreditedOrganizations', type: :r
       allow(Flipper).to receive(:enabled?).with(:find_a_representative_use_accredited_models).and_return(false)
     end
 
-    it 'returns the two valid veteran organizations sorted asc by name' do
+    it 'returns the two valid veteran_organizations sorted by name asc' do
       get path
 
       parsed_response = JSON.parse(response.body)
