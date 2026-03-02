@@ -27,7 +27,8 @@ module AccreditedRepresentativePortal
     end
 
     def post_icn_and_registration_combination(icn, registration_number)
-      return nil if icn.blank? || registration_number.blank? || ogc_calls_disabled?
+      return nil if icn.blank? || registration_number.blank?
+      return true if ogc_calls_disabled?
 
       begin
         response = make_icn_reg_post_request(icn, registration_number)
