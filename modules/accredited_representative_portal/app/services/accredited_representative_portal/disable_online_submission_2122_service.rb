@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class EnableOnlineSubmission2122Service
+  class DisableOnlineSubmission2122Service
     def self.call(poa_codes:)
       codes = normalize_codes(poa_codes)
       raise ArgumentError, 'POA codes required' if codes.empty?
@@ -9,8 +9,8 @@ module AccreditedRepresentativePortal
       orgs = organizations_for(codes)
 
       {
-        orgs_updated: enable_online_submission!(orgs),
-        reps_updated: set_active_reps_mode!(orgs, 'any_request')
+        orgs_updated: disable_online_submission!(orgs),
+        reps_updated: set_active_reps_mode!(orgs, 'no_acceptance')
       }
     end
 
@@ -19,17 +19,18 @@ module AccreditedRepresentativePortal
     end
     private_class_method :organizations_for
 
-    def self.enable_online_submission!(org_scope)
-      orgs_to_update = org_scope.where.not(can_accept_digital_poa_requests: true)
+    def self.disable_online_submission!(org_scope)
+      orgs_to_update = org_scope.where.not(can_accept_digital_poa_requests: false)
 
       updated = 0
       orgs_to_update.find_each do |vso|
-        updated += 1 if vso.update(can_accept_digital_poa_requests: true)
+        vso.update!(can_accept_digital_poa_requests: false)
+        updated += 1
       end
 
       updated
     end
-    private_class_method :enable_online_submission!
+    private_class_method :disable_online_submission!
 
     def self.set_active_reps_mode!(org_scope, mode)
       reps_scope =

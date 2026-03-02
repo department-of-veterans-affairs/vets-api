@@ -55,7 +55,9 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
     end
 
     context 'when no organizations match' do
-      let!(:org_other) { create(:veteran_organization, poa: 'OTH', can_accept_digital_poa_requests: false, name: 'OTHER') }
+      let!(:org_other) do
+        create(:veteran_organization, poa: 'OTH', can_accept_digital_poa_requests: false, name: 'OTHER')
+      end
       let(:poa_codes) { 'NOPE' }
 
       it 'does not raise and does not update others; returns zero counts' do
