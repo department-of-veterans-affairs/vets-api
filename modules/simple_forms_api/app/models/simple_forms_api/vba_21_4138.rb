@@ -38,10 +38,10 @@ module SimpleFormsApi
     def metadata
       id_data = veteran_id_data
       {
-        'veteranFirstName' => veteran_full_name.dig('first'),
-        'veteranLastName' => veteran_full_name.dig('last'),
+        'veteranFirstName' => veteran_full_name['first'],
+        'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => id_data['va_file_number'].presence || id_data['ssn'],
-        'zipCode' => veteran_mailing_address.dig('postal_code'),
+        'zipCode' => veteran_mailing_address['postal_code'],
         'source' => 'VA Platform Digital Forms',
         'docType' => data['form_number'],
         'businessLine' => 'CMP'
