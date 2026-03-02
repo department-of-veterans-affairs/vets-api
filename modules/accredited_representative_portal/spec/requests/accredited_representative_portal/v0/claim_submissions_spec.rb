@@ -122,7 +122,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
 
         before do
           # rubocop:disable Rails/SkipsModelValidations
-          saved_claim_claimant_representative_b.update_columns(claimant_type: 'veteran')
+          saved_claim_claimant_representative_b.update_columns(claimant_type: 'veteran', claimant_id: identifier.id)
           # rubocop:enable Rails/SkipsModelValidations
         end
 
