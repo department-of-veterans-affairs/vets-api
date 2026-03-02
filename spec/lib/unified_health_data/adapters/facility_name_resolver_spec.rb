@@ -99,7 +99,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         end
       end
 
-      context 'when 3-digit lookup misses but full facility identifier exists' do
+      context 'when extended identifier resolves (e.g., 648A4)' do
         let(:dispense_with_extended_station) do
           {
             'resourceType' => 'MedicationDispense',
@@ -115,9 +115,31 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648A4').and_return(true)
         end
 
-        it 'falls back to the full station identifier' do
+        it 'returns the extended facility name' do
           result = subject.resolve_facility_name(dispense_with_extended_station)
           expect(result).to eq('Full Station Facility')
+        end
+      end
+
+      context 'when longer extended identifier resolves (e.g., 528GQ01)' do
+        let(:dispense_with_long_extended_station) do
+          {
+            'resourceType' => 'MedicationDispense',
+            'id' => 'dispense-extended-long',
+            'location' => { 'display' => '528GQ01-RX-MAIN' }
+          }
+        end
+
+        before do
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:528').and_return(nil)
+          allow(Rails.cache).to receive(:read).with('uhd:facility_names:528GQ01').and_return('Bath VA Medical Center')
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:528').and_return(false)
+          allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:528GQ01').and_return(true)
+        end
+
+        it 'returns the extended facility name' do
+          result = subject.resolve_facility_name(dispense_with_long_extended_station)
+          expect(result).to eq('Bath VA Medical Center')
         end
       end
 
@@ -130,8 +152,19 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           }
         end
 
+        before do
+          allow(Rails.logger).to receive(:info)
+        end
+
         it 'returns nil without attempting lookup' do
           expect(subject.resolve_facility_name(dispense_with_invalid_station)).to be_nil
+        end
+
+        it 'logs unresolved facility' do
+          subject.resolve_facility_name(dispense_with_invalid_station)
+          expect(Rails.logger).to have_received(:info).with(
+            'Unresolved facility for location display: ABC-RX-MAIN'
+          )
         end
       end
 
@@ -139,6 +172,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         before do
           allow(Rails.cache).to receive(:read).with('uhd:facility_names:556').and_return(nil)
           allow(Rails.cache).to receive(:write)
+          allow(Rails.logger).to receive(:info)
           allow(Rails.logger).to receive(:warn)
           allow(StatsD).to receive(:increment)
           allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:556').and_return(false)
@@ -151,6 +185,17 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
 
           result = subject.resolve_facility_name(dispense_with_station_number)
           expect(result).to be_nil
+        end
+
+        it 'logs unresolved facility' do
+          mock_client = instance_double(Lighthouse::Facilities::V1::Client)
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:get_facilities).with(facilityIds: 'vha_556').and_return([])
+
+          subject.resolve_facility_name(dispense_with_station_number)
+          expect(Rails.logger).to have_received(:info).with(
+            'Unresolved facility for location display: 556-RX-MAIN-OP'
+          )
         end
       end
     end
@@ -165,19 +210,19 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
 
       before do
-        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:info)
       end
 
-      it 'returns nil when station number does not match 3-digit pattern' do
+      it 'returns nil and logs unresolved facility' do
         result = subject.resolve_facility_name(dispense_with_short_station)
-        expect(Rails.logger).to have_received(:warn).with(
-          'Unable to extract valid station number from: 12-PHARMACY'
-        )
         expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Unresolved facility for location display: 12-PHARMACY'
+        )
       end
     end
 
-    context 'with MedicationDispense containing DoD facility identifier' do
+    context 'with MedicationDispense containing non-VA facility identifier' do
       before do
         allow(Rails.logger).to receive(:info)
       end
@@ -191,11 +236,11 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           }
         end
 
-        it 'returns nil and logs info for zz prefix DoD identifier' do
+        it 'returns nil and logs unresolved facility for zz prefix DoD identifier' do
           result = subject.resolve_facility_name(dispense_with_zz_prefix)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:info).with(
-            'Skipping DoD facility identifier: zz0127-RX-CLINIC'
+            'Unresolved facility for location display: zz0127-RX-CLINIC'
           )
         end
 
@@ -214,7 +259,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           }
         end
 
-        it 'returns nil for uppercase ZZ prefix (case-insensitive match)' do
+        it 'returns nil for uppercase ZZ prefix' do
           result = subject.resolve_facility_name(dispense_with_uppercase_zz)
           expect(result).to be_nil
         end
@@ -229,11 +274,11 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           }
         end
 
-        it 'returns nil for zz prefix with alphabetic station (Madigan Army Medical Center)' do
+        it 'returns nil and logs unresolved facility for zzMAMC (Madigan Army Medical Center)' do
           result = subject.resolve_facility_name(dispense_with_zz_alpha)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:info).with(
-            'Skipping DoD facility identifier: zzMAMC Main OP'
+            'Unresolved facility for location display: zzMAMC Main OP'
           )
         end
       end
@@ -247,11 +292,11 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           }
         end
 
-        it 'returns nil for x prefix DoD identifier (Naval Hospital Oak Harbor)' do
+        it 'returns nil and logs unresolved facility for xNHOH (Naval Hospital Oak Harbor)' do
           result = subject.resolve_facility_name(dispense_with_x_prefix)
           expect(result).to be_nil
           expect(Rails.logger).to have_received(:info).with(
-            'Skipping DoD facility identifier: xNHOH Clinic IP'
+            'Unresolved facility for location display: xNHOH Clinic IP'
           )
         end
       end
@@ -272,8 +317,8 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
       end
     end
 
-    context 'with MedicationDispense containing out-of-range OH station number' do
-      let(:dispense_with_invalid_station) do
+    context 'with MedicationDispense containing 4-digit station number (non-VA pattern)' do
+      let(:dispense_with_4digit_station) do
         {
           'resourceType' => 'MedicationDispense',
           'id' => 'dispense-1',
@@ -281,37 +326,135 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         }
       end
 
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns nil and logs unresolved facility' do
+        result = subject.resolve_facility_name(dispense_with_4digit_station)
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Unresolved facility for location display: 7200-RX-MAIN'
+        )
+      end
+
+      it 'does not attempt facility lookup' do
+        expect(HealthFacility).not_to receive(:find_by)
+        subject.resolve_facility_name(dispense_with_4digit_station)
+      end
+    end
+
+    context 'with bare 3-digit station number (no suffix)' do
+      let(:dispense_bare_station) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-bare',
+          'location' => { 'display' => '648' }
+        }
+      end
+
+      before do
+        allow(Rails.cache).to receive(:read).with('uhd:facility_names:648').and_return('Portland VA Medical Center')
+        allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648').and_return(true)
+      end
+
+      it 'resolves facility name for bare 3-digit station' do
+        result = subject.resolve_facility_name(dispense_bare_station)
+        expect(result).to eq('Portland VA Medical Center')
+      end
+    end
+
+    context 'with 5-digit numeric identifier (non-VA)' do
+      let(:dispense_five_digit) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-5digit',
+          'location' => { 'display' => '12345-RX-MAIN' }
+        }
+      end
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns nil and logs unresolved facility' do
+        result = subject.resolve_facility_name(dispense_five_digit)
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Unresolved facility for location display: 12345-RX-MAIN'
+        )
+      end
+
+      it 'does not attempt facility lookup' do
+        expect(HealthFacility).not_to receive(:find_by)
+        subject.resolve_facility_name(dispense_five_digit)
+      end
+    end
+
+    context 'with DoD clinic 0378-RX-CLINIC (4-digit starting with 0)' do
+      let(:dispense_dod_four_digit) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-dod-0378',
+          'location' => { 'display' => '0378-RX-CLINIC' }
+        }
+      end
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'returns nil and logs unresolved facility' do
+        result = subject.resolve_facility_name(dispense_dod_four_digit)
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:info).with(
+          'Unresolved facility for location display: 0378-RX-CLINIC'
+        )
+      end
+
+      it 'does not attempt facility lookup' do
+        expect(HealthFacility).not_to receive(:find_by)
+        subject.resolve_facility_name(dispense_dod_four_digit)
+      end
+    end
+
+    context 'with 3-digit station where neither DB nor API finds facility' do
+      let(:dispense_unknown_station) do
+        {
+          'resourceType' => 'MedicationDispense',
+          'id' => 'dispense-unknown',
+          'location' => { 'display' => '999-RX-MAIN' }
+        }
+      end
+
       let(:mock_client) { instance_double(Lighthouse::Facilities::V1::Client) }
 
       before do
-        allow(Rails.cache).to receive(:read).and_return(nil)
         allow(Rails.cache).to receive_messages(read: nil, exist?: false)
         allow(Rails.cache).to receive(:write)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:increment)
         allow(HealthFacility).to receive(:find_by).and_return(nil)
         allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(mock_client)
         allow(mock_client).to receive(:get_facilities).and_return([])
       end
 
-      it 'logs info message when facility is not found for either station format' do
-        subject.resolve_facility_name(dispense_with_invalid_station)
+      it 'returns nil when no facility is found' do
+        result = subject.resolve_facility_name(dispense_unknown_station)
+        expect(result).to be_nil
+      end
 
+      it 'logs unresolved facility' do
+        subject.resolve_facility_name(dispense_unknown_station)
         expect(Rails.logger).to have_received(:info).with(
-          a_string_matching(
-            Regexp.new(
-              'No facility name found for facility identifier: 7200.*' \
-              'or 3 digit station: 720.*' \
-              'derived from 7200-RX-MAIN',
-              Regexp::MULTILINE
-            )
-          )
+          'Unresolved facility for location display: 999-RX-MAIN'
         )
       end
 
-      it 'returns nil when neither database nor API finds the facility' do
-        result = subject.resolve_facility_name(dispense_with_invalid_station)
-        expect(result).to be_nil
+      it 'attempts lookup for 3-digit station' do
+        subject.resolve_facility_name(dispense_unknown_station)
+        expect(HealthFacility).to have_received(:find_by).with(station_number: '999')
       end
     end
 

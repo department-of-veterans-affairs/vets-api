@@ -80,6 +80,7 @@ module UnifiedHealthData
       # (needed to determine if a subsequent dispense exists for the refill).
       def build_core_attributes(resource, dispenses_data = [])
         refill_status = extract_refill_status(resource, dispenses_data)
+        facility_name = extract_facility_name(resource)
         {
           id: resource['id'],
           type: 'Prescription',
@@ -87,15 +88,14 @@ module UnifiedHealthData
           refill_submit_date: nil,
           refill_date: extract_refill_date(resource),
           refill_remaining: extract_refill_remaining(resource),
-          facility_name: extract_facility_name(resource),
+          facility_name:,
           ordered_date: resource['authoredOn'],
           quantity: extract_quantity(resource),
           expiration_date: extract_expiration_date(resource),
           prescription_number: extract_prescription_number(resource),
           prescription_name: extract_prescription_name(resource),
-          dispensed_date: nil, # Not available in FHIR
           station_number: extract_station_number(resource),
-          is_refillable: extract_is_refillable(resource, refill_status),
+          is_refillable: facility_name.present? && extract_is_refillable(resource, refill_status),
           is_renewable: extract_is_renewable(resource),
           cmop_ndc_number: nil # Not available in Oracle Health yet, will get this when we get CMOP data
         }
