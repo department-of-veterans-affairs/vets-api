@@ -90,18 +90,18 @@ The `read` tool is unrestricted — the agent needs to read source files, detect
 - Controllers: {count} | Services: {count} | Models: {count} | Jobs: {count}
 - External integrations: {list of upstream services}
 
-## RuboCop Findings (deterministic)
+## RuboCop Findings (after false-positive filtering)
 
-Phase 0 RuboCop results. These are AST-level detections — confirmed violations, no LLM judgment.
+Phase 0 RuboCop detections, filtered through each play's `<false_positive>` exclusion gates in Phase 3. Only offenses that survive context review appear here.
 
 | Play | Cop | Count | Files |
 |------|-----|-------|-------|
 | 03 | NoBareRescues | {n} | `file.rb:10`, `file.rb:25`, ... |
 | 08 | PreferTypedExceptions | {n} | `file.rb:30`, ... |
 
-**Total RuboCop offenses**: {count}
+**Total RuboCop offenses**: {count} ({excluded_count} excluded as false positives)
 
-Plays with zero RuboCop offenses are omitted from this table.
+Plays with zero RuboCop offenses (after filtering) are omitted from this table.
 
 **Note**: These plays may also have additional findings from the LLM-judged analysis below (e.g., Play 02 cause-chain violations that RuboCop's AST patterns miss).
 
@@ -197,7 +197,9 @@ execute bundle exec rubocop -c .github/agents/sre/.rubocop-sre.yml --only Sre --
 
 Write the JSON output to `tmp/sre-audit-{module}-{timestamp}/pass0-rubocop.json`.
 
-This covers 5 plays with AST-level detection (P01, P02, P03, P08, P10). These are confirmed findings — no LLM triage needed. Each offense message includes the play number (e.g., `[Play 03]`) for direct mapping to the playbook.
+This covers 5 plays with AST-level detection (P01, P02, P03, P08, P10). Each offense message includes the play number (e.g., `[Play 03]`) for direct mapping to the playbook.
+
+**Important**: RuboCop detections are *candidates*, not confirmed findings. Plays with context-dependent `<false_positive>` exclusions (especially Play 03's defensive-rescue gates) require the agent to read surrounding context before reporting. Phase 3 must apply FP filtering to RuboCop candidates the same way it filters grep candidates.
 
 The cops are defined in `lib/rubocop/cop/sre/` and configured in `.github/agents/sre/.rubocop-sre.yml`.
 
@@ -256,6 +258,8 @@ Each candidate: file:line, matched pattern, play number.
 
 Read `pass0-rubocop.json` and `pass1-candidates.md` from the tmp directory.
 
+**Filter RuboCop candidates through false-positive gates.** RuboCop detections are syntactically accurate but context-blind. For each RuboCop offense, read the play's `<false_positive>` entries and `<investigate_before_answering>` steps, then read 10-20 lines of source context to determine if any exclusion applies. For example, Play 03 bare rescues in feature flag checks, cache operations, monitoring/instrumentation, or email notification side-effects are defensive patterns that must be excluded entirely — not reported at any severity. Record excluded offenses and the reason in the tmp file. Only offenses that survive FP filtering appear in the final RuboCop table.
+
 For each candidate in `pass1-candidates.md`:
 1. Read 10-20 lines of source context around the match
 2. Apply the false-positive heuristics from detection-patterns.md and the `<false_positive>` entries in the play's `<severity_assessment>` block
@@ -280,7 +284,7 @@ Detection patterns are consolidated in `detection-patterns.md` (loaded in Phase 
 
 Use the `<pr_comment_template>` for finding structure, the `<investigate_before_answering>` steps to verify before flagging, and the `<examples>` section for specific, actionable remediation guidance.
 
-**RuboCop findings go in the `## RuboCop Findings (deterministic)` section only.** Parse `pass0-rubocop.json`, group offenses by cop/play, and populate the table with counts and file:line lists. Do NOT duplicate RuboCop offenses as individual `####` findings under `## Findings` — that section is exclusively for LLM-judged findings from `pass1-candidates.md`. If an LLM-judged finding for the same play covers a violation that RuboCop already caught at the same file:line, omit it from the Findings section (the RuboCop table is the source of truth for those).
+**RuboCop findings go in the `## RuboCop Findings` section only.** Parse `pass0-rubocop.json`, apply FP filtering (above), group surviving offenses by cop/play, and populate the table with counts and file:line lists. Include the excluded count and note which exclusion gate applied (e.g., "3 excluded: feature flag checks, monitoring instrumentation"). Do NOT duplicate RuboCop offenses as individual `####` findings under `## Findings` — that section is exclusively for LLM-judged findings from `pass1-candidates.md`. If an LLM-judged finding for the same play covers a violation that RuboCop already caught at the same file:line, omit it from the Findings section (the RuboCop table is the source of truth for those).
 
 **Cross-play correlation**: A single rescue block often violates multiple plays. When you confirm a finding for one play, check the same rescue block against related plays before moving on:
 
