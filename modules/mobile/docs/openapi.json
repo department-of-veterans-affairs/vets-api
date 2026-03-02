@@ -115,17 +115,163 @@
                 "examples": {
                   "Docket 1": {
                     "value": {
-                      "$ref": "./examples/appeals/appeal_docket_1.yml"
+                      "data": {
+                        "type": "appeal",
+                        "id": "3294289",
+                        "attributes": {
+                          "appealIds": [
+                            "3294289"
+                          ],
+                          "active": true,
+                          "alerts": [
+                            {
+                              "type": "form9_needed",
+                              "details": "object"
+                            }
+                          ],
+                          "aod": null,
+                          "aoj": "vba",
+                          "description": "1 insurance issue",
+                          "docket": {
+                            "month": "2015-10-01",
+                            "docketMonth": "2014-11-01",
+                            "front": false,
+                            "total": 212814,
+                            "ahead": 81703,
+                            "ready": 17071,
+                            "eta": {
+                              "directReview": "2020-02-01",
+                              "evidenceSubmission": "2024-04-01",
+                              "hearingRequest": "2024-04-01"
+                            }
+                          },
+                          "events": [
+                            {
+                              "type": "sc_request",
+                              "date": "2023-02-02"
+                            }
+                          ],
+                          "evidence": null,
+                          "incompleteHistory": true,
+                          "issues": [
+                            {
+                              "active": true,
+                              "lastAction": null,
+                              "description": "Bronicial asthma",
+                              "diagnosticCode": "6602"
+                            }
+                          ],
+                          "location": "aoj",
+                          "programArea": "insurance",
+                          "status": {
+                            "details": "object",
+                            "type": "pending_certification_ssoc"
+                          },
+                          "type": "legacyAppeal",
+                          "updated": "2018-01-19T10:20:42-05:00"
+                        }
+                      }
                     }
                   },
                   "Docket 2": {
                     "value": {
-                      "$ref": "./examples/appeals/appeal_docket_2.yml"
+                      "data": {
+                        "type": "appeal",
+                        "id": "3294289",
+                        "attributes": {
+                          "appealIds": [
+                            "3294289"
+                          ],
+                          "active": true,
+                          "alerts": [
+                            {
+                              "type": "form9_needed",
+                              "details": "object"
+                            }
+                          ],
+                          "aod": null,
+                          "aoj": "vba",
+                          "description": "1 insurance issue",
+                          "docket": {
+                            "type": "evidenceSubmission",
+                            "month": "2019-04-01",
+                            "switchDueDate": "2020-03-20",
+                            "eligibleToSwitch": true
+                          },
+                          "events": [
+                            {
+                              "type": "sc_request",
+                              "date": "2023-02-02"
+                            }
+                          ],
+                          "evidence": null,
+                          "incompleteHistory": true,
+                          "issues": [
+                            {
+                              "active": true,
+                              "lastAction": null,
+                              "description": "Bronicial asthma",
+                              "diagnosticCode": "6602"
+                            }
+                          ],
+                          "location": "aoj",
+                          "programArea": "insurance",
+                          "status": {
+                            "details": "object",
+                            "type": "pending_certification_ssoc"
+                          },
+                          "type": "legacyAppeal",
+                          "updated": "2018-01-19T10:20:42-05:00"
+                        }
+                      }
                     }
                   },
                   "Empty Docket": {
                     "value": {
-                      "$ref": "./examples/appeals/appeal_docket_null.yml"
+                      "data": {
+                        "type": "appeal",
+                        "id": "3294289",
+                        "attributes": {
+                          "appealIds": [
+                            "3294289"
+                          ],
+                          "active": true,
+                          "alerts": [
+                            {
+                              "type": "form9_needed",
+                              "details": "object"
+                            }
+                          ],
+                          "aod": null,
+                          "aoj": "vba",
+                          "description": "1 insurance issue",
+                          "docket": {},
+                          "events": [
+                            {
+                              "type": "sc_request",
+                              "date": "2023-02-02"
+                            }
+                          ],
+                          "evidence": null,
+                          "incompleteHistory": true,
+                          "issues": [
+                            {
+                              "active": true,
+                              "lastAction": null,
+                              "description": "Bronicial asthma",
+                              "diagnosticCode": "6602"
+                            }
+                          ],
+                          "location": "aoj",
+                          "programArea": "insurance",
+                          "status": {
+                            "details": "object",
+                            "type": "pending_certification_ssoc"
+                          },
+                          "type": "legacyAppeal",
+                          "updated": "2018-01-19T10:20:42-05:00"
+                        }
+                      }
                     }
                   }
                 },
@@ -267,32 +413,439 @@
                 "examples": {
                   "Community Care Appointment": {
                     "value": {
-                      "$ref": "./examples/appointments/cc_appointment.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "68254",
+                          "attributes": {
+                            "appointmentType": "COMMUNITY_CARE",
+                            "appointmentIen": null,
+                            "cancelId": null,
+                            "comment": "Please arrive 20 minutes before the start of your appointment",
+                            "healthcareProvider": "John Smith",
+                            "healthcareService": null,
+                            "location": {
+                              "name": "Kaiser Shoreline Treatment Center",
+                              "address": {
+                                "street": "191 Argonne Ave, Ste 3",
+                                "city": "Long Beach",
+                                "state": "CA",
+                                "zipCode": "90803"
+                              },
+                              "lat": 33.7700504,
+                              "long": -118.1937395,
+                              "phone": {
+                                "areaCode": "562",
+                                "number": "434-6008",
+                                "extension": null
+                              },
+                              "url": null,
+                              "code": null
+                            },
+                            "physicalLocation": null,
+                            "minutesDuration": 60,
+                            "phoneOnly": false,
+                            "startDateLocal": "2019-04-20T14:15:00.000-04:00",
+                            "startDateUtc": "2019-04-20T18:15:00.000Z",
+                            "status": "CANCELLED",
+                            "statusDetail": null,
+                            "timeZone": "America/Los_Angeles",
+                            "vetextId": null,
+                            "reason": "Follow-up/Routine: Reason 1",
+                            "is_covid_vaccine": false,
+                            "is_pending": false,
+                            "proposed_times": null,
+                            "type_of_care": null,
+                            "patient_phone_number": null,
+                            "patient_email": null,
+                            "best_time_to_call": null,
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": 4.52,
+                                "reimbursementAmount": 4.52,
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   },
                   "VA Appointment": {
                     "value": {
-                      "$ref": "./examples/appointments/va_appointment.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "167525",
+                          "attributes": {
+                            "appointmentType": "va",
+                            "appointmentIen": "17586",
+                            "cancelId": "MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=",
+                            "comment": "Please arrive 20 minutes before the start of your appointment",
+                            "healthcareProvider": null,
+                            "healthcareService": null,
+                            "location": {
+                              "name": "VA Long Beach Healthcare System",
+                              "address": {
+                                "street": "5901 East 7th Street, Building 166",
+                                "city": "Long Beach",
+                                "state": "CA",
+                                "zipCode": "90822"
+                              },
+                              "lat": 33.7700504,
+                              "long": -118.1937395,
+                              "phone": {
+                                "areaCode": "562",
+                                "number": "826-8000",
+                                "extension": "5696"
+                              },
+                              "url": null,
+                              "code": null
+                            },
+                            "physicalLocation": "Blind Rehabilitation Center",
+                            "minutesDuration": 60,
+                            "phoneOnly": false,
+                            "startDateLocal": "2019-04-20T14:15:00.000-04:00",
+                            "startDateUtc": "2019-04-20T18:15:00.000Z",
+                            "status": "CANCELLED",
+                            "statusDetail": "CANCELLED BY PATIENT",
+                            "timeZone": "America/Los_Angeles",
+                            "vetextId": "308;20210106.140000",
+                            "reason": "Follow-up/Routine: Reason 1",
+                            "is_covid_vaccine": false,
+                            "is_pending": false,
+                            "proposed_times": null,
+                            "type_of_care": null,
+                            "patient_phone_number": null,
+                            "patient_email": null,
+                            "best_time_to_call": null,
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": 4.52,
+                                "reimbursementAmount": 4.52,
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   },
                   "VA Video Connect ATLAS Appointment": {
                     "value": {
-                      "$ref": "./examples/appointments/va_video_connect_atlas_appointment.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "167525",
+                          "attributes": {
+                            "appointmentType": "VA_VIDEO_CONNECT_ATLAS",
+                            "appointmentIen": null,
+                            "cancelId": "MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=",
+                            "comment": "Please log on 5 minutes before the start of your appointment",
+                            "healthcareProvider": null,
+                            "healthcareService": null,
+                            "location": {
+                              "name": "VA Long Beach Healthcare System",
+                              "address": {
+                                "street": "5901 East 7th Street, Building 165",
+                                "city": "Long Beach",
+                                "state": "CA",
+                                "zipCode": "90822"
+                              },
+                              "lat": null,
+                              "long": null,
+                              "phone": {
+                                "areaCode": "562",
+                                "number": "826-8000",
+                                "extension": null
+                              },
+                              "url": null,
+                              "code": "GL45678"
+                            },
+                            "physicalLocation": null,
+                            "minutesDuration": 60,
+                            "phoneOnly": false,
+                            "startDateLocal": "2019-04-20T14:15:00.000-04:00",
+                            "startDateUtc": "2019-04-20T18:15:00.000Z",
+                            "status": "BOOKED",
+                            "statusDetail": null,
+                            "timeZone": "America/Los_Angeles",
+                            "vetextId": "308;20210106.140000",
+                            "reason": "Follow-up/Routine: Reason 1",
+                            "is_covid_vaccine": false,
+                            "is_pending": false,
+                            "proposed_times": null,
+                            "type_of_care": null,
+                            "patient_phone_number": null,
+                            "patient_email": null,
+                            "best_time_to_call": null,
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": 4.52,
+                                "reimbursementAmount": 4.52,
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   },
                   "VA Video Connect Appointment": {
                     "value": {
-                      "$ref": "./examples/appointments/va_video_connect_appointment.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "167525",
+                          "attributes": {
+                            "appointmentType": "VA_VIDEO_CONNECT_HOME",
+                            "appointmentIen": "123456",
+                            "cancelId": "MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=",
+                            "comment": "Please log on 5 minutes before the start of your appointment",
+                            "healthcareProvider": null,
+                            "healthcareService": null,
+                            "location": {
+                              "name": null,
+                              "address": null,
+                              "lat": null,
+                              "long": null,
+                              "phone": null,
+                              "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#",
+                              "code": null
+                            },
+                            "physicalLocation": null,
+                            "minutesDuration": 60,
+                            "phoneOnly": false,
+                            "startDateLocal": "2019-04-20T14:15:00.000-04:00",
+                            "startDateUtc": "2019-04-20T18:15:00.000Z",
+                            "status": "CANCELLED",
+                            "statusDetail": "CANCELLED BY PATIENT",
+                            "timeZone": "America/Los_Angeles",
+                            "vetextId": "308;20210106.140000",
+                            "reason": "Follow-up/Routine: Reason 1",
+                            "is_covid_vaccine": false,
+                            "is_pending": false,
+                            "proposed_times": null,
+                            "type_of_care": null,
+                            "patient_phone_number": null,
+                            "patient_email": null,
+                            "best_time_to_call": null,
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   },
                   "Community Care Appointment Request": {
                     "value": {
-                      "$ref": "./examples/appointments/cc_appointment_request.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "68254",
+                          "attributes": {
+                            "appointmentType": "VA",
+                            "appointmentIen": "12384",
+                            "cancelId": null,
+                            "comment": null,
+                            "healthcareProvider": null,
+                            "healthcareService": null,
+                            "location": {
+                              "id": "442",
+                              "name": "Cheyenne VA Medical Center",
+                              "address": {
+                                "street": "2360 East Pershing Boulevard",
+                                "city": "Cheyenne",
+                                "state": "WY",
+                                "zipCode": "82001-5356"
+                              },
+                              "lat": 41.148027,
+                              "long": -104.7862575,
+                              "phone": {
+                                "areaCode": "307",
+                                "number": "778-7550",
+                                "extension": null
+                              },
+                              "url": null,
+                              "code": null
+                            },
+                            "physicalLocation": null,
+                            "minutesDuration": null,
+                            "phoneOnly": false,
+                            "startDateLocal": "2020-11-02T01:00:00.000-07:00",
+                            "startDateUtc": "2020-11-02T08:00:00.000Z",
+                            "status": "SUBMITTED",
+                            "statusDetail": null,
+                            "timeZone": "America/Denver",
+                            "vetextId": null,
+                            "reason": "New Issue",
+                            "is_covid_vaccine": null,
+                            "is_pending": true,
+                            "proposed_times": [
+                              {
+                                "date": "10/01/2020",
+                                "time": "PM"
+                              },
+                              {
+                                "date": "11/03/2020",
+                                "time": "AM"
+                              },
+                              {
+                                "date": "11/02/2020",
+                                "time": "AM"
+                              }
+                            ],
+                            "type_of_care": "Primary Care",
+                            "patient_phone_number": "(666) 666-6666",
+                            "patient_email": "Vilasini.reddy@va.gov",
+                            "best_time_to_call": [
+                              "Morning"
+                            ],
+                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center"
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   },
                   "VA Appointment Request": {
                     "value": {
-                      "$ref": "./examples/appointments/va_appointment_request.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "167525",
+                          "attributes": {
+                            "appointmentType": "COMMUNITY_CARE",
+                            "appointmentIen": null,
+                            "cancelId": null,
+                            "comment": null,
+                            "healthcareProvider": "Vilasini Reddy",
+                            "healthcareService": null,
+                            "location": {
+                              "id": null,
+                              "name": "Test clinic 2",
+                              "address": {
+                                "street": "123 Sesame St.",
+                                "city": "Cheyenne",
+                                "state": "VA",
+                                "zipCode": "20171"
+                              },
+                              "lat": null,
+                              "long": null,
+                              "phone": {
+                                "areaCode": "703",
+                                "number": "652-0000",
+                                "extension": null
+                              },
+                              "url": null,
+                              "code": null
+                            },
+                            "physicalLocation": null,
+                            "minutesDuration": null,
+                            "phoneOnly": false,
+                            "startDateLocal": "2020-10-01T06:00:00.000-06:00",
+                            "startDateUtc": "2020-10-01T12:00:00.000Z",
+                            "status": "CANCELLED",
+                            "statusDetail": "CANCELLED BY CLINIC",
+                            "timeZone": "America/Denver",
+                            "vetextId": null,
+                            "reason": "routine-follow-up",
+                            "is_covid_vaccine": null,
+                            "is_pending": true,
+                            "proposed_times": [
+                              {
+                                "date": "10/02/2020",
+                                "time": "PM"
+                              },
+                              {
+                                "date": "10/01/2020",
+                                "time": "PM"
+                              },
+                              {
+                                "date": "nil",
+                                "time": "nil"
+                              }
+                            ],
+                            "type_of_care": "Optometry (routine eye exam)",
+                            "patient_phone_number": "(703) 652-0000",
+                            "patient_email": "samatha.girla@va.gov",
+                            "best_time_to_call": [
+                              "Afternoon",
+                              "Evening",
+                              "Morning"
+                            ],
+                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center"
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   }
                 },
@@ -310,7 +863,72 @@
                   "Partial Appointments": {
                     "description": "For cases when 1 or more errors are returned from upstream, an error message with source `VA Service` is added within the meta",
                     "value": {
-                      "$ref": "./examples/appointments/partial_appointments.yml"
+                      "data": [
+                        {
+                          "type": "appointment",
+                          "id": "167525",
+                          "attributes": {
+                            "appointmentType": "va",
+                            "appointmentIen": "17937",
+                            "cancelId": "MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=",
+                            "comment": "Please arrive 20 minutes before the start of your appointment",
+                            "healthcareProvider": null,
+                            "healthcareService": null,
+                            "location": {
+                              "name": "VA Long Beach Healthcare System",
+                              "address": {
+                                "street": "5901 East 7th Street, Building 166",
+                                "city": "Long Beach",
+                                "state": "CA",
+                                "zipCode": "90822"
+                              },
+                              "lat": 33.7700504,
+                              "long": -118.1937395,
+                              "phone": {
+                                "areaCode": "562",
+                                "number": "826-8000",
+                                "extension": "5696"
+                              },
+                              "url": null,
+                              "code": null
+                            },
+                            "physicalLocation": "Blind Rehabilitation Center",
+                            "minutesDuration": 60,
+                            "phoneOnly": false,
+                            "startDateLocal": "2019-04-20T14:15:00.000-04:00",
+                            "startDateUtc": "2019-04-20T18:15:00.000Z",
+                            "status": "CANCELLED",
+                            "statusDetail": "CANCELLED BY PATIENT",
+                            "timeZone": "America/Los_Angeles",
+                            "vetextId": "308;20210106.140000",
+                            "reason": "Follow-up/Routine: Reason 1",
+                            "is_covid_vaccine": false,
+                            "is_pending": false,
+                            "proposed_times": null,
+                            "type_of_care": null,
+                            "patient_phone_number": null,
+                            "patient_email": null,
+                            "best_time_to_call": null,
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 500,
+                                "success": false,
+                                "message": "Something went wrong"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "errors": [
+                          {
+                            "source": "VA Service"
+                          }
+                        ],
+                        "upcomingAppointmentsCount": 1,
+                        "upcomingDaysLimit": 30
+                      }
                     }
                   }
                 },
@@ -330,17 +948,38 @@
                 "examples": {
                   "Missing Facilities": {
                     "value": {
-                      "$ref": "./examples/appointments/forbidden_facilities_error.yml"
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "No facility associated with user",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
                     }
                   },
                   "No VAOS Access": {
                     "value": {
-                      "$ref": "./examples/appointments/forbidden_no_vaos_access_error.yml"
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "You do not have access to online scheduling",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
                     }
                   },
                   "No ICN": {
                     "value": {
-                      "$ref": "./examples/appointments/forbidden_no_icn_error.yml"
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "No patient ICN found",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
                     }
                   }
                 }
@@ -378,6 +1017,104 @@
           }
         ],
         "summary": "/v0/appointments"
+      }
+    },
+    "/v0/appointments/avs_binaries/{appointment-id}": {
+      "get": {
+        "description": "Retrieve appointment AVS binary by id",
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "appointment-id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The cerner appointment id to retrieve AVS binaries for. This value comes from the `avsPdf` field in the initial appointment response.",
+            "example": "52499028"
+          },
+          {
+            "in": "query",
+            "name": "doc_ids",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "A comma-separated list of document IDs.",
+            "example": "20875041789,20875041790"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AVS binary retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvsBinaries"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No VAOS Access": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "You do not have access to online scheduling",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
+                    }
+                  },
+                  "No ICN": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Forbidden",
+                          "detail": "No patient ICN found",
+                          "code": "403",
+                          "status": "403"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "418": {
+            "$ref": "#/components/responses/418"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        }
       }
     },
     "/v0/appointments/cancel/{cancelId}": {
@@ -1956,12 +2693,66 @@
                 "examples": {
                   "Appeal": {
                     "value": {
-                      "$ref": "./schemas/ClaimsAndAppealsOverviewAppeal.yml"
+                      "data": [
+                        {
+                          "type": "appeal",
+                          "id": "1196201",
+                          "attributes": {
+                            "subtype": "legacyAppeal",
+                            "completed": true,
+                            "dateFiled": "2003-01-06",
+                            "updatedAt": "2003-09-30",
+                            "displayTitle": "disability compensation appeal",
+                            "decisionLetterSent": false,
+                            "phase": null,
+                            "documentsNeeded": null,
+                            "developmentLetterSent": null,
+                            "claimTypeCode": null
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "errors": [],
+                        "pagination": {
+                          "currentPage": 1,
+                          "perPage": 60,
+                          "totalPages": 1,
+                          "totalEntries": 11
+                        },
+                        "activeClaimsCount": 7
+                      }
                     }
                   },
                   "Claim": {
                     "value": {
-                      "$ref": "./schemas/ClaimsAndAppealsOverviewClaim.yml"
+                      "data": [
+                        {
+                          "type": "claim",
+                          "id": "600117255",
+                          "attributes": {
+                            "subtype": "Compensation",
+                            "completed": false,
+                            "dateFiled": "2020-01-01",
+                            "updatedAt": "2020-01-01",
+                            "displayTitle": "Compensation",
+                            "decisionLetterSent": false,
+                            "phase": 1,
+                            "documentsNeeded": true,
+                            "developmentLetterSent": false,
+                            "claimTypeCode": "020NEW"
+                          }
+                        }
+                      ],
+                      "meta": {
+                        "errors": [],
+                        "pagination": {
+                          "currentPage": 1,
+                          "perPage": 60,
+                          "totalPages": 1,
+                          "totalEntries": 11
+                        },
+                        "activeClaimsCount": 7
+                      }
                     }
                   }
                 },
@@ -7452,12 +8243,94 @@
                 "examples": {
                   "Multiple matches": {
                     "value": {
-                      "$ref": "./examples/addresses/validation_multiple_matches.yml"
+                      "data": [
+                        {
+                          "id": "8e07b8ff-6b36-4110-9225-a1a9e785ee13",
+                          "type": "suggested_address",
+                          "attributes": {
+                            "addressLine1": "37 N 1st St",
+                            "addressLine2": null,
+                            "addressLine3": null,
+                            "addressPou": "CORRESPONDENCE",
+                            "addressType": "DOMESTIC",
+                            "city": "Brooklyn",
+                            "countryCodeIso3": "USA",
+                            "internationalPostalCode": null,
+                            "province": null,
+                            "stateCode": "NY",
+                            "zipCode": "11249",
+                            "zipCodeSuffix": "3939"
+                          },
+                          "meta": {
+                            "address": {
+                              "confidenceScore": 100,
+                              "addressType": "Domestic",
+                              "deliveryPointValidation": "UNDELIVERABLE"
+                            },
+                            "validationKey": -73046298
+                          }
+                        },
+                        {
+                          "id": "a5a3b737-a31b-4c66-83b3-b98556b12072",
+                          "type": "suggested_address",
+                          "attributes": {
+                            "addressLine1": "37 S 1st St",
+                            "addressLine2": null,
+                            "addressLine3": null,
+                            "addressPou": "CORRESPONDENCE",
+                            "addressType": "DOMESTIC",
+                            "city": "Brooklyn",
+                            "countryCodeIso3": "USA",
+                            "internationalPostalCode": null,
+                            "province": null,
+                            "stateCode": "NY",
+                            "zipCode": "11249",
+                            "zipCodeSuffix": "4101"
+                          },
+                          "meta": {
+                            "address": {
+                              "confidenceScore": 100,
+                              "addressType": "Domestic",
+                              "deliveryPointValidation": "CONFIRMED",
+                              "residentialDeliveryIndicator": "MIXED"
+                            },
+                            "validationKey": -73046298
+                          }
+                        }
+                      ]
                     }
                   },
                   "Single match": {
                     "value": {
-                      "$ref": "./examples/addresses/validation_single_match.yml"
+                      "data": [
+                        {
+                          "id": "6344ba4e-ff9e-436d-97ae-8511e381c11d",
+                          "type": "suggested_address",
+                          "attributes": {
+                            "addressLine1": "51 Walhalla Rd",
+                            "addressLine2": null,
+                            "addressLine3": null,
+                            "addressPou": "CORRESPONDENCE",
+                            "addressType": "DOMESTIC",
+                            "city": "Columbus",
+                            "countryCodeIso3": "USA",
+                            "internationalPostalCode": null,
+                            "province": null,
+                            "stateCode": "OH",
+                            "zipCode": "43202",
+                            "zipCodeSuffix": "1463"
+                          },
+                          "meta": {
+                            "address": {
+                              "confidenceScore\"": 100,
+                              "addressType\"": "Domestic",
+                              "deliveryPointValidation\"": "UNDELIVERABLE",
+                              "residentialDeliveryIndicator": "RESIDENTIAL"
+                            },
+                            "validationKey\"": -1398777841
+                          }
+                        }
+                      ]
                     }
                   }
                 },
@@ -10003,6 +10876,42 @@
                   "type": "integer"
                 }
               }
+            }
+          }
+        }
+      },
+      "AvsBinary": {
+        "type": "object",
+        "required": [
+          "docId"
+        ],
+        "properties": {
+          "docId": {
+            "description": "The document ID of the After Visit Summary PDF.",
+            "type": "string",
+            "example": 20875041789
+          },
+          "binary": {
+            "type": "string",
+            "description": "The base64 encoded PDF binary data."
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if the AVS could not be retrieved."
+          }
+        }
+      },
+      "AvsBinaries": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvsBinary"
             }
           }
         }
@@ -22022,6 +22931,109 @@
           }
         }
       },
+      "TriageGroup": {
+        "type": "object",
+        "nullable": true,
+        "description": "Embedded triage group (provider recipient) details from the MHV Secure Messaging API",
+        "properties": {
+          "triageTeamId": {
+            "type": "integer",
+            "example": 401155
+          },
+          "name": {
+            "type": "string",
+            "example": "SM_TO_VA_GOV_TRIAGE_GROUP_TEST"
+          },
+          "preferredTeam": {
+            "type": "boolean",
+            "example": false
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "stationNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "979"
+          },
+          "healthCareSystemName": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationStationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupTypeEnumVal": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGroupTypeEnumVal": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupTypePatientDisplay": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGroupTypePatientDisplay": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "leadProviderName": {
+            "type": "string",
+            "nullable": true
+          },
+          "suggestedNameDisplay": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "legacyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "ohPoolId": {
+            "type": "string",
+            "nullable": true
+          },
+          "oplock": {
+            "type": "integer",
+            "example": 1
+          },
+          "createdDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "Mon, 20 Mar 2023 14:01:45 GMT"
+          },
+          "modifiedDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "Thu, 15 Jan 2026 15:49:06 GMT"
+          },
+          "relationType": {
+            "type": "string",
+            "nullable": true,
+            "example": "PATIENT"
+          },
+          "ohTriageGroup": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
       "SecureMessageSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -22122,6 +23134,9 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "$ref": "#/components/schemas/TriageGroup"
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -22137,6 +23152,11 @@
                 "nullable": true,
                 "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
                 "example": null
+              },
+              "migratedToOracleHealth": {
+                "type": "boolean",
+                "description": "Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.",
+                "example": false
               }
             }
           },
@@ -22578,6 +23598,9 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "$ref": "#/components/schemas/TriageGroup"
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -22850,6 +23873,9 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "$ref": "#/components/schemas/TriageGroup"
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -22864,6 +23890,11 @@
                 "nullable": true,
                 "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
                 "example": null
+              },
+              "migratedToOracleHealth": {
+                "type": "boolean",
+                "description": "Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.",
+                "example": false
               }
             }
           },
@@ -23101,6 +24132,9 @@
                       "nullable": true,
                       "example": "Triage_Group_5"
                     },
+                    "triageGroup": {
+                      "$ref": "#/components/schemas/TriageGroup"
+                    },
                     "proxySenderName": {
                       "type": "string",
                       "nullable": true,
@@ -23204,7 +24238,7 @@
               "messageCounts": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count \nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
+                "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count\nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
                 "properties": {
                   "read": {
                     "type": "integer",

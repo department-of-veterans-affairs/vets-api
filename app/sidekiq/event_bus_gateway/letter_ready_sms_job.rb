@@ -33,26 +33,21 @@ module EventBusGateway
       Sidekiq::AttrPackage.delete(cache_key) if cache_key
     end
 
-    def perform(participant_id, template_id, cache_key = nil) # rubocop:disable Metrics/MethodLength
-      first_name = nil
+    def perform(participant_id, template_id, cache_key = nil)
       icn = nil
 
       # Retrieve PII from Redis if cache_key provided (avoids PII exposure in logs)
       if cache_key
         attributes = Sidekiq::AttrPackage.find(cache_key)
-        if attributes
-          first_name = attributes[:first_name]
-          icn = attributes[:icn]
-        end
+        icn = attributes[:icn] if attributes
       end
 
       # Fallback to fetching if cache_key not provided or failed
-      first_name ||= get_first_name_from_participant_id(participant_id)
       icn ||= get_icn(participant_id)
 
-      return unless validate_sms_prerequisites(template_id, first_name, icn)
+      return unless validate_sms_prerequisites(template_id, icn)
 
-      send_sms_notification(participant_id, template_id, first_name, icn)
+      send_sms_notification(participant_id, template_id, icn)
       StatsD.increment("#{STATSD_METRIC_PREFIX}.success", tags: Constants::DD_TAGS)
 
       # Clean up PII from Redis if cache_key was used
@@ -68,14 +63,9 @@ module EventBusGateway
 
     private
 
-    def validate_sms_prerequisites(template_id, first_name, icn)
+    def validate_sms_prerequisites(template_id, icn)
       if icn.blank?
         log_sms_skipped('ICN not available', template_id)
-        return false
-      end
-
-      if first_name.blank?
-        log_sms_skipped('First Name not available', template_id)
         return false
       end
 
@@ -95,13 +85,12 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.skipped", tags:)
     end
 
-    def send_sms_notification(participant_id, template_id, first_name, icn)
+    def send_sms_notification(participant_id, template_id, icn)
       response = notify_client.send_sms(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
         personalisation: {
-          host: hostname_for_template,
-          first_name: first_name&.capitalize
+          host: hostname_for_template
         }
       )
 

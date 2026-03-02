@@ -18,6 +18,7 @@ module MyHealth
       attribute :to_date
       attribute :has_attachments
       attribute :oh_migration_phase
+      attribute :migrated_to_oracle_health
       attribute :attachments do |object|
         Array(object.attachments).map do |att|
           {
