@@ -32,7 +32,7 @@ module Burials
           key: 'form1[0].#subform[95].Place_Of_Death[0]',
           limit: 42,
           question_num: 26,
-          question_suffix: 'B',
+          question_suffix: 'C',
           question_label: "Please Provide Veteran's Specific Place Of Death Including The Name And Location Of The Nursing Home, Va Medical Center Or State Veteran Facility.",
           question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY."
         },
@@ -135,12 +135,18 @@ module Burials
         home_hospice_care_after_discharge = form_data['homeHospiceCareAfterDischarge']
 
         location = location_of_death['location']
-        options = form_data[location]
-        if options.present? && location != 'other'
-          form_data['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
-        end
 
-        form_data.delete(location)
+        if location == 'other'
+          # For 'other' location, use the free-text value
+          form_data['placeAndLocation'] = location_of_death['other']
+        else
+          # For specific facility types, format with name and location
+          options = form_data[location]
+          if options.present?
+            form_data['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
+          end
+          form_data.delete(location)
+        end
 
         # Map atHome based on hospice care to appropriate nursing home option
         if location == 'atHome' && home_hospice_care && home_hospice_care_after_discharge
