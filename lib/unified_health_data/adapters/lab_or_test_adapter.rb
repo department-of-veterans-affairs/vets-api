@@ -196,8 +196,7 @@ module UnifiedHealthData
         name = match&.dig('name')
 
         if name.present? && name.match?(VISTA_HOSTNAME_PATTERN)
-          resolved = resolve_hostname_location(match)
-          return resolved if resolved.present?
+          return resolve_hostname_location(match)
         end
 
         return name if name.present?
@@ -211,6 +210,12 @@ module UnifiedHealthData
         return nil if station_number.blank?
 
         facility_name_resolver.lookup(station_number)
+      rescue => e
+        Rails.logger.warn(
+          "Failed to resolve facility name for hostname location: #{e.message}",
+          { service: 'unified_health_data' }
+        )
+        nil
       end
 
       def extract_org_station_number(organization)

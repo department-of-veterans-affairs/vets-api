@@ -120,7 +120,7 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(adapter.send(:get_location, record)).to eq('Bay Pines VA Healthcare System')
       end
 
-      it 'falls back to hostname when facility resolver returns nil' do
+      it 'returns nil when facility resolver returns nil' do
         record = { 'resource' => {
           'performer' => [{ 'reference' => 'Organization/OrgPerformer-989' }],
           'contained' => [
@@ -134,10 +134,10 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
 
         allow(resolver).to receive(:lookup).with('989').and_return(nil)
 
-        expect(adapter.send(:get_location, record)).to eq('DAYT29.FO-BAYPINES.MED.VA.GOV')
+        expect(adapter.send(:get_location, record)).to be_nil
       end
 
-      it 'falls back to hostname when Organization has no identifier' do
+      it 'returns nil when Organization has no identifier' do
         record = { 'resource' => {
           'performer' => [{ 'reference' => 'Organization/OrgPerformer-991' }],
           'contained' => [
@@ -148,7 +148,25 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
           ]
         } }
 
-        expect(adapter.send(:get_location, record)).to eq('SLC4.FO-BAYPINES.MED.VA.GOV')
+        expect(adapter.send(:get_location, record)).to be_nil
+      end
+
+      it 'returns nil and logs warning when resolver raises an exception' do
+        record = { 'resource' => {
+          'performer' => [{ 'reference' => 'Organization/OrgPerformer-989' }],
+          'contained' => [
+            {
+              'resourceType' => 'Organization', 'id' => 'OrgPerformer-989',
+              'name' => 'DAYT29.FO-BAYPINES.MED.VA.GOV',
+              'identifier' => [{ 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }]
+            }
+          ]
+        } }
+
+        allow(resolver).to receive(:lookup).with('989').and_raise(StandardError, 'service unavailable')
+        allow(Rails.logger).to receive(:warn)
+
+        expect(adapter.send(:get_location, record)).to be_nil
       end
 
       it 'does not attempt resolution for normal facility names' do
