@@ -43,6 +43,18 @@ spec:
               value: "insecure-test-key"
             - name: "GIT_REVISION"
               value: "{{ .Chart.Version }}"
+            {{- if .Values.idp.apiBaseUrl }}
+            - name: "IDP_API_BASE_URL"
+              value: "{{ .Values.idp.apiBaseUrl }}"
+            {{- end }}
+            {{- if .Values.idp.apiTimeout }}
+            - name: "IDP_API_TIMEOUT"
+              value: "{{ .Values.idp.apiTimeout }}"
+            {{- end }}
+            {{- if .Values.idp.useLive }}
+            - name: "IDP_USE_LIVE"
+              value: "{{ .Values.idp.useLive }}"
+            {{- end }}
           readinessProbe:
             tcpSocket:
               port: http
@@ -73,4 +85,3 @@ spec:
             items:
               - key: "settings.local.yml"
                 path: "production.yml"
-

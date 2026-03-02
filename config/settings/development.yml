@@ -126,6 +126,7 @@ cave:
   idp:
     base_url: ~
     timeout: ~
+    mock: true
 central_mail:
   upload:
     enabled: true

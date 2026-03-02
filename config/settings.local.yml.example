@@ -12,6 +12,12 @@
   # host: '0.0.0.0'
   # port: '33100'
 
+# cave:
+  # idp:
+    # base_url: https://idp-api.example.com
+    # timeout: 15
+    # mock: true
+
 # accredited_representative_portal:
   # lighthouse:
     # benefits_intake:

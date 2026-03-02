@@ -6,7 +6,7 @@ module Idp
   # Returns the appropriate IDP client for the current environment.
   #
   # - Production/staging: Idp::Client (real HTTP calls)
-  # - Development/test:   Idp::MockClient by default
+  # - Non-production: controlled by cave.idp.mock (defaults to true in dev/test)
   #
   # Developers who need the real service locally can set IDP_USE_LIVE=true.
   def self.client
@@ -21,6 +21,8 @@ module Idp
   def self.use_live_client?
     return true if Rails.env.production?
     return true if ENV['IDP_USE_LIVE'].present?
+    mock_setting = Settings.dig(:cave, :idp, :mock)
+    return !mock_setting unless mock_setting.nil?
 
     false
   end

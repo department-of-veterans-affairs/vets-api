@@ -4,8 +4,8 @@ module V0
   class CaveController < ApplicationController
     service_tag 'cave'
 
-    skip_before_action :authenticate
     before_action :require_cave_feature_enabled
+    before_action :require_survivors_benefits_idp_enabled
 
     rescue_from Idp::Error, with: :render_service_error
 
@@ -45,6 +45,12 @@ module V0
 
     def require_cave_feature_enabled
       routing_error unless Flipper.enabled?(:cave_idp)
+    end
+
+    def require_survivors_benefits_idp_enabled
+      return if Flipper.enabled?(:survivors_benefits_idp, current_user)
+
+      raise Common::Exceptions::Forbidden, detail: 'IDP access is not enabled for this user'
     end
 
     def render_service_error(error)

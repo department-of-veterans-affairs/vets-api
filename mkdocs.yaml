@@ -15,6 +15,7 @@ nav:
       - Education Benefits Year to Date Report: "setup/edu_benefits.md"
       - EVSS S3 Uploads: "setup/evss.md"
       - Facilities Locator Setup: "setup/facilities_locator.md"
+      - IDP (CAVE): "setup/idp.md"
       - Local Network Access: "setup/local_network_access.md"
       - Mailers Info: "setup/mailer.md"
       - MHV Prescriptions and MHV Secure Messaging Setup: "setup/mhv.md"

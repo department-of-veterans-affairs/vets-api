@@ -93,6 +93,7 @@ The following features require additional configuration, click for details.
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [EVSS](/docs/setup/evss.md)
 - [Facilities Locator](/docs/setup/facilities_locator.md)
+- [IDP (CAVE)](/docs/setup/idp.md)
 - [Local Network Access](/docs/setup/local_network_access.md)
 - [Mailers](/docs/setup/mailer.md)
 - [Master Person Index (MPI)](/docs/setup/mpi.md)
