@@ -80,7 +80,9 @@ module MyHealth
       end
 
       def renewal
-        raise Common::Exceptions::ParameterMissing, 'prescription_id' if renewal_message_params[:prescription_id].blank?
+        if renewal_message_params[:prescription_id].blank?
+          Rails.logger.warn('MHV SM Renewal: prescription_id is blank, passing through to upstream endpoint')
+        end
 
         if params[:uploads].present?
           raise Common::Exceptions::InvalidFieldValue.new('uploads',

@@ -3,7 +3,6 @@ required:
   - recipient_id
   - category
   - body
-  - prescription_id
 properties:
   recipient_id:
     type: integer
@@ -39,5 +38,6 @@ properties:
   prescription_id:
     type: string
     description: |
-      The prescription identifier for the renewal request.
+      The prescription identifier for the renewal request. Optional — if omitted or blank,
+      a warning is logged and the request is passed through to the upstream endpoint without it.
     example: "24654491"

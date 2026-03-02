@@ -461,18 +461,22 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           )
         end
 
-        it 'returns error when prescription_id is missing' do
-          post '/my_health/v1/messaging/messages/renewal',
-               params: { message: params }
+        it 'logs a warning and proceeds when prescription_id is missing' do
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages/renewal',
+                 params: { message: params }
+          end
 
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to be_successful
         end
 
-        it 'returns error when prescription_id is empty string' do
-          post '/my_health/v1/messaging/messages/renewal',
-               params: { message: params.merge(prescription_id: '') }
+        it 'logs a warning and proceeds when prescription_id is empty string' do
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages/renewal',
+                 params: { message: params.merge(prescription_id: '') }
+          end
 
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to be_successful
         end
 
         it 'returns validation error when body is missing' do

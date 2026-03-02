@@ -607,7 +607,7 @@ end
 - Use `is_oh: anything` for the keyword arg since `oh_triage_group?` returns `nil` (not `false`) when the query param is absent.
 - Only add this for params where silent loss is likely (e.g., new fields introduced by the PR). Not needed for every VCR test.
 
-**Why:** Without body matching, VCR tests give false confidence. A test can pass even if a required field like `prescription_id` is accidentally stripped before the HTTP call. The mock expectation catches this gap.
+**Why:** Without body matching, VCR tests give false confidence. A test can pass even if a field like `prescription_id` is accidentally stripped before the HTTP call. The mock expectation catches this gap.
 
 ### VSCode Snippets for SM Development
 
