@@ -3,8 +3,11 @@
 require 'rails_helper'
 
 describe Eps::ProviderService do
+  user_icn = '123456789V123456'
   let(:service) { described_class.new(user) }
-  let(:user) { double('User', account_uuid: '1234', uuid: 'user-uuid-123', va_treatment_facility_ids: ['123']) }
+  let(:user) do
+    double('User', account_uuid: '1234', uuid: 'user-uuid-123', icn: user_icn, va_treatment_facility_ids: ['123'])
+  end
 
   before do
     allow(Rails.logger).to receive(:info)
