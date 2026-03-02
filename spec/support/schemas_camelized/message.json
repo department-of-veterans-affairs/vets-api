@@ -86,6 +86,12 @@
                 "string"
               ]
             },
+            "triageGroup": {
+              "type": [
+                "null",
+                "object"
+              ]
+            },
             "proxySenderName": {
               "type": [
                 "null",
@@ -94,6 +100,12 @@
             },
             "isOhMessage": {
               "type": "boolean"
+            },
+            "migratedToOracleHealth": {
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           }
         },
