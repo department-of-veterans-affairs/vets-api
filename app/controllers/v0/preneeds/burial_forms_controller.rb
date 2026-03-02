@@ -8,6 +8,7 @@ module V0
       include Vets::SharedLogging
 
       FORM = '40-10007'
+      API_KEY_PATH = 'Settings.vanotify.services.va_gov.api_key'
 
       def create
         @form = ::Preneeds::BurialForm.new(burial_form_params)
@@ -27,6 +28,7 @@ module V0
         render json: ReceiveApplicationSerializer.new(@resource)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def send_confirmation_email
         email = @form.claimant.email
         claimant = @form.applicant.name.first
@@ -38,18 +40,23 @@ module V0
           last_initial = @form.claimant.name.last.first
         end
 
-        VANotify::EmailJob.perform_async(
-          email,
-          Settings.vanotify.services.va_gov.template_id.preneeds_burial_form_email,
-          {
-            'form_name' => 'Burial Pre-Need (Form 40-10007)',
-            'first_name' => claimant&.upcase.presence,
-            'applicant_1_first_name_last_initial' => "#{first_name} #{last_initial}",
-            'confirmation_number' => @resource.application_uuid,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
-          }
-        )
+        template_id = Settings.vanotify.services.va_gov.template_id.preneeds_burial_form_email
+
+        personalisation = {
+          'form_name' => 'Burial Pre-Need (Form 40-10007)',
+          'first_name' => claimant&.upcase.presence,
+          'applicant_1_first_name_last_initial' => "#{first_name} #{last_initial}",
+          'confirmation_number' => @resource.application_uuid,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+        }
+
+        if Flipper.enabled?(:va_notify_v2_preneeds_burial_form)
+          VANotify::V2::QueueEmailJob.enqueue(email, template_id, personalisation, API_KEY_PATH)
+        else
+          VANotify::EmailJob.perform_async(email, template_id, personalisation)
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

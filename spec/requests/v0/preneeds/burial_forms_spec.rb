@@ -35,22 +35,55 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
       end
     end
 
-    it 'calls the send email job with the correct parameters' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        'foo@foo.com',
-        'preneeds_burial_form_email_template_id',
-        {
-          'form_name' => 'Burial Pre-Need (Form 40-10007)',
-          'applicant_1_first_name_last_initial' => 'Applicant L',
-          'confirmation_number' => 'UUID',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'APPLICANT'
-        }
-      )
+    context 'when va_notify_v2_preneeds_burial_form is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_preneeds_burial_form_job).and_return(false)
+      end
 
-      subject.instance_variable_set(:@form, form)
-      subject.instance_variable_set(:@resource, submission_record)
-      subject.send_confirmation_email
+      it 'calls VANotify::EmailJob with the correct parameters' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          'foo@foo.com',
+          'preneeds_burial_form_email_template_id',
+          {
+            'form_name' => 'Burial Pre-Need (Form 40-10007)',
+            'applicant_1_first_name_last_initial' => 'Applicant L',
+            'confirmation_number' => 'UUID',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'APPLICANT'
+          }
+        )
+        expect(VANotify::V2::QueueEmailJob).not_to receive(:enqueue)
+
+        subject.instance_variable_set(:@form, form)
+        subject.instance_variable_set(:@resource, submission_record)
+        subject.send_confirmation_email
+      end
+    end
+
+    context 'when va_notify_v2_preneeds_burial_form is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_preneeds_burial_form_job).and_return(true)
+      end
+
+      it 'calls VANotify::V2::QueueEmailJob.enqueue with the correct parameters' do
+        expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(
+          'foo@foo.com',
+          'preneeds_burial_form_email_template_id',
+          {
+            'form_name' => 'Burial Pre-Need (Form 40-10007)',
+            'applicant_1_first_name_last_initial' => 'Applicant L',
+            'confirmation_number' => 'UUID',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'APPLICANT'
+          },
+          'Settings.vanotify.services.va_gov.api_key'
+        )
+        expect(VANotify::EmailJob).not_to receive(:perform_async)
+
+        subject.instance_variable_set(:@form, form)
+        subject.instance_variable_set(:@resource, submission_record)
+        subject.send_confirmation_email
+      end
     end
   end
 end
