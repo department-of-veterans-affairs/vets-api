@@ -16,7 +16,7 @@ module DigitalFormsApi
     ALGORITHM = 'HS256'
 
     # Issuer assigned
-    ISSUER = 'VAGOV'
+    ISSUER = 'VETS-API'
 
     # Number of seconds for which the JWT is valid
     VALIDITY_LENGTH = 900.seconds # == 15.minutes
