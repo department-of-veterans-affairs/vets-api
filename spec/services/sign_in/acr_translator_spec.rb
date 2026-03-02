@@ -100,11 +100,14 @@ RSpec.describe SignIn::AcrTranslator do
     context 'when type is logingov' do
       let(:type) { SignIn::Constants::Auth::LOGINGOV }
       let(:ial2_feature_flag_enabled) { false }
+      let(:ial2_full_enforcement_enabled) { false }
 
       before do
         allow(Flipper).to receive(:enabled?).and_call_original
         allow(Flipper).to receive(:enabled?).with('identity_logingov_ial2_enforcement')
                                             .and_return(ial2_feature_flag_enabled)
+        allow(Flipper).to receive(:enabled?).with('identity_logingov_ial2_full_enforcement')
+                                            .and_return(ial2_full_enforcement_enabled)
       end
 
       context 'and acr is ial1' do
@@ -118,10 +121,23 @@ RSpec.describe SignIn::AcrTranslator do
 
       context 'and acr is ial2' do
         let(:acr) { 'ial2' }
-        let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
 
-        it 'returns expected translated acr value' do
-          expect(subject).to eq(expected_translated_acr)
+        context 'when ial2 full enforcement is enabled' do
+          let(:ial2_full_enforcement_enabled) { true }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2_PREFERRED } }
+
+          it 'returns expected translated acr value' do
+            expect(subject).to eq(expected_translated_acr)
+          end
+        end
+
+        context 'when ial2 full enforcement is disabled' do
+          let(:ial2_full_enforcement_enabled) { false }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+
+          it 'returns expected translated acr value' do
+            expect(subject).to eq(expected_translated_acr)
+          end
         end
       end
 
@@ -151,8 +167,8 @@ RSpec.describe SignIn::AcrTranslator do
       context 'and acr is IAL2_PREFERRED' do
         let(:acr) { SignIn::Constants::Auth::IAL2_PREFERRED }
 
-        context 'when ial2 is enabled' do
-          let(:ial2_feature_flag_enabled) { true }
+        context 'when ial2 full enforcement is enabled' do
+          let(:ial2_full_enforcement_enabled) { true }
           let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2_PREFERRED } }
 
           it 'returns expected translated acr value' do
@@ -160,13 +176,12 @@ RSpec.describe SignIn::AcrTranslator do
           end
         end
 
-        context 'when ial2 is disabled' do
-          let(:ial2_feature_flag_enabled) { false }
-          let(:expected_error) { SignIn::Errors::InvalidAcrError }
-          let(:expected_error_message) { 'Invalid ACR for logingov' }
+        context 'when ial2 full enforcement is disabled' do
+          let(:ial2_full_enforcement_enabled) { false }
+          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
 
-          it 'raises invalid acr error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
+          it 'returns expected translated acr value' do
+            expect(subject).to eq(expected_translated_acr)
           end
         end
       end
@@ -186,11 +201,22 @@ RSpec.describe SignIn::AcrTranslator do
         context 'and uplevel is true' do
           let(:uplevel) { true }
 
-          let(:ial2_feature_flag_enabled) { false }
-          let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+          context 'when ial2 full enforcement is enabled' do
+            let(:ial2_full_enforcement_enabled) { true }
+            let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2_PREFERRED } }
 
-          it 'returns expected translated acr value' do
-            expect(subject).to eq(expected_translated_acr)
+            it 'returns expected translated acr value' do
+              expect(subject).to eq(expected_translated_acr)
+            end
+          end
+
+          context 'when ial2 full enforcement is disabled' do
+            let(:ial2_full_enforcement_enabled) { false }
+            let(:expected_translated_acr) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+
+            it 'returns expected translated acr value' do
+              expect(subject).to eq(expected_translated_acr)
+            end
           end
         end
       end
