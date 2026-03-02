@@ -1,0 +1,126 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
+  let(:user) { create(:user, :loa3) }
+  let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
+
+  before do
+    @rack_attack_enabled_was = Rack::Attack.enabled
+    Rack::Attack.enabled = true
+    Rack::Attack.cache.store.flushdb
+  end
+
+  after do
+    Rack::Attack.cache.store.flushdb
+    Rack::Attack.enabled = @rack_attack_enabled_was
+  end
+
+  describe 'multi_party_forms/ip throttle' do
+    context 'when requests are made from an IP address' do
+      before { sign_in_as(user) }
+
+      it 'allows requests up to the rate limit (60 per minute)' do
+        59.times do
+          post('/v0/multi_party_forms/primary', headers:)
+          expect(response).not_to have_http_status(:too_many_requests)
+        end
+
+        post('/v0/multi_party_forms/primary', headers:)
+        expect(response).not_to have_http_status(:too_many_requests)
+      end
+
+      it 'throttles requests exceeding the rate limit' do
+        60.times { post '/v0/multi_party_forms/primary', headers: }
+
+        post('/v0/multi_party_forms/primary', headers:)
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it 'returns proper 429 response with rate limit headers' do
+        61.times { post '/v0/multi_party_forms/primary', headers: }
+
+        expect(response).to have_http_status(:too_many_requests)
+        expect(response.headers['X-RateLimit-Limit']).to eq('60')
+        expect(response.headers['X-RateLimit-Remaining']).to eq('0')
+        expect(response.headers['X-RateLimit-Reset']).to be_present
+      end
+
+      it 'throttles all primary endpoints together' do
+        20.times { post '/v0/multi_party_forms/primary', headers: }
+        20.times { get '/v0/multi_party_forms/primary/123', headers: }
+        20.times { put '/v0/multi_party_forms/primary/123', headers: }
+
+        # 61st request should be throttled
+        post('/v0/multi_party_forms/primary/123/complete', headers:)
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it 'throttles all secondary endpoints together' do
+        30.times { get '/v0/multi_party_forms/secondary/123', headers: }
+        30.times { put '/v0/multi_party_forms/secondary/123', headers: }
+
+        # 61st request should be throttled
+        post('/v0/multi_party_forms/secondary/123/submit', headers:)
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it 'throttles primary and secondary endpoints together' do
+        30.times { post '/v0/multi_party_forms/primary', headers: }
+        30.times { get '/v0/multi_party_forms/secondary/123', headers: }
+
+        # 61st request should be throttled regardless of endpoint
+        put('/v0/multi_party_forms/primary/123', headers:)
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it 'resets the rate limit after the time period expires' do
+        60.times { post '/v0/multi_party_forms/primary', headers: }
+
+        # Should be throttled
+        post('/v0/multi_party_forms/primary', headers:)
+        expect(response).to have_http_status(:too_many_requests)
+
+        # Travel forward 61 seconds to reset the rate limit
+        travel 61.seconds do
+          post('/v0/multi_party_forms/primary', headers:)
+          expect(response).not_to have_http_status(:too_many_requests)
+        end
+      end
+    end
+
+    context 'when requests come from different IP addresses' do
+      before { sign_in_as(user) }
+
+      it 'maintains independent rate limit counters per IP' do
+        headers = { 'REMOTE_ADDR' => '1.2.3.4' }
+
+        # IP 1 makes 60 requests
+        60.times { post '/v0/multi_party_forms/primary', headers: }
+
+        # IP 1 should be throttled
+        post('/v0/multi_party_forms/primary', headers:)
+        expect(response).to have_http_status(:too_many_requests)
+
+        # IP 2 should have its own rate limit
+        headers = { 'REMOTE_ADDR' => '5.6.7.8' }
+        post('/v0/multi_party_forms/primary', headers:)
+        expect(response).not_to have_http_status(:too_many_requests)
+      end
+    end
+
+    context 'when user is not authenticated' do
+      it 'still applies IP-based throttle to unauthenticated requests' do
+        # Throttle applies to all requests from the same IP, regardless of authentication
+        60.times { post '/v0/multi_party_forms/primary', headers: }
+
+        post('/v0/multi_party_forms/primary', headers:)
+        # Should be throttled even without authentication
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+  end
+end
