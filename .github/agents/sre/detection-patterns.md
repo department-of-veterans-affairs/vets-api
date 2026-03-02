@@ -71,14 +71,16 @@ Context check (search for `rescue\s+Faraday::` then read surrounding lines):
 ### Play 05: Match Status Codes to Fault Ownership (4xx vs 5xx)
 File: [Play 05](.github/agents/sre/plays/05-match-status-codes-to-fault-ownership.xml)
 
-**What to look for:** Broad rescue blocks (bare rescue or `rescue => e`) that raise 422 UnprocessableEntity. This disguises server errors and upstream failures as client validation errors, hiding real problems from dashboards. Only specific validation exceptions should produce 422.
+**What to look for:** Broad rescue blocks (bare rescue or `rescue => e`) that return or raise 422 UnprocessableEntity. This disguises server errors and upstream failures as client validation errors, hiding real problems from dashboards. Only specific validation exceptions should produce 422. Also check error-status mapper methods that default to 422 in an `else` branch — when unknown or nil error codes fall through to 422, unexpected server faults are misclassified as client input errors.
 
 Grep helpers:
 - `UnprocessableEntity` — search for usages, then read the rescue clause above each one
+- `:unprocessable_entity` — MEDIUM: search for the symbol form used in `render status:` and case/when branches; read the enclosing rescue or error-handling method to check if broad rescues route through it
 
-Context check (search for `UnprocessableEntity` then read the enclosing rescue block):
-- Bare or broad rescue raising 422 — HIGH
+Context check (search for `UnprocessableEntity` and `:unprocessable_entity` then read the enclosing rescue block or error mapper):
+- Bare or broad rescue raising/rendering 422 — HIGH
 - `rescue => e` followed by 422 — HIGH
+- Error-status mapper with `else` defaulting to 422 when the mapper is called from a broad rescue — MEDIUM (check what values can reach the else branch)
 
 ### Play 06: Handle 401 Token Ownership
 File: [Play 06](.github/agents/sre/plays/06-handle-401-token-ownership.xml)
