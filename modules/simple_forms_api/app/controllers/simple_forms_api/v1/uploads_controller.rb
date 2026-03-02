@@ -397,24 +397,24 @@ module SimpleFormsApi
                                                                                   submission_id: submission.id)
       end
 
-      def submit_to_mms_if_applicable(form, confirmation_number)
-        return unless Flipper.enabled?("#{form_id}_ibm_mms_connection")
-        return if confirmation_number.blank?
+    def submit_to_mms_if_applicable(form, confirmation_number)
+      return unless Flipper.enabled?("#{form_id}_ibm_mms_connection")
+      return if confirmation_number.blank?
 
-        converter_class = mms_converter_for(params[:form_number])
-        return unless converter_class
+      converter_class = mms_converter_for(params[:form_number])
+      return unless converter_class
 
-        ibm_payload = converter_class.convert(form)
-        jid = SimpleFormsApi::Mms::IbmUploadJob.perform_async(ibm_payload, params[:form_number], confirmation_number)
-        Rails.logger.info(
-          'Queuing SimpleFormsAPI notification email to VaNotify completed',
-          jid:,
-          form_number: params[:form_number],
-          confirmation_number:
-        )
-      end
+      ibm_payload = converter_class.convert(form)
+      jid = SimpleFormsApi::Mms::IbmUploadJob.perform_async(ibm_payload, params[:form_number], confirmation_number)
+      Rails.logger.info(
+        'SimpleFormsAPI - IbmUploadJob Queued',
+        jid:,
+        form_number: params[:form_number],
+        confirmation_number:
+      )
+    end
 
-      def mms_converter_for(form_number)
+    def mms_converter_for(form_number)
         return nil if form_number.blank?
 
         normalized = form_number.delete('-').delete('P').downcase

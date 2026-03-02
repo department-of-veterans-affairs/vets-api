@@ -119,6 +119,26 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             expect(mock_s3_client).to have_received(:upload)
             expect(JSON.parse(response.body)['pdf_url']).to eq pdf_url
           end
+
+          context 'form is sent to IBM MMS after submission' do
+            let(:confirmation_number) { 'some_confirmation_number' }
+
+            before do
+              Flipper.enable("#{data['form_number']}_ibm_mms_connection")
+
+              allow(SimpleFormsApi::Mms::IbmUploadJob).to receive(:perform_async).and_return('job-id-123')
+            end
+
+            it 'queues an IBM MMS upload job with correct parameters' do
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              converter_class = SimpleFormsApi::V1::SimpleForms.mms_converter_for(data['form_number'])
+              expected_payload = converter_class.convert(data)
+
+              expect(SimpleFormsApi::Mms::IbmUploadJob).to have_received(:perform_async)
+              with(expected_payload, data['form_number'], confirmation_number)
+            end
+          end
         end
       end
 
