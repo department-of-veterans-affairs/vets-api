@@ -379,10 +379,19 @@ module UnifiedHealthData
         all_observations = record['resource']['contained'].select do |resource|
           resource['resourceType'] == 'Observation'
         end
+
+        valid_observations, filtered_count = parse_valid_observations(all_observations, record)
+
+        # Log and track filtered observations
+        log_filtered_observations(record, filtered_count, all_observations.size) if filtered_count.positive?
+
+        valid_observations
+      end
+
+      def parse_valid_observations(all_observations, record)
         filtered_count = 0
 
-        valid_observations = all_observations.filter_map do |obs|
-          # Filter out observations with disallowed status
+        valid = all_observations.filter_map do |obs|
           unless allowed_status?(obs['status'])
             filtered_count += 1
             next
@@ -398,10 +407,7 @@ module UnifiedHealthData
           end
         end
 
-        # Log and track filtered observations
-        log_filtered_observations(record, filtered_count, all_observations.size) if filtered_count.positive?
-
-        valid_observations
+        [valid, filtered_count]
       end
 
       def build_observation(obs, contained)
