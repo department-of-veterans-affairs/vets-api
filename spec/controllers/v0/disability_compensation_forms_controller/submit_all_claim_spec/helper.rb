@@ -2,24 +2,25 @@
 
 require_relative 'example_definition'
 require_relative 'vcr_endpoint_matchers'
+require 'support/disability_compensation/service_configuration_helper'
 
 module SubmitAllClaimSpec
   module Helper
     extend ActiveSupport::Concern
+    include DisabilityCompensation::ServiceConfigurationHelper
 
     class_methods do
-      def define_example(description, **metadata, &) # rubocop:disable Metrics/MethodLength
+      def define_example(description, **metadata, &)
         definition = ExampleDefinition.build!(&)
         metadata = { caller: caller(1, 1) }.merge(metadata)
 
         it description, **metadata do
           definition.before and instance_exec(&definition.before)
-          user = build(:user, :loa3, icn: definition.user_icn)
-          sign_in_as(user)
+          sign_in_as(build(:user, :loa3, icn: definition.user_icn))
 
-          VCR.use_cassette(CASSETTE_PATH_PREFIX / description, VCR_OPTIONS) do
+          VCR.use_cassette(CASSETTE_PATH_PREFIX / description, VCR_OPTIONS) do |cassette|
             Sidekiq::Testing.inline! do
-              self.class.with_lighthouse_token_signing_key do
+              self.class.with_lighthouse_token_signing_key(cassette.recording?) do
                 body = File.read(PAYLOAD_FIXTURE_PATH_PREFIX / "#{definition.payload_fixture}.json")
                 post(:submit_all_claim, body:, as: :json)
               end
@@ -76,10 +77,17 @@ module SubmitAllClaimSpec
       ##
       # TODO: Explain this.
       #
-      def with_lighthouse_token_signing_key(&)
-        settings = Settings.lighthouse.benefits_claims.access_token
-        VCR.current_cassette&.recording? or rsa_key = FAKE_RSA_KEY_PATH
-        with_settings(settings, { rsa_key: }.compact, &)
+      def with_lighthouse_token_signing_key(cassette_recording, &)
+        return yield if cassette_recording
+
+        settings = Settings.lighthouse
+        rsa_key = FAKE_RSA_KEY_PATH
+
+        with_settings(
+          settings.benefits_claims.access_token,
+          { rsa_key: },
+          &
+        )
       end
     end
 
@@ -113,6 +121,11 @@ module SubmitAllClaimSpec
     }.freeze
 
     included do
+      purge_service_configuration(
+        BenefitsClaims::Service,
+        BenefitsClaims::Configuration
+      )
+
       before do
         ##
         # TODO: Explain this.

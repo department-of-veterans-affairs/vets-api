@@ -3,18 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe 'Rack::Attack Multi-Party Forms Throttling', type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:user) { create(:user, :loa3) }
   let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
 
   before do
-    # Enable Rack::Attack for these tests
+    @rack_attack_enabled_was = Rack::Attack.enabled
     Rack::Attack.enabled = true
     Rack::Attack.cache.store.flushdb
   end
 
   after do
     Rack::Attack.cache.store.flushdb
-    Rack::Attack.enabled = false
+    Rack::Attack.enabled = @rack_attack_enabled_was
   end
 
   describe 'multi_party_forms/ip throttle' do

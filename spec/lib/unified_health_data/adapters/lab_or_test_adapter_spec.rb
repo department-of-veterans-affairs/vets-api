@@ -935,6 +935,89 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result.first.reference_range).to eq('YELLOW, <= 10, >= 1, >= 2, <= 8')
       end
     end
+
+    context 'with observation comments' do
+      it 'returns a single note as an array' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Glucose' },
+                'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                'status' => 'final',
+                'note' => [{ 'text' => 'Normal' }]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.comments).to eq(['Normal'])
+      end
+
+      it 'returns multiple notes as an array' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Cholesterol' },
+                'valueQuantity' => { 'value' => 180, 'unit' => 'mg/dL' },
+                'status' => 'final',
+                'note' => [
+                  { 'text' => '<200 mg/dL: Desirable' },
+                  { 'text' => '200-240 mg/dL: Borderline' },
+                  { 'text' => '>240 mg/dL: At risk' }
+                ]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.comments).to eq([
+                                              '<200 mg/dL: Desirable',
+                                              '200-240 mg/dL: Borderline',
+                                              '>240 mg/dL: At risk'
+                                            ])
+      end
+
+      it 'returns an empty array when notes are nil' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Sodium' },
+                'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+                'status' => 'final'
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result.first.comments).to eq([])
+      end
+    end
+
+    context 'with nil observation status' do
+      it 'filters out the observation' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Glucose' },
+                'valueQuantity' => { 'value' => 100, 'unit' => 'mg/dL' },
+                'status' => nil,
+                'note' => [{ 'text' => 'Normal' }]
+              }
+            ]
+          }
+        }
+        result = adapter.send(:get_observations, record)
+        expect(result).to be_empty
+      end
+    end
   end
 
   describe '#get_reference_id' do
