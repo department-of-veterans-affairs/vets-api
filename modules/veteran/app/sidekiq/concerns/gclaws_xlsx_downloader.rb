@@ -2,7 +2,7 @@
 
 # Shared concern for downloading XLSX files via the GCLAWS XlsxClient.
 # Including classes must define a `log_error(message)` method.
-module GclawsXlsxDownloader
+module GCLAWSXlsxDownloader
   extend ActiveSupport::Concern
 
   private

@@ -3,10 +3,10 @@
 require 'rails_helper'
 require_relative '../../../app/sidekiq/concerns/gclaws_xlsx_downloader'
 
-RSpec.describe GclawsXlsxDownloader do
+RSpec.describe GCLAWSXlsxDownloader do
   let(:test_class) do
     Class.new do
-      include GclawsXlsxDownloader
+      include GCLAWSXlsxDownloader
 
       attr_reader :errors
 

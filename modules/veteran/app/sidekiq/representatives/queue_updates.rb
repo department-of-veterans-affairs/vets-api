@@ -6,7 +6,7 @@ require_relative '../concerns/gclaws_xlsx_downloader'
 module Representatives
   class QueueUpdates
     include Sidekiq::Job
-    include GclawsXlsxDownloader
+    include GCLAWSXlsxDownloader
 
     SLICE_SIZE = 30
 
