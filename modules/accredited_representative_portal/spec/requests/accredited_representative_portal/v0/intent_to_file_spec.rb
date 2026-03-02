@@ -193,6 +193,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
         VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
           post('/accredited_representative_portal/v0/intent_to_file', params:)
+          puts "DEBUG RESPONSE: #{response.status} #{response.body}" unless response.status == 201
           expect(response).to have_http_status(:created)
         end
       end
