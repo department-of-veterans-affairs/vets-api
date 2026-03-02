@@ -467,7 +467,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
   end
 
   describe '#log_labs_error' do
-    let(:error) { StandardError.new('connection timed out') }
+    let(:error) { Faraday::TimeoutError.new('connection timed out') }
 
     it 'logs an error with domain context' do
       instance.send(:log_labs_error, error, '2024-01-01', '2025-06-01')
@@ -477,7 +477,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
           service: 'medical_records',
           resource: 'labs_and_tests',
           action: 'index',
-          error_class: 'StandardError',
+          error_class: 'Faraday::TimeoutError',
           error_message: 'connection timed out',
           start_date: '2024-01-01',
           end_date: '2025-06-01'
@@ -529,7 +529,7 @@ RSpec.describe UnifiedHealthData::Concerns::LabsAndTestsLogging do
     end
 
     it 'includes caller in error logs' do
-      error = StandardError.new('timeout')
+      error = Faraday::TimeoutError.new('timeout')
       instance.send(:log_labs_error, error, '2024-01-01', '2025-06-01')
 
       expect(Rails.logger).to have_received(:error).with(
