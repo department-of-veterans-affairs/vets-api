@@ -5,6 +5,8 @@ module VAOS
     attr_accessor :user
 
     def initialize(user)
+      raise ArgumentError, 'no ICN passed in for VAOS::V2::SessionService initialization' if user.icn.blank?
+
       @user = user
     end
 

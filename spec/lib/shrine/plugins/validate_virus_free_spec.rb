@@ -15,6 +15,10 @@ describe Shrine::Plugins::ValidateVirusFree do
         def errors
           @errors ||= []
         end
+
+        def record
+          nil
+        end
       end
     end
 
@@ -45,7 +49,7 @@ describe Shrine::Plugins::ValidateVirusFree do
         it 'adds an error if clam scan returns not safe' do
           result = instance.validate_virus_free
           expect(result).to be(false)
-          expect(instance.errors).to include(match(/Virus Found/))
+          expect(instance.errors).to include('virus or malware detected')
         end
       end
 
@@ -71,6 +75,89 @@ describe Shrine::Plugins::ValidateVirusFree do
         expect(instance).not_to receive(:add_error_msg)
         result = instance.validate_virus_free
         expect(result).to be(true)
+      end
+    end
+
+    describe 'virus detection logging (AU-2)' do
+      let(:test_remote_ip) { '10.0.0.42' }
+
+      before do
+        allow(Common::VirusScan).to receive(:scan).and_return(false)
+        RequestStore.store['additional_request_attributes'] = { 'remote_ip' => test_remote_ip }
+      end
+
+      it 'emits a structured warn log when a virus is detected' do
+        expect(Rails.logger).to receive(:warn).with(
+          'Virus or malware detected during upload scan',
+          hash_including(
+            scan_result: 'virus_detected',
+            remote_ip: test_remote_ip,
+            file_name_hash: an_instance_of(String),
+            upload_context: nil
+          )
+        )
+
+        instance.validate_virus_free
+      end
+
+      it 'hashes the file name instead of logging it in plaintext' do
+        allow(Rails.logger).to receive(:warn)
+
+        instance.validate_virus_free
+
+        expect(Rails.logger).to have_received(:warn).with(
+          'Virus or malware detected during upload scan',
+          hash_including(file_name_hash: match(/\A[a-f0-9]{64}\z/))
+        )
+      end
+
+      it 'does not include user_uuid in the log payload' do
+        RequestStore.store['additional_request_attributes'] =
+          { 'remote_ip' => test_remote_ip, 'user_uuid' => 'some-uuid' }
+
+        allow(Rails.logger).to receive(:warn)
+
+        instance.validate_virus_free
+
+        expect(Rails.logger).to have_received(:warn).with(
+          'Virus or malware detected during upload scan',
+          hash_not_including(:user_uuid)
+        )
+      end
+
+      it 'includes the upload_context from the record class name' do
+        record_double = instance_double(FormSubmissionAttempt, class: FormSubmissionAttempt)
+        allow(instance).to receive(:record).and_return(record_double)
+
+        allow(Rails.logger).to receive(:warn)
+
+        instance.validate_virus_free
+
+        expect(Rails.logger).to have_received(:warn).with(
+          'Virus or malware detected during upload scan',
+          hash_including(upload_context: 'FormSubmissionAttempt')
+        )
+      end
+
+      it 'gracefully handles missing RequestStore context' do
+        RequestStore.store['additional_request_attributes'] = nil
+
+        allow(Rails.logger).to receive(:warn)
+
+        instance.validate_virus_free
+
+        expect(Rails.logger).to have_received(:warn).with(
+          'Virus or malware detected during upload scan',
+          hash_including(remote_ip: nil)
+        )
+      end
+
+      it 'does not log when the scan result is safe' do
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+
+        expect(Rails.logger).not_to receive(:warn)
+
+        instance.validate_virus_free
       end
     end
   end
