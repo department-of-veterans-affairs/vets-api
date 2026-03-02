@@ -42,6 +42,11 @@ module UnifiedHealthData
       end
 
       # Logs test code and display name distribution (migrated from Logging class).
+      # NOTE: warn_short_test_names is intentionally diagnostic-gated (unlike the
+      # always-on anomaly warnings in log_labs_metrics) because short names (≤3 chars)
+      # may reflect standard lab abbreviations (e.g. "BUN", "K", "Na") rather than
+      # data quality defects. Once Datadog data confirms whether firing is actionable,
+      # this can be promoted to always-on in log_labs_metrics.
       def log_test_code_distribution(records)
         return unless labs_logging_enabled?
 

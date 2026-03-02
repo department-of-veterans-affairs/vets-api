@@ -237,6 +237,43 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result[:warnings]).to eq([])
       end
     end
+
+    context 'when uhd_client raises a service error' do
+      let(:error) { Faraday::TimeoutError.new('connection timed out') }
+
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_labs_by_date)
+          .and_raise(error)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'logs the error with domain context and re-raises' do
+        expect {
+          service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        }.to raise_error(Faraday::TimeoutError)
+
+        expect(Rails.logger).to have_received(:error).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'labs_and_tests',
+            action: 'index',
+            error_class: 'Faraday::TimeoutError',
+            error_message: 'connection timed out'
+          )
+        )
+      end
+
+      it 'increments the error StatsD counter' do
+        expect {
+          service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        }.to raise_error(Faraday::TimeoutError)
+
+        expect(StatsD).to have_received(:increment)
+          .with('api.uhd.labs_and_tests.error', tags: [])
+      end
+    end
   end
 
   describe '#fetch_combined_records' do

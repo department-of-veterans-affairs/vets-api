@@ -5,6 +5,7 @@ require_relative '../reference_range_formatter'
 require_relative '../facility_service'
 require_relative 'date_normalizer'
 require_relative 'fhir_helpers'
+require 'medical_records/medical_records_log'
 
 module UnifiedHealthData
   module Adapters
@@ -13,7 +14,7 @@ module UnifiedHealthData
       include FhirHelpers
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
-      LABS = 'labs_and_tests'
+      LABS = MedicalRecords::MedicalRecordsLog::LABS_AND_TESTS
 
       # @param mr_log [MedicalRecords::MedicalRecordsLog, nil] Structured logger (nil = Rails.logger fallback)
       def initialize(mr_log: nil)
