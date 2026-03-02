@@ -1,10 +1,14 @@
 <play id="expected-vs-unexpected" title="Expected vs Unexpected Errors (Logging + APM)" severity="CRITICAL">
 
   <context>
-    Marking 4xx client errors as APM errors buries real 5xx failures
-    in noise, inflates error rate SLIs, and pages on-call for user
-    typos. Only 5xx errors should call `span.set_error` and log at
-    ERROR level; 4xx should log at WARN with no APM error flag.
+    Separating expected errors (4xx) from unexpected errors (5xx) in
+    APM and logging keeps error-rate SLIs accurate and alerting
+    actionable. 4xx responses are normal API behavior — log them at
+    WARN for trend analysis but do not mark them as APM errors. 5xx
+    responses represent real problems — log at ERROR and call
+    span.set_error so dashboards and alerts reflect actual system
+    health. Clean separation means on-call pages only for genuine
+    failures, not routine client input issues.
   </context>
 
   <applies_to>

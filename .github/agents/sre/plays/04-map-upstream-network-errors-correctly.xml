@@ -1,10 +1,14 @@
 <play id="map-upstream-network-errors" title="Don't let all upstream network errors fall through as 500 errors" severity="CRITICAL">
 
   <context>
-    Upstream timeouts and connection failures that fall through as 500
-    blame our team instead of the upstream service. Use 504 for
-    timeouts, 503 for connection/DNS failures, and 502 for upstream
-    server errors. Reserve 500 for our own code bugs.
+    Mapping upstream network failures to specific gateway status
+    codes (504 timeout, 503 unreachable, 502 upstream error) gives
+    API consumers accurate retry signals and lets SREs attribute
+    failures to the correct service in dashboards. Reserving 500 for
+    our own code bugs means error-rate alerts fire only for problems
+    our team can fix, and upstream outages route to the right service
+    owner. Without this separation, all failures blend into a single
+    500 bucket that misdirects both consumers and incident response.
   </context>
 
   <applies_to>

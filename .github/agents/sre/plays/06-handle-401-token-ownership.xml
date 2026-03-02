@@ -1,11 +1,14 @@
 <play id="handle-401-token-ownership" title="Handle 401 Authentication Errors (Token Ownership Matters!)" severity="CRITICAL">
 
   <context>
-    When our service account credentials fail upstream, returning 401
-    tells the client their credentials are wrong — but the problem is
-    ours. The client retries uselessly while the wrong team
-    investigates. Return 500 for our credential failures, 401 only
-    when the user's token actually failed.
+    Checking whose credentials failed before choosing a status code
+    ensures consumers get actionable auth errors and SREs can
+    distinguish client token issues from service account
+    misconfigurations. When the user's token is invalid, 401 tells
+    them to re-authenticate. When our service credentials fail, 500
+    routes the problem to our team instead of sending consumers on
+    futile re-auth loops. Accurate credential attribution keeps
+    auth-related alerting meaningful and shortens incident response.
   </context>
 
   <applies_to>

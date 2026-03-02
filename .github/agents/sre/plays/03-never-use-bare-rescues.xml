@@ -1,10 +1,13 @@
 <play id="bare-rescue" title="Never Use Broad or Bare Rescues" severity="CRITICAL">
 
   <context>
-    Bare `rescue` catches everything — typos, Ctrl+C, SystemExit — and
-    typically returns nil. APM never sees the error, so bugs ship with
-    zero alerts and every failure looks identical (nil), making root
-    cause impossible to determine.
+    Specific rescue clauses ensure the API returns meaningful error
+    responses and that every unexpected failure is visible in APM.
+    Consumers get proper status codes instead of 200s with missing
+    data, and SREs can distinguish upstream outages from code bugs
+    in monitoring. Bare rescues catch everything — typos, signals,
+    system exits — and typically swallow them silently, producing
+    no alerts, no traces, and no way to tell what actually failed.
   </context>
 
   <applies_to>

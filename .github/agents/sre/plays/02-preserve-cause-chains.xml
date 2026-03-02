@@ -1,10 +1,14 @@
 <play id="preserve-cause-chains" title="Always Preserve the Cause Chain When Wrapping Exceptions" severity="CRITICAL">
 
   <context>
-    Wrapping an exception with `raise "error: #{e}"` destroys the
-    original class, backtrace, and cause chain. APM can no longer
-    distinguish a timeout from a bug, Sidekiq applies the wrong retry
-    strategy, and on-call wastes hours grepping logs for root cause.
+    Preserving exception cause chains gives SREs a complete failure
+    trail — from the original upstream error through each layer that
+    handled it. APM can group failures by root cause, background jobs
+    apply the correct retry strategy based on exception type, and
+    incident responders see the full chain instead of a generic
+    message. When cause chains are destroyed, every failure looks
+    the same in monitoring and root-cause analysis requires manual
+    log correlation.
   </context>
 
   <applies_to>

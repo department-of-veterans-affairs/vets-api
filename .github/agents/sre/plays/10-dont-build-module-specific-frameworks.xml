@@ -1,11 +1,14 @@
 <play id="dont-build-module-frameworks" title="Don't build module-specific error handling/logging frameworks" severity="CRITICAL">
 
   <context>
-    Custom LogService, ErrorHandler, and Monitor classes duplicate
-    platform infrastructure with inconsistent APIs. Bug fixes must be
-    applied N times, span leaks hide failures, and new engineers face
-    a different framework in every module. Use Rails.logger, StatsD,
-    Datadog::Tracing, and ExceptionHandling directly.
+    Using the platform's shared observability primitives — Rails
+    logger, StatsD, Datadog tracing, and ExceptionHandling — gives
+    the API consistent log formats, span tagging, and error
+    classification across every module. SREs can write one dashboard
+    query that covers all services, and platform-level fixes apply
+    everywhere at once. Custom per-module wrappers fragment
+    observability, require duplicate maintenance, and force
+    developers to learn a different framework in every module.
   </context>
 
   <applies_to>

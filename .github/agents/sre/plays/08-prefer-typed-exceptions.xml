@@ -1,10 +1,13 @@
 <play id="prefer-typed-exceptions" title="Prefer Typed Exceptions with Domain-Specific Subclasses" severity="CRITICAL">
 
   <context>
-    `raise 'string'` creates a RuntimeError that defaults to 500,
-    making client errors indistinguishable from server failures in APM.
-    Typed exceptions map to correct HTTP status codes automatically
-    and let monitoring categorize failures accurately.
+    Typed exceptions flow through ExceptionHandling to produce
+    correct HTTP status codes automatically — consumers get
+    actionable responses and SREs can filter APM by exception class
+    to isolate distinct failure modes. Untyped string raises all
+    become RuntimeError 500s, making every failure look identical
+    in monitoring and giving consumers no way to distinguish a
+    missing parameter from a server-side fault.
   </context>
 
   <applies_to>

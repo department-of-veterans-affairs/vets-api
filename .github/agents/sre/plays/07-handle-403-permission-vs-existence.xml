@@ -1,10 +1,13 @@
 <play id="handle-403-permission" title="Handle 403 Authorization Errors (Permission vs Existence)" severity="CRITICAL">
 
   <context>
-    Returning 403 for a missing resource tells attackers "this exists
-    but you can't see it," enabling enumeration. Use 404 to hide
-    resource existence, 401 for expired tokens, and 403 only when an
-    authenticated user genuinely lacks permission.
+    Using the right authorization status code gives consumers clear
+    guidance and closes enumeration vectors. 404 hides whether a
+    resource exists from unauthorized callers, 401 signals expired
+    or missing credentials, and 403 confirms the user is
+    authenticated but lacks permission. Precise status codes make
+    the API's authorization model predictable for consumers and
+    prevent information leakage that could expose resource IDs.
   </context>
 
   <applies_to>
