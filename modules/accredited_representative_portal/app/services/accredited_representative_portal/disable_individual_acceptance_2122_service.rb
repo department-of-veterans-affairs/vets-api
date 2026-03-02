@@ -15,7 +15,7 @@ module AccreditedRepresentativePortal
 
         {
           orgs_updated: 0,
-          reps_updated: reps_updated
+          reps_updated:
         }
       end
     end

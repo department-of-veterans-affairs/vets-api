@@ -23,7 +23,7 @@ RSpec.describe AccreditedRepresentativePortal::EnableIndividualAcceptance2122Ser
     context 'with array input' do
       let!(:org_svs) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
       let!(:org_yhz) { create(:veteran_organization, poa: 'YHZ', can_accept_digital_poa_requests: true, name: 'YHZ') }
-      let(:poa_codes) { ['SVS', 'YHZ'] }
+      let(:poa_codes) { %w[SVS YHZ] }
 
       it 'handles array input equivalently to comma-separated string' do
         result = call_service
@@ -74,6 +74,7 @@ RSpec.describe AccreditedRepresentativePortal::EnableIndividualAcceptance2122Ser
         expect(deactivated_should_not_change.reload.acceptance_mode).to eq('any_request')
       end
     end
+
     context 'when blank after normalization' do
       let(:poa_codes) { ' , , ' }
 
