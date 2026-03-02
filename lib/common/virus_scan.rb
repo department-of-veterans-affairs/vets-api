@@ -10,33 +10,20 @@ module Common
     module_function
 
     def scan(file_path, upload_context: nil)
-      # `clamd` runs within service group, needs group read
       raise 'Failed to create temp file' unless File.exist?(file_path)
-
       return true if mock_enabled?
 
       file_metadata = collect_file_metadata(file_path)
       start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-
       result = perform_scan(file_path)
 
       emit_scan_audit_log(
-        file_metadata: file_metadata,
-        scan_result: result[:safe] ? 'clean' : 'infected',
-        virus_name: result[:virus_name],
-        scan_duration_ms: duration_ms(start_time),
-        upload_context: upload_context
+        file_metadata:, scan_result: result[:safe] ? 'clean' : 'infected',
+        virus_name: result[:virus_name], scan_duration_ms: duration_ms(start_time), upload_context:
       )
-
       result[:safe]
-    rescue => e
-      emit_scan_audit_log(
-        file_metadata: file_metadata || {},
-        scan_result: 'error',
-        virus_name: nil,
-        scan_duration_ms: start_time ? duration_ms(start_time) : nil,
-        upload_context: upload_context
-      ) if start_time && !mock_enabled?
+    rescue
+      emit_error_audit_log(file_metadata, start_time, upload_context) if start_time
       raise
     end
 
@@ -57,20 +44,15 @@ module Common
     def scan_file_from_other_location(original_path)
       clamav_directory = Rails.root.join('clamav_tmp')
       FileUtils.mkdir_p(clamav_directory)
-
       File.chmod(0o640, original_path)
 
-      unique_id = "scan_#{Time.now.to_i}_#{SecureRandom.hex(8)}"
-      temp_filename = "#{unique_id}_#{File.basename(original_path)}"
-      temp_path = "clamav_tmp/#{temp_filename}"
+      temp_path = "clamav_tmp/scan_#{Time.now.to_i}_#{SecureRandom.hex(8)}_#{File.basename(original_path)}"
 
       begin
         FileUtils.cp(original_path, temp_path)
-
         raise "Failed to create temp file at #{original_path}" unless File.exist?(temp_path)
 
         Rails.logger.info("Created clamav tmp file: #{original_path}")
-
         File.chmod(0o640, temp_path)
         ClamAV::PatchClient.new.scan_with_result(temp_path)
       ensure
@@ -95,19 +77,18 @@ module Common
 
     def emit_scan_audit_log(file_metadata:, scan_result:, virus_name:, scan_duration_ms:, upload_context:)
       request_attributes = RequestStore.store['additional_request_attributes'] || {}
+      Rails.logger.info('ClamAV Virus Scan Audit',
+                        event: 'virus_scan', user_uuid: request_attributes['user_uuid'],
+                        ip_address: request_attributes['remote_ip'], file_name: file_metadata[:file_name_hashed],
+                        file_size: file_metadata[:file_size], content_type: file_metadata[:content_type],
+                        scan_result:, virus_name:, scan_duration_ms:, upload_context:)
+    end
 
-      Rails.logger.info('ClamAV Virus Scan Audit', {
-        event: 'virus_scan',
-        user_uuid: request_attributes['user_uuid'],
-        ip_address: request_attributes['remote_ip'],
-        file_name: file_metadata[:file_name_hashed],
-        file_size: file_metadata[:file_size],
-        content_type: file_metadata[:content_type],
-        scan_result: scan_result,
-        virus_name: virus_name,
-        scan_duration_ms: scan_duration_ms,
-        upload_context: upload_context
-      })
+    def emit_error_audit_log(file_metadata, start_time, upload_context)
+      emit_scan_audit_log(
+        file_metadata: file_metadata || {}, scan_result: 'error',
+        virus_name: nil, scan_duration_ms: duration_ms(start_time), upload_context:
+      )
     end
 
     def duration_ms(start_time)

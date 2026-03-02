@@ -70,7 +70,8 @@ RSpec.describe Common::VirusScan do
 
       it 'scans the file directly' do
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(clamav_client).to receive(:scan_with_result).with(file_path).and_return({ safe: true, virus_name: nil })
+        expect(clamav_client).to receive(:scan_with_result).with(file_path)
+                                                           .and_return({ safe: true, virus_name: nil })
 
         result = described_class.scan(file_path)
         expect(result).to be true
@@ -294,24 +295,28 @@ RSpec.describe Common::VirusScan do
     end
 
     context 'when scan is clean' do
-      it 'emits audit log with scan_result clean' do
-        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(Rails.logger).to receive(:info).with('ClamAV Virus Scan Audit', hash_including(
+      let(:expected_audit_fields) do
+        {
           event: 'virus_scan',
           scan_result: 'clean',
           virus_name: nil,
           user_uuid: 'test-user-uuid-123',
           ip_address: '192.168.1.1'
-        ))
+        }
+      end
+
+      it 'emits audit log with scan_result clean' do
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(expected_audit_fields))
 
         described_class.scan(file_path)
       end
 
       it 'includes scan_duration_ms that is positive' do
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(Rails.logger).to receive(:info).with('ClamAV Virus Scan Audit', hash_including(
-          scan_duration_ms: a_value > 0
-        ))
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(scan_duration_ms: a_value > 0))
 
         described_class.scan(file_path)
       end
@@ -325,10 +330,9 @@ RSpec.describe Common::VirusScan do
 
       it 'emits audit log with virus_name populated' do
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(Rails.logger).to receive(:info).with('ClamAV Virus Scan Audit', hash_including(
-          scan_result: 'infected',
-          virus_name: 'Eicar-Test-Signature'
-        ))
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit',
+                hash_including(scan_result: 'infected', virus_name: 'Eicar-Test-Signature'))
 
         described_class.scan(file_path)
       end
@@ -339,9 +343,8 @@ RSpec.describe Common::VirusScan do
         expected_hash = Digest::SHA256.hexdigest('audit_test.pdf')
 
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(Rails.logger).to receive(:info).with('ClamAV Virus Scan Audit', hash_including(
-          file_name: expected_hash
-        ))
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(file_name: expected_hash))
 
         described_class.scan(file_path)
       end
@@ -350,9 +353,8 @@ RSpec.describe Common::VirusScan do
     context 'when upload_context is provided' do
       it 'passes upload_context through to audit log' do
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(Rails.logger).to receive(:info).with('ClamAV Virus Scan Audit', hash_including(
-          upload_context: 'hca_attachment'
-        ))
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(upload_context: 'hca_attachment'))
 
         described_class.scan(file_path, upload_context: 'hca_attachment')
       end
@@ -365,10 +367,8 @@ RSpec.describe Common::VirusScan do
 
       it 'emits audit log with scan_result error before re-raising' do
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(Rails.logger).to receive(:info).with('ClamAV Virus Scan Audit', hash_including(
-          scan_result: 'error',
-          virus_name: nil
-        ))
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(scan_result: 'error', virus_name: nil))
 
         expect { described_class.scan(file_path) }.to raise_error(StandardError, 'ClamAV timeout')
       end
