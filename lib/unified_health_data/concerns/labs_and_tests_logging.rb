@@ -154,11 +154,14 @@ module UnifiedHealthData
 
       # Orchestrates index-level metrics and proactive warnings for get_labs.
       def log_labs_metrics(combined_records, parsed_labs, start_date, end_date)
-        labs_logging_enabled? && log_labs_response_count(combined_records.size, parsed_labs.size)
+        parsed_count = parsed_labs.size
+        raw_count = combined_records.size
+
+        labs_logging_enabled? && log_labs_response_count(raw_count, parsed_count)
         labs_logging_enabled? && log_labs_index_metrics(parsed_labs, start_date, end_date)
-        warn_labs_high_filter_rate(combined_records.size, parsed_labs.size)
-        warn_missing_dates(parsed_labs.count { |l| l.date_completed.blank? }, parsed_labs.size)
-        warn_empty_observations(parsed_labs.count { |l| l.observations.empty? }, parsed_labs.size)
+        warn_labs_high_filter_rate(raw_count, parsed_count)
+        warn_missing_dates(parsed_labs.count { |l| l.date_completed.blank? }, parsed_count)
+        warn_empty_observations(parsed_labs.count { |l| l.observations.empty? }, parsed_count)
       end
     end
   end
