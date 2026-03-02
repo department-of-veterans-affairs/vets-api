@@ -59,9 +59,27 @@
       failure must never affect the request
     - **Initialization/config**: `rescue; DEFAULT; end` for loading
       optional configuration with a safe fallback is standard
-    In these cases the bare rescue is still not ideal (should narrow
-    to specific exception classes), but it is LOW severity, not
-    CRITICAL. Flag as INFO with a note suggesting narrowing.</step>
+    - **Non-critical data enrichment**: `rescue; nil; end` around
+      optional data that supplements but is not essential to the
+      main response (e.g., AVS links, optional PDF attachments,
+      supplementary metadata) — one missing enrichment should not
+      crash the primary operation
+    - **Notification/email side-effects**: `rescue; end` around
+      email sending, VA Notify job enqueues, or other async
+      notification side-effects — notification failure must not
+      crash the parent operation (failure registration, success
+      confirmation, etc.)
+    - **Webhook/callback handlers**: `rescue; end` at the top level
+      of an inbound webhook or callback handler — the handler must
+      respond gracefully to the caller regardless of internal errors
+    This list covers the common defensive patterns. The underlying
+    principle is: the rescued code is a non-critical side-effect or
+    must-not-fail boundary where failure should be absorbed with a
+    safe fallback, not propagated. Apply the same exclusion to any
+    context that clearly meets this principle, even if not listed
+    above. However, do NOT apply this exclusion to primary business
+    logic — a bare rescue around the main operation of a controller
+    action, service call, or job is never defensive.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -70,15 +88,19 @@
     <critical>bare rescue + nil return in code calling external services</critical>
     <high>bare rescue in service layer calling external APIs</high>
     <medium>bare rescue in internal utility with no external dependencies</medium>
-    <false_positive>bare rescue in healthcheck endpoints, feature flag
-checks, cache operations, serializer fields, monitoring/instrumentation
-code, or initialization/config with safe defaults — these are
-defensive patterns where the rescued code must never crash the
-caller. **Exclude entirely** — do not report these as findings at
-any severity level. An INFO-level finding on correct defensive code
-still wastes developer attention. The defensive-rescue context check
-in investigation step 6 is a **hard gate**: if any of the 6 defensive
-contexts apply, the finding is excluded, not downgraded.</false_positive>
+    <false_positive>bare rescue in defensive contexts: healthcheck
+endpoints, feature flag checks, cache operations, serializer fields,
+monitoring/instrumentation, initialization/config with safe defaults,
+non-critical data enrichment, notification/email side-effects, or
+webhook/callback handlers. The underlying principle is that the
+rescued code is a non-critical side-effect or must-not-fail boundary
+where failure should be absorbed with a safe fallback. **Exclude
+entirely** — do not report at any severity. The defensive-rescue
+context check in investigation step 6 is a **hard gate**: if the
+context meets this principle, the finding is excluded, not
+downgraded. Do NOT apply to primary business logic — bare rescues
+around the main operation of a controller action, service call,
+or job are never defensive.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
