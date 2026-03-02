@@ -141,22 +141,25 @@ module FormIntake
 
     # rubocop:disable Metrics/MethodLength
     def handle_service_error(error)
+      status_code = error.status_code # Extract to avoid duplicate method calls
+      error_message = error.message
+
       # NOTE: error_message is encrypted at rest via Lockbox
       # Truncate to 10,000 chars to prevent DB overflow
       @form_intake_submission.update!(
-        error_message: error.message.to_s.truncate(10_000),
+        error_message: error_message.to_s.truncate(10_000),
         last_attempted_at: Time.current
       )
 
-      if NON_RETRYABLE_ERRORS.include?(error.status_code)
+      if NON_RETRYABLE_ERRORS.include?(status_code)
         @form_intake_submission.fail!
 
         Rails.logger.error(
           'GCIO submission non-retryable error',
           form_submission_id: @form_submission.id,
           form_intake_submission_id: @form_intake_submission.id,
-          error: error.message,
-          status_code: error.status_code,
+          error: error_message,
+          status_code:,
           benefits_intake_uuid: @benefits_intake_uuid
         )
 
@@ -164,11 +167,11 @@ module FormIntake
         log_exception_to_sentry(error, {
                                   form_submission_id: @form_submission.id,
                                   form_type: @form_submission.form_type,
-                                  status_code: error.status_code
+                                  status_code:
                                 })
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.non_retryable_error",
-                         tags: tags + ["status:#{error.status_code}"])
+                         tags: tags + ["status:#{status_code}"])
 
         return # Don't re-raise, prevents retry
       end
@@ -178,15 +181,15 @@ module FormIntake
         'GCIO submission retryable error - will retry',
         form_submission_id: @form_submission.id,
         form_intake_submission_id: @form_intake_submission.id,
-        error: error.message,
-        status_code: error.status_code,
+        error: error_message,
+        status_code:,
         retry_count: @form_intake_submission.retry_count,
         max_retries: 16,
         benefits_intake_uuid: @benefits_intake_uuid
       )
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.retryable_error",
-                       tags: tags + ["status:#{error.status_code}"])
+                       tags: tags + ["status:#{status_code}"])
 
       raise # Re-raise to trigger Sidekiq retry
     end
