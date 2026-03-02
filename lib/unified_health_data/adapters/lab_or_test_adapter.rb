@@ -5,6 +5,7 @@ require_relative '../reference_range_formatter'
 require_relative '../facility_service'
 require_relative 'date_normalizer'
 require_relative 'fhir_helpers'
+require_relative 'facility_name_resolver'
 
 module UnifiedHealthData
   module Adapters
@@ -13,6 +14,8 @@ module UnifiedHealthData
       include FhirHelpers
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
+      VISTA_HOSTNAME_PATTERN = /\.MED\.VA\.GOV$/i
+      VA_STATION_OID = 'urn:oid:2.16.840.1.113883.4.349'
 
       # HL7 v2-0074 diagnostic service section codes and LOINC codes to user-friendly display names
       TEST_CODE_DISPLAY_MAP = {
@@ -185,16 +188,40 @@ module UnifiedHealthData
         performers = record.dig('resource', 'performer') || []
         performer_ref_ids = performers.map { |p| get_reference_id(p['reference']) }.compact
 
-        # Find matching Organization or Location
         match = contained.find do |r|
           %w[Organization Location].include?(r['resourceType']) &&
             performer_ref_ids.include?(r['id'])
         end
 
-        return match['name'] if match&.dig('name')
+        name = match&.dig('name')
+
+        if name.present? && name.match?(VISTA_HOSTNAME_PATTERN)
+          resolved = resolve_hostname_location(match)
+          return resolved if resolved.present?
+        end
+
+        return name if name.present?
 
         # Fallback: first Organization
         contained.find { |r| r['resourceType'] == 'Organization' }&.dig('name')
+      end
+
+      def resolve_hostname_location(organization)
+        station_number = extract_org_station_number(organization)
+        return nil if station_number.blank?
+
+        facility_name_resolver.lookup(station_number)
+      end
+
+      def extract_org_station_number(organization)
+        return nil unless organization&.dig('identifier')
+
+        identifier = organization['identifier'].find { |id| id['system'] == VA_STATION_OID }
+        identifier&.dig('value')
+      end
+
+      def facility_name_resolver
+        @facility_name_resolver ||= UnifiedHealthData::Adapters::FacilityNameResolver.new
       end
 
       def get_code(record)

@@ -95,6 +95,78 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
       } }
       expect(adapter.send(:get_location, record)).to eq('Fallback Lab')
     end
+
+    context 'when Organization name is a VistA hostname' do
+      let(:resolver) { instance_double(UnifiedHealthData::Adapters::FacilityNameResolver) }
+
+      before do
+        allow(UnifiedHealthData::Adapters::FacilityNameResolver).to receive(:new).and_return(resolver)
+      end
+
+      it 'resolves the hostname to a facility name via station number lookup' do
+        record = { 'resource' => {
+          'performer' => [{ 'reference' => 'Organization/OrgPerformer-989' }],
+          'contained' => [
+            {
+              'resourceType' => 'Organization', 'id' => 'OrgPerformer-989',
+              'name' => 'DAYT29.FO-BAYPINES.MED.VA.GOV',
+              'identifier' => [{ 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }]
+            }
+          ]
+        } }
+
+        allow(resolver).to receive(:lookup).with('989').and_return('Bay Pines VA Healthcare System')
+
+        expect(adapter.send(:get_location, record)).to eq('Bay Pines VA Healthcare System')
+      end
+
+      it 'falls back to hostname when facility resolver returns nil' do
+        record = { 'resource' => {
+          'performer' => [{ 'reference' => 'Organization/OrgPerformer-989' }],
+          'contained' => [
+            {
+              'resourceType' => 'Organization', 'id' => 'OrgPerformer-989',
+              'name' => 'DAYT29.FO-BAYPINES.MED.VA.GOV',
+              'identifier' => [{ 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '989' }]
+            }
+          ]
+        } }
+
+        allow(resolver).to receive(:lookup).with('989').and_return(nil)
+
+        expect(adapter.send(:get_location, record)).to eq('DAYT29.FO-BAYPINES.MED.VA.GOV')
+      end
+
+      it 'falls back to hostname when Organization has no identifier' do
+        record = { 'resource' => {
+          'performer' => [{ 'reference' => 'Organization/OrgPerformer-991' }],
+          'contained' => [
+            {
+              'resourceType' => 'Organization', 'id' => 'OrgPerformer-991',
+              'name' => 'SLC4.FO-BAYPINES.MED.VA.GOV'
+            }
+          ]
+        } }
+
+        expect(adapter.send(:get_location, record)).to eq('SLC4.FO-BAYPINES.MED.VA.GOV')
+      end
+
+      it 'does not attempt resolution for normal facility names' do
+        record = { 'resource' => {
+          'performer' => [{ 'reference' => 'Organization/org-552' }],
+          'contained' => [
+            {
+              'resourceType' => 'Organization', 'id' => 'org-552',
+              'name' => 'DAYTON, OH VAMC',
+              'identifier' => [{ 'system' => 'urn:oid:2.16.840.1.113883.4.349', 'value' => '552' }]
+            }
+          ]
+        } }
+
+        expect(resolver).not_to receive(:lookup)
+        expect(adapter.send(:get_location, record)).to eq('DAYTON, OH VAMC')
+      end
+    end
   end
 
   describe '#get_ordered_by' do
