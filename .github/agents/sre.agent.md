@@ -68,7 +68,7 @@ The `read` tool is unrestricted — the agent needs to read source files, detect
 - Use headings to create hierarchy — `##` for sections, `###` for plays, `####` for individual findings
 - **Do NOT use horizontal rules (`---`) anywhere in the report** — headings and blank lines provide all the separation needed
 - Do NOT put play references or recommendations in blockquotes (`>`) — use bold labels inline
-- **Chat output**: prefer tables with 2-3 columns for readability in narrow chat windows. **Exception:** the RuboCop deterministic section uses the required 4-column table (`Play | Cop | Count | Files`).
+- **Chat output**: prefer tables with 2-3 columns for readability in narrow chat windows. Never cram long file lists into a table cell — use the RuboCop format below.
 - **Markdown files and GitHub issues**: tables render well and are encouraged for summary sections, finding lists, and module structure
 - Keep code snippets to 1-5 lines — enough to show the violation, not the whole method
 
@@ -94,14 +94,24 @@ The `read` tool is unrestricted — the agent needs to read source files, detect
 
 Phase 0 RuboCop detections, filtered through each play's `<false_positive>` exclusion gates in Phase 3. Only offenses that survive context review appear here.
 
-| Play | Cop | Count | Files |
-|------|-----|-------|-------|
-| 03 | NoBareRescues | {n} | `file.rb:10`, `file.rb:25`, ... |
-| 08 | PreferTypedExceptions | {n} | `file.rb:30`, ... |
+### Play 03: Never Use Bare Rescues — {n} offenses
+
+- `file.rb:10`
+- `file.rb:25`
+- ...
+
+### Play 08: Prefer Typed Exceptions — {n} offenses
+
+- `file.rb:30`
+- ...
 
 **Total RuboCop offenses**: {count} ({excluded_count} excluded as false positives)
 
-Plays with zero RuboCop offenses (after filtering) are omitted from this table.
+**Excluded** ({excluded_count}):
+- `excluded_file.rb:42` — {exclusion gate, e.g., feature flag check}
+- ...
+
+Plays with zero RuboCop offenses (after filtering) are omitted.
 
 **Note**: These plays may also have additional findings from the LLM-judged analysis below (e.g., Play 02 cause-chain violations that RuboCop's AST patterns miss).
 
@@ -284,7 +294,7 @@ Detection patterns are consolidated in `detection-patterns.md` (loaded in Phase 
 
 Use the `<pr_comment_template>` for finding structure, the `<investigate_before_answering>` steps to verify before flagging, and the `<examples>` section for specific, actionable remediation guidance.
 
-**RuboCop findings go in the `## RuboCop Findings` section only.** Parse `pass0-rubocop.json`, apply FP filtering (above), group surviving offenses by cop/play, and populate the table with counts and file:line lists. Include the excluded count and note which exclusion gate applied (e.g., "3 excluded: feature flag checks, monitoring instrumentation"). Do NOT duplicate RuboCop offenses as individual `####` findings under `## Findings` — that section is exclusively for LLM-judged findings from `pass1-candidates.md`. If an LLM-judged finding for the same play covers a violation that RuboCop already caught at the same file:line, omit it from the Findings section (the RuboCop table is the source of truth for those).
+**RuboCop findings go in the `## RuboCop Findings` section only.** Parse `pass0-rubocop.json`, apply FP filtering (above), group surviving offenses by cop/play, and list them under `### Play NN` subheadings with one `- file:line` per bullet. Include an **Excluded** list with file:line and the exclusion gate that applied. Do NOT duplicate RuboCop offenses as individual `####` findings under `## Findings` — that section is exclusively for LLM-judged findings from `pass1-candidates.md`. If an LLM-judged finding for the same play covers a violation that RuboCop already caught at the same file:line, omit it from the Findings section (the RuboCop section is the source of truth for those).
 
 **Cross-play correlation**: A single rescue block often violates multiple plays. When you confirm a finding for one play, check the same rescue block against related plays before moving on:
 
