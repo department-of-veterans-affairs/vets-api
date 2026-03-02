@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   module Poa2122ServiceHelpers
     def normalize_codes(input)
       Array(input)
+        .flatten
         .flat_map { |c| c.to_s.split(',') }
         .map(&:strip)
         .compact_blank

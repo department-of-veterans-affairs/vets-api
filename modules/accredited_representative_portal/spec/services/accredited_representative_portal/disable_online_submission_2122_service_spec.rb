@@ -23,7 +23,7 @@ RSpec.describe AccreditedRepresentativePortal::DisableOnlineSubmission2122Servic
     context 'with array input' do
       let!(:org_svs) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
       let!(:org_yhz) { create(:veteran_organization, poa: 'YHZ', can_accept_digital_poa_requests: true, name: 'YHZ') }
-      let(:poa_codes) { %w[SVS YHZ SVS] }
+      let(:poa_codes) { ['SVS', ['YHZ', 'SVS ']] }
 
       it 'flattens, normalizes, deduplicates, and updates matching orgs' do
         result = call_service
