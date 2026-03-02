@@ -17,7 +17,7 @@ module UnifiedHealthData
     attribute :value, UnifiedHealthData::ObservationValue
     attribute :reference_range, String
     attribute :status, String
-    attribute :comments, String
+    attribute :comments, String, array: true
     attribute :body_site, String
     attribute :sample_tested, String
   end
@@ -37,6 +37,7 @@ module UnifiedHealthData
     attribute :location, String
     attribute :ordered_by, String
     attribute :body_site, String
+    attribute :comments, String, array: true
     attribute :status, String
     attribute :source, String
     attribute :facility_timezone, String # IANA timezone ID (e.g., 'America/New_York') for the facility

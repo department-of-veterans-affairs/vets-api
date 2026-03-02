@@ -76,7 +76,7 @@ module AccreditedRepresentativePortal
       end
 
       def handle_resource_not_found(error)
-        raise Error.new(error.detail || error.message, :not_found)
+        raise Error.new(error.try(:detail) || error.message, :not_found)
       end
 
       def handle_record_invalid(error)

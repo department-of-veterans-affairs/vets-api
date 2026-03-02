@@ -44,5 +44,34 @@ describe IvcChampva::PdfCombiner do
         expect(page[:SourceFileName]).to eq(pages[index])
       end
     end
+
+    context 'when combining PDFs with optional content' do
+      let(:optional_content_pdf_path) { 'modules/ivc_champva/spec/fixtures/pdfs/pdf_with_optional_content.pdf' }
+
+      context 'when champva_allow_pdf_optional_content is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_allow_pdf_optional_content, anything).and_return(true)
+        end
+
+        it 'combines PDF with optional content successfully' do
+          pages = [optional_content_pdf_path]
+          expect(described_class.combine(@merged_path, pages)).to eq(@merged_path)
+
+          merged_pdf = CombinePDF.load(@merged_path, allow_optional_content: true)
+          expect(merged_pdf.pages.count).to eq(1)
+        end
+      end
+
+      context 'when champva_allow_pdf_optional_content is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:champva_allow_pdf_optional_content, anything).and_return(false)
+        end
+
+        it 'raises an error when combining PDF with optional content' do
+          pages = [optional_content_pdf_path]
+          expect { described_class.combine(@merged_path, pages) }.to raise_error(StandardError)
+        end
+      end
+    end
   end
 end

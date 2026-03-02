@@ -11,7 +11,6 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
 
   let(:participant_id) { '1234' }
   let(:template_id) { '5678' }
-  let(:first_name) { 'Joe' }
   let(:icn) { '1234567890V123456' }
   let(:notification_id) { SecureRandom.uuid }
 
@@ -40,8 +39,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
       recipient_identifier: { id_value: participant_id, id_type: 'PID' },
       template_id:,
       personalisation: {
-        host: EventBusGateway::Constants::HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
-        first_name:
+        host: EventBusGateway::Constants::HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname
       }
     }
   end
@@ -111,7 +109,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
 
       expect(va_notify_service).to receive(:send_sms).with(expected_sms_args)
       expect do
-        job_instance.send(:send_sms_notification, participant_id, template_id, first_name, mpi_profile.icn)
+        job_instance.send(:send_sms_notification, participant_id, template_id, mpi_profile.icn)
       end.to change(EventBusGatewayNotification, :count).by(1)
     end
 
@@ -138,7 +136,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
           }
         )
 
-        job_instance.send(:send_sms_notification, participant_id, template_id, first_name, mpi_profile.icn)
+        job_instance.send(:send_sms_notification, participant_id, template_id, mpi_profile.icn)
       end
 
       it 'still sends the sms successfully' do
@@ -146,14 +144,14 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
 
         expect(va_notify_service).to receive(:send_sms).with(expected_sms_args)
 
-        job_instance.send(:send_sms_notification, participant_id, template_id, first_name, mpi_profile.icn)
+        job_instance.send(:send_sms_notification, participant_id, template_id, mpi_profile.icn)
       end
 
       it 'does not raise an error' do
         job_instance = subject.new
 
         expect do
-          job_instance.send(:send_sms_notification, participant_id, template_id, first_name, mpi_profile.icn)
+          job_instance.send(:send_sms_notification, participant_id, template_id, mpi_profile.icn)
         end.not_to raise_error
       end
     end
@@ -167,7 +165,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
         job_instance = subject.new
 
         expect do
-          job_instance.send(:send_sms_notification, participant_id, template_id, first_name, mpi_profile.icn)
+          job_instance.send(:send_sms_notification, participant_id, template_id, mpi_profile.icn)
         end.to change(EventBusGatewayNotification, :count).by(1)
 
         notification = EventBusGatewayNotification.last
@@ -180,7 +178,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
         job_instance = subject.new
 
         expect(va_notify_service).to receive(:send_sms).with(expected_sms_args)
-        job_instance.send(:send_sms_notification, participant_id, template_id, first_name, mpi_profile.icn)
+        job_instance.send(:send_sms_notification, participant_id, template_id, mpi_profile.icn)
       end
     end
   end
@@ -191,7 +189,6 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
     context 'when cache_key is provided' do
       before do
         allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
-          first_name:,
           icn: mpi_profile.icn
         )
       end
@@ -211,8 +208,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
         subject.new.perform(participant_id, template_id, cache_key)
       end
 
-      it 'does not call BGS or MPI services' do
-        expect_any_instance_of(described_class).not_to receive(:get_first_name_from_participant_id)
+      it 'does not call MPI service' do
         expect_any_instance_of(described_class).not_to receive(:get_icn)
         subject.new.perform(participant_id, template_id, cache_key)
       end
@@ -223,8 +219,7 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
         allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(nil)
       end
 
-      it 'falls back to fetching PII from services' do
-        expect_any_instance_of(described_class).to receive(:get_first_name_from_participant_id).and_call_original
+      it 'falls back to fetching ICN from services' do
         expect_any_instance_of(described_class).to receive(:get_icn).and_call_original
         subject.new.perform(participant_id, template_id, cache_key)
       end
@@ -307,56 +302,6 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
     end
   end
 
-  describe 'when first_name is not present' do
-    let(:bgs_profile) do
-      {
-        first_nm: nil,
-        last_nm: 'Smith',
-        brthdy_dt: 30.years.ago,
-        ssn_nbr: '123456789'
-      }
-    end
-
-    it 'returns early without sending sms' do
-      expect(va_notify_service).not_to receive(:send_sms)
-      expect(StatsD).not_to receive(:increment).with(
-        "#{described_class::STATSD_METRIC_PREFIX}.success",
-        tags: EventBusGateway::Constants::DD_TAGS
-      )
-
-      result = subject.new.perform(participant_id, template_id)
-      expect(result).to be_nil
-    end
-
-    it 'does not create notification record' do
-      expect do
-        subject.new.perform(participant_id, template_id)
-      end.not_to change(EventBusGatewayNotification, :count)
-    end
-
-    it 'logs the skipped notification' do
-      expect(Rails.logger).to receive(:error).with(
-        'LetterReadySmsJob sms skipped',
-        {
-          notification_type: 'sms',
-          reason: 'First Name not available',
-          template_id:
-        }
-      )
-
-      subject.new.perform(participant_id, template_id)
-    end
-
-    it 'increments the skipped metric' do
-      expect(StatsD).to receive(:increment).with(
-        "#{described_class::STATSD_METRIC_PREFIX}.skipped",
-        tags: EventBusGateway::Constants::DD_TAGS + ['notification_type:sms', 'reason:first_name_not_available']
-      )
-
-      subject.new.perform(participant_id, template_id)
-    end
-  end
-
   describe 'error handling' do
     context 'when VA Notify service initialization fails' do
       before do
@@ -416,7 +361,6 @@ RSpec.describe EventBusGateway::LetterReadySmsJob, type: :job do
 
       before do
         allow(Sidekiq::AttrPackage).to receive(:find).with(cache_key).and_return(
-          first_name:,
           icn: mpi_profile.icn
         )
         error = Sidekiq::AttrPackageError.new('delete', 'Redis delete failed')
