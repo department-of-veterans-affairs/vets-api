@@ -430,11 +430,20 @@ For Tier 3 full audits, also analyze:
 
 ## Post-Report Actions
 
-After presenting the report, ask the user how they'd like to capture the results:
+After presenting the report, present this exact numbered list of next actions:
 
-1. **Chat only** (default) — the report is already displayed above, no further action
-2. **Write a markdown file** — save the report to `tmp/sre-audit-{module}-{timestamp}.md` (using the same timestamp from Phase 0). Keep the same section structure and required fields as chat output; markdown files may use wider tables where that improves readability. The file should be a clean, readable document a developer can review in GitHub or any markdown viewer.
-3. **Create GitHub issues** (requires [GitHub CLI](https://cli.github.com/) installed and authenticated) — use `gh` CLI to create issues in `department-of-veterans-affairs/vets-api`:
+> **Next actions:**
+>
+> 1. **Chat only** (default) — no further action needed
+> 2. **Save to file** — write to `tmp/sre-audit-{module}-{timestamp}.md`
+> 3. **Create GitHub issues** — requires `gh` CLI authenticated
+
+Use these options verbatim. Do not rephrase, merge, or omit any option.
+
+**Option details (for when the user selects one):**
+
+- **Option 2**: Use the same timestamp from Phase 0. Keep the same section structure and required fields as chat output; markdown files may use wider tables where that improves readability. The file should be a clean, readable document a developer can review in GitHub or any markdown viewer.
+- **Option 3**: Use `gh` CLI to create issues in `department-of-veterans-affairs/vets-api`:
    - If **3 or fewer findings**: create one issue per finding with the play name, file:line, code snippet, and remediation
    - If **4+ findings**: create a parent tracking issue (the audit summary) and individual sub-issues for each finding, linked to the parent via task list
    - Label all issues with `sre-audit` and the module name
