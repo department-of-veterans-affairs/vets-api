@@ -7,7 +7,7 @@ module SurvivorsBenefits::StructuredData::Section09
   #
   # @param form [Hash]
   # @return [Hash]
-  def merge_income_and_assets_info
+  def build_section9
     merge_income_fields(form['incomeEntries'])
     fields.merge!(y_n_pair(form['landMarketable'], 'MARKETABLE_LAND_2ACR_Y', 'MARKETABLE_LAND_2ACR_N'))
     fields.merge!(y_n_pair(form['transferredAssets'], 'TRANSFER_ASSETS_LAST3Y_Y', 'TRANSFER_ASSETS_LAST3Y_N'))

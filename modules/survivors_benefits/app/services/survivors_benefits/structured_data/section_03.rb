@@ -6,7 +6,7 @@ module SurvivorsBenefits::StructuredData::Section03
   # Build the veteran service info structured data entries.
   #
   # @return [Hash]
-  def merge_veterans_service_info
+  def build_section3
     merge_vet_aliases(form['veteranPreviousNames'])
     merge_service_branch_fields(form['serviceBranch'])
     fields.merge!(y_n_pair(form['nationalGuardActivated'], 'ACTIVATED_TO_FED_DUTY_YES', 'ACTIVATED_TO_FED_DUTY_NO'))

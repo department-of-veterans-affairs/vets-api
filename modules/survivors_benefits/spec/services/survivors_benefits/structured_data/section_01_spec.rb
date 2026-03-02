@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'survivors_benefits/structured_data/section_01'
 
 RSpec.describe SurvivorsBenefits::StructuredData::Section01 do
-  describe '#merge_veterans_id_info' do
+  describe '#build_section1' do
     it 'merges veteran ID info into the correct structured data' do
       form = {
         'veteranFullName' => {
@@ -22,7 +22,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section01 do
         'veteranDateOfDeath' => '2020-01-01'
       }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
-      service.merge_veterans_id_info
+      service.build_section1
       expect(service.fields).to include(
         'VETERAN_FIRST_NAME' => 'John',
         'VETERAN_MIDDLE_INITIAL' => 'A',

@@ -4,7 +4,7 @@ module SurvivorsBenefits::StructuredData::Section12
   ##
   # Section XII
   # Build and merge claim certification structured data entries.
-  def merge_claim_certification_fields
+  def build_section12
     fields.merge!(
       {
         'CB_FURTHER_EVD_CLAIM_SUPPORT' => false,

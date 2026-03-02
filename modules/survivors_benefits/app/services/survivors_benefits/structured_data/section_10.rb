@@ -4,7 +4,7 @@ module SurvivorsBenefits::StructuredData::Section10
   ##
   # Section X
   # Build the medical, last, and/or burial expenses structured data entries.
-  def merge_medical_last_burial_expenses
+  def build_section10
     fields.merge!(y_n_pair(any_reimbursment?, 'UNREIMBURSED_MED_EXPENSES_Y', 'UNREIMBURSED_MED_EXPENSES_N'))
     merge_care_expense_fields(form['careExpenses'] || [])
     merge_medical_expense_fields(form['medicalExpenses'] || [])

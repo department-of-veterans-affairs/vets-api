@@ -4,7 +4,7 @@ module SurvivorsBenefits::StructuredData::Section05
   ##
   # Section V
   # Build the marital history structured data entries.
-  def merge_marital_history
+  def build_section5
     vet_prev_marriages = form['veteranMarriages'] || []
     spouse_prev_marriages = form['spouseMarriages'] || []
     merge_previous_marriage_fields(vet_prev_marriages, 'VETERAN', form['veteranHasAdditionalMarriages'])

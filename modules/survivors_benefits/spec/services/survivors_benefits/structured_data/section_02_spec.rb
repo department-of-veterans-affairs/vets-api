@@ -4,13 +4,13 @@ require 'rails_helper'
 require 'survivors_benefits/structured_data/section_02'
 
 RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
-  describe '#merge_claimants_id_info' do
+  describe '#build_section2' do
     it 'calls merge_name_fields' do
       form = { 'claimantFullName' => { 'first' => 'Jane', 'last' => 'Smith' } }
       individual = 'CLAIMANT'
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       expect(service).to receive(:merge_name_fields).with(form['claimantFullName'], individual)
-      service.merge_claimants_id_info
+      service.build_section2
     end
 
     it 'calls merge_claimant_address_fields' do
@@ -19,21 +19,21 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
       }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       expect(service).to receive(:merge_claimant_address_fields).with(form['claimantAddress'])
-      service.merge_claimants_id_info
+      service.build_section2
     end
 
     it 'calls merge_relationship' do
       form = { 'claimantRelationship' => 'SURVIVING_SPOUSE' }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       expect(service).to receive(:merge_relationship).with(form['claimantRelationship'])
-      service.merge_claimants_id_info
+      service.build_section2
     end
 
     it 'calls merge_claim_type_fields' do
       form = { 'claims' => { 'DIC' => true, 'survivorsPension' => true, 'accruedBenefits' => true } }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       expect(service).to receive(:merge_claim_type_fields).with(form['claims'])
-      service.merge_claimants_id_info
+      service.build_section2
     end
 
     it 'merges claimant veteran status and ID info' do
@@ -44,7 +44,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
         'claimantEmail' => 'jane.smith@example.com'
       }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
-      service.merge_claimants_id_info
+      service.build_section2
       expect(service.fields).to include(
         'CLAIMANT_VETERAN_Y' => true,
         'CLAIMANT_VETERAN_N' => false,
@@ -61,7 +61,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
           'claimantAddress' => { 'country' => 'US' }
         }
         service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
-        service.merge_claimants_id_info
+        service.build_section2
         expect(service.fields).to include(
           'PHONE_NUMBER' => '555-123-4567',
           'INT_PHONE_NUMBER' => nil
@@ -75,7 +75,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
             'claimantAddress' => { 'country' => 'CA' }
           }
           service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
-          service.merge_claimants_id_info
+          service.build_section2
           expect(service.fields).to include(
             'PHONE_NUMBER' => '5551234567',
             'INT_PHONE_NUMBER' => '5551234567'
@@ -89,7 +89,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section02 do
             'claimantInternationalPhone' => '+52-5551234567'
           }
           service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
-          service.merge_claimants_id_info
+          service.build_section2
           expect(service.fields).to include(
             'PHONE_NUMBER' => nil,
             'INT_PHONE_NUMBER' => '525551234567'

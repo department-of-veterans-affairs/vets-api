@@ -6,7 +6,7 @@ module SurvivorsBenefits::StructuredData::Section11
   # Build claimant direct deposit structured data entries.
   #
   # @param account [Hash]
-  def merge_claimant_direct_deposit_fields(account)
+  def build_section11(account)
     return unless account.is_a?(Hash)
 
     fields.merge!(

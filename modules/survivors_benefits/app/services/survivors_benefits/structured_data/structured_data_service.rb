@@ -36,18 +36,18 @@ module SurvivorsBenefits
       end
 
       def build_structured_data
-        merge_veterans_id_info # Section01
-        merge_claimants_id_info # Section02
-        merge_veterans_service_info # Section03
-        merge_marital_info # Section04
-        merge_marital_history # Section05
-        merge_children_of_veteran_info # Section06
-        merge_dic_info # Section07
-        merge_nursing_home_info # Section08
-        merge_income_and_assets_info # Section09
-        merge_medical_last_burial_expenses # Section10
-        merge_claimant_direct_deposit_fields(form['bankAccount']) # Section11
-        merge_claim_certification_fields # Section12
+        build_section1
+        build_section2
+        build_section3
+        build_section4
+        build_section5
+        build_section6
+        build_section7
+        build_section8
+        build_section9
+        build_section10
+        build_section11(form['bankAccount'])
+        build_section12
 
         fields
       end

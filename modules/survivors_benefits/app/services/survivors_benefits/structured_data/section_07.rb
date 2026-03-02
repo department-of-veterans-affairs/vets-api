@@ -5,7 +5,7 @@ module SurvivorsBenefits::StructuredData::Section07
   # Section VII
   # Build the D.I.C. structured data entries.
   #
-  def merge_dic_info
+  def build_section7
     merge_dic_type_fields(form['benefit'])
     treatments = form['treatments'] || []
     treatments&.each_with_index do |treatment, index|

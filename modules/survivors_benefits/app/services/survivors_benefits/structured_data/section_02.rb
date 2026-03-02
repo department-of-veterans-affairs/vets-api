@@ -6,7 +6,7 @@ module SurvivorsBenefits::StructuredData::Section02
   # Build and merge the claimant-specific structured data entries.
   #
   # @return [Hash]
-  def merge_claimants_id_info
+  def build_section2
     merge_name_fields(form['claimantFullName'], 'CLAIMANT')
     merge_claimant_address_fields(form['claimantAddress'])
     merge_relationship(form['claimantRelationship'])

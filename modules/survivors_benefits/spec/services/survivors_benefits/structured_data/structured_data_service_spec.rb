@@ -36,18 +36,18 @@ RSpec.describe SurvivorsBenefits::StructuredData::StructuredDataService do
     it 'calls the expected merge methods in build_structured_data' do
       form = {}
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
-      expect(service).to receive(:merge_veterans_id_info)
-      expect(service).to receive(:merge_claimants_id_info)
-      expect(service).to receive(:merge_veterans_service_info)
-      expect(service).to receive(:merge_marital_info)
-      expect(service).to receive(:merge_marital_history)
-      expect(service).to receive(:merge_children_of_veteran_info)
-      expect(service).to receive(:merge_dic_info)
-      expect(service).to receive(:merge_nursing_home_info)
-      expect(service).to receive(:merge_income_and_assets_info)
-      expect(service).to receive(:merge_medical_last_burial_expenses)
-      expect(service).to receive(:merge_claimant_direct_deposit_fields).with(form['bankAccount'])
-      expect(service).to receive(:merge_claim_certification_fields)
+      expect(service).to receive(:build_section1)
+      expect(service).to receive(:build_section2)
+      expect(service).to receive(:build_section3)
+      expect(service).to receive(:build_section4)
+      expect(service).to receive(:build_section5)
+      expect(service).to receive(:build_section6)
+      expect(service).to receive(:build_section7)
+      expect(service).to receive(:build_section8)
+      expect(service).to receive(:build_section9)
+      expect(service).to receive(:build_section10)
+      expect(service).to receive(:build_section11).with(form['bankAccount'])
+      expect(service).to receive(:build_section12)
       service.build_structured_data
     end
   end

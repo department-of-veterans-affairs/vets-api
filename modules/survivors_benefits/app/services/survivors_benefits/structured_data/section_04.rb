@@ -4,7 +4,7 @@ module SurvivorsBenefits::StructuredData::Section04
   ##
   # Section IV
   # Build and merge the marital information structured data entries.
-  def merge_marital_info
+  def build_section4
     pregnant_with_veteran, lived_with_veteran, discordant_separation, marriage_type = marital_info_data
     merge_veteran_separation_fields
     merge_claimant_remarriage_fields
