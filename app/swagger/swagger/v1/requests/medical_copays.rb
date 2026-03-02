@@ -6,8 +6,8 @@ class Swagger::V1::Requests::MedicalCopays
   swagger_path '/v1/medical_copays' do
     operation :get do
       key :oneOf do
-        schema { key :'$ref', :LighthouseMedicalCopayListResponse }
-        schema { key :'$ref', :VbsMedicalCopayListResponse }
+        schema { key :$ref, :LighthouseMedicalCopayListResponse }
+        schema { key :$ref, :VbsMedicalCopayListResponse }
       end
     end
   end
