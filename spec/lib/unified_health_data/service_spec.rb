@@ -250,9 +250,9 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'logs the error with domain context and re-raises' do
-        expect {
+        expect do
           service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
-        }.to raise_error(Faraday::TimeoutError)
+        end.to raise_error(Faraday::TimeoutError)
 
         expect(Rails.logger).to have_received(:error).with(
           hash_including(
@@ -266,9 +266,9 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'increments the error StatsD counter' do
-        expect {
+        expect do
           service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
-        }.to raise_error(Faraday::TimeoutError)
+        end.to raise_error(Faraday::TimeoutError)
 
         expect(StatsD).to have_received(:increment)
           .with('api.uhd.labs_and_tests.error', tags: [])
