@@ -47,7 +47,12 @@ module AccreditedRepresentativePortal
 
       return false if org_rep.nil?
 
-      case org_rep.acceptance_mode
+      mode = org_rep.acceptance_mode
+
+      # Unknown acceptance_mode? Deny by default.
+      return false unless %w[any_request self_only no_acceptance].include?(mode)
+
+      case mode
       when 'any_request'
         true
       when 'self_only'
@@ -55,7 +60,7 @@ module AccreditedRepresentativePortal
         request_reg_num.present? && @user.registration_numbers.include?(request_reg_num)
       when 'no_acceptance'
         false
-      end || false
+      end
     end
 
     def user_can_access_org?(poa_code)

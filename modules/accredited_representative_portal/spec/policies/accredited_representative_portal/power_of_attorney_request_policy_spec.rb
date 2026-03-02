@@ -70,6 +70,9 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         ]
       end
 
+      let(:vso_org) { create(:veteran_organization, poa: '123') }
+      let(:vs_rep) { create(:veteran_representative, representative_id: 'REG1') }
+
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:accredited_representative_portal_individual_accept, user)
@@ -79,21 +82,113 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
 
       it 'denies when no join table record exists' do
-        relation = instance_double(ActiveRecord::Relation)
-        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
-        allow(relation).to receive_messages(where: relation, order: relation, first: nil)
-
         expect(policy.show?).to be false
       end
 
       it "allows when join table acceptance_mode is 'any_request'" do
-        org_rep = instance_double(Veteran::Service::OrganizationRepresentative, acceptance_mode: 'any_request')
-
-        relation = instance_double(ActiveRecord::Relation)
-        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
-        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'any_request',
+          deactivated_at: nil
+        )
 
         expect(policy.show?).to be true
+      end
+
+      it "allows when join table acceptance_mode is 'self_only' and user matches the request rep" do
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'self_only',
+          deactivated_at: nil
+        )
+
+        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('REG1')
+
+        expect(policy.show?).to be true
+      end
+
+      it "denies when join table acceptance_mode is 'self_only' and user does NOT match the request rep" do
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'self_only',
+          deactivated_at: nil
+        )
+
+        allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('SOMEONE_ELSE')
+
+        expect(policy.show?).to be false
+      end
+
+      it "denies when join table acceptance_mode is 'no_acceptance'" do
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'no_acceptance',
+          deactivated_at: nil
+        )
+
+        expect(policy.show?).to be false
+      end
+
+      it 'denies when join table record is deactivated' do
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'any_request',
+          deactivated_at: Time.zone.now
+        )
+
+        expect(policy.show?).to be false
+      end
+    end
+
+    describe '#show? (individual accept flag OFF)' do
+      context 'when the POA holder can accept digital POA requests' do
+        let(:power_of_attorney_holders) do
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code: '123',
+              name: 'Org Name',
+              can_accept_digital_poa_requests: true
+            )
+          ]
+        end
+
+        it 'allows showing via the legacy authorization path' do
+          expect(policy.show?).to be true
+        end
+      end
+
+      context 'when the POA holder does not accept digital POA requests' do
+        let(:power_of_attorney_holders) do
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code: '123',
+              name: 'Org Name',
+              can_accept_digital_poa_requests: false
+            )
+          ]
+        end
+
+        it 'disallows showing via the legacy authorization path' do
+          expect(policy.show?).to be false
+        end
+      end
+
+      context 'when the user has no POA holders' do
+        it 'denies access' do
+          expect(policy.show?).to be false
+        end
       end
     end
 
@@ -109,6 +204,9 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         ]
       end
 
+      let(:vso_org) { create(:veteran_organization, poa: '123') }
+      let(:vs_rep) { create(:veteran_representative, representative_id: 'REG1') }
+
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:accredited_representative_portal_individual_accept, user)
@@ -118,37 +216,51 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
       end
 
       it "allows when join table acceptance_mode is 'any_request'" do
-        org_rep = instance_double(Veteran::Service::OrganizationRepresentative, acceptance_mode: 'any_request')
-
-        relation = instance_double(ActiveRecord::Relation)
-        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
-        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'any_request',
+          deactivated_at: nil
+        )
 
         expect(policy.create_decision?).to be true
       end
 
       it "allows when join table acceptance_mode is 'self_only' and the user matches the representative" do
-        org_rep = instance_double(
-          Veteran::Service::OrganizationRepresentative,
-          acceptance_mode: 'self_only'
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'self_only',
+          deactivated_at: nil
         )
 
-        relation = instance_double(ActiveRecord::Relation)
-        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
-        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
         allow(power_of_attorney_request).to receive(:accredited_individual_registration_number).and_return('REG1')
+
         expect(policy.create_decision?).to be true
       end
 
       it "disallows when join table acceptance_mode is 'no_acceptance'" do
-        org_rep = instance_double(
-          Veteran::Service::OrganizationRepresentative,
-          acceptance_mode: 'no_acceptance'
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'no_acceptance',
+          deactivated_at: nil
         )
 
-        relation = instance_double(ActiveRecord::Relation)
-        allow(Veteran::Service::OrganizationRepresentative).to receive(:active).and_return(relation)
-        allow(relation).to receive_messages(where: relation, order: relation, first: org_rep)
+        expect(policy.create_decision?).to be false
+      end
+
+      it 'disallows when join table record is deactivated' do
+        create(
+          :veteran_organization_representative,
+          organization: vso_org,
+          representative: vs_rep,
+          acceptance_mode: 'any_request',
+          deactivated_at: Time.zone.now
+        )
 
         expect(policy.create_decision?).to be false
       end
