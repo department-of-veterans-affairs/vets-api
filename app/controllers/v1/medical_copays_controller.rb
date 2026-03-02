@@ -7,11 +7,19 @@ module V1
     rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
 
     def index
-      invoice_bundle = medical_copay_service.list_months
+      if current_user.cerner_facility_ids.any?
+        copays = vbs_service.get_copays
+        copays[:isCerner] = true
 
-      render json: Lighthouse::HCC::InvoiceSerializer.new(
-        invoice_bundle.entries, links: invoice_bundle.links, meta: invoice_bundle.meta
-      )
+        render json: copays
+      else
+        invoice_bundle = medical_copay_service.list_months
+        serialized = Lighthouse::HCC::InvoiceSerializer.new(
+          invoice_bundle.entries, links: invoice_bundle.links, meta: invoice_bundle.meta
+        ).serializable_hash
+
+        render json: serialized.merge(isCerner: false)
+      end
     end
 
     def summary
@@ -43,6 +51,10 @@ module V1
 
     def authorize_icn
       raise Common::Exceptions::Forbidden, detail: 'User ICN is required' if current_user.icn.blank?
+    end
+
+    def vbs_service
+      MedicalCopays::VBS::Service.build(user: current_user)
     end
   end
 end

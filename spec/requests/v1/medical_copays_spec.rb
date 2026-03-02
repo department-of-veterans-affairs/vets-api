@@ -20,6 +20,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
           get '/v1/medical_copays'
 
           response_body = JSON.parse(response.body)
+          binding.pry
           meta = response_body['meta']
           copay_summary = meta['copay_summary']
           data_element = response_body['data'].first
@@ -71,6 +72,25 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         response_body = JSON.parse(response.body)
         expect(response_body['data']).to eq([])
+      end
+    end
+
+    context 'cerner facility ids present' do
+      let(:copays) { { data: [], status: 200 } }
+
+      before do
+        allow_any_instance_of(User).to receive(:cerner_facility_ids) { ['200MHV'] }
+      end
+
+      it 'returns vbs response' do
+        travel_to Time.utc(2025, 8, 1) do
+          allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copays).and_return(copays)
+
+          get '/v1/medical_copays'
+
+          response_body = JSON.parse(response.body)
+          expect(response_body).to eq({'data'=>[], 'status'=>200, 'isCerner'=>true})
+        end
       end
     end
   end
