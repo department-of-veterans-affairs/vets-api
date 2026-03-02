@@ -286,7 +286,7 @@ module PdfFill
 
       # Validate that field names in data match the PDF template fields
       # Track mismatches via StatsD for monitoring blank/partial PDFs
-      validate_field_names(template_path, new_hash, form_id) if Flipper.enabled?(:pdf_fill_field_validation)
+      validate_field_names(template_path, new_hash, form_id, pdftk_keys) if Flipper.enabled?(:pdf_fill_field_validation)
 
       if fill_options.fetch(:use_hexapdf, false)
         fill_form_with_hexapdf(template_path, file_path, new_hash)
@@ -396,11 +396,12 @@ module PdfFill
     # @param data_hash [Hash] Hash of field names and values to fill.
     # @param form_id [String] The form ID for StatsD tagging.
     #
-    def validate_field_names(template_path, data_hash, form_id)
+    def validate_field_names(template_path, data_hash, form_id, pdftk_keys = {})
       template_fields = extract_template_field_names(template_path)
+      overflow_only_keys = extract_overflow_only_keys(pdftk_keys)
 
       data_field_names = data_hash.keys.map(&:to_s)
-      unmatched_fields = data_field_names - template_fields
+      unmatched_fields = data_field_names - template_fields - overflow_only_keys
 
       if unmatched_fields.any?
         StatsD.increment("#{STATSD_KEY_PREFIX}.field_validation.mismatch", tags: ["form_id:#{form_id}"])
@@ -414,6 +415,29 @@ module PdfFill
           }
         )
       end
+    end
+
+    ##
+    # Extracts field key names from pdftk_keys where overflow_only is true.
+    # These fields exist purely to route data to overflow pages and have no
+    # matching PDF template field, so they should be excluded from validation.
+    #
+    # @param hash [Hash] The pdftk KEY hash to walk.
+    #
+    # @return [Array<String>] Array of overflow-only field key names.
+    #
+    def extract_overflow_only_keys(hash)
+      keys = []
+      hash.each_value do |value|
+        next unless value.is_a?(Hash)
+
+        if value.key?(:key) && value[:overflow_only]
+          keys << value[:key]
+        else
+          keys.concat(extract_overflow_only_keys(value))
+        end
+      end
+      keys.map(&:to_s)
     end
 
     ##
