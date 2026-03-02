@@ -1019,6 +1019,108 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         expect(result).to be_empty
       end
     end
+
+    context 'when one observation raises during build_observation' do
+      let(:good_obs) do
+        {
+          'resourceType' => 'Observation',
+          'id' => 'obs-good',
+          'code' => { 'text' => 'Sodium' },
+          'valueQuantity' => { 'value' => 140, 'unit' => 'mmol/L' },
+          'status' => 'final'
+        }
+      end
+
+      let(:bad_obs) do
+        {
+          'resourceType' => 'Observation',
+          'id' => 'obs-bad',
+          'code' => { 'text' => 'Broken' },
+          'status' => 'final'
+        }
+      end
+
+      let(:record) do
+        {
+          'resource' => {
+            'id' => 'report-with-bad-obs',
+            'contained' => [good_obs, bad_obs]
+          }
+        }
+      end
+
+      before do
+        allow(adapter).to receive(:build_observation).and_call_original
+        allow(adapter).to receive(:build_observation).with(bad_obs, anything).and_raise(
+          NoMethodError, 'undefined method for nil'
+        )
+      end
+
+      it 'skips the failing observation and returns the good ones' do
+        result = adapter.send(:get_observations, record)
+
+        expect(result.size).to eq(1)
+        expect(result.first.test_code).to eq('Sodium')
+      end
+
+      it 'logs the observation parse failure as an error' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(/Failed to parse Observation obs-bad.*NoMethodError/),
+          hash_including(service: 'unified_health_data')
+        ).at_least(:once)
+
+        adapter.send(:get_observations, record)
+      end
+
+      it 'increments the observation_parse_failure StatsD counter' do
+        expect(StatsD).to receive(:increment).with('unified_health_data.lab_or_test.observation_parse_failure')
+
+        adapter.send(:get_observations, record)
+      end
+    end
+
+    context 'when an observation raises with mr_log available' do
+      let(:user) { double('User') }
+      let(:mr_log) { MedicalRecords::MedicalRecordsLog.new(user:) }
+      let(:adapter_with_log) { described_class.new(mr_log:) }
+
+      let(:bad_obs) do
+        {
+          'resourceType' => 'Observation',
+          'id' => 'obs-bad-mr',
+          'code' => { 'text' => 'Broken' },
+          'status' => 'final'
+        }
+      end
+
+      let(:record) do
+        {
+          'resource' => {
+            'id' => 'report-mr-obs',
+            'contained' => [bad_obs]
+          }
+        }
+      end
+
+      before do
+        allow(adapter_with_log).to receive(:build_observation).and_raise(NoMethodError, 'test explosion')
+        allow(Flipper).to receive(:enabled?).and_return(false)
+      end
+
+      it 'logs through mr_log.error with structured payload' do
+        expect(mr_log).to receive(:error).with(
+          hash_including(
+            resource: 'labs_and_tests',
+            action: 'parse',
+            anomaly: 'observation_parse_failure',
+            report_id: 'report-mr-obs',
+            observation_id: 'obs-bad-mr'
+          )
+        )
+
+        adapter_with_log.send(:get_observations, record)
+      end
+    end
   end
 
   describe '#get_reference_id' do
@@ -1928,6 +2030,102 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         result = adapter.send(:parse_labs, [])
 
         expect(result).to eq([])
+      end
+    end
+
+    context 'when one record raises during parsing' do
+      let(:good_record) do
+        {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => 'good-1',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Good Report' },
+            'effectiveDateTime' => '2025-01-01T00:00:00.000Z',
+            'presentedForm' => [{ 'contentType' => 'text/plain', 'data' => 'data1' }]
+          }
+        }
+      end
+
+      let(:bad_record) do
+        {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => 'bad-2',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Broken Report' }
+          }
+        }
+      end
+
+      before do
+        call_count = 0
+        allow(adapter).to receive(:parse_single_record).and_wrap_original do |method, record|
+          call_count += 1
+          raise NoMethodError, 'undefined method for nil' if record.dig('resource', 'id') == 'bad-2'
+
+          method.call(record)
+        end
+      end
+
+      it 'skips the failing record and returns the good ones' do
+        result = adapter.send(:parse_labs, [good_record, bad_record])
+
+        expect(result.size).to eq(1)
+        expect(result.first.id).to eq('good-1')
+      end
+
+      it 'logs the parse failure as an error' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(/Failed to parse DiagnosticReport bad-2.*NoMethodError/),
+          hash_including(service: 'unified_health_data')
+        ).at_least(:once)
+
+        adapter.send(:parse_labs, [good_record, bad_record])
+      end
+
+      it 'increments the parse_failure StatsD counter' do
+        expect(StatsD).to receive(:increment).with('unified_health_data.lab_or_test.parse_failure')
+
+        adapter.send(:parse_labs, [good_record, bad_record])
+      end
+    end
+
+    context 'when a record raises with mr_log available' do
+      let(:user) { double('User') }
+      let(:mr_log) { MedicalRecords::MedicalRecordsLog.new(user:) }
+      let(:adapter_with_log) { described_class.new(mr_log:) }
+
+      let(:bad_record) do
+        {
+          'resource' => {
+            'resourceType' => 'DiagnosticReport',
+            'id' => 'bad-mr-log',
+            'status' => 'final',
+            'category' => [{ 'coding' => [{ 'code' => 'CH' }] }],
+            'code' => { 'text' => 'Broken Report' }
+          }
+        }
+      end
+
+      before do
+        allow(adapter_with_log).to receive(:parse_single_record).and_raise(NoMethodError, 'test explosion')
+        allow(Flipper).to receive(:enabled?).and_return(false)
+      end
+
+      it 'logs through mr_log.error with structured payload' do
+        expect(mr_log).to receive(:error).with(
+          hash_including(
+            resource: 'labs_and_tests',
+            action: 'parse',
+            anomaly: 'record_parse_failure',
+            report_id: 'bad-mr-log'
+          )
+        )
+
+        adapter_with_log.send(:parse_labs, [bad_record])
       end
     end
   end

@@ -37,8 +37,12 @@ module UnifiedHealthData
         filtered = records.select do |record|
           record['resource'] && record['resource']['resourceType'] == 'DiagnosticReport'
         end
-        parsed = filtered.map { |record| parse_single_record(record) }
-        parsed.compact
+        filtered.filter_map do |record|
+          parse_single_record(record)
+        rescue StandardError => e
+          log_record_parse_failure(record, e)
+          nil
+        end
       end
 
       def parse_single_record(record)
@@ -158,6 +162,35 @@ module UnifiedHealthData
         )
         # Increment the counter once per DiagnosticReport that has filtered observations
         StatsD.increment('unified_health_data.lab_or_test.filtered_observations')
+      end
+
+      # Logs when an individual record fails to parse. Isolates one bad record from
+      # killing the entire batch so the veteran still sees the rest of their results.
+      def log_record_parse_failure(record, error)
+        report_id = record.dig('resource', 'id')
+        log_adapter(
+          :error,
+          { resource: LABS, action: 'parse', anomaly: 'record_parse_failure',
+            report_id:, error_class: error.class.name, error_message: error.message },
+          "Failed to parse DiagnosticReport #{report_id}: #{error.class} - #{error.message}",
+          { service: 'unified_health_data' }
+        )
+        StatsD.increment('unified_health_data.lab_or_test.parse_failure')
+      end
+
+      # Logs when an individual observation within a DiagnosticReport fails to parse.
+      # Isolates one bad observation so the rest of the record's observations are still returned.
+      def log_observation_parse_failure(record, obs, error)
+        report_id = record.dig('resource', 'id')
+        observation_id = obs['id']
+        log_adapter(
+          :error,
+          { resource: LABS, action: 'parse', anomaly: 'observation_parse_failure',
+            report_id:, observation_id:, error_class: error.class.name, error_message: error.message },
+          "Failed to parse Observation #{observation_id} in DiagnosticReport #{report_id}: #{error.class} - #{error.message}",
+          { service: 'unified_health_data' }
+        )
+        StatsD.increment('unified_health_data.lab_or_test.observation_parse_failure')
       end
 
       def log_final_status_warning(record, status, encoded_data, observations)
@@ -352,7 +385,12 @@ module UnifiedHealthData
             next
           end
 
-          build_observation(obs, record['resource']['contained'])
+          begin
+            build_observation(obs, record['resource']['contained'])
+          rescue StandardError => e
+            log_observation_parse_failure(record, obs, e)
+            nil
+          end
         end
 
         # Log and track filtered observations
