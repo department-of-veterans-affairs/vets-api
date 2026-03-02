@@ -22,19 +22,16 @@ module UnifiedHealthData
         location_display = dispense.dig('location', 'display')
         return nil unless location_display
 
-        unless location_display.match?(VA_STATION_PATTERN)
-          Rails.logger.info("Skipping non-VA station identifier: #{location_display}")
-          return nil
-        end
+        facility_name = if location_display.match?(VA_STATION_PATTERN)
+                          three_digit_station = location_display[0, 3]
+                          # Try extended identifier first — more specific (e.g., 648A4 rather than just 648)
+                          resolve_extended_station(location_display,
+                                                   three_digit_station) || lookup(three_digit_station)
+                        end
 
-        three_digit_station = location_display[0, 3]
+        Rails.logger.info("Unresolved facility for location display: #{location_display}") if facility_name.nil?
 
-        # Try extended identifier first — more specific (e.g., 648A4 rather than just 648)
-        facility_name = resolve_extended_station(location_display, three_digit_station)
-        return facility_name if facility_name
-
-        # Fall back to 3-digit station number
-        lookup(three_digit_station)
+        facility_name
       end
 
       # Looks up facility name by station identifier with caching
