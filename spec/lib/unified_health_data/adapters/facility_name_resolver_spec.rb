@@ -99,7 +99,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
         end
       end
 
-      context 'when 3-digit lookup misses but full facility identifier exists' do
+      context 'when extended identifier resolves (e.g., 648A4)' do
         let(:dispense_with_extended_station) do
           {
             'resourceType' => 'MedicationDispense',
@@ -115,13 +115,13 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:648A4').and_return(true)
         end
 
-        it 'falls back to the full station identifier' do
+        it 'returns the extended facility name' do
           result = subject.resolve_facility_name(dispense_with_extended_station)
           expect(result).to eq('Full Station Facility')
         end
       end
 
-      context 'when 3-digit lookup misses but longer extended identifier exists (e.g., 528GQ01)' do
+      context 'when longer extended identifier resolves (e.g., 528GQ01)' do
         let(:dispense_with_long_extended_station) do
           {
             'resourceType' => 'MedicationDispense',
@@ -137,7 +137,7 @@ RSpec.describe UnifiedHealthData::Adapters::FacilityNameResolver do
           allow(Rails.cache).to receive(:exist?).with('uhd:facility_names:528GQ01').and_return(true)
         end
 
-        it 'falls back to the full extended station identifier' do
+        it 'returns the extended facility name' do
           result = subject.resolve_facility_name(dispense_with_long_extended_station)
           expect(result).to eq('Bath VA Medical Center')
         end

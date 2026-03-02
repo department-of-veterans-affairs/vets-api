@@ -27,13 +27,14 @@ module UnifiedHealthData
           return nil
         end
 
-        # First try the legacy 3-digit station number
         three_digit_station = location_display[0, 3]
-        facility_name = lookup(three_digit_station)
+
+        # Try extended identifier first — more specific (e.g., 648A4 rather than just 648)
+        facility_name = resolve_extended_station(location_display, three_digit_station)
         return facility_name if facility_name
 
-        # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
-        resolve_extended_station(location_display, three_digit_station)
+        # Fall back to 3-digit station number
+        lookup(three_digit_station)
       end
 
       # Looks up facility name by station identifier with caching
@@ -65,14 +66,7 @@ module UnifiedHealthData
 
         if facility_identifier.present? && facility_identifier != three_digit_station &&
            facility_identifier.match?(valid_station_regex)
-          facility_name = lookup(facility_identifier)
-          if facility_name.nil?
-            Rails.logger.info(
-              "No facility name found for facility identifier: #{facility_identifier} " \
-              "or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display"
-            )
-          end
-          return facility_name
+          return lookup(facility_identifier)
         end
 
         nil
