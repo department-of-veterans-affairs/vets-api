@@ -8,7 +8,7 @@ module SimpleFormsApi
     REMARKS_SLICE_1 = 0..1510
     REMARKS_SLICE_2 = 1511..3685
     ALLOTTED_REMARKS_LAST_INDEX = REMARKS_SLICE_2.end
-    CLAIMANT_TYPE_VETERAN = 'isVeteran'
+    CLAIMANT_TYPE_VETERAN = 'self'
 
     def desired_stamps
       [{
@@ -88,7 +88,7 @@ module SimpleFormsApi
       statement = data['statement'].to_s
       return statement if veteran_is_filing?
 
-      "#{build_claimant_header}\n\n#{statement}"
+      "#{build_claimant_header}\n\n\n#{statement}"
     end
 
     def overflow_pdf
