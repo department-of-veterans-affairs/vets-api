@@ -63,6 +63,16 @@ module CheckIn
     CIE_STATSD_VALIDATION_ERROR = 'api.check_in.travel_claim.validation.error'
     OH_STATSD_VALIDATION_ERROR = 'api.oracle_health.travel_claim.validation.error'
 
+    # V1 outcome metrics - CIE
+    CIE_STATSD_BTSSS_V1_SUCCESS = 'api.check_in.travel_claim.btsss.v1.success'
+    CIE_STATSD_BTSSS_V1_CLAIM_FAILURE = 'api.check_in.travel_claim.btsss.v1.claim.failure'
+    CIE_STATSD_BTSSS_V1_DUPLICATE = 'api.check_in.travel_claim.btsss.v1.duplicate'
+
+    # V1 outcome metrics - OH
+    OH_STATSD_BTSSS_V1_SUCCESS = 'api.oracle_health.travel_claim.btsss.v1.success'
+    OH_STATSD_BTSSS_V1_CLAIM_FAILURE = 'api.oracle_health.travel_claim.btsss.v1.claim.failure'
+    OH_STATSD_BTSSS_V1_DUPLICATE = 'api.oracle_health.travel_claim.btsss.v1.duplicate'
+
     # Error notification dispatched
     CIE_STATSD_ERROR_NOTIFICATION = 'api.check_in.travel_claim.error_notification'
     OH_STATSD_ERROR_NOTIFICATION = 'api.oracle_health.travel_claim.error_notification'

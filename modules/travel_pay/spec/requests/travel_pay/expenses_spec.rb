@@ -12,6 +12,7 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
     sign_in(user)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_complex_claims, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion, user).and_return(false)
 
     # Mock authentication to provide tokens for VCR cassettes
     auth_manager_double = instance_double(
@@ -19,7 +20,8 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
       authorize: {
         veis_token: 'veis_access_token_12345',
         btsss_token: 'btsss_access_token_67890'
-      }
+      },
+      user:
     )
     allow(TravelPay::AuthManager).to receive(:new).and_return(auth_manager_double)
   end
@@ -224,6 +226,137 @@ RSpec.describe TravelPay::V0::ExpensesController, type: :request do
              headers: { 'Authorization' => 'Bearer vagov_token' }
 
         expect(response).to have_http_status(:created)
+      end
+    end
+
+    context 'with HEIC receipt' do
+      let(:heic_receipt) do
+        heic_data = Rails.root.join('modules', 'travel_pay', 'spec', 'fixtures', 'pixel-working.heic').binread
+        {
+          'content_type' => 'image/heic',
+          'length' => heic_data.bytesize.to_s,
+          'file_name' => 'receipt.heic',
+          'file_data' => Base64.strict_encode64(heic_data)
+        }
+      end
+      let(:expense_params_with_heic) do
+        {
+          purchase_date: 1.day.ago.iso8601,
+          description: 'Parking with HEIC receipt',
+          cost_requested: 15.00,
+          receipt: heic_receipt
+        }
+      end
+
+      context 'when HEIC conversion flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_enable_heic_conversion, user).and_return(true)
+        end
+
+        it 'converts HEIC to JPG and creates the expense' do
+          expenses_client = instance_double(TravelPay::ExpensesClient)
+          allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+
+          received_body = nil
+          allow(expenses_client).to receive(:add_expense) do |_veis, _btsss, _type, body|
+            received_body = body
+            OpenStruct.new(body: { 'data' => { 'id' => expense_id } })
+          end
+
+          post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+               params: expense_params_with_heic,
+               headers: { 'Authorization' => 'Bearer vagov_token' }
+
+          expect(response).to have_http_status(:created)
+          expect(received_body['expenseReceipt']['contentType']).to eq('image/jpeg')
+          expect(received_body['expenseReceipt']['fileName']).to eq('receipt.jpg')
+        end
+
+        context 'when file_data is nil' do
+          let(:heic_receipt_nil_data) do
+            {
+              'content_type' => 'image/heic',
+              'length' => '0',
+              'file_name' => 'receipt.heic',
+              'file_data' => nil
+            }
+          end
+          let(:expense_params_with_nil_file_data) do
+            {
+              purchase_date: 1.day.ago.iso8601,
+              description: 'Parking with HEIC receipt missing data',
+              cost_requested: 15.00,
+              receipt: heic_receipt_nil_data
+            }
+          end
+
+          it 'skips conversion and passes receipt through unchanged' do
+            expenses_client = instance_double(TravelPay::ExpensesClient)
+            allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+
+            received_body = nil
+            allow(expenses_client).to receive(:add_expense) do |_veis, _btsss, _type, body|
+              received_body = body
+              OpenStruct.new(body: { 'data' => { 'id' => expense_id } })
+            end
+
+            post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+                 params: expense_params_with_nil_file_data,
+                 headers: { 'Authorization' => 'Bearer vagov_token' }
+
+            expect(response).to have_http_status(:created)
+            expect(received_body['expenseReceipt']['contentType']).to eq('image/heic')
+            expect(received_body['expenseReceipt']['fileName']).to eq('receipt.heic')
+          end
+        end
+
+        context 'when file_data is an empty string' do
+          let(:heic_receipt_empty_data) do
+            {
+              'content_type' => 'image/heic',
+              'length' => '0',
+              'file_name' => 'receipt.heic',
+              'file_data' => ''
+            }
+          end
+          let(:expense_params_with_empty_file_data) do
+            {
+              purchase_date: 1.day.ago.iso8601,
+              description: 'Parking with HEIC receipt empty data',
+              cost_requested: 15.00,
+              receipt: heic_receipt_empty_data
+            }
+          end
+
+          it 'skips conversion and passes receipt through unchanged' do
+            expenses_client = instance_double(TravelPay::ExpensesClient)
+            allow(TravelPay::ExpensesClient).to receive(:new).and_return(expenses_client)
+
+            received_body = nil
+            allow(expenses_client).to receive(:add_expense) do |_veis, _btsss, _type, body|
+              received_body = body
+              OpenStruct.new(body: { 'data' => { 'id' => expense_id } })
+            end
+
+            post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+                 params: expense_params_with_empty_file_data,
+                 headers: { 'Authorization' => 'Bearer vagov_token' }
+
+            expect(response).to have_http_status(:created)
+            expect(received_body['expenseReceipt']['contentType']).to eq('image/heic')
+            expect(received_body['expenseReceipt']['fileName']).to eq('receipt.heic')
+          end
+        end
+      end
+
+      context 'when HEIC conversion flag is disabled' do
+        it 'returns unprocessable entity' do
+          post "/travel_pay/v0/claims/#{claim_id}/expenses/parking",
+               params: expense_params_with_heic,
+               headers: { 'Authorization' => 'Bearer vagov_token' }
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
       end
     end
   end
