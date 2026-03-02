@@ -170,6 +170,36 @@ RSpec.describe BenefitsIntake::Service do
 
       service.bulk_status(uuids:)
     end
+
+    it 'raises max array size exceeded when flipper enabled and more than 1000 uuids are provided' do
+      allow(Flipper).to receive(:enabled?).with(:vba_documents_uploads_report_uuid_limit).and_return(true)
+      uuids = Array.new(1001) { |i| "uuid-#{i}" }
+
+      expect(service).not_to receive(:perform)
+      expect { service.bulk_status(uuids:) }.to raise_error(Common::Exceptions::MaxArraySizeExceeded)
+    end
+
+    it 'requests a status report when flipper enabled and 1000 uuids are provided' do
+      allow(Flipper).to receive(:enabled?).with(:vba_documents_uploads_report_uuid_limit).and_return(true)
+      uuids = Array.new(1000) { |i| "uuid-#{i}" }
+      headers = { 'Content-Type' => mime_json, 'Accept' => mime_json }
+      data = { ids: uuids }.to_json
+
+      expect(service).to receive(:perform).with(:post, 'uploads/report', data, headers)
+
+      service.bulk_status(uuids:)
+    end
+
+    it 'requests a status report when flipper disabled and more than 1000 uuids are provided' do
+      allow(Flipper).to receive(:enabled?).with(:vba_documents_uploads_report_uuid_limit).and_return(false)
+      uuids = Array.new(1001) { |i| "uuid-#{i}" }
+      headers = { 'Content-Type' => mime_json, 'Accept' => mime_json }
+      data = { ids: uuids }.to_json
+
+      expect(service).to receive(:perform).with(:post, 'uploads/report', data, headers)
+
+      service.bulk_status(uuids:)
+    end
   end
 
   describe '#download' do

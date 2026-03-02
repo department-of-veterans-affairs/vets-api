@@ -8,6 +8,15 @@ module V0
     service_tag 'tsa_letter'
     before_action { authorize :tsa_letter, :access? }
 
+    ERROR_MAP = {
+      401 => Common::Exceptions::Unauthorized,
+      500 => Common::Exceptions::ExternalServerInternalServerError,
+      501 => Common::Exceptions::NotImplemented
+    }.freeze
+    # 400 is a bad request, but it's unclear why this happens
+    # 403 indicates that the API doesn't know the user.
+    NONBLOCKING_STATUSES = [400, 403].freeze
+
     def show
       search_service = ClaimsEvidenceApi::Service::Search.new
       filters = { subject: ['VETS Safe Travel Outreach Letter'] }
@@ -18,11 +27,7 @@ module V0
       serialized = most_recent_letter(files)
       render(json: serialized)
     rescue Common::Client::Errors::ClientError => e
-      if e.respond_to?(:status) && e.status == 403
-        raise Common::Exceptions::RecordNotFound, current_user.user_account_uuid
-      else
-        raise e
-      end
+      handle_error(e)
     end
 
     def download
@@ -55,6 +60,22 @@ module V0
       raise Common::Exceptions::UnprocessableEntity,
             detail: "Invalid datetime format found in TSA letters data: #{datetimes.join(', ')}",
             source: self.class.name
+    end
+
+    def handle_error(error)
+      status = error.respond_to?(:status) && error.status
+      case status
+      when *ERROR_MAP.keys
+        error_class = ERROR_MAP[status]
+        raise error_class
+      when *NONBLOCKING_STATUSES
+        Rails.logger.info('TSA Letter Error',
+                          error_status: status,
+                          user_account_id: current_user.user_account_uuid)
+        render(json: { data: nil })
+      else
+        raise error
+      end
     end
   end
 end

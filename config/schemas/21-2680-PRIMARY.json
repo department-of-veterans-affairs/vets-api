@@ -284,10 +284,50 @@
           "example": "Springfield VA Medical Center"
         },
         "hospitalAddress": {
-          "type": "string",
-          "description": "Full address of hospital (required if currently hospitalized)",
-          "maxLength": 200,
-          "example": "789 Hospital Blvd, Springfield, IL 62701"
+          "type": "object",
+          "description": "Address of hospital (required if currently hospitalized)",
+          "additionalProperties": false,
+          "properties": {
+            "street": {
+              "type": "string",
+              "description": "Street address",
+              "maxLength": 30,
+              "example": "789 Hospital Blvd"
+            },
+            "street2": {
+              "type": "string",
+              "description": "Apartment or unit number",
+              "maxLength": 5,
+              "example": "ED"
+            },
+            "city": {
+              "type": "string",
+              "description": "City",
+              "maxLength": 18,
+              "example": "Albany"
+            },
+            "state": {
+              "type": "string",
+              "description": "State (two-letter abbreviation, required for US addresses)",
+              "maxLength": 2,
+              "pattern": "^[A-Z]{2}$",
+              "example": "NY"
+            },
+            "postalCode": {
+              "type": "string",
+              "description": "ZIP or postal code (5 or 9 digits for US addresses)",
+              "maxLength": 9,
+              "pattern": "^[0-9]{5}(-?[0-9]{4})?$",
+              "example": "12201"
+            },
+            "country": {
+              "type": "string",
+              "description": "Country (two or three-letter code)",
+              "maxLength": 3,
+              "pattern": "^[A-Z]{2,3}$",
+              "example": "USA"
+            }
+          }
         }
       },
       "allOf": [

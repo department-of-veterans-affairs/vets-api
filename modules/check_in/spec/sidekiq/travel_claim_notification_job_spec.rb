@@ -20,6 +20,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
     allow(notify_client).to receive(:send_sms)
     allow(Rails).to receive(:logger).and_return(test_logger)
     allow(test_logger).to receive(:info)
+    allow(test_logger).to receive(:warn)
     allow(test_logger).to receive(:error)
     allow(test_logger).to receive(:send)
     allow(Settings.vanotify.services.check_in).to receive(:api_key).and_return('test-api-key')
@@ -101,22 +102,35 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       job.perform(uuid, appointment_date, template_id, nil)
     end
 
-    it 'skips SMS sending and logs when appointment date is invalid' do
+    it 'sends SMS with fallback date when appointment date is invalid' do
       invalid_date = 'invalid-date'
-      job = described_class.new
-      message = 'CheckIn::TravelClaimNotificationJob: Failed to send Travel Claim Notification SMS: ' \
-                "invalid appointment date format, Won't Retry"
 
-      expect(notify_client).not_to receive(:send_sms)
-      expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
-      expect(test_logger).to receive(:send).with(:error, 'CheckIn::TravelClaimNotificationJob',
-                                                 hash_including(
-                                                   message:,
-                                                   uuid:,
-                                                   status: 'failed_no_retry'
-                                                 ))
+      expect(notify_client).to receive(:send_sms).with(
+        phone_number: mobile_phone,
+        template_id:,
+        sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
+        personalisation: { claim_number:, appt_date: 'N/A' }
+      )
+      expect(test_logger).to receive(:warn).with(
+        'CheckIn::TravelClaimNotificationJob: invalid appointment date format, continuing with fallback'
+      )
 
-      expect { job.perform(uuid, invalid_date, template_id, claim_number) }.not_to raise_error
+      described_class.new.perform(uuid, invalid_date, template_id, claim_number)
+
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
+    end
+
+    it 'sends SMS with fallback date when appointment date is nil' do
+      expect(notify_client).to receive(:send_sms).with(
+        phone_number: mobile_phone,
+        template_id:,
+        sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
+        personalisation: { claim_number:, appt_date: 'N/A' }
+      )
+
+      described_class.new.perform(uuid, nil, template_id, claim_number)
+
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
     end
 
     context 'when an error occurs during SMS sending' do
