@@ -217,7 +217,14 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
           detail: 'Expected completion in 5-7 business days',
           updated_at: Time.zone.parse('2024-01-15T10:30:00Z'),
           created_at: Time.zone.parse('2024-01-10T09:00:00Z'),
-          pdf_support: true
+          pdf_support: true,
+          card_metadata: {
+            form_title: nil,
+            presentable_form_id: nil,
+            confirmation_days: 30,
+            contact_phone: '8008271000',
+            contact_hours: '8:00 a.m. to 8:00 p.m. ET'
+          }
         )
       end
 
@@ -258,6 +265,15 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
         expect(attributes['pdf_support']).to be true
         expect(attributes['updated_at']).to eq('2024-01-15T10:30:00.000Z')
         expect(attributes['created_at']).to eq('2024-01-10T09:00:00.000Z')
+        expect(attributes['card_metadata']).to eq(
+          {
+            'form_title' => nil,
+            'presentable_form_id' => nil,
+            'confirmation_days' => 30,
+            'contact_phone' => '8008271000',
+            'contact_hours' => '8:00 a.m. to 8:00 p.m. ET'
+          }
+        )
       end
     end
   end

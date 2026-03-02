@@ -31,6 +31,15 @@ describe Forms::SubmissionStatuses::Formatters::IvcChampvaFormatter,
       expect(result.first.form_type).to eq('10-7959A')
       expect(result.first.status).to eq('vbms')
       expect(result.first.pdf_support).to be(false)
+      expect(result.first.card_metadata).to eq(
+        {
+          form_title: nil,
+          presentable_form_id: nil,
+          confirmation_days: 30,
+          contact_phone: '8008271000',
+          contact_hours: '8:00 a.m. to 8:00 p.m. ET'
+        }
+      )
     end
 
     it 'normalizes 10-10D-EXTENDED form type to 10-10D for card display' do
@@ -52,6 +61,15 @@ describe Forms::SubmissionStatuses::Formatters::IvcChampvaFormatter,
       result = formatter.format_data(dataset)
 
       expect(result.first.form_type).to eq('10-10D')
+      expect(result.first.card_metadata).to eq(
+        {
+          form_title: 'Application for CHAMPVA benefits',
+          presentable_form_id: 'Form 10-10d',
+          confirmation_days: 10,
+          contact_phone: '8007338387',
+          contact_hours: '8:00 a.m. to 7:30 p.m. ET'
+        }
+      )
     end
 
     it 'maps PEGA Not Processed status to error (action needed)' do

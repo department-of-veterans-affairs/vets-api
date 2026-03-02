@@ -290,6 +290,15 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
       expect(result.submission_statuses.size).to eq(1)
       expect(result.submission_statuses.first.form_type).to eq('10-10D')
       expect(result.submission_statuses.first.status).to eq('vbms')
+      expect(result.submission_statuses.first.card_metadata).to eq(
+        {
+          form_title: 'Application for CHAMPVA benefits',
+          presentable_form_id: 'Form 10-10d',
+          confirmation_days: 10,
+          contact_phone: '8007338387',
+          contact_hours: '8:00 a.m. to 7:30 p.m. ET'
+        }
+      )
     end
   end
 

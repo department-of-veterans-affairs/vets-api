@@ -21,15 +21,17 @@ module Forms
 
         def build_submissions_map(submissions)
           submissions.each_with_object({}) do |submission, hash|
+            form_type = submission.form_type
             hash[submission.benefits_intake_uuid] = OpenStruct.new(
               id: submission.benefits_intake_uuid,
               detail: nil,
-              form_type: submission.form_type,
+              form_type:,
               message: nil,
               status: nil,
               created_at: submission.created_at,
               updated_at: nil,
-              pdf_support: pdf_supported?(submission)
+              pdf_support: pdf_supported?(submission),
+              card_metadata: card_metadata_for(form_type)
             )
           end
         end
