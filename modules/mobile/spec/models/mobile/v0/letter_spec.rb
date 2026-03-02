@@ -32,13 +32,12 @@ RSpec.describe Mobile::V0::Letter, type: :model do
       let(:letter) do
         described_class.new(letter_type: 'foreign_medical_program', name: 'Foreign Medical Program Letter')
       end
-      let(:icn) { '24811694708759028' }
+      let(:user) { build(:user) }
 
       context 'when fmp_benefits_authorization_letter flag is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter).and_return(false)
-          allow(Flipper).to receive(:enabled?)
-            .with(:fmp_benefits_authorization_letter, Flipper::Actor.new(icn)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(false)
         end
 
         it 'returns false' do
@@ -46,15 +45,14 @@ RSpec.describe Mobile::V0::Letter, type: :model do
         end
 
         it 'returns false for actor-aware checks' do
-          expect(letter.displayable?(icn)).to be(false)
+          expect(letter.displayable?(user)).to be(false)
         end
       end
 
       context 'when fmp_benefits_authorization_letter flag is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter).and_return(true)
-          allow(Flipper).to receive(:enabled?)
-            .with(:fmp_benefits_authorization_letter, Flipper::Actor.new(icn)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(true)
         end
 
         it 'returns true' do
@@ -62,7 +60,7 @@ RSpec.describe Mobile::V0::Letter, type: :model do
         end
 
         it 'returns true for actor-aware checks' do
-          expect(letter.displayable?(icn)).to be(true)
+          expect(letter.displayable?(user)).to be(true)
         end
       end
     end

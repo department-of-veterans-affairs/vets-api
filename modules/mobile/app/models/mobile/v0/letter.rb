@@ -48,14 +48,14 @@ module Mobile
         super
       end
 
-      def displayable?(icn = nil)
+      def displayable?(user = nil)
         return false unless self.class::VISIBLE_TYPES.include?(letter_type)
 
-        # Hide foreign_medical_program behind feature flag
+        # Hide foreign_medical_program behind user-specific feature flag
         if letter_type == 'foreign_medical_program'
-          return Flipper.enabled?(:fmp_benefits_authorization_letter) if icn.nil?
+          return Flipper.enabled?(:fmp_benefits_authorization_letter) if user.nil?
 
-          return Flipper.enabled?(:fmp_benefits_authorization_letter, Flipper::Actor.new(icn))
+          return Flipper.enabled?(:fmp_benefits_authorization_letter, user)
         end
 
         true

@@ -41,14 +41,14 @@ module Lighthouse
         response.body
       end
 
-      def get_eligible_letter_types(icn)
+      def get_eligible_letter_types(icn, user = nil)
         endpoint = 'eligible-letters'
         log = "Retrieving eligible letter types and destination from #{config.generator_url}/#{endpoint}"
         params = { icn: }
 
         response = get_from_lighthouse(endpoint, params, log)
         {
-          letters: transform_letters(response.body['letters'], icn),
+          letters: transform_letters(response.body['letters'], user),
           letter_destination: response.body['letterDestination']
         }
       end
@@ -74,13 +74,13 @@ module Lighthouse
         response.body
       end
 
-      def valid_type?(letter_type, icn = nil)
-        letter_types(icn).include? letter_type.downcase
+      def valid_type?(letter_type, user = nil)
+        letter_types(user).include? letter_type.downcase
       end
 
       private
 
-      def letter_types(icn = nil)
+      def letter_types(user = nil)
         list = %w[
           benefit_summary
           benefit_summary_dependent
@@ -94,14 +94,14 @@ module Lighthouse
           service_verification
         ]
         list = list.excluding('service_verification') if Flipper.enabled?(:letters_hide_service_verification_letter)
-        list << 'foreign_medical_program' if fmp_benefits_authorization_letter_enabled?(icn)
+        list << 'foreign_medical_program' if fmp_benefits_authorization_letter_enabled?(user)
         list.to_set.freeze
       end
 
-      def fmp_benefits_authorization_letter_enabled?(icn = nil)
-        return Flipper.enabled?(:fmp_benefits_authorization_letter) if icn.blank?
+      def fmp_benefits_authorization_letter_enabled?(user = nil)
+        return Flipper.enabled?(:fmp_benefits_authorization_letter) if user.blank?
 
-        Flipper.enabled?(:fmp_benefits_authorization_letter, Flipper::Actor.new(icn))
+        Flipper.enabled?(:fmp_benefits_authorization_letter, user)
       end
 
       def get_from_lighthouse(endpoint, params, log)
@@ -130,8 +130,8 @@ module Lighthouse
         )
       end
 
-      def transform_letters(letters, icn = nil)
-        letters.select! { |l| valid_type?(l['letterType'], icn) }
+      def transform_letters(letters, user = nil)
+        letters.select! { |l| valid_type?(l['letterType'], user) }
         letters.map do |letter|
           {
             letterType: letter['letterType'].downcase,

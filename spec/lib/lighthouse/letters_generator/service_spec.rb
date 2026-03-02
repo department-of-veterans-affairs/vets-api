@@ -38,12 +38,11 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       end
 
       it 'checks actor-aware flag for foreign_medical_program letter type' do
-        icn = '1012666073V986297'
-        allow(Flipper).to receive(:enabled?)
-          .with(:fmp_benefits_authorization_letter, Flipper::Actor.new(icn)).and_return(true)
+        user = build(:user)
+        allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(true)
         service = Lighthouse::LettersGenerator::Service.new
 
-        is_valid = service.valid_type?('foreign_medical_program', icn)
+        is_valid = service.valid_type?('foreign_medical_program', user)
         expect(is_valid).to be(true)
       end
     end
@@ -58,12 +57,11 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       end
 
       it 'checks actor-aware flag for foreign_medical_program letter type' do
-        icn = '1012666073V986297'
-        allow(Flipper).to receive(:enabled?)
-          .with(:fmp_benefits_authorization_letter, Flipper::Actor.new(icn)).and_return(false)
+        user = build(:user)
+        allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(false)
         service = Lighthouse::LettersGenerator::Service.new
 
-        is_valid = service.valid_type?('foreign_medical_program', icn)
+        is_valid = service.valid_type?('foreign_medical_program', user)
         expect(is_valid).to be(false)
       end
     end

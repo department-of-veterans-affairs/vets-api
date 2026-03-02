@@ -37,7 +37,7 @@ module Mobile
 
       # returns list of letters available for a given user. List includes letter display name and letter type
       def index
-        letters = lighthouse_service.get_eligible_letter_types(icn)[:letters]
+        letters = lighthouse_service.get_eligible_letter_types(icn, @current_user)[:letters]
         response = letters.filter_map do |letter|
           # The following letters need to be filtered out due to outdated content
           next if FILTERED_LETTER_TYPES.include? letter[:letterType]
@@ -47,7 +47,7 @@ module Mobile
         response.append(get_coe_letter_type).compact! if Flipper.enabled?(:mobile_coe_letter_use_lgy_service,
                                                                           @current_user) && coe_app_version?
 
-        displayable_letters = response.select { |letter| letter.displayable?(icn) }
+        displayable_letters = response.select { |letter| letter.displayable?(@current_user) }
         render json: Mobile::V0::LettersSerializer.new(@current_user, displayable_letters.sort_by(&:name))
       end
 
@@ -113,7 +113,7 @@ module Mobile
       end
 
       def validate_letter_type!
-        unless lighthouse_service.valid_type?(params[:type], icn) || (
+        unless lighthouse_service.valid_type?(params[:type], @current_user) || (
           Flipper.enabled?(:mobile_coe_letter_use_lgy_service,
                            @current_user) && params[:type] == COE_LETTER_TYPE
         )
