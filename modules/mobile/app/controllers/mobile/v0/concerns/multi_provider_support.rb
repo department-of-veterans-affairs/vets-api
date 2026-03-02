@@ -84,7 +84,7 @@ module Mobile
           provider_class = PROVIDER_TYPE_MAPPINGS[normalized_type]
 
           if provider_class.nil?
-            raise Common::Exceptions::ParameterMissing.new('type', detail: "Unknown provider type: #{type}")
+            raise Common::Exceptions::InvalidFieldValue.new('type', type)
           end
 
           provider_class

@@ -2587,10 +2587,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         context 'with invalid provider type' do
-          it 'raises ParameterMissing exception' do
+          it 'raises InvalidFieldValue exception' do
             expect do
               controller.send(:get_claim_from_providers, claim_id, 'invalid-provider')
-            end.to raise_error(Common::Exceptions::ParameterMissing)
+            end.to raise_error(Common::Exceptions::InvalidFieldValue)
           end
         end
       end
