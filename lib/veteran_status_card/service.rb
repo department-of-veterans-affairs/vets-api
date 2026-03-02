@@ -98,23 +98,35 @@ module VeteranStatusCard
     #         not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #
     def status_card # rubocop:disable Metrics/MethodLength
+      # Check up front that the ICN is present, as this is required for the VetVerificationStatus service
       if @user&.icn.blank?
         @confirmation_status = NO_ICN_MESSAGE
         log_missing_fields
         return person_not_found_response_hash
       end
 
+      # If the ICN is present, check if the VetVerificationStatus is confirmed first
+      if vet_verification_eligible?
+        log_vsc_result(confirmed: true)
+        return eligible_response
+      end
+
+      # If the VetVerificationStatus is not confirmed, check that EDIPI is present as this
+      # is required for the VAProfile request
       if @user&.edipi.blank?
         @confirmation_status = NO_EDIPI_MESSAGE
         log_missing_fields
         return person_not_found_response_hash
       end
 
-      if eligible?
+      # If the EDIPI is present, check for SSC eligibility through VAProfile
+      if ssc_eligible?
         log_vsc_result(confirmed: true)
-
         eligible_response
       else
+        # If we've hit this point, ICN and EDIPI are present but neither VetVerificationStatus
+        # nor VAProfile showed eligible; from here we check the error details to send
+        # back to the user
         error_details = error_results
 
         log_vsc_result(confirmed: false)
@@ -335,16 +347,6 @@ module VeteranStatusCard
           service_summary_code: ssc_code
         }
       }
-    end
-
-    ##
-    # Determines if the veteran is eligible for a status card
-    # Checks vet verification status first, then falls back to SSC code eligibility
-    #
-    # @return [Boolean] true if eligible, false otherwise
-    #
-    def eligible?
-      vet_verification_eligible? || ssc_eligible?
     end
 
     ##

@@ -297,7 +297,10 @@ RSpec.describe VeteranStatusCard::Service do
         end
       end
 
-      context 'when user is missing EDIPI but has ICN' do
+      context 'when user is missing EDIPI but has ICN and vet verification is not confirmed' do
+        let(:veteran_status) { 'not confirmed' }
+        let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
         before do
           allow(user).to receive(:edipi).and_return(nil)
         end
@@ -316,6 +319,27 @@ RSpec.describe VeteranStatusCard::Service do
 
           expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
           expect(StatsD).to have_received(:increment).with('veteran_status_card.no_edipi')
+        end
+
+        it 'does not call the DoD service' do
+          subject.status_card
+
+          expect(military_personnel_service).not_to have_received(:get_dod_service_summary)
+        end
+      end
+
+      context 'when user is missing EDIPI but vet verification confirms' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(user).to receive(:edipi).and_return(nil)
+        end
+
+        it 'returns eligible_response without requiring EDIPI' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_card')
+          expect(result[:attributes][:veteran_status]).to eq('confirmed')
         end
       end
     end
@@ -793,36 +817,6 @@ RSpec.describe VeteranStatusCard::Service do
             end
           end
         end
-      end
-    end
-  end
-
-  describe '#eligible?' do
-    context 'when vet_verification_eligible? returns true' do
-      let(:veteran_status) { 'confirmed' }
-
-      it 'returns true' do
-        expect(subject.send(:eligible?)).to be true
-      end
-    end
-
-    context 'when ssc_eligible? returns true' do
-      let(:veteran_status) { 'not confirmed' }
-      let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
-      let(:ssc_code) { 'A1' }
-
-      it 'returns true' do
-        expect(subject.send(:eligible?)).to be true
-      end
-    end
-
-    context 'when neither condition is met' do
-      let(:veteran_status) { 'not confirmed' }
-      let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
-      let(:ssc_code) { 'U' }
-
-      it 'returns false' do
-        expect(subject.send(:eligible?)).to be false
       end
     end
   end
