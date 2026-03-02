@@ -161,8 +161,8 @@ module AccreditedRepresentativePortal
       def send_confirmation_email(saved_claim)
         AccreditedRepresentativePortal::NotificationEmail.new(saved_claim.id).deliver(:confirmation)
       rescue => e
-        monitor(saved_claim).track_send_email_failure(saved_claim, intake_service, current_user.user_account_uuid,
-                                                      'confirmation', e)
+        ar_monitoring.track_count('ar.itf.confirmation_email.error', tags: default_tags)
+        Rails.logger.error("ARP ITF: Failed to send confirmation email - #{e.class}: #{e.message.truncate(100)}")
       end
 
       def validate_file_type
