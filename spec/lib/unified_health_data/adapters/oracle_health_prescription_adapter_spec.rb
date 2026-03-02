@@ -15,6 +15,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     allow(Rails.cache).to receive(:exist?).and_return(false)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:warn)
+    facility = instance_double(HealthFacility, name: 'Portland VA Medical Center')
+    allow(HealthFacility).to receive(:find_by).and_return(facility)
   end
 
   describe '#parse' do
@@ -88,6 +90,38 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         )
         expect(subject.parse(resource)).to be_nil
       end
+
+      it 'filters out cancelled medications by default' do
+        resource = base_fhir_resource.merge('status' => 'cancelled')
+        expect(subject.parse(resource)).to be_nil
+      end
+
+      it 'filters out entered-in-error medications by default' do
+        resource = base_fhir_resource.merge('status' => 'entered-in-error')
+        expect(subject.parse(resource)).to be_nil
+      end
+
+      it 'uses configured filtered_statuses from Settings when present' do
+        allow(Settings.mhv.uhd).to receive(:medication_filtered_statuses).and_return('cancelled,stopped')
+        adapter = described_class.new
+
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'cancelled'))).to be_nil
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'stopped'))).to be_nil
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'entered-in-error'))).not_to be_nil
+      end
+
+      it 'disables status filtering when configured as "none"' do
+        allow(Settings.mhv.uhd).to receive(:medication_filtered_statuses).and_return('none')
+        adapter = described_class.new
+
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'cancelled'))).not_to be_nil
+        expect(adapter.parse(base_fhir_resource.merge('status' => 'entered-in-error'))).not_to be_nil
+      end
+
+      it 'does not filter active medications' do
+        resource = base_fhir_resource.merge('status' => 'active')
+        expect(subject.parse(resource)).not_to be_nil
+      end
     end
 
     context 'with refillability' do
@@ -127,6 +161,16 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         resource['dispenseRequest'].delete('validityPeriod')
 
         result = subject.parse(resource)
+        expect(result.is_refillable).to be false
+      end
+
+      it 'marks prescription as not refillable when facility cannot be resolved' do
+        allow(HealthFacility).to receive(:find_by).and_return(nil)
+        allow_any_instance_of(Lighthouse::Facilities::V1::Client).to receive(:get_facilities).and_return([])
+
+        resource = fhir_resource(status: 'active', refills: 5, expiration: 1.year.from_now, source: 'VA')
+        result = subject.parse(resource)
+        expect(result.facility_name).to be_nil
         expect(result.is_refillable).to be false
       end
     end
@@ -204,9 +248,10 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.refill_status).to eq('providerHold')
       end
 
-      it 'maps cancelled status to "discontinued" refill_status' do
-        resource = base_fhir_resource.merge('status' => 'cancelled')
-        result = subject.parse(resource)
+      it 'maps stopped status to "discontinued" refill_status' do
+        allow(Settings.mhv.uhd).to receive(:medication_filtered_statuses).and_return('none')
+        resource = base_fhir_resource.merge('status' => 'stopped')
+        result = described_class.new.parse(resource)
         expect(result.refill_status).to eq('discontinued')
       end
 
