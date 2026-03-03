@@ -28,7 +28,7 @@ module IncreaseCompensation
     def metadata
       {
         version: 0,
-        prefill: true,
+        prefill: prefill_enabled?,
         returnUrl: '/confirmation-question'
       }
     end
