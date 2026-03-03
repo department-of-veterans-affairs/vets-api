@@ -14,6 +14,10 @@ RSpec.describe Lighthouse::SubmitCareerCounselingJob do
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_notify_v2_career_counseling_job).and_return(false)
+    end
+
     it 'sends to central mail' do
       expect_any_instance_of(SavedClaim::EducationCareerCounselingClaim).to receive(:send_to_benefits_intake!)
 
@@ -30,37 +34,89 @@ RSpec.describe Lighthouse::SubmitCareerCounselingJob do
   end
 
   describe '#send_confirmation_email' do
-    context 'user logged in' do
-      let(:user) { create(:evss_user, :loa3) }
+    context 'when va_notify_v2_career_counseling_job is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_career_counseling_job).and_return(false)
+      end
 
-      it 'calls the VA notify email job with the user email' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user.va_profile_email,
-          'career_counseling_confirmation_email_template_id',
-          {
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'DERRICK'
-          }
-        )
+      context 'user logged in' do
+        let(:user) { create(:evss_user, :loa3) }
 
-        job.instance_variable_set(:@claim, claim)
-        job.send_confirmation_email(user.uuid)
+        it 'calls VANotify::EmailJob with the user email' do
+          expect(VANotify::EmailJob).to receive(:perform_async).with(
+            user.va_profile_email,
+            'career_counseling_confirmation_email_template_id',
+            {
+              'date' => Time.zone.today.strftime('%B %d, %Y'),
+              'first_name' => 'DERRICK'
+            }
+          )
+          expect(VANotify::V2::QueueEmailJob).not_to receive(:enqueue)
+
+          job.instance_variable_set(:@claim, claim)
+          job.send_confirmation_email(user.uuid)
+        end
+      end
+
+      context 'user not logged in' do
+        it 'calls VANotify::EmailJob with the claimant email' do
+          expect(VANotify::EmailJob).to receive(:perform_async).with(
+            'foo@foo.com',
+            'career_counseling_confirmation_email_template_id',
+            {
+              'date' => Time.zone.today.strftime('%B %d, %Y'),
+              'first_name' => 'DERRICK'
+            }
+          )
+          expect(VANotify::V2::QueueEmailJob).not_to receive(:enqueue)
+
+          job.instance_variable_set(:@claim, claim)
+          job.send_confirmation_email(nil)
+        end
       end
     end
 
-    context 'user not logged in' do
-      it 'calls the VA notify email job with the claimant email' do
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          'foo@foo.com',
-          'career_counseling_confirmation_email_template_id',
-          {
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
-            'first_name' => 'DERRICK'
-          }
-        )
+    context 'when va_notify_v2_career_counseling_job is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_v2_career_counseling_job).and_return(true)
+      end
 
-        job.instance_variable_set(:@claim, claim)
-        job.send_confirmation_email(nil)
+      context 'user logged in' do
+        let(:user) { create(:evss_user, :loa3) }
+
+        it 'calls VANotify::V2::QueueEmailJob.enqueue with the user email' do
+          expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(
+            user.va_profile_email,
+            'career_counseling_confirmation_email_template_id',
+            {
+              'date' => Time.zone.today.strftime('%B %d, %Y'),
+              'first_name' => 'DERRICK'
+            },
+            'Settings.vanotify.services.va_gov.api_key'
+          )
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
+
+          job.instance_variable_set(:@claim, claim)
+          job.send_confirmation_email(user.uuid)
+        end
+      end
+
+      context 'user not logged in' do
+        it 'calls VANotify::V2::QueueEmailJob.enqueue with the claimant email' do
+          expect(VANotify::V2::QueueEmailJob).to receive(:enqueue).with(
+            'foo@foo.com',
+            'career_counseling_confirmation_email_template_id',
+            {
+              'date' => Time.zone.today.strftime('%B %d, %Y'),
+              'first_name' => 'DERRICK'
+            },
+            'Settings.vanotify.services.va_gov.api_key'
+          )
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
+
+          job.instance_variable_set(:@claim, claim)
+          job.send_confirmation_email(nil)
+        end
       end
     end
   end

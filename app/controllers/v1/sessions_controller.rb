@@ -56,7 +56,9 @@ module V1
       delete_sign_in_service_cookies
 
       if type == 'slo'
-        Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}", sso_logging_info)
+        session_duration = @session_created_at ? (Time.zone.now.to_i - @session_created_at.to_i) : nil
+        Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}",
+                          sso_logging_info.merge(session_duration:, user_uuid: @user_uuid).compact)
         reset_session
         url = URI.parse(url_service.ssoe_slo_url)
 
@@ -158,6 +160,8 @@ module V1
       elsif params[:type] == 'slo'
         # load the session object and current user before attempting to destroy
         load_user
+        @session_created_at = @session_object&.created_at
+        @user_uuid = @current_user&.uuid
         reset_session
       else
         reset_session

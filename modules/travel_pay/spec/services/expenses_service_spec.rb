@@ -23,7 +23,7 @@ describe TravelPay::ExpensesService do
 
   describe 'create_expense' do
     before do
-      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens, user:)
       @expenses_client = instance_double(TravelPay::ExpensesClient)
       @service = TravelPay::ExpensesService.new(auth_manager)
     end
@@ -359,7 +359,7 @@ describe TravelPay::ExpensesService do
   end
 
   describe '#update_expense' do
-    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
+    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }, user:) }
     let(:params) do
       {
         'expense_type' => 'lodging',
@@ -424,7 +424,7 @@ describe TravelPay::ExpensesService do
   end
 
   describe '#delete_expense' do
-    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
+    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }, user:) }
     let(:service) { described_class.new(auth_manager) }
     let(:client_double) { instance_double(TravelPay::ExpensesClient) }
     let(:expense_id) { '123e4567-e89b-12d3-a456-426614174000' }
@@ -456,7 +456,7 @@ describe TravelPay::ExpensesService do
   end
 
   describe '#build_expense_request_body (private method)' do
-    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }) }
+    let(:auth_manager) { instance_double(TravelPay::AuthManager, authorize: { veis_token: 'veis_token', btsss_token: 'btsss_token' }, user:) }
     let(:service) { described_class.new(auth_manager) }
 
     # Access private method for testing
