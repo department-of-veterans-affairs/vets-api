@@ -138,6 +138,19 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               expect(SimpleFormsApi::Mms::IbmUploadJob).to have_received(:perform_async)
               with(expected_payload, data['form_number'], confirmation_number)
             end
+
+            it 'logs message that IBM upload job is queued' do
+              expect(Rails.logger).to receive(:info).with(
+                'Simple Forms API - IbmUploadJob Queued',
+                hash_including(
+                  jid: 'job-id-123',
+                  form_number: data['form_number'],
+                  confirmation_number:
+                )
+              )
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+            end
           end
         end
       end
