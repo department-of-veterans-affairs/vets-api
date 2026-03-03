@@ -790,7 +790,7 @@ module IvcChampva
         error_messages = ['Server error occurred']
 
         begin
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -860,7 +860,7 @@ module IvcChampva
         error_messages = ['Server error occurred']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
