@@ -37,10 +37,68 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   describe '#alt_rev_validate_form_526_disabilities' do
     describe '#alt_rev_validate_disabilities_total' do
-      let(:max_value_allowed) { 2 }
+      let(:max_value_allowed) { 6 }
 
       before do
         stub_const('ClaimsApi::V2::AltRevisedDisabilityCompensationValidation::DISABILITY_COUNT_MAX', max_value_allowed)
+      end
+
+      context 'when the count is at or below the max allowed' do
+        it 'does not raise an error when the count is equal to the max' do
+          test_526_validation_instance.instance_variable_set(:@form_attributes,
+                                                             { 'disabilities' => Array.new(6) do
+                                                               { 'name' => 'PTSD' }
+                                                             end })
+
+          subject.send(:alt_rev_validate_disabilities_total)
+
+          expect(current_error_array).to be_nil
+        end
+
+        it 'does not raise an error when the count is below to the max' do
+          test_526_validation_instance.instance_variable_set(:@form_attributes,
+                                                             { 'disabilities' => Array.new(4) do
+                                                               { 'name' => 'PTSD' }
+                                                             end })
+
+          subject.send(:alt_rev_validate_disabilities_total)
+
+          expect(current_error_array).to be_nil
+        end
+      end
+
+      context 'when the count is above the max allowed' do
+        it 'raises a 422 when the count is above the max' do
+          test_526_validation_instance.instance_variable_set(:@form_attributes,
+                                                             { 'disabilities' => Array.new(7) do
+                                                               { 'name' => 'PTSD' }
+                                                             end })
+
+          subject.send(:alt_rev_validate_disabilities_total)
+
+          expect(current_error_array.count).to eq(1)
+          expect(current_error_array[0][:detail]).to eq(
+            "A maximum of #{max_value_allowed} disabilities allowed"
+          )
+        end
+
+        it 'raises a 422 when the count, including flattened secondary disabilities, is above the max' do
+          # 4 disabilities would pass, but this ends up being 8 in total when flattened
+          test_526_validation_instance.instance_variable_set(:@form_attributes,
+                                                             { 'disabilities' => Array.new(4) do
+                                                               { 'name' => 'PTSD',
+                                                                 'secondaryDisabilities' => Array.new(1) do
+                                                                   { 'name' => 'secondary disability' }
+                                                                 end }
+                                                             end })
+
+          subject.send(:alt_rev_validate_disabilities_total)
+
+          expect(current_error_array.count).to eq(1)
+          expect(current_error_array[0][:detail]).to eq(
+            "A maximum of #{max_value_allowed} disabilities allowed"
+          )
+        end
       end
     end
   end
