@@ -1932,7 +1932,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               end
 
               response_obj = JSON.parse(response.body)
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:unprocessable_content)
               error = response_obj['errors'].first
               expect(error['title']).to eq('Appointment creation failed')
               expect(error['detail']).to eq('No new appointment created: referral is already used')
@@ -1956,7 +1956,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
 
           response_obj = JSON.parse(response.body)
-          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to have_http_status(:unprocessable_content)
           expect(response_obj['errors'].first['title']).to eq('Appointment creation failed')
           expect(response_obj['errors'].first['detail']).to eq('No new appointment created: referral is already used')
         end
