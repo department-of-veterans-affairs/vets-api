@@ -349,6 +349,34 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               json_response = JSON.parse(response.body)
               expect(json_response['formData']).not_to have_key('additional_information')
             end
+
+            it 'preserves additionalInformation when it contains text' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = 'Additional information text.'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additionalInformation']).to eq('Additional information text.')
+            end
+
+            it 'preserves additional_information when it contains text' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = 'Additional information text.'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additional_information']).to eq('Additional information text.')
+            end
           end
 
           context 'when fix_duplicate_key_ipf toggle is OFF' do

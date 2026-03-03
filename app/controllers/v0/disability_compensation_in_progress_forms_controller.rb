@@ -51,23 +51,12 @@ module V0
       FormProfiles::VA526ez::FORM_ID
     end
 
-    def data_and_metadata_with_updated_rated_disabilities # rubocop:disable Metrics/MethodLength
+    def data_and_metadata_with_updated_rated_disabilities
       parsed_form_data = JSON.parse(form_for_user.form_data)
       metadata = form_for_user.metadata
 
       # If EVSS's list of rated disabilities does not match our prefilled rated disabilities
-      if rated_disabilities_evss.present? &&
-         arr_to_compare(parsed_form_data&.dig('ratedDisabilities')) !=
-         arr_to_compare(rated_disabilities_evss&.rated_disabilities&.map(&:attributes))
-
-        if parsed_form_data['ratedDisabilities'].present? &&
-           parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
-          metadata['returnUrl'] = '/disabilities/rated-disabilities'
-        end
-        # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
-        evss_rated_disabilities = rated_disabilities_evss&.rated_disabilities&.map(&:as_json)
-        parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
-      end
+      update_rated_disabilities(parsed_form_data, metadata)
 
       # for Toxic Exposure 1.1 - add indicator to In Progress Forms
       # moving forward, we don't want to change the version if it is already there
@@ -90,9 +79,7 @@ module V0
       # TODO: Remove this cleanup block after 2/9/2027 or once all IPFs created between 2/3/2026 and 2/9/2026
       # have successfully submitted.
       if Flipper.enabled?(:disability_compensation_fix_duplicate_key_ipf, @current_user)
-        %w[additionalInformation additional_information].each do |key|
-          parsed_form_data.delete(key) if parsed_form_data[key] == {}
-        end
+        purge_duplicate_additional_information(parsed_form_data)
       end
 
       {
@@ -164,6 +151,27 @@ module V0
     rescue
       # if the call to EVSS fails we can skip updating. EVSS fails around an hour each night.
       nil
+    end
+
+    def update_rated_disabilities(form_data, metadata)
+      if rated_disabilities_evss.present? &&
+         arr_to_compare(form_data&.dig('ratedDisabilities')) !=
+         arr_to_compare(rated_disabilities_evss&.rated_disabilities&.map(&:attributes))
+
+        if form_data['ratedDisabilities'].present? &&
+           form_data.dig('view:claimType', 'view:claimingIncrease')
+          metadata['returnUrl'] = '/disabilities/rated-disabilities'
+        end
+        # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
+        evss_rated_disabilities = rated_disabilities_evss&.rated_disabilities&.map(&:as_json)
+        form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
+      end
+    end
+
+    def purge_duplicate_additional_information(form_data)
+      %w[additionalInformation additional_information].each do |key|
+        form_data.delete(key) if form_data[key] == {}
+      end
     end
 
     def arr_to_compare(rated_disabilities)
