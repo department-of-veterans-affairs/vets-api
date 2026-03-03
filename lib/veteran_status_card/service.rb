@@ -16,29 +16,29 @@ module VeteranStatusCard
     STATSD_SUCCESS = 'success'
 
     # Messages for user's missing fields
-    NO_ICN_MESSAGE = 'no_icn'
-    NO_EDIPI_MESSAGE = 'no_edipi'
+    NO_ICN_MESSAGE = 'ineligible_no_icn'
+    NO_EDIPI_MESSAGE = 'ineligible_no_edipi'
 
     # Default value in case SSC codes are never checked
-    NO_SSC_CHECK_MESSAGE = 'no_ssc_check'
+    ELIGIBLE_NO_SSC_CHECK_MESSAGE = 'eligible_no_ssc_check'
+    INELIGIBLE_NO_SSC_CHECK_MESSAGE = 'ineligible_no_ssc_check'
 
     # Ineligibility reasons based on logic
     # Used in logging, responses to the frontend, and StatsD suffixes
-    DISHONORABLE_SSC_MESSAGE = 'dishonorable_ssc'
-    INELIGIBLE_SSC_MESSAGE = 'ineligible_ssc'
-    UNKNOWN_SSC_MESSAGE = 'unknown_ssc'
-    EDIPI_NO_PNL_SSC_MESSAGE = 'edipi_no_pnl_ssc'
-    CURRENTLY_SERVING_SSC_MESSAGE = 'currently_serving_ssc'
-    ERROR_SSC_MESSAGE = 'error_ssc'
-    UNCAUGHT_SSC_MESSAGE = 'uncaught_ssc'
-    UNKNOWN_REASON_MESSAGE = 'unknown_reason'
+    DISHONORABLE_SSC_MESSAGE = 'ineligible_dishonorable_ssc'
+    INELIGIBLE_SERVICE_SSC_MESSAGE = 'ineligible_service_ssc'
+    UNKNOWN_SSC_MESSAGE = 'ineligible_unknown_ssc'
+    EDIPI_NO_PNL_SSC_MESSAGE = 'ineligible_edipi_no_pnl_ssc'
+    CURRENTLY_SERVING_SSC_MESSAGE = 'ineligible_currently_serving_ssc'
+    ERROR_SSC_MESSAGE = 'ineligible_error_ssc'
+    UNCAUGHT_SSC_MESSAGE = 'ineligible_uncaught_ssc'
 
     # Confirmed SSC messages
-    AD_DSCH_VAL_SSC_MESSAGE = 'ad_dsch_val_ssc'
-    AD_VAL_PREV_QUAL_SSC_MESSAGE = 'ad_val_prev_qual_ssc'
-    AD_VAL_PREV_RES_GRD_SSC_MESSAGE = 'ad_val_prev_res_grd_ssc'
-    AD_UNCHAR_DSCH_SSC_MESSAGE = 'ad_unchar_dsch_ssc'
-    VAL_PREV_QUAL_SSC_MESSAGE = 'val_prev_qual_ssc'
+    AD_DSCH_VAL_SSC_MESSAGE = 'eligible_ad_dsch_val_ssc'
+    AD_VAL_PREV_QUAL_SSC_MESSAGE = 'eligible_ad_val_prev_qual_ssc'
+    AD_VAL_PREV_RES_GRD_SSC_MESSAGE = 'eligible_ad_val_prev_res_grd_ssc'
+    AD_UNCHAR_DSCH_SSC_MESSAGE = 'eligible_ad_unchar_dsch_ssc'
+    VAL_PREV_QUAL_SSC_MESSAGE = 'eligible_val_prev_qual_ssc'
 
     # Response type constants
     VETERAN_STATUS_CARD = 'veteran_status_card'
@@ -111,6 +111,7 @@ module VeteranStatusCard
 
       # If the ICN is present, check if the VetVerificationStatus is confirmed first
       if vet_verification_eligible?
+        @confirmation_status = ELIGIBLE_NO_SSC_CHECK_MESSAGE
         log_vsc_result(confirmed: true)
         return eligible_response
       end
@@ -381,7 +382,7 @@ module VeteranStatusCard
         @confirmation_status = DISHONORABLE_SSC_MESSAGE
         dishonorable_response
       when *INELIGIBLE_SERVICE_SSC_CODES
-        @confirmation_status = INELIGIBLE_SSC_MESSAGE
+        @confirmation_status = INELIGIBLE_SERVICE_SSC_MESSAGE
         ineligible_service_response
       when UNKNOWN_SERVICE_SSC_CODE
         @confirmation_status = UNKNOWN_SSC_MESSAGE

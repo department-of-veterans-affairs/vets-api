@@ -276,7 +276,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs DISHONORABLE_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.dishonorable_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_dishonorable_ssc')
           end
         end
 
@@ -285,10 +285,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
           let(:ssc_code) { 'G2' }
 
-          it 'logs INELIGIBLE_SSC_MESSAGE with mobile prefix' do
+          it 'logs INELIGIBLE_SERVICE_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_service_ssc')
           end
         end
 
@@ -300,7 +300,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs UNKNOWN_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.unknown_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_unknown_ssc')
           end
         end
 
@@ -312,7 +312,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs EDIPI_NO_PNL_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.edipi_no_pnl_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_edipi_no_pnl_ssc')
           end
         end
 
@@ -324,7 +324,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs CURRENTLY_SERVING_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.currently_serving_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_currently_serving_ssc')
           end
         end
 
@@ -336,7 +336,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs ERROR_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.error_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_error_ssc')
           end
         end
 
@@ -348,7 +348,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs UNCAUGHT_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.uncaught_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_uncaught_ssc')
           end
         end
 
@@ -503,7 +503,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
           expect(result[:attributes][:veteran_status]).to eq('not confirmed')
           expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
-          expect(result[:attributes][:confirmation_status]).to eq('NO_ICN')
+          expect(result[:attributes][:confirmation_status]).to eq('INELIGIBLE_NO_ICN')
         end
       end
 
