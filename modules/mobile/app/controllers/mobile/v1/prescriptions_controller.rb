@@ -42,6 +42,8 @@ module Mobile
                        { success: [], failed: [] }
                      end
 
+        increment_uhd_refill(api_result[:success].size) if api_result[:success].present?
+
         merged_result = MHV::Prescriptions::OhTransitionRefillFilter.merge_results(api_result, blocked_failures)
         response = UnifiedHealthData::Serializers::PrescriptionsRefillsSerializer.new(SecureRandom.uuid, merged_result)
         raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' unless response
@@ -61,6 +63,11 @@ module Mobile
 
       def unified_health_service
         @unified_health_service ||= UnifiedHealthData::Service.new(@current_user)
+      end
+
+      def increment_uhd_refill(count)
+        StatsD.increment("#{UnifiedHealthData::Service::STATSD_KEY_PREFIX}.refills.requested", count,
+                         tags: ["source_app:#{request.env['SOURCE_APP']}"])
       end
 
       def oh_transition_filter
