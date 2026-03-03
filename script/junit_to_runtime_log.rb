@@ -56,28 +56,29 @@ module JunitToRuntimeLog
   #   spec/lib/rx/client_spec.rb               → "lib/rx"
   def self.group_for(path)
     parts = path.sub(%r{^\./}, '').split('/')
+    first = parts[0]
+    second = parts[1]
+    has_second = parts.size >= 2
 
     # modules/<name>/** → modules/<name>
-    return parts[0..1].join('/') if parts[0] == 'modules' && parts.size >= 2
+    return "#{first}/#{second}" if first == 'modules' && has_second
 
     # spec/lib/<name>/** → lib/<name>
-    return "lib/#{parts[2]}" if parts[0] == 'spec' && parts[1] == 'lib' && parts.size >= 3
+    return "lib/#{parts[2]}" if first == 'spec' && second == 'lib' && parts.size >= 3
 
     # spec/<type>/** → <type> (with requests→controllers mapping)
-    if parts[0] == 'spec' && parts.size >= 2
-      type = parts[1]
-      type = 'controllers' if type == 'requests'
-      return type
+    if first == 'spec' && has_second
+      return second == 'requests' ? 'controllers' : second
     end
 
     # lib/<name>/** → lib/<name>
-    return "lib/#{parts[1]}" if parts[0] == 'lib' && parts.size >= 2
+    return "lib/#{second}" if first == 'lib' && has_second
 
     # app/<type>/** → <type>
-    return parts[1] if parts[0] == 'app' && parts.size >= 2
+    return second if first == 'app' && has_second
 
     # Fallback: first path segment
-    parts.first
+    first
   end
 
   # Returns slow spec files whose module/service group was touched by changed_files.
