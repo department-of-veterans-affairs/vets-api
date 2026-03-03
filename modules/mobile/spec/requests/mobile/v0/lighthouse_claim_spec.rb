@@ -231,11 +231,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
-
-          # Mock provider registry to return Lighthouse provider
-          lighthouse_provider = BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
-          allow(BenefitsClaims::Providers::ProviderRegistry).to receive(:enabled_provider_classes)
-            .and_return([lighthouse_provider])
         end
 
         context 'when no type parameter is provided' do
