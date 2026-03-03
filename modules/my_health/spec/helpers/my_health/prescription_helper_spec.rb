@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable RSpec/MultipleDescribes
 RSpec.describe MyHealth::PrescriptionHelper::Filtering do
   let(:helper_instance) do
     Class.new { include MyHealth::PrescriptionHelper::Filtering }.new
@@ -182,3 +183,4 @@ RSpec.describe MyHealth::PrescriptionHelper::Sorting do
     end
   end
 end
+# rubocop:enable RSpec/MultipleDescribes
