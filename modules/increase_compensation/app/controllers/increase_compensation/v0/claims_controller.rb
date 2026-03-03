@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_intake/service'
 require 'increase_compensation/benefits_intake/submit_claim_job'
 require 'increase_compensation/monitor'
 require 'increase_compensation/zsf_config'
@@ -55,7 +56,6 @@ module IncreaseCompensation
 
         # Issue with 2 8940's in the api, frontend  calls to /in_progess_form/8940 but backend uses `8940V1`
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id[..6], current_user) : nil
-
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
@@ -65,15 +65,13 @@ module IncreaseCompensation
         end
 
         process_attachments(in_progress_form, claim)
+        start_submission_background_job(claim.id, current_user&.user_account_uuid)
 
-        IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
         monitor.track_create_success(in_progress_form, claim, current_user)
 
-        clear_saved_form(claim.form_id[..6])
-
-        # submission attempt is created in the method
         pdf_url = upload_to_s3(claim, config: IncreaseCompensation::ZsfConfig.new)
         log_success(claim, current_user&.user_account_uuid)
+        clear_saved_form(claim.form_id[..6])
         render json: ArchivedClaimSerializer.new(claim, params: { pdf_url: })
       rescue => e
         monitor.track_create_error(in_progress_form, claim, current_user, e)
@@ -95,16 +93,34 @@ module IncreaseCompensation
       # @param claim
       # @raise [Exception]
       def process_attachments(in_progress_form, claim)
-        claim.process_attachments!
+        return if in_progress_form.nil?
+
+        @docs = JSON.parse(in_progress_form.form_data)['supporting_documents']
+        claim.process_attachments!(@docs)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
-
+        IncreaseCompensation::NotificationEmail.new(claim.id).deliver(
+          :persistent_attachment_error,
+          claim.id,
+          personalization: {
+            file_count: @docs&.length,
+            file_names: @docs&.map { |f| f['name'] },
+            first_name: claim.veteran_first_name
+          }
+        )
         raise e
       end
 
       # Filters out the parameters to form access.
       def filtered_params
         params.require(short_name.to_sym).permit(:form)
+      end
+
+      def start_submission_background_job(claim_id, user_account_uuid)
+        IncreaseCompensation::BenefitsIntake::SubmitClaimJob.perform_async(
+          claim_id,
+          user_account_uuid
+        )
       end
 
       ##
@@ -134,7 +150,10 @@ module IncreaseCompensation
       def log_success(claim, user_uuid)
         StatsD.increment("#{stats_key}.success")
         Rails.logger.info(
-          "Submitted job ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM} UserID=#{user_uuid}"
+          'IncreaseCompensation::Controller Submission Saved',
+          { claim_id: claim.id,
+            confirmation_number: claim.confirmation_number,
+            user_uuid: }
         )
       end
 

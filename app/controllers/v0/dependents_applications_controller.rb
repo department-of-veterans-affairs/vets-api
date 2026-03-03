@@ -21,6 +21,7 @@ module V0
       claim = create_claim(dependent_params.to_json)
 
       monitor.track_create_attempt(claim, current_user)
+      monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'created') if claim.no_ssn_claim?
 
       # Populate the form_start_date from the IPF if available
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -35,15 +36,19 @@ module V0
       claim.process_attachments!
 
       # FDF pilot
-      forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
+      forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled, current_user)
       if forms_api_enabled && (claim.claim_form_type == '21-686c')
         begin
           claim_info = claim.get_claim_information(current_user)
           if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
-            submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+            submission = submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
             log_submitted(in_progress_form, claim)
             claim.send_submitted_email(current_user)
-            return render json: SavedClaimSerializer.new(claim)
+
+            response = SavedClaimSerializer.new(claim).serializable_hash
+            response[:data][:digital_forms_api] = { submission: }
+
+            return render json: response
           end
         rescue => e
           monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
@@ -80,14 +85,13 @@ module V0
       }
 
       response = digital_forms_api_submission_service.submit(payload, metadata)
-      raise response.to_s.to_s unless response.success?
+      raise response.to_s unless response.success?
 
       monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
 
       upload_evidence_documents(claim, participant_id)
 
-      # TODO: parse the response body and pass back the identifier to be used by the form viewer (future)
-      'submission-id'
+      response.body['submission'] || {}
     end
 
     # upload evidence documents - temp for FDF pilot
@@ -166,6 +170,7 @@ module V0
       if claim.pension_related_submission?
         monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
       end
+      monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'submitted') if claim.no_ssn_claim?
     end
 
     def create_dependent_service

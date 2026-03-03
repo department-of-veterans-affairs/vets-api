@@ -95,7 +95,8 @@ module TravelClaim
     def ensure_tokens!
       fetch_veis_token! if @current_veis_token.blank?
       fetch_btsss_token! if @current_btsss_token.blank?
-    rescue
+    rescue => e
+      log_auth_event("Token acquisition failed: #{e.class.name}")
       increment_auth_failure_metric
       raise
     end

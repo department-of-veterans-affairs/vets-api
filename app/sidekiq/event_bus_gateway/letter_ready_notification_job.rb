@@ -7,6 +7,7 @@ require_relative 'errors'
 require_relative 'letter_ready_job_concern'
 require_relative 'letter_ready_email_job'
 require_relative 'letter_ready_push_job'
+require_relative 'letter_ready_sms_job'
 
 module EventBusGateway
   class LetterReadyNotificationJob
@@ -29,17 +30,24 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted", tags:)
     end
 
-    def perform(participant_id, email_template_id = nil, push_template_id = nil)
+    def perform(participant_id, email_template_id = nil, push_template_id = nil, sms_template_id = nil)
       # Fetch participant data upfront
       icn = get_icn(participant_id)
 
+      # Determine which notification types are requested based on template IDs
+      requested_types = []
+      requested_types << 'email' if email_template_id.present?
+      requested_types << 'sms' if sms_template_id.present?
+      requested_types << 'push' if push_template_id.present?
+
       errors = []
       errors << handle_email_notification(participant_id, email_template_id, icn)
+      errors << handle_sms_notification(participant_id, sms_template_id, icn)
       errors << handle_push_notification(participant_id, push_template_id, icn)
       errors.compact!
 
-      log_completion(email_template_id, push_template_id, errors)
-      handle_errors(errors)
+      log_completion(email_template_id, push_template_id, sms_template_id, errors)
+      handle_errors(errors, requested_types, icn)
 
       errors
     rescue => e
@@ -62,6 +70,10 @@ module EventBusGateway
       push_template_id.present? && icn.present?
     end
 
+    def should_send_sms?(sms_template_id, icn)
+      sms_template_id.present? && icn.present?
+    end
+
     def handle_email_notification(participant_id, email_template_id, icn)
       if should_send_email?(email_template_id, icn)
         first_name = get_first_name_from_participant_id(participant_id)
@@ -76,6 +88,20 @@ module EventBusGateway
         log_notification_skipped('email', 'ICN or template not available', email_template_id)
         nil
       end
+    end
+
+    def handle_sms_notification(participant_id, sms_template_id, icn)
+      unless should_send_sms?(sms_template_id, icn)
+        log_notification_skipped('sms', 'ICN or template not available', sms_template_id)
+        return nil
+      end
+
+      unless Flipper.enabled?(:event_bus_gateway_letter_ready_sms_notifications, Flipper::Actor.new(icn))
+        log_notification_skipped('sms', 'SMS notifications not enabled for this user', sms_template_id)
+        return nil
+      end
+
+      send_sms_async(participant_id, sms_template_id, icn)
     end
 
     def handle_push_notification(participant_id, push_template_id, icn)
@@ -100,6 +126,16 @@ module EventBusGateway
     rescue => e
       log_notification_failure('email', email_template_id, e)
       { type: 'email', error: e.message }
+    end
+
+    def send_sms_async(participant_id, sms_template_id, icn)
+      # Store PII in Redis and pass only cache key to avoid PII exposure in logs
+      cache_key = Sidekiq::AttrPackage.create(icn:)
+      LetterReadySmsJob.perform_async(participant_id, sms_template_id, cache_key)
+      nil
+    rescue => e
+      log_notification_failure('sms', sms_template_id, e)
+      { type: 'sms', error: e.message }
     end
 
     def send_push_async(participant_id, push_template_id, icn)
@@ -148,10 +184,11 @@ module EventBusGateway
       StatsD.increment("#{STATSD_METRIC_PREFIX}.skipped", tags:)
     end
 
-    def log_completion(email_template_id, push_template_id, errors)
+    def log_completion(email_template_id, push_template_id, sms_template_id, errors)
       successful_notifications = []
       successful_notifications << 'email' if email_template_id.present? && errors.none? { |e| e[:type] == 'email' }
       successful_notifications << 'push' if push_template_id.present? && errors.none? { |e| e[:type] == 'push' }
+      successful_notifications << 'sms' if sms_template_id.present? && errors.none? { |e| e[:type] == 'sms' }
 
       failed_messages = errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', ')
 
@@ -161,31 +198,55 @@ module EventBusGateway
           notifications_sent: successful_notifications.join(', '),
           notifications_failed: failed_messages,
           email_template_id:,
-          push_template_id:
+          push_template_id:,
+          sms_template_id:
         }
       )
     end
 
-    def handle_errors(errors)
+    def handle_errors(errors, requested_types, icn)
       return if errors.empty?
 
-      if errors.length == 2
-        # Both notifications failed to enqueue
+      failed_types = errors.map { |e| e[:type] }
+
+      # Filter requested types by feature flags (some may have been skipped)
+      # SMS and push may not be attempted even if template_id was provided if feature flag is off
+      actually_requested_types = filter_by_feature_flags(requested_types, icn)
+
+      # Check if all requested (and not feature-flag-skipped) notifications failed
+      if actually_requested_types.present? && (failed_types.to_set == actually_requested_types.to_set)
+        # All actually requested notifications failed to enqueue
         error_details = errors.map { |e| "#{e[:type]}: #{e[:error]}" }.join('; ')
         raise Errors::NotificationEnqueueError, "All notifications failed to enqueue: #{error_details}"
       else
-        # Partial failure - determine which notification succeeded
-        successful = errors[0][:type] == 'email' ? 'push' : 'email'
+        # Partial failure - some succeeded
+        successful_types = actually_requested_types - failed_types
         error_messages = errors.map { |h| "#{h[:type]}: #{h[:error]}" }.join(', ')
 
         ::Rails.logger.warn(
           'LetterReadyNotificationJob partial failure',
           {
-            successful:,
+            successful: successful_types.join(', '),
             failed: error_messages
           }
         )
       end
+    end
+
+    def filter_by_feature_flags(requested_types, icn)
+      actually_requested_types = requested_types.dup
+
+      if requested_types.include?('sms') &&
+         !Flipper.enabled?(:event_bus_gateway_letter_ready_sms_notifications, Flipper::Actor.new(icn))
+        actually_requested_types.delete('sms')
+      end
+
+      if requested_types.include?('push') &&
+         !Flipper.enabled?(:event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(icn))
+        actually_requested_types.delete('push')
+      end
+
+      actually_requested_types
     end
   end
 end
