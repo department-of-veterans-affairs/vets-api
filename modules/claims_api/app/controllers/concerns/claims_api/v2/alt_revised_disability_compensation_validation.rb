@@ -277,7 +277,7 @@ module ClaimsApi
           secondaries = primary_disability.delete('secondaryDisabilities') || []
 
           list = []
-          list << primary_disability
+          list << primary_disability unless primary_disability['disabilityActionType'] == 'NONE'
           list.concat(secondaries)
 
           list

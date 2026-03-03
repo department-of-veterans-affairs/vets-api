@@ -65,6 +65,20 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
           expect(current_error_array).to be_nil
         end
+
+        it 'does not count disabilities with a disabilityActionType of NONE' do
+          test_526_validation_instance.instance_variable_set(
+            :@form_attributes,
+            { 'disabilities' => Array.new(8).map.with_index do |_, i|
+              { 'name' => 'PTSD',
+                'disabilityActionType' => i.odd? ? 'NONE' : 'INCREASE' }
+            end }
+          )
+
+          subject.send(:alt_rev_validate_disabilities_total)
+
+          expect(current_error_array).to be_nil
+        end
       end
 
       context 'when the count is above the max allowed' do
