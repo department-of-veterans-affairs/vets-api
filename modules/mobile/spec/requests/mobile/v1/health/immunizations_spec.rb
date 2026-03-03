@@ -537,45 +537,80 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
         end
       end
 
-      # TODO: not sure we're doing pagination in the BE
       describe 'pagination' do
-        it 'defaults to the first page with ten results per page', :aggregate_failures do
-          # Skipping for now - UHD is not paginated like LH was
-          # We need to determine if there is a need for a custom pagination implementation once UHD is tested
-          skip 'UHD pagination not implemented'
-          VCR.use_cassette('unified_health_data/get_immunizations_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: nil
+        context 'when UHD is enabled' do
+          it 'returns all records with hardcoded pagination meta', :aggregate_failures do
+            VCR.use_cassette('unified_health_data/get_immunizations_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/health/immunizations', headers: sis_headers, params: nil
+            end
+
+            pagination = response.parsed_body['meta']['pagination']
+            total_records = response.parsed_body['data'].length
+
+            expect(pagination['currentPage']).to eq(1)
+            expect(pagination['perPage']).to eq(5000)
+            expect(pagination['totalPages']).to eq(1)
+            expect(pagination['totalEntries']).to eq(total_records)
           end
 
-          ids = response.parsed_body['data'].pluck('id')
+          it 'ignores page params and returns all records', :aggregate_failures do
+            VCR.use_cassette('unified_health_data/get_immunizations_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/health/immunizations', headers: sis_headers,
+                                                     params: { page: { size: 2, number: 3 } }
+            end
 
-          # TODO: update if needed
-          expected_ids = %w[I2-DVLM364Y226KFCCINORJP7MP5A000000
-                            I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000
-                            I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000
-                            I2-7JXLIQNPFQ6UNKAHYRLOGQBDOM000000
-                            I2-XTVY4IDSEUWVYC25SST25RG5KU000000
-                            I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000
-                            I2-ZADCZ325X75FWLZPJA7P2HZEQA000000
-                            I2-I3ONOUAJAMKX53U6O47NNBSP4E000000
-                            I2-B5JBSVYHGRPUHI4NQCXYBVDXLM000000
-                            I2-2LHIGUUW23DRPLBKWXTFDWCYSQ000000]
+            pagination = response.parsed_body['meta']['pagination']
+            total_records = response.parsed_body['data'].length
 
-          expect(ids).to match_array(expected_ids)
+            expect(pagination['currentPage']).to eq(1)
+            expect(pagination['totalEntries']).to eq(total_records)
+          end
         end
 
-        it 'returns the correct page and number of records' do
-          # Skipping for now - UHD is not paginated like LH was
-          # We need to determine if there is a need for a custom pagination implementation once UHD is tested
-          skip 'UHD pagination not implemented'
-          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-            get '/mobile/v1/health/immunizations', headers: sis_headers, params: { page: { size: 2, number: 3 } }
+        context 'when UHD is disabled (Lighthouse path)' do
+          let!(:user) { sis_user(icn: '9000682') }
+
+          before do
+            Timecop.freeze(Time.zone.parse('2021-10-20T15:59:16Z'))
+            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                      instance_of(User)).and_return(false)
+            allow_any_instance_of(Mobile::V0::LighthouseAssertion).to receive(:rsa_key).and_return(
+              OpenSSL::PKey::RSA.new(OpenSSL::PKey::RSA.generate(2048).to_s)
+            )
           end
 
-          ids = response.parsed_body['data'].pluck('id')
+          it 'defaults to the first page with ten results per page', :aggregate_failures do
+            VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/health/immunizations', headers: sis_headers, params: nil
+            end
 
-          # these are the fifth and sixth from last records in the vcr cassette after sorting
-          expect(ids).to eq(%w[I2-ZADCZ325X75FWLZPJA7P2HZEQA000000 I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000])
+            ids = response.parsed_body['data'].pluck('id')
+
+            expected_ids = %w[I2-DVLM364Y226KFCCINORJP7MP5A000000
+                              I2-LJAZCGMN3BZVQVKQCVL7KMTHJA000000
+                              I2-R5T5WZ3D6UNCTRUASZ6N6IIVXM000000
+                              I2-7JXLIQNPFQ6UNKAHYRLOGQBDOM000000
+                              I2-XTVY4IDSEUWVYC25SST25RG5KU000000
+                              I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000
+                              I2-ZADCZ325X75FWLZPJA7P2HZEQA000000
+                              I2-I3ONOUAJAMKX53U6O47NNBSP4E000000
+                              I2-B5JBSVYHGRPUHI4NQCXYBVDXLM000000
+                              I2-2LHIGUUW23DRPLBKWXTFDWCYSQ000000]
+
+            expect(ids).to match_array(expected_ids)
+          end
+
+          it 'returns the correct page and number of records' do
+            VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+              get '/mobile/v1/health/immunizations', headers: sis_headers,
+                                                     params: { page: { size: 2, number: 3 } }
+            end
+
+            ids = response.parsed_body['data'].pluck('id')
+
+            # these are the fifth and sixth from last records in the vcr cassette after sorting
+            expect(ids).to eq(%w[I2-ZADCZ325X75FWLZPJA7P2HZEQA000000 I2-SMRNQOX7DLAPOZBY4XMAOMQKX4000000])
+          end
         end
       end
 
