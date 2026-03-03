@@ -9,7 +9,7 @@ tools:
    - execute       # RuboCop, date, mkdir (scoped below)
    - edit          # Write intermediate results to tmp/ only
    - github/*      # GitHub MCP tools (use only when explicitly requested by the user)
-model: claude-opus-4-6
+model: gpt-5.3-codex
 argument-hint: "e.g. 'audit modules/check_in'"
 ---
 
