@@ -228,9 +228,8 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
       context 'when :cst_multi_claim_provider_mobile is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
         end
 
         context 'when no type parameter is provided' do
