@@ -1048,6 +1048,7 @@ mhv:
     app_token: faketoken
     host: https://example.myhealth.va.gov
     labs_logging_date_range_days: 30
+    medication_filtered_statuses:
     mock: true
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
@@ -1309,6 +1310,8 @@ res:
   api_key: ~
   base_url: https://fake_url.com
   ch_31_case_details:
+    mock: ~
+  ch_31_case_milestones:
     mock: ~
   ch_31_eligibility:
     mock: ~
@@ -1656,6 +1659,15 @@ vanotify:
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
           template_id: form8416_submitted_email_template_id
+    "22_0989":
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: false
+          template_id: form0989_error_email_template_id
+        received:
+          flipper_id: false
+          template_id: form0989_received_email_template_id
     accredited_representative_portal:
       api_key: fake_secret
       email:

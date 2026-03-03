@@ -628,4 +628,115 @@ RSpec.describe RepresentationManagement::VSOReloader, type: :job do
       end
     end
   end
+
+  describe 'type filtering' do
+    let(:reloader) { RepresentationManagement::VSOReloader.new }
+
+    before do
+      allow(reloader).to receive(:setup_ingestion)
+      allow(reloader).to receive(:save_accreditation_totals)
+      allow(reloader).to receive(:remove_obsolete_representatives)
+      allow(reloader).to receive(:complete_ingestion_log)
+    end
+
+    context 'when types is nil (default)' do
+      it 'reloads all types' do
+        expect(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).to receive(:reload_claim_agents).and_return([])
+        expect(reloader).to receive(:reload_vso_reps).and_return([])
+
+        reloader.perform
+      end
+
+      it 'saves accreditation totals' do
+        allow(reloader).to receive_messages(reload_attorneys: [], reload_claim_agents: [], reload_vso_reps: [])
+        expect(reloader).to receive(:save_accreditation_totals)
+
+        reloader.perform
+      end
+
+      it 'removes obsolete representatives' do
+        allow(reloader).to receive_messages(reload_attorneys: [], reload_claim_agents: [], reload_vso_reps: [])
+        expect(reloader).to receive(:remove_obsolete_representatives)
+
+        reloader.perform
+      end
+    end
+
+    context 'when types is [attorney]' do
+      it 'only reloads attorneys' do
+        expect(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).not_to receive(:reload_claim_agents)
+        expect(reloader).not_to receive(:reload_vso_reps)
+
+        reloader.perform(['attorney'])
+      end
+
+      it 'skips accreditation totals save' do
+        allow(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).not_to receive(:save_accreditation_totals)
+
+        reloader.perform(['attorney'])
+      end
+
+      it 'skips obsolete representative removal' do
+        allow(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).not_to receive(:remove_obsolete_representatives)
+
+        reloader.perform(['attorney'])
+      end
+    end
+
+    context 'when types includes representative' do
+      it 'calls reload_vso_reps' do
+        allow(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).to receive(:reload_vso_reps).and_return([])
+
+        reloader.perform(%w[attorney representative])
+      end
+    end
+
+    context 'when types includes organization' do
+      it 'calls reload_vso_reps' do
+        expect(reloader).to receive(:reload_vso_reps).and_return([])
+
+        reloader.perform(['organization'])
+      end
+    end
+
+    context 'when types includes both representative and organization' do
+      it 'calls reload_vso_reps only once' do
+        expect(reloader).to receive(:reload_vso_reps).once.and_return([])
+
+        reloader.perform(%w[representative organization])
+      end
+    end
+
+    context 'with invalid types' do
+      it 'ignores invalid types and processes valid ones' do
+        expect(reloader).to receive(:reload_attorneys).and_return([])
+        expect(Rails.logger).to receive(:warn).with(/Invalid types ignored: invalid_type/)
+
+        reloader.perform(%w[attorney invalid_type])
+      end
+
+      it 'treats all-invalid types as full reload' do
+        expect(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).to receive(:reload_claim_agents).and_return([])
+        expect(reloader).to receive(:reload_vso_reps).and_return([])
+
+        reloader.perform(['completely_invalid'])
+      end
+    end
+
+    context 'with empty types array' do
+      it 'treats empty array as full reload' do
+        expect(reloader).to receive(:reload_attorneys).and_return([])
+        expect(reloader).to receive(:reload_claim_agents).and_return([])
+        expect(reloader).to receive(:reload_vso_reps).and_return([])
+
+        reloader.perform([])
+      end
+    end
+  end
 end

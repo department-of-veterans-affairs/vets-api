@@ -75,7 +75,7 @@ module Mobile
         # @return [Hash] mobile-specific uncaught error response
         #
         def uncaught_error_response
-          Mobile::V0::VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+          Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
         end
 
         ##

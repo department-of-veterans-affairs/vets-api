@@ -4,10 +4,16 @@ require 'rails_helper'
 
 RSpec.describe BGSDependents::ChildStudent do
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
+
   let(:child_student_info_v2) do
+    # match how student_school will manipulate payload
+    student = all_flows_payload_v2['dependents_application']['student_information'][0]
+    student['type_of_program_or_benefit'] = 'Chapter 35, Fry Scholarship, FECA, name of trade program'
+    student['school_information']['name'] = 'Chapter 35, Fry Scholarship, FECA, name of trade program'
+
     described_class.new('3829729',
                         '149471',
-                        all_flows_payload_v2['dependents_application']['student_information'][0])
+                        student)
   end
 
   let(:formatted_params_result_v2) do
@@ -19,7 +25,7 @@ RSpec.describe BGSDependents::ChildStudent do
       other_asset_amt: '200',
       rmks: 'test additional information',
       marage_dt: DateTime.parse('2024-03-03 12:00:00').to_time.iso8601,
-      agency_paying_tuitn_nm: nil,
+      agency_paying_tuitn_nm: 'Chapter 35, Fry Scholarship, FECA, name of trade program',
       stock_bond_amt: '400',
       govt_paid_tuitn_ind: 'Y',
       govt_paid_tuitn_start_dt: DateTime.parse('2024-03-01 12:00:00').to_time.iso8601,

@@ -3,6 +3,7 @@
 require 'benefits_claims/title_generator'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
+require 'lighthouse/benefits_claims/tracked_item_content'
 require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_claims/utilities/helpers'
 require 'lighthouse/benefits_documents/documents_status_polling_service'
@@ -58,22 +59,13 @@ module V0
 
     def show
       claim = if Flipper.enabled?(FEATURE_MULTI_CLAIM_PROVIDER, @current_user)
-                get_claim_from_providers(params[:id])
+                # Multi-provider path: Lighthouse-specific transforms applied in V0::LighthouseClaims::Proxy
+                get_claim_from_providers(params[:id], params[:type])
               else
-                service.get_claim(params[:id])
+                # Legacy single-provider path: Apply Lighthouse-specific transforms here
+                get_legacy_claim(params[:id])
               end
       update_claim_type_language(claim['data'])
-
-      # Manual status override for certain tracked items
-      # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
-      # This should be removed when the items are re-categorized by BGS
-      # We are not doing this in the Lighthouse service because we want web and mobile to have
-      # separate rollouts and testing.
-      claim = rename_rv1(claim)
-
-      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
-      # This should be removed when the items are removed by BGS
-      claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
 
       # Document uploads to EVSS require a birls_id; This restriction should
       # be removed when we move to Lighthouse Benefits Documents for document uploads
@@ -152,6 +144,15 @@ module V0
     def check_for_file_number
       bgs_file_number = BGS::People::Request.new.find_person_by_participant_id(user: current_user).file_number
       ::Rails.logger.info('[BenefitsClaims#index] No file number') if bgs_file_number.blank?
+    end
+
+    def get_legacy_claim(claim_id)
+      legacy_claim = service.get_claim(claim_id)
+      legacy_claim = rename_rv1(legacy_claim)
+      if Flipper.enabled?(:cst_suppress_evidence_requests_website)
+        legacy_claim = suppress_evidence_requests(legacy_claim)
+      end
+      legacy_claim
     end
 
     def tap_claims(claims)
@@ -250,13 +251,14 @@ module V0
       filtered_evidence_submissions
     end
 
-    def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
+    def build_filtered_evidence_submission_record(evidence_submission, tracked_items) # rubocop:disable Metrics/MethodLength
       personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
       tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
         evidence_submission.tracked_item_id,
         tracked_items
       )
-      tracked_item_friendly_name = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[tracked_item_display_name]
+      tracked_item_friendly_name = BenefitsClaims::TrackedItemContent.find_by_display_name(tracked_item_display_name) # rubocop:disable Rails/DynamicFindBy
+                                                                     &.dig(:friendlyName)
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,
