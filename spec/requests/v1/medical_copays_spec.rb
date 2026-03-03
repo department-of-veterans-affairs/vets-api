@@ -17,6 +17,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
     before do
       allow_any_instance_of(User).to receive(:cerner_facility_ids).and_return([])
     end
+
     it 'returns a formatted hash response' do
       travel_to Time.utc(2025, 8, 1) do
         VCR.use_cassette('lighthouse/hcc/copay_list_by_month', match_requests_on: %i[method path query]) do
