@@ -10,7 +10,7 @@ RSpec.describe Dependents::Monitor do
       .to receive(:fill_form) { |saved_claim, *_|
         "tmp/pdfs/686C-674_#{saved_claim.id || 'stub'}_final.pdf"
       }
-    allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(false)
 
     # Prevent decryption errors by stubbing parsed_form and bypassing validation
     allow_any_instance_of(SavedClaim::DependencyClaim)
@@ -76,7 +76,7 @@ RSpec.describe Dependents::Monitor do
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
   describe '#track_submission_exhaustion' do
-    let(:tags) { ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false'] }
+    let(:tags) { ['form_id:686C-674-V2', 'service:dependents-application'] }
 
     it 'logs sidekiq job exhaustion' do
       msg = { 'args' => [claim_v2.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
@@ -107,7 +107,7 @@ RSpec.describe Dependents::Monitor do
         claim: claim_v2,
         error: msg,
         service: 'dependents-application',
-        tags: ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false'],
+        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
         user_account_uuid: nil
       }
 
@@ -120,7 +120,7 @@ RSpec.describe Dependents::Monitor do
   end
 
   describe '#track_event' do
-    let(:tags) { ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'v3_removal:false'] }
+    let(:tags) { ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2'] }
 
     context 'when v3 flipper is off' do
       before do
@@ -139,8 +139,7 @@ RSpec.describe Dependents::Monitor do
                                                          form_id: '686C-674-V2',
                                                          service: 'dependents-application',
                                                          tags: ['form_id:686C-674-V2',
-                                                                'service:dependents-application',
-                                                                'v3_removal:false'],
+                                                                'service:dependents-application'],
                                                          user_account_uuid: nil
                                                        },
                                                        file: a_kind_of(String),
@@ -164,8 +163,7 @@ RSpec.describe Dependents::Monitor do
                                                         error: 'test',
                                                         form_id: '686C-674-V2',
                                                         service: 'dependents-application',
-                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application',
-                                                               'v3_removal:false'],
+                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
                                                         user_account_uuid: nil
                                                       },
                                                       file: a_kind_of(String),
@@ -189,8 +187,7 @@ RSpec.describe Dependents::Monitor do
                                                         error: 'test',
                                                         form_id: '686C-674-V2',
                                                         service: 'dependents-application',
-                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application',
-                                                               'v3_removal:false'],
+                                                        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
                                                         user_account_uuid: nil
                                                       },
                                                       file: a_kind_of(String),
@@ -205,6 +202,11 @@ RSpec.describe Dependents::Monitor do
     end
 
     context 'when there is a user but v3 flipper is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+      end
+
       let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
       let(:tags) do
         ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:false',
@@ -244,14 +246,17 @@ RSpec.describe Dependents::Monitor do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
       end
 
-      context 'when removal flow flag is off' do
-        let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
-        let(:tags) do
-          ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:true',
-           'v3_removal:false']
+      context 'when removal picklist logging flipper is off' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(false)
         end
 
-        it 'tracks an event with v3 tag' do
+        let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
+        let(:tags) do
+          ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2']
+        end
+
+        it 'tracks an event without v3 tags' do
           allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
           allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
           expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
@@ -259,9 +264,7 @@ RSpec.describe Dependents::Monitor do
                                                       hash_including(
                                                         context: hash_including(
                                                           tags: ['form_id:686C-674-V2',
-                                                                 'service:dependents-application',
-                                                                 'use_v3:true',
-                                                                 'v3_removal:false']
+                                                                 'service:dependents-application']
                                                         )
                                                       ))
 
@@ -269,34 +272,65 @@ RSpec.describe Dependents::Monitor do
         end
       end
 
-      context 'when removal flow flag is on' do
-        let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
-        let(:tags) do
-          ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:true',
-           'v3_removal:true']
-        end
-
+      context 'when removal picklist logging flipper is on' do
         before do
-          claim_v2.update(form: { 'is_v3_removal_flow' => true }.to_json)
-          allow_any_instance_of(SavedClaim::DependencyClaim)
-            .to receive(:parsed_form).and_return({ 'is_v3_removal_flow' => true })
+          allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
         end
 
-        it 'tracks an event with v3 and removal tags' do
-          allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
-          allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
-          expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
-          expect(Rails.logger).to receive(:info).with('Success!',
-                                                      hash_including(
-                                                        context: hash_including(
-                                                          tags: ['form_id:686C-674-V2',
-                                                                 'service:dependents-application',
-                                                                 'use_v3:true',
-                                                                 'v3_removal:true']
-                                                        )
-                                                      ))
+        context 'when removal flow flag is off' do
+          let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
+          let(:tags) do
+            ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:true',
+             'v3_removal:false']
+          end
 
-          monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+          it 'tracks an event with v3 tags' do
+            allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
+            allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
+            expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
+            expect(Rails.logger).to receive(:info).with('Success!',
+                                                        hash_including(
+                                                          context: hash_including(
+                                                            tags: ['form_id:686C-674-V2',
+                                                                   'service:dependents-application',
+                                                                   'use_v3:true',
+                                                                   'v3_removal:false']
+                                                          )
+                                                        ))
+
+            monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+          end
+        end
+
+        context 'when removal flow flag is on' do
+          let(:monitor_v2) { described_class.new(claim_v2.id, nil, user) }
+          let(:tags) do
+            ['service:dependents-application', 'function:track_event', 'form_id:686C-674-V2', 'use_v3:true',
+             'v3_removal:true']
+          end
+
+          before do
+            claim_v2.update(form: { 'is_v3_removal_flow' => true }.to_json)
+            allow_any_instance_of(SavedClaim::DependencyClaim)
+              .to receive(:parsed_form).and_return({ 'is_v3_removal_flow' => true })
+          end
+
+          it 'tracks an event with v3 and removal tags' do
+            allow(StatsD).to receive(:increment).with('saved_claim.create', anything)
+            allow(StatsD).to receive(:increment).with('saved_claim.pdf.overflow', anything)
+            expect(StatsD).to receive(:increment).with('test.monitor.success', tags:)
+            expect(Rails.logger).to receive(:info).with('Success!',
+                                                        hash_including(
+                                                          context: hash_including(
+                                                            tags: ['form_id:686C-674-V2',
+                                                                   'service:dependents-application',
+                                                                   'use_v3:true',
+                                                                   'v3_removal:true']
+                                                          )
+                                                        ))
+
+            monitor_v2.track_event('info', 'Success!', 'test.monitor.success', error: 'test')
+          end
         end
       end
     end
@@ -306,7 +340,7 @@ RSpec.describe Dependents::Monitor do
     it 'logs unknown claim type error' do
       error = StandardError.new('Unknown type')
       metric = "#{described_class::EMAIL_STATS_KEY}.unknown_type"
-      tags = ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false']
+      tags = ['form_id:686C-674-V2', 'service:dependents-application']
       payload = {
         claim:,
         service: 'dependents-application',
@@ -328,7 +362,7 @@ RSpec.describe Dependents::Monitor do
       message = 'Email sent successfully'
       metric = 'test.email.success'
       user_account_id = 'user123'
-      tags = ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false']
+      tags = ['form_id:686C-674-V2', 'service:dependents-application']
       payload = {
         claim:,
         service: 'dependents-application',
@@ -351,7 +385,7 @@ RSpec.describe Dependents::Monitor do
       metric = 'test.email.error'
       error = StandardError.new('SMTP error')
       user_account_uuid = 'uuid123'
-      tags = ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false']
+      tags = ['form_id:686C-674-V2', 'service:dependents-application']
       payload = {
         claim:,
         service: 'dependents-application',
@@ -424,7 +458,7 @@ RSpec.describe Dependents::Monitor do
       payload = {
         claim:,
         service: 'dependents-application',
-        tags: ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false'],
+        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
         user_account_uuid: nil,
         statsd: metric
       }
@@ -442,7 +476,7 @@ RSpec.describe Dependents::Monitor do
       error = StandardError.new('PDF error')
       form_id = '686C-674'
       metric = "#{described_class::CLAIM_STATS_KEY}.to_pdf.failure"
-      tags = ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false']
+      tags = ['form_id:686C-674-V2', 'service:dependents-application']
       payload = {
         claim:,
         service: 'dependents-application',
@@ -464,7 +498,7 @@ RSpec.describe Dependents::Monitor do
     it 'tracks PDF overflow tracking failure' do
       error = StandardError.new('Overflow tracking error')
       metric = "#{described_class::CLAIM_STATS_KEY}.track_pdf_overflow.failure"
-      tags = ['form_id:686C-674-V2', 'service:dependents-application', 'v3_removal:false']
+      tags = ['form_id:686C-674-V2', 'service:dependents-application']
       payload = {
         claim:,
         service: 'dependents-application',
@@ -509,8 +543,7 @@ RSpec.describe Dependents::Monitor do
                                                     service: 'dependents-application',
                                                     claim: claim_v2,
                                                     user_account_uuid: nil,
-                                                    tags: ["form_id:#{form_id}", 'service:dependents-application',
-                                                           'v3_removal:false'],
+                                                    tags: ["form_id:#{form_id}", 'service:dependents-application'],
                                                     statsd: metric,
                                                     form_id:,
                                                     form_type: '686c-674'
@@ -526,7 +559,7 @@ RSpec.describe Dependents::Monitor do
       type = 'submitted'
       metric = "#{described_class::NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
       method_tags = ["form_id:#{form_id}"]
-      payload_tags = ["form_id:#{form_id}", 'service:dependents-application', 'v3_removal:false']
+      payload_tags = ["form_id:#{form_id}", 'service:dependents-application']
       payload = {
         claim: claim_v2,
         service: 'dependents-application',
@@ -587,7 +620,21 @@ RSpec.describe Dependents::Monitor do
       expect(tags).not_to include('v3_removal:false')
     end
 
+    it 'does not include use_v3 or v3_removal when dependents_v3_removal_picklist_logging flipper is off' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, user).and_return(true)
+
+      monitor = described_class.new(claim_v2.id, nil, user)
+
+      tags = monitor.get_tags
+
+      expect(tags).to include('service:dependents-application')
+      expect(tags).not_to include('use_v3:false')
+      expect(tags).not_to include('v3_removal:false')
+    end
+
     it 'includes use_v3:false when user is present but v3 flipper is off' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
       monitor = described_class.new(nil, nil, user)
       tags = monitor.get_tags
@@ -598,6 +645,8 @@ RSpec.describe Dependents::Monitor do
 
     it 'includes use_v3 when user present and includes v3_removal when claim present' do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+
       monitor = described_class.new(claim_v2.id, nil, user)
 
       tags = monitor.get_tags
@@ -609,6 +658,8 @@ RSpec.describe Dependents::Monitor do
 
     it 'includes use_v3 when user is present' do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+
       monitor = described_class.new(nil, nil, user)
 
       tags = monitor.get_tags
@@ -620,6 +671,8 @@ RSpec.describe Dependents::Monitor do
 
     it 'includes v3_removal when claim is present' do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, user).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+
       monitor = described_class.new(claim_v2.id, nil, user)
 
       tags = monitor.get_tags

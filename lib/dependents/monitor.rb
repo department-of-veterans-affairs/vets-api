@@ -64,6 +64,10 @@ module Dependents
       @form_id ||= @claim&.form_id
     end
 
+    def v3_logging_enabled?
+      Flipper.enabled?(:dependents_v3_removal_picklist_logging)
+    end
+
     def submission_stats_key
       SUBMISSION_STATS_KEY
     end
@@ -77,6 +81,7 @@ module Dependents
 
     # tag used for logging to identify ALL claims with v3 flipper active
     def get_use_v3
+      return false unless v3_logging_enabled?
       return false if @user.nil?
 
       Flipper.enabled?(:va_dependents_v3, @user)
@@ -84,6 +89,7 @@ module Dependents
 
     # tag used for logging to identify claims with v3 removal flow active
     def get_use_v3_removal(claim)
+      return false unless v3_logging_enabled?
       return false if claim.nil?
 
       # The code below is really just for spec purposes, since in prod the claim.parsed_form should always be present
@@ -116,9 +122,11 @@ module Dependents
     def get_tags
       additional_tags = @tags.dup || []
       additional_tags << "service:#{service}"
-      # if user is nil, but claim data has is_v3_removal_flow true, we know that feature flag is ON
-      additional_tags << "use_v3:#{@use_v3 || @use_v3_removal}" if @user.present? || @use_v3_removal
-      additional_tags << "v3_removal:#{@use_v3_removal}" if @claim.present?
+      if v3_logging_enabled?
+        # if user is nil, but claim data has is_v3_removal_flow true, we know that feature flag is ON
+        additional_tags << "use_v3:#{@use_v3 || @use_v3_removal}" if @user.present? || @use_v3_removal
+        additional_tags << "v3_removal:#{@use_v3_removal}" if @claim.present?
+      end
       additional_tags
     end
 
