@@ -1146,6 +1146,7 @@ lib/vic @department-of-veterans-affairs/octo-identity
 lib/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 lib/zero_silent_failures/manual_remediation/saved_claim.rb @department-of-veterans-affairs/backend-review-group
 Makefile @department-of-veterans-affairs/backend-review-group
+mkdocs.yaml @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/app/controllers/accredited_representative_portal/v0/power_of_attorney_request_decisions_controller.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 modules/accredited_representative_portal/spec/requests/accredited_representative_portal/v0/power_of_attorney_request_decisions_spec.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
