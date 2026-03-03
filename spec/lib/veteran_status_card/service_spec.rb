@@ -341,6 +341,12 @@ RSpec.describe VeteranStatusCard::Service do
           expect(result[:type]).to eq('veteran_status_card')
           expect(result[:attributes][:veteran_status]).to eq('confirmed')
         end
+
+        it 'does not call the DoD service' do
+          subject.status_card
+
+          expect(military_personnel_service).not_to have_received(:get_dod_service_summary)
+        end
       end
     end
 
@@ -920,6 +926,20 @@ RSpec.describe VeteranStatusCard::Service do
       expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(70)
 
       expect(subject.send(:disability_rating)).to eq(70)
+    end
+
+    it 'memoizes the result so Lighthouse is only called once' do
+      expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).once.and_return(70)
+
+      subject.send(:disability_rating)
+      expect(subject.send(:disability_rating)).to eq(70)
+    end
+
+    it 'memoizes nil results' do
+      expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).once.and_return(nil)
+
+      subject.send(:disability_rating)
+      expect(subject.send(:disability_rating)).to be_nil
     end
   end
 

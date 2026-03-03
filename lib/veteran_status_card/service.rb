@@ -82,7 +82,7 @@ module VeteranStatusCard
     def initialize(user)
       log_statsd(STATSD_TOTAL)
       @user = user
-      @confirmation_status = NO_SSC_CHECK_MESSAGE
+      @confirmation_status = INELIGIBLE_NO_SSC_CHECK_MESSAGE
     end
 
     ##
@@ -104,6 +104,10 @@ module VeteranStatusCard
         log_missing_fields
         return person_not_found_response_hash
       end
+
+      # Fire VetVerification and DoD Summary in parallel. DoD Summary requires EDIPI,
+      # so only start that thread when it is present.
+      prefetch_service_data
 
       # If the ICN is present, check if the VetVerificationStatus is confirmed first
       if vet_verification_eligible?
@@ -417,16 +421,20 @@ module VeteranStatusCard
     end
 
     ##
-    # Gets the disability rating from Lighthouse API
+    # Gets the disability rating from Lighthouse API (memoized)
     # Returns nil if service call fails or user missing ICN
     #
     # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
     def disability_rating
-      lighthouse_disabilities_provider.get_combined_disability_rating
-    rescue => e
-      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
-      nil
+      return @disability_rating if defined?(@disability_rating)
+
+      @disability_rating = begin
+        lighthouse_disabilities_provider.get_combined_disability_rating
+      rescue => e
+        Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
+        nil
+      end
     end
 
     ##
@@ -505,6 +513,22 @@ module VeteranStatusCard
           }
         end
       end
+    end
+
+    ##
+    # Fires VetVerification, DisabilityRating, and DoD Summary requests in parallel threads.
+    # DoD Summary requires EDIPI, so that thread is only started when EDIPI is present.
+    # All results are memoized, so subsequent calls within the request are free.
+    #
+    # @return [void]
+    #
+    def prefetch_service_data
+      threads = [
+        Thread.new { vet_verification_response },
+        Thread.new { disability_rating }
+      ]
+      threads << Thread.new { military_personnel_response } if @user.edipi.present?
+      threads.each(&:join)
     end
 
     ##
