@@ -1209,7 +1209,10 @@ paths:
       summary: /v1/messaging/message_drafts/{reply_id}/replydraft/{draft_id}
   /v1/messaging/messages:
     post:
-      description: Send a new secure message
+      description: |
+        Send a new secure message. When `prescription_id` is included in the request body,
+        the message is routed to the upstream MHV `POST message/renewal` endpoint for
+        prescription renewal messages.
       operationId: post_create_message
       parameters:
         - description: Indicates if this message is for an OH triage group (allows larger attachments)
@@ -1306,70 +1309,6 @@ paths:
             Unprocessable Entity - Validation failed for one or more message fields
             (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages
-  /v1/messaging/messages/renewal:
-    post:
-      description: |
-        Send a prescription renewal message. This endpoint proxies to the upstream MHV SM Patient API
-        `POST message/renewal` route. It accepts standard message fields plus an optional `prescription_id`
-        field, which the Faraday camelcase middleware auto-transforms to `prescriptionId` for the
-        upstream API. If `prescription_id` is omitted or blank, a warning is logged and the request
-        is passed through to the upstream endpoint without it.
-
-        The response uses the same message schema as `POST /v1/messaging/messages`.
-
-        <strong>NOTE:</strong> This endpoint does not support file attachments.
-      operationId: post_create_renewal_message
-      parameters:
-        - description: Indicates if this message is for an OH triage group (extends timeout)
-          in: query
-          name: is_oh_triage_group
-          required: false
-          schema:
-            type: boolean
-        - $ref: "#/components/parameters/InflectionHeader"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: ./schemas/SecureMessageRenewalRequest.yml
-        description: |
-          Renewal message body. Accepts an optional `prescription_id` in addition to standard message fields.
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/SecureMessageDetail.yml
-          description: OK
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: |
-            Bad Request - Invalid request (e.g., attachments included).
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not authorized for access to secure messages
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: |
-            Unprocessable Entity - Validation failed for one or more standard message fields
-            (for example, missing or empty `body`), as defined by the request schema.
-      summary: /v1/messaging/messages/renewal
   /v1/messaging/messages/categories:
     get:
       description: List available message categories

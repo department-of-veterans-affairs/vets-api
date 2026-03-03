@@ -7,7 +7,7 @@ module MyHealth
     class MessagesController < SMController
       MAX_STANDARD_FILES = 4
 
-      before_action :extend_timeout, only: %i[create reply renewal], if: :oh_triage_group?
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def show
         message_id = params[:id].try(:to_i)
@@ -79,35 +79,6 @@ module MyHealth
         render json: MessageSerializer.new(client_response, options), status: :created
       end
 
-      def renewal
-        if renewal_message_params[:prescription_id].blank?
-          Rails.logger.warn('MHV SM Renewal: prescription_id is blank, passing through to upstream endpoint')
-        end
-
-        if params[:uploads].present?
-          raise Common::Exceptions::InvalidFieldValue.new('uploads',
-                                                          'Attachments are not supported for renewal messages')
-        end
-
-        # Validate standard message fields (prescription_id excluded from message_params by design)
-        # .dup is required because Vets::Model#initialize uses select! which mutates the params in-place,
-        # stripping keys like station_number that are not Message attributes but are needed later.
-        message = Message.new(message_params.dup)
-        raise Common::Exceptions::ValidationErrors, message unless message.valid?
-
-        message_params_h = prepare_renewal_params_h
-        client_response = client.post_create_renewal_message(message_params_h, is_oh: oh_triage_group?)
-
-        UniqueUserEvents.log_event(
-          user: current_user,
-          event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
-          event_facility_ids: Array(recipient_facility_id)
-        )
-
-        options = build_response_options(client_response)
-        render json: MessageSerializer.new(client_response, options)
-      end
-
       def categories
         resource = client.get_categories
 
@@ -175,22 +146,9 @@ module MyHealth
       def message_params
         @message_params ||= begin
           params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number)
-        end
-      end
-
-      def renewal_message_params
-        @renewal_message_params ||= begin
-          params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
           params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number,
                                           :prescription_id)
         end
-      end
-
-      def prepare_renewal_params_h
-        params_h = renewal_message_params.to_h
-        params_h[:id] = params_h.delete(:draft_id) if params_h[:draft_id].present?
-        params_h
       end
 
       def upload_params

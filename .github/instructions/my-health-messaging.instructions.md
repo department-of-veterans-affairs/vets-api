@@ -90,7 +90,6 @@ scope :messaging do
     get :signature, on: :collection                   # GET /messages/signature
     patch :move, on: :member                          # PATCH /messages/:id/move
     post :reply, on: :member                          # POST /messages/:id/reply
-    post :renewal, on: :collection                    # POST /messages/renewal (RX renewal with prescriptionId)
     resources :attachments, only: [:show]             # GET /messages/:message_id/attachments/:id
   end
 
@@ -129,7 +128,6 @@ client.post_create_message_with_lg_attachments(params, poll_for_status: false)
 client.post_create_message_reply(message_id, params, poll_for_status: false)
 client.post_create_message_reply_with_attachment(message_id, params, poll_for_status: false)
 client.post_create_message_reply_with_lg_attachment(message_id, params, poll_for_status: false)
-client.post_create_renewal_message(params, is_oh: false)  # RX renewal message with prescriptionId
 client.delete_message(message_id)
 
 # Folders
@@ -361,7 +359,7 @@ module MyHealth
   module V1
     class MessagesController < SMController
       # Always extend timeout for OH triage groups
-      before_action :extend_timeout, only: %i[create reply renewal], if: :oh_triage_group?
+      before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def create
         # 1. Create message with large attachment flag
@@ -425,79 +423,6 @@ module MyHealth
   end
 end
 ```
-
-### Controller Param Isolation for Action-Specific Fields
-
-**When to use:** An SM action requires fields that are NOT part of the shared `Message` model (e.g., `prescription_id` for RX renewal).
-
-**Pattern:** Create a separate strong params method instead of modifying the shared `message_params`.
-
-```ruby
-# message_params is memoized and used by:
-#   - Message.new (model validation)
-#   - recipient_facility_id (facility tracking)
-#   - prepare_message_params_h (shared create/reply flow)
-# Adding action-specific fields here would leak them into other actions.
-
-def message_params
-  @message_params ||= begin
-    params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-    params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
-  end
-end
-
-# Separate params method for renewal — adds :prescription_id
-def renewal_message_params
-  @renewal_message_params ||= begin
-    params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
-    params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :station_number, :prescription_id)
-  end
-end
-
-def prepare_renewal_params_h
-  params_h = renewal_message_params.to_h
-  params_h[:id] = params_h.delete(:draft_id) if params_h[:draft_id].present?
-  params_h
-end
-```
-
-**Anti-pattern:**
-```ruby
-# DON'T add action-specific fields to the shared message_params
-def message_params
-  @message_params ||= begin
-    params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject, :prescription_id)
-    #                                                                               ^^^ leaks into create/reply
-  end
-end
-```
-
-**Why:** `message_params` is memoized (`@message_params ||=`) and used by multiple private methods. Adding fields to it causes them to propagate through `prepare_message_params_h` and `recipient_facility_id` into unrelated actions. The action-specific params method keeps the concern isolated and is safe to modify independently.
-
-### Vets::Model Param Mutation (`.dup` Requirement)
-
-**When to use:** Passing `message_params` (or any params hash) to `Message.new` or any `Vets::Model` subclass, and reading from that hash afterward.
-
-**Pattern:**
-```ruby
-# .dup is REQUIRED because Vets::Model#initialize calls params.select!
-# which mutates the hash in-place, stripping keys that are not model attributes.
-message = Message.new(message_params.dup)
-
-# message_params still has :station_number for use in recipient_facility_id
-message_params_h = prepare_renewal_params_h
-```
-
-**Anti-pattern:**
-```ruby
-# DON'T pass message_params directly — select! will strip non-model keys
-message = Message.new(message_params)
-# message_params[:station_number] is now NIL — silently lost
-```
-
-**Why:** `Vets::Model#initialize` calls `params.select!` to filter attributes, mutating the original hash. Any key not defined as a model attribute (e.g., `station_number`) is permanently removed. Code that reads from the same hash afterward (like `recipient_facility_id`) will get `nil` instead of the expected value.
-
-Note: The existing `create` and `reply` actions are protected from this because `.merge(upload_params)` creates a new hash. Actions that don't merge uploads must use `.dup` explicitly.
 
 ### SM Client Usage Pattern
 
@@ -578,36 +503,6 @@ RSpec.describe 'MyHealth::V1::Messages', type: :request do
   end
 end
 ```
-
-### VCR Body-Matching Blindspot
-
-**When to use:** Writing SM request specs that POST data via VCR and need to verify specific params reach the SM client.
-
-**Context:** VCR is configured with default matching (`:method` + `:uri` only — no body matching). This means VCR will replay a cassette as long as the HTTP method and URL match, even if the request body is completely wrong. Tests will pass even if params are silently stripped or malformed.
-
-**Pattern:** Add a mock expectation alongside VCR to verify critical params reach the client:
-```ruby
-it 'creates a renewal message' do
-  # VCR matches on :method + :uri only — verify prescription_id actually reaches the client
-  expect_any_instance_of(SM::Client).to receive(:post_create_renewal_message)
-    .with(hash_including('prescription_id' => '24654491'), is_oh: anything)
-    .and_call_original
-
-  VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
-    post '/my_health/v1/messaging/messages/renewal', params: { message: params }
-  end
-
-  expect(response).to be_successful
-end
-```
-
-**Key details:**
-- Use `expect_any_instance_of(...).to receive(...)` (before-call pattern), NOT `have_received` — `expect_any_instance_of` does not support the post-call `have_received` matcher.
-- Use `.and_call_original` so the VCR cassette still plays back the response.
-- Use `is_oh: anything` for the keyword arg since `oh_triage_group?` returns `nil` (not `false`) when the query param is absent.
-- Only add this for params where silent loss is likely (e.g., new fields introduced by the PR). Not needed for every VCR test.
-
-**Why:** Without body matching, VCR tests give false confidence. A test can pass even if a field like `prescription_id` is accidentally stripped before the HTTP call. The mock expectation catches this gap.
 
 ### VSCode Snippets for SM Development
 

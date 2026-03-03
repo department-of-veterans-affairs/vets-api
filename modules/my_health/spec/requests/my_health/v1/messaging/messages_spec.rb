@@ -178,6 +178,50 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           )
         end
 
+        it 'routes to message/renewal when prescription_id is present' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          # VCR matches on :method + :uri only (no body matching), so verify prescription_id
+          # actually reaches the SM client and routes to the renewal path.
+          expect_any_instance_of(SM::Client).to receive(:perform)
+            .with(:post, 'message/renewal', anything, anything)
+            .and_call_original
+
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages', params: { message: params_with_rx }
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_response_schema('my_health/messaging/v1/message')
+        end
+
+        it 'routes to message/renewal when camel-inflected' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params_with_rx },
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
+        end
+
+        it 'tracks facility when prescription_id and station_number are present' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          params_with_rx_and_station = params.merge(prescription_id: '24654491', station_number: '979')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages', params: { message: params_with_rx_and_station }
+          end
+
+          expect(response).to be_successful
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: ['979']
+          )
+        end
+
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments
@@ -349,11 +393,11 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           end
         end
 
-        it 'extends timeout when is_oh_triage_group=true on renewal' do
+        it 'extends timeout when is_oh_triage_group=true on renewal via create' do
           renewal_params = params.merge(prescription_id: '24654491')
           VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
             VCR.use_cassette('sm_client/messages/creates/status_sent') do
-              post '/my_health/v1/messaging/messages/renewal?is_oh_triage_group=true',
+              post '/my_health/v1/messaging/messages?is_oh_triage_group=true',
                    params: { message: renewal_params }
 
               expect(response).to be_successful
@@ -403,105 +447,12 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       end
     end
 
-    describe 'POST renewal' do
-      let(:message_params) { attributes_for(:message, subject: 'Renewal Needed', body: 'Medication name...') }
-      let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
-      let(:params_with_prescription) { params.merge(prescription_id: '24654491') }
-      let(:params_with_station) { params_with_prescription.merge(station_number: '979') }
+    describe 'removed /messages/renewal route' do
+      it 'returns 404 for POST /messages/renewal' do
+        post '/my_health/v1/messaging/messages/renewal',
+             params: { message: { subject: 'test', category: 'OTHER', recipient_id: 1, body: 'test' } }
 
-      context 'message' do
-        it 'creates a renewal message' do
-          allow(UniqueUserEvents).to receive(:log_event)
-          # VCR matches on :method + :uri only (no body matching), so verify prescription_id
-          # actually reaches the SM client rather than being silently stripped.
-          expect_any_instance_of(SM::Client).to receive(:post_create_renewal_message)
-            .with(hash_including('prescription_id' => '24654491'), is_oh: anything)
-            .and_call_original
-
-          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
-            post '/my_health/v1/messaging/messages/renewal', params: { message: params_with_station }
-          end
-
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('my_health/messaging/v1/message')
-
-          expect(UniqueUserEvents).to have_received(:log_event).with(
-            user: anything,
-            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
-            event_facility_ids: ['979']
-          )
-        end
-
-        it 'creates a renewal message when camel-inflected' do
-          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
-            post '/my_health/v1/messaging/messages/renewal',
-                 params: { message: params_with_prescription },
-                 headers: inflection_header
-          end
-
-          expect(response).to be_successful
-          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
-        end
-
-        it 'without station_number omits facility tracking' do
-          allow(UniqueUserEvents).to receive(:log_event)
-
-          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
-            post '/my_health/v1/messaging/messages/renewal',
-                 params: { message: params_with_prescription }
-          end
-
-          expect(response).to be_successful
-
-          expect(UniqueUserEvents).to have_received(:log_event).with(
-            user: anything,
-            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
-            event_facility_ids: []
-          )
-        end
-
-        it 'logs a warning and proceeds when prescription_id is missing' do
-          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
-            post '/my_health/v1/messaging/messages/renewal',
-                 params: { message: params }
-          end
-
-          expect(response).to be_successful
-        end
-
-        it 'logs a warning and proceeds when prescription_id is empty string' do
-          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
-            post '/my_health/v1/messaging/messages/renewal',
-                 params: { message: params.merge(prescription_id: '') }
-          end
-
-          expect(response).to be_successful
-        end
-
-        it 'returns validation error when body is missing' do
-          post '/my_health/v1/messaging/messages/renewal',
-               params: { message: params_with_prescription.merge(body: nil) }
-
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it 'rejects requests that include uploads' do
-          upload = Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg')
-          post '/my_health/v1/messaging/messages/renewal',
-               params: { message: params_with_prescription, uploads: [upload] }
-
-          expect(response).to have_http_status(:bad_request)
-          expect(JSON.parse(response.body)['errors'].first['detail']).to include('not supported for renewal')
-        end
-
-        it 'renames draft_id to id before sending to SM client' do
-          draft_params = params_with_prescription.merge(draft_id: '123456')
-          expect_any_instance_of(SM::Client).to receive(:post_create_renewal_message)
-            .with(hash_including('id' => '123456'), is_oh: anything)
-
-          post '/my_health/v1/messaging/messages/renewal', params: { message: draft_params }
-        end
+        expect(response).to have_http_status(:not_found)
       end
     end
 

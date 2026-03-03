@@ -1198,7 +1198,10 @@ paths:
       summary: /v1/messaging/message_drafts/{reply_id}/replydraft/{draft_id}
   /v1/messaging/messages:
     post:
-      description: Send a new secure message
+      description: |
+        Send a new secure message. When `prescription_id` is included in the request body,
+        the message is routed to the upstream MHV `POST message/renewal` endpoint for
+        prescription renewal messages.
       operationId: post_create_message
       parameters:
         - description: Indicates if this message is for an OH triage group (allows larger attachments)
@@ -1292,70 +1295,6 @@ paths:
             Unprocessable Entity - Validation failed for one or more message fields
             (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages
-  /v1/messaging/messages/renewal:
-    post:
-      description: |
-        Send a prescription renewal message. This endpoint proxies to the upstream MHV SM Patient API
-        `POST message/renewal` route. It accepts standard message fields plus an optional `prescription_id`
-        field, which the Faraday camelcase middleware auto-transforms to `prescriptionId` for the
-        upstream API. If `prescription_id` is omitted or blank, a warning is logged and the request
-        is passed through to the upstream endpoint without it.
-
-        The response uses the same message schema as `POST /v1/messaging/messages`.
-
-        <strong>NOTE:</strong> This endpoint does not support file attachments.
-      operationId: post_create_renewal_message
-      parameters:
-        - description: Indicates if this message is for an OH triage group (extends timeout)
-          in: query
-          name: is_oh_triage_group
-          required: false
-          schema:
-            type: boolean
-        - $ref: '#/components/parameters/InflectionHeader'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SecureMessageRenewalRequest'
-        description: |
-          Renewal message body. Accepts an optional `prescription_id` in addition to standard message fields.
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SecureMessageDetail'
-          description: OK
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: |
-            Bad Request - Invalid request (e.g., attachments included).
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: Unauthorized
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: Not authorized for access to secure messages
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: |
-            Unprocessable Entity - Validation failed for one or more standard message fields
-            (for example, missing or empty `body`), as defined by the request schema.
-      summary: /v1/messaging/messages/renewal
   /v1/messaging/messages/categories:
     get:
       description: List available message categories
@@ -3510,6 +3449,13 @@ components:
             Used for analytics tracking of Oracle Health facility messages. If not provided, facility
             tracking is skipped.
           example: '989'
+        prescription_id:
+          type: string
+          description: |
+            Optional. When present, the message is routed to the upstream MHV `POST message/renewal`
+            endpoint instead of the standard `POST message` endpoint. The Faraday camelcase middleware
+            auto-transforms this to `prescriptionId` for the upstream API.
+          example: '24654491'
     SecureMessageAttachment:
       type: object
       required:
@@ -3758,50 +3704,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SecureMessageAttachment'
-    SecureMessageRenewalRequest:
-      type: object
-      required:
-        - recipient_id
-        - category
-        - body
-      properties:
-        recipient_id:
-          type: integer
-          description: |
-            The message recipient. This must be a valid recipient id that is assigned to the user. The list of valid
-            recipients for a user can be obtained from the <pre>/v1/messaging/recipients</pre> endpoint.
-          example: 1763526
-        category:
-          type: string
-          description: |
-            Message category. This must be one of the values returned by the
-            <pre>/v1/messaging/messages/categories</pre> endpoint.
-          example: OTHER
-        body:
-          type: string
-          example: Please renew my prescription for Lisinopril 10mg.
-        subject:
-          type: string
-          example: Prescription renewal request
-        draft_id:
-          type: integer
-          description: |
-            Specifies draft message ID to send. Draft message is deleted once sent. Note that the
-            recipient_id, category, body, and subject included with this post will overwrite any of
-            original values of the draft.
-        station_number:
-          type: string
-          description: |
-            Optional. The station number (facility ID) associated with the recipient's triage group.
-            Used for analytics tracking of Oracle Health facility messages. If not provided, facility
-            tracking is skipped.
-          example: '989'
-        prescription_id:
-          type: string
-          description: |
-            The prescription identifier for the renewal request. Optional — if omitted or blank,
-            a warning is logged and the request is passed through to the upstream endpoint without it.
-          example: '24654491'
     SecureMessageCategories:
       properties:
         data:
