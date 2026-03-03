@@ -4,7 +4,9 @@ require 'rails_helper'
 require 'unified_health_data/adapters/clinical_notes_adapter'
 
 RSpec.describe 'ClinicalNotesAdapter' do
-  let(:adapter) { UnifiedHealthData::Adapters::ClinicalNotesAdapter.new }
+  let(:user) { build(:user, :loa3) }
+  let(:adapter) { UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user:) }
+
   let(:notes_sample_response) do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'notes_sample_response.json'
@@ -21,6 +23,15 @@ RSpec.describe 'ClinicalNotesAdapter' do
     JSON.parse(Rails.root.join(
       'spec', 'fixtures', 'unified_health_data', 'after_visit_summary.json'
     ).read)
+  end
+
+  before do
+    allow(Flipper).to receive(:enabled?)
+      .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+      .and_return(true)
+    allow(Flipper).to receive(:enabled?)
+      .with(:mhv_medical_records_diagnostic_logging, user)
+      .and_return(false)
   end
 
   describe '#parse' do
@@ -188,12 +199,16 @@ RSpec.describe 'ClinicalNotesAdapter' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource']['docStatus'] = 'preliminary'
 
-        expected_msg = 'Filtered DocumentReference: ' \
-                       'id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, ' \
-                       'docStatus=preliminary, reason=disallowed_doc_status'
         expect(Rails.logger).to receive(:info).with(
-          expected_msg,
-          { service: 'unified_health_data', filtering: true }
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            record_id: '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+            doc_status: 'preliminary',
+            reason: 'disallowed_doc_status',
+            log_level_context: 'diagnostic'
+          )
         )
         expect(StatsD).to receive(:increment).with(
           'unified_health_data.clinical_note.filtered_document_reference',
@@ -207,12 +222,15 @@ RSpec.describe 'ClinicalNotesAdapter' do
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource'].delete('docStatus')
 
-        expected_msg = 'Filtered DocumentReference: ' \
-                       'id=76ad925b-0c2c-4401-ac0a-13542d6b6ef5, ' \
-                       'docStatus=, reason=missing_doc_status'
         expect(Rails.logger).to receive(:info).with(
-          expected_msg,
-          { service: 'unified_health_data', filtering: true }
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            record_id: '76ad925b-0c2c-4401-ac0a-13542d6b6ef5',
+            reason: 'missing_doc_status',
+            log_level_context: 'diagnostic'
+          )
         )
         expect(StatsD).to receive(:increment).with(
           'unified_health_data.clinical_note.filtered_document_reference',
@@ -222,7 +240,11 @@ RSpec.describe 'ClinicalNotesAdapter' do
         adapter.parse(note)
       end
 
-      it 'does not log but still increments StatsD when logging_enabled is false' do
+      it 'does not log but still increments StatsD when toggle is disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+
         note = notes_sample_response['vista']['entry'][0].deep_dup
         note['resource']['docStatus'] = 'preliminary'
 
@@ -232,8 +254,89 @@ RSpec.describe 'ClinicalNotesAdapter' do
           tags: ['reason:disallowed_doc_status']
         )
 
-        result = adapter.parse(note, logging_enabled: false)
+        result = adapter.parse(note)
         expect(result).to be_nil
+      end
+    end
+
+    context 'proactive warnings' do
+      it 'warns when note content is empty' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        # Remove all content data to simulate empty note
+        note['resource']['content'].each { |c| c['attachment'].delete('data') }
+
+        expect(Rails.logger).to receive(:warn).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'parse',
+            anomaly: 'empty_note_content',
+            record_id: note['resource']['id']
+          )
+        )
+        expect(StatsD).to receive(:increment).with('unified_health_data.clinical_note.empty_content')
+
+        parsed = adapter.parse(note)
+        expect(parsed).not_to be_nil
+        expect(parsed.note).to be_nil
+      end
+
+      it 'does not warn when note content is present' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+
+        expect(Rails.logger).not_to receive(:warn)
+        expect(StatsD).not_to receive(:increment).with('unified_health_data.clinical_note.empty_content')
+
+        parsed = adapter.parse(note)
+        expect(parsed.note).not_to be_nil
+      end
+
+      it 'logs unknown LOINC code as diagnostic when toggle is enabled' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['type']['coding'] = [{ 'code' => '99999-9', 'system' => 'http://loinc.org' }]
+
+        expect(Rails.logger).to receive(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'parse',
+            anomaly: 'unknown_loinc_code',
+            record_id: note['resource']['id'],
+            loinc_codes: '99999-9'
+          )
+        )
+        expect(StatsD).to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')
+
+        parsed = adapter.parse(note)
+        expect(parsed.note_type).to eq('other')
+      end
+
+      it 'does not log unknown LOINC code when toggle is disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+        note['resource']['type']['coding'] = [{ 'code' => '99999-9', 'system' => 'http://loinc.org' }]
+
+        expect(Rails.logger).not_to receive(:info).with(
+          hash_including(anomaly: 'unknown_loinc_code')
+        )
+        expect(StatsD).to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')
+
+        parsed = adapter.parse(note)
+        expect(parsed.note_type).to eq('other')
+      end
+
+      it 'does not log when LOINC code is in known mapping' do
+        note = notes_sample_response['vista']['entry'][0].deep_dup
+
+        expect(Rails.logger).not_to receive(:info).with(
+          hash_including(anomaly: 'unknown_loinc_code')
+        )
+        expect(StatsD).not_to receive(:increment).with('unified_health_data.clinical_note.unknown_loinc_code')
+
+        adapter.parse(note)
       end
     end
   end

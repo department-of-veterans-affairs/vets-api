@@ -7,6 +7,22 @@ RSpec.describe FormSubmissionAttempt, type: :model do
     it { is_expected.to belong_to(:form_submission) }
   end
 
+  shared_examples 'does not send simple forms email' do |form_type|
+    context "is a bio form #{form_type} with a saved_claim_id" do
+      let(:saved_claim) { create(:fake_saved_claim) }
+      let(:form_submission) { build(:form_submission, form_type:, saved_claim_id: saved_claim.id) }
+      let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
+
+      it 'does not enqueue an email' do
+        allow(SimpleFormsApi::Notification::SendNotificationEmailJob).to receive(:perform_async)
+
+        subject_action.call(form_submission_attempt)
+
+        expect(SimpleFormsApi::Notification::SendNotificationEmailJob).not_to have_received(:perform_async)
+      end
+    end
+  end
+
   describe 'state machine' do
     before { allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send) }
 
@@ -102,6 +118,15 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           end
         end
       end
+
+      context 'bio forms' do
+        let(:subject_action) { ->(fsa) { fsa.fail! } }
+
+        it_behaves_like 'does not send simple forms email', '21-4192'
+        it_behaves_like 'does not send simple forms email', '21-0779'
+        it_behaves_like 'does not send simple forms email', '21P-530a'
+        it_behaves_like 'does not send simple forms email', '21-2680'
+      end
     end
 
     it 'transitions to a success state' do
@@ -138,6 +163,15 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           form_submission_attempt.benefits_intake_uuid,
           'vba_21_4142'
         )
+      end
+
+      context 'bio forms' do
+        let(:subject_action) { ->(fsa) { fsa.vbms! } }
+
+        it_behaves_like 'does not send simple forms email', '21-4192'
+        it_behaves_like 'does not send simple forms email', '21-0779'
+        it_behaves_like 'does not send simple forms email', '21P-530a'
+        it_behaves_like 'does not send simple forms email', '21-2680'
       end
     end
   end

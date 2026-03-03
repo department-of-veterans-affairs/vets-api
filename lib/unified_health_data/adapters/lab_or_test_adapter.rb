@@ -4,11 +4,13 @@ require_relative '../models/lab_or_test'
 require_relative '../reference_range_formatter'
 require_relative '../facility_service'
 require_relative 'date_normalizer'
+require_relative 'fhir_helpers'
 
 module UnifiedHealthData
   module Adapters
     class LabOrTestAdapter
       include DateNormalizer
+      include FhirHelpers
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
 
@@ -77,14 +79,14 @@ module UnifiedHealthData
         ALLOWED_STATUSES.include?(status)
       end
 
-      def build_lab_or_test(record, code, encoded_data, observations, contained)
+      def build_lab_or_test(record, code, encoded_data, observations, contained) # rubocop:disable Metrics/MethodLength
         resource = record['resource']
         date_completed_value, facility_timezone = resolve_date_and_timezone(resource, contained)
 
         UnifiedHealthData::LabOrTest.new(
           id: resource['id'],
           type: resource['resourceType'],
-          display: format_display(record),
+          display: format_display(resource),
           test_code: code,
           test_code_display: get_test_code_display(record, code),
           date_completed: date_completed_value,
@@ -93,13 +95,14 @@ module UnifiedHealthData
           encoded_data:,
           location: get_location(record),
           ordered_by: get_ordered_by(record),
+          comments: extract_comments(record),
           observations:,
           body_site: get_body_site(resource, contained),
           status: resource['status'],
           source: record['source'],
           facility_timezone:
         )
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       # Resolves date_completed and facility_timezone by extracting station number
       # and converting UTC to facility local time when possible
@@ -240,7 +243,34 @@ module UnifiedHealthData
         return nil unless category
 
         # Try coding.display first, then category.text
-        category.dig('coding', 0, 'display') || category['text']
+        extract_codeable_concept_display(category, prefer: :coding)
+      end
+
+      def extract_comments(record)
+        resource = record['resource']
+        comments = []
+
+        # Extract comments from DiagnosticReport extensions (VistA labComment extensions)
+        if resource['extension'].present?
+          extension_comments = resource['extension'].filter_map { |ext| ext['valueString'] }
+          comments.concat(extension_comments)
+        end
+
+        # Extract comments from ServiceRequest.note[].text in contained resources (Oracle Health)
+        if resource['basedOn'].present? && resource['contained'].present?
+          resource['basedOn'].each do |based_on|
+            service_request = resource['contained'].find do |r|
+              r['resourceType'] == 'ServiceRequest' && r['id'] == get_reference_id(based_on['reference'])
+            end
+
+            next unless service_request&.dig('note').is_a?(Array)
+
+            note_comments = service_request['note'].filter_map { |note| note['text'] }
+            comments.concat(note_comments)
+          end
+        end
+
+        comments.presence
       end
 
       def get_body_site(resource, contained)
@@ -258,22 +288,12 @@ module UnifiedHealthData
 
           service_request['bodySite'].each do |body_site|
             # Prefer coding display (VistA uses this), fall back to CodeableConcept text (OH uses this)
-            display = extract_body_site_display(body_site)
+            display = extract_codeable_concept_display(body_site, prefer: :coding)
             body_sites << display if display.present?
           end
         end
 
         body_sites.join(', ').strip
-      end
-
-      def extract_body_site_display(body_site)
-        if body_site['coding'].is_a?(Array)
-          body_site['coding'].each do |coding|
-            return coding['display'] if coding['display'].present?
-          end
-        end
-
-        body_site['text']
       end
 
       def get_sample_tested(record, contained)
@@ -329,7 +349,7 @@ module UnifiedHealthData
           value: format_observation_value(obs),
           reference_range: UnifiedHealthData::ReferenceRangeFormatter.format(obs),
           status: obs['status'],
-          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
+          comments: obs['note']&.map { |note| note['text'] }&.compact || [],
           sample_tested:,
           body_site:
         )
@@ -400,12 +420,18 @@ module UnifiedHealthData
         reference.split('/').last
       end
 
-      def format_display(record)
-        service_request = record.dig('resource', 'contained')&.find { |r| r['resourceType'] == 'ServiceRequest' }
+      def format_display(resource)
+        # Check presentedForm title first (e.g., radiology reports)
+        title = resource['presentedForm']
+                &.find { |form| form['contentType'] == 'text/plain' }
+                &.dig('title')
+        return title if title.present?
+
+        service_request = resource['contained']&.find { |r| r['resourceType'] == 'ServiceRequest' }
 
         service_request&.dig('code', 'text').presence ||
           service_request&.dig('category', 0, 'coding', 0, 'display').presence ||
-          record.dig('resource', 'code', 'text') ||
+          resource.dig('code', 'text') ||
           ''
       end
 

@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/forms/21-686c/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 13 May 2025 19:26:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '254'
+      Connection:
+      - keep-alive
+      Last-Modified:
+      - Mon, 27 Aug 2007 17:15:36 GMT
+      Accept-Ranges:
+      - bytes
+      Vary:
+      - Accept-Encoding
+    body:
+      encoding: UTF-8
+      string: '{
+  "messages": [
+    {
+      "key": "string",
+      "severity": "INFO",
+      "status": 0,
+      "text": "string",
+      "timestamp": "2026-02-24T04:09:15.741Z"
+    }
+  ],
+  "formTemplate": {
+    "formTemplate": {
+      "additionalProp1": {}
+    }
+  }
+}'
+  recorded_at: Tue, 13 May 2025 19:26:37 GMT
+recorded_with: VCR 6.3.1

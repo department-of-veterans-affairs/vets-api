@@ -23,6 +23,7 @@ module TravelClaim
     CLAIM_CREATE_ERROR = 'claim_create_error'
     EXPENSE_ADD_ERROR = 'expense_add_error'
     CLAIM_SUBMIT_ERROR = 'claim_submit_error'
+    VALIDATION_ERROR = 'validation_error'
     ERROR_METRICS = {
       APPOINTMENT_ERROR => {
         cie: CheckIn::Constants::CIE_STATSD_APPOINTMENT_ERROR,
@@ -39,6 +40,10 @@ module TravelClaim
       CLAIM_SUBMIT_ERROR => {
         cie: CheckIn::Constants::CIE_STATSD_CLAIM_SUBMIT_ERROR,
         oh: CheckIn::Constants::OH_STATSD_CLAIM_SUBMIT_ERROR
+      },
+      VALIDATION_ERROR => {
+        cie: CheckIn::Constants::CIE_STATSD_VALIDATION_ERROR,
+        oh: CheckIn::Constants::OH_STATSD_VALIDATION_ERROR
       }
     }.freeze
 
@@ -60,33 +65,24 @@ module TravelClaim
     # Validates parameters, then executes the complete claim submission flow.
     #
     # @return [Hash] success response with claim ID and notification data
-    # @raise [Common::Exceptions::BackendServiceException] for API failures
-    # @raise [ArgumentError] for validation failures
+    # @raise [Common::Exceptions::BackendServiceException] for API or validation failures
     #
     def submit_claim
-      log_submission_start
       validate_parameters
       result = process_claim_submission
 
-      log_submission_success(result)
-      # Send notification if feature flag is enabled
       send_notification_if_enabled if result['success']
 
       result
     rescue Common::Exceptions::BackendServiceException => e
       log_submission_failure(error: e)
-      # Increment general failure metric
       increment_failure_metric
-      # Check if this is a duplicate claim error
-      handle_duplicate_claim_error if duplicate_claim_error?(e)
-      # Send error notification if feature flag is enabled
+      handle_duplicate_claim_error if @current_step && duplicate_claim_error?(e)
       send_error_notification_if_enabled(e)
       raise e
     rescue => e
       log_submission_failure(error: e)
-      # Increment general failure metric
       increment_failure_metric
-      # Send error notification if feature flag is enabled
       send_error_notification_if_enabled(e)
       raise e
     end
@@ -127,11 +123,10 @@ module TravelClaim
     # @raise [Common::Exceptions::BackendServiceException] if any required parameter is missing
     #
     def validate_parameters
-      raise_backend_service_exception('Appointment date is required', 400, 'VA902') if @appointment_date.blank?
-      raise_backend_service_exception('Facility type is required', 400, 'VA903') if @facility_type.blank?
-      raise_backend_service_exception('Check-in UUID is required', 400, 'VA904') if @check_in_uuid.blank?
+      raise_validation_error('Appointment date is required', 'VA902') if @appointment_date.blank?
+      raise_validation_error('Facility type is required', 'VA903') if @facility_type.blank?
+      raise_validation_error('Check-in UUID is required', 'VA904') if @check_in_uuid.blank?
 
-      # Initialize date fields early so they're available for error notifications
       normalized_appointment_datetime
       appointment_date_yyyy_mm_dd
     end
@@ -141,21 +136,18 @@ module TravelClaim
         s = @appointment_date
 
         unless s.is_a?(String) && s.include?('T')
-          raise_backend_service_exception(
+          raise_validation_error(
             'Appointment date must include a time component (e.g., 2025-09-16T10:00:00Z)',
-            400, 'VA905'
+            'VA905'
           )
         end
 
-        # Strict ISO8601 parsing; raises ArgumentError on bad input.
         t = Time.iso8601(s)
-
-        # Rebuild as UTC using the same wall-clock fields (ignores original offset).
         Time.utc(t.year, t.month, t.day, t.hour, t.min, t.sec)
       rescue ArgumentError
-        raise_backend_service_exception(
+        raise_validation_error(
           'Appointment date must be a valid ISO 8601 date-time (e.g., 2025-09-16T10:00:00Z)',
-          400, 'VA905'
+          'VA905'
         )
       end
     end
@@ -342,49 +334,29 @@ module TravelClaim
     end
 
     ##
-    # Logs the start of a travel claim submission process.
-    #
-    def log_submission_start
-      return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
-
-      Rails.logger.info({
-                          message: 'Travel Claim Submission: START',
-                          facility_type: @facility_type,
-                          check_in_uuid: @check_in_uuid
-                        })
-    end
-
-    ##
-    # Logs successful completion of travel claim submission.
-    #
-    # @param result [Hash] submission result containing claim data
-    #
-    def log_submission_success(result)
-      return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
-
-      Rails.logger.info({
-                          message: 'Travel Claim Submission: SUCCESS',
-                          facility_type: @facility_type,
-                          check_in_uuid: @check_in_uuid,
-                          claim_id: result['claimId']
-                        })
-    end
-
-    ##
-    # Logs failure of travel claim submission with step context.
+    # Logs failure of travel claim submission with step context and error details.
     #
     # @param error [Exception] the error that caused the failure
     #
     def log_submission_failure(error:)
       return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
 
-      Rails.logger.error({
-                           message: 'Travel Claim Submission: FAILURE',
-                           facility_type: @facility_type,
-                           check_in_uuid: @check_in_uuid,
-                           failed_step: @current_step || 'unknown',
-                           error_class: error.class.name
-                         })
+      log_data = {
+        message: "#{CheckIn::Constants::LOG_PREFIX}: Submission FAILURE",
+        facility_type: @facility_type,
+        check_in_uuid: @check_in_uuid,
+        correlation_id:,
+        failed_step: @current_step || 'unknown',
+        error_class: error.class.name
+      }
+
+      log_data[:http_status] = error.original_status if error.respond_to?(:original_status)
+
+      if error.respond_to?(:response_values) && error.response_values[:detail].present?
+        log_data[:error_detail] = Logging::Helper::DataScrubber.scrub(error.response_values[:detail])
+      end
+
+      Rails.logger.error(log_data)
     end
 
     ##
@@ -402,6 +374,11 @@ module TravelClaim
       )
     end
 
+    def raise_validation_error(detail, code)
+      increment_error_metric(VALIDATION_ERROR)
+      raise_backend_service_exception(detail, 400, code)
+    end
+
     ##
     # Extracts the last four digits of the claim number from API response
     #
@@ -414,7 +391,7 @@ module TravelClaim
       claim_id&.last(4) || 'unknown'
     rescue => e
       if Flipper.enabled?(:check_in_experience_travel_claim_logging)
-        Rails.logger.error('Travel Claim: Failed to extract claim number',
+        Rails.logger.error("#{CheckIn::Constants::LOG_PREFIX}: Failed to extract claim number",
                            error: e.message)
       end
       'unknown'
@@ -425,17 +402,12 @@ module TravelClaim
     #
     def send_notification_if_enabled
       return unless Flipper.enabled?(:check_in_experience_travel_reimbursement)
+      return if @check_in_uuid.blank?
 
       template_id = success_template_id
       claim_number_last_four = @claim_number_last_four
 
-      if Flipper.enabled?(:check_in_experience_travel_claim_logging)
-        Rails.logger.info({
-                            message: 'Travel Claim: Sending success notification',
-                            template_id:,
-                            claim_last_four: claim_number_last_four
-                          })
-      end
+      log_notification('success', template_id:, claim_last_four: claim_number_last_four)
 
       CheckIn::TravelClaimNotificationJob.perform_async(
         @check_in_uuid,
@@ -452,17 +424,18 @@ module TravelClaim
     #
     def send_error_notification_if_enabled(error)
       return unless Flipper.enabled?(:check_in_experience_travel_reimbursement)
+      return if @check_in_uuid.blank?
+
+      increment_metric_by_facility_type(
+        CheckIn::Constants::CIE_STATSD_ERROR_NOTIFICATION,
+        CheckIn::Constants::OH_STATSD_ERROR_NOTIFICATION
+      )
 
       template_id = determine_error_template_id(error)
       claim_number_last_four = @claim_number_last_four || 'unknown'
 
-      if Flipper.enabled?(:check_in_experience_travel_claim_logging)
-        Rails.logger.info({
-                            message: 'Travel Claim: Sending error notification',
-                            template_id:,
-                            error_class: error.class.name
-                          })
-      end
+      log_notification('error', template_id:, failed_step: @current_step || 'unknown',
+                                error_class: error.class.name)
 
       CheckIn::TravelClaimNotificationJob.perform_async(
         @check_in_uuid,
@@ -470,6 +443,19 @@ module TravelClaim
         template_id,
         claim_number_last_four
       )
+    end
+
+    def log_notification(type, **extra)
+      return unless Flipper.enabled?(:check_in_experience_travel_claim_logging)
+
+      log_data = {
+        message: "#{CheckIn::Constants::LOG_PREFIX}: Sending #{type} notification",
+        check_in_uuid: @check_in_uuid,
+        facility_type: @facility_type,
+        correlation_id:
+      }.merge(extra)
+
+      Rails.logger.info(log_data)
     end
 
     ##
@@ -502,8 +488,7 @@ module TravelClaim
     # Determines the appropriate error template ID based on the error type
     #
     def determine_error_template_id(error)
-      if error.is_a?(Common::Exceptions::BackendServiceException) &&
-         error.response_values[:detail]&.include?('already been created')
+      if error.is_a?(Common::Exceptions::BackendServiceException) && duplicate_claim_error?(error)
         @facility_type&.downcase == 'oh' ? CheckIn::Constants::OH_DUPLICATE_TEMPLATE_ID : CheckIn::Constants::CIE_DUPLICATE_TEMPLATE_ID
       else
         error_template_id
@@ -515,8 +500,8 @@ module TravelClaim
     #
     def increment_success_metric
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
-        CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+        CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS,
+        CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS
       )
     end
 
@@ -525,8 +510,8 @@ module TravelClaim
     #
     def increment_failure_metric
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE,
-        CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE
+        CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE,
+        CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE
       )
     end
 
@@ -562,8 +547,8 @@ module TravelClaim
     #
     def handle_duplicate_claim_error
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE,
-        CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
+        CheckIn::Constants::CIE_STATSD_BTSSS_V1_DUPLICATE,
+        CheckIn::Constants::OH_STATSD_BTSSS_V1_DUPLICATE
       )
     end
 
