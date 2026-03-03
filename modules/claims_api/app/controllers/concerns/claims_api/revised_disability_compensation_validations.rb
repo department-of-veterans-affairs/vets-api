@@ -6,6 +6,7 @@ require 'bgs_service/standard_data_service'
 
 module ClaimsApi
   module RevisedDisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
+    DISABILITY_COUNT_MAX = 150
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -269,9 +270,10 @@ module ClaimsApi
 
     def validate_form_526_fewer_than_150_disabilities!
       disabilities = form_attributes['disabilities']
-      return if disabilities.size <= 150
+      return if disabilities.size <= DISABILITY_COUNT_MAX
 
-      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities', 'A maximum of 150 disabilities allowed')
+      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities',
+                                                        "A maximum of #{DISABILITY_COUNT_MAX} disabilities allowed")
     end
 
     def contention_classification_type_code_list
