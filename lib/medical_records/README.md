@@ -112,6 +112,6 @@ Counters: `...show.source`, `...show.not_found`, `...filtered`, `...anomaly.high
 | `lib/medical_records/medical_records_log.rb`                           | Core utility — PII stripping, toggles, envelope |
 | `lib/unified_health_data/concerns/clinical_notes_logging.rb`           | Reference concern implementation                |
 | `lib/unified_health_data/adapters/clinical_notes_adapter.rb`           | Adapter-level logging                           |
-| `spec/lib/medical_records/medical_records_log_spec.rb`                 | Unit tests (23 examples)                        |
+| `spec/lib/medical_records/medical_records_log_spec.rb`                 | Unit tests                                      |
 | `spec/lib/unified_health_data/concerns/clinical_notes_logging_spec.rb` | Concern specs                                   |
 | `spec/lib/unified_health_data/service_spec.rb`                         | Integration tests for toggle fallback           |
