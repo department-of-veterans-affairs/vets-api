@@ -373,8 +373,8 @@ RSpec.describe 'Mobile::V1::Health::Immunizations', :skip_json_api_validation, t
                                                       { '2022-03-13T09:59:25Z' => 'FLU' },
                                                       { '2021-05-09T09:59:25Z' => 'COVID-19' },
                                                       { '2021-04-18T09:59:25Z' => 'COVID-19' },
-                                                      { '2020-03-01T09:59:25Z' => 'FLU' }, # uses group name as tiebreaker
-                                                      { '2020-03-01T09:59:25Z' => 'Td' }, # uses group name as tiebreaker
+                                                      { '2020-03-01T09:59:25Z' => 'FLU' },
+                                                      { '2020-03-01T09:59:25Z' => 'Td' },
                                                       { '2019-02-24T09:59:25Z' => 'FLU' },
                                                       { '2018-02-18T09:59:25Z' => 'FLU' },
                                                       { '2017-02-12T09:59:25Z' => 'FLU' },
