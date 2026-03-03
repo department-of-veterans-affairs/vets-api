@@ -8,6 +8,7 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-2"
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 data:
 {{ $key.key | indent 2  }}:
 {{ $key.value | indent 4 }}
