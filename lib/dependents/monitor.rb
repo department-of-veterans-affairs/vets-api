@@ -65,7 +65,7 @@ module Dependents
     end
 
     def v3_logging_enabled?
-      Flipper.enabled?(:dependents_v3_removal_picklist_logging)
+      @v3_logging_enabled ||= Flipper.enabled?(:dependents_v3_removal_picklist_logging)
     end
 
     def submission_stats_key
