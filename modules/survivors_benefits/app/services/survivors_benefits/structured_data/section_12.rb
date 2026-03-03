@@ -11,7 +11,7 @@ module SurvivorsBenefits::StructuredData::Section12
         'CLAIM_TYPE_FULLY_DEVELOPED_CHK' => true,
         'CLAIMANT_SIGNATURE_X' => form['claimantSignatureX'],
         'CLAIMANT_SIGNATURE' => form['claimantSignature'],
-        'DATE_OF_CLAIMANT_SIGNATURE' => format_date(form['dateSigned'])
+        'DATE_OF_CLAIMANT_SIGNATURE' => format_date(form['dateSigned'] || Date.current)
       }
     )
   end
