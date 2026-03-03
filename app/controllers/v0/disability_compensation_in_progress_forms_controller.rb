@@ -85,7 +85,7 @@ module V0
 
       # purge duplicate additional information properties in IPFs this error only happens for form created
       # between 2/3/2026-2/9/2026 due to the introduction of duplicate additional information key.
-      # this function can be remove after a year or when we know all the ipf created during that time has successfully submitted.
+      # this function can be removed after a year or when we know all the IPFs created during that time have successfully submitted.
       # TODO: Remove this cleanup block after 2/9/2027 or once all IPFs created between 2/3/2026 and 2/9/2026 have successfully submitted.
       if Flipper.enabled?(:disability_compensation_fix_duplicate_key_ipf, @current_user)
         %w[additionalInformation additional_information].each do |key|
