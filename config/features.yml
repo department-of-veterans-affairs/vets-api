@@ -176,7 +176,7 @@ features:
   disability_compensation_fix_duplicate_key_ipf:
     actor_type: user
     description: >
-      Kill switch for the fix that remove duplicate addiitionalInformation keys on InProgressForms
+      Kill switch for the fix that removes duplicate additionalInformation keys on InProgressForms
     enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
