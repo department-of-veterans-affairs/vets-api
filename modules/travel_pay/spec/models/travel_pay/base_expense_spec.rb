@@ -170,7 +170,7 @@ RSpec.describe TravelPay::BaseExpense, type: :model do
   describe 'receipt association' do
     subject { described_class.new(valid_attributes) }
 
-    let(:mock_receipt) { double('Receipt', id: 'receipt-uuid-456') }
+    let(:mock_receipt) { { id: 'receipt-uuid-456', file_name: 'test.pdf', content_type: 'application/pdf' } }
 
     describe '#receipt_association' do
       it 'returns the receipt attribute' do

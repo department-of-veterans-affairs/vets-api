@@ -1293,6 +1293,8 @@ representation_management:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  case_get_document:
+    mock: <%= ENV['res__case_get_document__mock'] %>
   ch_31_case_details:
     mock: <%= ENV['res__ch_31_case_details__mock'] %>
   ch_31_case_milestones:
