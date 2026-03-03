@@ -175,7 +175,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         end
       end
 
-      it 'sends a VA Notify confirmation email' do
+      it 'sends a VA Notify confirmation email when feature flag is enabled' do
+        Flipper.enable(:accredited_representative_portal_itf_confirmation_email)
         notification_email = instance_double(AccreditedRepresentativePortal::NotificationEmail)
         allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_email)
         allow(notification_email).to receive(:deliver)
@@ -187,7 +188,18 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         expect(notification_email).to have_received(:deliver).with(:confirmation)
       end
 
+      it 'does not send confirmation email when feature flag is disabled' do
+        Flipper.disable(:accredited_representative_portal_itf_confirmation_email)
+
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+          post('/accredited_representative_portal/v0/intent_to_file', params:)
+        end
+
+        expect(AccreditedRepresentativePortal::NotificationEmail).not_to have_received(:new)
+      end
+
       it 'does not fail the request if the confirmation email fails' do
+        Flipper.enable(:accredited_representative_portal_itf_confirmation_email)
         allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new)
           .and_raise(StandardError, 'email service down')
 
@@ -196,7 +208,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
           expect(response).to have_http_status(:created)
         end
       end
-    end
 
     context 'valid params - claimant survivor' do
       let(:survivor_params) do

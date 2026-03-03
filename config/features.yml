@@ -39,6 +39,9 @@ features:
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
+  accredited_representative_portal_itf_confirmation_email:
+    actor_type: user
+    description: Enables sending a VA Notify confirmation email to the representative when an ITF is recorded in ARP
   accredited_representative_portal_skip_itf_check:
     actor_type: user
     description: If enabled, skip existing ITF check in ARP
