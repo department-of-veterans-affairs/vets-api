@@ -231,7 +231,7 @@ jobs:
       - name: Determine shard grouping strategy
         id: grouping
         run: |
-          if [ -f tmp/parallel_runtime_rspec.log ]; then
+          if [ -s tmp/parallel_runtime_rspec.log ]; then
             echo "strategy=runtime" >> $GITHUB_OUTPUT
             echo "Runtime log found, using runtime-based shard balancing"
           else
