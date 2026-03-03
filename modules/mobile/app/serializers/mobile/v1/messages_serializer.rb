@@ -10,8 +10,9 @@ module Mobile
 
       attributes :message_id, :body, :category, :subject, :message_body, :attachment, :sent_date,
                  :sender_id, :sender_name, :recipient_id, :recipient_name, :read_receipt,
-                 :triage_group_name, :proxy_sender_name, :thread_id, :folder_id,
-                 :draft_date, :to_date, :has_attachments, :reply_disabled
+                 :triage_group_name, :triage_group, :proxy_sender_name, :thread_id, :folder_id,
+                 :draft_date, :to_date, :has_attachments, :reply_disabled, :oh_migration_phase,
+                 :migrated_to_oracle_health
 
       attribute :body, &:message_body
 
