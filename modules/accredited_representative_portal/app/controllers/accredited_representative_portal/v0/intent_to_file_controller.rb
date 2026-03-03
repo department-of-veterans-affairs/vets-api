@@ -70,7 +70,9 @@ module AccreditedRepresentativePortal
           end
 
           Rails.logger.info('ARP ITF: SavedClaimClaimantRepresentative created')
-          send_confirmation_email(saved_claim) if Flipper.enabled?(:accredited_representative_portal_itf_confirmation_email)
+          if Flipper.enabled?(:accredited_representative_portal_itf_confirmation_email)
+            send_confirmation_email(saved_claim)
+          end
           monitoring.track_count(SUCCESS_METRIC, tags: default_tags)
           render json: parsed_response, status: :created
         end
