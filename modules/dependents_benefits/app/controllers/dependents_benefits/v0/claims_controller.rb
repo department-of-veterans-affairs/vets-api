@@ -58,6 +58,7 @@ module DependentsBenefits
           begin
             claim_info = claim.get_claim_information(current_user)
             if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
+              claim.add_veteran_info(JSON.parse(user_data.get_user_json))
               submission = submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
 
               monitor.track_create_success(in_progress_form, claim, current_user)

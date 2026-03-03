@@ -2,6 +2,7 @@
 
 require 'claims_evidence_api/uploader'
 require 'dependents/monitor'
+require 'dependents_benefits/user_data'
 require 'digital_forms_api/service/submissions'
 
 module V0
@@ -41,6 +42,9 @@ module V0
         begin
           claim_info = claim.get_claim_information(current_user)
           if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
+            user_data = DependentsBenefits::UserData.new(current_user, claim.parsed_form)
+            claim.add_veteran_info(JSON.parse(user_data.get_user_json))
+
             submission = submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
             log_submitted(in_progress_form, claim)
             claim.send_submitted_email(current_user)
