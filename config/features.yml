@@ -1167,6 +1167,12 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
+  form_218940_date_validation:
+    actor_type: user
+    description: Enable the data validation on the 21-8940
+  form218940_leaving_last_position:
+    actor_type: user
+    description: enable the leaving last positon text box
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)

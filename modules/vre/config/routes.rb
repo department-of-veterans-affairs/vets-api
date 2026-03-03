@@ -6,5 +6,6 @@ VRE::Engine.routes.draw do
     resource :ch31_eligibility_status, only: [:show]
     resource :ch31_case_details, only: [:show]
     resource :ch31_case_milestones, only: [:create]
+    resource :case_get_document, only: [:create], controller: 'case_get_document'
   end
 end
