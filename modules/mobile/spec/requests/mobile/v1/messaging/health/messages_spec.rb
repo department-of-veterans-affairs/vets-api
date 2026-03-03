@@ -42,6 +42,62 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
       VCR.eject_cassette
     end
 
+    let(:first_triage_group) do
+      {
+        'triageTeamId' => 384_939,
+        'name' => 'VA Flagship mobile applications interface 1_DAYT29',
+        'preferredTeam' => false,
+        'active' => true,
+        'stationNumber' => '989',
+        'healthCareSystemName' => nil,
+        'locationName' => nil,
+        'locationStationNumber' => nil,
+        'groupTypeEnumVal' => nil,
+        'subGroupTypeEnumVal' => nil,
+        'groupTypePatientDisplay' => nil,
+        'subGroupTypePatientDisplay' => nil,
+        'teamName' => nil,
+        'leadProviderName' => nil,
+        'suggestedNameDisplay' => nil,
+        'description' => nil,
+        'legacyName' => nil,
+        'ohPoolId' => nil,
+        'oplock' => 1,
+        'createdDate' => '2023-03-20T14:01:45.000Z',
+        'modifiedDate' => '2026-01-15T15:49:06.000Z',
+        'relationType' => 'PATIENT',
+        'ohTriageGroup' => false
+      }
+    end
+
+    let(:second_triage_group) do
+      {
+        'triageTeamId' => 345_468,
+        'name' => 'VA Flagship mobile applications interface 1_DAYT29',
+        'preferredTeam' => false,
+        'active' => true,
+        'stationNumber' => '989',
+        'healthCareSystemName' => nil,
+        'locationName' => nil,
+        'locationStationNumber' => nil,
+        'groupTypeEnumVal' => nil,
+        'subGroupTypeEnumVal' => nil,
+        'groupTypePatientDisplay' => nil,
+        'subGroupTypePatientDisplay' => nil,
+        'teamName' => nil,
+        'leadProviderName' => nil,
+        'suggestedNameDisplay' => nil,
+        'description' => nil,
+        'legacyName' => nil,
+        'ohPoolId' => nil,
+        'oplock' => 1,
+        'createdDate' => '2023-03-20T14:01:45.000Z',
+        'modifiedDate' => '2026-01-15T15:49:06.000Z',
+        'relationType' => 'PATIENT',
+        'ohTriageGroup' => false
+      }
+    end
+
     let(:thread_response) do
       { 'data' =>
           [
@@ -62,13 +118,16 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'recipientName' => 'MVIONE, TEST',
                 'readReceipt' => 'READ',
                 'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
+                'triageGroup' => first_triage_group,
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false,
-                'replyDisabled' => false
+                'replyDisabled' => false,
+                'ohMigrationPhase' => nil,
+                'migratedToOracleHealth' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573059'
@@ -91,13 +150,16 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'recipientName' => 'MVIONE, TEST',
                 'readReceipt' => 'READ',
                 'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
+                'triageGroup' => first_triage_group,
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false,
-                'replyDisabled' => false
+                'replyDisabled' => false,
+                'ohMigrationPhase' => nil,
+                'migratedToOracleHealth' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573052'
@@ -120,13 +182,16 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'recipientName' => 'WORKLOAD CAPTURE_Mohammad',
                 'readReceipt' => 'READ',
                 'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
+                'triageGroup' => second_triage_group,
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false,
-                'replyDisabled' => false
+                'replyDisabled' => false,
+                'ohMigrationPhase' => nil,
+                'migratedToOracleHealth' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'

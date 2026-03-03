@@ -35,7 +35,6 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
         support_aliases: ['PMR', 'Medical Records'],
         documents: '[]',
         date: '2024-11-01',
-        # New content override fields (populated when cst_evidence_requests_content_override is enabled)
         long_description: { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test description' }] },
         next_steps: { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test next steps' }] },
         no_action_needed: false,
@@ -123,6 +122,7 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
     {
       id: '555555555',
       type: 'claim',
+      provider: 'lighthouse',
       base_end_product_code: '400',
       claim_date: '2017-05-02',
       claim_phase_dates:,
@@ -154,6 +154,7 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
 
       expect(claim.id).to eq('555555555')
       expect(claim.type).to eq('claim')
+      expect(claim.provider).to eq('lighthouse')
       expect(claim.base_end_product_code).to eq('400')
       expect(claim.claim_date).to eq('2017-05-02')
       expect(claim.claim_phase_dates).to be_a(BenefitsClaims::Responses::ClaimPhaseDates)
@@ -251,7 +252,6 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       expect(claim.tracked_items.first.support_aliases).to eq(['PMR', 'Medical Records'])
       expect(claim.tracked_items.first.documents).to eq('[]')
       expect(claim.tracked_items.first.date).to eq('2024-11-01')
-      # New content override fields (populated when cst_evidence_requests_content_override is enabled)
       expect(claim.tracked_items.first.long_description).to eq(
         { 'blocks' => [{ 'type' => 'paragraph', 'content' => 'Test description' }] }
       )
@@ -270,6 +270,13 @@ RSpec.describe BenefitsClaims::Responses::ClaimResponse do
       claim = described_class.new(params)
 
       expect(claim.type).to eq('claim')
+    end
+
+    it 'allows provider to be nil when not provided' do
+      params = valid_params.except(:provider)
+      claim = described_class.new(params)
+
+      expect(claim.provider).to be_nil
     end
 
     it 'accepts empty evidence_submissions array' do

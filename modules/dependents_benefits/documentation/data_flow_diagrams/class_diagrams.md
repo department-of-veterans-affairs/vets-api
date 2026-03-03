@@ -108,7 +108,7 @@ classDiagram
         -mark_submission_attempt_failed(submission_attempt, exception)
     }
 
-    class DependentBackupJob {
+    class BenefitsIntakeJob {
         -submit_claims_to_service() ServiceResponse
         -submit_to_service() ServiceResponse
         -handle_job_failure(error)
@@ -125,6 +125,6 @@ classDiagram
 
     DependentSubmissionJob <|-- BGSFormJob
     DependentSubmissionJob <|-- ClaimsEvidenceFormJob
-    DependentSubmissionJob <|-- DependentBackupJob
+    DependentSubmissionJob <|-- BenefitsIntakeJob
 ```
 

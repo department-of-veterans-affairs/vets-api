@@ -107,18 +107,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
       end
     end
 
-    describe '#unknown_service_response' do
+    describe '#unknown_eligibility_response' do
       it 'returns Mobile constants' do
-        expect(subject.send(:unknown_service_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
-        )
-      end
-    end
-
-    describe '#edipi_no_pnl_response' do
-      it 'returns Mobile constants' do
-        expect(subject.send(:edipi_no_pnl_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+        expect(subject.send(:unknown_eligibility_response)).to eq(
+          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
         )
       end
     end
@@ -131,10 +123,18 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
       end
     end
 
-    describe '#error_response' do
+    describe '#uncaught_error_response' do
       it 'returns Mobile constants' do
-        expect(subject.send(:error_response)).to eq(
-          Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE
+        expect(subject.send(:uncaught_error_response)).to eq(
+          Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
+        )
+      end
+    end
+
+    describe '#person_not_found_response' do
+      it 'returns Mobile constants' do
+        expect(subject.send(:person_not_found_response)).to eq(
+          Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
         )
       end
     end
@@ -160,11 +160,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
     end
 
     context 'when user is nil' do
-      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError)
+      it 'does not raise an error' do
+        expect { described_class.new(nil) }.not_to raise_error
+      end
+
+      it 'only logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(nil)
 
         expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
       end
     end
 
@@ -173,11 +177,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         allow(user).to receive_messages(edipi: nil, icn: nil)
       end
 
-      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError)
+      it 'does not raise an error' do
+        expect { described_class.new(user) }.not_to raise_error
+      end
+
+      it 'only logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(user)
 
         expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
       end
     end
   end
@@ -425,13 +433,13 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
         let(:ssc_code) { 'U' }
 
-        it 'returns veteran_status_alert with Mobile unknown service constants' do
+        it 'returns veteran_status_alert with Mobile unknown eligibility constants' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
 
@@ -439,13 +447,13 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
         let(:ssc_code) { 'X' }
 
-        it 'returns veteran_status_alert with Mobile EDIPI no PNL constants' do
+        it 'returns veteran_status_alert with Mobile unknown eligibility constants' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
 
@@ -467,21 +475,35 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
         let(:ssc_code) { 'VNA' }
 
-        it 'returns veteran_status_alert with Mobile error constants' do
+        it 'returns veteran_status_alert with Mobile unknown eligibility constants' do
           result = subject.status_card
 
           expect(result[:type]).to eq('veteran_status_alert')
-          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE[:title])
-          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE[:message])
-          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE[:status])
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE[:status])
         end
       end
     end
 
     context 'error scenarios' do
       context 'when user is nil' do
-        it 'raises ArgumentError (inherited from base class)' do
-          expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
+        let(:user) { nil }
+
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns a veteran_status_alert with Mobile person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('NO_ICN')
         end
       end
 

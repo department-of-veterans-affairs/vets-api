@@ -13,6 +13,11 @@ module VeteranStatusCard
     STATSD_FAILURE = 'failure'
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
+    STATSD_SUCCESS = 'success'
+
+    # Messages for user's missing fields
+    NO_ICN_MESSAGE = 'no_icn'
+    NO_EDIPI_MESSAGE = 'no_edipi'
 
     # Default value in case SSC codes are never checked
     NO_SSC_CHECK_MESSAGE = 'no_ssc_check'
@@ -78,16 +83,6 @@ module VeteranStatusCard
       log_statsd(STATSD_TOTAL)
       @user = user
       @confirmation_status = NO_SSC_CHECK_MESSAGE
-
-      if @user.nil?
-        log_statsd(STATSD_FAILURE)
-        raise ArgumentError, 'User cannot be nil'
-      end
-
-      if @user.edipi.blank? || @user.icn.blank?
-        log_statsd(STATSD_FAILURE)
-        raise ArgumentError, 'User missing required fields'
-      end
     end
 
     ##
@@ -102,12 +97,36 @@ module VeteranStatusCard
     #     - When not eligible: { header:, body:, alert_type:, veteran_status:,
     #         not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #
-    def status_card
-      if eligible?
-        log_vsc_result(confirmed: true)
+    def status_card # rubocop:disable Metrics/MethodLength
+      # Check up front that the ICN is present, as this is required for the VetVerificationStatus service
+      if @user&.icn.blank?
+        @confirmation_status = NO_ICN_MESSAGE
+        log_missing_fields
+        return person_not_found_response_hash
+      end
 
+      # If the ICN is present, check if the VetVerificationStatus is confirmed first
+      if vet_verification_eligible?
+        log_vsc_result(confirmed: true)
+        return eligible_response
+      end
+
+      # If the VetVerificationStatus is not confirmed, check that EDIPI is present as this
+      # is required for the VAProfile request
+      if @user&.edipi.blank?
+        @confirmation_status = NO_EDIPI_MESSAGE
+        log_missing_fields
+        return person_not_found_response_hash
+      end
+
+      # If the EDIPI is present, check for SSC eligibility through VAProfile
+      if ssc_eligible?
+        log_vsc_result(confirmed: true)
         eligible_response
       else
+        # If we've hit this point, ICN and EDIPI are present but neither VetVerificationStatus
+        # nor VAProfile showed eligible; from here we check the error details to send
+        # back to the user
         error_details = error_results
 
         log_vsc_result(confirmed: false)
@@ -178,18 +197,8 @@ module VeteranStatusCard
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def unknown_service_response
-      VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
-    end
-
-    ##
-    # Returns the response when EDIPI has no PNL (Personnel Number List) record
-    # Override in subclasses to use different messaging
-    #
-    # @return [Hash] response with :title, :message, :status keys
-    #
-    def edipi_no_pnl_response
-      VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+    def unknown_eligibility_response
+      VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
     end
 
     ##
@@ -203,13 +212,23 @@ module VeteranStatusCard
     end
 
     ##
-    # Returns the generic error response
+    # Returns the uncaught error response
     # Override in subclasses to use different messaging
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def error_response
-      VeteranStatusCard::Constants::ERROR_RESPONSE
+    def uncaught_error_response
+      VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+    end
+
+    ##
+    # Returns the person not found response
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
+    def person_not_found_response
+      VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
     end
 
     private
@@ -222,7 +241,39 @@ module VeteranStatusCard
     #
     def log_statsd(key)
       # Ensure statsd is logged with downcase suffixes
+      return if key.blank?
+
       StatsD.increment("#{statsd_key_prefix}.#{key.downcase}")
+    end
+
+    ##
+    # Logs multiple StatsD metrics in a single call
+    #
+    # @param keys [Array<String>] the metric key suffixes to log
+    # @return [void]
+    #
+    def log_multiple_statsd(keys)
+      keys.each do |key|
+        log_statsd(key)
+      end
+    end
+
+    ##
+    # Logs metrics and structured result when the user is missing required fields
+    # (nil user, missing EDIPI, or missing ICN). Treats the outcome as PERSON_NOT_FOUND.
+    #
+    # @return [void]
+    #
+    def log_missing_fields
+      keys = [STATSD_INELIGIBLE, @confirmation_status, STATSD_SUCCESS]
+      log_multiple_statsd(keys)
+
+      Rails.logger.info("#{service_name} VSC Card Result", {
+                          veteran_status: NOT_CONFIRMED_TEXT,
+                          not_confirmed_reason: nil,
+                          confirmation_status: confirmation_status_upcase,
+                          service_summary_code: nil
+                        })
     end
 
     ##
@@ -232,14 +283,13 @@ module VeteranStatusCard
     # @return [void]
     #
     def log_vsc_result(confirmed: false)
-      key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
-      log_statsd(key)
-
-      # Log the vet verification reason if it exists
-      log_statsd(vet_verification_status[:reason]) if vet_verification_status[:reason].present?
-
-      # confirmation_status will always be present - it defaults to NO_SSC_CHECK_MESSAGE
-      log_statsd(@confirmation_status)
+      keys = [
+        confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE,
+        vet_verification_status[:reason],
+        @confirmation_status,
+        STATSD_SUCCESS
+      ]
+      log_multiple_statsd(keys)
 
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
@@ -300,16 +350,6 @@ module VeteranStatusCard
     end
 
     ##
-    # Determines if the veteran is eligible for a status card
-    # Checks vet verification status first, then falls back to SSC code eligibility
-    #
-    # @return [Boolean] true if eligible, false otherwise
-    #
-    def eligible?
-      vet_verification_eligible? || ssc_eligible?
-    end
-
-    ##
     # Generates error response details based on the reason for ineligibility
     # Returns appropriate messaging based on vet verification status reason or SSC code
     #
@@ -317,13 +357,9 @@ module VeteranStatusCard
     #
     def error_results
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
-      if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
-        return {
-          title: vet_verification_status[:title],
-          message: vet_verification_status[:message],
-          status: vet_verification_status[:status]
-        }
-      end
+      return person_not_found_response if vet_verification_status[:reason] == VET_STATUS_PERSON_NOT_FOUND_TEXT
+
+      return something_went_wrong_response if vet_verification_status[:reason] == VET_STATUS_ERROR_TEXT
 
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
       response_for_ssc_code
@@ -345,19 +381,19 @@ module VeteranStatusCard
         ineligible_service_response
       when UNKNOWN_SERVICE_SSC_CODE
         @confirmation_status = UNKNOWN_SSC_MESSAGE
-        unknown_service_response
+        unknown_eligibility_response
       when EDIPI_NO_PNL_CODE
         @confirmation_status = EDIPI_NO_PNL_SSC_MESSAGE
-        edipi_no_pnl_response
+        unknown_eligibility_response
       when *CURRENTLY_SERVING_CODES
         @confirmation_status = CURRENTLY_SERVING_SSC_MESSAGE
         currently_serving_response
       when *ERROR_SSC_CODES
         @confirmation_status = ERROR_SSC_MESSAGE
-        error_response
+        unknown_eligibility_response
       else
         @confirmation_status = UNCAUGHT_SSC_MESSAGE
-        error_response
+        uncaught_error_response
       end
     end
 
@@ -412,6 +448,12 @@ module VeteranStatusCard
       more_research_required_not_title_38? && ssc_confirmed?
     end
 
+    ##
+    # Checks whether the SSC code corresponds to a confirmed (eligible) veteran status
+    # Sets @confirmation_status as a side effect when a match is found
+    #
+    # @return [Boolean] true if the SSC code is in any confirmed code group, false otherwise
+    #
     def ssc_confirmed?
       case ssc_code
       when *AD_DSCH_VAL_SSC_CODES
@@ -523,9 +565,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: error_response[:message],
-            title: error_response[:title],
-            status: error_response[:status]
+            message: unknown_eligibility_response[:message],
+            title: unknown_eligibility_response[:title],
+            status: unknown_eligibility_response[:status]
           }
         else
           {
@@ -564,6 +606,27 @@ module VeteranStatusCard
     #
     def vet_verification_service
       @vet_verification_service ||= VeteranVerification::Service.new
+    end
+
+    ##
+    # Returns a response for early errors finding no ICN or EDIPI
+    #
+    # @return [Hash] formatted error response with :type, :veteran_status, :service_summary_code,
+    #    :not_confirmed_reason, :confirmation_status
+    #
+    def person_not_found_response_hash
+      {
+        type: VETERAN_STATUS_ALERT,
+        attributes: {
+          header: person_not_found_response[:title],
+          body: person_not_found_response[:message],
+          alert_type: person_not_found_response[:status],
+          veteran_status: NOT_CONFIRMED_TEXT,
+          not_confirmed_reason: VET_STATUS_PERSON_NOT_FOUND_TEXT,
+          confirmation_status: confirmation_status_upcase,
+          service_summary_code: nil
+        }
+      }
     end
 
     ##

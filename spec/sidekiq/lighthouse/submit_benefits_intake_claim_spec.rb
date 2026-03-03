@@ -35,7 +35,10 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         expect(job).to receive(:send_confirmation_email).once
         expect(service).to receive(:upload_doc)
 
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.started',
+                                                   tags: ['form_id:10-10EZ'])
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success',
+                                                   tags: ['form_id:10-10EZ'])
 
         job.perform(claim.id)
 
@@ -51,7 +54,10 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         expect(job).to receive(:generate_metadata).once
         expect(service).to receive(:upload_doc)
         expect(Rails.logger).to receive(:warn)
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.started',
+                                                   tags: ['form_id:10-10EZ'])
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure',
+                                                   tags: ['form_id:10-10EZ'])
         expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
         expect(response.success?).to be(false)
       end
@@ -59,10 +65,14 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       it 'handles an invalid document' do
         allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
         expect(Rails.logger).to receive(:warn)
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.started',
+                                                   tags: ['form_id:10-10EZ'])
         expect(StatsD).to receive(:increment).with(
-          'worker.lighthouse.submit_benefits_intake_claim.document_upload_error'
+          'worker.lighthouse.submit_benefits_intake_claim.document_upload_error',
+          tags: ['form_id:10-10EZ']
         )
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure',
+                                                   tags: ['form_id:10-10EZ'])
         expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
       end
 
@@ -95,7 +105,8 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
             end
             expect(metrics.collect(&:source)).to include(
               'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
-              'worker.lighthouse.submit_benefits_intake_claim.success:1|c'
+              'worker.lighthouse.submit_benefits_intake_claim.started:1|c|#form_id:21-0779',
+              'worker.lighthouse.submit_benefits_intake_claim.success:1|c|#form_id:21-0779'
             )
             expect(va210779claim.form_submissions).not_to be_nil
             expect(va210779claim.business_line).not_to be_nil
@@ -144,7 +155,176 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     it 'logs a distinct error when retries are exhausted' do
       Lighthouse::SubmitBenefitsIntakeClaim.within_sidekiq_retries_exhausted_block do
         expect(Rails.logger).to receive(:error).exactly(:once)
-        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.exhausted')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.exhausted',
+                                                   tags: [])
+      end
+    end
+  end
+
+  describe '#govcio_upload' do
+    let(:ibm_service) { double('Ibm::Service') }
+    let(:lighthouse_service) { double('BenefitsIntakeService::Service', uuid: '123-456-789') }
+    let(:form214192_claim) do
+      claim = SavedClaim::Form214192.new(form: {
+        veteranInformation: {
+          fullName: { first: 'John', middle: 'M', last: 'Doe' },
+          ssn: '123456789',
+          vaFileNumber: '987654321',
+          dateOfBirth: '1980-01-01'
+        },
+        employmentInformation: {
+          employerName: 'Acme Corp',
+          employerAddress: {
+            street: '123 Main St',
+            city: 'City',
+            state: 'CA',
+            postalCode: '12345',
+            country: 'USA'
+          }
+        }
+      }.to_json)
+      claim.form_id = '21-4192'
+      claim
+    end
+
+    before do
+      job.instance_variable_set(:@claim, form214192_claim)
+      job.instance_variable_set(:@lighthouse_service, lighthouse_service)
+      allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+    end
+
+    context 'when form responds to to_ibm and flipper is enabled' do
+      before do
+        job.instance_variable_set(:@ibm_payload, form214192_claim.to_ibm)
+        allow(Flipper).to receive(:enabled?).with(:form_21_4192_govcio_mms).and_return(true)
+      end
+
+      it 'uploads to IBM MMS successfully' do
+        expect(Rails.logger).to receive(:info).with(
+          'Lighthouse::SubmitBenefitsIntakeClaim uploading to IBM MMS',
+          anything
+        )
+        expect(Rails.logger).to receive(:info).with(
+          'Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload succeeded',
+          anything
+        )
+        expect(ibm_service).to receive(:upload_form).with(
+          form: kind_of(String),
+          guid: '123-456-789'
+        )
+        expect(StatsD).to receive(:increment)
+          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success',
+                tags: ['form_id:21-4192'])
+
+        job.send(:govcio_upload)
+      end
+
+      it 'handles upload errors gracefully' do
+        allow(ibm_service).to receive(:upload_form).and_raise(StandardError, 'Upload failed')
+        expect(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:warn).with(
+          'Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload failed',
+          anything
+        )
+        expect(StatsD).to receive(:increment)
+          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.failure',
+                tags: ['form_id:21-4192'])
+
+        expect { job.send(:govcio_upload) }.not_to raise_error
+      end
+    end
+
+    context 'when flipper is disabled' do
+      before do
+        job.instance_variable_set(:@ibm_payload, form214192_claim.to_ibm)
+        allow(Flipper).to receive(:enabled?).with(:form_21_4192_govcio_mms).and_return(false)
+      end
+
+      it 'does not upload to IBM MMS' do
+        expect(ibm_service).not_to receive(:upload_form)
+        expect(StatsD).not_to receive(:increment)
+          .with('worker.lighthouse.submit_benefits_intake_claim.govcio_upload.success',
+                tags: ['form_id:21-4192'])
+
+        job.send(:govcio_upload)
+      end
+    end
+
+    context 'when form does not respond to to_ibm' do
+      let(:claim_without_to_ibm) do
+        claim = SavedClaim::Test.new(form: { test: 'data' }.to_json)
+        claim.form_id = 'TEST'
+        claim
+      end
+
+      before do
+        job.instance_variable_set(:@claim, claim_without_to_ibm)
+        job.instance_variable_set(:@ibm_payload, nil)
+      end
+
+      it 'does not attempt upload' do
+        expect(ibm_service).not_to receive(:upload_form)
+
+        job.send(:govcio_upload)
+      end
+    end
+
+    context 'with different form IDs' do
+      it 'constructs correct flipper key for form 21-4192' do
+        job.instance_variable_set(:@ibm_payload, form214192_claim.to_ibm)
+        expect(Flipper).to receive(:enabled?).with(:form_21_4192_govcio_mms).and_return(false)
+
+        job.send(:govcio_upload)
+      end
+    end
+  end
+
+  describe '#generate_metadata' do
+    let(:lighthouse_service) { double('BenefitsIntakeService::Service', uuid: '123-456-789', location: 'test') }
+    let(:form214192_claim) do
+      claim = SavedClaim::Form214192.new(form: {
+        veteranInformation: {
+          fullName: { first: 'John', last: 'Doe' },
+          ssn: '123456789',
+          vaFileNumber: '987654321'
+        },
+        employmentInformation: {
+          employerAddress: { postalCode: '12345' }
+        }
+      }.to_json)
+      claim.form_id = '21-4192'
+      claim
+    end
+
+    before do
+      job.instance_variable_set(:@lighthouse_service, lighthouse_service)
+    end
+
+    context 'when form provides docType in metadata (GCIO-enabled)' do
+      before do
+        job.instance_variable_set(:@claim, form214192_claim)
+      end
+
+      it 'uses the docType from metadata with StructuredData: prefix' do
+        metadata = job.send(:generate_metadata)
+        expect(metadata['docType']).to eq('StructuredData:21-4192')
+      end
+    end
+
+    context 'when form does not provide docType in metadata' do
+      let(:regular_claim) do
+        claim = create(:fake_saved_claim)
+        claim.form_id = '10-10EZ'
+        claim
+      end
+
+      before do
+        job.instance_variable_set(:@claim, regular_claim)
+      end
+
+      it 'falls back to form_id without prefix' do
+        metadata = job.send(:generate_metadata)
+        expect(metadata['docType']).to eq('10-10EZ')
       end
     end
   end

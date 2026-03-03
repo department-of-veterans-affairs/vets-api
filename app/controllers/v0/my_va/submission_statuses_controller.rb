@@ -44,6 +44,10 @@ module V0
           21P-530EZ
           21P-0969
           21P-535
+          21-2680
+          21-0779
+          21-4192
+          21P-530a
         ] + uploadable_forms
       end
 
