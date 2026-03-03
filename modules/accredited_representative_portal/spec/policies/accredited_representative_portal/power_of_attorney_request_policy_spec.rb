@@ -150,6 +150,47 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           end
         end
 
+        context 'when user has accepting holders but none match the request poa_code' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code: '999',
+                name: 'Other Org',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          it 'denies access' do
+            create(
+              :veteran_organization_representative,
+              organization: vso_org,
+              representative: vso_rep,
+              acceptance_mode: 'any_request'
+            )
+
+            expect(policy.show?).to be false
+          end
+        end
+
+        context 'when org participates but acceptance_mode is blank (no org rep row)' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          it 'denies access' do
+            expect(policy.show?).to be false
+          end
+        end
+
         context 'when acceptance_mode is no_acceptance' do
           let(:power_of_attorney_holders) do
             [
