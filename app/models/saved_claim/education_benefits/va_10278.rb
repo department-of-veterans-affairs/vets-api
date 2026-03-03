@@ -22,10 +22,10 @@ class SavedClaim::EducationBenefits::VA10278 < SavedClaim::EducationBenefits
 
   # the personalization params to send with VANotify
   def personalisation
-    personal_info = parsed_form['claimantPersonalInformation']
+    full_name = parsed_form['claimantPersonalInformation']['fullName']
     {
-      first_name: personal_info['fullName']['first'],
-      last_name: personal_info['fullName']['last']
+      first_name: full_name['first'],
+      last_name: full_name['last']
     }
   end
 
