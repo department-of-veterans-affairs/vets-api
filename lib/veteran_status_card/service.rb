@@ -544,12 +544,12 @@ module VeteranStatusCard
     # @return [void]
     #
     def prefetch_service_data
-      threads = [
-        Thread.new { vet_verification_response },
-        Thread.new { disability_rating }
+      futures = [
+        Concurrent::Future.execute { vet_verification_response },
+        Concurrent::Future.execute { disability_rating }
       ]
-      threads << Thread.new { military_personnel_response } if @user.edipi.present?
-      threads.each(&:join)
+      futures << Concurrent::Future.execute { military_personnel_response } if @user.edipi.present?
+      futures.each(&:value)
     end
 
     ##
