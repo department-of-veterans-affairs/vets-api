@@ -155,7 +155,8 @@ RSpec.describe AccreditedRepresentativePortal::OgcClient do
         response = instance_double(Faraday::Response, status: 409, body: '')
         expect(faraday).to receive(:post) do |url, payload, headers|
           expect(url).to eq('https://ogc.example/api/icn/REG001')
-          expect(JSON.parse(payload)).to include('icnNo' => '123', 'registrationNo' => 'REG001', 'multiMatchInd' => true)
+          expect(JSON.parse(payload)).to include('icnNo' => '123', 'registrationNo' => 'REG001',
+                                                 'multiMatchInd' => true)
           expect(headers).to include('x-api-key' => 'secret-key')
           response
         end
