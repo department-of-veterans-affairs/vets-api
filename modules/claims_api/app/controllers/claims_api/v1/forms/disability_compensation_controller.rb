@@ -332,7 +332,7 @@ module ClaimsApi
 
         # 526 PDF upload process
         def establish_and_upload(pending_claim)
-          if pending_claim&.form_data&.dig('autoCestPDFGenerationDisabled') == true
+          if pending_claim.form_data['autoCestPDFGenerationDisabled'] == true
 
             pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
             pending_claim.save!
