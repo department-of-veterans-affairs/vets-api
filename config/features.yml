@@ -3019,3 +3019,7 @@ features:
     actor_type: user
     description: If enabled, logs additional information about mobile appointments for debugging purposes
     enable_in_development: false
+  time_of_need_mulesoft_enabled:
+    actor_type: user
+    description: Enables submission of Time of Need (40-4962) claims to NCA MuleSoft API
+    enable_in_development: false

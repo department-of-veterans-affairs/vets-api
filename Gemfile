@@ -40,6 +40,7 @@ path 'modules' do
   gem 'sob'
   gem 'survivors_benefits'
   gem 'test_user_dashboard'
+  gem 'time_of_need'
   gem 'travel_pay'
   gem 'va_notify'
   gem 'vaos'
