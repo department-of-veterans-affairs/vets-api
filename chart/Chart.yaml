@@ -135,7 +135,9 @@ type: application
 # 0.15.31  - Remove Terminal Auditing setup
 # 0.15.32  - Configured Clamav CPU and Memory Limits
 # 0.15.33  - Disabled Session Stickiness
-version: 0.15.33
+# 0.15.34  - Configured BeforeHookCreation annotations to fix Sync Windows
+
+version: 0.15.34
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

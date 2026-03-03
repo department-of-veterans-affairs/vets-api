@@ -7,6 +7,7 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
     eks.amazonaws.com/role-arn: {{ .Values.serviceAccount.role_arn }}
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
   labels:
     app.kubernetes.io/component: {{ .Values.serviceAccount.name }}
     app.kubernetes.io/name: {{ .Values.serviceAccount.name }}
