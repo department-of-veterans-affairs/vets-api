@@ -7,6 +7,7 @@ RSpec.describe DependentsBenefits::Monitor do
   before do
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
+    allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(false)
   end
 
   let(:monitor) { described_class.new(nil, current_user) }
@@ -236,7 +237,8 @@ RSpec.describe DependentsBenefits::Monitor do
       message = 'Test error message'
       action = 'test_action'
       context = { test: 'context' }
-      expected_context = { test: 'context', tags: ["action:#{action}"] }
+      expected_context = { test: 'context',
+                           tags: array_including("action:#{action}", 'service:dependents-benefits-application') }
 
       expect(monitor).to receive(:submit_event).with(:error, message, described_class::MODULE_STATS_KEY,
                                                      **expected_context)
@@ -245,15 +247,112 @@ RSpec.describe DependentsBenefits::Monitor do
   end
 
   describe '#track_info_event' do
-    it 'calls submit_event with info level using action' do
-      message = 'Test info message'
-      action = 'test_action'
-      context = { test: 'context', module_stats_key: described_class::PENSION_SUBMISSION_STATS_KEY }
-      expected_context = { test: 'context', tags: ["action:#{action}"] }
+    context 'when v3 flipper is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+      end
 
-      expect(monitor).to receive(:submit_event).with(:info, message, described_class::PENSION_SUBMISSION_STATS_KEY,
+      it 'calls submit_event with info level using action' do
+        message = 'Test info message'
+        action = 'test_action'
+        context = { test: 'context' }
+        expected_context = { test: 'context',
+                             tags: array_including("action:#{action}", 'service:dependents-benefits-application') }
+
+        expect(monitor).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
+                                                       **expected_context)
+        monitor.track_info_event(message, action:, **context)
+      end
+    end
+
+    context 'when there is a user but v3 flipper is off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+      end
+
+      it 'includes use_v3:false and v3_removal:false tags' do
+        message = 'Test info message'
+        action = 'test_action'
+        m = described_class.new(claim.id, current_user)
+        context = { test: 'context' }
+        expected_context = { test: 'context',
+                             tags: array_including("action:#{action}", 'use_v3:false', 'v3_removal:false',
+                                                   'service:dependents-benefits-application') }
+
+        expect(m).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
+                                                 **expected_context)
+        m.track_info_event(message, action:, **context)
+      end
+    end
+
+    context 'when v3 flipper is on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
+      end
+
+      context 'when removal picklist logging flipper is off' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(false)
+        end
+
+        it 'does not include v3 tags in submit_event call' do
+          message = 'Test info message'
+          action = 'test_action'
+          m = described_class.new(claim.id, current_user)
+          context = { test: 'context' }
+          expected_context = { test: 'context',
+                               tags: array_including("action:#{action}", 'service:dependents-benefits-application') }
+
+          expect(m).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
+                                                   **expected_context)
+          m.track_info_event(message, action:, **context)
+        end
+      end
+
+      context 'when removal picklist logging flipper is on' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+        end
+
+        context 'when removal flow flag is off' do
+          it 'includes use_v3:true and v3_removal:false tags in submit_event call' do
+            message = 'Test info message'
+            action = 'test_action'
+            m = described_class.new(claim.id, current_user)
+            context = { test: 'context' }
+            expected_context = { test: 'context',
+                                 tags: array_including("action:#{action}",
+                                                       'service:dependents-benefits-application',
+                                                       'use_v3:true',
+                                                       'v3_removal:false') }
+
+            expect(m).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
                                                      **expected_context)
-      monitor.track_info_event(message, action:, **context)
+            m.track_info_event(message, action:, **context)
+          end
+        end
+
+        context 'when removal flow flag is on' do
+          before do
+            claim.update(form: { 'is_v3_removal_flow' => true }.to_json)
+          end
+
+          it 'includes use_v3:true and v3_removal:true tags in submit_event call' do
+            message = 'Test info message'
+            action = 'test_action'
+            m = described_class.new(claim.id, current_user)
+            context = { test: 'context' }
+            expected_context = { test: 'context',
+                                 tags: array_including("action:#{action}", 'service:dependents-benefits-application',
+                                                       'use_v3:true', 'v3_removal:true') }
+
+            expect(m).to receive(:submit_event).with(:info, message, described_class::MODULE_STATS_KEY,
+                                                     **expected_context)
+            m.track_info_event(message, action:, **context)
+          end
+        end
+      end
     end
   end
 
@@ -262,7 +361,8 @@ RSpec.describe DependentsBenefits::Monitor do
       message = 'Test warning message'
       action = 'test_action'
       context = { test: 'context' }
-      expected_context = { test: 'context', tags: ["action:#{action}"] }
+      expected_context = { test: 'context',
+                           tags: array_including("action:#{action}", 'service:dependents-benefits-application') }
 
       expect(monitor).to receive(:submit_event).with(:warn, message, described_class::MODULE_STATS_KEY,
                                                      **expected_context)
@@ -296,7 +396,10 @@ RSpec.describe DependentsBenefits::Monitor do
 
   describe 'v3 flipper' do
     context 'when v3 is disabled' do
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
+      end
 
       it 'does not include v3 tags' do
         m = described_class.new(nil, current_user)
@@ -306,7 +409,10 @@ RSpec.describe DependentsBenefits::Monitor do
     end
 
     context 'when v3 is enabled but removal flow is not set' do
-      before { allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
+      end
 
       it 'includes use_v3 and v3_removal:false tags' do
         m = described_class.new(claim.id, current_user)
@@ -343,6 +449,7 @@ RSpec.describe DependentsBenefits::Monitor do
 
     context 'when v3 is enabled and claim is v3 removal flow' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(true)
         claim.update(form: { 'is_v3_removal_flow' => true }.to_json)
       end
@@ -367,6 +474,7 @@ RSpec.describe DependentsBenefits::Monitor do
     end
 
     it 'includes use_v3:false when user is present but v3 flipper is off' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, anything).and_return(false)
       monitor = described_class.new(nil, current_user)
       tags = monitor.tags
@@ -376,6 +484,7 @@ RSpec.describe DependentsBenefits::Monitor do
     end
 
     it 'includes use_v3 when user present and includes v3_removal when claim present' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, current_user).and_return(true)
       monitor = described_class.new(claim.id, current_user)
 
@@ -387,6 +496,7 @@ RSpec.describe DependentsBenefits::Monitor do
     end
 
     it 'includes use_v3 when user is present' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, current_user).and_return(true)
       monitor = described_class.new(nil, current_user)
 
@@ -398,6 +508,7 @@ RSpec.describe DependentsBenefits::Monitor do
     end
 
     it 'includes v3_removal when claim is present' do
+      allow(Flipper).to receive(:enabled?).with(:dependents_v3_removal_picklist_logging).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, current_user).and_return(true)
       monitor = described_class.new(claim.id, current_user)
 
