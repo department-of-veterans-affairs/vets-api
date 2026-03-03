@@ -127,18 +127,6 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section06 do
     end
   end
 
-  # NAME_OF_CHILD_#{child_num}
-  # FIRST_NAME_OF_CHILD_#{child_num}
-  # MID_INT_OF_CHILD_#{child_num}
-  # LAST_NAME_OF_CHILD_#{child_num}
-  # DATE_OF_BIRTH_CHILD_#{child_num}
-  # CHILD_#{child_num}_SSN
-  # PLACE_OF_BIRTH_CHILD_#{child_num}
-  # CHILD_#{child_num}_18_TO_23
-  # CHILD_#{child_num}_DISABLED
-  # CHILD_#{child_num}_PREV_MARRIED
-  # CB_CHILD#{child_num}_LIVE_WITH_OTHERS
-  # AMNT_CONTRIBUTE_TO_CHILD_#{child_num}
   describe '#build_and_merge_child' do
     it 'builds and merges child fields correctly' do
       child = {
