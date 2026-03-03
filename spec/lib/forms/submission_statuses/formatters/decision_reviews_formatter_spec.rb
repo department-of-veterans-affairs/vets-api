@@ -34,6 +34,15 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
         expect(record.form_type).to eq('20-0995')
         expect(record.created_at).to eq(saved_claim.created_at)
         expect(record.status).to be_nil # No status data provided
+        expect(record.card_metadata).to eq(
+          {
+            form_title: nil,
+            presentable_form_id: nil,
+            confirmation_days: 30,
+            contact_phone: '8008271000',
+            contact_hours: '8:00 a.m. to 8:00 p.m. ET'
+          }
+        )
       end
     end
   end
@@ -129,6 +138,15 @@ describe Forms::SubmissionStatuses::Formatters::DecisionReviewsFormatter,
       expect(secondary_record).not_to be_nil
       expect(secondary_record.form_type).to eq('form0995_form4142')
       expect(secondary_record.status).to eq('vbms')
+      expect(secondary_record.card_metadata).to eq(
+        {
+          form_title: nil,
+          presentable_form_id: nil,
+          confirmation_days: 30,
+          contact_phone: '8008271000',
+          contact_hours: '8:00 a.m. to 8:00 p.m. ET'
+        }
+      )
     end
   end
 

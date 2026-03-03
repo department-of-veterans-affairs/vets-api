@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../card_metadata'
+
 module Forms
   module SubmissionStatuses
     module Formatters
@@ -62,6 +64,10 @@ module Forms
         # Override this method in your formatter implementation if needed
         def pdf_supported?(_submission)
           false
+        end
+
+        def card_metadata_for(form_type)
+          CardMetadata.for(form_type)
         end
       end
     end

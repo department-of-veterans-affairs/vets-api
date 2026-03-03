@@ -40,6 +40,15 @@ describe Forms::SubmissionStatuses::Formatters::BenefitsIntakeFormatter,
 
       result = subject.format_data(dataset)
       expect(result).not_to be_empty
+      expect(result.first.card_metadata).to eq(
+        {
+          form_title: nil,
+          presentable_form_id: nil,
+          confirmation_days: 30,
+          contact_phone: '8008271000',
+          contact_hours: '8:00 a.m. to 8:00 p.m. ET'
+        }
+      )
     end
   end
 end

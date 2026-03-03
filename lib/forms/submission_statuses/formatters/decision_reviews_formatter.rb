@@ -32,15 +32,17 @@ module Forms
 
         def build_submissions_map(submissions)
           submissions.each_with_object({}) do |submission, hash|
+            form_type = determine_form_type(submission)
             hash[submission.guid] = OpenStruct.new(
               id: submission.guid,
               detail: nil,
-              form_type: determine_form_type(submission),
+              form_type:,
               message: nil,
               status: nil,
               created_at: submission.created_at,
               updated_at: nil,
-              pdf_support: false # API doesn't support pdf download urls yet
+              pdf_support: false, # API doesn't support pdf download urls yet
+              card_metadata: card_metadata_for(form_type)
             )
           end
         end
@@ -58,7 +60,8 @@ module Forms
             status: status['attributes']['status'],
             created_at: status['attributes']['created_at'],
             updated_at: status['attributes']['updated_at'],
-            pdf_support: false # API doesn't support pdf download urls yet
+            pdf_support: false, # API doesn't support pdf download urls yet
+            card_metadata: card_metadata_for(form_type)
           )
         end
 
