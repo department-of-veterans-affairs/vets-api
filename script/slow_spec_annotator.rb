@@ -50,7 +50,7 @@ slow_examples.each do |se|
 end
 
 total = slow_files.size + slow_examples.size
-if total > 0
+if total.positive?
   warn "Emitted #{total} slow spec warning(s)"
 else
   warn 'No slow spec warnings for changed files'

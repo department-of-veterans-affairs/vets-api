@@ -8,7 +8,6 @@
 # Example: ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
 require 'rexml/document'
-require 'set'
 
 module JunitToRuntimeLog
   # Parse JUnit XML files and return a hash of { "spec/file_spec.rb" => total_seconds }
@@ -85,21 +84,22 @@ module JunitToRuntimeLog
     total_time = file_times.values.sum
     return [] if total_time.zero?
 
-    changed_groups = changed_files.map { |f| group_for(f) }.to_set
+    changed_groups = changed_files.to_set { |f| group_for(f) }
 
-    file_times.filter_map do |file, time|
+    results = file_times.filter_map do |file, time|
       pct = (time / total_time) * 100.0
       next unless pct >= threshold_pct
       next unless changed_groups.include?(group_for(file))
 
-      { file: file, time: time, pct: pct }
-    end.sort_by { |h| -h[:pct] }
+      { file:, time:, pct: }
+    end
+    results.sort_by { |h| -h[:pct] }
   end
 
   # Returns individual slow test examples whose module/service group was touched.
   # Each result is { file:, name:, time: }.
   def self.find_slow_examples(xml_paths, changed_files, threshold_sec: 20.0)
-    changed_groups = changed_files.map { |f| group_for(f) }.to_set
+    changed_groups = changed_files.to_set { |f| group_for(f) }
 
     slow = []
     xml_paths.each do |xml_path|
@@ -113,7 +113,7 @@ module JunitToRuntimeLog
         file = file.sub(%r{^\./}, '')
         next unless changed_groups.include?(group_for(file))
 
-        slow << { file: file, name: name, time: time }
+        slow << { file:, name:, time: }
       end
     end
 
