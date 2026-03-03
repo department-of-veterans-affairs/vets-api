@@ -6,12 +6,12 @@ module Idp
 
     def initialize(base_url: nil, timeout: nil)
       @base_url = base_url.presence ||
-                  Settings.dig(:cave, :idp, :base_url) ||
-                  ENV.fetch('IDP_API_BASE_URL', nil)
+                  Settings.dig(:cave, :idp, :base_url)
+
       @timeout = timeout ||
                  Settings.dig(:cave, :idp, :timeout) ||
-                 ENV['IDP_API_TIMEOUT']&.to_i ||
                  DEFAULT_TIMEOUT
+
       raise Idp::Error, 'IDP base URL is not configured' if @base_url.blank?
     end
 

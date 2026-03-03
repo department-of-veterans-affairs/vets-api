@@ -20,7 +20,10 @@ module Idp
 
   def self.use_live_client?
     return true if Rails.env.production?
+
+    # use ENV['IDP_USE_LIVE'] if you need to develop against the live client on localhost
     return true if ENV['IDP_USE_LIVE'].present?
+
     mock_setting = Settings.dig(:cave, :idp, :mock)
     return !mock_setting unless mock_setting.nil?
 

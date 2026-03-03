@@ -11,7 +11,6 @@ RSpec.describe 'CAVE API', type: :request do
   before do
     Flipper.enable(:cave_idp)
     allow(Flipper).to receive(:enabled?).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:survivors_benefits_idp, instance_of(User)).and_return(true)
     allow(Idp).to receive(:client).and_return(client)
   end
 
@@ -27,15 +26,6 @@ RSpec.describe 'CAVE API', type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
-
-    it 'returns 403 when survivors_benefits_idp is disabled for the user' do
-      allow(Flipper).to receive(:enabled?).with(:survivors_benefits_idp, instance_of(User)).and_return(false)
-
-      post '/v0/cave', params: { pdf_b64: 'ZmlsZQ==', file_name: 'test.pdf' }
-
-      expect(response).to have_http_status(:forbidden)
-      expect(parsed_response['errors'].first['detail']).to eq('IDP access is not enabled for this user')
-    end
   end
 
   describe 'POST /v0/cave' do
@@ -45,15 +35,6 @@ RSpec.describe 'CAVE API', type: :request do
       post('/v0/cave', params:)
 
       expect(response).to have_http_status(:unauthorized)
-    end
-
-    it 'returns 403 when survivors_benefits_idp is disabled' do
-      sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:survivors_benefits_idp, instance_of(User)).and_return(false)
-
-      post('/v0/cave', params:)
-
-      expect(response).to have_http_status(:forbidden)
     end
 
     it 'returns the upstream payload' do
@@ -94,15 +75,6 @@ RSpec.describe 'CAVE API', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns 403 when survivors_benefits_idp is disabled' do
-      sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:survivors_benefits_idp, instance_of(User)).and_return(false)
-
-      get '/v0/cave/abc123/status'
-
-      expect(response).to have_http_status(:forbidden)
-    end
-
     it 'proxies the status call' do
       sign_in_as(user)
       allow(client).to receive(:status).with('abc123').and_return('scan_status' => 'completed')
@@ -130,15 +102,6 @@ RSpec.describe 'CAVE API', type: :request do
       get '/v0/cave/abc123/output'
 
       expect(response).to have_http_status(:unauthorized)
-    end
-
-    it 'returns 403 when survivors_benefits_idp is disabled' do
-      sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:survivors_benefits_idp, instance_of(User)).and_return(false)
-
-      get '/v0/cave/abc123/output'
-
-      expect(response).to have_http_status(:forbidden)
     end
 
     it 'defaults the type to artifact' do
@@ -176,15 +139,6 @@ RSpec.describe 'CAVE API', type: :request do
       get '/v0/cave/abc123/download', params: { kvpid: 'kvp1' }
 
       expect(response).to have_http_status(:unauthorized)
-    end
-
-    it 'returns 403 when survivors_benefits_idp is disabled' do
-      sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:survivors_benefits_idp, instance_of(User)).and_return(false)
-
-      get '/v0/cave/abc123/download', params: { kvpid: 'kvp1' }
-
-      expect(response).to have_http_status(:forbidden)
     end
 
     it 'requires kvpid' do

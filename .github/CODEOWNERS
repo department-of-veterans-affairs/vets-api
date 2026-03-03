@@ -868,6 +868,7 @@ docs/setup/edu_benefits.md @department-of-veterans-affairs/backend-review-group 
 docs/setup/evss.md @department-of-veterans-affairs/backend-review-group
 docs/setup/facilities_locator.md @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group
 docs/setup/hybrid.md @department-of-veterans-affairs/backend-review-group
+docs/setup/idp.md @department-of-veterans-affairs/bio-huntridge @department-of-veterans-affairs/backend-review-group
 docs/setup/images @department-of-veterans-affairs/backend-review-group
 docs/setup/local_network_access.md @department-of-veterans-affairs/backend-review-group
 docs/setup/mailer.md @department-of-veterans-affairs/backend-review-group

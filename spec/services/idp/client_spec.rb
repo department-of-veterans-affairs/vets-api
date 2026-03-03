@@ -76,7 +76,9 @@ RSpec.describe Idp::Client do
     it 'sends status request and returns parsed payload' do
       stub_request(:get, "#{base_url}/status")
         .with(query: { id: 'abc123' })
-        .to_return(status: 200, body: { scan_status: 'completed' }.to_json, headers: { 'Content-Type' => 'application/json' })
+        .to_return(status: 200,
+                   body: { scan_status: 'completed' }.to_json,
+                   headers: { 'Content-Type' => 'application/json' })
 
       response = client.status('abc123')
 
