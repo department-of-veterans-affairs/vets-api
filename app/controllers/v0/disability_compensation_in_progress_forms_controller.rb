@@ -51,7 +51,7 @@ module V0
       FormProfiles::VA526ez::FORM_ID
     end
 
-    def data_and_metadata_with_updated_rated_disabilities
+    def data_and_metadata_with_updated_rated_disabilities # rubocop:disable Metrics/MethodLength
       parsed_form_data = JSON.parse(form_for_user.form_data)
       metadata = form_for_user.metadata
 
@@ -85,14 +85,16 @@ module V0
 
       # purge duplicate additional information properties in IPFs this error only happens for form created
       # between 2/3/2026-2/9/2026 due to the introduction of duplicate additional information key.
-      # this function can be removed after a year or when we know all the IPFs created during that time have successfully submitted.
-      # TODO: Remove this cleanup block after 2/9/2027 or once all IPFs created between 2/3/2026 and 2/9/2026 have successfully submitted.
+      # this function can be removed after a year or when we know all the IPFs created during
+      # that time have successfully submitted.
+      # TODO: Remove this cleanup block after 2/9/2027 or once all IPFs created between 2/3/2026 and 2/9/2026
+      # have successfully submitted.
       if Flipper.enabled?(:disability_compensation_fix_duplicate_key_ipf, @current_user)
         %w[additionalInformation additional_information].each do |key|
           parsed_form_data.delete(key) if parsed_form_data[key] == {}
         end
       end
-      
+
       {
         formData: parsed_form_data,
         metadata:
