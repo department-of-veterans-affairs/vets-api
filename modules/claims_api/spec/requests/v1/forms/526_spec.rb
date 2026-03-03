@@ -2752,6 +2752,33 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     end
 
     describe "'disabilities' validations" do
+      describe "'disabilities.name' validations" do
+        context 'when the name is over 255 characters' do
+          it 'raises an exception' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/brd/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                disabilities = [
+                  {
+                    disabilityActionType: 'NONE',
+                    name: 'a' * 256
+                  }
+                ]
+                params['data']['attributes']['disabilities'] = disabilities
+
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+
+                expect(response).to have_http_status(:unprocessable_content)
+                expect(JSON.parse(response.body)['errors'][0]['detail']).to include(
+                  'The property /disabilities/0/name did not match the following requirements: '
+                )
+              end
+            end
+          end
+        end
+      end
+
       describe "'disabilities.classificationCode' validations" do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
