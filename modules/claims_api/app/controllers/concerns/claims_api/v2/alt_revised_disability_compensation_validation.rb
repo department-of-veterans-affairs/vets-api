@@ -352,7 +352,9 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_disability_secondary_disabilities
+      def alt_rev_validate_form_526_disability_secondary_disabilities # rubocop:disable Metrics/MethodLength
+        alt_rev_validate_form_526_disability_secondary_disability_names_unique!
+
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           next if disability['secondaryDisabilities'].blank?
 
@@ -370,6 +372,65 @@ module ClaimsApi
                                                                                                dis_idx,
                                                                                                sd_idx)
             end
+
+            if secondary_disability['specialIssues'].present?
+              alt_rev_validate_form_526_secondary_disabilities_special_issues!(secondary_disability,
+                                                                               dis_idx,
+                                                                               sd_idx)
+            end
+          end
+        end
+      end
+
+      def alt_rev_validate_form_526_disability_secondary_disability_names_unique!
+        all_included_disabilities = flatten_disabilities(form_attributes['disabilities'])
+        # Find duplicates (case-insensitive)
+        duplicates = all_included_disabilities
+                     .group_by { |d| d['name'].to_s.downcase }
+                     .select { |_, group| group.size > 1 }
+
+        duplicates.each do |name, group|
+          group.each do
+            collect_error_messages(
+              source: '/disabilities',
+              detail: "The disability name '#{name}' is duplicated." \
+                      'All disability names must be unique across primary and secondary disabilities.'
+            )
+          end
+        end
+      end
+
+      def flatten_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
+          primary_disability = disability.dup
+          secondaries = primary_disability.delete('secondaryDisabilities') || []
+
+          list = []
+          list << primary_disability unless primary_disability['disabilityActionType'] == 'NONE'
+          list.concat(secondaries)
+
+          list
+        end
+      end
+
+      def alt_rev_validate_form_526_secondary_disabilities_special_issues!(secondary_disability, dis_idx, sd_idx)
+        # special issues for secondary disabilities must be validated like primary disabilities
+        special_issues = secondary_disability['specialIssues']
+
+        if special_issues.include?('HEPC') && !secondary_disability['name']&.casecmp?('hepatitis')
+          collect_error_messages(
+            source: "/disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/specialIssues",
+            detail: "specialIssues cannot include 'HEPC' unless the disability name is 'hepatitis'."
+          )
+        end
+
+        if special_issues.include?('POW')
+          confinements = form_attributes['serviceInformation']&.dig('confinements')
+          if confinements.blank?
+            collect_error_messages(
+              source: "/disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/specialIssues",
+              detail: 'serviceInformation.confinements is required if specialIssues includes POW.'
+            )
           end
         end
       end
