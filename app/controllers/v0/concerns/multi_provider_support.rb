@@ -16,6 +16,16 @@ module V0
 
       # Maps provider type strings to their provider classes
       # Single source of truth for supported providers
+      #
+      # TODO: ARCHITECTURAL IMPROVEMENT - Replace with ProviderRegistry
+      # This static mapping duplicates provider registration logic and doesn't honor
+      # per-user feature flag enablement. Future improvement should:
+      # 1. Add ProviderRegistry.enabled_providers(user) method that returns both type and class
+      # 2. Replace PROVIDER_TYPE_MAPPINGS with memoized call to enabled_providers
+      # 3. Update provider_class_for_type, supported_provider_types, and provider_type_from_class
+      #    to use the registry instead of this static mapping
+      # 4. Add corresponding tests that mock ProviderRegistry.enabled_providers
+      # Benefits: Single source of truth, per-user enablement, better performance with memoization
       PROVIDER_TYPE_MAPPINGS = {
         'lighthouse' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
         # TODO: Add CHAMPVA mapping when provider is onboarded
