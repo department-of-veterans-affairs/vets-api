@@ -28,6 +28,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
   before do
     Flipper.disable :accredited_representative_portal_skip_itf_check
+    Flipper.disable :accredited_representative_portal_itf_confirmation_email
     VCR.configure do |c|
       c.debug_logger = File.open('record.log', 'w')
     end
@@ -175,37 +176,54 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         end
       end
 
-      it 'sends a VA Notify confirmation email when feature flag is enabled' do
-        Flipper.enable(:accredited_representative_portal_itf_confirmation_email)
-        notification_email = instance_double(AccreditedRepresentativePortal::NotificationEmail)
-        allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new).and_return(notification_email)
-        allow(notification_email).to receive(:deliver)
-
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-          post('/accredited_representative_portal/v0/intent_to_file', params:)
+      context 'when confirmation email flag is enabled' do
+        before do
+          Flipper.enable(:accredited_representative_portal_itf_confirmation_email)
         end
 
-        expect(notification_email).to have_received(:deliver).with(:confirmation)
-      end
+        context 'when email sending succeeds' do
+          before do
+            @notification_double = double('notification')
+            allow(AccreditedRepresentativePortal::NotificationEmail)
+              .to receive(:new).and_return(@notification_double)
+            expect(@notification_double).to receive(:deliver).with(:confirmation)
+          end
 
-      it 'does not send confirmation email when feature flag is disabled' do
-        Flipper.disable(:accredited_representative_portal_itf_confirmation_email)
-
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-          post('/accredited_representative_portal/v0/intent_to_file', params:)
+          it 'sends a VA Notify confirmation email' do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+              expect(response).to have_http_status(:created)
+            end
+          end
         end
 
-        expect(AccreditedRepresentativePortal::NotificationEmail).not_to have_received(:new)
+        context 'when email sending fails' do
+          it 'still returns success' do
+            allow(AccreditedRepresentativePortal::NotificationEmail)
+              .to receive(:new).and_raise(StandardError.new('email service down'))
+
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+              post('/accredited_representative_portal/v0/intent_to_file', params:)
+              expect(response).to have_http_status(:created)
+            end
+          end
+        end
       end
 
-      it 'does not fail the request if the confirmation email fails' do
-        Flipper.enable(:accredited_representative_portal_itf_confirmation_email)
-        allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new)
-          .and_raise(StandardError, 'email service down')
+      context 'when confirmation email flag is disabled' do
+        before do
+          Flipper.disable(:accredited_representative_portal_itf_confirmation_email)
+        end
 
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
-          post('/accredited_representative_portal/v0/intent_to_file', params:)
-          expect(response).to have_http_status(:created)
+        it 'does not send confirmation email' do
+          allow(AccreditedRepresentativePortal::NotificationEmail).to receive(:new)
+
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+            post('/accredited_representative_portal/v0/intent_to_file', params:)
+            expect(response).to have_http_status(:created)
+          end
+
+          expect(AccreditedRepresentativePortal::NotificationEmail).not_to have_received(:new)
         end
       end
     end
