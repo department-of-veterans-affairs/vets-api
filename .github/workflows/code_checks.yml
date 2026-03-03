@@ -229,39 +229,6 @@ jobs:
       - name: Determine shard grouping strategy
         id: grouping
         run: |
-          if [ -f tmp/parallel_runtime_rspec.log ]; then
-            echo "strategy=runtime" >> $GITHUB_OUTPUT
-            echo "Runtime log found, using runtime-based shard balancing"
-          else
-            echo "strategy=filesize" >> $GITHUB_OUTPUT
-            echo "No runtime log found, falling back to filesize grouping"
-          fi
-
-      # Shard balancing: if a runtime log exists (cached from a previous run),
-      # parallel_test uses --group-by runtime to distribute specs by actual
-      # measured execution time. Otherwise it falls back to --group-by filesize.
-      # The runtime log is generated in publish_results from JUnit XML timing
-      # data and cached for subsequent runs.
-      #
-      # Cache key priority:
-      #   1. This branch's most recent run
-      #   2. master branch (so new PRs get balanced shards immediately)
-      #   3. Any previous run (catch-all fallback)
-      # If no cache exists at all (e.g. first-ever run), parallel_test uses
-      # filesize grouping automatically.
-      - name: Restore runtime log from cache
-        uses: actions/cache/restore@v4
-        with:
-          path: tmp/parallel_runtime_rspec.log
-          key: parallel-runtime-log-${{ github.ref }}-${{ github.run_id }}
-          restore-keys: |
-            parallel-runtime-log-${{ github.ref }}-
-            parallel-runtime-log-refs/heads/master-
-            parallel-runtime-log-
-
-      - name: Determine shard grouping strategy
-        id: grouping
-        run: |
           if [ -s tmp/parallel_runtime_rspec.log ]; then
             echo "strategy=runtime" >> $GITHUB_OUTPUT
             echo "Runtime log found, using runtime-based shard balancing"
