@@ -15,6 +15,8 @@ module AccreditedRepresentativePortal
           set_poa_request(id)
           authorize @poa_request, :create_decision?
           render_404_if_withdrawn!(@poa_request)
+        rescue Pundit::NotAuthorizedError
+          render json: { errors: ['Record not found'] }, status: :not_found
         end
       end
 

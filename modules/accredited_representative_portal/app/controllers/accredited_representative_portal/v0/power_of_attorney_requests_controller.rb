@@ -13,7 +13,7 @@ module AccreditedRepresentativePortal
       before_action only: :show do
         id = params[:id]
         set_poa_request(id)
-        authorize @poa_request
+
         render_404_if_withdrawn!(@poa_request)
       end
 
