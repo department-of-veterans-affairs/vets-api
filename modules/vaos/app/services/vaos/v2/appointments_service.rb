@@ -1661,7 +1661,8 @@ module VAOS
           log_appointment_separation(kept_appts, removed_appts)
           kept_appts
         end
-      rescue
+      rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
+             Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::ConnectionFailed
         @eps_fetch_failure = { source: 'EPS', detail: 'EPS appointment data unavailable' }
         []
       end
