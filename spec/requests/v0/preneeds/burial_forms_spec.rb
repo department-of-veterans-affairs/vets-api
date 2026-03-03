@@ -35,7 +35,7 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
       end
     end
 
-    context 'when va_notify_v2_preneeds_burial_form is disabled' do
+    context 'when va_notify_v2_preneeds_burial_form_job is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_notify_v2_preneeds_burial_form_job).and_return(false)
       end
@@ -60,7 +60,7 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
       end
     end
 
-    context 'when va_notify_v2_preneeds_burial_form is enabled' do
+    context 'when va_notify_v2_preneeds_burial_form_job is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_notify_v2_preneeds_burial_form_job).and_return(true)
       end

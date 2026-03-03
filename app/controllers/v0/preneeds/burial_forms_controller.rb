@@ -50,7 +50,7 @@ module V0
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
         }
 
-        if Flipper.enabled?(:va_notify_v2_preneeds_burial_form)
+        if Flipper.enabled?(:va_notify_v2_preneeds_burial_form_job)
           VANotify::V2::QueueEmailJob.enqueue(email, template_id, personalisation, API_KEY_PATH)
         else
           VANotify::EmailJob.perform_async(email, template_id, personalisation)
