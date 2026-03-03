@@ -163,7 +163,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
       let(:dfa) { double(DigitalFormsApi::Service::Submissions) }
       let(:uploader) { double(ClaimsEvidenceApi::Uploader) }
-      let(:response) { double('response', success?: true) }
+      let(:response) { double('response', success?: true, body: { 'submission' => 'TEST' }) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
@@ -174,7 +174,8 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'submits to forms api and uploads evidence' do
-        expect(claim).to receive(:claim_form_type).and_return('21-686c').thrice
+        allow(claim).to receive(:claim_form_type).and_return('21-686c')
+
         expect(claim).to receive(:get_claim_information).and_return(claim_information)
         expect(dfa).to receive(:submit).and_return(response)
         expect(uploader).to receive(:upload_evidence)
