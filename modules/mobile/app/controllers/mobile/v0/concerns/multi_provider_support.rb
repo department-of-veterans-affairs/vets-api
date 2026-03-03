@@ -99,9 +99,7 @@ module Mobile
           normalized_type = type.to_s.downcase
           provider_class = PROVIDER_TYPE_MAPPINGS[normalized_type]
 
-          if provider_class.nil?
-            raise Common::Exceptions::InvalidFieldValue.new('type', type)
-          end
+          raise Common::Exceptions::InvalidFieldValue.new('type', type) if provider_class.nil?
 
           provider_class
         end
