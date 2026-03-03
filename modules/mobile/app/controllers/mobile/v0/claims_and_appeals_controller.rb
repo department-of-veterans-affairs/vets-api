@@ -24,8 +24,10 @@ module Mobile
       end
 
       def get_claim
-        provider_type = params[:type]
-        claim_response = if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
+        multi_provider_enabled = Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
+        provider_type = multi_provider_enabled ? params[:type]&.downcase : nil
+
+        claim_response = if multi_provider_enabled
                            # Multi-provider path: Explicit routing with optional type parameter
                            get_claim_from_providers(params[:id], provider_type)
                          else

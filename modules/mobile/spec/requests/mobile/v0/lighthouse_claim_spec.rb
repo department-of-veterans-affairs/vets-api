@@ -226,6 +226,26 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         end
       end
 
+      context 'when :cst_multi_claim_provider_mobile is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider_mobile, anything).and_return(false)
+        end
+
+        it 'ignores type parameter and always uses lighthouse (prevents mislabeling)',
+           run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            # Try to request with type=champva, but flag is disabled
+            get '/mobile/v0/claim/600117255?type=champva', headers: sis_headers
+          end
+
+          assert_schema_conform(200)
+          # Should fetch from lighthouse and label as lighthouse, NOT champva
+          expect(response.parsed_body.dig('data', 'attributes', 'provider')).to eq('lighthouse')
+          expect(response.parsed_body['data']['id']).to eq('600383363')
+        end
+      end
+
       context 'when :cst_multi_claim_provider_mobile is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_return(false)
