@@ -15,6 +15,7 @@ module ClaimsApi
         4 => 'yyyy'
       }.freeze
 
+      DISABILITY_COUNT_MAX = 150
       BDD_UPPER_LIMIT = 180
 
       CLAIM_DATE = Time.find_zone!('Central Time (US & Canada)').today.freeze
@@ -249,12 +250,38 @@ module ClaimsApi
       def alt_rev_validate_form_526_disabilities
         return if form_attributes['disabilities'].nil? || form_attributes['disabilities'].blank?
 
+        alt_rev_validate_disabilities_total
         alt_rev_validate_disability_name
         alt_rev_validate_form_526_disability_classification_code
         alt_rev_validate_form_526_disability_approximate_begin_date
         alt_rev_validate_form_526_disability_service_relevance
         alt_rev_validate_form_526_disability_secondary_disabilities
         alt_rev_validate_special_issues
+      end
+
+      def alt_rev_validate_disabilities_total
+        # flatten it out so disabilities and secondary disabilites are all counted
+        all_included_disabilities = flatten_disabilities(form_attributes['disabilities'])
+
+        if all_included_disabilities.count > DISABILITY_COUNT_MAX
+          collect_error_messages(
+            source: '/disabilities',
+            detail: "A maximum of #{DISABILITY_COUNT_MAX} disabilities allowed"
+          )
+        end
+      end
+
+      def flatten_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
+          primary_disability = disability.dup
+          secondaries = primary_disability.delete('secondaryDisabilities') || []
+
+          list = []
+          list << primary_disability
+          list.concat(secondaries)
+
+          list
+        end
       end
 
       def alt_rev_validate_disability_name

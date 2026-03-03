@@ -35,6 +35,16 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     test_526_validation_instance.instance_variable_get('@errors')
   end
 
+  describe '#alt_rev_validate_form_526_disabilities' do
+    describe '#alt_rev_validate_disabilities_total' do
+      let(:max_value_allowed) { 2 }
+
+      before do
+        stub_const('ClaimsApi::V2::AltRevisedDisabilityCompensationValidation::DISABILITY_COUNT_MAX', max_value_allowed)
+      end
+    end
+  end
+
   describe '#alt_rev_validate_form_526_service_information' do
     describe '#alt_rev_validate_service_periods' do
       let(:form_attributes) do
