@@ -6,17 +6,15 @@ module SurvivorsBenefits::StructuredData::Section06
   # Build and mergethe children of the veteran structured data entries.
   def build_section6
     live_w_children = form['childrenLiveTogetherButNotWithSpouse']
-    fields.merge!({ 'NUMBER_OF_DEP_CHILD' => form['veteranChildrenCount}'] })
-    fields.merge!(y_n_pair(live_w_children, 'CHILD_DO_NOT_LIVE_WITH_CL_Y', 'CHILD_DO_NOT_LIVE_WITH_CL_N'))
-    fields.merge!(merge_custodian_fields) unless live_w_children
+    merge_custodian_fields unless live_w_children
+    fields.merge!({ 'NUMBER_OF_DEP_CHILD' => form['veteranChildrenCount'] })
+    fields.merge!(y_n_pair(live_w_children, 'CHILD_DO_NOT_LIVE_WITH_CL_N', 'CHILD_DO_NOT_LIVE_WITH_CL_Y'))
 
     children = form['veteransChildren'] || []
     children&.each_with_index do |child, index|
       child_num = index + 1
-      fields.merge!(build_child_relationship_fields(child['relationship'], child_num))
-      fields.merge!(
-        build_child(child, child_num)
-      )
+      merge_child_relationship_fields(child['relationship'], child_num)
+      build_and_merge_child(child, child_num)
     end
   end
 
@@ -36,7 +34,7 @@ module SurvivorsBenefits::StructuredData::Section06
         'CUSTODIAN_ADDRESS_CITY' => custodian_address['city'],
         'CUSTODIAN_ADDRESS_STATE' => custodian_address['state'],
         'CUSTODIAN_ADDRESS_COUNTRY' => custodian_address['country'],
-        'CUSTODIAN_ADDRESS_ZIP' => custodian_address['postalCode'][0..4],
+        'CUSTODIAN_ADDRESS_ZIP' => custodian_address['postalCode']&.[](0..4),
         'CUSTODIAN_CHILD_NAME_ADDRESS' => [
           custodian_name[:full],
           build_address_block(custodian_address)
@@ -50,7 +48,7 @@ module SurvivorsBenefits::StructuredData::Section06
   #
   # @param child [String] The veteran/child relationship type (e.g., "BIOLOGICAL", "ADOPTED", "STEPCHILD")
   # @param child_num [Integer] The number of the child (e.g., 1 for the first child, 2 for the second, etc.)
-  def build_child_relationship_fields(relationship, child_num)
+  def merge_child_relationship_fields(relationship, child_num)
     fields.merge!(
       {
         "BIOLOGICAL_CHILD_#{child_num}" => relationship == 'BIOLOGICAL',
@@ -64,7 +62,7 @@ module SurvivorsBenefits::StructuredData::Section06
   # Build and merge the structured data fields for a veteran's child based on the child's information.
   #
   # @param child [Hash] The child's information from the form
-  def build_child(child, child_num)
+  def build_and_merge_child(child, child_num)
     child_name = build_name(child['childFullName'])
     fields.merge!(
       {
@@ -74,7 +72,7 @@ module SurvivorsBenefits::StructuredData::Section06
         "LAST_NAME_OF_CHILD_#{child_num}" => child_name[:last],
         "DATE_OF_BIRTH_CHILD_#{child_num}" => format_date(child['childDateOfBirth']),
         "CHILD_#{child_num}_SSN" => child['childSocialSecurityNumber'],
-        "PLACE_OF_BIRTH_CHILD_#{child_num}" => format_place(child['birthPlace']),
+        "PLACE_OF_BIRTH_CHILD_#{child_num}" => format_birth_place(child['birthPlace']),
         "CHILD_#{child_num}_18_TO_23" => child['inSchool'],
         "CHILD_#{child_num}_DISABLED" => child['seriouslyDisabled'],
         "CHILD_#{child_num}_PREV_MARRIED" => child['hasBeenMarried'],
@@ -82,5 +80,11 @@ module SurvivorsBenefits::StructuredData::Section06
         "AMNT_CONTRIBUTE_TO_CHILD_#{child_num}" => format_currency(child['childSupport'])
       }
     )
+  end
+
+  def format_birth_place(birth_place)
+    return unless birth_place
+
+    [birth_place['city'], birth_place['state'], birth_place['country']].compact.join(', ')
   end
 end

@@ -51,7 +51,9 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section03 do
 
   describe '#merge_vet_aliases' do
     it 'merges veteran alias fields' do
-      form = { 'veteranPreviousNames' => [{ 'first' => 'Johnny', 'last' => 'Doe' }, { 'first' => 'J', 'last' => 'Doe' }] }
+      form = {
+        'veteranPreviousNames' => [{ 'first' => 'Johnny', 'last' => 'Doe' }, { 'first' => 'J', 'last' => 'Doe' }]
+      }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       service.merge_vet_aliases(form['veteranPreviousNames'])
       expect(service.fields).to include(
