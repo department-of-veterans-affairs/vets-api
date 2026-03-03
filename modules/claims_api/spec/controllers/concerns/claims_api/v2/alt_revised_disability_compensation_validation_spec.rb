@@ -98,7 +98,7 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
           expect(current_error_array).to be_nil
         end
 
-        it 'does not raise an error when the count is below to the max' do
+        it 'does not raise an error when the count is below the max' do
           test_526_validation_instance.form_attributes['disabilities'] =
             Array.new(4) do
               { 'name' => 'PTSD' }
