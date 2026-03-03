@@ -117,9 +117,6 @@ jobs:
         with:
           mask-password: true
 
-      - name: Set Environment Variable
-        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -130,7 +127,7 @@ jobs:
         with:
           build-args: |
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
+            USER_ID=1001
           context: .
           push: false
           load: true
@@ -145,7 +142,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: /tmp/vets-api.tar.zst
-          key: docker-image-${{ github.sha }}-${{ github.run_id }}
+          key: docker-image-${{ github.sha }}
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
@@ -201,7 +198,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/vets-api.tar.zst
-          key: docker-image-${{ github.sha }}-${{ github.run_id }}
+          key: docker-image-${{ github.sha }}
           fail-on-cache-miss: true
 
       - name: Load Docker image
@@ -393,7 +390,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: /tmp/vets-api.tar.zst
-          key: docker-image-${{ github.sha }}-${{ github.run_id }}
+          key: docker-image-${{ github.sha }}
           fail-on-cache-miss: true
 
       - name: Load Docker image
