@@ -311,6 +311,42 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
               end
             end
           end
+
+          it 'increments StatsD refill metric with source_app tag for successful refills' do
+            allow(UniqueUserEvents).to receive(:log_event)
+            allow(StatsD).to receive(:increment).and_call_original
+
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              VCR.use_cassette('unified_health_data/refill_prescription_success') do
+                put '/mobile/v1/health/rx/prescriptions/refill',
+                    params: [
+                      { stationNumber: '556', id: '15220389459' },
+                      { stationNumber: '570', id: '0000000000001' }
+                    ].to_json,
+                    headers: sis_headers.merge('Content-Type' => 'application/json')
+              end
+            end
+
+            expect(StatsD).to have_received(:increment).with(
+              'api.uhd.refills.requested', 1, tags: ['source_app:not_provided']
+            )
+          end
+
+          it 'does not increment StatsD refill metric when no successful refills' do
+            allow(StatsD).to receive(:increment).and_call_original
+
+            VCR.use_cassette('unified_health_data/get_prescriptions_success') do
+              VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+                put '/mobile/v1/health/rx/prescriptions/refill',
+                    params: [{ stationNumber: '663', id: '21431810851' }].to_json,
+                    headers: sis_headers.merge('Content-Type' => 'application/json')
+              end
+            end
+
+            expect(StatsD).not_to have_received(:increment).with(
+              'api.uhd.refills.requested', any_args
+            )
+          end
         end
 
         context 'when prescription refill fails' do
