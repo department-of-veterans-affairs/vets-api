@@ -96,6 +96,41 @@ RSpec.describe JunitToRuntimeLog do
 
       expect(result).to be_empty
     end
+
+    it 'skips malformed XML files and continues processing valid ones' do
+      bad_xml_path = File.join(temp_dir, 'bad.xml')
+      File.write(bad_xml_path, '<testsuite><testcase file="spec/a_spec.rb" time="1.0"')
+
+      good_xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase file="spec/b_spec.rb" name="test" time="2.0"/>
+        </testsuite>
+      XML
+      good_xml_path = File.join(temp_dir, 'good.xml')
+      File.write(good_xml_path, good_xml)
+
+      result = described_class.aggregate_times([bad_xml_path, good_xml_path])
+
+      expect(result).to eq('spec/b_spec.rb' => 2.0)
+    end
+
+    it 'skips unreadable files and continues processing valid ones' do
+      missing_path = File.join(temp_dir, 'nonexistent.xml')
+
+      good_xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase file="spec/c_spec.rb" name="test" time="3.0"/>
+        </testsuite>
+      XML
+      good_xml_path = File.join(temp_dir, 'good.xml')
+      File.write(good_xml_path, good_xml)
+
+      result = described_class.aggregate_times([missing_path, good_xml_path])
+
+      expect(result).to eq('spec/c_spec.rb' => 3.0)
+    end
   end
 
   describe '.write_log' do

@@ -176,6 +176,7 @@ module SignIn
 
     def logingov_ial2_levels
       [Constants::Auth::LOGIN_GOV_IAL2,
+       Constants::Auth::LOGIN_GOV_VERIFIED,
        Constants::Auth::LOGIN_GOV_IAL2_REQUIRED,
        Constants::Auth::LOGIN_GOV_IAL2_PREFERRED]
     end

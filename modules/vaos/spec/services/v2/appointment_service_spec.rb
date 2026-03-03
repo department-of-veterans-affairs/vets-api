@@ -179,6 +179,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.post_appointment(va_booked_request_body)
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method path query]) do
@@ -304,6 +316,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.post_appointment(va_booked_request_body)
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
@@ -354,6 +378,18 @@ describe VAOS::V2::AppointmentsService do
             expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq(
               'Wed, 08 Sep 2021 06:00:00 -0600'
             )
+          end
+        end
+
+        context 'when user has an invalid ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'requires a valid ICN' do
+            expect do
+              subject.get_appointments(start_date2, end_date2)
+            end.to raise_error(ArgumentError)
           end
         end
       end
@@ -1083,6 +1119,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.get_appointment('159472')
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method path query]) do
@@ -1257,6 +1305,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.get_appointment('159472')
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_500_vpg', match_requests_on: %i[method path query]) do
@@ -1311,6 +1371,18 @@ describe VAOS::V2::AppointmentsService do
           end
         end
 
+        context 'when user has an invalid ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'requires a valid ICN' do
+            expect do
+              subject.update_appointment('42081', 'cancelled')
+            end.to raise_error(ArgumentError)
+          end
+        end
+
         context 'using vaos-service' do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
@@ -1333,6 +1405,18 @@ describe VAOS::V2::AppointmentsService do
                   expect(response[:future]).to be(false)
                 end
               end
+            end
+          end
+
+          context 'when user has an invalid ICN' do
+            before do
+              allow(user).to receive(:icn).and_return(nil)
+            end
+
+            it 'requires a valid ICN' do
+              expect do
+                subject.update_appointment('42081', 'cancelled')
+              end.to raise_error(ArgumentError)
             end
           end
 
