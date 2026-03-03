@@ -956,7 +956,9 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       it 'raises an error' do
         expect { subject.validate_form_526_fewer_than_150_disabilities! }
           .to raise_error(Common::Exceptions::InvalidFieldValue) do |error|
-            expect(error.errors.first.detail).to include('A maximum of 150 disabilities allowed')
+            expect(error.errors.first.detail).to include(
+              "A maximum of #{described_class::DISABILITY_COUNT_MAX} disabilities allowed"
+            )
           end
       end
     end
@@ -966,7 +968,11 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
 
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_fewer_than_150_disabilities! }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
+          .to raise_error(Common::Exceptions::InvalidFieldValue) do |error|
+            expect(error.errors.first.detail).to include(
+              "A maximum of #{described_class::DISABILITY_COUNT_MAX} disabilities allowed"
+            )
+          end
       end
     end
   end
