@@ -8,12 +8,11 @@ module AccreditedRepresentativePortal
       included do
         private
 
-        def render_404_if_withdrawn!(poa_request)
-          if poa_request.resolution&.resolving.is_a?(
-            PowerOfAttorneyRequestWithdrawal
-          )
-            render json: { errors: ['Record not found'] }, status: :not_found
-          end
+        def render_404_if_withdrawn?(poa_request)
+          return false unless poa_request.resolution&.resolving.is_a?(PowerOfAttorneyRequestWithdrawal)
+
+          render json: { errors: ['Record not found'] }, status: :not_found
+          true
         end
       end
     end

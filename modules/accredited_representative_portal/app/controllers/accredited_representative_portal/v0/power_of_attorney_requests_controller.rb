@@ -11,10 +11,11 @@ module AccreditedRepresentativePortal
       end
 
       before_action only: :show do
-        id = params[:id]
-        set_poa_request(id)
+        set_poa_request(params[:id])
         authorize @poa_request
-        render_404_if_withdrawn!(@poa_request)
+        return if render_404_if_withdrawn?(@poa_request)
+
+        authorize @poa_request
       end
 
       def index
