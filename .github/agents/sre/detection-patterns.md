@@ -1,12 +1,12 @@
 # Detection Patterns by Play
 
-> **Do No Harm (Iron Law #0):** Pattern matches are *candidates*, not findings. Every match below must pass through the investigation gates and false-positive checks in its play file before being flagged. If any gate produces ambiguity, exclude the candidate. It is always better to miss a real anti-pattern than to flag correct code.
+> **Do No Harm (`constraint #0`):** Pattern matches are *candidates*, not findings. Every match below must pass through the investigation gates and false-positive checks in its play file before being flagged. If any gate produces ambiguity, exclude the candidate. It is always better to miss a real anti-pattern than to flag correct code.
 
 Read this file as the first step of every audit. For each play, use the **What to look for** description to understand the violation, then use **Grep helpers** (where provided) as starting points for `search`. For patterns that span multiple lines, search for the entry-point line and then `read` surrounding context to confirm.
 
 After finding a match, read the play file for rules, false-positive heuristics, and `<false_positive>` exclusions in the `<severity_assessment>` block before flagging.
 
-**Output format reminder:** Report findings under `### Play NN: Play Name — SEVERITY` headings. Each finding gets `#### N. \`file:line\` — CONFIDENCE` with a code snippet. See Iron Laws in sre.agent.md.
+**Output format reminder:** Report findings under `### Play NN: Play Name — SEVERITY` headings. Each finding gets `#### N. \`file:line\` — CONFIDENCE` with a code snippet. See `<agent_constraints>` in sre.agent.md.
 
 **Confidence levels:**
 - `HIGH` — Flag if confirmed after reading context (outside test files)
