@@ -324,7 +324,8 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs CURRENTLY_SERVING_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_currently_serving_ssc')
+            expect(StatsD).to have_received(:increment)
+              .with('veteran_status_card.mobile.ineligible_currently_serving_ssc')
           end
         end
 
