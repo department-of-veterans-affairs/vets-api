@@ -173,7 +173,7 @@ RSpec.describe BioHeartApi::FormMappers::Form21p601Mapper do
       it 'fills all expense slots with nil' do
         (1..4).each do |num|
           expect(result["EXPENSE_PAID_TO_#{num}"]).to be_nil
-          expect(result["PAID_#{num}"]).to be(false)
+          expect(result["PAID_#{num}"]).to be(0)
         end
       end
     end

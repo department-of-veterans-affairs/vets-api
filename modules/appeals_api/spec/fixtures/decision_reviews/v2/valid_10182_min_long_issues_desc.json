@@ -1,0 +1,47 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "homeless": true,
+        "phone": {
+          "phoneNumber": "8001111"
+        },
+        "email": "clause@north.com",
+        "timezone": "America/Chicago"
+      },
+      "boardReviewOption": "evidence_submission",
+      "requestingExtension": false,
+      "appealingVhaDenial": false
+    }
+  },
+  "included": [
+        {
+            "type": "contestableIssue",
+            "attributes": {
+                "issue": "bronchitis - 44% - Evaluation of obstructive sleep apnea and bronchitis (previously rated as bronchitis), which is currently 44% disabling, is continued.",
+                "decisionDate": "2023-11-13",
+                "ratingIssueReferenceId": "657586",
+                "disagreementArea": "effective date"
+            }
+        },
+        {
+            "type": "contestableIssue",
+            "attributes": {
+                "issue": " headache - 0% - The previous denial of service connection for big headache is confirmed and continued.",
+                "decisionDate": "2022-06-19",
+                "ratingIssueReferenceId": "56863838",
+                "disagreementArea": "effective date"
+            }
+        },
+        {
+            "type": "contestableIssue",
+            "attributes": {
+                "issue": "hearing loss - 0% - The claim for service connection for hearing loss remains denied because the evidence submitted is not new and relevant.",
+                "decisionDate": "2020-09-16",
+                "ratingIssueReferenceId": "977566",
+                "disagreementArea": "effective date"
+            }
+        }
+    ]
+}

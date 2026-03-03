@@ -19,6 +19,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(Veteran::Service::Representative.veteran_service_officers.count).to eq 152
         expect(Veteran::Service::Representative.claim_agents.count).to eq 42
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
+        expect(Veteran::Service::OrganizationRepresentative.count).to be_positive
       end
     end
 
@@ -38,10 +39,19 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    it 'loads a vso rep with the poa code' do
+    it 'loads a vso rep with the poa code and creates join records' do
       VCR.use_cassette('veteran/ogc_vso_rep_data') do
         Veteran::VSOReloader.new.reload_vso_reps
-        expect(Veteran::Service::Representative.last.poa_codes).to include('095')
+
+        rep = Veteran::Service::Representative.find_by!(first_name: 'Edgar', last_name: 'Anderson')
+
+        expect(rep.poa_codes).to include('091')
+        expect(
+          Veteran::Service::OrganizationRepresentative
+        ).to exist(
+          representative_id: rep.representative_id,
+          organization_poa: '091'
+        )
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
@@ -69,19 +79,188 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    context 'stale organization removal' do
-      it 'removes organizations whose POA is not in the vso_data' do
+    context 'join table acceptance_mode (status quo)' do
+      it 'seeds acceptance_mode to no_acceptance for freshly imported orgs with default' do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do
-          # Create a stale organization with a POA code not in the fixture data
-          # Fixture contains POA codes: 091, ZZZ, 095
-          stale_org = create(:organization, poa: 'XXX', name: 'Stale Organization')
-
-          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to eq(stale_org)
+          Veteran::Service::OrganizationRepresentative.where(organization_poa: '091').delete_all
+          Veteran::Service::Organization.where(poa: '091').delete_all
+          expect(Veteran::Service::Organization.find_by(poa: '091')).to be_nil
 
           Veteran::VSOReloader.new.reload_vso_reps
 
-          # Stale organization should be removed
-          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to be_nil
+          org = Veteran::Service::Organization.find_by!(poa: '091')
+          expect(org.can_accept_digital_poa_requests).to be(false)
+
+          join = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '091')
+          expect(join.acceptance_mode).to eq('no_acceptance')
+        end
+      end
+
+      it 'seeds acceptance_mode to any_request when org accepts digital POA' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          create(:organization, poa: '095', can_accept_digital_poa_requests: true)
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          org_rep = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '095')
+          expect(org_rep.acceptance_mode).to eq('any_request')
+        end
+      end
+
+      it 'seeds acceptance_mode but does not overwrite join rows or create duplicates' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
+          create(:organization, poa: '095', can_accept_digital_poa_requests: false)
+
+          Veteran::VSOReloader.new.reload_vso_reps
+          org_rep = Veteran::Service::OrganizationRepresentative.find_by!(organization_poa: '095')
+          expect(org_rep.acceptance_mode).to eq('no_acceptance')
+
+          # Capture the natural key so we can assert no duplicates on rerun
+          rep_id = org_rep.representative_id
+          expect(
+            Veteran::Service::OrganizationRepresentative.where(
+              organization_poa: '095',
+              representative_id: rep_id
+            ).count
+          ).to eq(1)
+
+          # Simulate a later change that should be preserved
+          org_rep.update!(acceptance_mode: 'self_only')
+
+          # Even if org-wide flag changes later, ingestion should NOT clobber the join row
+          Veteran::Service::Organization.find_by!(poa: '095')
+                                        .update!(can_accept_digital_poa_requests: true)
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          # Still not overwritten
+          expect(org_rep.reload.acceptance_mode).to eq('self_only')
+
+          # Still no duplicates for that same (org, rep)
+          expect(
+            Veteran::Service::OrganizationRepresentative.where(
+              organization_poa: '095',
+              representative_id: rep_id
+            ).count
+          ).to eq(1)
+        end
+      end
+    end
+
+    context 'join table active/deactivated lifecycle' do
+      it 'deactivates stale rep<->org joins for orgs present in the latest feed run' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          # Ensure org is present (it will be imported/updated during reload)
+          create(:organization, poa: '091')
+
+          # Create a join that should NOT be in the feed
+          stale_rep = create(
+            :veteran_representative,
+            representative_id: 'STALE001',
+            first_name: 'Stale',
+            last_name: 'Rep',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO],
+            poa_codes: ['091']
+          )
+
+          stale_join = Veteran::Service::OrganizationRepresentative.create!(
+            representative_id: stale_rep.representative_id,
+            organization_poa: '091',
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          expect(stale_join.reload.deactivated_at).to be_present
+        end
+      end
+
+      it 'reactivates a previously-deactivated join when the pair reappears in the feed' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data', allow_playback_repeats: true) do
+          # First run creates the join from the feed
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          rep = Veteran::Service::Representative.find_by!(first_name: 'Edgar', last_name: 'Anderson')
+          join = Veteran::Service::OrganizationRepresentative.find_by!(
+            representative_id: rep.representative_id,
+            organization_poa: '091'
+          )
+
+          # Simulate it being deactivated previously
+          join.update!(deactivated_at: 2.days.ago)
+          expect(join.reload.deactivated_at).to be_present
+
+          # Second run should reactivate it
+          Veteran::VSOReloader.new.reload_vso_reps
+          expect(join.reload.deactivated_at).to be_nil
+        end
+      end
+
+      it 'does not deactivate joins when VSO validation fails (processing is skipped)' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          create(:organization, poa: '091')
+
+          rep = create(
+            :veteran_representative,
+            representative_id: 'STAYS001',
+            first_name: 'Should',
+            last_name: 'StayActive',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO],
+            poa_codes: ['091']
+          )
+
+          join = Veteran::Service::OrganizationRepresentative.create!(
+            representative_id: rep.representative_id,
+            organization_poa: '091',
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
+
+          # Force VSO rep/org validation failure so process_vso_data is skipped
+          Veteran::AccreditationTotal.create!(
+            attorneys: 100,
+            claims_agents: 50,
+            vso_representatives: 1000,
+            vso_organizations: 1000,
+            created_at: 1.day.ago
+          )
+
+          Veteran::VSOReloader.new.reload_vso_reps
+          expect(join.reload.deactivated_at).to be_nil
+        end
+      end
+    end
+
+    context 'stale organization removal' do
+      it 'deactivates joins for organizations whose POA is not in the vso_data' do
+        VCR.use_cassette('veteran/ogc_vso_rep_data') do
+          # Create a stale org that won't be in the fixture feed
+          create(:organization, poa: 'XXX', name: 'Stale Organization')
+
+          # Create an ACTIVE join against that org
+          rep = create(
+            :veteran_representative,
+            representative_id: 'STALEREP1',
+            first_name: 'Stale',
+            last_name: 'Join',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO],
+            poa_codes: ['XXX']
+          )
+
+          join = Veteran::Service::OrganizationRepresentative.create!(
+            representative_id: rep.representative_id,
+            organization_poa: 'XXX',
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
+
+          Veteran::VSOReloader.new.reload_vso_reps
+
+          # org still exists
+          expect(Veteran::Service::Organization.find_by(poa: 'XXX')).to be_present
+          # but its join is deactivated
+          expect(join.reload.deactivated_at).to be_present
         end
       end
 
@@ -212,6 +391,24 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           veteran_rep = Veteran::Service::Representative.find_by(representative_id: '82391')
           expect(veteran_rep).to be_nil
         end
+
+        it 'does not delete an existing VSO rep when the feed contains the rep_id but the name is malformed' do
+          existing = create(
+            :veteran_representative,
+            representative_id: '82391',
+            first_name: 'Should',
+            last_name: 'Stay',
+            user_types: [Veteran::VSOReloader::USER_TYPE_VSO]
+          )
+
+          VCR.use_cassette('veteran/ogc_vso_rep_data') do
+            Veteran::VSOReloader.new.reload_vso_reps
+          end
+
+          rep = Veteran::Service::Representative.find_by(representative_id: '82391')
+          expect(rep).to be_present
+          expect(rep.id).to eq(existing.id)
+        end
       end
 
       context 'when the last_name has trailing white space' do
@@ -220,6 +417,22 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           expect(veteran_rep.last_name).to eq('Good')
         end
       end
+    end
+  end
+
+  describe '#calculate_vso_counts' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    it 'counts orgs using normalized POA codes' do
+      data = [
+        { 'Representative' => 'X, Y', 'Registration Num' => '1', 'POA' => '091' },
+        { 'Representative' => 'X, Y', 'Registration Num' => '2', 'POA' => '091 ' },
+        { 'Representative' => 'X, Y', 'Registration Num' => '3', 'POA' => '091-' },
+        { 'Representative' => 'X, Y', 'Registration Num' => '4', 'POA' => nil }
+      ]
+
+      counts = reloader.send(:calculate_vso_counts, data)
+      expect(counts[:orgs]).to eq(1)
     end
   end
 

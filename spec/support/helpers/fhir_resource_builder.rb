@@ -85,7 +85,8 @@ module FhirResourceBuilder
       'resourceType' => 'MedicationDispense',
       'id' => 'dispense-1',
       'status' => status,
-      'whenHandedOver' => date
+      'whenHandedOver' => date,
+      'location' => { 'display' => '648' }
     }]
   end
 
