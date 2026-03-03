@@ -23,7 +23,7 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
 
-      def alt_rev_validate_form_526_submission_values(target_veteran)
+      def alt_rev_validate_form_526_submission_values
         return if form_attributes.empty?
 
         alt_rev_validate_claim_process_type_bdd if bdd_claim?
@@ -40,7 +40,7 @@ module ClaimsApi
         # ensure treatment centers information is valid
         alt_rev_validate_form_526_treatments
         # ensure service information is valid
-        alt_rev_validate_form_526_service_information(target_veteran)
+        alt_rev_validate_form_526_service_information
         # collect errors and pass back to the controller
         error_collection if @errors
       end
@@ -244,6 +244,11 @@ module ClaimsApi
           collect_error_messages(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA (international).'
           )
         end
       end
@@ -536,7 +541,7 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_service_information(_target_veteran)
+      def alt_rev_validate_form_526_service_information
         service_information = form_attributes['serviceInformation']
 
         return if service_information.nil? || service_information.blank?
