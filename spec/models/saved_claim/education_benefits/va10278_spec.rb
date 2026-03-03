@@ -9,4 +9,33 @@ RSpec.describe SavedClaim::EducationBenefits::VA10278 do
   it_behaves_like 'saved_claim'
 
   validate_inclusion(:form_id, '22-10278')
+
+  describe 'generate_benefits_intake_metadata' do
+    it 'returns the right metadata' do
+      expect(instance.generate_benefits_intake_metadata).to eq({
+                                                                 'veteranFirstName' => 'John',
+                                                                 'veteranLastName' => 'Doe',
+                                                                 'fileNumber' => '987654321',
+                                                                 'zipCode' => '12345',
+                                                                 'source' => 'SavedClaim::EducationBenefits::VA10278',
+                                                                 'docType' => '22-10278',
+                                                                 'businessLine' => 'EDU'
+                                                               })
+    end
+  end
+
+  describe 'personalisation' do
+    it 'returns the right values' do
+      expect(instance.personalisation).to eq({
+                                               first_name: 'John',
+                                               last_name: 'Doe'
+                                             })
+    end
+  end
+
+  describe 'email' do
+    it 'returns the right values' do
+      expect(instance.email).to eq('john.doe@example.com')
+    end
+  end
 end

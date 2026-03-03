@@ -1,17 +1,30 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": [
+    "data"
+  ],
   "properties": {
     "data": {
       "type": "array",
       "minItems": 0,
       "uniqueItems": true,
       "items": {
-        "required": ["id", "type", "attributes", "links"],
+        "required": [
+          "id",
+          "type",
+          "attributes",
+          "links"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "type": { "enum": ["message_threads"] },
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "message_threads"
+            ]
+          },
           "attributes": {
             "type": "object",
             "required": [
@@ -35,11 +48,21 @@
               "unreadMessages"
             ],
             "properties": {
-              "threadId": { "type": "integer" },
-              "folderId": { "type": "integer" },
-              "messageId": { "type": "integer" },
-              "threadPageSize": { "type": "integer" },
-              "messageCount": { "type": "integer" },
+              "threadId": {
+                "type": "integer"
+              },
+              "folderId": {
+                "type": "integer"
+              },
+              "messageId": {
+                "type": "integer"
+              },
+              "threadPageSize": {
+                "type": "integer"
+              },
+              "messageCount": {
+                "type": "integer"
+              },
               "category": {
                 "enum": [
                   "OTHERS",
@@ -50,25 +73,65 @@
                   "EDUCATION"
                 ]
               },
-              "subject": { "type": "string" },
-              "triageGroupName": { "type": ["null", "string"] },
-              "sentDate": { "type": ["null", "string"] },
-              "draftDate": { "type": ["null", "string"] },
-              "senderId": { "type": "integer" },
-              "senderName": { "type": "string" },
-              "recipientName": { "type": "string" },
-              "recipientId": { "type": "integer" },
-              "proxySenderName": { "type": ["null", "string"] },
-              "hasAttachment": { "type": "boolean" },
-              "unsentDrafts": { "type": "boolean" },
-              "unreadMessages": { "type": "boolean" }
+              "subject": {
+                "type": "string"
+              },
+              "triageGroupName": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sentDate": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "draftDate": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "senderId": {
+                "type": "integer"
+              },
+              "senderName": {
+                "type": "string"
+              },
+              "recipientName": {
+                "type": "string"
+              },
+              "recipientId": {
+                "type": "integer"
+              },
+              "proxySenderName": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "hasAttachment": {
+                "type": "boolean"
+              },
+              "unsentDrafts": {
+                "type": "boolean"
+              },
+              "unreadMessages": {
+                "type": "boolean"
+              }
             }
           },
           "links": {
             "type": "object",
-            "required": ["self"],
+            "required": [
+              "self"
+            ],
             "properties": {
-              "self": { "type": "string" }
+              "self": {
+                "type": "string"
+              }
             }
           }
         }

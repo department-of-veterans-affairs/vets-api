@@ -7,7 +7,7 @@ module EducationForm
     include Sidekiq::Job
 
     # Only process those forms types that are applicable
-    FORMS_IDS = %w[22-0989].freeze
+    FORMS_IDS = %w[22-0989 22-10278].freeze
 
     class EducationBenefitClaimIntakeError < StandardError; end
 

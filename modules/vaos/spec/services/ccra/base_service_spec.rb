@@ -3,9 +3,10 @@
 require 'rails_helper'
 
 describe Ccra::BaseService do
+  user_icn = '123456789V123456'
   subject { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234') }
+  let(:user) { double('User', account_uuid: '1234', icn: user_icn) }
 
   describe '#config' do
     it 'returns a Ccra::Configuration instance' do
