@@ -52,19 +52,19 @@ instead of 401</critical>
 guidance for remediation</high>
     <medium>403 used for resource where existence is already public
 knowledge</medium>
-    <false_positive>Public resources where enumeration is not a risk —
+    <false_positive>Public resources where enumeration is not a risk:
 if the resource type is publicly known (e.g., facility IDs, form
 types, public announcements), returning 403 instead of 404 does not
 leak sensitive information. Admin-only endpoints where all callers
 are authenticated staff with known permissions. Nested resources
-accessed through a parent that was already authorized — the child
+accessed through a parent that was already authorized; the child
 resource's existence is already implied by the parent access.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
     **Handle 403 Authorization Errors (Permission vs Existence)** | `CRITICAL`
 
-    `{{file_path}}:{{line_number}}` — {{one_line_violation_description}}
+    `{{file_path}}:{{line_number}}` - {{one_line_violation_description}}
 
     **Why this matters:** {{why_it_matters_summary}} (e.g., split 403/404 responses
     allow attackers to enumerate valid resource IDs by observing which status code
@@ -90,12 +90,12 @@ def show
   claim = Claim.find(params[:id])
   unless current_user.can_access?(claim)
     raise Common::Exceptions::Forbidden.new(detail: "Access denied")
-    # Returns 403 — tells attacker claim ID exists!
+    # Returns 403: tells attacker claim ID exists!
   end
   render json: claim
 rescue ActiveRecord::RecordNotFound
   raise Common::Exceptions::RecordNotFound.new(params[:id])
-  # Returns 404 — tells attacker claim ID doesn't exist
+  # Returns 404: tells attacker claim ID doesn't exist
 end
       </bad>
       <good>

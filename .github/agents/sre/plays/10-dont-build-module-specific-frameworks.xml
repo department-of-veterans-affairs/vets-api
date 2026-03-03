@@ -1,8 +1,8 @@
 <play id="dont-build-module-frameworks" title="Don't build module-specific error handling/logging frameworks" severity="CRITICAL">
 
   <context>
-    Using the platform's shared observability primitives — Rails
-    logger, StatsD, Datadog tracing, and ExceptionHandling — gives
+    Using the platform's shared observability primitives (Rails
+    logger, StatsD, Datadog tracing, and ExceptionHandling) gives
     the API consistent log formats, span tagging, and error
     classification across every module. SREs can write one dashboard
     query that covers all services, and platform-level fixes apply
@@ -20,7 +20,7 @@
   <rules>
     <rule enforcement="must">
       Use the centralized ExceptionHandling concern and standard
-      APIs (Datadog::Tracing, Rails.logger, StatsD) directly — do
+      APIs (Datadog::Tracing, Rails.logger, StatsD) directly; do
       not create module-specific wrappers for error handling,
       logging, monitoring, or tracing.
     </rule>
@@ -54,9 +54,9 @@ custom class</high>
 proposing centralized requirements</medium>
     <false_positive>Domain exception hierarchies that define typed
 exceptions for a module's specific error conditions (e.g.,
-`ClaimsApi::UnprocessableEntityError &lt; StandardError`) — these are
+`ClaimsApi::UnprocessableEntityError &lt; StandardError`); these are
 domain modeling, not framework building. Faraday middleware classes
-that configure connection behavior (timeouts, headers, auth) — these
+that configure connection behavior (timeouts, headers, auth); these
 are client configuration, not monitoring wrappers. Thin convenience
 wrappers that delegate directly to a platform method with no added
 logic (e.g., a one-line `def log_error(e)` that calls
@@ -107,12 +107,12 @@ class LogService
     result
   rescue => e
     handle_logging_error(action, e, span)  # Bug: Never re-raises exception
-    # Missing: raise — span leak!
+    # Missing: raise: span leak!
   end
 end
       </bad>
       <good>
-# Use standard APIs directly — no wrapper needed
+# Use standard APIs directly: no wrapper needed
 Datadog::Tracing.trace('my_module.operation') do |span|
   span.set_tag('module', 'my_module')
   result = do_work
@@ -137,7 +137,7 @@ class MyModuleController &lt; ApplicationController
   def show
     result = MyService.call(params[:id])
     render json: result
-    # No rescue needed — ExceptionHandling handles it
+    # No rescue needed: ExceptionHandling handles it
   end
 end
       </good>

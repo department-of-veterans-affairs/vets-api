@@ -5,8 +5,8 @@
     When 4xx means "fix your request" and 5xx means "we have a
     problem," consumers can build correct retry logic and SREs get
     accurate dashboards that split client input issues from server
-    failures. Misclassification — returning 4xx for server-side
-    problems — hides outages from alerting, sends consumers on
+    failures. Misclassification (returning 4xx for server-side
+    problems) hides outages from alerting, sends consumers on
     futile retry loops, and erodes confidence in the API's responses.
   </context>
 
@@ -30,7 +30,7 @@
     </rule>
     <rule enforcement="must">
       Catch only specific validation exceptions before returning
-      422 — broad rescues misclassify server errors as client
+      422; broad rescues misclassify server errors as client
       errors.
     </rule>
   </rules>
@@ -58,11 +58,11 @@ APIs (BGS, MPI, Lighthouse)</high>
     <medium>rescue returns 422 but catches a reasonably narrow set of
 exceptions that could be narrowed further</medium>
     <false_positive>error classification in Sidekiq jobs, rake tasks,
-or other non-HTTP contexts — HTTP status codes are meaningless
+or other non-HTTP contexts; HTTP status codes are meaningless
 without an HTTP response</false_positive>
     <false_positive>Rescue blocks where the protected code (between
 `begin`/`def` and `rescue`) only calls methods that raise
-validation-related exceptions — if the rescue is effectively narrow
+validation-related exceptions. If the rescue is effectively narrow
 because the called methods only raise `ArgumentError`,
 `ActiveRecord::RecordInvalid`, `JSON::ParserError`, or similar
 input-validation exceptions, then `rescue => e; raise
@@ -76,7 +76,7 @@ equivalent to a typed rescue and should not be flagged.</false_positive>
   <pr_comment_template>
     **Match Status Codes to Fault Ownership (4xx vs 5xx)** | `CRITICAL`
 
-    `{{file_path}}:{{line_number}}` — {{one_line_violation_description}}
+    `{{file_path}}:{{line_number}}` - {{one_line_violation_description}}
 
     **Why this matters:** Returning 422 (client error) for server-side failures
     means metrics blame clients for our bugs. Dashboards show "validation errors"
@@ -104,20 +104,20 @@ equivalent to a typed rescue and should not be flagged.</false_positive>
   </pr_comment_template>
 
   <examples>
-    <example name="DependentsBenefits UserData — bare rescue returns 422 for all failures">
+    <example name="DependentsBenefits UserData - bare rescue returns 422 for all failures">
       <bad>
 rescue => e  # Bare rescue catches ALL errors
   monitor.track_user_data_error('DependentsBenefits::UserData#initialize error',
                                 'user_hash.failure', error: e)
   raise Common::Exceptions::UnprocessableEntity.new(detail: 'Could not initialize user data')
-  # Returns 422 (client error) for ALL failures — even our bugs!
+  # Returns 422 (client error) for ALL failures, even our bugs!
       </bad>
       <good>
 rescue ArgumentError, ValidationError => e
   monitor.track_user_data_error('Validation failed', 'user_hash.validation_error', error: e)
   raise Common::Exceptions::UnprocessableEntity.new(detail: e.message)
   # Ruby automatically preserves the cause chain
-# Don't catch NoMethodError, BGS::ServiceError, etc. — let them raise as 500s
+# Don't catch NoMethodError, BGS::ServiceError, etc.: let them raise as 500s
       </good>
     </example>
   </examples>

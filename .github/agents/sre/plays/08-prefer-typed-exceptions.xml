@@ -2,7 +2,7 @@
 
   <context>
     Typed exceptions flow through ExceptionHandling to produce
-    correct HTTP status codes automatically — consumers get
+    correct HTTP status codes automatically; consumers get
     actionable responses and SREs can filter APM by exception class
     to isolate distinct failure modes. Untyped string raises all
     become RuntimeError 500s, making every failure look identical
@@ -22,7 +22,7 @@
   <rules>
     <rule enforcement="must">
       Use typed exception classes instead of `raise 'string'` in
-      all HTTP request paths — string raises create RuntimeError
+      all HTTP request paths; string raises create RuntimeError
       that defaults to 500.
     </rule>
     <rule enforcement="must">
@@ -37,17 +37,17 @@
   </rules>
 
   <investigate_before_answering>
-    <step>Read the full method containing the `raise 'string'` to understand the precondition being enforced — is it authentication, parameter validation, data integrity, or a service contract?</step>
+    <step>Read the full method containing the `raise 'string'` to understand the precondition being enforced: is it authentication, parameter validation, data integrity, or a service contract?</step>
     <step>Determine the correct HTTP status code for the failure mode.</step>
     <step>Check if typed exceptions already exist in the module's namespace or in `Common::Exceptions` for the specific failure mode.</step>
     <step>Identify whether this raise is in an HTTP request path (controller, service called from controller) or in a background job / rake task, as the impact differs significantly.</step>
-    <step>Look for other `raise 'string'` patterns in the same file or module — if there are several, recommend creating a domain-specific exception hierarchy. Do not suggest a fix without understanding what semantic error type the string raise represents. The correct typed exception depends on the failure mode.</step>
+    <step>Look for other `raise 'string'` patterns in the same file or module; if there are several, recommend creating a domain-specific exception hierarchy. Do not suggest a fix without understanding what semantic error type the string raise represents. The correct typed exception depends on the failure mode.</step>
     <step>**Non-HTTP context check (MANDATORY).** If the code is in a
     Sidekiq job, rake task, or other non-HTTP context, do NOT recommend
     `Common::Exceptions` classes (these map to HTTP status codes that
     are meaningless without an HTTP response). Instead, recommend:
     - Domain-specific exception classes for Sidekiq jobs (these control
-      retry behavior — different exception types can be matched in
+      retry behavior; different exception types can be matched in
       `sidekiq_retries_exhausted`)
     - `ArgumentError` or domain exceptions for rake tasks
     - The severity is MEDIUM (not CRITICAL) in non-HTTP contexts because
@@ -68,16 +68,16 @@ inappropriate retries</high>
 request path</medium>
     <false_positive>Untyped raise in guard clauses of private methods
 deep in the call stack where the exception is always caught by a
-typed rescue higher up — the string raise acts as an internal
+typed rescue higher up; the string raise acts as an internal
 assertion, not a user-facing error. Check callers before flagging.
 Also, in non-HTTP contexts (Sidekiq, rake), do not recommend
-Common::Exceptions classes — suggest domain exceptions instead.</false_positive>
+Common::Exceptions classes; suggest domain exceptions instead.</false_positive>
   </severity_assessment>
 
   <pr_comment_template>
     **Prefer Typed Exceptions with Domain-Specific Subclasses** | `CRITICAL`
 
-    `{{file_path}}:{{line_number}}` — `raise '{{message}}'` creates a generic
+    `{{file_path}}:{{line_number}}` - `raise '{{message}}'` creates a generic
     RuntimeError that falls through to the 500 handler. This {{failure_mode}}
     should return {{correct_status_code}}, not 500 Internal Server Error.
 
@@ -99,7 +99,7 @@ Common::Exceptions classes — suggest domain exceptions instead.</false_positiv
   </pr_comment_template>
 
   <examples>
-    <example name="MHV Session — string raise for missing user_key">
+    <example name="MHV Session - string raise for missing user_key">
       <bad>
 raise 'A user_key is required for session creation' unless user_key
 # Creates RuntimeError -> falls through to 500 handler
@@ -111,11 +111,11 @@ unless user_key
     source: 'MHVLockedSessionClient#authenticate'
   )
 end
-# Returns 422 — framework recognizes the type automatically
+# Returns 422: framework recognizes the type automatically
       </good>
     </example>
 
-    <example name="IVC CHAMPVA — string raise for missing form_number">
+    <example name="IVC CHAMPVA - string raise for missing form_number">
       <bad>
 raise 'Missing/malformed form_number in params' unless form_number
 # Client error masquerading as server failure (500)
@@ -131,7 +131,7 @@ end
       </good>
     </example>
 
-    <example name="VAProfile Contact Information — string raise for missing ID">
+    <example name="VAProfile Contact Information - string raise for missing ID">
       <bad>
 raise 'ContactInformationV2 - Missing User VAProfile_ID' if @user&amp;.vet360_id.blank?
 # Validation error returned as 500
@@ -143,7 +143,7 @@ if @user&amp;.vet360_id.blank?
     source: 'VAProfile::ContactInformation::V2::Service'
   )
 end
-# Returns 422 — data setup incomplete, not server failure
+# Returns 422: data setup incomplete, not server failure
       </good>
     </example>
   </examples>

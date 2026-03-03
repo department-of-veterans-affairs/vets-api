@@ -54,18 +54,18 @@
 is passed through as 401 to the client</critical>
     <critical>rescue Faraday::UnauthorizedError raises Unauthorized without
 checking credential type</critical>
-    <high>401 exception raised without meta.auth_type — cannot
+    <high>401 exception raised without meta.auth_type, cannot
 distinguish user token from service account failures</high>
     <high>service account failure returns 401 and monitoring attributes
 it to client authentication</high>
     <medium>401 exception missing meta.upstream_service or
 meta.upstream_status context</medium>
     <false_positive>Proxy endpoints where the service account IS the
-user — some integrations use a single credential model where the
+user; some integrations use a single credential model where the
 upstream 401 genuinely means the user's session is invalid (e.g.,
 token exchange flows where vets-api forwards the user's token
 directly). Also, hybrid auth scenarios where the code explicitly
-checks credential ownership before deciding the status code — if
+checks credential ownership before deciding the status code; if
 the check is present and correct, do not flag.</false_positive>
     <false_positive>**Token-forwarding services:** When vets-api forwards
 the user's OAuth token directly to the upstream service (look for
@@ -87,14 +87,14 @@ checks, not to second-guess *present* ones.</false_positive>
   <pr_comment_template>
     **Handle 401 Authentication Errors (Token Ownership Matters!)** | `CRITICAL`
 
-    `{{file_path}}:{{line_number}}` — Upstream 401 passed through as 401 without
+    `{{file_path}}:{{line_number}}` - Upstream 401 passed through as 401 without
     checking whose credentials failed. If this service uses service account
     credentials, the 401 should be remapped to 500 (our config error, not client's
     auth failure).
 
     **Why this matters:** When our service account credentials fail upstream and we
     return 401, the client thinks THEY need to re-authenticate. They refresh their
-    token and retry — it still fails. Metrics blame the client. Wrong team gets
+    token and retry, but it still fails. Metrics blame the client. Wrong team gets
     paged. The actual fix requires our team to update service account configuration.
 
     **Suggested fix:**
@@ -125,10 +125,10 @@ rescue Faraday::UnauthorizedError
       <good>
 rescue Faraday::UnauthorizedError => e
   if using_service_account_credentials?
-    # Our service account failed — this is OUR problem, return 500
+    # Our service account failed: this is OUR problem, return 500
     raise Common::Exceptions::InternalServerError.new(e)
   else
-    # User's token failed — this is THEIR problem, return 401
+    # User's token failed: this is THEIR problem, return 401
     raise Common::Exceptions::Unauthorized.new(
       detail: 'User authentication failed. Please re-authenticate.'
     )

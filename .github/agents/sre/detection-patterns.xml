@@ -21,8 +21,8 @@
     </instructions>
 
     <output_format>
-      Report findings under "### Play NN: Play Name — SEVERITY" headings.
-      Each finding gets "#### N. file:line — CONFIDENCE" with a code snippet.
+      Report findings under "### Play NN: Play Name - SEVERITY" headings.
+      Each finding gets "#### N. file:line - CONFIDENCE" with a code snippet.
       See agent_constraints in sre.agent.md.
     </output_format>
 
@@ -67,7 +67,7 @@
       preserves the cause chain when you raise a new exception inside a rescue
       block ($!.cause is set implicitly), so the fix is usually
       raise TypedError.new(detail) or bare raise. Do NOT recommend cause: e
-      with Common::Exceptions classes — they don't accept it.
+      with Common::Exceptions classes (they don't accept it).
 
       Note: raise e inside rescue => e DOES preserve the cause chain (Ruby sets
       cause implicitly). Only flag when a different exception class is raised
@@ -88,7 +88,7 @@
       Rescue blocks without an exception class (rescue, rescue => e, or
       rescue Exception). These catch everything including NoMethodError from
       typos and SignalException from Ctrl+C. Also look for rescue blocks that
-      return nil, false, or empty collections — signals of error swallowing
+      return nil, false, or empty collections, which signals error swallowing
       combined with bare rescue.
     </description>
 
@@ -100,7 +100,7 @@
 
     <context_check>
       Search for rescue then read surrounding lines. Rescue block followed
-      by nil, false, [], or {} return — MEDIUM.
+      by nil, false, [], or {} return: MEDIUM.
     </context_check>
   </play>
 
@@ -108,7 +108,7 @@
     <description>
       Rescue blocks that catch Faraday errors (timeouts, connection failures,
       upstream 5xx) and map them to InternalServerError (500). Upstream failures
-      should map to 502/503/504, not 500 — a 500 means our code is broken.
+      should map to 502/503/504, not 500. A 500 means our code is broken.
       Also look for catching all Faraday errors with a single rescue clause
       and returning one status code.
     </description>
@@ -120,7 +120,7 @@
 
     <context_check>
       Search for rescue\s+Faraday:: then read surrounding lines.
-      Faraday rescue followed by InternalServerError raise — HIGH.
+      Faraday rescue followed by InternalServerError raise: HIGH.
     </context_check>
   </play>
 
@@ -131,7 +131,7 @@
       failures as client validation errors, hiding real problems from
       dashboards. Only specific validation exceptions should produce 422.
       Also check error-status mapper methods that default to 422 in an else
-      branch — when unknown or nil error codes fall through to 422,
+      branch: when unknown or nil error codes fall through to 422,
       unexpected server faults are misclassified as client input errors.
     </description>
 
@@ -143,10 +143,10 @@
     <context_check>
       Search for UnprocessableEntity and :unprocessable_entity then read the
       enclosing rescue block or error mapper:
-      - Bare or broad rescue raising/rendering 422 — HIGH
-      - rescue => e followed by 422 — HIGH
+      - Bare or broad rescue raising/rendering 422: HIGH
+      - rescue => e followed by 422: HIGH
       - Error-status mapper with else defaulting to 422 when the mapper is
-        called from a broad rescue — MEDIUM (check what values can reach the
+        called from a broad rescue: MEDIUM (check what values can reach the
         else branch)
     </context_check>
   </play>
@@ -156,7 +156,7 @@
       Code that catches upstream 401 errors and blindly passes them through
       as 401 to clients. When our service account credentials fail upstream,
       that's our fault (500), not the user's (401). The key question: "Whose
-      credentials failed — the user's or ours?"
+      credentials failed: the user's or ours?"
     </description>
 
     <grep_helpers>
@@ -165,7 +165,7 @@
 
     <context_check>
       Search for Unauthorized then read the rescue block. Upstream 401 passed
-      through without checking credential ownership — HIGH.
+      through without checking credential ownership: HIGH.
     </context_check>
   </play>
 
@@ -173,7 +173,7 @@
     <description>
       Code that returns 403 Forbidden for non-existent resources (should be
       404) or for expired/missing tokens (should be 401). Also look for
-      rescue ActiveRecord::RecordNotFound that raises Forbidden — this leaks
+      rescue ActiveRecord::RecordNotFound that raises Forbidden. This leaks
       resource existence information and enables enumeration attacks.
     </description>
 
@@ -183,7 +183,7 @@
 
     <context_check>
       Search for Forbidden and RecordNotFound in proximity.
-      RecordNotFound rescued and converted to Forbidden — HIGH.
+      RecordNotFound rescued and converted to Forbidden: HIGH.
     </context_check>
   </play>
 
@@ -206,7 +206,7 @@
     <description>
       Code that calls span.set_error or set_error() on 4xx exceptions.
       Expected client errors (400, 401, 404, 422) should not mark APM spans
-      as errors — this floods error tracking with non-bugs. Only 5xx errors
+      as errors; this floods error tracking with non-bugs. Only 5xx errors
       are unexpected and should be marked.
     </description>
 
@@ -221,10 +221,10 @@
     <description>
       Custom logging services, error handler classes, monitoring wrappers,
       tracing helpers, or error classification methods built within a module.
-      These fragment the codebase — vets-api has 24+ of these. Modules should
+      These fragment the codebase (vets-api has 24+ of these). Modules should
       use Rails.logger, StatsD, Datadog::Tracing, and the ExceptionHandling
       concern directly. Also look for handle_error or handle_exception methods
-      embedded in service classes — these reimplement error classification that
+      embedded in service classes. These reimplement error classification that
       belongs in the platform layer, even without a standalone framework class.
     </description>
 
