@@ -3,6 +3,11 @@
 class SavedClaim::EducationBenefits::VA10278 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10278')
 
+  def after_submit(user)
+    user_account_uuid = user&.user_account_uuid
+    EducationForm::SubmitEducationBenefitsClaimJob.perform_async(id, user_account_uuid)
+  end
+
   def generate_benefits_intake_metadata
     personal_info = parsed_form['claimantPersonalInformation']
     ::BenefitsIntake::Metadata.generate(
