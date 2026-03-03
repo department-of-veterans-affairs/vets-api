@@ -74,6 +74,16 @@ module VeteranStatusCard
     # Codes where a real status could not be determined
     ERROR_SSC_CODES = %w[VNA DVN DVU CVI].freeze
 
+    # Message codes to signify what message the end user is seeing for logging purposes
+    CONFIRMED_MESSAGE = 'status_card_confirmed'
+    SOMETHING_WENT_WRONG_MESSAGE = 'something_went_wrong'
+    DISHONORABLE_MESSAGE = 'dishonorable'
+    INELIGIBLE_SERVICE_MESSAGE = 'ineligible_service'
+    UNKNOWN_ELIGIBILITY_MESSAGE = 'unknown_eligibility'
+    CURRENTLY_SERVING_MESSAGE = 'currently_serving'
+    UNCAUGHT_ERROR_MESSAGE = 'uncaught_error'
+    PERSON_NOT_FOUND_MESSAGE = 'person_not_found'
+
     ##
     # Initializes the VeteranStatusCard::Service
     #
@@ -83,6 +93,7 @@ module VeteranStatusCard
       log_statsd(STATSD_TOTAL)
       @user = user
       @confirmation_status = INELIGIBLE_NO_SSC_CHECK_MESSAGE
+      @user_message = nil
     end
 
     ##
@@ -173,6 +184,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def something_went_wrong_response
+      @user_message = SOMETHING_WENT_WRONG_MESSAGE
       VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
     end
 
@@ -183,6 +195,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def dishonorable_response
+      @user_message = DISHONORABLE_MESSAGE
       VeteranStatusCard::Constants::DISHONORABLE_RESPONSE
     end
 
@@ -193,6 +206,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def ineligible_service_response
+      @user_message = INELIGIBLE_SERVICE_MESSAGE
       VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
     end
 
@@ -203,6 +217,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def unknown_eligibility_response
+      @user_message = UNKNOWN_ELIGIBILITY_MESSAGE
       VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
     end
 
@@ -213,6 +228,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def currently_serving_response
+      @user_message = CURRENTLY_SERVING_MESSAGE
       VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE
     end
 
@@ -223,6 +239,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def uncaught_error_response
+      @user_message = UNCAUGHT_ERROR_MESSAGE
       VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
     end
 
@@ -233,6 +250,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def person_not_found_response
+      @user_message = PERSON_NOT_FOUND_MESSAGE
       VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
     end
 
@@ -277,7 +295,8 @@ module VeteranStatusCard
                           veteran_status: NOT_CONFIRMED_TEXT,
                           not_confirmed_reason: nil,
                           confirmation_status: confirmation_status_upcase,
-                          service_summary_code: nil
+                          service_summary_code: nil,
+                          user_message: PERSON_NOT_FOUND_MESSAGE
                         })
     end
 
@@ -300,7 +319,8 @@ module VeteranStatusCard
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
                           not_confirmed_reason: vet_verification_status[:reason],
                           confirmation_status: confirmation_status_upcase,
-                          service_summary_code: ssc_code
+                          service_summary_code: ssc_code,
+                          user_message: confirmed ? CONFIRMED_MESSAGE : @user_message
                         })
     end
 
@@ -640,12 +660,13 @@ module VeteranStatusCard
     #    :not_confirmed_reason, :confirmation_status
     #
     def person_not_found_response_hash
+      response = person_not_found_response
       {
         type: VETERAN_STATUS_ALERT,
         attributes: {
-          header: person_not_found_response[:title],
-          body: person_not_found_response[:message],
-          alert_type: person_not_found_response[:status],
+          header: response[:title],
+          body: response[:message],
+          alert_type: response[:status],
           veteran_status: NOT_CONFIRMED_TEXT,
           not_confirmed_reason: VET_STATUS_PERSON_NOT_FOUND_TEXT,
           confirmation_status: confirmation_status_upcase,
