@@ -5,7 +5,7 @@ module SurvivorsBenefits::StructuredData::Section10
   # Section X
   # Build the medical, last, and/or burial expenses structured data entries.
   def build_section10
-    fields.merge!(y_n_pair(any_reimbursment?, 'UNREIMBURSED_MED_EXPENSES_Y', 'UNREIMBURSED_MED_EXPENSES_N'))
+    fields.merge!(y_n_pair(any_reimbursement?, 'UNREIMBURSED_MED_EXPENSES_Y', 'UNREIMBURSED_MED_EXPENSES_N'))
     merge_care_expense_fields(form['careExpenses'] || [])
     merge_medical_expense_fields(form['medicalExpenses'] || [])
   end
@@ -14,7 +14,7 @@ module SurvivorsBenefits::StructuredData::Section10
   # Check if there are any reimbursements for care or medical expenses
   #
   # @return [Boolean] True if there are any reimbursements, false otherwise
-  def any_reimbursment?
+  def any_reimbursement?
     form['careExpenses'].present? || form['medicalExpenses'].present?
   end
 
