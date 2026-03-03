@@ -269,11 +269,24 @@ module ClaimsApi
     end
 
     def validate_form_526_fewer_than_150_disabilities!
-      disabilities = form_attributes['disabilities']
+      disabilities = flatten_disabilities(form_attributes['disabilities'])
       return if disabilities.size <= DISABILITY_COUNT_MAX
 
       raise ::Common::Exceptions::InvalidFieldValue.new('disabilities',
                                                         "A maximum of #{DISABILITY_COUNT_MAX} disabilities allowed")
+    end
+
+    def flatten_disabilities(disabilities_array)
+      disabilities_array.flat_map do |disability|
+        primary_disability = disability.dup
+        secondaries = primary_disability.delete('secondaryDisabilities') || []
+
+        list = []
+        list << primary_disability
+        list.concat(secondaries)
+
+        list
+      end
     end
 
     def contention_classification_type_code_list

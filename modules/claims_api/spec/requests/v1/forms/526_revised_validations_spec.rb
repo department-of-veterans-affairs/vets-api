@@ -937,6 +937,30 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
+    context 'when the composite count of disabilities and secondary disabilities is above the max' do
+      let(:form_attributes) do
+        {
+          'disabilities' => Array.new(76) do
+            {
+              'name' => 'PTSD',
+              'secondaryDisabilities' => Array.new(1) do
+                {
+                  'name' => 'secondary disability'
+                }
+              end
+            }
+          end
+        }
+      end
+
+      it 'raises an error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue) do |error|
+            expect(error.errors.first.detail).to include('A maximum of 150 disabilities allowed')
+          end
+      end
+    end
+
     context 'when disabilities count is greater than 150' do
       let(:form_attributes) { { 'disabilities' => Array.new(151) { { 'name' => 'PTSD' } } } }
 
