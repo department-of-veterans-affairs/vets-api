@@ -32,6 +32,7 @@ module BenefitsIntake
       stale: 'stale'      # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
     }.freeze
 
+    # List of allowed context keys for logging/metrics
     MONITOR_ALLOWLIST = %w[
       form_id
       saved_claim_id
