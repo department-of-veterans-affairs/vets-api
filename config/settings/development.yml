@@ -1309,6 +1309,8 @@ representation_management:
 res:
   api_key: ~
   base_url: https://fake_url.com
+  case_get_document:
+    mock: ~
   ch_31_case_details:
     mock: ~
   ch_31_case_milestones:

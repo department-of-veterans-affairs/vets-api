@@ -28,6 +28,7 @@ module SignIn
                           LOGIN_GOV_IAL0 = 'http://idmanagement.gov/ns/assurance/ial/0',
                           LOGIN_GOV_IAL1 = 'http://idmanagement.gov/ns/assurance/ial/1',
                           LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2',
+                          LOGIN_GOV_VERIFIED = 'urn:acr.login.gov:verified',
                           LOGIN_GOV_IAL2_REQUIRED = 'urn:acr.login.gov:verified-facial-match-required',
                           LOGIN_GOV_IAL2_PREFERRED = 'urn:acr.login.gov:verified-facial-match-preferred'].freeze
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'
