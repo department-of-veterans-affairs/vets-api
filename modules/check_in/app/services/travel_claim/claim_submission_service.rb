@@ -500,8 +500,8 @@ module TravelClaim
     #
     def increment_success_metric
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_SUCCESS,
-        CheckIn::Constants::OH_STATSD_BTSSS_SUCCESS
+        CheckIn::Constants::CIE_STATSD_BTSSS_V1_SUCCESS,
+        CheckIn::Constants::OH_STATSD_BTSSS_V1_SUCCESS
       )
     end
 
@@ -510,8 +510,8 @@ module TravelClaim
     #
     def increment_failure_metric
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE,
-        CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE
+        CheckIn::Constants::CIE_STATSD_BTSSS_V1_CLAIM_FAILURE,
+        CheckIn::Constants::OH_STATSD_BTSSS_V1_CLAIM_FAILURE
       )
     end
 
@@ -547,8 +547,8 @@ module TravelClaim
     #
     def handle_duplicate_claim_error
       increment_metric_by_facility_type(
-        CheckIn::Constants::CIE_STATSD_BTSSS_DUPLICATE,
-        CheckIn::Constants::OH_STATSD_BTSSS_DUPLICATE
+        CheckIn::Constants::CIE_STATSD_BTSSS_V1_DUPLICATE,
+        CheckIn::Constants::OH_STATSD_BTSSS_V1_DUPLICATE
       )
     end
 

@@ -23,6 +23,8 @@ module JunitToRuntimeLog
         file = file.sub(%r{^\./}, '')
         file_times[file] += time.to_f
       end
+    rescue REXML::ParseException, SystemCallError => e
+      warn "Skipping #{xml_path}: #{e.class} - #{e.message}"
     end
 
     file_times
@@ -44,10 +46,7 @@ if __FILE__ == $PROGRAM_NAME
 
   file_times = JunitToRuntimeLog.aggregate_times(Dir.glob(xml_glob))
 
-  if file_times.empty?
-    warn 'No test timing data found in JUnit XML files.'
-    exit 0
-  end
+  warn 'No test timing data found in JUnit XML files.' if file_times.empty?
 
   JunitToRuntimeLog.write_log(file_times, output_file)
   warn "Generated #{output_file} with #{file_times.size} entries"
