@@ -2,6 +2,8 @@
 
 module MedicalCopays
   module CernerFacilities
+    # These are parent facility station IDs for facilites that are
+    # scheduled to migrate to cerner between now and July 2027
     FUTURE_CERNER_FACILITY_IDS = %w[
       553
       655
