@@ -131,6 +131,30 @@ RSpec.describe JunitToRuntimeLog do
 
       expect(result).to eq('spec/c_spec.rb' => 3.0)
     end
+
+    it 'skips XML files containing DOCTYPE declarations and continues processing valid ones' do
+      doctype_xml_path = File.join(temp_dir, 'evil.xml')
+      File.write(doctype_xml_path, <<~XML)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE foo [<!ENTITY xxe "boom">]>
+        <testsuite>
+          <testcase file="spec/evil_spec.rb" name="test" time="1.0"/>
+        </testsuite>
+      XML
+
+      good_xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase file="spec/safe_spec.rb" name="test" time="2.0"/>
+        </testsuite>
+      XML
+      good_xml_path = File.join(temp_dir, 'good.xml')
+      File.write(good_xml_path, good_xml)
+
+      result = described_class.aggregate_times([doctype_xml_path, good_xml_path])
+
+      expect(result).to eq('spec/safe_spec.rb' => 2.0)
+    end
   end
 
   describe '.write_log' do
