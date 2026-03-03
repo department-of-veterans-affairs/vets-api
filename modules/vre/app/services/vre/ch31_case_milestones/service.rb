@@ -41,9 +41,13 @@ module VRE
       end
 
       def build_payload(milestone_params)
+        milestones = (milestone_params[:milestones] || []).map do |m|
+          m.to_h.deep_transform_keys { |key| key.to_s.camelize(:lower) }
+        end
+
         {
           icn: @icn,
-          milestones: milestone_params.to_unsafe_h[:milestones]
+          milestones:
         }
       end
 

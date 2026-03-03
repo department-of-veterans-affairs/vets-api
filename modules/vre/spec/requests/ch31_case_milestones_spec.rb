@@ -12,10 +12,10 @@ RSpec.describe 'VRE::V0::Ch31CaseMilestones', type: :request do
       {
         milestones: [
           {
-            milestoneType: 'ORIENTATION_COMPLETION',
-            isMilestoneCompleted: true,
-            milestoneCompletionDate: '2025-01-15',
-            milestoneSubmissionUser: 'john.smith',
+            milestone_type: 'ORIENTATION_COMPLETION',
+            is_milestone_completed: true,
+            milestone_completion_date: '2025-01-15',
+            milestone_submission_user: 'john.smith',
             postpone: false
           }
         ]
