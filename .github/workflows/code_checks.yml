@@ -222,9 +222,10 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: tmp/parallel_runtime_rspec.log
-          key: parallel-runtime-log-${{ github.ref }}
+          key: parallel-runtime-log-${{ github.ref }}-${{ github.run_id }}
           restore-keys: |
-            parallel-runtime-log-refs/heads/master
+            parallel-runtime-log-${{ github.ref }}-
+            parallel-runtime-log-refs/heads/master-
             parallel-runtime-log-
 
       - name: Determine shard grouping strategy
@@ -348,7 +349,7 @@ jobs:
           labels: test-failure
 
       # Convert JUnit XML test results into a parallel_test runtime log so that
-      # future runs can use --group-by default (runtime-based shard balancing).
+      # future runs can use --group-by runtime (runtime-based shard balancing).
       # Each shard uploads JUnit XMLs as artifacts; the download-artifact step
       # above already fetched them into "Test Results Group N/" directories.
       # The generated log is cached (below) for the next workflow run.
