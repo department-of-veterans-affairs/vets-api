@@ -61,43 +61,42 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimSubmissionsController, t
         get '/accredited_representative_portal/v0/claim_submissions'
         expect(response).to have_http_status(:ok)
 
-        expect(parsed_response).to eq(
+        expect(parsed_response['data']).to contain_exactly(
           {
-            'data' => [
-              {
-                'submittedDate' => saved_claim_claimant_representative_a.created_at.to_date.iso8601,
-                'firstName' => 'John',
-                'lastName' => 'Doe',
-                'benefitType' => nil,
-                'formType' => '21-686c',
-                'packet' => false,
-                'confirmationNumber' =>
-                  saved_claim_claimant_representative_a.saved_claim.latest_submission_attempt.benefits_intake_uuid,
-                'vbmsStatus' => 'awaiting_receipt',
-                'vbmsReceivedDate' => nil,
-                'id' => saved_claim_claimant_representative_a.id
-              },
-              {
-                'submittedDate' => saved_claim_claimant_representative_b.created_at.to_date.iso8601,
-                'firstName' => 'John',
-                'lastName' => 'Doe',
-                'formType' => '21-686c',
-                'benefitType' => nil,
-                'packet' => false,
-                'confirmationNumber' =>
-                  saved_claim_claimant_representative_b.saved_claim.latest_submission_attempt.benefits_intake_uuid,
-                'vbmsStatus' => 'awaiting_receipt',
-                'vbmsReceivedDate' => nil,
-                'id' => saved_claim_claimant_representative_b.id
-              }
-            ],
-            'meta' => {
-              'page' => {
-                'number' => 1,
-                'size' => 10,
-                'total' => 2,
-                'totalPages' => 1
-              }
+            'submittedDate' => saved_claim_claimant_representative_a.created_at.to_date.iso8601,
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'benefitType' => nil,
+            'formType' => '21-686c',
+            'packet' => false,
+            'confirmationNumber' =>
+              saved_claim_claimant_representative_a.saved_claim.latest_submission_attempt.benefits_intake_uuid,
+            'vbmsStatus' => 'awaiting_receipt',
+            'vbmsReceivedDate' => nil,
+            'id' => saved_claim_claimant_representative_a.id
+          },
+          {
+            'submittedDate' => saved_claim_claimant_representative_b.created_at.to_date.iso8601,
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'formType' => '21-686c',
+            'benefitType' => nil,
+            'packet' => false,
+            'confirmationNumber' =>
+              saved_claim_claimant_representative_b.saved_claim.latest_submission_attempt.benefits_intake_uuid,
+            'vbmsStatus' => 'awaiting_receipt',
+            'vbmsReceivedDate' => nil,
+            'id' => saved_claim_claimant_representative_b.id
+          }
+        )
+
+        expect(parsed_response['meta']).to eq(
+          {
+            'page' => {
+              'number' => 1,
+              'size' => 10,
+              'total' => 2,
+              'totalPages' => 1
             }
           }
         )

@@ -649,6 +649,24 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           .to contain_exactly('provider_one_claim_one', 'provider_two_claim_one')
       end
 
+      it 'adds provider field to each claim' do
+        get(:index)
+        parsed_body = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['data'].count).to eq(2)
+
+        # Each claim should have a provider field in attributes
+        parsed_body['data'].each do |claim|
+          expect(claim['attributes']).to have_key('provider')
+          expect(claim['attributes']['provider']).to be_in(%w[mockproviderone mockprovidertwo])
+        end
+
+        # Verify provider values match the provider classes
+        providers = parsed_body['data'].map { |claim| claim['attributes']['provider'] }
+        expect(providers).to contain_exactly('mockproviderone', 'mockprovidertwo')
+      end
+
       it 'continues processing when one provider fails' do
         failing_provider = Class.new do
           def self.name
@@ -983,91 +1001,48 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      context "when 'cst_evidence_requests_content_override' is disabled" do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override, anything).and_return(false)
+      it 'returns tracked items with content override fields from TrackedItemContent' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
         end
 
-        it 'returns tracked items with legacy content fields only' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-
-          parsed_body = JSON.parse(response.body)
-          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
-          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-          # Legacy fields should be populated
-          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
-          expect(form_item['canUploadFile']).to be true
-          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-          # New content override fields should NOT be present
-          expect(form_item).not_to have_key('longDescription')
-          expect(form_item).not_to have_key('nextSteps')
-          expect(form_item).not_to have_key('noActionNeeded')
-          expect(form_item).not_to have_key('isDBQ')
-          expect(form_item).not_to have_key('isProperNoun')
-          expect(form_item).not_to have_key('isSensitive')
-          expect(form_item).not_to have_key('noProvidePrefix')
-        end
+        parsed_body = JSON.parse(response.body)
+        tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+        form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+        # Content override fields are populated from TrackedItemContent
+        expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+        expect(form_item['canUploadFile']).to be true
+        expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+        expect(form_item['longDescription']).to be_a(Hash)
+        expect(form_item['longDescription']).to have_key('blocks')
+        expect(form_item['nextSteps']).to be_a(Hash)
+        expect(form_item['nextSteps']).to have_key('blocks')
+        expect(form_item).to have_key('noActionNeeded')
+        expect(form_item).to have_key('isDBQ')
+        expect(form_item).to have_key('isProperNoun')
+        expect(form_item).to have_key('isSensitive')
+        expect(form_item).to have_key('noProvidePrefix')
       end
 
-      context "when 'cst_evidence_requests_content_override' is enabled" do
+      context 'when a tracked item does not have content overrides' do
+        let(:test_display_name) { 'Submit buddy statement(s)' }
+
         before do
-          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override, anything).and_return(true)
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+            .with(test_display_name).and_return(nil)
         end
 
-        it 'returns tracked items with new content override fields as well as legacy fields' do
+        it 'does not add content override fields' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
 
           parsed_body = JSON.parse(response.body)
           tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
-          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-          # Existing fields should still be populated
-          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
-          expect(form_item['canUploadFile']).to be true
-          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-          # New structured content fields should be present
-          expect(form_item['longDescription']).to be_a(Hash)
-          expect(form_item['longDescription']).to have_key('blocks')
-          expect(form_item['nextSteps']).to be_a(Hash)
-          expect(form_item['nextSteps']).to have_key('blocks')
-          # New boolean flags should be present
-          expect(form_item).to have_key('noActionNeeded')
-          expect(form_item).to have_key('isDBQ')
-          expect(form_item).to have_key('isProperNoun')
-          expect(form_item).to have_key('isSensitive')
-          expect(form_item).to have_key('noProvidePrefix')
-        end
-
-        context 'when a tracked item does not have content overrides' do
-          let(:test_display_name) { 'Submit buddy statement(s)' }
-
-          before do
-            # First allow all calls to pass through to the real implementation
-            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
-            # Then override for this specific display name to simulate no content overrides
-            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
-              .with(test_display_name).and_return(nil)
-          end
-
-          it 'falls back to legacy content fields only' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              get(:show, params: { id: '600383363' })
-            end
-
-            parsed_body = JSON.parse(response.body)
-            tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
-            buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
-            # Should fall back to legacy content fields
-            expect(buddy_statement_item['friendlyName']).to eq('Witness or corroboration statements')
-            expect(buddy_statement_item['canUploadFile']).to be true
-            expect(buddy_statement_item['supportAliases']).to eq(['Submit buddy statement(s)'])
-            # New content override fields should NOT be present for items without overrides
-            expect(buddy_statement_item).not_to have_key('longDescription')
-            expect(buddy_statement_item).not_to have_key('nextSteps')
-          end
+          buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
+          expect(buddy_statement_item).not_to have_key('longDescription')
+          expect(buddy_statement_item).not_to have_key('nextSteps')
         end
       end
 
@@ -1718,91 +1693,48 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         allow(Flipper).to receive(:enabled?).with(:cst_multi_claim_provider, anything).and_return(false)
       end
 
-      context "when 'cst_evidence_requests_content_override' is disabled" do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
-                                                    instance_of(User)).and_return(false)
+      it 'returns tracked items with content override fields from TrackedItemContent' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+          get(:show, params: { id: '600383363' })
         end
 
-        it 'returns tracked items with legacy content fields only' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-
-          parsed_body = JSON.parse(response.body)
-          tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
-          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-          # Legacy fields should be populated
-          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
-          expect(form_item['canUploadFile']).to be true
-          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-          # New content override fields should NOT be present
-          expect(form_item).not_to have_key('longDescription')
-          expect(form_item).not_to have_key('nextSteps')
-          expect(form_item).not_to have_key('noActionNeeded')
-          expect(form_item).not_to have_key('isDBQ')
-          expect(form_item).not_to have_key('isProperNoun')
-          expect(form_item).not_to have_key('isSensitive')
-          expect(form_item).not_to have_key('noProvidePrefix')
-        end
+        parsed_body = JSON.parse(response.body)
+        tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
+        form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
+        # Content override fields are populated from TrackedItemContent
+        expect(form_item['friendlyName']).to eq('Authorization to disclose information')
+        expect(form_item['canUploadFile']).to be true
+        expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
+        expect(form_item['longDescription']).to be_a(Hash)
+        expect(form_item['longDescription']).to have_key('blocks')
+        expect(form_item['nextSteps']).to be_a(Hash)
+        expect(form_item['nextSteps']).to have_key('blocks')
+        expect(form_item).to have_key('noActionNeeded')
+        expect(form_item).to have_key('isDBQ')
+        expect(form_item).to have_key('isProperNoun')
+        expect(form_item).to have_key('isSensitive')
+        expect(form_item).to have_key('noProvidePrefix')
       end
 
-      context "when 'cst_evidence_requests_content_override' is enabled" do
+      context 'when a tracked item does not have content overrides' do
+        let(:test_display_name) { 'Submit buddy statement(s)' }
+
         before do
-          allow(Flipper).to receive(:enabled?).with(:cst_evidence_requests_content_override,
-                                                    instance_of(User)).and_return(true)
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
+          allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
+            .with(test_display_name).and_return(nil)
         end
 
-        it 'returns tracked items with new content override fields as well as legacy fields' do
+        it 'does not add content override fields' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
             get(:show, params: { id: '600383363' })
           end
 
           parsed_body = JSON.parse(response.body)
           tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
-          form_item = tracked_items.find { |i| i['displayName'] == '21-4142/21-4142a' }
-          # Existing fields should still be populated
-          expect(form_item['friendlyName']).to eq('Authorization to disclose information')
-          expect(form_item['canUploadFile']).to be true
-          expect(form_item['supportAliases']).to eq(['21-4142/21-4142a'])
-          # New structured content fields should be present
-          expect(form_item['longDescription']).to be_a(Hash)
-          expect(form_item['longDescription']).to have_key('blocks')
-          expect(form_item['nextSteps']).to be_a(Hash)
-          expect(form_item['nextSteps']).to have_key('blocks')
-          # New boolean flags should be present
-          expect(form_item).to have_key('noActionNeeded')
-          expect(form_item).to have_key('isDBQ')
-          expect(form_item).to have_key('isProperNoun')
-          expect(form_item).to have_key('isSensitive')
-          expect(form_item).to have_key('noProvidePrefix')
-        end
-
-        context 'when a tracked item does not have content overrides' do
-          let(:test_display_name) { 'Submit buddy statement(s)' }
-
-          before do
-            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name).and_call_original
-            allow(BenefitsClaims::TrackedItemContent).to receive(:find_by_display_name)
-              .with(test_display_name).and_return(nil)
-          end
-
-          it 'falls back to legacy content fields only' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              get(:show, params: { id: '600383363' })
-            end
-
-            parsed_body = JSON.parse(response.body)
-            tracked_items = parsed_body.dig('data', 'attributes', 'trackedItems')
-            buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
-            # Should fall back to legacy content fields
-            expect(buddy_statement_item['friendlyName']).to eq('Witness or corroboration statements')
-            expect(buddy_statement_item['canUploadFile']).to be true
-            expect(buddy_statement_item['supportAliases']).to eq(['Submit buddy statement(s)'])
-            # New content override fields should NOT be present for items without overrides
-            expect(buddy_statement_item).not_to have_key('longDescription')
-            expect(buddy_statement_item).not_to have_key('nextSteps')
-          end
+          buddy_statement_item = tracked_items.find { |i| i['displayName'] == test_display_name }
+          expect(buddy_statement_item).not_to have_key('longDescription')
+          expect(buddy_statement_item).not_to have_key('nextSteps')
         end
       end
     end
@@ -2591,142 +2523,75 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         allow(mock_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
       end
 
-      it 'returns claim from the provider' do
+      it 'returns claim from the provider via lighthouse proxy' do
+        proxy = double('LighthouseProxy')
+        allow(V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return(claim_response)
+
         result = controller.send(:get_claim_from_providers, claim_id)
 
         expect(result).to eq(claim_response)
-        expect(mock_provider).to have_received(:get_claim).with(claim_id)
+        expect(V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
       end
     end
 
     context 'with multiple providers' do
       let(:providers) { [mock_provider_class, second_provider_class] }
-      let(:claim_response) do
-        {
-          'data' => {
-            'id' => claim_id,
-            'attributes' => { 'claimType' => 'Compensation' }
+
+      it 'defaults to lighthouse when no provider_type specified (preserves bookmarks)' do
+        proxy = double('LighthouseProxy')
+        allow(V0::LighthouseClaims::Proxy).to receive(:new).with(user).and_return(proxy)
+        allow(proxy).to receive(:get_claim).with(claim_id).and_return({ 'data' => { 'id' => claim_id } })
+
+        result = controller.send(:get_claim_from_providers, claim_id)
+
+        expect(result).to eq({ 'data' => { 'id' => claim_id } })
+        expect(V0::LighthouseClaims::Proxy).to have_received(:new).with(user)
+      end
+
+      it 'returns list of supported provider types' do
+        supported_types = controller.send(:supported_provider_types)
+        expect(supported_types).to eq(['lighthouse'])
+      end
+
+      context 'when provider_type parameter is specified' do
+        let(:lighthouse_provider_class) { BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider }
+        let(:lighthouse_provider) { double('LighthouseProvider') }
+        let(:claim_response) do
+          {
+            'data' => {
+              'id' => claim_id,
+              'attributes' => { 'claimType' => 'Compensation', 'provider' => 'lighthouse' }
+            }
           }
-        }
-      end
+        end
 
-      context 'when first provider has the claim' do
         before do
-          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
-          allow(mock_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
+          controller.instance_variable_set(:@current_user, user)
+          allow(lighthouse_provider_class).to receive(:new).with(user).and_return(lighthouse_provider)
         end
 
-        it 'returns claim from first provider' do
-          result = controller.send(:get_claim_from_providers, claim_id)
+        context 'with valid provider type "lighthouse"' do
+          it 'queries only the specified provider' do
+            allow(lighthouse_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
+            allow(mock_provider_class).to receive(:new)
+            allow(second_provider_class).to receive(:new)
 
-          expect(result).to eq(claim_response)
-          expect(mock_provider).to have_received(:get_claim).with(claim_id)
-        end
+            result = controller.send(:get_claim_from_providers, claim_id, 'lighthouse')
 
-        it 'does not call second provider' do
-          allow(second_provider_class).to receive(:new)
-
-          controller.send(:get_claim_from_providers, claim_id)
-
-          expect(second_provider_class).not_to have_received(:new)
-        end
-      end
-
-      context 'when first provider does not have claim but second does' do
-        before do
-          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
-          allow(mock_provider).to receive(:get_claim).with(claim_id)
-                                                     .and_raise(Common::Exceptions::RecordNotFound, claim_id)
-          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
-          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
-          allow(second_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
-          allow(Rails.logger).to receive(:info)
-        end
-
-        it 'returns claim from second provider' do
-          result = controller.send(:get_claim_from_providers, claim_id)
-
-          expect(result).to eq(claim_response)
-          expect(second_provider).to have_received(:get_claim).with(claim_id)
-        end
-
-        it 'logs info about first provider not having claim' do
-          controller.send(:get_claim_from_providers, claim_id)
-
-          expect(Rails.logger).to have_received(:info).with(
-            "Provider MockProvider doesn't have claim",
-            hash_including(error_class: 'Common::Exceptions::RecordNotFound')
-          )
-        end
-      end
-
-      context 'when no provider has the claim' do
-        before do
-          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
-          allow(mock_provider).to receive(:get_claim).with(claim_id)
-                                                     .and_raise(Common::Exceptions::RecordNotFound, claim_id)
-          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
-          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
-          allow(second_provider).to receive(:get_claim).with(claim_id)
-                                                       .and_raise(Common::Exceptions::RecordNotFound, claim_id)
-          allow(second_provider_class).to receive(:name).and_return('SecondProvider')
-          allow(Rails.logger).to receive(:info)
-        end
-
-        it 'raises RecordNotFound exception' do
-          expect do
-            controller.send(:get_claim_from_providers, claim_id)
-          end.to raise_error(Common::Exceptions::RecordNotFound)
-        end
-
-        it 'logs info about both providers not having claim' do
-          begin
-            controller.send(:get_claim_from_providers, claim_id)
-          rescue Common::Exceptions::RecordNotFound
-            # Expected
+            expect(result).to eq(claim_response)
+            expect(lighthouse_provider).to have_received(:get_claim).with(claim_id)
+            expect(mock_provider_class).not_to have_received(:new)
+            expect(second_provider_class).not_to have_received(:new)
           end
-
-          expect(Rails.logger).to have_received(:info).twice
-        end
-      end
-
-      context 'when first provider raises unexpected error but second succeeds' do
-        let(:error_message) { 'Unexpected error occurred' }
-
-        before do
-          allow(mock_provider_class).to receive(:new).with(user).and_return(mock_provider)
-          allow(mock_provider).to receive(:get_claim).with(claim_id)
-                                                     .and_raise(StandardError, error_message)
-          allow(mock_provider_class).to receive(:name).and_return('MockProvider')
-          allow(second_provider_class).to receive(:new).with(user).and_return(second_provider)
-          allow(second_provider).to receive(:get_claim).with(claim_id).and_return(claim_response)
-          allow(Rails.logger).to receive(:error)
-          allow(StatsD).to receive(:increment)
         end
 
-        it 'returns claim from second provider' do
-          result = controller.send(:get_claim_from_providers, claim_id)
-
-          expect(result).to eq(claim_response)
-          expect(second_provider).to have_received(:get_claim).with(claim_id)
-        end
-
-        it 'logs error about first provider failure' do
-          controller.send(:get_claim_from_providers, claim_id)
-
-          expect(Rails.logger).to have_received(:error).with(
-            'Provider MockProvider error fetching claim',
-            hash_including(error_class: 'StandardError')
-          )
-        end
-
-        it 'increments StatsD error metric' do
-          controller.send(:get_claim_from_providers, claim_id)
-
-          expect(StatsD).to have_received(:increment).with(
-            'api.benefits_claims.get_claim.provider_error',
-            tags: V0::BenefitsClaimsController::STATSD_TAGS + ['provider:MockProvider']
-          )
+        context 'with invalid provider type' do
+          it 'raises ParameterMissing exception' do
+            expect do
+              controller.send(:get_claim_from_providers, claim_id, 'invalid-provider')
+            end.to raise_error(Common::Exceptions::ParameterMissing)
+          end
         end
       end
     end

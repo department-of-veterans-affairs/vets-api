@@ -2,6 +2,9 @@
 
 require 'rails_helper'
 
+require 'claims_evidence_api/uploader'
+require 'digital_forms_api/service/submissions'
+
 RSpec.describe DependentsBenefits::V0::ClaimsController do
   routes { DependentsBenefits::Engine.routes }
 
@@ -13,6 +16,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   end
 
   let(:user) { create(:evss_user) }
+  let(:claim) { build(:dependents_claim) }
   let(:test_form) { build(:dependents_claim).parsed_form }
   let(:bgs_service) { double('BGS::Services') }
   let(:bgs_people) { double('BGS::People') }
@@ -51,6 +55,9 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
   describe 'POST create' do
     context 'with valid params and flipper enabled' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
+                                                  instance_of(User)).and_return(false)
+
         allow(BGS::Services).to receive(:new).and_return(bgs_service)
         allow(bgs_service).to receive(:people).and_return(bgs_people)
         allow(bgs_people).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '987654321' })
@@ -116,7 +123,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
 
       it 'returns validation errors' do
         post(:create, params: invalid_params, as: :json)
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it 'does not create a saved claim' do
@@ -140,6 +147,42 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
         expect do
           post(:create, params: test_form, as: :json)
         end.not_to change(DependentsBenefits::PrimaryDependencyClaim, :count)
+      end
+    end
+
+    context 'with Forms API enabled' do
+      let(:claim_information) do
+        {
+          proc_state: 'MANUAL_VAGOV',
+          note_text: 'TEST',
+          claim_name: '130 - Automated Dependency 686c',
+          claim_label: '130DPNEBNADJ',
+          participant_id: 'fake-participant-id'
+        }
+      end
+      let(:dfa) { double(DigitalFormsApi::Service::Submissions) }
+      let(:uploader) { double(ClaimsEvidenceApi::Uploader) }
+      let(:response) { double('response', success?: true, body: { 'submission' => 'TEST' }) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
+                                                  instance_of(User)).and_return(true)
+        allow(DependentsBenefits::PrimaryDependencyClaim).to receive(:new).and_return(claim)
+        allow(DigitalFormsApi::Service::Submissions).to receive(:new).and_return(dfa)
+        allow(ClaimsEvidenceApi::Uploader).to receive(:new).and_return(uploader)
+      end
+
+      it 'submits to forms api and uploads evidence' do
+        allow(claim).to receive(:claim_form_type).and_return('21-686c')
+
+        expect(claim).to receive(:get_claim_information).and_return(claim_information)
+        expect(dfa).to receive(:submit).and_return(response)
+        expect(uploader).to receive(:upload_evidence)
+
+        expect_any_instance_of(DependentsBenefits::Monitor).to receive(:track_create_success)
+        expect_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_submitted_notification)
+
+        post(:create, params: test_form, as: :json)
       end
     end
   end

@@ -48,6 +48,12 @@ module DependentsBenefits
     def enqueue_submissions
       monitor.track_info_event('Starting claim submission processing', action: 'start', component:, parent_claim_id:)
 
+      if child_claims.any?(&:pension_related_submission?)
+        track_pension_related_submission('Submitted pension-related claim')
+      end
+
+      track_no_ssn_claim_submission('Submitted no-SSN claim') if child_claims.any?(&:no_ssn_claim?)
+
       jobs_enqueued = 0
       DependentsBenefits::Sidekiq::BGS::BGSFormJob.perform_async(parent_claim_id)
       jobs_enqueued += 1
@@ -137,11 +143,9 @@ module DependentsBenefits
             mark_parent_claim_group_succeeded
             notification_email.send_received_notification
             if child_claims.any?(&:pension_related_submission?)
-              form_type = parent_claim&.claim_form_type
-              monitor.track_info_event('Submitted pension-related claim',
-                                       action: 'pension.submission',
-                                       component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY)
+              track_pension_related_submission('Successful pension-related claim submission')
             end
+            track_no_ssn_claim_submission('Successful no-SSN claim submission') if child_claims.any?(&:no_ssn_claim?)
           end
         end
       end
@@ -232,6 +236,26 @@ module DependentsBenefits
     # @return [Array<DependentClaim>]
     def child_claims
       @child_claims ||= collect_child_claims
+    end
+
+    # Tracks pension-related claim submission
+    # @param message [String] The message to log for the pension-related submission
+    # @return [void]
+    def track_pension_related_submission(message)
+      form_type = parent_claim&.claim_form_type
+      monitor.track_info_event(message,
+                               action: 'pension.submission',
+                               component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY)
+    end
+
+    # Tracks no-SSN claim submission
+    # @param message [String] The message to log for the no-SSN claim submission
+    # @return [void]
+    def track_no_ssn_claim_submission(message)
+      form_type = parent_claim&.claim_form_type
+      monitor.track_info_event(message,
+                               action: 'no_ssn_claim.submission',
+                               component:, parent_claim_id:, form_type:, module_stats_key: DependentsBenefits::Monitor::NO_SSN_SUBMISSION_STATS_KEY)
     end
   end
 end

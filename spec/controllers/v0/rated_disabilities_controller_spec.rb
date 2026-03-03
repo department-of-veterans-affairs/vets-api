@@ -77,5 +77,29 @@ RSpec.describe V0::RatedDisabilitiesController, type: :controller do
         expect(response).to have_http_status(:gateway_timeout)
       end
     end
+
+    context 'when an unexpected error occurs' do
+      let(:error) { StandardError.new('Unexpected service error') }
+
+      before do
+        allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities).and_raise(error)
+        allow(Rails.logger).to receive(:error).and_call_original
+      end
+
+      it 'logs the error with detailed context before re-raising' do
+        expect(Rails.logger).to receive(:error).with(
+          'RatedDisabilitiesController error',
+          hash_including(
+            error_class: 'StandardError',
+            error_message: 'Unexpected service error',
+            user_uuid: user.uuid
+          )
+        ).and_call_original
+
+        get(:show)
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
   end
 end

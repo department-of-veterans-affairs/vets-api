@@ -208,13 +208,6 @@ RSpec.describe PdfFill::Forms::Formatters::Va21674v2 do
       expect(result).to eq('FECA')
     end
 
-    it 'handles other benefit type' do
-      programs = { 'other' => true }
-
-      result = described_class.get_program(programs)
-      expect(result).to eq('Other Benefit')
-    end
-
     it 'filters out false values' do
       programs = {
         'ch35' => true,

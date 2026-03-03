@@ -37,7 +37,6 @@ module BenefitsClaims
       attribute :support_aliases, String, array: true
       attribute :documents, String
       attribute :date, String
-      # New content override fields (populated when cst_evidence_requests_content_override is enabled)
       attribute :long_description, Hash
       attribute :next_steps, Hash
       attribute :no_action_needed, Bool
@@ -121,6 +120,7 @@ module BenefitsClaims
 
       attribute :id, String
       attribute :type, String, default: 'claim'
+      attribute :provider, String
       attribute :base_end_product_code, String
       attribute :claim_date, String
       attribute :claim_phase_dates, ClaimPhaseDates

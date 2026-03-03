@@ -28,7 +28,9 @@ module UnifiedHealthData
           'Active: Submitted',
           'Active: Refill in Process',
           'Pending New Prescription',
-          'Pending Renewal'
+          'Pending Renewal',
+          'Renew',
+          'NewOrder'
         ],
         'Inactive' => [
           'Expired',
@@ -50,11 +52,8 @@ module UnifiedHealthData
       # Used when disp_status is nil/empty but refill_status is present
       REFILL_STATUS_TO_DISP_STATUS = {
         'active' => 'Active',
-        'activeparked' => 'Active: Parked',
         'refillinprocess' => 'Active: Refill in Process',
         'submitted' => 'Active: Submitted',
-        'neworder' => 'Pending New Prescription',
-        'renew' => 'Pending Renewal',
         'hold' => 'Active: On hold',
         'providerhold' => 'Active: On hold',
         'expired' => 'Expired',

@@ -22,6 +22,7 @@ class EducationBenefitsClaim < ApplicationRecord
     0803
     10272
     0989
+    0810
   ].freeze
 
   APPLICATION_TYPES = %w[

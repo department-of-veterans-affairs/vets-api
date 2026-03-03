@@ -23,6 +23,10 @@ class AltTestDisabilityCompensationValidationClass
         'form_526_json_api.json'
       ).read
     ).dig('data', 'attributes')
+
+    @form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+      "#{Time.current.year + 1}-12-20"
+    @form_attributes
   end
 end
 
@@ -31,8 +35,127 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
+  let(:valid_countries) do
+    ['USA']
+  end
+
+  let(:brd_classification_ids) do
+    [9014]
+  end
+
+  let(:brd_service_branch_names) do
+    ['Army', 'Public Health Service', 'Naval Academy']
+  end
+
+  let(:brd_disabilities) do
+    [
+      { id: 10, name: 'abnormal heart', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 190, name: 'ALS', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 2650, name: 'foot condition, bilateral', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 6880, name: 'tooth condition', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 8987, name: 'Leg Condition - Heart/Veins/Arteries', endDateTime: nil },
+      { id: 9014, name: 'Scars (Head, Face, Or Neck)', endDateTime: nil },
+      { id: 7290, name: 'PTSD personal trauma', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 249_483, name: 'Aid & Attendance Spouse', endDateTime: nil },
+      { id: 249_479, name: 'Cyst/Benign Growth - Heart/Veins/Arteries', endDateTime: nil }
+    ]
+  end
+
+  let(:separation_locations) do
+    [
+      { id: 98_283, description: 'Test Academy' },
+      { id: 98_282, description: 'Test Academy II' }
+    ]
+  end
+
+  let(:auth_headers) do
+    {
+      'va_eauth_birthdate' => 35.years.ago.to_date.iso8601
+    }
+  end
+
   def current_error_array
     test_526_validation_instance.instance_variable_get('@errors')
+  end
+
+  describe '#alt_rev_validate_form_526_submission_values' do
+    context 'with valid form_attributes' do
+      before do
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_disabilities).and_return(brd_disabilities)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:valid_countries).and_return(valid_countries)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_classification_ids).and_return(brd_classification_ids)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_service_branch_names).and_return(brd_service_branch_names)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:retrieve_separation_locations).and_return(separation_locations)
+        allow_any_instance_of(described_class).to receive(:auth_headers).and_return(auth_headers)
+      end
+
+      it 'does not return or raise any errors' do
+        expect { subject.send(:alt_rev_validate_form_526_submission_values) }.not_to raise_error
+        expect(current_error_array).to be_nil
+      end
+    end
+  end
+
+  describe '#alt_rev_validate_form_526_service_information' do
+    describe '#alt_rev_validate_service_periods' do
+      let(:form_attributes) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 7.years.ago.to_date.iso8601
+              }
+            ]
+          }
+        }
+      end
+
+      let(:form_attributes_with_multiple) do
+        {
+          'serviceInformation' => {
+            'servicePeriods' => [
+              {
+                'activeDutyBeginDate' => 3.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 1.year.ago.to_date.iso8601
+              },
+              {
+                'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
+                'activeDutyEndDate' => 7.years.ago.to_date.iso8601
+              }
+            ]
+          }
+        }
+      end
+
+      it 'raises an error if the end date is before the start date' do
+        subject.send(:alt_rev_validate_service_periods, form_attributes['serviceInformation'])
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          'activeDutyEndDate (0) needs to be after activeDutyBeginDate.'
+        )
+      end
+
+      it 'raises an error for the correct period with multiple service periods' do
+        subject.send(:alt_rev_validate_service_periods, form_attributes_with_multiple['serviceInformation'])
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          'activeDutyEndDate (1) needs to be after activeDutyBeginDate.'
+        )
+      end
+    end
   end
 
   describe '#alt_rev_validate_service_after_13th_birthday!' do
@@ -83,6 +206,154 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
           'serviceInformation/servicePeriods/0/activeDutyBeginDate'
         )
       end
+    end
+  end
+
+  describe '#alt_rev_validate_claim_date_to_active_duty_end_date' do
+    let(:form_attributes) do
+      {
+        'serviceInformation' => {
+          'federalActivation' => {
+            'anticipatedSeparationDate' => 90.days.from_now.to_date.iso8601
+          },
+          'servicePeriods' => [
+            {
+              'activeDutyBeginDate' => 3.years.ago.to_date.iso8601,
+              'activeDutyEndDate' => 1.year.ago.to_date.iso8601
+            },
+            {
+              'activeDutyBeginDate' => 5.years.ago.to_date.iso8601,
+              'activeDutyEndDate' => 7.years.ago.to_date.iso8601
+            }
+          ]
+        }
+      }
+    end
+
+    let(:reserves) do
+      {
+        'component' => 'National Guard',
+        'obligationTermsOfService' => {
+          'beginDate' => '1990-11-24',
+          'endDate' => '1995-11-17'
+        },
+        'unitName' => 'National Guard Unit Name',
+        'unitAddress' => '1243 Main Street',
+        'unitPhone' => {
+          'areaCode' => '555',
+          'phoneNumber' => '5555555'
+        },
+        'receivingInactiveDutyTrainingPay' => 'YES'
+      }
+    end
+
+    context 'when the max active duty end date is valid' do
+      it 'does not return an error' do
+        subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, form_attributes['serviceInformation'])
+
+        expect(current_error_array).to be_nil
+      end
+    end
+
+    context 'when the active duty end date is beyond 180 days from the claim date' do
+      it 'collects an error message' do
+        invalid_attributes = form_attributes.deep_dup
+        invalid_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+          200.days.from_now.to_date.iso8601
+        invalid_attributes['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
+          200.days.from_now.to_date.iso8601
+
+        subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, invalid_attributes['serviceInformation'])
+
+        expect(current_error_array.count).to eq(1)
+        expect(current_error_array[0][:detail]).to eq(
+          'Service members cannot submit a claim until they are within 180 days of their separation date.'
+        )
+      end
+    end
+
+    context 'when the active duty end date is beyond 180 days from the claim date, but current branch is reserves' do
+      it 'does not raise a 422' do
+        valid_attributes = form_attributes.deep_dup
+        valid_attributes['serviceInformation']['reservesNationalGuardService'] = reserves
+        valid_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+          200.days.from_now.to_date.iso8601
+        valid_attributes['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+          200.days.from_now.to_date.iso8601
+
+        subject.send(:alt_rev_validate_claim_date_to_active_duty_end_date, valid_attributes['serviceInformation'])
+
+        expect(current_error_array).to be_nil
+      end
+    end
+  end
+
+  describe '#validate_service_periods_quantity!' do
+    let(:invalid_form_attributes) do
+      {
+        'serviceInformation' => {
+          'servicePeriods' => Array.new(101) do
+            {
+              'activeDutyBeginDate' => 15.years.ago.to_date.iso8601,
+              'activeDutyEndDate' => 5.years.ago.to_date.iso8601
+            }
+          end
+        }
+      }
+    end
+
+    it 'returns a 422 when the servicePeriod count is over 100' do
+      subject.send(:validate_service_periods_quantity!, invalid_form_attributes['serviceInformation']['servicePeriods'])
+
+      expect(current_error_array.count).to eq(1)
+      expect(current_error_array[0][:detail]).to eq(
+        'Number of service periods 101 must be less than or equal to 100'
+      )
+      expect(current_error_array[0][:source]).to eq(
+        '/serviceInformation/servicePeriods'
+      )
+    end
+
+    it 'does not return a 422 if the servicePeriods count is equal to 100' do
+      valid_form_attributes = invalid_form_attributes.deep_dup
+      valid_form_attributes['serviceInformation']['servicePeriods'].pop
+
+      subject.send(:validate_service_periods_quantity!, valid_form_attributes['serviceInformation']['servicePeriods'])
+
+      expect(current_error_array).to be_nil
+    end
+
+    it 'does not return a 422 if the servicePeriods count is under 100' do
+      valid_form_attributes = invalid_form_attributes.deep_dup
+      valid_form_attributes['serviceInformation']['servicePeriods'].pop(42)
+
+      subject.send(:validate_service_periods_quantity!, valid_form_attributes['serviceInformation']['servicePeriods'])
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
+  describe '#duty_end_date_check' do
+    it 'returns true when active duty end date is beyond 180 days from claim date' do
+      max_period = { 'activeDutyEndDate' => 200.days.from_now.to_date.iso8601 }
+
+      expect(subject.send(:duty_end_date_check, max_period)).to be true
+    end
+
+    it 'returns false when active duty end date is within 180 days from claim date' do
+      max_period = { 'activeDutyEndDate' => 90.days.from_now.to_date.iso8601 }
+
+      expect(subject.send(:duty_end_date_check, max_period)).to be false
+    end
+  end
+
+  describe '#anticipated_separation_date_check' do
+    it 'returns true when anticipated separation date is beyond 180 days from claim date' do
+      expect(subject.send(:anticipated_separation_date_check, 200.days.from_now.to_date.iso8601)).to be true
+    end
+
+    it 'returns false when anticipated separation date is within 180 days from claim date' do
+      expect(subject.send(:anticipated_separation_date_check, 90.days.from_now.to_date.iso8601)).to be false
     end
   end
 
