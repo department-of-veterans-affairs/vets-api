@@ -161,7 +161,7 @@
         },
         "isWebview": {
           "type": "boolean",
-          "description": "Whether the mobile app should open this link in an in-app webview (true) or external browser (false). Defaults to false."
+          "description": "Whether the mobile app should open this link in an in-app webview (true) or external browser (false). Treat missing as false."
         }
       }
     },
