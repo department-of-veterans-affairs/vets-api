@@ -260,7 +260,7 @@ module ClaimsApi
       end
 
       def alt_rev_validate_disabilities_total
-        # flatten it out so disabilities and secondary disabilites are all counted
+        # flatten it out so disabilities and secondary disabilities are all counted
         all_included_disabilities = flatten_disabilities(form_attributes['disabilities'])
 
         if all_included_disabilities.count > DISABILITY_COUNT_MAX
