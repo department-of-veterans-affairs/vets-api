@@ -242,6 +242,71 @@ RSpec.describe DependentsBenefits::ClaimBehavior do
     end
   end
 
+  describe '#no_ssn_claim?' do
+    context 'when feature flag is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(child_claim.no_ssn_claim?).to be false
+      end
+    end
+
+    context 'when feature flag is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(true)
+      end
+
+      it 'returns false if no relevant sections are present' do
+        child_claim.parsed_form['dependents_application']['spouse_information']['no_ssn'] = false
+        child_claim.parsed_form['dependents_application']['children_to_add']&.each { |child| child['no_ssn'] = false }
+        child_claim.parsed_form['dependents_application']['student_information']&.each do |student|
+          student['no_ssn'] = false
+        end
+
+        expect(child_claim.no_ssn_claim?).to be false
+      end
+
+      it 'handles missing sections gracefully' do
+        child_claim.parsed_form['dependents_application'].delete('spouse_information')
+        child_claim.parsed_form['dependents_application'].delete('children_to_add')
+        child_claim.parsed_form['dependents_application'].delete('student_information')
+
+        expect { child_claim.no_ssn_claim? }.not_to raise_error
+        expect(child_claim.no_ssn_claim?).to be false
+      end
+
+      it 'returns true if spouse is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['spouse_information']['no_ssn'] = true
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+
+      it 'returns true if any child/student is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['children_to_add'] = [{ 'no_ssn' => true }]
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+
+      it 'returns true if any student is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['student_information'] = [{ 'no_ssn' => true }]
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+
+      it 'returns true if a combination of dependents is marked as having no SSN' do
+        child_claim.parsed_form['dependents_application']['spouse_information']['no_ssn'] = true
+        child_claim.parsed_form['dependents_application']['children_to_add'] = [
+          { 'no_ssn' => true },
+          { 'no_ssn' => false }
+        ]
+        child_claim.parsed_form['dependents_application']['student_information'] = [
+          { 'no_ssn' => false },
+          { 'no_ssn' => true }
+        ]
+        expect(child_claim.no_ssn_claim?).to be true
+      end
+    end
+  end
+
   describe '#folder_identifier' do
     context 'when ssn is present' do
       before do
