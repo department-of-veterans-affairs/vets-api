@@ -153,6 +153,8 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def simple_forms_form_number
+    return nil if form_submission.saved_claim_id.present?
+
     @simple_forms_form_number ||=
       if (
         SimpleFormsApi::Notification::Email::TEMPLATE_IDS.keys +

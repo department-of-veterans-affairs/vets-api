@@ -59,10 +59,13 @@ module ExceptionHandling
         report_mapped_exception(exception, va_exception)
       end
 
+      log_forbidden(va_exception) if va_exception.respond_to?(:status_code) && va_exception.status_code == 403
+
       headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
       render_errors(va_exception)
     end
   end
+
   def render_errors(va_exception)
     case va_exception
     when JsonSchema::JsonApiMissingAttribute
@@ -100,5 +103,16 @@ module ExceptionHandling
     # in Sentry, but tags are not suitable for complex objects.
     Datadog::Tracing.active_span&.set_error(exception)
     request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&.set_error(exception)
+  end
+
+  # Log 403 Forbidden responses with AU-3 required fields (NIST SP 800-53)
+  # to ensure all forbidden responses are consistently auditable in Datadog.
+  def log_forbidden(va_exception)
+    Rails.logger.info(
+      'Forbidden access (403)',
+      request_id: request.uuid,
+      remote_ip: request.remote_ip,
+      detail: va_exception.errors.map(&:to_h)
+    )
   end
 end

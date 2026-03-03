@@ -636,6 +636,33 @@ module EVSS
         'Active'
       end
 
+      def clean_approximate_date_string(date_string)
+        return nil if date_string.blank?
+
+        s = date_string.to_s.strip
+        s = s.split('T').first
+
+        # Already acceptable
+        return s if s.match?(/^\d{4}$/)
+        return s if s.match?(/^\d{4}-\d{2}$/)
+        return s if s.match?(/^\d{4}-\d{2}-\d{2}$/)
+
+        parts = s.split('-')
+        year  = parts[0]
+        month = parts[1]
+        day   = parts[2]
+
+        return nil unless year&.match?(/^\d{4}$/)
+
+        month = nil if month.blank? || month == 'XX'
+        day   = nil if day.blank?   || day == 'XX'
+
+        out = year
+        out += "-#{month}" if month
+        out += "-#{day}" if month && day
+        out
+      end
+
       # convert EVSS date object format into YYYY-MM-DD lighthouse string format
       # @param approximate_date_source Hash EVSS format data object
       # @param short boolean (optional) return a shortened date YYYY-MM
@@ -701,7 +728,12 @@ module EVSS
         approx = src['approximateDate']
         return if approx.blank?
 
-        dis.approximate_date = convert_approximate_date(approx)
+        if approx.is_a?(String)
+          cleaned = clean_approximate_date_string(approx)
+          dis.approximate_date = cleaned if cleaned.present?
+        else
+          dis.approximate_date = convert_approximate_date(approx)
+        end
       end
 
       def format_exposure_text(cause, related_to_toxic_exposure)

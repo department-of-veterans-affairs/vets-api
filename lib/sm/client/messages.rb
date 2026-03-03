@@ -29,8 +29,9 @@ module SM
         json = perform(:get, path, nil, token_headers).body
         message = Message.new(json[:data].merge(json[:metadata]))
 
-        # Derive OH migration phase from cached triage teams
+        # Derive OH migration phase from the message's triage group (e.g., station number)
         message.oh_migration_phase = derive_oh_migration_phase_for_message(message)
+        message.migrated_to_oracle_health = derive_migrated_to_oracle_health(message)
         message
       end
 
@@ -81,9 +82,13 @@ module SM
         result = Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata],
                                                                          errors: json[:errors])
 
-        # Derive OH migration phase from cached triage teams
+        # Derive OH migration phase from triage team attribute
         oh_migration_phase = derive_oh_migration_phase(result)
         result.data.each { |msg| msg.oh_migration_phase = oh_migration_phase } if oh_migration_phase
+
+        # Derive migrated_to_oracle_health for each message based on its triage_group
+        migrated_to_oracle_health = derive_migrated_to_oracle_health(result.data.first)
+        result.data.each { |msg| msg.migrated_to_oracle_health = migrated_to_oracle_health }
 
         track_metric('get_full_messages_for_thread', is_oh:, status: 'success')
         result
@@ -135,31 +140,17 @@ module SM
       private
 
       ##
-      # Derives OH migration phase for a single message based on its triage_group_id
+      # Derives OH migration phase for a single message based on its triage group's station number
       #
       # @param message [Message] the message to derive phase for
-      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window
-      #                       if team not found in cache, or nil if no migration data exists
+      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window,
+      #                       or nil if no migration data exists
       #
       def derive_oh_migration_phase_for_message(message)
-        triage_group_id = message&.triage_group_id
-        return nil if triage_group_id.blank?
-
         oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
 
-        # Look up station_number from cached triage teams
-        cached_teams = get_triage_teams_station_numbers
-        if cached_teams.blank?
-          # If no cached teams, return phase of soonest migration window (or nil if none exist)
-          return oh_service.get_soonest_migration_phase
-        end
-
-        matching_team = cached_teams.find { |team| team.triage_team_id == triage_group_id }
-        station_number = matching_team&.station_number
-        if station_number.blank?
-          # Team not found in cache, return phase of soonest migration window
-          return oh_service.get_soonest_migration_phase
-        end
+        station_number = message&.triage_group&.station_number
+        return nil if station_number.blank?
 
         # Look up migration phase for this station number
         oh_service.get_phase_for_station_number(station_number)
@@ -169,6 +160,34 @@ module SM
           { error_class: e.class.name, error_message: e.message, message_id: message&.id }
         )
         nil
+      end
+
+      ##
+      # Determines if the message relates to a post-migration Oracle Health state.
+      # A message is considered post-migration when the triage group's station_number
+      # matches a facility in the veteran's VA profile that is marked as Cerner (isCerner),
+      # but the triage group in a message is not an OH triage group (oh_triage_group is false).
+      #
+      # @param message [Message] the message to check
+      # @return [Boolean] true if the message is in a post-migration state
+      #
+      def derive_migrated_to_oracle_health(message)
+        triage_group = message&.triage_group
+        return false if triage_group.blank?
+
+        station_number = triage_group.station_number&.to_s
+        return false if station_number.blank?
+
+        oh_triage_group = triage_group.oh_triage_group
+        # Post-migration: facility is Cerner in VA profile but triage group is not yet OH
+        cerner_facility_ids = Array(current_user&.cerner_facility_ids).map(&:to_s)
+        cerner_facility_ids.include?(station_number) && oh_triage_group == false
+      rescue => e
+        Rails.logger.error(
+          'Error deriving migrated_to_oracle_health',
+          { error_class: e.class.name, error_message: e.message, message_id: message&.id }
+        )
+        false
       end
 
       ##

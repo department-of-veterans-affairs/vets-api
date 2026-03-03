@@ -43,7 +43,7 @@ module VRE
       def build_payload(milestone_params)
         {
           icn: @icn,
-          milestones: milestone_params[:milestones]
+          milestones: milestone_params.to_unsafe_h[:milestones]
         }
       end
 
