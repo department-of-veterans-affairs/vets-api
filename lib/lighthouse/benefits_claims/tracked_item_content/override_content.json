@@ -1106,18 +1106,22 @@
         {
           "type": "paragraph",
           "content": [
-            "Or, you can call the VA benefits hotline at ",
+            "Or, you can call the VA benefits hotline to give us the name of your disability:",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "telephone",
               "contact": "8008271000"
             },
-            " (",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "telephone",
               "contact": "711",
               "tty": true
-            },
-            ") to give us the name of your disability."
+            }
           ]
         }
       ]
@@ -1192,15 +1196,17 @@
         {
           "type": "paragraph",
           "content": [
-            "You can also ",
+            "You can also request your military service records yourself from the National Archives:",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "link",
-              "text": "request your military service records",
+              "text": "Request your military service records",
               "href": "/records/get-military-service-records/",
               "mobileText": null,
               "isWebview": true
-            },
-            " yourself from the National Archives."
+            }
           ]
         }
       ]
