@@ -288,7 +288,7 @@ Self-check: `pass0-rubocop.json` must exist before proceeding. If RuboCop failed
 Now that deterministic findings are captured, load the pattern reference for the grep-based scan:
 
 ```
-read .github/agents/sre/detection-patterns.md
+read .github/agents/sre/detection-patterns.xml
 ```
 
 Self-check: You should now know the difference between HIGH and MEDIUM confidence patterns. If you do not, re-read the file.
@@ -340,7 +340,7 @@ Read `pass0-rubocop.json` and `pass1-candidates.md` from the tmp directory.
 
 For each candidate in `pass1-candidates.md`:
 1. Read 10-20 lines of source context around the match
-2. Apply the false-positive heuristics from detection-patterns.md and the `<false_positive>` entries in the play's `<severity_assessment>` block
+2. Apply the false-positive heuristics from detection-patterns.xml and the `<false_positive>` entries in the play's `<severity_assessment>` block
 3. Assign a confidence level: HIGH, MEDIUM, or LOW
 4. **Confidence gate (`<constraint id="0" name="do-no-harm">`):** Only promote candidates to findings if investigation produces HIGH confidence. MEDIUM confidence candidates should be recorded in the tmp file but excluded from the final report unless corroborated by a second independent signal (e.g., a RuboCop cop + a grep match for the same file:line, or two different plays flagging the same rescue block). LOW confidence candidates are always excluded. When in doubt, downgrade confidence — a missed finding is better than a false positive.
 5. For confirmed HIGH-confidence findings (and corroborated MEDIUM), read the relevant play file for recommendations:
@@ -358,7 +358,7 @@ Each play file is a self-contained XML document with a `<play>` root element car
    - `<pr_comment_template>` — structured finding template with placeholders
    - `<examples>` — BAD/GOOD code pairs showing anti-patterns and golden patterns
 
-Detection patterns are consolidated in `detection-patterns.md` (loaded in Phase 1), not in individual play files.
+Detection patterns are consolidated in `detection-patterns.xml` (loaded in Phase 1), not in individual play files.
 
 Use the `<pr_comment_template>` for finding structure, the `<investigate_before_answering>` steps to verify before flagging, and the `<examples>` section for specific, actionable remediation guidance.
 

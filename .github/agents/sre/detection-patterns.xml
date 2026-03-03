@@ -1,0 +1,240 @@
+<detection_patterns>
+
+  <preamble>
+    <constraint_ref id="0" name="do-no-harm">
+      Pattern matches are candidates, not findings. Every match below must
+      pass through the investigation gates and false-positive checks in its
+      play file before being flagged. If any gate produces ambiguity, exclude
+      the candidate. It is always better to miss a real anti-pattern than to
+      flag correct code.
+    </constraint_ref>
+
+    <instructions>
+      Read this file as the first step of every audit. For each play, use the
+      description to understand the violation, then use grep helpers as starting
+      points for search. For patterns that span multiple lines, search for the
+      entry-point line and then read surrounding context to confirm.
+
+      After finding a match, read the play file for rules, false-positive
+      heuristics, and false_positive exclusions in the severity_assessment
+      block before flagging.
+    </instructions>
+
+    <output_format>
+      Report findings under "### Play NN: Play Name — SEVERITY" headings.
+      Each finding gets "#### N. file:line — CONFIDENCE" with a code snippet.
+      See agent_constraints in sre.agent.md.
+    </output_format>
+
+    <confidence_levels>
+      <level name="HIGH">Flag if confirmed after reading context (outside test files)</level>
+      <level name="MEDIUM">Read 10-20 lines of surrounding context; check play file for false positives</level>
+    </confidence_levels>
+
+    <general_exclusions>
+      Skip spec/, test/, and fixtures/ directories unless a play specifically
+      notes otherwise.
+    </general_exclusions>
+  </preamble>
+
+  <!-- ============================================================ -->
+  <!-- P1 CRITICAL PLAYS (Tier 1+)                                  -->
+  <!-- ============================================================ -->
+
+  <play id="01" title="Don't Leak PII/PHI/Secrets" file="plays/01-dont-leak-pii-phi-secrets.xml">
+    <description>
+      Exception messages or log statements that include raw response bodies,
+      user params, or data that could contain PII/PHI (names, SSNs, medical
+      info) or secrets (API keys, tokens). Common pattern: raise or
+      logger.error with .body or raw params interpolated into the message
+      or metadata.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="HIGH">raise\s+".*resp\.body</pattern>
+      <pattern confidence="HIGH">raise\s+".*response.*body</pattern>
+      <pattern confidence="MEDIUM">logger\.\w+.*\.body</pattern>
+      <pattern confidence="MEDIUM">meta:.*params</pattern>
+    </grep_helpers>
+  </play>
+
+  <play id="02" title="Preserve Cause Chains" file="plays/02-preserve-cause-chains.xml">
+    <description>
+      Rescue blocks that catch an exception and raise a new one in a way that
+      destroys the cause chain. The main anti-pattern is converting an exception
+      to a string with raise "error: #{e}" which creates a RuntimeError and
+      loses the original class, backtrace, and cause chain. Ruby automatically
+      preserves the cause chain when you raise a new exception inside a rescue
+      block ($!.cause is set implicitly), so the fix is usually
+      raise TypedError.new(detail) or bare raise. Do NOT recommend cause: e
+      with Common::Exceptions classes — they don't accept it.
+
+      Note: raise e inside rescue => e DOES preserve the cause chain (Ruby sets
+      cause implicitly). Only flag when a different exception class is raised
+      without cause:.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="HIGH">raise\s+".*#\{.*\}"</pattern>
+      <pattern confidence="HIGH">raise\s+\w+\.new\(.*\.message\)</pattern>
+      <pattern confidence="MEDIUM" context="read context to check if inside a rescue block">raise\s+\w+Exception\.new\([^)]*\)\s*$</pattern>
+      <pattern confidence="MEDIUM" context="check if inside a rescue block (if so, cause chain is broken because the original exception is discarded)">raise\s+Common::Exceptions::\w+\s*$</pattern>
+      <pattern confidence="MEDIUM" context="read context to confirm rescue block">raise\s+[A-Z]\w+::\w+\s*$</pattern>
+    </grep_helpers>
+  </play>
+
+  <play id="03" title="Never Use Bare Rescues" file="plays/03-never-use-bare-rescues.xml">
+    <description>
+      Rescue blocks without an exception class (rescue, rescue => e, or
+      rescue Exception). These catch everything including NoMethodError from
+      typos and SignalException from Ctrl+C. Also look for rescue blocks that
+      return nil, false, or empty collections — signals of error swallowing
+      combined with bare rescue.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="HIGH">rescue\s*$</pattern>
+      <pattern confidence="HIGH">rescue\s*=>\s*\w+</pattern>
+      <pattern confidence="HIGH">rescue\s+Exception\b</pattern>
+    </grep_helpers>
+
+    <context_check>
+      Search for rescue then read surrounding lines. Rescue block followed
+      by nil, false, [], or {} return — MEDIUM.
+    </context_check>
+  </play>
+
+  <play id="04" title="Map Upstream Network Errors" file="plays/04-map-upstream-network-errors-correctly.xml">
+    <description>
+      Rescue blocks that catch Faraday errors (timeouts, connection failures,
+      upstream 5xx) and map them to InternalServerError (500). Upstream failures
+      should map to 502/503/504, not 500 — a 500 means our code is broken.
+      Also look for catching all Faraday errors with a single rescue clause
+      and returning one status code.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="HIGH">raise.*InternalServerError.*exception:\s*e</pattern>
+      <pattern confidence="MEDIUM" context="blanket catch may be intentional in service layer; check if controller or service code before flagging">rescue\s+Faraday::ClientError,\s*Faraday::ServerError</pattern>
+    </grep_helpers>
+
+    <context_check>
+      Search for rescue\s+Faraday:: then read surrounding lines.
+      Faraday rescue followed by InternalServerError raise — HIGH.
+    </context_check>
+  </play>
+
+  <play id="05" title="Match Status Codes to Fault Ownership (4xx vs 5xx)" file="plays/05-match-status-codes-to-fault-ownership.xml">
+    <description>
+      Broad rescue blocks (bare rescue or rescue => e) that return or raise
+      422 UnprocessableEntity. This disguises server errors and upstream
+      failures as client validation errors, hiding real problems from
+      dashboards. Only specific validation exceptions should produce 422.
+      Also check error-status mapper methods that default to 422 in an else
+      branch — when unknown or nil error codes fall through to 422,
+      unexpected server faults are misclassified as client input errors.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="MEDIUM" context="search for usages, then read the rescue clause above each one">UnprocessableEntity</pattern>
+      <pattern confidence="MEDIUM" context="search for the symbol form used in render status: and case/when branches; read the enclosing rescue or error-handling method to check if broad rescues route through it">:unprocessable_entity</pattern>
+    </grep_helpers>
+
+    <context_check>
+      Search for UnprocessableEntity and :unprocessable_entity then read the
+      enclosing rescue block or error mapper:
+      - Bare or broad rescue raising/rendering 422 — HIGH
+      - rescue => e followed by 422 — HIGH
+      - Error-status mapper with else defaulting to 422 when the mapper is
+        called from a broad rescue — MEDIUM (check what values can reach the
+        else branch)
+    </context_check>
+  </play>
+
+  <play id="06" title="Handle 401 Token Ownership" file="plays/06-handle-401-token-ownership.xml">
+    <description>
+      Code that catches upstream 401 errors and blindly passes them through
+      as 401 to clients. When our service account credentials fail upstream,
+      that's our fault (500), not the user's (401). The key question: "Whose
+      credentials failed — the user's or ours?"
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="MEDIUM" context="requires credential ownership investigation (user token vs service account) before flagging">rescue\s+Faraday::UnauthorizedError</pattern>
+    </grep_helpers>
+
+    <context_check>
+      Search for Unauthorized then read the rescue block. Upstream 401 passed
+      through without checking credential ownership — HIGH.
+    </context_check>
+  </play>
+
+  <play id="07" title="Handle 403 Permission vs Existence" file="plays/07-handle-403-permission-vs-existence.xml">
+    <description>
+      Code that returns 403 Forbidden for non-existent resources (should be
+      404) or for expired/missing tokens (should be 401). Also look for
+      rescue ActiveRecord::RecordNotFound that raises Forbidden — this leaks
+      resource existence information and enables enumeration attacks.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="MEDIUM" context="check if this is really a permission issue or a missing resource">Forbidden\.new.*detail.*access denied</pattern>
+    </grep_helpers>
+
+    <context_check>
+      Search for Forbidden and RecordNotFound in proximity.
+      RecordNotFound rescued and converted to Forbidden — HIGH.
+    </context_check>
+  </play>
+
+  <play id="08" title="Prefer Typed Exceptions" file="plays/08-prefer-typed-exceptions.xml">
+    <description>
+      raise 'string message' in HTTP request paths. These become RuntimeError,
+      fall through to the default 500 handler, and are indistinguishable from
+      each other in APM. Should be typed exceptions that map to correct HTTP
+      status codes.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="HIGH">raise\s+['"][^'"]+['"]</pattern>
+      <pattern confidence="HIGH">raise\s+['"].*required</pattern>
+      <pattern confidence="HIGH">raise\s+['"].*missing</pattern>
+    </grep_helpers>
+  </play>
+
+  <play id="09" title="Expected vs Unexpected Errors" file="plays/09-expected-vs-unexpected-errors.xml">
+    <description>
+      Code that calls span.set_error or set_error() on 4xx exceptions.
+      Expected client errors (400, 401, 404, 422) should not mark APM spans
+      as errors — this floods error tracking with non-bugs. Only 5xx errors
+      are unexpected and should be marked.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="MEDIUM" context="must check if request-level span or internal sub-span, and if guarded by status >= 500">set_error\(</pattern>
+      <pattern confidence="MEDIUM" context="must check if request-level span or internal sub-span, and if inside a conditional for 5xx only">span\.set_error</pattern>
+      <pattern confidence="MEDIUM">span\.set_tag.*error</pattern>
+    </grep_helpers>
+  </play>
+
+  <play id="10" title="Don't Build Module-Specific Frameworks" file="plays/10-dont-build-module-specific-frameworks.xml">
+    <description>
+      Custom logging services, error handler classes, monitoring wrappers,
+      tracing helpers, or error classification methods built within a module.
+      These fragment the codebase — vets-api has 24+ of these. Modules should
+      use Rails.logger, StatsD, Datadog::Tracing, and the ExceptionHandling
+      concern directly. Also look for handle_error or handle_exception methods
+      embedded in service classes — these reimplement error classification that
+      belongs in the platform layer, even without a standalone framework class.
+    </description>
+
+    <grep_helpers>
+      <pattern confidence="HIGH">class\s+\w*LogService</pattern>
+      <pattern confidence="HIGH">class\s+\w*ErrorHandler</pattern>
+      <pattern confidence="HIGH">def\s+rescue_from</pattern>
+      <pattern confidence="HIGH">def\s+(self\.)?handle_(error|exception)</pattern>
+      <pattern confidence="MEDIUM" context="check it's not a domain model">class\s+\w*Monitor\b</pattern>
+    </grep_helpers>
+  </play>
+
+</detection_patterns>
