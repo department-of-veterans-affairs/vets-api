@@ -68,48 +68,46 @@ RSpec.describe SimpleFormsApi::Mms::IbmUploadJob, type: :job do
 
     context 'when IBM upload raises an exception' do
       before do
-        allow(ibm_service).to receive(:upload_form).and_raise(StandardError.new('Upload error'))
+        allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+
+        allow(ibm_service).to receive(:upload_form).and_raise(
+          StandardError.new('Upload error')
+        )
       end
 
-      it 'logs the error message with the exception message' do
+      it 'logs the error message and re-raises the exception' do
         expect(Rails.logger).to receive(:error).with(
           'Simple Forms API - MMS submission failed: Upload error',
           guid: confirmation_number,
           form_number:
         )
 
-        described_class.new.perform(ibm_payload, form_number, confirmation_number)
+        expect do
+          described_class.new.perform(
+            ibm_payload,
+            form_number,
+            confirmation_number
+          )
+        end.to raise_error(StandardError, 'Upload error')
       end
     end
 
     context 'when job retries are exhausted' do
-      before do
-        allow_any_instance_of(SimpleFormsApi::Mms::IbmUploadJob)
-          .to receive(:perform)
-          .and_raise(StandardError.new('Upload error'))
-
-        SimpleFormsApi::Mms::IbmUploadJob.sidekiq_options retry: 3
-
-        allow_any_instance_of(SimpleFormsApi::Mms::IbmUploadJob)
-          .to receive(:sidekiq_retries_exhausted)
-          .and_call_original
-      end
+      let(:ibm_payload) { { some: 'payload' } }
+      let(:form_number) { '21-4140' }
+      let(:confirmation_number) { 'abc123' }
 
       it 'logs the retries exhausted message' do
+        msg = { 'args' => [ibm_payload, form_number, confirmation_number] }
+        ex = StandardError.new('Upload error')
+
         expect(Rails.logger).to receive(:error).with(
-          'Sidekiq: Simple Forms API - MMS IbmUploadJob retries exhausted',
+          'Sidekiq retries exhausted for SimpleForms::API::MMS::IbmUploadJob - StandardError: Upload error',
           guid: confirmation_number,
           form_number:
         )
 
-        # Expect job to raise an error after retries
-        expect do
-          SimpleFormsApi::Mms::IbmUploadJob.new.perform(ibm_payload, form_number, confirmation_number)
-        end.to raise_error(StandardError)
-        # Simulate job retries exhaustion directly by invoking sidekiq_retries_exhausted
-        job = SimpleFormsApi::Mms::IbmUploadJob.new
-        msg = { 'args' => [nil, form_number, confirmation_number] }
-        job.sidekiq_retries_exhausted(msg)
+        described_class.sidekiq_retries_exhausted_block.call(msg, ex)
       end
     end
   end

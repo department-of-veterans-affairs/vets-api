@@ -7,7 +7,7 @@ module SimpleFormsApi
 
       sidekiq_options retry: 10, backtrace: true
 
-      sidekiq_retries_exhausted do |msg, _ex|
+      sidekiq_retries_exhausted do |msg, ex|
         begin
           form_no = msg['args'].second
           comf_no = msg['args'].third
@@ -17,8 +17,8 @@ module SimpleFormsApi
         end
 
         Rails.logger.error(
-          "Sidekiq retries exhausted for SimpleForms::API::MMS::IbmUploadJob - " \
-          "#{_ex.class}: #{_ex.message}",
+          'Sidekiq retries exhausted for SimpleForms::API::MMS::IbmUploadJob - ' \
+          "#{ex.class}: #{ex.message}",
           guid: comf_no,
           form_number: form_no
         )
