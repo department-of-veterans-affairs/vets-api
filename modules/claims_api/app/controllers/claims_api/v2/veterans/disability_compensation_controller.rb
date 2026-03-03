@@ -167,7 +167,7 @@ module ClaimsApi
           # they all have access to the the same instance
           @claims_api_forms_validation_errors = if Flipper.enabled?(:lighthouse_claims_api_v2_enable_FES)
                                                   extend(ClaimsApi::V2::AltRevisedDisabilityCompensationValidation)
-                                                  alt_rev_validate_form_526_submission_values(target_veteran)
+                                                  alt_rev_validate_form_526_submission_values
                                                 else
                                                   extend(ClaimsApi::V2::DisabilityCompensationValidation)
                                                   validate_form_526_submission_values(target_veteran)
