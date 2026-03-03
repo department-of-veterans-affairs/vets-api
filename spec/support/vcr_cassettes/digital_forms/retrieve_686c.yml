@@ -1,0 +1,108 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://digital-forms-api-fake.fake.bip.va.gov/api/v1/rest/submissions/abc123
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 13 May 2025 19:26:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1650'
+      Connection:
+      - keep-alive
+      Last-Modified:
+      - Mon, 27 Aug 2007 17:15:36 GMT
+      Accept-Ranges:
+      - bytes
+      Vary:
+      - Accept-Encoding
+    body:
+      encoding: UTF-8
+      string: '{
+  "messages": [
+    {
+      "key": "string",
+      "severity": "INFO",
+      "status": 0,
+      "text": "string",
+      "timestamp": "2026-02-24T04:09:15.741Z"
+    }
+  ],
+  "submission": {
+    "submissionId": "a1ba50e4-e689-4852-bec7-2a66519f0ed3",
+    "claim": {
+      "claimId": "123456789",
+      "epCode": "130",
+      "claimLabel": "130DPEBNAJRE"
+    },
+    "document": {
+      "documentId": "doc-12345",
+      "versionId": "v1"
+    },
+    "linkToCreatedResource": "https://forms-api.prod.bip.va.gov/forms/submissions/abc123"
+  },
+  "content": {
+    "veteranInformation": {
+      "fullName": {
+        "first": "John",
+        "last": "Doe"
+      },
+      "birthDate": "1970-01-01",
+      "ssnLastFour": "1234"
+    },
+    "veteranContactInformation": {
+      "veteranAddress": {
+        "street": "1 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "country": "USA",
+        "postalCode": "90001"
+      },
+      "phoneNumber": "5551234567",
+      "emailAddress": "john.doe@example.com"
+    },
+    "statementOfTruthSignature": "John Doe",
+    "statementOfTruthCertified": true,
+    "spouseInformation": {
+      "fullName": {
+        "first": "Jane",
+        "last": "Doe"
+      },
+      "birthDate": "1972-02-02",
+      "isVeteran": false
+    },
+    "currentMarriageInformation": {
+      "outsideUsa": false,
+      "location": {
+        "city": "Anytown",
+        "state": "CA"
+      },
+      "typeOfMarriage": "Civil",
+      "date": "2000-01-01"
+    },
+    "doesLiveWithSpouse": {
+      "spouseDoesLiveWithVeteran": true
+    },
+    "spouseMarriageHistory": [],
+    "veteranMarriageHistory": [],
+    "childrenToAdd": []
+  }
+}'
+  recorded_at: Tue, 13 May 2025 19:26:37 GMT
+recorded_with: VCR 6.3.1

@@ -113,7 +113,6 @@ module UnifiedHealthData
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         result = parse_refill_response(response)
         validate_refill_response_count(normalized_orders, result)
-        increment_refill(result[:success].size) if result[:success].present?
         result
       end
     rescue Common::Exceptions::BackendServiceException => e
@@ -149,9 +148,8 @@ module UnifiedHealthData
         # SCDF may return notes outside the requested range; this ensures only in-range notes are returned.
         parsed_notes = filter_parsed_notes_by_date_range(parsed_notes, start_date, end_date)
 
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
-        clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
-        clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
+        log_loinc_code_distribution(parsed_notes, 'Clinical Notes')
+        log_care_summaries_metrics(doc_ref_records, parsed_notes, start_date, end_date)
 
         { records: parsed_notes, warnings: }
       end
@@ -247,7 +245,7 @@ module UnifiedHealthData
         parsed_avs_meta = summaries.map do |summary|
           clinical_notes_adapter.parse_avs_with_metadata(summary, appt_id, include_binary)
         end
-        log_loinc_codes_enabled? && logger.log_loinc_code_distribution(parsed_avs_meta, 'AVS')
+        log_loinc_code_distribution(parsed_avs_meta, 'AVS')
         parsed_avs_meta.compact
       end
     end
@@ -396,8 +394,15 @@ module UnifiedHealthData
       end
     end
 
+    def log_care_summaries_metrics(doc_ref_records, parsed_notes, start_date, end_date)
+      clinical_notes_logging_enabled? && log_notes_response_count(doc_ref_records.size, parsed_notes.size)
+      clinical_notes_logging_enabled? && log_notes_index_metrics(parsed_notes, start_date, end_date)
+      warn_high_filter_rate(doc_ref_records.size, parsed_notes.size)
+    end
+
     # Keeps only parsed notes whose date falls within [start_date, end_date] (inclusive).
     # Filtering on parsed notes (same objects we return) so the response is guaranteed correct.
+    # Tracks date-parse failures and emits an aggregated warning when the count exceeds threshold.
     def filter_parsed_notes_by_date_range(notes, start_date, end_date)
       return notes if notes.blank?
       return notes if start_date.blank? || end_date.blank?
@@ -405,12 +410,15 @@ module UnifiedHealthData
       start_d = DateTime.parse(start_date.to_s).to_date
       end_d = DateTime.parse(end_date.to_s).to_date
 
-      notes.select do |note|
+      date_parse_failure_count = 0
+
+      filtered = notes.select do |note|
         next false if note.blank? || note.date.blank?
 
         note_date = DateTime.parse(note.date.to_s).to_date
         note_date >= start_d && note_date <= end_d
       rescue ArgumentError, TypeError
+        date_parse_failure_count += 1
         Rails.logger.warn(
           'UnifiedHealthData::Service#filter_parsed_notes_by_date_range ' \
           "excluding note due to invalid date. note_id=#{note&.id.inspect} " \
@@ -418,6 +426,10 @@ module UnifiedHealthData
         )
         false
       end
+
+      warn_date_parse_failures(date_parse_failure_count, notes.size) if date_parse_failure_count.positive?
+
+      filtered
     end
 
     def remap_vista_uid(records)
@@ -440,7 +452,7 @@ module UnifiedHealthData
     def parse_single_note(record)
       return nil if record.blank?
 
-      clinical_notes_adapter.parse(record, logging_enabled: clinical_notes_logging_enabled?)
+      clinical_notes_adapter.parse(record)
     end
 
     # Fetches a single Oracle Health note directly via the SCDF source-specific endpoint.
@@ -479,10 +491,6 @@ module UnifiedHealthData
       doc_entry&.dig('resource')
     end
 
-    def increment_refill(count = 1)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count)
-    end
-
     def uhd_client
       @uhd_client ||= UnifiedHealthData::Client.new
     end
@@ -496,7 +504,7 @@ module UnifiedHealthData
     end
 
     def clinical_notes_adapter
-      @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new
+      @clinical_notes_adapter ||= UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user: @user)
     end
 
     def conditions_adapter
