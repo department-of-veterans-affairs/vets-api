@@ -105,11 +105,14 @@ Phase 0 RuboCop detections, filtered through each play's `<false_positive>` excl
 - `file.rb:30`
 - ...
 
-**Total RuboCop offenses**: {count} ({excluded_count} excluded as false positives)
+**Total RuboCop offenses**: {surviving_count} of {offense_count from pass0-rubocop.json} ({excluded_count} excluded as false positives)
 
 **Excluded** ({excluded_count}):
 - `excluded_file.rb:42` — {exclusion gate, e.g., feature flag check}
-- ...
+- `excluded_file.rb:78` — {exclusion gate}
+- ...every excluded offense must be listed with its file:line and gate...
+
+Every RuboCop offense must appear in either the surviving list or the excluded list — no globs, no hand-waving. If the two lists don't sum to `offense_count`, offenses are unaccounted for.
 
 Plays with zero RuboCop offenses (after filtering) are omitted.
 
@@ -324,7 +327,7 @@ Read `pass2-draft.md` from the tmp directory. For **every** finding in the draft
 
 After verifying all findings:
 
-8. **Reconcile RuboCop counts against source data.** Read `pass0-rubocop.json` and count the total offenses from the JSON `summary.offense_count` field. This is the ground truth. Then count surviving offenses (listed in the report) + excluded offenses (listed in the Excluded section). These two numbers must sum to the JSON total. If they don't, you have miscounted or lost offenses — find and fix the discrepancy before proceeding. Do not estimate or round counts.
+8. **Reconcile RuboCop counts against source data.** Read `pass0-rubocop.json` and extract `summary.offense_count` — this is the deterministic ground truth total. Copy this number directly into the report as the sum of surviving + excluded. Do not count offenses manually. Then verify: (surviving listed in report) + (excluded listed in Excluded section) = `offense_count`. If they don't sum correctly, you have lost or double-counted offenses — enumerate every offense from the JSON file list and account for each one before proceeding.
 9. **Reconcile finding totals.** The header `**Findings**: {count}` must equal (surviving RuboCop offenses) + (individual `####` findings in LLM-judged sections). Count both and update the header to match.
 10. **Write the verified draft** to `tmp/sre-audit-{module}-{timestamp}/pass3-verified.md`.
 
