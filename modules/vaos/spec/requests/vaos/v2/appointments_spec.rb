@@ -788,6 +788,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               get '/vaos/v2/appointments?_include=facilities,clinics,eps', params:, headers: inflection_header
 
               expect(response).to have_http_status(:multi_status)
+              expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
               body = JSON.parse(response.body)
               expect(body['data']).not_to be_empty
               expect(body['meta']['failures']).to include(
