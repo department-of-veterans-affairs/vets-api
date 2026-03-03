@@ -208,6 +208,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
           expect(response).to have_http_status(:created)
         end
       end
+    end
 
     context 'valid params - claimant survivor' do
       let(:survivor_params) do
