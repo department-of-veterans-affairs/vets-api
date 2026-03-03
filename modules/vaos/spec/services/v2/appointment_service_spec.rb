@@ -1705,6 +1705,70 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_appointments EPS graceful degradation' do
+    before do
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:appointments_consolidation,
+                                                instance_of(User)).and_return(true)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    context 'when EPS appointment fetch raises an error' do
+      it 'returns VAOS appointments and includes EPS failure in meta' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          eps_service = instance_double(Eps::AppointmentService)
+          allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+          allow(eps_service).to receive(:get_appointments_with_providers)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502'))
+
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+
+          expect(result[:data]).not_to be_empty
+          expect(result[:meta][:failures]).to include(
+            hash_including(source: 'EPS', detail: 'EPS appointment data unavailable')
+          )
+        end
+      end
+
+      it 'returns VAOS appointments with empty failures when EPS is not included' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: false })
+
+          expect(result[:data]).not_to be_empty
+          expect(result[:meta][:failures]).to be_empty
+        end
+      end
+
+      it 'returns empty failures in meta when EPS succeeds' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                             match_requests_on: %i[method path query],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+
+              expect(result[:data]).not_to be_empty
+              expect(result[:meta][:failures]).to be_empty
+            end
+          end
+        end
+      end
+    end
+  end
+
   describe '#get_active_appointments_for_referral' do
     before do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))

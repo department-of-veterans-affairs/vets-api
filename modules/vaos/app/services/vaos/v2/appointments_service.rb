@@ -166,9 +166,12 @@ module VAOS
         final_eps_facilities = extract_facility_identifiers(final_eps_appts)
         Rails.logger.info("EPS Debug: Final response #{final_eps_facilities.any? ? final_eps_facilities : 'none'}")
 
+        meta = pagination(pagination_params).merge(partial_errors(response, __method__))
+        append_eps_failures(meta)
+
         {
           data: deserialized_appointments(appointments),
-          meta: pagination(pagination_params).merge(partial_errors(response, __method__))
+          meta:
         }
       end
 
@@ -1646,16 +1649,27 @@ module VAOS
       end
 
       def eps_appointments
-        @eps_appointments ||= begin
-          eps_appts = eps_appointments_service.get_appointments_with_providers
-          if eps_appts.blank?
-            []
-          else
-            kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
-            log_appointment_separation(kept_appts, removed_appts)
-            kept_appts
-          end
+        @eps_appointments ||= fetch_eps_appointments
+      end
+
+      def fetch_eps_appointments
+        eps_appts = eps_appointments_service.get_appointments_with_providers
+        if eps_appts.blank?
+          []
+        else
+          kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
+          log_appointment_separation(kept_appts, removed_appts)
+          kept_appts
         end
+      rescue
+        @eps_fetch_failure = { source: 'EPS', detail: 'EPS appointment data unavailable' }
+        []
+      end
+
+      def append_eps_failures(meta)
+        return unless @eps_fetch_failure
+
+        meta[:failures] = Array.wrap(meta[:failures]) << @eps_fetch_failure
       end
 
       def eps_serializer

@@ -767,6 +767,35 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             end
           end
 
+          it 'returns VAOS appointments with multi_status when EPS fetch fails' do
+            allow(Flipper).to receive(:enabled?).with(:appointments_consolidation,
+                                                      instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_log_mobile,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:mhv_oh_unique_user_metrics_logging_appt).and_return(false)
+            allow(UniqueUserEvents).to receive(:log_event)
+
+            eps_service = instance_double(Eps::AppointmentService)
+            allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+            allow(eps_service).to receive(:get_appointments_with_providers)
+              .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502'))
+
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              stub_facilities
+              stub_clinics
+
+              get '/vaos/v2/appointments?_include=facilities,clinics,eps', params:, headers: inflection_header
+
+              expect(response).to have_http_status(:multi_status)
+              body = JSON.parse(response.body)
+              expect(body['data']).not_to be_empty
+              expect(body['meta']['failures']).to include(
+                hash_including('source' => 'EPS', 'detail' => 'EPS appointment data unavailable')
+              )
+            end
+          end
+
           it 'returns a 400 error' do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method path query]) do
               get '/vaos/v2/appointments', params: { start: start_date }
