@@ -112,7 +112,13 @@ module JunitToRuntimeLog
 
     slow = []
     xml_paths.each do |xml_path|
-      doc = REXML::Document.new(File.read(xml_path))
+      xml_content = File.read(xml_path)
+      if xml_content.include?('<!DOCTYPE')
+        warn "Skipping #{xml_path}: DOCTYPE declarations are not allowed"
+        next
+      end
+
+      doc = REXML::Document.new(xml_content)
       doc.elements.each('//testcase') do |tc|
         file = tc.attributes['file']
         time = tc.attributes['time']&.to_f

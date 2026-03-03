@@ -15,7 +15,9 @@ require_relative 'junit_to_runtime_log'
 changed_files_path = ARGV[0]
 xml_glob           = ARGV[1] || 'Test Results Group*/*.xml'
 file_pct           = (ARGV[2] || ENV.fetch('SLOW_SPEC_FILE_PCT', '2.0')).to_f
+file_pct           = 2.0 unless file_pct.positive?
 example_sec        = (ARGV[3] || ENV.fetch('SLOW_SPEC_EXAMPLE_SEC', '20.0')).to_f
+example_sec        = 20.0 unless example_sec.positive?
 
 unless changed_files_path && File.exist?(changed_files_path)
   warn 'No changed files list provided or file does not exist, skipping.'
