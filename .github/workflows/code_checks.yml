@@ -117,9 +117,6 @@ jobs:
         with:
           mask-password: true
 
-      - name: Set Environment Variable
-        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -130,11 +127,22 @@ jobs:
         with:
           build-args: |
             BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
+            USER_ID=1001
           context: .
           push: false
+          load: true
+          tags: vets-api
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Export Docker image
+        run: docker save vets-api | zstd -T0 -o /tmp/vets-api.tar.zst
+
+      - name: Save Docker image to cache
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/vets-api.tar.zst
+          key: docker-image-${{ github.sha }}
 
   tests:
     name: Test (Group ${{ matrix.test_group }})
@@ -186,25 +194,15 @@ jobs:
         with:
           mask-password: true
 
-      - name: Set Environment Variable
-        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
+      - name: Restore Docker image from cache
+        uses: actions/cache/restore@v4
         with:
-          build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=${{ env.VETS_API_USER_ID }}
-          context: .
-          push: false
-          load: true
-          tags: vets-api
-          cache-from: type=gha
+          path: /tmp/vets-api.tar.zst
+          key: docker-image-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Load Docker image
+        run: zstd -d /tmp/vets-api.tar.zst --stdout | docker load
 
       # Shard balancing: if a runtime log exists (cached from a previous run),
       # parallel_test uses --group-by runtime to distribute specs by actual
@@ -309,7 +307,7 @@ jobs:
   publish_results:
     name: Publish Test Results and Coverage
     if: always()
-    needs: tests
+    needs: [build, tests]
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
 
@@ -387,31 +385,17 @@ jobs:
           echo "=== Verifying artifacts in vets-api directory ==="
           ls -la vets-api/simplecov-resultset-* || echo "No simplecov-resultset-* directories in vets-api"
 
-      - name: Login to DockerHub
+      - name: Restore Docker image from cache
         if: needs.tests.result == 'success'
-        uses: docker/login-action@v3
+        uses: actions/cache/restore@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          path: /tmp/vets-api.tar.zst
+          key: docker-image-${{ github.sha }}
+          fail-on-cache-miss: true
 
-      - name: Set up Docker Buildx
+      - name: Load Docker image
         if: needs.tests.result == 'success'
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker Image for Coverage
-        if: needs.tests.result == 'success'
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-        with:
-          build-args: |
-            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-            USER_ID=1001
-          context: vets-api
-          push: false
-          load: true
-          tags: vets-api-coverage
-          cache-from: type=gha
+        run: zstd -d /tmp/vets-api.tar.zst --stdout | docker load
 
       - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
@@ -419,7 +403,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/vets-api:/app \
             -w /app \
-            vets-api-coverage \
+            vets-api \
             bundle exec rake coverage:report
 
       - name: Upload Combined Coverage HTML
