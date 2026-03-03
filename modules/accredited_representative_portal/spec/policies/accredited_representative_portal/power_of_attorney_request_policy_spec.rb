@@ -365,6 +365,105 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
           expect(resolved_scope).to contain_exactly(matching_request)
         end
       end
+
+      context 'when individual accept flag is enabled' do
+        let(:power_of_attorney_holders) do
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code: '123',
+              name: 'Org Name',
+              can_accept_digital_poa_requests: true
+            )
+          ]
+        end
+
+        let(:reg_number) { '823685' }
+
+        let!(:vso_org) { create(:veteran_organization, poa: '123') }
+        let!(:vs_rep) { create(:veteran_representative, representative_id: reg_number) }
+
+        # These just ensure unrelated records exist and do not leak into the scope
+        let!(:matching_request) { create(:power_of_attorney_request, poa_code: 'NOT_123') }
+        let!(:non_matching_request) { create(:power_of_attorney_request, poa_code: 'ALSO_NOT_123') }
+
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_individual_accept, user)
+            .and_return(true)
+
+          allow(user).to receive(:registration_numbers).and_return([reg_number])
+        end
+
+        def create_request_for(poa_code:, accredited_reg_num: nil)
+          if accredited_reg_num.present?
+            rep =
+              if accredited_reg_num == reg_number
+                # Reuse the already-created representative to avoid uniqueness violations
+                vs_rep
+              else
+                create(
+                  :representative,
+                  representative_id: accredited_reg_num,
+                  poa_codes: [poa_code]
+                )
+              end
+
+            create(
+              :power_of_attorney_request,
+              poa_code:,
+              accredited_individual: rep
+            )
+          else
+            create(:power_of_attorney_request, poa_code:)
+          end
+        end
+
+        it "returns requests for the org when acceptance_mode is 'any_request'" do
+          create(
+            :veteran_organization_representative,
+            organization: vso_org,
+            representative: vs_rep,
+            acceptance_mode: 'any_request',
+            deactivated_at: nil
+          )
+
+          request_for_org = create_request_for(poa_code: '123')
+          create_request_for(poa_code: '999')
+
+          expect(resolved_scope).to contain_exactly(request_for_org)
+        end
+
+        it "returns only self-assigned requests when acceptance_mode is 'self_only'" do
+          create(
+            :veteran_organization_representative,
+            organization: vso_org,
+            representative: vs_rep,
+            acceptance_mode: 'self_only',
+            deactivated_at: nil
+          )
+
+          mine = create_request_for(poa_code: '123', accredited_reg_num: reg_number)
+          create_request_for(poa_code: '123', accredited_reg_num: 'SOMEONE_ELSE')
+          create_request_for(poa_code: '999', accredited_reg_num: reg_number)
+
+          expect(resolved_scope).to contain_exactly(mine)
+        end
+
+        it "returns no requests when acceptance_mode is 'no_acceptance' (even though org is a holder)" do
+          create(
+            :veteran_organization_representative,
+            organization: vso_org,
+            representative: vs_rep,
+            acceptance_mode: 'no_acceptance',
+            deactivated_at: nil
+          )
+
+          create_request_for(poa_code: '123')
+
+          expect(resolved_scope).to be_empty
+        end
+      end
     end
   end
 end
