@@ -455,7 +455,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
         end
       end
 
-      describe 'Getting a 404 response' do
+      describe 'Getting a 404 response', vcr: 'claims_api/disability_comp' do
         let(:claim_date) { (Time.zone.today - 1.day).to_s }
         let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
         let(:data) do
