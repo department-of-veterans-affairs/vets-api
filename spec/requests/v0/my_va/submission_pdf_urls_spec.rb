@@ -8,6 +8,7 @@ MOCK_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.
 MOCK_404_URL = 'https://example.com/file1.pdf'
 MOCK_GUID = '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80'
 VALID_FORM_ID = '20-10206'
+VALID_40_1330M_FORM_ID = '40-1330M'
 
 RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
                                               team_owner: :vfs_authenticated_experience_backend,
@@ -41,6 +42,26 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
         expect(response).to have_http_status(:ok)
         results = JSON.parse(response.body)
         expect(results['url']).to eq(MOCK_URL)
+      end
+    end
+
+    context 'when user owns submission and form is 40-1330M but pdf does not exist in S3' do
+      let(:form_submission) { create(:form_submission, user_account:) }
+      let(:form_submission_attempt) do
+        create(:form_submission_attempt, form_submission:, benefits_intake_uuid: MOCK_GUID)
+      end
+
+      before do
+        form_submission_attempt
+        allow(SimpleFormsApi::FormRemediation::Configuration::VffConfig).to receive(:new).and_return(mock_config)
+        allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_404_URL)
+      end
+
+      it 'raises RecordNotFound error (i.e., not forbidden, but the pdf is missing)' do
+        VCR.use_cassette('my_va/submission_pdf_urls_404') do
+          post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_40_1330M_FORM_ID, submission_guid: MOCK_GUID })
+        end
+        expect(response).to have_http_status(:not_found)
       end
     end
 
