@@ -315,7 +315,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          sparse-checkout: script/junit_to_runtime_log.rb
+          sparse-checkout: |
+            script/junit_to_runtime_log.rb
+            script/slow_spec_annotator.rb
           sparse-checkout-cone-mode: false
 
       - uses: actions/download-artifact@v7
@@ -357,6 +359,17 @@ jobs:
         run: |
           mkdir -p tmp
           ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
+
+      # Annotate slow spec files (>2% of total runtime) and examples (>20s)
+      # that belong to the same module/service as files changed in the PR.
+      # Emits non-blocking ::warning annotations visible inline on the PR.
+      - name: Annotate slow specs
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} --name-only > /tmp/changed_files.txt
+          ruby script/slow_spec_annotator.rb /tmp/changed_files.txt "Test Results Group*/*.xml"
 
       - name: Save runtime log to cache
         if: always()

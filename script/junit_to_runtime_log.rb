@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Converts JUnit XML test results into a parallel_test runtime log.
+# Converts JUnit XML test results into a parallel_test runtime log and
+# identifies slow spec files / examples for CI annotation.
+#
 # Usage: ruby script/junit_to_runtime_log.rb <output_file> <xml_glob>
 # Example: ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
 require 'rexml/document'
+require 'set'
 
 module JunitToRuntimeLog
   # Parse JUnit XML files and return a hash of { "spec/file_spec.rb" => total_seconds }
@@ -35,6 +38,86 @@ module JunitToRuntimeLog
         f.puts "#{path}:#{format('%.4f', time)}"
       end
     end
+  end
+
+  # Returns a module/service group key for a file path.
+  # Related source and spec files produce the same key so that touching
+  # a source file triggers annotations on slow specs in that area.
+  #
+  # Examples:
+  #   modules/check_in/app/controllers/foo.rb  → "modules/check_in"
+  #   modules/check_in/spec/requests/foo.rb    → "modules/check_in"
+  #   app/models/user.rb                       → "models"
+  #   spec/models/user_spec.rb                 → "models"
+  #   app/controllers/v0/foo_controller.rb     → "controllers"
+  #   spec/requests/v0/foo_spec.rb             → "controllers"
+  #   lib/rx/client.rb                         → "lib/rx"
+  #   spec/lib/rx/client_spec.rb               → "lib/rx"
+  def self.group_for(path)
+    parts = path.sub(%r{^\./}, '').split('/')
+
+    # modules/<name>/** → modules/<name>
+    return parts[0..1].join('/') if parts[0] == 'modules' && parts.size >= 2
+
+    # spec/lib/<name>/** → lib/<name>
+    return "lib/#{parts[2]}" if parts[0] == 'spec' && parts[1] == 'lib' && parts.size >= 3
+
+    # spec/<type>/** → <type> (with requests→controllers mapping)
+    if parts[0] == 'spec' && parts.size >= 2
+      type = parts[1]
+      type = 'controllers' if type == 'requests'
+      return type
+    end
+
+    # lib/<name>/** → lib/<name>
+    return "lib/#{parts[1]}" if parts[0] == 'lib' && parts.size >= 2
+
+    # app/<type>/** → <type>
+    return parts[1] if parts[0] == 'app' && parts.size >= 2
+
+    # Fallback: first path segment
+    parts.first
+  end
+
+  # Returns slow spec files whose module/service group was touched by changed_files.
+  # Each result is { file:, time:, pct: }.
+  def self.find_slow_files(file_times, changed_files, threshold_pct: 2.0)
+    total_time = file_times.values.sum
+    return [] if total_time.zero?
+
+    changed_groups = changed_files.map { |f| group_for(f) }.to_set
+
+    file_times.filter_map do |file, time|
+      pct = (time / total_time) * 100.0
+      next unless pct >= threshold_pct
+      next unless changed_groups.include?(group_for(file))
+
+      { file: file, time: time, pct: pct }
+    end.sort_by { |h| -h[:pct] }
+  end
+
+  # Returns individual slow test examples whose module/service group was touched.
+  # Each result is { file:, name:, time: }.
+  def self.find_slow_examples(xml_paths, changed_files, threshold_sec: 20.0)
+    changed_groups = changed_files.map { |f| group_for(f) }.to_set
+
+    slow = []
+    xml_paths.each do |xml_path|
+      doc = REXML::Document.new(File.read(xml_path))
+      doc.elements.each('//testcase') do |tc|
+        file = tc.attributes['file']
+        time = tc.attributes['time']&.to_f
+        name = tc.attributes['name']
+        next unless file && time && time >= threshold_sec
+
+        file = file.sub(%r{^\./}, '')
+        next unless changed_groups.include?(group_for(file))
+
+        slow << { file: file, name: name, time: time }
+      end
+    end
+
+    slow.sort_by { |h| -h[:time] }
   end
 end
 

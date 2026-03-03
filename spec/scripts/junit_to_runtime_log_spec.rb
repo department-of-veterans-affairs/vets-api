@@ -123,4 +123,139 @@ RSpec.describe JunitToRuntimeLog do
       expect(File.read(output_path)).to eq('')
     end
   end
+
+  describe '.group_for' do
+    {
+      'modules/check_in/app/controllers/foo.rb' => 'modules/check_in',
+      'modules/check_in/spec/requests/foo_spec.rb' => 'modules/check_in',
+      'modules/mobile/lib/thing.rb' => 'modules/mobile',
+      'app/models/user.rb' => 'models',
+      'spec/models/user_spec.rb' => 'models',
+      'app/controllers/v0/foo_controller.rb' => 'controllers',
+      'spec/requests/v0/foo_spec.rb' => 'controllers',
+      'app/services/sign_in/token.rb' => 'services',
+      'spec/services/sign_in/token_spec.rb' => 'services',
+      'app/sidekiq/my_job.rb' => 'sidekiq',
+      'spec/sidekiq/my_job_spec.rb' => 'sidekiq',
+      'lib/rx/client.rb' => 'lib/rx',
+      'spec/lib/rx/client_spec.rb' => 'lib/rx',
+      'lib/lighthouse/service.rb' => 'lib/lighthouse',
+      './spec/lib/lighthouse/service_spec.rb' => 'lib/lighthouse',
+      'config/settings.yml' => 'config',
+      'Gemfile' => 'Gemfile'
+    }.each do |path, expected_group|
+      it "maps #{path} to #{expected_group}" do
+        expect(described_class.group_for(path)).to eq(expected_group)
+      end
+    end
+  end
+
+  describe '.find_slow_files' do
+    it 'returns files exceeding the threshold whose group was touched' do
+      file_times = {
+        'spec/models/user_spec.rb' => 50.0,
+        'spec/models/post_spec.rb' => 0.5,
+        'spec/services/auth_spec.rb' => 45.0
+      }
+      changed_files = ['app/models/user.rb']
+
+      result = described_class.find_slow_files(file_times, changed_files, threshold_pct: 2.0)
+
+      expect(result.size).to eq(1)
+      expect(result.first[:file]).to eq('spec/models/user_spec.rb')
+      expect(result.first[:pct]).to be_within(0.5).of(52.4)
+    end
+
+    it 'excludes slow files in untouched groups' do
+      file_times = {
+        'spec/models/user_spec.rb' => 50.0,
+        'spec/services/auth_spec.rb' => 50.0
+      }
+      changed_files = ['app/models/user.rb']
+
+      result = described_class.find_slow_files(file_times, changed_files, threshold_pct: 2.0)
+
+      expect(result.map { |r| r[:file] }).to eq(['spec/models/user_spec.rb'])
+    end
+
+    it 'returns empty when no files exceed threshold' do
+      file_times = { 'spec/models/user_spec.rb' => 1.0, 'spec/models/post_spec.rb' => 1.0 }
+      changed_files = ['app/models/user.rb']
+
+      result = described_class.find_slow_files(file_times, changed_files, threshold_pct: 60.0)
+
+      expect(result).to be_empty
+    end
+
+    it 'returns empty when total time is zero' do
+      result = described_class.find_slow_files({}, ['app/models/user.rb'], threshold_pct: 2.0)
+
+      expect(result).to be_empty
+    end
+
+    it 'matches module source changes to module spec files' do
+      file_times = {
+        'modules/check_in/spec/requests/travel_claims_spec.rb' => 80.0,
+        'spec/models/user_spec.rb' => 20.0
+      }
+      changed_files = ['modules/check_in/app/controllers/travel_claims_controller.rb']
+
+      result = described_class.find_slow_files(file_times, changed_files, threshold_pct: 2.0)
+
+      expect(result.map { |r| r[:file] }).to eq(
+        ['modules/check_in/spec/requests/travel_claims_spec.rb']
+      )
+    end
+  end
+
+  describe '.find_slow_examples' do
+    it 'returns examples exceeding the threshold whose group was touched' do
+      xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase file="spec/models/user_spec.rb" name="is valid" time="25.0"/>
+          <testcase file="spec/models/user_spec.rb" name="is fast" time="0.5"/>
+          <testcase file="spec/services/auth_spec.rb" name="is slow" time="30.0"/>
+        </testsuite>
+      XML
+      xml_path = File.join(temp_dir, 'rspec.xml')
+      File.write(xml_path, xml)
+
+      result = described_class.find_slow_examples([xml_path], ['app/models/user.rb'], threshold_sec: 20.0)
+
+      expect(result.size).to eq(1)
+      expect(result.first).to eq(file: 'spec/models/user_spec.rb', name: 'is valid', time: 25.0)
+    end
+
+    it 'excludes slow examples in untouched groups' do
+      xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase file="spec/services/auth_spec.rb" name="is slow" time="30.0"/>
+        </testsuite>
+      XML
+      xml_path = File.join(temp_dir, 'rspec.xml')
+      File.write(xml_path, xml)
+
+      result = described_class.find_slow_examples([xml_path], ['app/models/user.rb'], threshold_sec: 20.0)
+
+      expect(result).to be_empty
+    end
+
+    it 'returns results sorted by time descending' do
+      xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase file="spec/models/a_spec.rb" name="medium" time="25.0"/>
+          <testcase file="spec/models/b_spec.rb" name="slowest" time="40.0"/>
+        </testsuite>
+      XML
+      xml_path = File.join(temp_dir, 'rspec.xml')
+      File.write(xml_path, xml)
+
+      result = described_class.find_slow_examples([xml_path], ['app/models/x.rb'], threshold_sec: 20.0)
+
+      expect(result.map { |r| r[:name] }).to eq(%w[slowest medium])
+    end
+  end
 end
