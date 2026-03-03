@@ -43,13 +43,14 @@ module SurvivorsBenefits::StructuredData::Section04
   # Build and merge the veteran separation fields
   def merge_veteran_separation_fields
     married_at_death = form['marriedToVeteranAtTimeOfDeath'] || false
-    form['howMarriageEnded'] = 'death' if married_at_death
+    marriages_end_cause = form['howMarriageEnded']
+    marriages_end_cause = 'death' if married_at_death
     fields.merge!(y_n_pair(married_at_death, 'MARRIED_WHILE_VET_DEATH_Y', 'MARRIED_WHILE_VET_DEATH_N'))
     fields.merge!(
       {
-        'CB_MARR_TO_VET_ENDED_DEATH' => form['howMarriageEnded'] == 'death',
-        'CB_MARR_TO_VET_ENDED_DIVORCE' => form['howMarriageEnded'] == 'divorce',
-        'CB_MARR_TO_VET_ENDED_OTHER' => form['howMarriageEnded'] == 'other'
+        'CB_MARR_TO_VET_ENDED_DEATH' => marriages_end_cause == 'death',
+        'CB_MARR_TO_VET_ENDED_DIVORCE' => marriages_end_cause == 'divorce',
+        'CB_MARR_TO_VET_ENDED_OTHER' => marriages_end_cause == 'other'
       }
     )
     if form['howMarriageEnded'] == 'other'
