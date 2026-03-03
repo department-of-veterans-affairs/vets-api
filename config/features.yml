@@ -160,6 +160,10 @@ features:
   cerner_non_eligible_sis_enabled:
     actor_type: user
     description: Enables Sign in Service for cerner authentication
+  disability_526_new_bdd_sha_enforcement_workflow_enabled:
+    actor_type: user
+    description: If enabled, Form 21-526EZ will show new UI to encourage veterans to upload a Separation Health Assessment (SHA).
+    enable_in_development: false
   disability_compensation_new_conditions_workflow:
     actor_type: user
     description: enables new Conditions/Rated Disabilities workflow in 526EZ
@@ -1163,6 +1167,12 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
+  form_218940_date_validation:
+    actor_type: user
+    description: Enable the data validation on the 21-8940
+  form218940_leaving_last_position:
+    actor_type: user
+    description: enable the leaving last positon text box
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
@@ -1337,11 +1347,19 @@ features:
     enable_in_development: true
   identity_idme_ial2_enforcement:
     actor_type: user
-    description: Enforces IAL2 for newly verified id.me users
+    description: Enables IAL2 facial recognition on verified page
+    enable_in_development: false
+  identity_idme_ial2_full_enforcement:
+    actor_type: user
+    description: Enforces IAL2 facial recognition for all newly verified id.me users
     enable_in_development: false
   identity_logingov_ial2_enforcement:
     actor_type: user
-    description: Enforces IAL2 facial recognition for newly verified login.gov users
+    description: Enables IAL2 facial recognition from verified page
+    enable_in_development: false
+  identity_logingov_ial2_full_enforcement:
+    actor_type: user
+    description: Enforces IAL2 facial recognition for all newly verified login.gov users
     enable_in_development: false
   kendra_enabled_for_resources_and_support_search:
     actor_type: user
@@ -1742,10 +1760,6 @@ features:
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
-  mhv_vaccine_lighthouse_name_logging:
-    actor_type: user
-    description: Enables logging for Lighthouse immunizations vaccine group name processing to debug vaccine name extraction issues
-    enable_in_development: true
   mhv_vaccine_mobile_return_empty_location_data:
     actor_type: user
     description: Returns empty response for mobile health locations endpoint when enabled
@@ -2674,6 +2688,13 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_enable_heic_conversion:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that enables automatic conversion of HEIC/HEIF image receipts to JPG format when expenses are submitted.
+      Enabled - HEIC/HEIF receipts are automatically converted to JPG before processing.
+      Disabled - HEIC/HEIF receipts are rejected with a 422 Unprocessable Entity error; other supported image types are processed normally.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2770,9 +2791,17 @@ features:
   va_notify_v2_form1010cg_submission:
     actor_type: user
     description: If enabled, Form1010cg::SubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
+  va_notify_v2_form1010ezr_submission:
+    actor_type: user
+    description: If enabled, HCA::EzrSubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
   va_notify_v2_in_progress_form_reminder:
     actor_type: user
     description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
+  va_notify_v2_career_counseling_job:
+    actor_type: user
+    description: >-
+      If enabled, SubmitCareerCounselingJob will use VANotify::V2::QueueEmailJob instead of
+      VANotify::EmailJob for confirmation emails
   va_notify_delivery_status_update_job:
     actor_type: user
     description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications

@@ -27,7 +27,7 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
     let(:url) { "#{Settings.res.base_url}/suite/webapi/update-ch31-milestone-status" }
     let(:headers) { { 'Appian-API-Key' => Settings.res.api_key.to_s } }
     let(:milestone_params) do
-      {
+      ActionController::Parameters.new(
         milestones: [
           {
             milestoneType: 'ORIENTATION_COMPLETION',
@@ -37,7 +37,7 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
             postpone: false
           }
         ]
-      }
+      )
     end
     let(:payload) { { icn:, milestones: milestone_params[:milestones] } }
     let(:request_params) { [:post, url, payload.to_json, headers] }
