@@ -79,7 +79,16 @@
     context that clearly meets this principle, even if not listed
     above. However, do NOT apply this exclusion to primary business
     logic — a bare rescue around the main operation of a controller
-    action, service call, or job is never defensive.</step>
+    action, service call, or job is never defensive.
+
+    **Log-and-reraise is NOT defensive.** A bare rescue that logs
+    the error and then re-raises (`rescue => e; log; raise`) in
+    primary business logic is still a Play 03 violation. The bare
+    rescue catches too broadly (typos, signals, etc.) even though
+    the error is not swallowed. The fix is to type the rescue to
+    the expected exception classes. Only exclude log-and-reraise
+    when it occurs in a cleanup/teardown path (e.g., `ensure`-like
+    cleanup that must not mask the original error).</step>
   </investigate_before_answering>
 
   <severity_assessment>

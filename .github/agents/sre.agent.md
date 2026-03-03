@@ -324,8 +324,9 @@ Read `pass2-draft.md` from the tmp directory. For **every** finding in the draft
 
 After verifying all findings:
 
-8. **Reconcile counts.** The header `**Findings**: {count}` must equal (RuboCop offenses from the deterministic table) + (individual `####` findings in P1/P2 sections). Count both and update the header to match.
-9. **Write the verified draft** to `tmp/sre-audit-{module}-{timestamp}/pass3-verified.md`.
+8. **Reconcile RuboCop counts against source data.** Read `pass0-rubocop.json` and count the total offenses from the JSON `summary.offense_count` field. This is the ground truth. Then count surviving offenses (listed in the report) + excluded offenses (listed in the Excluded section). These two numbers must sum to the JSON total. If they don't, you have miscounted or lost offenses — find and fix the discrepancy before proceeding. Do not estimate or round counts.
+9. **Reconcile finding totals.** The header `**Findings**: {count}` must equal (surviving RuboCop offenses) + (individual `####` findings in LLM-judged sections). Count both and update the header to match.
+10. **Write the verified draft** to `tmp/sre-audit-{module}-{timestamp}/pass3-verified.md`.
 
 ### Phase 5: Report Generation
 
