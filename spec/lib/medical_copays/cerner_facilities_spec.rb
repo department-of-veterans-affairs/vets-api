@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'medical_copays/cerner_facilities'
 
 RSpec.describe MedicalCopays::CernerFacilities do
   describe '.cerner_copay_user?' do
