@@ -6,21 +6,24 @@ module AccreditedRepresentativePortal
       include PowerOfAttorneyRequests
       include AccreditedRepresentativePortal::V0::WithdrawalGuard
 
-      before_action do
+      before_action only: :index do
         authorize PowerOfAttorneyRequest
       end
-      with_options only: :show do
-        before_action do
-          id = params[:id]
-          set_poa_request(id)
-          render_404_if_withdrawn!(@poa_request)
-        end
+
+      before_action only: :show do
+        id = params[:id]
+        set_poa_request(id)
+        authorize @poa_request
+        render_404_if_withdrawn!(@poa_request)
       end
 
       def index
-        ar_monitoring.trace('ar.power_of_attorney_requests.index',
-                            tags: { 'poa_request.poa_codes' => poa_codes(poa_requests) }) do |_span|
+        ar_monitoring.trace(
+          'ar.power_of_attorney_requests.index',
+          tags: { 'poa_request.poa_codes' => poa_codes(poa_requests) }
+        ) do |_span|
           serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+
           render json: {
             data: serializer.serializable_hash,
             meta: pagination_meta(poa_requests)
@@ -29,9 +32,11 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        ar_monitoring.trace('ar.power_of_attorney_requests.show',
-                            tags: { 'poa_request.poa_code' => poa_code },
-                            root_tags: { 'poa_request.poa_code' => poa_code }) do |_span|
+        ar_monitoring.trace(
+          'ar.power_of_attorney_requests.show',
+          tags: { 'poa_request.poa_code' => poa_code },
+          root_tags: { 'poa_request.poa_code' => poa_code }
+        ) do |_span|
           serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
           render json: serializer.serializable_hash, status: :ok
         end
@@ -54,12 +59,11 @@ module AccreditedRepresentativePortal
                           .preload(scope_includes)
                           .then do |it|
                             if sort_params.present?
-                              it.sorted_by(sort_params[:by],
-                                           sort_params[:order])
+                              it.sorted_by(sort_params[:by], sort_params[:order])
                             else
                               it
                             end
-        end
+                          end
                           .paginate(page:, per_page:)
       end
 
@@ -74,7 +78,7 @@ module AccreditedRepresentativePortal
         else
           raise ActionController::BadRequest, <<~MSG.squish
             Invalid status parameter.
-            Must be one of (#{Statuses::ALL.join(', ')})
+            Must be one of (#{params_schema::Statuses::ALL.join(', ')})
           MSG
         end
       end

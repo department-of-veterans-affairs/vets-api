@@ -17,6 +17,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   before do
     login_as(test_user)
     travel_to(time)
+
+    allow(Flipper).to receive(:enabled?)
+      .with(:accredited_representative_portal_individual_accept, test_user)
+      .and_return(false)
+
     test_user
     representative
     vso
@@ -48,8 +53,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
   let(:poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code:) }
   let(:other_poa_request) do
-    create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code,
-                                                               accredited_organization: other_vso)
+    create(:power_of_attorney_request,
+           :with_veteran_claimant,
+           poa_code: other_poa_code,
+           accredited_organization: other_vso)
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
@@ -572,6 +579,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
     describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
       context 'when user is authorized' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_individual_accept, anything)
+            .and_return(false)
+        end
+
         it 'returns the details of the POA request' do
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
@@ -580,7 +594,72 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         end
       end
 
-      context 'when user is unauthorized (trying to access another VSO\'s POA request)' do
+      context 'when individual accept feature flag is enabled (record authorization)' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_individual_accept, test_user)
+            .and_return(true)
+
+          # Ensure the policy can find the rep by registration number
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
+            .to receive(:registration_numbers)
+            .and_return([representative.representative_id])
+        end
+
+        it 'allows show when acceptance_mode is any_request' do
+          create(
+            :veteran_organization_representative,
+            organization: vso,
+            representative:,
+            acceptance_mode: 'any_request'
+          )
+
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'denies show when acceptance_mode is no_acceptance' do
+          create(
+            :veteran_organization_representative,
+            organization: vso,
+            representative:,
+            acceptance_mode: 'no_acceptance'
+          )
+
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
+          expect(response).to have_http_status(:forbidden)
+        end
+
+        it 'allows show when acceptance_mode is self_only and request is assigned to the rep' do
+          create(
+            :veteran_organization_representative,
+            organization: vso,
+            representative:,
+            acceptance_mode: 'self_only'
+          )
+
+          poa_request.update!(accredited_individual_registration_number: representative.representative_id)
+
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'denies show when acceptance_mode is self_only and request is assigned to someone else' do
+          create(
+            :veteran_organization_representative,
+            organization: vso,
+            representative:,
+            acceptance_mode: 'self_only'
+          )
+
+          poa_request.update!(accredited_individual_registration_number: '999999')
+
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context "when user is unauthorized (trying to access another VSO's POA request)" do
         it 'returns 404 Not Found' do
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{other_poa_request.id}")
 
@@ -600,10 +679,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           vso.update!(can_accept_digital_poa_requests: false)
         end
 
-        it 'returns 403 Forbidden' do
+        # CHANGE: because set_poa_request does a policy_scope(...).find(id), once the org stops participating,
+        # the record falls out of scope and find raises ActiveRecord::RecordNotFound -> rescued to 404.
+        it 'returns 404 Not Found' do
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:not_found)
+          expect(response.parsed_body).to eq({ 'errors' => ['Record not found'] })
         end
       end
 

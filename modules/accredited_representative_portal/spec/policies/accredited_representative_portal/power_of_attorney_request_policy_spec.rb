@@ -7,12 +7,19 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
     subject(:policy) { described_class.new(user, power_of_attorney_request) }
 
     let(:user) { create(:representative_user) }
-    let(:power_of_attorney_request) { create(:power_of_attorney_request, poa_code: 'POA123') }
+
+    let(:power_of_attorney_request) { create(:power_of_attorney_request, poa_code:) }
+    let(:poa_code) { '123' }
+
     let(:power_of_attorney_holders) { [] }
+    let(:registration_numbers) { [] }
 
     before do
       allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
         receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      )
+      allow_any_instance_of(PowerOfAttorneyHolderMemberships).to(
+        receive(:registration_numbers).and_return(registration_numbers)
       )
     end
 
@@ -27,8 +34,10 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: false
+              type: 'veteran_service_organization',
+              poa_code:,
+              name: 'Org Name',
+              can_accept_digital_poa_requests: false
             )
           ]
         end
@@ -42,8 +51,10 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: true
+              type: 'veteran_service_organization',
+              poa_code:,
+              name: 'Org Name',
+              can_accept_digital_poa_requests: true
             )
           ]
         end
@@ -55,40 +66,217 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
     end
 
     describe '#show?' do
-      context 'when user has no matching POA holder' do
-        it 'denies access' do
-          expect(policy.show?).to be false
+      context 'when feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_individual_accept, user)
+            .and_return(false)
+        end
+
+        context 'when user has no matching POA holder' do
+          it 'denies access' do
+            expect(policy.show?).to be false
+          end
+        end
+
+        context 'when user has a matching POA code but does not accept digital POAs' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: false
+              )
+            ]
+          end
+
+          it 'denies access' do
+            expect(policy.show?).to be false
+          end
+        end
+
+        context 'when user has a matching POA code and accepts digital POAs' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          it 'allows access' do
+            expect(policy.show?).to be true
+          end
         end
       end
 
-      context 'when user has a matching POA code but does not accept digital POAs' do
-        let(:power_of_attorney_holders) do
-          [
-            PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: false
-            )
-          ]
+      context 'when feature flag is enabled' do
+        let(:vso_org) { create(:veteran_organization, poa: poa_code) }
+        let(:vso_rep) { create(:veteran_representative) }
+
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_individual_accept, user)
+            .and_return(true)
+
+          allow(user).to receive(:registration_numbers).and_return([vso_rep.representative_id])
         end
 
-        it 'denies access' do
-          expect(policy.show?).to be false
+        context 'when user is not in a participating org for this request' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: false
+              )
+            ]
+          end
+
+          it 'denies access even if org rep row exists' do
+            create(
+              :veteran_organization_representative,
+              organization: vso_org,
+              representative: vso_rep,
+              acceptance_mode: 'any_request'
+            )
+
+            expect(policy.show?).to be false
+          end
+        end
+
+        context 'when acceptance_mode is no_acceptance' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          it 'denies access' do
+            create(
+              :veteran_organization_representative,
+              organization: vso_org,
+              representative: vso_rep,
+              acceptance_mode: 'no_acceptance'
+            )
+
+            expect(policy.show?).to be false
+          end
+        end
+
+        context 'when acceptance_mode is any_request' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          it 'allows access' do
+            create(
+              :veteran_organization_representative,
+              organization: vso_org,
+              representative: vso_rep,
+              acceptance_mode: 'any_request'
+            )
+
+            expect(policy.show?).to be true
+          end
+        end
+
+        context 'when acceptance_mode is self_only' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          before do
+            create(
+              :veteran_organization_representative,
+              organization: vso_org,
+              representative: vso_rep,
+              acceptance_mode: 'self_only'
+            )
+          end
+
+          context 'when request is for this representative' do
+            let(:power_of_attorney_request) do
+              create(:power_of_attorney_request, poa_code:).tap do |req|
+                req.update!(accredited_individual_registration_number: vso_rep.representative_id)
+              end
+            end
+
+            it 'allows access' do
+              expect(policy.show?).to be true
+            end
+          end
+
+          context 'when request is NOT for this representative' do
+            let(:power_of_attorney_request) do
+              create(:power_of_attorney_request, poa_code:).tap do |req|
+                req.update!(accredited_individual_registration_number: '999999')
+              end
+            end
+
+            it 'denies access' do
+              expect(policy.show?).to be false
+            end
+          end
+        end
+
+        context 'when acceptance_mode is unexpected' do
+          let(:power_of_attorney_holders) do
+            [
+              PowerOfAttorneyHolder.new(
+                type: 'veteran_service_organization',
+                poa_code:,
+                name: 'Org Name',
+                can_accept_digital_poa_requests: true
+              )
+            ]
+          end
+
+          it 'denies access' do
+            create(
+              :veteran_organization_representative,
+              organization: vso_org,
+              representative: vso_rep,
+              acceptance_mode: 'any_request'
+            )
+
+            allow_any_instance_of(Veteran::Service::OrganizationRepresentative)
+              .to receive(:acceptance_mode)
+              .and_return('unexpected_value')
+
+            expect(policy.show?).to be false
+          end
         end
       end
+    end
 
-      context 'when user has a matching POA code and accepts digital POAs' do
-        let(:power_of_attorney_holders) do
-          [
-            PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: true
-            )
-          ]
-        end
-
-        it 'allows access' do
-          expect(policy.show?).to be true
-        end
+    describe '#create_decision?' do
+      it 'matches show? behavior' do
+        expect(policy.create_decision?).to eq(policy.show?)
       end
     end
 
@@ -97,15 +285,8 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
 
       let(:scope) { PowerOfAttorneyRequest.all }
 
-      let!(:matching_request) do
-        create(:power_of_attorney_request, poa_code: 'POA123')
-      end
-
-      let!(:non_matching_request) do
-        create(:power_of_attorney_request, poa_code: 'POA999')
-      end
-
-      let(:power_of_attorney_holders) { [] }
+      let!(:matching_request) { create(:power_of_attorney_request, poa_code:) }
+      let!(:non_matching_request) { create(:power_of_attorney_request, poa_code: '999') }
 
       context 'when user has no POA holders' do
         it 'returns an empty scope' do
@@ -117,8 +298,10 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: false
+              type: 'veteran_service_organization',
+              poa_code:,
+              name: 'Org Name',
+              can_accept_digital_poa_requests: false
             )
           ]
         end
@@ -132,8 +315,10 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         let(:power_of_attorney_holders) do
           [
             PowerOfAttorneyHolder.new(
-              type: 'veteran_service_organization', poa_code: 'POA123',
-              name: 'Org Name', can_accept_digital_poa_requests: true
+              type: 'veteran_service_organization',
+              poa_code:,
+              name: 'Org Name',
+              can_accept_digital_poa_requests: true
             )
           ]
         end
