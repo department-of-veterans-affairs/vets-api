@@ -167,6 +167,10 @@ RSpec.describe UnifiedHealthData::Adapters::LabOrTestAdapter, type: :service do
         allow(Rails.logger).to receive(:warn)
 
         expect(adapter.send(:get_location, record)).to be_nil
+        expect(Rails.logger).to have_received(:warn).with(
+          a_string_including('OrgPerformer-989', '989', 'service unavailable'),
+          hash_including(service: 'unified_health_data')
+        )
       end
 
       it 'does not attempt resolution for normal facility names' do

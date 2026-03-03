@@ -195,7 +195,7 @@ module UnifiedHealthData
 
         name = match&.dig('name')
 
-        if name.present? && name.match?(VISTA_HOSTNAME_PATTERN)
+        if name.present? && match['resourceType'] == 'Organization' && name.match?(VISTA_HOSTNAME_PATTERN)
           return resolve_hostname_location(match)
         end
 
@@ -212,8 +212,15 @@ module UnifiedHealthData
         facility_name_resolver.lookup(station_number)
       rescue => e
         Rails.logger.warn(
-          "Failed to resolve facility name for hostname location: #{e.message}",
-          { service: 'unified_health_data' }
+          "Failed to resolve facility name for hostname location " \
+          "(organization_id=#{organization['id']}, station_number=#{station_number}, " \
+          "error_class=#{e.class}): #{e.message}",
+          {
+            service: 'unified_health_data',
+            organization_id: organization['id'],
+            station_number:,
+            error_class: e.class.to_s
+          }
         )
         nil
       end
