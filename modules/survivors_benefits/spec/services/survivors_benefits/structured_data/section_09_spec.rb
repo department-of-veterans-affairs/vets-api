@@ -49,7 +49,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section09 do
   end
 
   describe '#merge_income_fields' do
-    let(:income_types) { 
+    let(:income_types) do
       {
         'SOCIAL_SECURITY' => 'SS',
         'PENSION_RETIREMENT' => 'PENSION',
@@ -57,7 +57,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section09 do
         'INTEREST_DIVIDENDS' => 'INTEREST',
         'OTHER' => 'OTHER'
       }
-    }
+    end
 
     it 'merges expected fields for all income types' do
       income_types.each_key.with_index do |key, index|
