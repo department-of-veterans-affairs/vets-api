@@ -356,7 +356,21 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               allow(Flipper).to receive(:enabled?).with(duplicate_key_fix_toggle, instance_of(User)).and_return(false)
             end
 
-            it 'does not remove empty additional_information' do
+            it 'does not remove empty camelCase additionalInformation' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additionalInformation']).to eq({})
+            end
+
+            it 'does not remove empty snake_case additional_information' do
               parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
               parsed_form_data['additional_information'] = {}
               in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
