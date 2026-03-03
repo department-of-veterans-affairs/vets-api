@@ -40,18 +40,19 @@ module BPDS
     def submit_claim_to_bpds(claim)
       return false unless Flipper.enabled?(:bpds_service_enabled)
 
-      bpds_monitor.track_service_begun(claim.id)
+      claim_id = claim.id
+      bpds_monitor.track_service_begun(claim_id)
 
       payload = retrieve_user_identifier_for_bpds
 
       if payload.nil? || (payload[:participant_id].blank? && payload[:file_number].blank?)
-        bpds_monitor.track_skip_bpds_job(claim.id)
+        bpds_monitor.track_skip_bpds_job(claim_id)
         return false
       end
 
       encrypted_payload = KmsEncrypted::Box.new.encrypt(payload.to_json)
-      bpds_monitor.track_submit_begun(claim.id)
-      BPDS::Sidekiq::SubmitToBPDSJob.perform_async(claim.id, encrypted_payload)
+      bpds_monitor.track_submit_begun(claim_id)
+      BPDS::Sidekiq::SubmitToBPDSJob.perform_async(claim_id, encrypted_payload)
 
       true
     end
