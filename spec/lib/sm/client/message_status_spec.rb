@@ -106,6 +106,15 @@ describe SM::Client, '#status' do
       allow(client).to receive(:token_headers).and_return({})
     end
 
+    it 'includes mhvCorrelationId header from session user_id' do
+      VCR.use_cassette('sm_client/messages/gets/oh_sync_status') do
+        expect(client).to receive(:perform)
+          .with(:get, 'exchange/ohsyncstatus', nil, hash_including('mhvCorrelationId' => '10616687'))
+          .and_call_original
+        client.get_oh_sync_status
+      end
+    end
+
     it 'returns the sync status when finished' do
       VCR.use_cassette('sm_client/messages/gets/oh_sync_status') do
         result = client.get_oh_sync_status

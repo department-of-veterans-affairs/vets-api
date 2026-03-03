@@ -31,7 +31,7 @@ module SM
       #
       def get_oh_sync_status
         path = 'exchange/ohsyncstatus'
-        perform(:get, path, nil, token_headers).body
+        perform(:get, path, nil, token_headers.merge('mhvCorrelationId' => session.user_id.to_s)).body
       end
 
       ##
