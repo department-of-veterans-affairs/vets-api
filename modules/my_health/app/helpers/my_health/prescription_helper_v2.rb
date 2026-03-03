@@ -102,7 +102,7 @@ module MyHealth
         status_comparison = (a.disp_status || '') <=> (b.disp_status || '')
         return status_comparison if status_comparison != 0
 
-        name_comparison = (a.prescription_name || '') <=> (b.prescription_name || '')
+        name_comparison = (a.prescription_name || '').downcase <=> (b.prescription_name || '').downcase
         return name_comparison if name_comparison != 0
 
         compare_by_fill_date(a, b)
@@ -176,9 +176,9 @@ module MyHealth
 
       def get_medication_name(med)
         if med.disp_status == 'Active: Non-VA' && med.prescription_name.nil?
-          med.orderable_item || ''
+          (med.orderable_item || '').downcase
         else
-          med.prescription_name || ''
+          (med.prescription_name || '').downcase
         end
       end
 
