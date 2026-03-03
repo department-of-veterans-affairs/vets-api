@@ -33,6 +33,12 @@ module IncreaseCompensation
       }
     end
 
+    def prefill_enabled?
+      Flipper.enabled?(:form_218940_prefill_enabled) ||
+        Flipper.enabled?('form_218940_prefill_enabled') ||
+        false
+    end
+
     ##
     # Prefills the form data with identity and contact information
     #
