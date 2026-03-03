@@ -50,6 +50,12 @@ module Mobile
         # For Lighthouse claims, routes through Mobile::V0::LighthouseClaims::Proxy to apply
         # mobile-specific transforms. Other providers use their provider implementation directly.
 
+        # TODO: OBSERVABILITY GAP - Missing error instrumentation
+        # This override bypasses the base class error handling, losing:
+        # - StatsD metrics for provider errors (get_claim.provider_error)
+        # - Structured error logging with backtrace
+        # - RecordNotFound logging for missing claims
+        # Should wrap routing logic with rescue blocks + instrumentation for ops visibility
         def get_claim_from_providers(claim_id, provider_type = nil)
           # If provider_type is specified, route based on type
           return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?

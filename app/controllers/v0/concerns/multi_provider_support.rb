@@ -66,6 +66,13 @@ module V0
       #
       # Rollout strategy: Frontend will deploy first to send type parameter, then we enable
       # the second provider. This ensures type is always present before it becomes required.
+      #
+      # TODO: OBSERVABILITY GAP - Missing error instrumentation
+      # This override bypasses the base class error handling, losing:
+      # - StatsD metrics for provider errors (get_claim.provider_error)
+      # - Structured error logging with backtrace
+      # - RecordNotFound logging for missing claims
+      # Should wrap routing logic with rescue blocks + instrumentation for ops visibility
       def get_claim_from_providers(claim_id, provider_type = nil)
         # If provider_type is specified, route based on type
         return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
