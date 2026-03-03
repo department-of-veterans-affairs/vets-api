@@ -82,6 +82,16 @@ module V0
       if Flipper.enabled?(:disability_compensation_fix_poisoned_ipf, @current_user)
         parsed_form_data = fix_new_conditions_workflow_flag(parsed_form_data, metadata)
       end
+
+      # purge duplicate additional information properties in IPFs this error only happens for form created
+      # between 2/3/2026-2/9/2026 due to the introduction of duplicate addtional information key.
+      # this function can be remove after a year or when we know all the ipf created during that time has successfully submitted.
+      if Flipper.enabled?(:disability_compensation_fix_duplicate_key_ipf, @current_user)
+        %w[additionalInformation additional_information].each do |key|
+          parsed_form_data.delete(key) if parsed_form_data[key] == {}
+        end
+      end
+      
       {
         formData: parsed_form_data,
         metadata:

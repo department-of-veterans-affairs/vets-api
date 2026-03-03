@@ -173,6 +173,11 @@ features:
       Kill switch for the fix that resets erroneously injected
       disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
     enable_in_development: true
+  disability_compensation_fix_duplicate_key_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that remove duplicate addiitionalInformation keys on InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
