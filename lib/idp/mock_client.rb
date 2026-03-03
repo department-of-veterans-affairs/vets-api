@@ -13,7 +13,7 @@ module Idp
       FileUtils.mkdir_p(@storage_dir)
     end
 
-    def intake(file_name:, pdf_base64:)
+    def intake(file_name:, pdf_base64:, **)
       id = SecureRandom.uuid
       created_at = Time.zone.now.iso8601
       decoded = Base64.decode64(pdf_base64)
@@ -36,7 +36,7 @@ module Idp
       payload.slice('id', 'bucket', 'pdf_key')
     end
 
-    def status(id)
+    def status(id, **)
       data = load_document(id)
       {
         'id' => id,
@@ -47,13 +47,13 @@ module Idp
     end
 
     # rubocop:disable Lint/UnusedMethodArgument
-    def output(id, type:)
+    def output(id, type:, **)
       data = load_document(id)
       { 'forms' => data['forms'] }
     end
     # rubocop:enable Lint/UnusedMethodArgument
 
-    def download(id, kvpid:)
+    def download(id, kvpid:, **)
       data = load_document(id)
       artifact = data['artifacts'][kvpid]
       raise Idp::Error, "Artifact #{kvpid} not found" if artifact.blank?

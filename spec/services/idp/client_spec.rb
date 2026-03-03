@@ -52,64 +52,82 @@ RSpec.describe Idp::Client do
   end
 
   describe 'IDP endpoints' do
-    subject(:client) { described_class.new(base_url:, timeout:) }
+    subject(:client) { described_class.new(base_url:, timeout:, hmac_key_id:, hmac_secret:) }
 
     let(:base_url) { 'https://idp.example.com' }
     let(:timeout) { 15 }
+    let(:hmac_key_id) { 'idp-hmac-v1' }
+    let(:hmac_secret) { 'super-secret' }
+    let(:user_id) { 'user-account-uuid-123' }
+
+    let(:signed_headers) do
+      hash_including(
+        'X-Idp-User-Id' => user_id,
+        'X-Idp-Key-Id' => hmac_key_id,
+        'X-Idp-Timestamp' => /\A\d+\z/,
+        'X-Idp-Signature' => /\A[0-9a-f]{64}\z/
+      )
+    end
 
     it 'sends intake request and returns parsed payload' do
       stub_request(:post, "#{base_url}/intake")
         .with(
           body: { pdf_b64: 'ZmlsZQ==' }.to_json,
-          headers: {
+          headers: hash_including(
             'Content-Type' => 'application/json',
-            'X-Filename' => 'test.pdf'
-          }
+            'X-Filename' => 'test.pdf',
+            'X-Idp-User-Id' => user_id,
+            'X-Idp-Key-Id' => hmac_key_id,
+            'X-Idp-Timestamp' => /\A\d+\z/,
+            'X-Idp-Signature' => /\A[0-9a-f]{64}\z/
+          )
         )
         .to_return(status: 200, body: { id: 'abc123' }.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      response = client.intake(file_name: 'test.pdf', pdf_base64: 'ZmlsZQ==')
+      response = client.intake(file_name: 'test.pdf', pdf_base64: 'ZmlsZQ==', user_id:)
 
       expect(response).to eq('id' => 'abc123')
     end
 
     it 'sends status request and returns parsed payload' do
       stub_request(:get, "#{base_url}/status")
-        .with(query: { id: 'abc123' })
-        .to_return(status: 200,
-                   body: { scan_status: 'completed' }.to_json,
-                   headers: { 'Content-Type' => 'application/json' })
+        .with(query: { id: 'abc123' }, headers: signed_headers)
+        .to_return(status: 200, body: { scan_status: 'completed' }.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      response = client.status('abc123')
+      response = client.status('abc123', user_id:)
 
       expect(response).to eq('scan_status' => 'completed')
     end
 
     it 'sends output request and returns parsed payload' do
       stub_request(:get, "#{base_url}/output")
-        .with(query: { id: 'abc123', type: 'artifact' })
+        .with(query: { id: 'abc123', type: 'artifact' }, headers: signed_headers)
         .to_return(status: 200, body: { forms: [] }.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      response = client.output('abc123', type: 'artifact')
+      response = client.output('abc123', type: 'artifact', user_id:)
 
       expect(response).to eq('forms' => [])
     end
 
     it 'sends download request and returns parsed payload' do
       stub_request(:get, "#{base_url}/download")
-        .with(query: { id: 'abc123', kvpid: 'kvp1' })
+        .with(query: { id: 'abc123', kvpid: 'kvp1' }, headers: signed_headers)
         .to_return(status: 200, body: { data: { foo: 'bar' } }.to_json,
                    headers: { 'Content-Type' => 'application/json' })
 
-      response = client.download('abc123', kvpid: 'kvp1')
+      response = client.download('abc123', kvpid: 'kvp1', user_id:)
 
       expect(response).to eq('data' => { 'foo' => 'bar' })
+    end
+
+    it 'raises an error when user identity is missing' do
+      expect { client.status('abc123', user_id: nil) }.to raise_error(Idp::Error, /user identity is required/)
     end
 
     it 'raises Idp::Error for timeouts' do
       stub_request(:get, "#{base_url}/status").with(query: { id: 'abc123' }).to_timeout
 
-      expect { client.status('abc123') }.to raise_error(Idp::Error)
+      expect { client.status('abc123', user_id:) }.to raise_error(Idp::Error)
     end
 
     it 'raises Idp::Error for 5xx responses' do
@@ -118,7 +136,7 @@ RSpec.describe Idp::Client do
         .to_return(status: 500, body: { error: 'upstream error' }.to_json,
                    headers: { 'Content-Type' => 'application/json' })
 
-      expect { client.download('abc123', kvpid: 'kvp1') }.to raise_error(Idp::Error, /500/)
+      expect { client.download('abc123', kvpid: 'kvp1', user_id:) }.to raise_error(Idp::Error, /500/)
     end
   end
 end

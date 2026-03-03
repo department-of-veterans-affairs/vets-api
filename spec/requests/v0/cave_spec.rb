@@ -7,6 +7,7 @@ RSpec.describe 'CAVE API', type: :request do
 
   let(:client) { instance_double(Idp::Client) }
   let(:user) { create(:user, :loa3) }
+  let(:idp_user_id) { user.user_account_uuid || user.uuid }
 
   before do
     Flipper.enable(:cave_idp)
@@ -39,7 +40,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'returns the upstream payload' do
       sign_in_as(user)
-      allow(client).to receive(:intake).with(file_name: 'test.pdf', pdf_base64: 'ZmlsZQ==')
+      allow(client).to receive(:intake).with(file_name: 'test.pdf', pdf_base64: 'ZmlsZQ==', user_id: idp_user_id)
                                        .and_return('id' => 'abc123')
 
       post('/v0/cave', params:)
@@ -77,7 +78,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'proxies the status call' do
       sign_in_as(user)
-      allow(client).to receive(:status).with('abc123').and_return('scan_status' => 'completed')
+      allow(client).to receive(:status).with('abc123', user_id: idp_user_id).and_return('scan_status' => 'completed')
 
       get '/v0/cave/abc123/status'
 
@@ -87,7 +88,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'returns bad gateway when upstream fails' do
       sign_in_as(user)
-      allow(client).to receive(:status).with('abc123').and_raise(Idp::Error, 'boom')
+      allow(client).to receive(:status).with('abc123', user_id: idp_user_id).and_raise(Idp::Error, 'boom')
 
       get '/v0/cave/abc123/status'
 
@@ -106,7 +107,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'defaults the type to artifact' do
       sign_in_as(user)
-      allow(client).to receive(:output).with('abc123', type: 'artifact').and_return('forms' => [])
+      allow(client).to receive(:output).with('abc123', type: 'artifact', user_id: idp_user_id).and_return('forms' => [])
 
       get '/v0/cave/abc123/output'
 
@@ -115,7 +116,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'uses provided type' do
       sign_in_as(user)
-      allow(client).to receive(:output).with('abc123', type: 'form').and_return('forms' => [])
+      allow(client).to receive(:output).with('abc123', type: 'form', user_id: idp_user_id).and_return('forms' => [])
 
       get '/v0/cave/abc123/output', params: { type: 'form' }
 
@@ -124,7 +125,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'returns bad gateway when upstream fails' do
       sign_in_as(user)
-      allow(client).to receive(:output).with('abc123', type: 'artifact').and_raise(Idp::Error, 'boom')
+      allow(client).to receive(:output).with('abc123', type: 'artifact', user_id: idp_user_id).and_raise(Idp::Error, 'boom')
 
       get '/v0/cave/abc123/output'
 
@@ -151,7 +152,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'proxies the download call' do
       sign_in_as(user)
-      allow(client).to receive(:download).with('abc123', kvpid: 'kvp1').and_return('data' => {})
+      allow(client).to receive(:download).with('abc123', kvpid: 'kvp1', user_id: idp_user_id).and_return('data' => {})
 
       get '/v0/cave/abc123/download', params: { kvpid: 'kvp1' }
 
@@ -160,7 +161,7 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'returns bad gateway when upstream fails' do
       sign_in_as(user)
-      allow(client).to receive(:download).with('abc123', kvpid: 'kvp1').and_raise(Idp::Error, 'boom')
+      allow(client).to receive(:download).with('abc123', kvpid: 'kvp1', user_id: idp_user_id).and_raise(Idp::Error, 'boom')
 
       get '/v0/cave/abc123/download', params: { kvpid: 'kvp1' }
 

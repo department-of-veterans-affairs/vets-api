@@ -55,6 +55,14 @@ spec:
             - name: "IDP_USE_LIVE"
               value: "{{ .Values.idp.useLive }}"
             {{- end }}
+            {{- if .Values.idp.hmacKeyId }}
+            - name: "IDP_HMAC_KEY_ID"
+              value: "{{ .Values.idp.hmacKeyId }}"
+            {{- end }}
+            {{- if .Values.idp.hmacSecret }}
+            - name: "IDP_HMAC_SECRET"
+              value: "{{ .Values.idp.hmacSecret }}"
+            {{- end }}
           readinessProbe:
             tcpSocket:
               port: http

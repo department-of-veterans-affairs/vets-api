@@ -127,6 +127,9 @@ cave:
     base_url: ~
     timeout: ~
     mock: true
+    hmac:
+      key_id: ~
+      secret: ~
 central_mail:
   upload:
     enabled: true

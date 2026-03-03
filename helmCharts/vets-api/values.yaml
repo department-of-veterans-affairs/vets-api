@@ -10,3 +10,5 @@ idp:
   apiBaseUrl: ""
   apiTimeout: ""
   useLive: ""
+  hmacKeyId: ""
+  hmacSecret: ""

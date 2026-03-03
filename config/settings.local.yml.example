@@ -17,6 +17,9 @@
     # base_url: https://idp-api.example.com
     # timeout: 15
     # mock: true
+    # hmac:
+      # key_id: idp-hmac-v1
+      # secret: your-shared-secret
 
 # accredited_representative_portal:
   # lighthouse:
