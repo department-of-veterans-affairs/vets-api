@@ -6,6 +6,11 @@ module UnifiedHealthData
   module Adapters
     # Resolves facility names from station numbers using Lighthouse API with caching
     class FacilityNameResolver
+      # Valid VA station numbers start with exactly 3 digits followed by a non-digit
+      # character or end of string (e.g., '648', '648A4', '528GQ01', '648-RX-MAIN').
+      # Non-matching identifiers (e.g., DoD 4+ digit codes, zz/x prefixes) are excluded.
+      VA_STATION_PATTERN = /^\d{3}(?!\d)/
+
       # Extracts facility name from a FHIR MedicationDispense resource
       #
       # @param dispense [Hash] FHIR MedicationDispense resource
@@ -17,28 +22,16 @@ module UnifiedHealthData
         location_display = dispense.dig('location', 'display')
         return nil unless location_display
 
-        # First try the legacy 3-digit station number
-        three_digit_station = location_display.match(/^(\d{3})/)&.[](1)
-        facility_name = lookup(three_digit_station)
-        return facility_name if facility_name
+        facility_name = if location_display.match?(VA_STATION_PATTERN)
+                          three_digit_station = location_display[0, 3]
+                          # Try extended identifier first — more specific (e.g., 648A4 rather than just 648)
+                          resolve_extended_station(location_display,
+                                                   three_digit_station) || lookup(three_digit_station)
+                        end
 
-        # If that fails, try the full facility identifier before the first hyphen (e.g., 648A4)
-        facility_identifier = location_display.split('-').first
-        # Valid format: 3 digits + up to 2 alpha (e.g., 648A, 648A4)
-        valid_station_regex = /^\d{3}[A-Za-z0-9]{0,2}$/
-        if facility_identifier.present? && facility_identifier != three_digit_station &&
-           facility_identifier.match?(valid_station_regex)
-          facility_identifier_lookup = lookup(facility_identifier)
-          if facility_identifier_lookup.nil?
-            Rails.logger.info("No facility name found for facility identifier: #{facility_identifier}
-            or 3 digit station: #{three_digit_station} derived from #{location_display}. Verify location display")
-          end
-          return facility_identifier_lookup
-        end
+        Rails.logger.info("Unresolved facility for location display: #{location_display}") if facility_name.nil?
 
-        Rails.logger.error("Unable to extract valid station number from: #{location_display}")
-
-        nil
+        facility_name
       end
 
       # Looks up facility name by station identifier with caching
@@ -62,6 +55,19 @@ module UnifiedHealthData
       end
 
       private
+
+      # Attempts lookup using the extended facility identifier (e.g., 648A4 from '648A4-RX-MAIN')
+      def resolve_extended_station(location_display, three_digit_station)
+        facility_identifier = location_display.split('-').first
+        valid_station_regex = /^\d{3}[A-Za-z0-9]+$/
+
+        if facility_identifier.present? && facility_identifier != three_digit_station &&
+           facility_identifier.match?(valid_station_regex)
+          return lookup(facility_identifier)
+        end
+
+        nil
+      end
 
       # Fetches facility name from Lighthouse API
       #

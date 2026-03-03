@@ -57,8 +57,13 @@ module IvcChampva
       form_data = form_data.merge({
                                     email: Settings.vanotify.services.ivc_champva.pega_inbox_address
                                   })
+
+      if (callback = Flipper.enabled?(:champva_vanotify_custom_pega_alert_callback, @current_user))
+        form_data = form_data.merge(callback_hash(form))
+      end
+
       if IvcChampva::Email.new(form_data).send_email
-        monitor.track_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
+        monitor.track_send_zsf_notification_to_pega(form_data[:form_uuid], template_id) unless callback
       else
         monitor.track_failed_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
       end
@@ -72,6 +77,21 @@ module IvcChampva
         date_submitted: form.created_at.strftime('%B %d, %Y'),
         template_id:,
         form_uuid: form.form_uuid }
+    end
+
+    # return the hash fields used for vanotify callback
+    def callback_hash(form)
+      {
+        callback_klass: 'IvcChampva::PegaEmailNotificationCallback',
+        callback_metadata: {
+          statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_zsf_notification_to_pega' },
+          additional_context: {
+            form_id: form.form_number,
+            form_uuid: form.form_uuid,
+            notification_type: 'pega_alert'
+          }
+        }
+      }
     end
 
     def monitor

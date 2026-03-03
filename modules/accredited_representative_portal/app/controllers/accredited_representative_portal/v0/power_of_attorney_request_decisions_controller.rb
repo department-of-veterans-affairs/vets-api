@@ -6,6 +6,9 @@ module AccreditedRepresentativePortal
       include PowerOfAttorneyRequests
       include AccreditedRepresentativePortal::V0::WithdrawalGuard
 
+      ACCEPT_METRIC = 'ar.poa.request.decision.accept'
+      DECLINE_METRIC = 'ar.poa.request.decision.decline'
+
       before_action do
         authorize PowerOfAttorneyRequestDecision
       end
@@ -51,6 +54,9 @@ module AccreditedRepresentativePortal
       private
 
       def process_acceptance
+        monitoring = ar_monitoring
+        monitoring.track_count(ACCEPT_METRIC, tags: track_count_tags)
+
         PowerOfAttorneyRequestService::Accept.new(
           @poa_request,
           current_user.user_account_uuid,
@@ -63,6 +69,9 @@ module AccreditedRepresentativePortal
       end
 
       def process_declination
+        monitoring = ar_monitoring
+        monitoring.track_count(DECLINE_METRIC, tags: track_count_tags)
+
         declination_key = decision_params[:key]
 
         if declination_key.blank?
@@ -87,6 +96,12 @@ module AccreditedRepresentativePortal
         return unless Flipper.enabled?(:send_poa_to_corpdb)
 
         AccreditedRepresentativePortal::SendPoaRequestToCorpDbJob.perform_async(@poa_request.id)
+      end
+
+      def track_count_tags
+        return [] if poa_code.blank?
+
+        ["org:#{poa_code}"]
       end
 
       def track_decision_durations(decision)

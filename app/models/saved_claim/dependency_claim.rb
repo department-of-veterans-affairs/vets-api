@@ -5,7 +5,13 @@ require 'pdf_utilities/datestamp_pdf'
 require 'dependents/monitor'
 require 'dependents/notification_email'
 
+# temporary for FDF
+require 'dependents_benefits/claim_behavior/vbms_information'
+
 class SavedClaim::DependencyClaim < CentralMailClaim
+  include DependentsBenefits::ClaimBehavior::FormTypeChecking
+  include DependentsBenefits::ClaimBehavior::VBMSInformation
+
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
     student_information
@@ -273,6 +279,20 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     end
 
     !!(household_income_present || student_income_present)
+  end
+
+  # Check if the submission includes any dependents without SSNs
+  #
+  # @return [Boolean] true if spouse or any child/student is marked as having no SSN, false otherwise
+  def no_ssn_claim?
+    return false unless Flipper.enabled?(:va_dependents_no_ssn)
+
+    no_spouse_ssn = parsed_form.dig('dependents_application', 'spouse_information', 'no_ssn')
+    no_child_ssn = parsed_form.dig('dependents_application', 'children_to_add')&.any? { |child| child['no_ssn'] }
+    no_student_ssn = parsed_form.dig('dependents_application', 'student_information')&.any? do |student|
+      student['no_ssn']
+    end
+    !!(no_spouse_ssn || no_child_ssn || no_student_ssn)
   end
 
   def monitor

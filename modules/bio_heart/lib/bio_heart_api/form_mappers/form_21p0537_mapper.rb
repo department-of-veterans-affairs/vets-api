@@ -49,33 +49,33 @@ module BioHeartApi
       # Determine if remarried YES checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if remarried, false otherwise
+      # @return [Int] 1 if remarried, 0 otherwise
       def remarried_yes?(form)
-        form['has_remarried'] == true
+        form['has_remarried'] == true ? 1 : 0
       end
 
       # Determine if remarried NO checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if not remarried, false otherwise
+      # @return [Int] 1 if not remarried, 0 otherwise
       def remarried_no?(form)
-        form['has_remarried'] == false
+        form['has_remarried'] == false ? 1 : 0
       end
 
       # Determine if spouse veteran YES checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if spouse is veteran, false otherwise
+      # @return [Int] 1 if spouse is veteran, 0 otherwise
       def spouse_veteran_yes?(form)
-        form.dig('remarriage', 'spouse_is_veteran') == true
+        form.dig('remarriage', 'spouse_is_veteran') == true ? 1 : 0
       end
 
       # Determine if spouse veteran NO checkbox should be checked
       #
       # @param form [Hash] The form data
-      # @return [Boolean] true if spouse is not veteran, false otherwise
+      # @return [Int] 1 if spouse is not veteran, 0 otherwise
       def spouse_veteran_no?(form)
-        form.dig('remarriage', 'spouse_is_veteran') == false
+        form.dig('remarriage', 'spouse_is_veteran') == false ? 1 : 0
       end
 
       # Build spouse full name from name hash

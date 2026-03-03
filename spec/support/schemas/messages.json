@@ -1,17 +1,31 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data", "meta"],
+  "required": [
+    "data",
+    "meta"
+  ],
   "properties": {
     "data": {
       "type": "array",
       "minItems": 0,
       "uniqueItems": true,
       "items": {
-        "required": ["id", "type", "attributes", "links"],
+        "required": [
+          "id",
+          "type",
+          "attributes",
+          "links"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "type": { "enum": ["messages"] },
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "messages"
+            ]
+          },
           "attributes": {
             "type": "object",
             "required": [
@@ -28,26 +42,74 @@
               "read_receipt"
             ],
             "properties": {
-              "message_id": { "type": "integer" },
-              "category": { "type": "string" },
-              "subject": { "type": "string" },
-              "body": { "type": ["null", "string"] },
-              "attachment": { "type": "boolean" },
-              "sent_date": { "type": "date-time" },
-              "sender_id": { "type": "integer" },
-              "sender_name": { "type": "string" },
-              "recipient_id": { "type": "integer" },
-              "recipient_name": { "type": "string" },
-              "read_receipt": { "type": ["null", "string"] },
-              "triage_group_name": { "type": ["null", "string"] },
-              "proxy_sender_name": { "type": ["null", "string"] }
+              "message_id": {
+                "type": "integer"
+              },
+              "category": {
+                "type": "string"
+              },
+              "subject": {
+                "type": "string"
+              },
+              "body": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "attachment": {
+                "type": "boolean"
+              },
+              "sent_date": {
+                "type": "date-time"
+              },
+              "sender_id": {
+                "type": "integer"
+              },
+              "sender_name": {
+                "type": "string"
+              },
+              "recipient_id": {
+                "type": "integer"
+              },
+              "recipient_name": {
+                "type": "string"
+              },
+              "read_receipt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "triage_group_name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "triage_group": {
+                "type": [
+                  "null",
+                  "object"
+                ]
+              },
+              "proxy_sender_name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
             }
           },
           "links": {
             "type": "object",
-            "required": ["self"],
+            "required": [
+              "self"
+            ],
             "properties": {
-              "self": { "type": "string" }
+              "self": {
+                "type": "string"
+              }
             }
           }
         }
@@ -55,20 +117,44 @@
     },
     "links": {
       "type": "object",
-      "required": ["self", "first", "prev", "next", "last"],
+      "required": [
+        "self",
+        "first",
+        "prev",
+        "next",
+        "last"
+      ],
       "properties": {
-        "self": { "type": "string" },
-        "first": { "type": "string" },
-        "prev": { "type": ["string", "null"] },
-        "next": { "type": ["string", "null"] },
-        "last": { "type": "string" }
+        "self": {
+          "type": "string"
+        },
+        "first": {
+          "type": "string"
+        },
+        "prev": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last": {
+          "type": "string"
+        }
       }
     },
     "meta": {
       "oneOf": [
         {
           "type": "object",
-          "required": ["pagination"],
+          "required": [
+            "pagination"
+          ],
           "properties": {
             "pagination": {
               "type": "object",
@@ -76,14 +162,19 @@
                 "total_entries"
               ],
               "properties": {
-                "total_entries": { "type": "integer" }
+                "total_entries": {
+                  "type": "integer"
+                }
               }
             }
           }
         },
         {
           "type": "object",
-          "required": ["sort", "pagination"],
+          "required": [
+            "sort",
+            "pagination"
+          ],
           "properties": {
             "sort": {
               "type": "object"
@@ -94,7 +185,9 @@
                 "total_entries"
               ],
               "properties": {
-                "total_entries": { "type": "integer" }
+                "total_entries": {
+                  "type": "integer"
+                }
               }
             }
           }

@@ -64,6 +64,7 @@ class Message
   attribute :read_receipt, String
   attribute :triage_group_name, String
   attribute :triage_group_id, Integer
+  attribute :triage_group, TriageGroupInfo
   attribute :proxy_sender_name, String
   attribute :attachments, Attachment, array: true
   attribute :has_attachments, Bool, default: false
@@ -74,6 +75,7 @@ class Message
   attribute :suggested_name_display, String
   attribute :is_oh_message, Bool, default: false
   attribute :oh_migration_phase, String
+  attribute :migrated_to_oracle_health, Bool, default: false
   attribute :metadata, Hash, default: -> { {} }
   attribute :is_large_attachment_upload, Bool, default: false
   attribute :reply_disabled, Bool, default: false

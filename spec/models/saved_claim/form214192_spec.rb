@@ -301,6 +301,15 @@ RSpec.describe SavedClaim::Form214192, type: :model do
       )
     end
 
+    it 'includes VA_FILE_NUMBER as empty string when not in source data' do
+      form_data = valid_form_data.dup
+      form_data['veteranInformation'].delete('vaFileNumber')
+      claim_without_file_number = described_class.new(form: form_data.to_json)
+      payload = claim_without_file_number.to_ibm
+
+      expect(payload['VA_FILE_NUMBER']).to eq('')
+    end
+
     it 'includes employer name and address combined field' do
       expect(ibm_payload['EMPLOYER_NAME_ADDRESS']).to include('Acme Corporation')
       expect(ibm_payload['EMPLOYER_NAME_ADDRESS']).to include('456 Business Ave')
