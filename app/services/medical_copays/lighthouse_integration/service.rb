@@ -137,7 +137,6 @@ module MedicalCopays
           page += 1
         end
 
-        # Sort newest first
         collected_entries.sort_by! { |entry| entry.dig('resource', 'date') }.reverse!
 
         {
