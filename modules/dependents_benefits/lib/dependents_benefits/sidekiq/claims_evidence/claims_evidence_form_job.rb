@@ -73,7 +73,7 @@ module DependentsBenefits
           saved_claim.persistent_attachments.each do |pa|
             doctype = pa.document_type
             file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
-            uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
+            uploader.upload_evidence(saved_claim.id, pa.id, file_path:, form_id:, doctype:)
           end
         end
 

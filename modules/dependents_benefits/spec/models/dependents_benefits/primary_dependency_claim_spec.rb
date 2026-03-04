@@ -17,4 +17,25 @@ RSpec.describe DependentsBenefits::PrimaryDependencyClaim do
       expect(claim.form_id).to eq('686C-674')
     end
   end
+
+  describe '#process_attachments!' do
+    let(:attachments) do
+      { 'dependents_application' => {
+          'child_supporting_documents' => [{
+            'confirmation_code' => 'TEST'
+          }]
+        }
+      }
+    end
+    let(:relations) { instance_double(ActiveRecord::Relation) }
+
+    it 'links the attachments' do
+      allow(saved_claim).to receive(:parsed_form).and_return(attachments)
+
+      expect(PersistentAttachment).to receive(:where).with(guid: ['TEST']).and_return(relations)
+      expect(relations).to receive(:find_each)
+
+      saved_claim.process_attachments!
+    end
+  end
 end
