@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VETS360_URL>/settings-hub/person-options/v1/status/invalid-transaction-id"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      X-Ratelimit-Remaining:
+      - '49'
+      X-Ratelimit-Burst-Capacity:
+      - '50'
+      X-Ratelimit-Replenish-Rate:
+      - '50'
+      Vaprofiletxauditid:
+      - 15e0d335-67aa-4aa9-8fb2-cd7ffb66b86e
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 04 Mar 2026 22:38:39 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The tx
+        for id/criteria invalid-transaction-id could not be found. Please correct
+        your request and try again!","severity":"ERROR"}],"status":"COMPLETED_FAILURE"}'
+  recorded_at: Wed, 04 Mar 2026 22:38:39 GMT
+recorded_with: VCR 6.4.0
