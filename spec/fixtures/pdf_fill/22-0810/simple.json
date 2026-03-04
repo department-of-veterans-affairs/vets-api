@@ -1,0 +1,37 @@
+{
+  "applicantName": {
+    "first": "Spongebob",
+    "middle": "Xavier",
+    "last": "Squarepants"
+  },
+  "ssn": "999001234",
+  "vaFileNumber": "12345678",
+  "hasPreviouslyApplied": true,
+  "vaBenefitProgram": "chapter33",
+  "payeeNumber": "00",
+  "mailingAddress": {
+    "street": "123 Maple Avenue",
+    "street2": "Apt 4B",
+    "city": "Arlington",
+    "state": "VA",
+    "postalCode": "22201",
+    "country": "USA"
+  },
+  "emailAddress": "spongebob.squarepants@example.com",
+  "homePhone": "5551234567",
+  "mobilePhone": "5559876543",
+  "examName": "Project Management Professional (PMP)",
+  "examDate": "2024-05-15",
+  "examCost": 405.00,
+  "organizationName": "Project Management Institute",
+  "organizationAddress": {
+    "street": "14 Campus Blvd",
+    "city": "Newtown Square",
+    "state": "PA",
+    "postalCode": "19073",
+    "country": "USA"
+  },
+  "remarks": "The Master created humans first as the lowest type, most easily formed. Gradually, he replaced them by robots, the next higher step, and finally he created me, to take the place of the last humans.",
+  "statementOfTruthSignature": "Spongebob X. Squarepants",
+  "dateSigned": "2024-05-16"
+}
