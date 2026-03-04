@@ -310,12 +310,16 @@ jobs:
     needs: [build, tests]
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
 
     steps:
       - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        if: needs.tests.result == 'success'
         with:
-          sparse-checkout: script/junit_to_runtime_log.rb
-          sparse-checkout-cone-mode: false
+          bundler-cache: true
 
       - uses: actions/download-artifact@v7
 
@@ -371,21 +375,16 @@ jobs:
           pattern: simplecov-resultset-*
           path: .
 
-      - name: Checkout code for Docker setup
+      - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
-        uses: actions/checkout@v6
-        with:
-          path: vets-api
+        run: ruby script/coverage_collate.rb
 
-      - name: Copy coverage artifacts to workspace
+      # --- BEGIN VERIFICATION (remove after confirming native output matches Docker) ---
+      - name: Save native coverage result for comparison
         if: needs.tests.result == 'success'
-        run: |
-          echo "=== Copying coverage artifacts into vets-api directory ==="
-          cp -r simplecov-resultset-* vets-api/ || echo "No coverage artifacts to copy"
-          echo "=== Verifying artifacts in vets-api directory ==="
-          ls -la vets-api/simplecov-resultset-* || echo "No simplecov-resultset-* directories in vets-api"
+        run: cp coverage/.last_run.json /tmp/native_last_run.json
 
-      - name: Restore Docker image from cache
+      - name: Restore Docker image from cache (verification only)
         if: needs.tests.result == 'success'
         uses: actions/cache/restore@v4
         with:
@@ -393,25 +392,46 @@ jobs:
           key: docker-image-${{ github.sha }}
           fail-on-cache-miss: true
 
-      - name: Load Docker image
+      - name: Load Docker image (verification only)
         if: needs.tests.result == 'success'
         run: zstd -d /tmp/vets-api.tar.zst --stdout | docker load
 
-      - name: Collate coverage and generate report
+      - name: Collate coverage via Docker (verification only)
         if: needs.tests.result == 'success'
         run: |
+          rm -rf coverage
           docker run --rm \
-            -v ${{ github.workspace }}/vets-api:/app \
+            -v ${{ github.workspace }}:/app \
             -w /app \
             vets-api \
             bundle exec rake coverage:report
+
+      - name: Compare native vs Docker coverage output
+        if: needs.tests.result == 'success'
+        run: |
+          echo "=== Native .last_run.json ==="
+          cat /tmp/native_last_run.json
+          echo ""
+          echo "=== Docker .last_run.json ==="
+          cat coverage/.last_run.json
+          echo ""
+          native_pct=$(jq '.result.line' /tmp/native_last_run.json)
+          docker_pct=$(jq '.result.line' coverage/.last_run.json)
+          echo "Native coverage: $native_pct"
+          echo "Docker coverage: $docker_pct"
+          if [ "$native_pct" != "$docker_pct" ]; then
+            echo "::error::Coverage mismatch! Native=$native_pct Docker=$docker_pct"
+            exit 1
+          fi
+          echo "Coverage outputs match."
+      # --- END VERIFICATION ---
 
       - name: Upload Combined Coverage HTML
         if: needs.tests.result == 'success'
         uses: actions/upload-artifact@v6
         with:
           name: Coverage Report
-          path: vets-api/coverage
+          path: coverage
           if-no-files-found: ignore
 
       - name: Fix up coverage report to work with coverage-check-action
@@ -419,9 +439,9 @@ jobs:
         if: needs.tests.result == 'success'
         run: |
           echo "=== Fixing coverage report format ==="
-          sed -i 's/"line"/"covered_percent"/g' 'vets-api/coverage/.last_run.json'
+          sed -i 's/"line"/"covered_percent"/g' 'coverage/.last_run.json'
           echo "=== Verifying modified format ==="
-          pct=$(cat vets-api/coverage/.last_run.json | jq '.result.covered_percent')
+          pct=$(cat coverage/.last_run.json | jq '.result.covered_percent')
           echo "percent=$pct" >> $GITHUB_OUTPUT
           echo "Extracted coverage: $pct"
 
@@ -430,7 +450,7 @@ jobs:
         uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
-          result_path: vets-api/coverage/.last_run.json
+          result_path: coverage/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
 
