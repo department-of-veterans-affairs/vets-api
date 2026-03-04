@@ -26,9 +26,12 @@ module Mobile
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
           benefitsPushNotification: @user.icn.present? && Flipper.enabled?(
-            :event_bus_gateway_letter_ready_push_notifications, Flipper::Actor.new(@user.icn)
+            :event_bus_gateway_letter_ready_push_notifications, icn_actor
           ),
           claims: access?(lighthouse: :access?),
+          cstMultiClaimProvider: @user.icn.present? && Flipper.enabled?(
+            :cst_multi_claim_provider_mobile, icn_actor
+          ),
           decisionLetters: access?(bgs: :access?),
           directDepositBenefits: access?(lighthouse: :mobile_access?),
           directDepositBenefitsUpdate: access?(lighthouse: :mobile_access?),
@@ -82,6 +85,10 @@ module Mobile
         else
           access?(flag_off_policy)
         end
+      end
+
+      def icn_actor
+        Flipper::Actor.new(@user.icn)
       end
 
       def access?(policies)
