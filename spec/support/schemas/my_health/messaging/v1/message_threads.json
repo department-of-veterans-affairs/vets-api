@@ -1,17 +1,30 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": [
+    "data"
+  ],
   "properties": {
     "data": {
       "type": "array",
       "minItems": 0,
       "uniqueItems": true,
       "items": {
-        "required": ["id", "type", "attributes", "links"],
+        "required": [
+          "id",
+          "type",
+          "attributes",
+          "links"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "type": { "enum": ["message_threads"] },
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "message_threads"
+            ]
+          },
           "attributes": {
             "type": "object",
             "required": [
@@ -37,11 +50,21 @@
               "suggested_name_display"
             ],
             "properties": {
-              "thread_id": { "type": "integer" },
-              "folder_id": { "type": "integer" },
-              "message_id": { "type": "integer" },
-              "thread_page_size": { "type": "integer" },
-              "message_count": { "type": "integer" },
+              "thread_id": {
+                "type": "integer"
+              },
+              "folder_id": {
+                "type": "integer"
+              },
+              "message_id": {
+                "type": "integer"
+              },
+              "thread_page_size": {
+                "type": "integer"
+              },
+              "message_count": {
+                "type": "integer"
+              },
               "category": {
                 "enum": [
                   "OTHERS",
@@ -52,27 +75,74 @@
                   "EDUCATION"
                 ]
               },
-              "subject": { "type": "string" },
-              "triage_group_name": { "type": ["null", "string"] },
-              "sent_date": { "type": ["null", "string"] },
-              "draft_date": { "type": ["null", "string"] },
-              "sender_id": { "type": "integer" },
-              "sender_name": { "type": "string" },
-              "recipient_name": { "type": "string" },
-              "recipient_id": { "type": "integer" },
-              "proxy_sender_name": { "type": ["null", "string"] },
-              "has_attachment": { "type": "boolean" },
-              "unsent_drafts": { "type": "boolean" },
-              "unread_messages": { "type": "boolean" },
-              "is_oh_message": { "type": "boolean" },
-              "suggested_name_display": { "type": ["null", "string"] }
+              "subject": {
+                "type": "string"
+              },
+              "triage_group_name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sent_date": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "draft_date": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sender_id": {
+                "type": "integer"
+              },
+              "sender_name": {
+                "type": "string"
+              },
+              "recipient_name": {
+                "type": "string"
+              },
+              "recipient_id": {
+                "type": "integer"
+              },
+              "proxy_sender_name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "has_attachment": {
+                "type": "boolean"
+              },
+              "unsent_drafts": {
+                "type": "boolean"
+              },
+              "unread_messages": {
+                "type": "boolean"
+              },
+              "is_oh_message": {
+                "type": "boolean"
+              },
+              "suggested_name_display": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
             }
           },
           "links": {
             "type": "object",
-            "required": ["self"],
+            "required": [
+              "self"
+            ],
             "properties": {
-              "self": { "type": "string" }
+              "self": {
+                "type": "string"
+              }
             }
           }
         }

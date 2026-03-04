@@ -160,11 +160,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
     end
 
     context 'when user is nil' do
-      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError)
+      it 'does not raise an error' do
+        expect { described_class.new(nil) }.not_to raise_error
+      end
+
+      it 'only logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(nil)
 
         expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
       end
     end
 
@@ -173,11 +177,15 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
         allow(user).to receive_messages(edipi: nil, icn: nil)
       end
 
-      it 'logs STATSD_TOTAL and STATSD_FAILURE with mobile prefix' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError)
+      it 'does not raise an error' do
+        expect { described_class.new(user) }.not_to raise_error
+      end
+
+      it 'only logs STATSD_TOTAL with mobile prefix' do
+        described_class.new(user)
 
         expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.failure')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.mobile.failure')
       end
     end
   end
@@ -268,7 +276,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs DISHONORABLE_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.dishonorable_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_dishonorable_ssc')
           end
         end
 
@@ -277,10 +285,10 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
           let(:ssc_code) { 'G2' }
 
-          it 'logs INELIGIBLE_SSC_MESSAGE with mobile prefix' do
+          it 'logs INELIGIBLE_SERVICE_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_service_ssc')
           end
         end
 
@@ -292,7 +300,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs UNKNOWN_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.unknown_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_unknown_ssc')
           end
         end
 
@@ -304,7 +312,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs EDIPI_NO_PNL_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.edipi_no_pnl_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_edipi_no_pnl_ssc')
           end
         end
 
@@ -316,7 +324,8 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs CURRENTLY_SERVING_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.currently_serving_ssc')
+            expect(StatsD).to have_received(:increment)
+              .with('veteran_status_card.mobile.ineligible_currently_serving_ssc')
           end
         end
 
@@ -328,7 +337,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs ERROR_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.error_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_error_ssc')
           end
         end
 
@@ -340,7 +349,7 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
           it 'logs UNCAUGHT_SSC_MESSAGE with mobile prefix' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.uncaught_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.ineligible_uncaught_ssc')
           end
         end
 
@@ -366,6 +375,202 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
             subject.status_card
 
             expect(StatsD).to have_received(:increment).with('veteran_status_card.mobile.error')
+          end
+        end
+      end
+
+      describe 'user_message logging' do
+        context 'when user is missing ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'logs user_message: person_not_found' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::PERSON_NOT_FOUND_MESSAGE)
+            )
+          end
+        end
+
+        context 'when user is missing EDIPI but vet verification is not confirmed' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
+          before do
+            allow(user).to receive(:edipi).and_return(nil)
+          end
+
+          it 'logs user_message: person_not_found' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::PERSON_NOT_FOUND_MESSAGE)
+            )
+          end
+        end
+
+        context 'when veteran is confirmed via vet verification' do
+          let(:veteran_status) { 'confirmed' }
+
+          it 'logs user_message: status_card_confirmed' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::CONFIRMED_MESSAGE)
+            )
+          end
+        end
+
+        context 'when veteran is confirmed via SSC' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'A1' }
+
+          it 'logs user_message: status_card_confirmed' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::CONFIRMED_MESSAGE)
+            )
+          end
+        end
+
+        context 'when vet verification reason is PERSON_NOT_FOUND' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+          it 'logs user_message: person_not_found' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::PERSON_NOT_FOUND_MESSAGE)
+            )
+          end
+        end
+
+        context 'when vet verification reason is ERROR' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'ERROR' }
+
+          it 'logs user_message: something_went_wrong' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::SOMETHING_WENT_WRONG_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is dishonorable' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'A5' }
+
+          it 'logs user_message: dishonorable' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::DISHONORABLE_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is ineligible service' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'G2' }
+
+          it 'logs user_message: ineligible_service' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::INELIGIBLE_SERVICE_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is unknown service' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'U' }
+
+          it 'logs user_message: unknown_eligibility' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::UNKNOWN_ELIGIBILITY_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is EDIPI_NO_PNL' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'X' }
+
+          it 'logs user_message: unknown_eligibility' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::UNKNOWN_ELIGIBILITY_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is currently serving' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'D' }
+
+          it 'logs user_message: currently_serving' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::CURRENTLY_SERVING_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is an error code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'VNA' }
+
+          it 'logs user_message: unknown_eligibility' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::UNKNOWN_ELIGIBILITY_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is uncaught' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'UNKNOWN_CODE' }
+
+          it 'logs user_message: uncaught_error' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[Mobile::V0::VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: described_class::UNCAUGHT_ERROR_MESSAGE)
+            )
           end
         end
       end
@@ -480,8 +685,22 @@ RSpec.describe Mobile::V0::VeteranStatusCard::Service do
 
     context 'error scenarios' do
       context 'when user is nil' do
-        it 'raises ArgumentError (inherited from base class)' do
-          expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
+        let(:user) { nil }
+
+        before do
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'returns a veteran_status_alert with Mobile person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:header]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('INELIGIBLE_NO_ICN')
         end
       end
 

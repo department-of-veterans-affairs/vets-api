@@ -36,8 +36,11 @@ module BenefitsClaims
         def get_claims
           response = @service.get_claims
 
-          # Transform each claim through the DTO
-          response['data'] = response['data'].map { |claim_data| transform_to_dto(claim_data) }
+          # Transform each claim through the DTO and add provider metadata
+          response['data'] = response['data'].map do |claim_data|
+            claim_data['provider'] = 'lighthouse'
+            transform_to_dto(claim_data)
+          end
 
           response
         rescue Faraday::ClientError, Faraday::ServerError => e
@@ -47,7 +50,8 @@ module BenefitsClaims
         def get_claim(id)
           response = @service.get_claim(id)
 
-          # Transform the single claim through the DTO
+          # Transform the single claim through the DTO and add provider metadata
+          response['data']['provider'] = 'lighthouse'
           response['data'] = transform_to_dto(response['data'])
 
           response
