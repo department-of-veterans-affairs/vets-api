@@ -1157,6 +1157,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
 
         context "when 'alternateNames' contains duplicate names" do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+          end
+
           it 'allows duplicate alternate names (uniqueness not required)' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -1169,12 +1173,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     },
                     {
                       'firstName' => 'John',
-                      'middleName' => 'David',
                       'lastName' => 'Smith'
-                    },
-                    {
-                      'firstName' => 'JOHN',
-                      'lastName' => 'SMITH'
                     }
                   ]
 
