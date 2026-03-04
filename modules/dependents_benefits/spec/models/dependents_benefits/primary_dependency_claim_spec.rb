@@ -21,11 +21,10 @@ RSpec.describe DependentsBenefits::PrimaryDependencyClaim do
   describe '#process_attachments!' do
     let(:attachments) do
       { 'dependents_application' => {
-          'child_supporting_documents' => [{
-            'confirmation_code' => 'TEST'
-          }]
-        }
-      }
+        'child_supporting_documents' => [{
+          'confirmation_code' => 'TEST'
+        }]
+      } }
     end
     let(:relations) { instance_double(ActiveRecord::Relation) }
 

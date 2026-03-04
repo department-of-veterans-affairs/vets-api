@@ -25,12 +25,11 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
     let(:child_claims) { [saved_claim] }
 
     before do
-      allow(job).to receive(:child_claims).and_return(child_claims)
       allow(job).to receive(:submit_claim_to_service).with(saved_claim).and_return(
         DependentsBenefits::ServiceResponse.new(status: true)
       )
-      allow(job).to receive(:saved_claim).and_return(parent_claim)
       allow(job).to receive(:claims_evidence_uploader).with(parent_claim).and_return(claims_evidence_uploader)
+      allow(job).to receive_messages(child_claims:, saved_claim: parent_claim)
 
       allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
     end

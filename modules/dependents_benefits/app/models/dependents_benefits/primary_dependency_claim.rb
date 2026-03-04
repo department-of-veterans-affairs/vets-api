@@ -46,6 +46,5 @@ module DependentsBenefits
         files.find_each { |f| f.update(saved_claim_id: id) }
       end
     end
-
   end
 end
