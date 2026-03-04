@@ -62,6 +62,8 @@ module CheckIn
 
       def uuid
         ctrl.params[:id] || ctrl.params[:session_id] || ctrl.permitted_params[:uuid]
+      rescue ActionController::ParameterMissing
+        nil
       end
 
       def initiated_by
