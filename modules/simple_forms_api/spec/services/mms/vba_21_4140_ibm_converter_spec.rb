@@ -23,9 +23,11 @@ RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
     subject(:payload) { described_class.convert(form) }
 
     it 'converts a parsed form to the keys and formats expected by IBM' do
-      ibm_payload['DATE_SIGNED'] = Time.zone.today.strftime('%m%d%Y')
+      Timecop.freeze(Time.zone.yesterday) do
+        ibm_payload['DATE_SIGNED'] = Time.zone.yesterday.strftime('%m%d%Y')
 
-      expect(payload).to eq(ibm_payload)
+        expect(payload).to eq(ibm_payload)
+      end
     end
 
     it 'normalizes SSN' do
@@ -54,7 +56,10 @@ RSpec.describe SimpleFormsApi::Mms::VBA214140IbmConverter do
     end
 
     it 'sets DATE_SIGNED as the current date' do
-      expect(payload['DATE_SIGNED']).to eq(Time.zone.today.strftime('%m%d%Y'))
+      Timecop.freeze(Time.zone.yesterday) do
+        expect(payload['DATE_SIGNED'])
+          .to eq(Time.zone.yesterday.strftime('%m%d%Y'))
+      end
     end
   end
 end
