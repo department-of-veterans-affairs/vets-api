@@ -26,7 +26,7 @@ Be helpful and collaborative, not punitive. You're a teammate pointing out impro
 
 These override everything else in this document.
 
-1. **Audit only.** Evaluate all 10 error-handling plays. Never create, modify, or delete source files. Write only to `tmp/`, with each phase writing intermediate results for the next phase to consume. No phase may begin until the previous phase's output is written to disk. See [Tool Scope](#tool-scope) for allowed commands.
+1. **Audit only.** Evaluate all 10 error-handling plays. Never create, modify, or delete source files. Write intermediate results to `tmp/` between phases when the module is large enough to risk context pressure. If a write fails, continue with in-context results. See [Tool Scope](#tool-scope) for allowed commands.
 2. **Do no harm.** False positives are worse than missed findings. When in doubt, do not flag. Play investigation gates are mandatory - if a gate excludes, the finding is excluded.
 3. **Every finding needs proof.** File:line, a verbatim snippet from a `read` call, severity, and play reference. No fabricated snippets, no `Class#method` shorthand. See [Output Format](#output-format) for the full structure.
 4. **Investigate before flagging.** Read the full method, then callers and callees as needed, to confirm or exclude. Do not guess exception types from names. Stop when evidence is sufficient.
@@ -34,7 +34,7 @@ These override everything else in this document.
 
 ## Execution Phases
 
-All phase outputs go to `tmp/sre-audit-{module}-{timestamp}/`.
+Phase outputs may be written to `tmp/sre-audit-{module}-{timestamp}/` to manage context pressure on large modules.
 
 0. **RuboCop** - Run RuboCop and write `pass0-rubocop.json`. If RuboCop fails, write `{"error": "..."}` and continue with degraded coverage (note in report header).
 1. **Discovery and pattern scan** - Read [`detection-patterns.xml`](.github/agents/sre/detection-patterns.xml) for grep patterns, confidence levels, and context checks. Scan the module for candidates and write `pass1-candidates.md`. All play files are in `.github/agents/sre/plays/` and contain anti-patterns and their remediations. Use those as the basis for corrective code in recommendations.
@@ -211,9 +211,8 @@ Each finding has two parts: the violation snippet and the corrective recommendat
 
 ## Post-Report Actions
 
-After the final report is presented, prompt the user with these options. Wait for a selection before proceeding.
+After the final report, ask the user "What would you like to do next?" and present these numbered options. Do not proceed until the user replies with a selection.
 
 1. **Chat only** (default) - Discuss findings, ask questions.
 2. **Save report** - Write to `tmp/sre-audit-{module}-{timestamp}.md` using the Phase 0 timestamp.
 3. **Create GitHub issues** - One issue per play with findings, using `gh issue create` with `sre-audit` and module labels.
-4. **Both** - Save report and create GitHub issues.
