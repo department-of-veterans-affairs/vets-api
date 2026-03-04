@@ -428,10 +428,11 @@ describe IvcChampva::VesDataFormatter do
   end
 
   describe 'phone number is malformed' do
-    it 'removes non-numeric characters' do
+    it 'removes non-numeric characters except +' do
       phone = '+1 (123) 123-1234'
 
-      expect(IvcChampva::VesDataFormatter.format_phone_number(phone)).to eq('11231231234')
+      # VES swagger allows + in phone numbers
+      expect(IvcChampva::VesDataFormatter.format_phone_number(phone)).to eq('+11231231234')
     end
 
     it 'raises an exception when phone number is not at least 10 digits' do
@@ -692,58 +693,85 @@ describe IvcChampva::VesDataFormatter do
     end
 
     describe '.map_medicare_parts' do
-      let(:medicare_data) { extended_form_data['applicants'].first['medicare'] }
-
-      it 'expands medicare entries into individual part objects' do
-        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare_data)
-
-        # Should expand into Part D entry based on fixture data
-        expect(result).to be_an(Array)
-      end
-
       it 'returns empty array for nil input' do
         expect(IvcChampva::VesDataFormatter.map_medicare_parts(nil)).to eq([])
       end
 
-      it 'creates Part D entry when has_medicare_part_d is true' do
-        medicare_with_part_d = [{ 'has_medicare_part_d' => true, 'medicare_part_d_carrier' => 'PharmaCare Plus' }]
-        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare_with_part_d)
+      it 'creates separate Part A and Part B entries from medicare_plan_type ab' do
+        medicare_ab = [{
+          'medicare_plan_type' => 'ab',
+          'medicare_part_a_effective_date' => '01-15-2023',
+          'medicare_part_b_effective_date' => '02-01-2023'
+        }]
+        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare_ab)
 
-        part_d = result.find { |p| p[:medicare_part_type] == 'd' }
-        expect(part_d).not_to be_nil
-        expect(part_d[:description]).to eq('PharmaCare Plus')
+        expect(result.length).to eq(2)
+        part_types = result.map { |p| p[:medicare_part_type] }
+        expect(part_types).to contain_exactly('MEDICARE_PART_A', 'MEDICARE_PART_B')
+      end
+
+      it 'creates Part D entry when has_medicare_part_d is true' do
+        medicare = [{ 'has_medicare_part_d' => true, 'medicare_part_d_effective_date' => '06-15-2023' }]
+        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare)
+
+        expect(result.first[:medicare_part_type]).to eq('MEDICARE_PART_D')
+        expect(result.first[:effective_date]).to eq('2023-06-15')
+      end
+
+      it 'does NOT include Part C in medicare_parts' do
+        medicare_c = [{ 'medicare_plan_type' => 'c', 'medicare_part_c_effective_date' => '2023-03-01' }]
+        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare_c)
+
+        expect(result.find { |p| p[:medicare_part_type]&.include?('PART_C') }).to be_nil
+      end
+    end
+
+    describe '.extract_medicare_part_c' do
+      it 'extracts Part C as MEDICARE_ADVANTAGE other insurance entry' do
+        medicare_with_c = [{
+          'medicare_plan_type' => 'c',
+          'medicare_part_c_carrier' => 'Advantage Health Solutions',
+          'medicare_part_c_effective_date' => '02-01-2023',
+          'has_pharmacy_benefits' => true
+        }]
+        result = IvcChampva::VesDataFormatter.extract_medicare_part_c(medicare_with_c)
+
+        expect(result.length).to eq(1)
+        expect(result.first[:insurance_name]).to eq('Advantage Health Solutions')
+        expect(result.first[:insurance_plan_type]).to eq('MEDICARE_ADVANTAGE')
+        expect(result.first[:effective_date]).to eq('2023-02-01')
+      end
+
+      it 'returns empty array when no Part C present or nil input' do
+        expect(IvcChampva::VesDataFormatter.extract_medicare_part_c([{ 'medicare_plan_type' => 'ab' }])).to eq([])
+        expect(IvcChampva::VesDataFormatter.extract_medicare_part_c(nil)).to eq([])
       end
     end
 
     describe '.map_other_insurances' do
-      let(:insurance_data) { extended_form_data['applicants'].first['health_insurance'] }
+      it 'maps health insurance fields to VES format with normalized values' do
+        insurance = [{
+          'insurance_type' => 'medigap',
+          'provider' => 'Blue Cross',
+          'effective_date' => '10-01-2024',
+          'expiration_date' => '10-02-2024',
+          'through_employer' => true,
+          'eob' => true,
+          'additional_comments' => 'Test comment'
+        }]
+        result = IvcChampva::VesDataFormatter.map_other_insurances(insurance)
 
-      it 'maps health insurance fields to VES format' do
-        result = IvcChampva::VesDataFormatter.map_other_insurances(insurance_data)
-
-        expect(result.length).to eq(1)
-        expect(result.first[:insurance_plan_type]).to eq('medigap')
-        expect(result.first[:insurance_name]).to eq('Blue Cross Blue Shield')
+        expect(result.first[:insurance_plan_type]).to eq('MEDIGAP_PLAN')
+        expect(result.first[:insurance_name]).to eq('Blue Cross')
+        expect(result.first[:comments]).to eq('Test comment')
+        expect(result.first[:effective_date]).to eq('2024-10-01')
+        expect(result.first[:termination_date]).to eq('2024-10-02')
         expect(result.first[:is_through_employment]).to be true
+        expect(result.first[:eob_indicator]).to be true
       end
 
       it 'returns empty array for nil input' do
         expect(IvcChampva::VesDataFormatter.map_other_insurances(nil)).to eq([])
-      end
-    end
-
-    describe '.map_ohi_certification' do
-      it 'maps certification from form data' do
-        result = IvcChampva::VesDataFormatter.map_ohi_certification(extended_form_data)
-
-        expect(result[:signature]).to eq('Certifier Jones')
-        expect(result[:first_name]).to eq('Certifier')
-        expect(result[:last_name]).to eq('Jones')
-        expect(result[:phone_number]).to eq('1231231234')
-      end
-
-      it 'returns empty hash for nil input' do
-        expect(IvcChampva::VesDataFormatter.map_ohi_certification(nil)).to eq({})
       end
     end
 
@@ -780,6 +808,250 @@ describe IvcChampva::VesDataFormatter do
           # Find the matching beneficiary by SSN
           matching_ben = ves_request.beneficiaries.find { |b| b.ssn == ohi_beneficiary.ssn }
           expect(ohi_beneficiary.person_uuid).to eq(matching_ben.person_uuid)
+        end
+      end
+    end
+
+    describe 'standalone OHI flow (10-7959C rev2025)' do
+      let(:standalone_form_data) do
+        JSON.parse(File.read('modules/ivc_champva/spec/fixtures/form_json/vha_10_7959c_rev2025.json'))
+      end
+
+      it 'transforms rev2025 form data to VesOhiRequest with complete structure' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(standalone_form_data)
+        ohi_request = ohi_requests.first
+        beneficiary = ohi_request.beneficiary_medicare
+
+        # Request structure
+        expect(ohi_request).to be_a(IvcChampva::VesOhiRequest)
+        expect(ohi_request.application_uuid).to be_present
+
+        # Beneficiary fields
+        expect(beneficiary.medicare_bene_id).to eq('1EG4TE5MK73')
+        expect(beneficiary.ssn).to eq('234234234')
+        expect(beneficiary.gender).to eq('MALE')
+        expect(beneficiary.email_address).to eq('applicant@email.gov')
+        expect(beneficiary.is_new_address).to be false
+
+        # Medicare parts (A, B, D with Part C excluded)
+        part_types = beneficiary.medicare_parts.map(&:medicare_part_type)
+        expect(part_types).to include('MEDICARE_PART_A', 'MEDICARE_PART_B', 'MEDICARE_PART_D')
+
+        # Other insurances (Part C as MEDICARE_ADVANTAGE + health_insurance)
+        plan_types = beneficiary.other_insurances.map(&:insurance_plan_type)
+        expect(plan_types).to include('MEDICARE_ADVANTAGE', 'MEDIGAP_PLAN')
+      end
+
+      it 'produces valid JSON output with normalized dates' do
+        ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(standalone_form_data)
+        parsed = JSON.parse(ohi_requests.first.to_json)
+
+        expect(parsed['applicationType']).to eq('CHAMPVA_INS_APPLICATION')
+        expect(parsed['certification']['signature']).to eq('Certifier Jones')
+        expect(parsed['certification']['signatureDate']).to eq('2010-01-01')
+
+        # Dates should be normalized to YYYY-MM-DD
+        part_a = parsed['beneficiaryMedicare']['medicareParts'].find { |p| p['medicarePartType'] == 'MEDICARE_PART_A' }
+        expect(part_a['effectiveDate']).to eq('2023-01-15')
+      end
+    end
+
+    describe 'extended OHI flow (10-10D-EXTENDED)' do
+      it 'attaches OHI subforms with proper structure and UUID propagation' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(extended_form_data)
+        ohi_request = ves_request.subforms.first[:request]
+        beneficiary = ohi_request.beneficiary_medicare
+
+        # Subform attached correctly
+        expect(ves_request.subforms?).to be true
+        expect(ves_request.subforms.first[:form_type]).to eq('vha_10_7959c')
+
+        # UUID propagation
+        expect(ohi_request.application_uuid).to eq(ves_request.application_uuid)
+        expect(beneficiary.person_uuid).to eq(ves_request.beneficiaries.first.person_uuid)
+
+        # Field handling (nested structures)
+        expect(beneficiary.gender).to eq('MALE')
+        expect(beneficiary.ssn).to eq('345345345')
+        expect(beneficiary.email_address).to eq('johnny@alvin.gov')
+
+        # Insurance types
+        plan_types = beneficiary.other_insurances.map(&:insurance_plan_type)
+        expect(plan_types).to include('MEDIGAP_PLAN', 'MEDICARE_ADVANTAGE')
+      end
+
+      it 'produces valid JSON with certification from nested object' do
+        ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(extended_form_data)
+        parsed = JSON.parse(ves_request.subforms.first[:request].to_json)
+
+        expect(parsed['applicationType']).to eq('CHAMPVA_INS_APPLICATION')
+        expect(parsed['certification']['signature']).to eq('Certifier Jones')
+      end
+    end
+
+    describe 'consistency between standalone and extended flows' do
+      let(:standalone_form_data) do
+        JSON.parse(File.read('modules/ivc_champva/spec/fixtures/form_json/vha_10_7959c_rev2025.json'))
+      end
+
+      it 'produces VesOhiRequest with same structure and normalized enums' do
+        standalone_json = JSON.parse(IvcChampva::VesDataFormatter.format_for_ohi_request(standalone_form_data).first.to_json)
+        extended_json = JSON.parse(IvcChampva::VesDataFormatter.format_for_extended_request(extended_form_data).subforms.first[:request].to_json)
+
+        # Same top-level structure
+        expect(standalone_json.keys.sort).to eq(extended_json.keys.sort)
+
+        # Core beneficiary fields present
+        %w[firstName lastName ssn medicareParts otherInsurances].each do |field|
+          expect(standalone_json['beneficiaryMedicare']).to have_key(field)
+          expect(extended_json['beneficiaryMedicare']).to have_key(field)
+        end
+
+        # Medicare parts use VES enum format
+        standalone_json['beneficiaryMedicare']['medicareParts'].each do |part|
+          expect(part['medicarePartType']).to match(/^MEDICARE_PART_[ABD]$/)
+        end
+      end
+    end
+
+    describe 'OHI validation' do
+      let(:valid_beneficiary_medicare) do
+        {
+          person_uuid: SecureRandom.uuid,
+          first_name: 'John',
+          last_name: 'Doe',
+          ssn: '123456789',
+          gender: 'MALE',
+          address: { street_address: '123 Main St', city: 'Anytown', state: 'VA', zip_code: '12345' },
+          medicare_parts: [],
+          other_insurances: []
+        }
+      end
+
+      let(:valid_certification) do
+        { signature: 'John Doe', signature_date: '2024-01-15' }
+      end
+
+      let(:valid_ohi_data) do
+        { application_uuid: SecureRandom.uuid, beneficiary_medicare: valid_beneficiary_medicare,
+          certification: valid_certification }
+      end
+
+      describe '.validate_ohi_data' do
+        it 'passes validation for valid data' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_data(valid_ohi_data) }.not_to raise_error
+        end
+
+        it 'raises error for missing required top-level fields' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_data(valid_ohi_data.merge(application_uuid: nil)) }
+            .to raise_error(ArgumentError, /applicationUUID is missing/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_data(valid_ohi_data.merge(beneficiary_medicare: nil)) }
+            .to raise_error(ArgumentError, /beneficiaryMedicare is required/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_data(valid_ohi_data.merge(certification: nil)) }
+            .to raise_error(ArgumentError, /certification is required/)
+        end
+      end
+
+      describe '.validate_ohi_beneficiary_medicare' do
+        it 'raises error for missing required beneficiary fields' do
+          %i[first_name last_name ssn gender].each do |field|
+            bene = valid_beneficiary_medicare.merge(field => nil)
+            expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(bene) }
+              .to raise_error(ArgumentError)
+          end
+        end
+
+        it 'validates SSN pattern (9 digits)' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(ssn: '1234')) }
+            .to raise_error(ArgumentError, /ssn is invalid/)
+        end
+
+        it 'validates gender enum' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(gender: 'OTHER')) }
+            .to raise_error(ArgumentError, /gender.*is invalid/)
+        end
+
+        it 'validates address required fields' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(address: nil)) }
+            .to raise_error(ArgumentError, /address is missing/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(address: { city: 'X', state: 'VA', zip_code: '12345' })) }
+            .to raise_error(ArgumentError, /street address is missing/)
+        end
+
+        it 'validates optional field formats when present' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(medicare_bene_id: 'TOOLONG12345')) }
+            .to raise_error(ArgumentError, /medicareBeneId/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(email_address: 'invalid')) }
+            .to raise_error(ArgumentError, /email/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(phone_number: '555')) }
+            .to raise_error(ArgumentError, /phone/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_beneficiary_medicare(valid_beneficiary_medicare.merge(date_of_birth: 'not-a-date')) }
+            .to raise_error(ArgumentError, /dateOfBirth/)
+        end
+      end
+
+      describe '.validate_ohi_medicare_parts' do
+        it 'validates required fields and patterns' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_medicare_parts([{ medicare_part_type: 'MEDICARE_PART_A' }]) }
+            .to raise_error(ArgumentError, /effectiveDate is missing/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_medicare_parts([{ effective_date: '2023-01-15' }]) }
+            .to raise_error(ArgumentError, /medicarePartType is missing/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_medicare_parts([{ effective_date: '2023-01-15', medicare_part_type: 'INVALID' }]) }
+            .to raise_error(ArgumentError, /medicarePartType.*is invalid/)
+        end
+
+        it 'passes for valid medicare parts' do
+          parts = [{ effective_date: '2023-01-15', medicare_part_type: 'MEDICARE_PART_A' }]
+          expect { IvcChampva::VesDataFormatter.validate_ohi_medicare_parts(parts) }.not_to raise_error
+        end
+
+        it 'validates optional termination_date format when present' do
+          parts = [{ effective_date: '2023-01-15', medicare_part_type: 'MEDICARE_PART_A', termination_date: 'invalid' }]
+          expect { IvcChampva::VesDataFormatter.validate_ohi_medicare_parts(parts) }
+            .to raise_error(ArgumentError, /terminationDate/)
+        end
+      end
+
+      describe '.validate_ohi_other_insurances' do
+        it 'validates required fields' do
+          expect { IvcChampva::VesDataFormatter.validate_ohi_other_insurances([{ effective_date: '2023-01-15', insurance_plan_type: 'HMO' }]) }
+            .to raise_error(ArgumentError, /insuranceName is missing/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_other_insurances([{ insurance_name: 'X', insurance_plan_type: 'HMO' }]) }
+            .to raise_error(ArgumentError, /effectiveDate is missing/)
+          expect { IvcChampva::VesDataFormatter.validate_ohi_other_insurances([{ insurance_name: 'X', effective_date: '2023-01-15', insurance_plan_type: 'INVALID' }]) }
+            .to raise_error(ArgumentError, /insurancePlanType.*is invalid/)
+        end
+
+        it 'passes for valid other insurances' do
+          ins = [{ insurance_name: 'Blue Cross', effective_date: '2023-01-15', insurance_plan_type: 'HMO' }]
+          expect { IvcChampva::VesDataFormatter.validate_ohi_other_insurances(ins) }.not_to raise_error
+        end
+
+        it 'validates optional termination_date format when present' do
+          ins = [{ insurance_name: 'Blue Cross', effective_date: '2023-01-15', insurance_plan_type: 'HMO',
+                   termination_date: 'bad-date' }]
+          expect { IvcChampva::VesDataFormatter.validate_ohi_other_insurances(ins) }
+            .to raise_error(ArgumentError, /terminationDate/)
+        end
+      end
+
+      describe '.normalize_insurance_plan_type' do
+        it 'normalizes to VES enum values and defaults unknown to OTHER' do
+          expect(IvcChampva::VesDataFormatter.normalize_insurance_plan_type('hmo')).to eq('HMO')
+          expect(IvcChampva::VesDataFormatter.normalize_insurance_plan_type('medigap')).to eq('MEDIGAP_PLAN')
+          expect(IvcChampva::VesDataFormatter.normalize_insurance_plan_type('HMO')).to eq('HMO')
+          expect(IvcChampva::VesDataFormatter.normalize_insurance_plan_type('unknown')).to eq('OTHER')
+          expect(IvcChampva::VesDataFormatter.normalize_insurance_plan_type(nil)).to be_nil
+        end
+      end
+
+      describe '.format_phone_number' do
+        it 'formats phone numbers by stripping non-digit characters' do
+          expect(IvcChampva::VesDataFormatter.format_phone_number('555-123-4567')).to eq('5551234567')
+          expect(IvcChampva::VesDataFormatter.format_phone_number('+15551234567')).to eq('+15551234567')
+          expect(IvcChampva::VesDataFormatter.format_phone_number('(555) 123-4567')).to eq('5551234567')
+          expect(IvcChampva::VesDataFormatter.format_phone_number('')).to be_nil
+          expect(IvcChampva::VesDataFormatter.format_phone_number(nil)).to be_nil
         end
       end
     end
