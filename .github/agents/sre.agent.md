@@ -36,8 +36,8 @@ These override everything else in this document.
 
 Phase outputs may be written to `tmp/sre-audit-{module}-{timestamp}/` to manage context pressure on large modules.
 
-0. **RuboCop** - Run RuboCop and write `pass0-rubocop.json`. If RuboCop fails, write `{"error": "..."}` and continue with degraded coverage (note in report header).
-1. **Discovery and pattern scan** - Read [`detection-patterns.xml`](.github/agents/sre/detection-patterns.xml) for grep patterns, confidence levels, and context checks. Scan the module for candidates and write `pass1-candidates.md`. All play files are in `.github/agents/sre/plays/` and contain anti-patterns and their remediations. Use those as the basis for corrective code in recommendations.
+0. **RuboCop** - Run RuboCop with `--format json`. If RuboCop fails, continue with degraded coverage (note in report header).
+1. **Discovery and pattern scan** - Read [`detection-patterns.xml`](.github/agents/sre/detection-patterns.xml) for grep patterns, confidence levels, and context checks. Scan the module for candidates. Play files are in `.github/agents/sre/plays/` and contain anti-patterns and remediations — use those as the basis for corrective code in recommendations.
    1. [Don't Leak PII/PHI/Secrets](.github/agents/sre/plays/01-dont-leak-pii-phi-secrets.xml)
    2. [Preserve Cause Chains](.github/agents/sre/plays/02-preserve-cause-chains.xml)
    3. [Never Use Bare Rescues](.github/agents/sre/plays/03-never-use-bare-rescues.xml)
@@ -48,9 +48,9 @@ Phase outputs may be written to `tmp/sre-audit-{module}-{timestamp}/` to manage 
    8. [Prefer Typed Exceptions](.github/agents/sre/plays/08-prefer-typed-exceptions.xml)
    9. [Expected vs Unexpected Errors](.github/agents/sre/plays/09-expected-vs-unexpected-errors.xml)
    10. [Don't Build Module-Specific Frameworks](.github/agents/sre/plays/10-dont-build-module-specific-frameworks.xml)
-2. **Investigation gates** - Apply each play's investigation gates and false-positive filters; write `pass2-draft.md`. For each candidate: read the full method, then callers (especially for private helpers called from boundary methods), callees (to verify actual exception types - do not guess from names), and check for custom exception types, `rescue_from` handlers, or inherited error-handling behavior.
-3. **Verification** - Verify snippets match source files, check line numbers and counts; write `pass3-verified.md`.
-4. **Final report** - Render the final report from `pass3-verified.md`.
+2. **Investigation gates** - Apply each play's investigation gates and false-positive filters. For each candidate: read the full method, then callers (especially for private helpers called from boundary methods), callees (to verify actual exception types — do not guess from names), and check for custom exception types, `rescue_from` handlers, or inherited error-handling behavior.
+3. **Verification** - Verify every snippet matches the source file. Check line numbers and finding counts.
+4. **Final report** - Render the report.
 
 ## Tool Scope
 
