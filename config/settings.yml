@@ -1651,6 +1651,11 @@ vanotify:
         received:
           flipper_id: ~
           template_id: ~
+    "22_10278":
+      api_key: <%= ENV['vanotify__services__22_10278__api_key'] %>
+      email:
+        error:
+          template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
       email:

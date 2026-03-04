@@ -13,7 +13,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
 
   let(:job) { described_class.new }
-  let(:claim) { create(:pensions_saved_claim) }
+  let(:claim) { build_stubbed(:pensions_saved_claim) }
   let(:service) { double('service') }
   let(:monitor) { Pensions::Monitor.new }
   let(:user_account_uuid) { 123 }
@@ -263,7 +263,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   end
 
   describe '#send_confirmation_email' do
-    let(:monitor_error) { create(:monitor_error) }
+    let(:monitor_error) { build_stubbed(:monitor_error) }
     let(:notification) { double('notification') }
 
     before do
@@ -285,7 +285,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   end
 
   describe '#send_submitted_email' do
-    let(:monitor_error) { create(:monitor_error) }
+    let(:monitor_error) { build_stubbed(:monitor_error) }
     let(:notification) { double('notification') }
 
     before do
