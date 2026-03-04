@@ -15,58 +15,57 @@ RSpec.describe DigitalFormsApi::Service::Forms do
   end
 
   describe '#template' do
+    let(:template_body) { { 'template' => 'data' } }
+    let(:faraday_env) { instance_double(Faraday::Env, body: template_body, status: 200) }
+
     context 'when template is not cached' do
       it 'performs a GET request to the forms endpoint' do
-        expect(service).to receive(:perform).with(:get, "forms/#{form_id}/template", {}, {})
+        expect(service).to receive(:perform).with(:get, "forms/#{form_id}/template", {}, {}).and_return(faraday_env)
         service.template(form_id)
       end
 
-      it 'caches the response' do
-        response = { 'template' => 'data' }
-        allow(service).to receive(:perform).and_return(response)
+      it 'caches only the response body' do
+        allow(service).to receive(:perform).and_return(faraday_env)
 
         service.template(form_id)
 
-        cached_response = Rails.cache.read(cache_key)
-        expect(cached_response).to eq(response)
+        cached = Rails.cache.read(cache_key)
+        expect(cached).to eq(template_body)
       end
 
-      it 'returns the response from the API' do
-        response = { 'template' => 'data' }
-        allow(service).to receive(:perform).and_return(response)
+      it 'returns the parsed body from the API' do
+        allow(service).to receive(:perform).and_return(faraday_env)
 
         result = service.template(form_id)
 
-        expect(result).to eq response
+        expect(result).to eq(template_body)
       end
     end
 
     context 'when template is called twice' do
       it 'only calls the upstream service once' do
-        response = { 'template' => 'data' }
         expect(service).to receive(:perform)
           .with(:get, "forms/#{form_id}/template", {}, {})
           .once
-          .and_return(response)
+          .and_return(faraday_env)
 
         first_result  = service.template(form_id)
         second_result = service.template(form_id)
 
-        expect(first_result).to eq(response)
-        expect(second_result).to eq(response)
+        expect(first_result).to eq(template_body)
+        expect(second_result).to eq(template_body)
       end
     end
 
     context 'when template is cached' do
-      it 'returns the cached response without making an API request' do
-        cached_response = { 'template' => 'cached_data' }
-        Rails.cache.write(cache_key, cached_response)
+      it 'returns the cached body without making an API request' do
+        Rails.cache.write(cache_key, template_body)
 
         expect(service).not_to receive(:perform)
 
         result = service.template(form_id)
 
-        expect(result).to eq(cached_response)
+        expect(result).to eq(template_body)
       end
     end
   end

@@ -22,14 +22,14 @@ module DigitalFormsApi
       end
 
       # GET a form template (with caching)
+      # Caches only the parsed response body to avoid persisting sensitive
+      # request metadata (e.g., Authorization headers) from the Faraday::Env.
       def template(form_id)
         cache_key = self.class.template_cache_key(form_id)
-        cached = Rails.cache.read(cache_key)
-        return cached if cached.present?
 
-        response = perform :get, "forms/#{form_id}/template", {}, {}
-        Rails.cache.write(cache_key, response, expires_in: template_cache_ttl)
-        response
+        Rails.cache.fetch(cache_key, expires_in: template_cache_ttl, race_condition_ttl: 10.seconds) do
+          perform(:get, "forms/#{form_id}/template", {}, {}).body
+        end
       end
 
       private
