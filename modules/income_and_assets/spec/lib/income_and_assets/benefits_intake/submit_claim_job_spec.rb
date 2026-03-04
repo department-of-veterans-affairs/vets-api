@@ -9,7 +9,7 @@ require 'pdf_utilities/datestamp_pdf'
 RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
-  let(:claim) { create(:income_and_assets_claim) }
+  let(:claim) { build_stubbed(:income_and_assets_claim) }
   let(:service) { double('service') }
   let(:monitor) { IncomeAndAssets::Monitor.new }
   let(:user_account_uuid) { 123 }
@@ -143,7 +143,7 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
   end
 
   describe '#send_submitted_email' do
-    let(:monitor_error) { create(:monitor_error) }
+    let(:monitor_error) { build_stubbed(:monitor_error) }
     let(:notification) { double('notification') }
 
     before do
