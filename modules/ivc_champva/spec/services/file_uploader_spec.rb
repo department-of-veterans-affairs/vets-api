@@ -16,7 +16,44 @@ describe IvcChampva::FileUploader do
     ]
   end
   let(:insert_db_row) { false }
+  let(:current_user) { nil }
+  let(:parsed_form_data) { { 'form_number' => '10-10D', 'applicants' => [] } }
   let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row) }
+
+  describe '#initialize' do
+    context 'when champva_store_request_json flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_store_request_json, current_user).and_return(true)
+      end
+
+      it 'stores parsed_form_data when provided' do
+        uploader_with_data = IvcChampva::FileUploader.new(
+          form_id, metadata, file_paths, insert_db_row, current_user, parsed_form_data
+        )
+        expect(uploader_with_data.instance_variable_get(:@parsed_form_data)).to eq(parsed_form_data)
+      end
+
+      it 'stores nil when parsed_form_data is not provided' do
+        uploader_without_data = IvcChampva::FileUploader.new(
+          form_id, metadata, file_paths, insert_db_row, current_user, nil
+        )
+        expect(uploader_without_data.instance_variable_get(:@parsed_form_data)).to be_nil
+      end
+    end
+
+    context 'when champva_store_request_json flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_store_request_json, current_user).and_return(false)
+      end
+
+      it 'does not store parsed_form_data even when provided' do
+        uploader_with_data = IvcChampva::FileUploader.new(
+          form_id, metadata, file_paths, insert_db_row, current_user, parsed_form_data
+        )
+        expect(uploader_with_data.instance_variable_get(:@parsed_form_data)).to be_nil
+      end
+    end
+  end
 
   describe '#handle_uploads' do
     context 'when all PDF uploads succeed' do
