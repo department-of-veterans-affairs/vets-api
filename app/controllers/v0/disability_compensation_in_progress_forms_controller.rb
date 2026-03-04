@@ -170,7 +170,8 @@ module V0
 
     def purge_duplicate_additional_information(form_data)
       %w[additionalInformation additional_information].each do |key|
-        form_data.delete(key) if form_data[key] == {}
+        value = form_data[key]
+        form_data.delete(key) unless value.is_a?(String)
       end
     end
 
