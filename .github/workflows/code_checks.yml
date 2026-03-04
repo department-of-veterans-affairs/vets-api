@@ -424,6 +424,14 @@ jobs:
           pattern: simplecov-resultset-*
           path: .
 
+      - name: Back up original resultsets for Docker verification
+        if: needs.tests.result == 'success'
+        run: |
+          mkdir -p /tmp/original-resultsets
+          for dir in simplecov-resultset-*/; do
+            cp "${dir}.resultset.json" "/tmp/original-resultsets/$(basename $dir).json"
+          done
+
       - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
         run: bundle exec ruby script/coverage_collate.rb
@@ -448,10 +456,18 @@ jobs:
         if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
         run: zstd -d /tmp/vets-api.tar.zst --stdout | docker load
 
+      - name: Restore original resultsets for Docker verification
+        if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
+        run: |
+          for backup in /tmp/original-resultsets/simplecov-resultset-*.json; do
+            dirname=$(basename "$backup" .json)
+            cp "$backup" "${dirname}/.resultset.json"
+          done
+
       - name: Collate coverage via Docker (verification only)
         if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
         run: |
-          rm -rf docker-coverage
+          rm -rf docker-coverage coverage
           mkdir docker-coverage
           docker run --rm \
             -v ${{ github.workspace }}:/app \
