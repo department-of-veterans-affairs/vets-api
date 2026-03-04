@@ -30,8 +30,8 @@ perspective) action.
 
 ## How
 
-This module includes a controller, `uploads_controller`, that directly inherits from
-the class of the same name in the Simple Forms API. By first calling the inherited 
+This module includes a controller, `BioHeartApi::V1::UploadsController`, that directly inherits from
+the corresponding uploads controller in the Simple Forms API. By first calling the inherited 
 `submit` method, and then using an `after_action` to trigger a submission of the 
 form data to MMS via the `lib/ibm` service, the PDF is submitted to Benefits 
 Intake *and* structured data is submitted to MMS. 
