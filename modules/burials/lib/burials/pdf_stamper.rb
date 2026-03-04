@@ -12,6 +12,16 @@ module Burials
     #
     # @return [Hash] Hash of stamp set identifiers to stamp configurations
     def self.stamp_sets
+      if Burials.use_v2?
+        fdc_y = 820
+        app_x = 0
+        app_y = 807
+      else
+        fdc_y = 815
+        app_x = 425
+        app_y = 720
+      end
+
       {
         burials_received_at: [{
           text: 'VA.GOV',
@@ -28,12 +38,12 @@ module Burials
           text: 'FDC Reviewed - VA.gov Submission',
           timestamp: nil,
           x: 400,
-          y: 815,
+          y: fdc_y,
           text_only: true
         }, {
           text: 'Application Submitted on va.gov',
-          x: 425,
-          y: 720,
+          x: app_x,
+          y: app_y,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp: nil,
           page_number: 5,
