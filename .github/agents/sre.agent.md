@@ -7,7 +7,6 @@ tools:
    - read
    - search
    - execute
-   - edit
    - github/*
 model: gpt-5.3-codex
 argument-hint: "e.g. 'audit modules/check_in'"
@@ -94,8 +93,18 @@ Do not use horizontal rules in report output. Use headers to organize hierarchic
 ## RuboCop Findings (after false-positive filtering)
 
 Phase 0 RuboCop detections, filtered through each play's false-positive
-exclusion gates in Phase 3. Only offenses that survive context review
+exclusion gates in Phase 2. Only offenses that survive context review
 appear here.
+
+### Play 01: Don't Leak PII/PHI/Secrets - {n} offenses
+
+- `file.rb:5`
+- ...
+
+### Play 02: Preserve Cause Chains - {n} offenses
+
+- `file.rb:15`
+- ...
 
 ### Play 03: Never Use Bare Rescues - {n} offenses
 
@@ -106,6 +115,11 @@ appear here.
 ### Play 08: Prefer Typed Exceptions - {n} offenses
 
 - `file.rb:30`
+- ...
+
+### Play 10: Don't Build Module-Specific Frameworks - {n} offenses
+
+- `file.rb:50`
 - ...
 
 **Total RuboCop offenses**: {surviving_count} of {offense_count from
