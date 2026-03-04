@@ -8,7 +8,7 @@ both the Benefits Intake API and the Mail Management System (MMS) Form Validatio
 Service (FVS) structured data endpoint.
 
 This module relies on the `simple_forms_api` module for submitting to Benefits 
-Intake API and the the `lib/ibm` service for submitting to MMS. It acts as a 
+Intake API and the `lib/ibm` service for submitting to MMS. It acts as a 
 coordinator for sending a single submission to both services.
 
 ## Why
