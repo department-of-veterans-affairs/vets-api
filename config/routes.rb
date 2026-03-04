@@ -135,6 +135,7 @@ Rails.application.routes.draw do
         get :download
       end
     end
+    post 'cave/:id/update', to: 'cave#update'
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'

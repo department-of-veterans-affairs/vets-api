@@ -44,6 +44,10 @@ module Idp
       get('download', { id:, kvpid: }, operation: 'download', user_id:)
     end
 
+    def update(id, kvpid:, payload:, user_id:)
+      post('update', payload, operation: 'update', user_id:, params: { id:, kvpid: })
+    end
+
     private
 
     attr_reader :base_url, :timeout, :hmac_key_id, :hmac_secret
@@ -78,10 +82,12 @@ module Idp
       end
     end
 
-    def post(path, body, operation:, user_id:, headers: {})
+    def post(path, body, operation:, user_id:, headers: {}, params: {})
       canonical_body = canonical_json(body)
+      canonical_params = params.to_h
       perform_request do
         connection.post(path) do |req|
+          req.params.update(canonical_params) if canonical_params.present?
           req.headers['Content-Type'] = 'application/json'
           headers.each do |key, value|
             req.headers[key] = value if value.present?
@@ -91,7 +97,7 @@ module Idp
             req:,
             method: 'POST',
             operation:,
-            params: {},
+            params: canonical_params,
             body: canonical_body,
             user_id:
           )

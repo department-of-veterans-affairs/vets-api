@@ -94,4 +94,4 @@ Set environment-specific values in deployment config and parameter store/secrets
 1. Add/update `IDP_API_BASE_URL`, `IDP_API_TIMEOUT`, `IDP_HMAC_KEY_ID`, and `IDP_HMAC_SECRET` in production deployment config.
 2. Confirm runtime settings resolve to the expected values in production pods.
 3. Verify `/v0/cave*` requests can reach the IDP API and time out as expected.
-4. Verify IDP receives `X-IDP-User-Id` and HMAC headers on all four routes.
+4. Verify IDP receives `X-IDP-User-Id` and HMAC headers on all five routes (`intake`, `status`, `output`, `download`, `update`).

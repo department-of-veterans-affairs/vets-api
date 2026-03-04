@@ -30,6 +30,16 @@ module V0
       render json: client.download(document_id, kvpid:, user_id: idp_user_id)
     end
 
+    def update
+      kvpid = params.require(:kvpid)
+      render json: client.update(
+        document_id,
+        kvpid:,
+        payload: update_payload,
+        user_id: idp_user_id
+      )
+    end
+
     private
 
     def intake_params
@@ -40,6 +50,18 @@ module V0
 
     def document_id
       params.require(:id)
+    end
+
+    def update_payload
+      body_text = request.raw_post
+      raise ActionController::ParameterMissing, :body if body_text.blank?
+
+      payload = JSON.parse(body_text)
+      return payload if payload.is_a?(Hash)
+
+      raise Common::Exceptions::BadRequest, detail: 'Request body must be a JSON object'
+    rescue JSON::ParserError
+      raise Common::Exceptions::BadRequest, detail: 'Request body must be valid JSON'
     end
 
     def client

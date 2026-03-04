@@ -57,4 +57,41 @@ RSpec.describe Idp::MockClient do
         .to raise_error(Idp::Error, /not found/)
     end
   end
+
+  describe '#update' do
+    let(:updated_payload) do
+      {
+        'FIRST_NAME' => 'Ada',
+        'LAST_NAME' => 'Lovelace',
+        'BIRTH_DATE' => '1815-12-10'
+      }
+    end
+
+    it 'updates and persists artifact data for a kvpid' do
+      contract = client.intake(file_name: 'test.pdf', pdf_base64: Base64.encode64('fake pdf content'))
+      forms = client.output(contract['id'], type: 'artifact')['forms']
+      kvpid = forms.first['mmsArtifactValidationId']
+
+      result = client.update(contract['id'], kvpid:, payload: updated_payload)
+
+      expect(result).to eq(updated_payload)
+      expect(client.download(contract['id'], kvpid:)).to eq(updated_payload)
+    end
+
+    it 'raises an error for an unknown kvpid' do
+      contract = client.intake(file_name: 'test.pdf', pdf_base64: Base64.encode64('fake pdf content'))
+
+      expect { client.update(contract['id'], kvpid: 'bad-kvp', payload: updated_payload) }
+        .to raise_error(Idp::Error, /not found/)
+    end
+
+    it 'raises an error for a non-object payload' do
+      contract = client.intake(file_name: 'test.pdf', pdf_base64: Base64.encode64('fake pdf content'))
+      forms = client.output(contract['id'], type: 'artifact')['forms']
+      kvpid = forms.first['mmsArtifactValidationId']
+
+      expect { client.update(contract['id'], kvpid:, payload: ['invalid']) }
+        .to raise_error(Idp::Error, /JSON object/)
+    end
+  end
 end

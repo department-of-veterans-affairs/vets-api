@@ -170,4 +170,56 @@ RSpec.describe 'CAVE API', type: :request do
         .to eq('Document processing service is temporarily unavailable')
     end
   end
+
+  describe 'POST /v0/cave/:id/update' do
+    let(:payload) { { 'FIRST_NAME' => 'Ada', 'LAST_NAME' => 'Lovelace' } }
+    let(:json_headers) { { 'CONTENT_TYPE' => 'application/json' } }
+
+    it 'returns 401 when unauthenticated' do
+      post '/v0/cave/abc123/update?kvpid=kvp1', params: payload.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'requires kvpid' do
+      sign_in_as(user)
+
+      post '/v0/cave/abc123/update', params: payload.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'requires a valid JSON object body' do
+      sign_in_as(user)
+
+      post '/v0/cave/abc123/update?kvpid=kvp1', params: '[]', headers: json_headers
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'proxies the update call' do
+      sign_in_as(user)
+      allow(client).to receive(:update)
+        .with('abc123', kvpid: 'kvp1', payload:, user_id: idp_user_id)
+        .and_return(payload)
+
+      post '/v0/cave/abc123/update?kvpid=kvp1', params: payload.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response).to eq(payload)
+    end
+
+    it 'returns bad gateway when upstream fails' do
+      sign_in_as(user)
+      allow(client).to receive(:update)
+        .with('abc123', kvpid: 'kvp1', payload:, user_id: idp_user_id)
+        .and_raise(Idp::Error, 'boom')
+
+      post '/v0/cave/abc123/update?kvpid=kvp1', params: payload.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:bad_gateway)
+      expect(parsed_response['errors'].first['detail'])
+        .to eq('Document processing service is temporarily unavailable')
+    end
+  end
 end

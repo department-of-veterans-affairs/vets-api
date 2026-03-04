@@ -61,6 +61,18 @@ module Idp
       artifact
     end
 
+    def update(id, kvpid:, payload:, **)
+      data = load_document(id)
+      raise Idp::Error, 'Updated payload must be a JSON object' unless payload.is_a?(Hash)
+
+      artifact = data['artifacts'][kvpid]
+      raise Idp::Error, "Artifact #{kvpid} not found" if artifact.blank?
+
+      data['artifacts'][kvpid] = payload
+      persist_document(data)
+      payload
+    end
+
     private
 
     attr_reader :storage_dir
