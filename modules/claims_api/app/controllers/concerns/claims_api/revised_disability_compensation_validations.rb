@@ -416,11 +416,12 @@ module ClaimsApi
       validate_form_526_secondary_disabilities_uniqueness!
 
       disabilities.each do |disability|
-        next if disability['secondaryDisabilities'].blank?
+        secondary_disabilities = disability['secondaryDisabilities']
+        next if secondary_disabilities.blank?
 
-        validate_form_526_secondary_disabilities_classification_code!(disability['secondaryDisabilities'])
-        validate_form_526_secondary_disabilities_special_issues!(disability['secondaryDisabilities'])
-        validate_form_526_secondary_disabilities_approximate_begin_date!(disability['secondaryDisabilities'])
+        validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities)
+        validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities)
+        validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities)
       end
     end
 
