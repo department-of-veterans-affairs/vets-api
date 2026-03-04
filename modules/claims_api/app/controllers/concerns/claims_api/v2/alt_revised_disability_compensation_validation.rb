@@ -387,7 +387,7 @@ module ClaimsApi
           group.each do
             collect_error_messages(
               source: '/disabilities',
-              detail: "The disability name '#{name}' is duplicated." \
+              detail: "The disability name '#{name}' is duplicated. " \
                       'All disability names must be unique across primary and secondary disabilities.'
             )
           end
