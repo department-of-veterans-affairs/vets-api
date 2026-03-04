@@ -22,6 +22,19 @@ RSpec.describe VAOS::OhMigrationsHelper do
     expect(migrations['123'][:disable_eligibility]).to be(true)
   end
 
+  it '31 days before migration date, eligibility is not disabled' do
+    go_live_date = Time.zone.today + 31.days
+    Settings.mhv.oh_facility_checks.oh_migrations_list = "#{go_live_date}:[123,Test 1]"
+    migrations = VAOS::OhMigrationsHelper.get_migrations
+
+    expect(migrations.size).to eq(1)
+    expect(migrations).to have_key('123')
+    expect(migrations['123'][:migration_days]).to eq(-31)
+    expect(migrations['123'][:migration_date]).to be_an_instance_of(Date)
+    expect(migrations['123'][:migration_date]).to eq(go_live_date)
+    expect(migrations['123'][:disable_eligibility]).to be(false)
+  end
+
   it '30 days before migration date, eligibility is disabled' do
     go_live_date = Time.zone.today + 30.days
     Settings.mhv.oh_facility_checks.oh_migrations_list = "#{go_live_date}:[123,Test 1]"

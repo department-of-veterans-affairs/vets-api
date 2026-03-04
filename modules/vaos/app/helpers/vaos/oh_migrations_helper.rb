@@ -44,7 +44,7 @@ module VAOS
       return nil if facilities.empty?
 
       {
-        migration_date: Date.parse(date_part.strip),
+        migration_date: Time.use_zone('Eastern Time (US & Canada)') { Date.parse(date_part.strip) },
         facilities:
       }
     end
