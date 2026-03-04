@@ -361,55 +361,6 @@ jobs:
           mkdir -p tmp
           ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
-      # --- BEGIN RUNTIME LOG VERIFICATION (remove after confirmed) ---
-      - name: Generate runtime log via REXML for comparison
-        if: always()
-        run: |
-          ruby -e '
-            require "rexml/document"
-            file_times = Hash.new(0.0)
-            Dir.glob("Test Results Group*/*.xml").each do |xml_path|
-              xml_content = File.read(xml_path)
-              next if xml_content.include?("<!DOCTYPE")
-              doc = REXML::Document.new(xml_content)
-              doc.elements.each("//testcase") do |tc|
-                file = tc.attributes["file"]
-                time = tc.attributes["time"]
-                next unless file && time
-                file = file.sub(%r{^\./}, "")
-                file_times[file] += time.to_f
-              end
-            rescue REXML::ParseException, SystemCallError => e
-              warn "Skipping #{xml_path}: #{e.class} - #{e.message}"
-            end
-            File.open("tmp/parallel_runtime_rspec_rexml.log", "w") do |f|
-              file_times.sort_by { |path, _| path }.each do |path, time|
-                f.puts "#{path}:#{format("%.4f", time)}"
-              end
-            end
-            warn "REXML: Generated #{file_times.size} entries"
-          '
-
-      - name: Compare regex vs REXML runtime logs
-        if: always()
-        run: |
-          echo "Regex entries: $(wc -l < tmp/parallel_runtime_rspec.log)"
-          echo "REXML entries: $(wc -l < tmp/parallel_runtime_rspec_rexml.log)"
-          regex_md5=$(md5sum tmp/parallel_runtime_rspec.log | awk '{print $1}')
-          rexml_md5=$(md5sum tmp/parallel_runtime_rspec_rexml.log | awk '{print $1}')
-          echo "Regex MD5:  $regex_md5"
-          echo "REXML MD5:  $rexml_md5"
-          diff_output=$(diff tmp/parallel_runtime_rspec.log tmp/parallel_runtime_rspec_rexml.log || true)
-          if [ -z "$diff_output" ]; then
-            echo "Content is identical (checksums match, diff clean)."
-          else
-            echo "=== DIFF ==="
-            echo "$diff_output" | head -50
-            echo "::error::Runtime log content mismatch between regex and REXML parsers!"
-            exit 1
-          fi
-      # --- END RUNTIME LOG VERIFICATION ---
-
       - name: Save runtime log to cache
         if: always()
         uses: actions/cache/save@v4
@@ -424,83 +375,9 @@ jobs:
           pattern: simplecov-resultset-*
           path: .
 
-      - name: Back up original resultsets for Docker verification
-        if: needs.tests.result == 'success'
-        run: |
-          mkdir -p /tmp/original-resultsets
-          for dir in simplecov-resultset-*/; do
-            cp "${dir}.resultset.json" "/tmp/original-resultsets/$(basename $dir).json"
-          done
-
       - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
         run: bundle exec ruby script/coverage_collate.rb
-
-      # --- BEGIN VERIFICATION (remove after confirming native output matches Docker) ---
-      - name: Save native coverage result for comparison
-        if: needs.tests.result == 'success'
-        run: |
-          cp coverage/.last_run.json /tmp/native_last_run.json
-          cp -r coverage /tmp/native_coverage
-
-      - name: Restore Docker image from cache (verification only)
-        id: docker-cache-verify
-        if: needs.tests.result == 'success'
-        uses: actions/cache/restore@v4
-        with:
-          path: /tmp/vets-api.tar.zst
-          key: docker-image-${{ github.sha }}
-          fail-on-cache-miss: false
-
-      - name: Load Docker image (verification only)
-        if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
-        run: zstd -d /tmp/vets-api.tar.zst --stdout | docker load
-
-      - name: Restore original resultsets for Docker verification
-        if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
-        run: |
-          for backup in /tmp/original-resultsets/simplecov-resultset-*.json; do
-            dirname=$(basename "$backup" .json)
-            cp "$backup" "${dirname}/.resultset.json"
-          done
-
-      - name: Collate coverage via Docker (verification only)
-        if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
-        run: |
-          rm -rf docker-coverage coverage
-          mkdir docker-coverage
-          docker run --rm \
-            -v ${{ github.workspace }}:/app \
-            -w /app \
-            vets-api \
-            bundle exec rake coverage:report
-          cp coverage/.last_run.json docker-coverage/.last_run.json
-          rm -rf coverage
-          cp -r /tmp/native_coverage coverage
-
-      - name: Compare native vs Docker coverage output
-        if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit == 'true'
-        run: |
-          echo "=== Native .last_run.json ==="
-          cat /tmp/native_last_run.json
-          echo ""
-          echo "=== Docker .last_run.json ==="
-          cat docker-coverage/.last_run.json
-          echo ""
-          native_pct=$(jq '.result.line' /tmp/native_last_run.json)
-          docker_pct=$(jq '.result.line' docker-coverage/.last_run.json)
-          echo "Native coverage: $native_pct"
-          echo "Docker coverage: $docker_pct"
-          if [ "$native_pct" != "$docker_pct" ]; then
-            echo "::error::Coverage mismatch! Native=$native_pct Docker=$docker_pct"
-            exit 1
-          fi
-          echo "Coverage outputs match."
-
-      - name: Skip Docker verification (cache miss)
-        if: needs.tests.result == 'success' && steps.docker-cache-verify.outputs.cache-hit != 'true'
-        run: echo "::warning::Docker image cache miss — skipping coverage verification. Will verify on next run."
-      # --- END VERIFICATION ---
 
       - name: Upload Combined Coverage HTML
         if: needs.tests.result == 'success'
