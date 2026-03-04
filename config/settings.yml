@@ -604,7 +604,7 @@ gclaws:
     veteran_service_organizations:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
   accreditation_xlsx:
-    password: '<%= ENV['gclaws__accreditation_xlsx__password'] %>'
+    password: "<%= ENV['gclaws__accreditation_xlsx__password'] %>"
     url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
     username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:
