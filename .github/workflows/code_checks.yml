@@ -377,7 +377,7 @@ jobs:
 
       - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
-        run: ruby script/coverage_collate.rb
+        run: bundle exec ruby script/coverage_collate.rb
 
       # --- BEGIN VERIFICATION (remove after confirming native output matches Docker) ---
       - name: Save native coverage result for comparison
