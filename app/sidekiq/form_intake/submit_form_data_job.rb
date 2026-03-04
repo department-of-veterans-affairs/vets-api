@@ -24,54 +24,60 @@ module FormIntake
       handle_exhaustion(form_submission_id, msg['error_message'])
     end
 
-    # rubocop:disable Metrics/MethodLength
     def perform(form_submission_id, benefits_intake_uuid)
+      initialize_job(form_submission_id, benefits_intake_uuid)
+      log_job_start
+
+      return log_and_skip('Form not eligible') unless eligible_for_submission?
+
+      mapper = get_mapper
+      return log_and_skip('No mapper found') unless mapper
+
+      execute_with_tracing(mapper)
+    rescue FormIntake::ServiceError => e
+      handle_service_error(e)
+    rescue ActiveRecord::RecordNotFound => e
+      handle_record_not_found(form_submission_id, benefits_intake_uuid, e)
+    rescue => e
+      handle_and_log_unexpected_error(e)
+    end
+
+    def initialize_job(form_submission_id, benefits_intake_uuid)
       @form_submission = FormSubmission.find(form_submission_id)
       @benefits_intake_uuid = benefits_intake_uuid
+    end
 
-      # Log job start
+    def log_job_start
       Rails.logger.info('FormIntake::SubmitFormDataJob started', {
-                          form_submission_id:,
+                          form_submission_id: @form_submission.id,
                           form_type: @form_submission.form_type,
-                          benefits_intake_uuid:
+                          benefits_intake_uuid: @benefits_intake_uuid
                         })
+    end
 
-      # Validate form is still eligible
-      unless eligible_for_submission?
-        log_and_skip('Form not eligible')
-        return
-      end
-
-      # Get mapper for form type
-      mapper = get_mapper
-      unless mapper
-        log_and_skip('No mapper found')
-        return
-      end
-
-      # Execute submission with tracing
+    def execute_with_tracing(mapper)
       Datadog::Tracing.trace('form_intake.submit_form_data_job') do |span|
         add_trace_tags(span)
         execute_submission(mapper)
       end
-    rescue FormIntake::ServiceError => e
-      handle_service_error(e)
-    rescue ActiveRecord::RecordNotFound => e
-      # Form submission was deleted, don't retry
+    end
+
+    def handle_record_not_found(form_submission_id, benefits_intake_uuid, error)
       Rails.logger.warn('Form submission deleted during job execution', {
                           form_submission_id:,
                           benefits_intake_uuid:,
-                          error: e.message
+                          error: error.message
                         })
-    rescue => e
-      handle_unexpected_error(e)
-      log_exception_to_sentry(e, {
+    end
+
+    def handle_and_log_unexpected_error(error)
+      handle_unexpected_error(error)
+      log_exception_to_sentry(error, {
                                 form_submission_id: @form_submission&.id,
                                 form_type: @form_submission&.form_type,
                                 benefits_intake_uuid: @benefits_intake_uuid
                               })
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -139,9 +145,8 @@ module FormIntake
       StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags:)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def handle_service_error(error)
-      status_code = error.status_code # Extract to avoid duplicate method calls
+      status_code = error.status_code
       error_message = error.message
 
       # NOTE: error_message is encrypted at rest via Lockbox
@@ -152,30 +157,38 @@ module FormIntake
       )
 
       if NON_RETRYABLE_ERRORS.include?(status_code)
-        @form_intake_submission.fail!
-
-        Rails.logger.error(
-          'GCIO submission non-retryable error',
-          form_submission_id: @form_submission.id,
-          form_intake_submission_id: @form_intake_submission.id,
-          error: error_message,
-          status_code:,
-          benefits_intake_uuid: @benefits_intake_uuid
-        )
-
-        # Log non-retryable errors to Sentry for visibility
-        log_exception_to_sentry(error, {
-                                  form_submission_id: @form_submission.id,
-                                  form_type: @form_submission.form_type,
-                                  status_code:
-                                })
-
-        StatsD.increment("#{STATSD_KEY_PREFIX}.non_retryable_error",
-                         tags: tags + ["status:#{status_code}"])
-
-        return # Don't re-raise, prevents retry
+        handle_non_retryable_error(error, status_code, error_message)
+      else
+        handle_retryable_error(status_code, error_message)
       end
+    end
 
+    def handle_non_retryable_error(error, status_code, error_message)
+      @form_intake_submission.fail!
+
+      Rails.logger.error(
+        'GCIO submission non-retryable error',
+        form_submission_id: @form_submission.id,
+        form_intake_submission_id: @form_intake_submission.id,
+        error: error_message,
+        status_code:,
+        benefits_intake_uuid: @benefits_intake_uuid
+      )
+
+      # Log non-retryable errors to Sentry for visibility
+      log_exception_to_sentry(error, {
+                                form_submission_id: @form_submission.id,
+                                form_type: @form_submission.form_type,
+                                status_code:
+                              })
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.non_retryable_error",
+                       tags: tags + ["status:#{status_code}"])
+
+      # Don't re-raise, prevents retry
+    end
+
+    def handle_retryable_error(status_code, error_message)
       # Retryable error - log as warning (will be retried by Sidekiq)
       Rails.logger.warn(
         'GCIO submission retryable error - will retry',
@@ -193,7 +206,6 @@ module FormIntake
 
       raise # Re-raise to trigger Sidekiq retry
     end
-    # rubocop:enable Metrics/MethodLength
 
     def handle_unexpected_error(error)
       Rails.logger.error(
@@ -238,13 +250,24 @@ module FormIntake
     end
 
     class << self
-      # rubocop:disable Metrics/MethodLength
       def handle_exhaustion(form_submission_id, error_message)
         form_intake_submission = FormIntakeSubmission.find_by(form_submission_id:)
         return unless form_intake_submission
 
-        form_intake_submission.fail!
+        mark_as_failed(form_intake_submission)
+        log_exhaustion(form_submission_id, form_intake_submission, error_message)
+        track_exhaustion_metrics
+      rescue => e
+        log_exhaustion_handler_error(form_submission_id, e)
+      end
 
+      private
+
+      def mark_as_failed(form_intake_submission)
+        form_intake_submission.fail!
+      end
+
+      def log_exhaustion(form_submission_id, form_intake_submission, error_message)
         Rails.logger.error(
           'GCIO submission retries exhausted',
           form_submission_id:,
@@ -252,7 +275,9 @@ module FormIntake
           error: error_message,
           retry_count: form_intake_submission.retry_count
         )
+      end
 
+      def track_exhaustion_metrics
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         # Track as silent failure if no other notification mechanism exists
@@ -260,16 +285,16 @@ module FormIntake
                            'service:form-intake',
                            'function:gcio_api_submission'
                          ])
-      rescue => e
-        # Ensure exhaustion callback doesn't raise - log but don't fail
+      end
+
+      def log_exhaustion_handler_error(form_submission_id, error)
         Rails.logger.error(
           'Error in FormIntake::SubmitFormDataJob exhaustion handler',
           form_submission_id:,
-          error: e.message,
-          backtrace: e.backtrace&.first(5)
+          error: error.message,
+          backtrace: error.backtrace&.first(5)
         )
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end
