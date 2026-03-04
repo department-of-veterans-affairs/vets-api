@@ -2725,10 +2725,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context "when 'disabilities.secondaryDisabilities.name' validations" do
-
         before do
           allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
         end
+
         it 'raises an exception if name is not valid structure' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
