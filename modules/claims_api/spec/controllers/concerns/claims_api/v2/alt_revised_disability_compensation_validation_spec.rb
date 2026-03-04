@@ -23,6 +23,10 @@ class AltTestDisabilityCompensationValidationClass
         'form_526_json_api.json'
       ).read
     ).dig('data', 'attributes')
+
+    @form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+      "#{Time.current.year + 1}-12-20"
+    @form_attributes
   end
 end
 
@@ -31,8 +35,75 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
+  let(:valid_countries) do
+    ['USA']
+  end
+
+  let(:brd_classification_ids) do
+    [9014]
+  end
+
+  let(:brd_service_branch_names) do
+    ['Army', 'Public Health Service', 'Naval Academy']
+  end
+
+  let(:brd_disabilities) do
+    [
+      { id: 10, name: 'abnormal heart', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 190, name: 'ALS', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 2650, name: 'foot condition, bilateral', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 6880, name: 'tooth condition', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 8987, name: 'Leg Condition - Heart/Veins/Arteries', endDateTime: nil },
+      { id: 9014, name: 'Scars (Head, Face, Or Neck)', endDateTime: nil },
+      { id: 7290, name: 'PTSD personal trauma', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 249_483, name: 'Aid & Attendance Spouse', endDateTime: nil },
+      { id: 249_479, name: 'Cyst/Benign Growth - Heart/Veins/Arteries', endDateTime: nil }
+    ]
+  end
+
+  let(:separation_locations) do
+    [
+      { id: 98_283, description: 'Test Academy' },
+      { id: 98_282, description: 'Test Academy II' }
+    ]
+  end
+
+  let(:auth_headers) do
+    {
+      'va_eauth_birthdate' => 35.years.ago.to_date.iso8601
+    }
+  end
+
   def current_error_array
     test_526_validation_instance.instance_variable_get('@errors')
+  end
+
+  describe '#alt_rev_validate_form_526_submission_values' do
+    context 'with valid form_attributes' do
+      before do
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_disabilities).and_return(brd_disabilities)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:valid_countries).and_return(valid_countries)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_classification_ids).and_return(brd_classification_ids)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_service_branch_names).and_return(brd_service_branch_names)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:retrieve_separation_locations).and_return(separation_locations)
+        allow_any_instance_of(described_class).to receive(:auth_headers).and_return(auth_headers)
+      end
+
+      it 'does not return or raise any errors' do
+        expect { subject.send(:alt_rev_validate_form_526_submission_values) }.not_to raise_error
+        expect(current_error_array).to be_nil
+      end
+    end
   end
 
   describe '#alt_rev_validate_form_526_service_information' do
@@ -527,6 +598,30 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
         subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
         res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_state)
+        expect(res).to be_nil
+      end
+    end
+
+    context 'when the country is not USA and internationalPostalCode is missing' do
+      it 'returns an error array' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Canada'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = nil
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
+        expect(res[0][:detail])
+          .to eq('The internationalPostalCode is required if the country is not USA (international).')
+        expect(res[0][:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
+      end
+    end
+
+    context 'when the country is not USA and internationalPostalCode is present' do
+      it 'responds with nil' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Japan'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
         expect(res).to be_nil
       end
     end

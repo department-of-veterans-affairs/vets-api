@@ -10,6 +10,7 @@ module Lighthouse
     RETRY = 16
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_career_counseling_job'
+    API_KEY_PATH = 'Settings.vanotify.services.va_gov.api_key'
 
     sidekiq_options retry: RETRY
 
@@ -47,14 +48,17 @@ module Lighthouse
         return
       end
 
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.career_counseling_confirmation_email,
-        {
-          'first_name' => @claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
-          'date' => Time.zone.today.strftime('%B %d, %Y')
-        }
-      )
+      template_id = Settings.vanotify.services.va_gov.template_id.career_counseling_confirmation_email
+      personalisation = {
+        'first_name' => @claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
+        'date' => Time.zone.today.strftime('%B %d, %Y')
+      }
+
+      if Flipper.enabled?(:va_notify_v2_career_counseling_job)
+        VANotify::V2::QueueEmailJob.enqueue(email, template_id, personalisation, API_KEY_PATH)
+      else
+        VANotify::EmailJob.perform_async(email, template_id, personalisation)
+      end
     end
 
     def self.trigger_failure_events(msg, claim)

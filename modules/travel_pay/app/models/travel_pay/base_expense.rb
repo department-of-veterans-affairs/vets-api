@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'base64'
+
 module TravelPay
   class BaseExpense
     include ActiveModel::Model

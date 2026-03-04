@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: (multi-claim provider) Enables the Lighthouse provider for benefits claims
     enable_in_development: true
+  benefits_claims_ivc_champva_provider:
+    actor_type: user
+    description: Enables IVC CHAMPVA form status entries in My VA submission statuses/cards
+    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -1167,6 +1171,12 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
+  form_218940_date_validation:
+    actor_type: user
+    description: Enable the data validation on the 21-8940
+  form218940_leaving_last_position:
+    actor_type: user
+    description: enable the leaving last positon text box
   form22_10282_confirmation_email:
     actor_type: user
     description: Enables form 22-10282 email submission confirmation (VaNotify)
@@ -2679,6 +2689,13 @@ features:
       A switch that toggles the availability of the expense and document submission features for travel pay claims. This feature flag can be retired when the feature is deployed to 100% of logged-in users in production for > 30 days.
       Enabled - Requests are handled as normal. Users can submit various types of expenses (mileage, lodging, meal, other) to their travel pay claims. Users can upload documents to their travel claims.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled.
+  travel_pay_enable_heic_conversion:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that enables automatic conversion of HEIC/HEIF image receipts to JPG format when expenses are submitted.
+      Enabled - HEIC/HEIF receipts are automatically converted to JPG before processing.
+      Disabled - HEIC/HEIF receipts are rejected with a 422 Unprocessable Entity error; other supported image types are processed normally.
   travel_pay_submit_mileage_expense:
     actor_type: user
     enable_in_development: true
@@ -2775,9 +2792,17 @@ features:
   va_notify_v2_form1010cg_submission:
     actor_type: user
     description: If enabled, Form1010cg::SubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
+  va_notify_v2_form1010ezr_submission:
+    actor_type: user
+    description: If enabled, HCA::EzrSubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
   va_notify_v2_in_progress_form_reminder:
     actor_type: user
     description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
+  va_notify_v2_career_counseling_job:
+    actor_type: user
+    description: >-
+      If enabled, SubmitCareerCounselingJob will use VANotify::V2::QueueEmailJob instead of
+      VANotify::EmailJob for confirmation emails
   va_notify_delivery_status_update_job:
     actor_type: user
     description: If enabled, VANotify::DelieveryStatusUpdateJob will be used to query VANotify::Notifications
