@@ -352,7 +352,7 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_disability_secondary_disabilities # rubocop:disable Metrics/MethodLength
+      def alt_rev_validate_form_526_disability_secondary_disabilities
         alt_rev_validate_form_526_disability_secondary_disability_names_unique!
 
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
@@ -371,12 +371,6 @@ module ClaimsApi
               alt_rev_validate_form_526_disability_secondary_disability_approximate_begin_date(secondary_disability,
                                                                                                dis_idx,
                                                                                                sd_idx)
-            end
-
-            if secondary_disability['specialIssues'].present?
-              alt_rev_validate_form_526_secondary_disabilities_special_issues!(secondary_disability,
-                                                                               dis_idx,
-                                                                               sd_idx)
             end
           end
         end
@@ -410,28 +404,6 @@ module ClaimsApi
           list.concat(secondaries)
 
           list
-        end
-      end
-
-      def alt_rev_validate_form_526_secondary_disabilities_special_issues!(secondary_disability, dis_idx, sd_idx)
-        # special issues for secondary disabilities must be validated like primary disabilities
-        special_issues = secondary_disability['specialIssues']
-
-        if special_issues.include?('HEPC') && !secondary_disability['name']&.casecmp?('hepatitis')
-          collect_error_messages(
-            source: "/disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/specialIssues",
-            detail: "specialIssues cannot include 'HEPC' unless the disability name is 'hepatitis'."
-          )
-        end
-
-        if special_issues.include?('POW')
-          confinements = form_attributes['serviceInformation']&.dig('confinements')
-          if confinements.blank?
-            collect_error_messages(
-              source: "/disabilities/#{dis_idx}/secondaryDisabilities/#{sd_idx}/specialIssues",
-              detail: 'serviceInformation.confinements is required if specialIssues includes POW.'
-            )
-          end
         end
       end
 
