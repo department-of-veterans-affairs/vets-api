@@ -6,6 +6,16 @@ module DigitalFormsApi
   module Service
     # Forms API
     class Forms < Base
+      # Cache TTL values for form templates. Production uses a longer TTL
+      TEMPLATE_CACHE_TTL_PRODUCTION = 24.hours
+      # Non-production environments use a shorter TTL
+      TEMPLATE_CACHE_TTL_DEFAULT = 5.minutes
+
+      # Build the cache key for a given form template.
+      def self.template_cache_key(form_id)
+        "digital_forms_api:template:#{form_id}"
+      end
+
       # GET a form schema
       def schema(form_id)
         perform :get, "forms/#{form_id}/schema", {}, {}
@@ -13,16 +23,23 @@ module DigitalFormsApi
 
       # GET a form template (with caching)
       def template(form_id)
-        cache_key = "digital_forms_api:template:#{form_id}"
+        cache_key = self.class.template_cache_key(form_id)
         cached = Rails.cache.read(cache_key)
         return cached if cached.present?
 
         response = perform :get, "forms/#{form_id}/template", {}, {}
-        Rails.cache.write(cache_key, response, expires_in: 24.hours)
+        Rails.cache.write(cache_key, response, expires_in: template_cache_ttl)
         response
       end
 
       private
+
+      # Returns the cache TTL for form templates.
+      # Production uses a longer TTL (24 hours); all other environments use a
+      # shorter TTL (5 minutes) to avoid stale data during development and testing.
+      def template_cache_ttl
+        Rails.env.production? ? TEMPLATE_CACHE_TTL_PRODUCTION : TEMPLATE_CACHE_TTL_DEFAULT
+      end
 
       # @see DigitalFormsApi::Service::Base#endpoint
       def endpoint
