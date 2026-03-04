@@ -82,6 +82,14 @@ RSpec.describe V0::Concerns::MultiProviderSupport do
     end
   end
 
+  describe '#provider_class_for_type' do
+    it 'raises InvalidFieldValue for unknown provider type' do
+      expect do
+        controller.send(:provider_class_for_type, 'unknown_provider')
+      end.to raise_error(Common::Exceptions::InvalidFieldValue)
+    end
+  end
+
   describe 'integration with base module' do
     describe '#get_claims_from_providers' do
       it 'returns web-formatted response' do

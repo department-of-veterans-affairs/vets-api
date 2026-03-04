@@ -6,6 +6,7 @@ module Mobile
   module V0
     class Claim < Common::Resource
       attribute :id, Types::String
+      attribute :provider, Types::String.optional.default(nil)
       attribute :date_filed, Types::Date
       attribute :min_est_date, Types::Date
       attribute :max_est_date, Types::Date

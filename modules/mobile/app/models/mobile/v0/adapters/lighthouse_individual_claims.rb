@@ -5,6 +5,14 @@ require 'benefits_claims/title_generator'
 module Mobile
   module V0
     module Adapters
+      # Transforms Lighthouse Benefits Claims API responses into Mobile::V0::Claim models.
+      #
+      # This adapter contains Lighthouse-specific logic:
+      # - Status code mappings (LH_STATUS_TO_EVSS_TYPE, LH_STATUS_TO_EVSS_STATUS)
+      # - Expects Lighthouse's JSONAPI format
+      #
+      # Other providers (e.g., CHAMPVA) may need their own adapters if they use
+      # different status codes, even if they follow the same JSONAPI structure.
       class LighthouseIndividualClaims
         # Order of EVENT_DATE_FIELDS determines which date trumps in timeline sorting.
         EVENT_DATE_FIELDS = %i[
@@ -49,7 +57,7 @@ module Mobile
         end
 
         # rubocop:disable Metrics/MethodLength
-        def parse(claim)
+        def parse(claim, provider: 'lighthouse')
           return nil unless claim
 
           attributes = claim.dig('data', 'attributes')
@@ -66,6 +74,7 @@ module Mobile
           Mobile::V0::Claim.new(
             {
               id: claim['data']['id'],
+              provider:,
               date_filed: attributes['claimDate'],
               min_est_date: attributes['minEstClaimDate'],
               max_est_date: attributes['maxEstClaimDate'],

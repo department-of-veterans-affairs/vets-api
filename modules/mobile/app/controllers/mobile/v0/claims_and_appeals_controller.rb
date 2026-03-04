@@ -24,13 +24,21 @@ module Mobile
       end
 
       def get_claim
-        claim_response = if Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
-                           get_claim_from_providers(params[:id])
+        multi_provider_enabled = Flipper.enabled?(:cst_multi_claim_provider_mobile, @current_user)
+        provider_type = multi_provider_enabled ? params[:type]&.downcase : nil
+
+        claim_response = if multi_provider_enabled
+                           # Multi-provider path: Explicit routing with optional type parameter
+                           get_claim_from_providers(params[:id], provider_type)
                          else
+                           # Legacy single-provider path
                            lighthouse_claims_proxy.get_claim(params[:id])
                          end
 
-        claim_detail = lighthouse_claims_adapter.parse(claim_response)
+        adapter = adapter_for_provider(provider_type)
+        # Default to 'lighthouse' if no provider_type specified
+        provider = provider_type.presence || 'lighthouse'
+        claim_detail = adapter.parse(claim_response, provider:)
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
@@ -214,6 +222,19 @@ module Mobile
 
       def lighthouse_claims_adapter
         Mobile::V0::Adapters::LighthouseIndividualClaims.new(@current_user)
+      end
+
+      def adapter_for_provider(_provider_type)
+        # TODO: Add case statement when CHAMPVA is onboarded to CST
+        # case provider_type&.downcase
+        # when 'champva'
+        #   Mobile::V0::Adapters::ChampvaIndividualClaims.new
+        # else
+        #   Mobile::V0::Adapters::LighthouseIndividualClaims.new
+        # end
+
+        # For now, all providers use Lighthouse adapter
+        Mobile::V0::Adapters::LighthouseIndividualClaims.new
       end
 
       def appeal_adapter

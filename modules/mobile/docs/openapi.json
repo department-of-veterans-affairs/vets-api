@@ -13235,6 +13235,12 @@
                   "downloadEligibleDocuments"
                 ],
                 "properties": {
+                  "provider": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "The provider system that owns this claim.",
+                    "example": "lighthouse"
+                  },
                   "dateFiled": {
                     "type": "string",
                     "example": "2017-12-08"
@@ -14850,6 +14856,12 @@
               "claimTypeCode"
             ],
             "properties": {
+              "provider": {
+                "type": "string",
+                "description": "The provider system that owns this claim. Used by mobile app to route subsequent requests for this claim.",
+                "example": "lighthouse",
+                "nullable": true
+              },
               "subtype": {
                 "type": "string",
                 "example": "Compensation",
@@ -15046,6 +15058,12 @@
                     "claimTypeCode"
                   ],
                   "properties": {
+                    "provider": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The provider system that owns this claim. Used by mobile app to route subsequent requests for this claim.",
+                      "example": "lighthouse"
+                    },
                     "subtype": {
                       "type": "string",
                       "example": "legacyAppeal",
@@ -15220,6 +15238,12 @@
                     "claimTypeCode"
                   ],
                   "properties": {
+                    "provider": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "The provider system that owns this claim. Used by mobile app to route subsequent requests for this claim.",
+                      "example": "lighthouse"
+                    },
                     "subtype": {
                       "type": "string",
                       "example": "Compensation",

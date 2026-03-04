@@ -25,6 +25,11 @@ properties:
       - developmentLetterSent
       - claimTypeCode
     properties:
+      provider:
+        type: string
+        description: The provider system that owns this claim. Used by mobile app to route subsequent requests for this claim.
+        example: "lighthouse"
+        nullable: true
       subtype:
         type: string
         example: "Compensation"
@@ -73,5 +78,5 @@ properties:
       claimTypeBase:
         type: string
         description: Base type of claim
-        example: 'compensation claim'
+        example: "compensation claim"
         nullable: true

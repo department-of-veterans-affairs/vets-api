@@ -37,6 +37,118 @@ module Mobile
         def statsd_tags_for_provider(provider_name)
           ["provider:#{provider_name}"]
         end
+
+        # Overrides base implementation to use explicit routing instead of fallback iteration.
+        #
+        # Retrieves a claim from the appropriate provider based on provider_type parameter.
+        #
+        # The type parameter is optional and defaults to lighthouse for backward compatibility
+        # with existing bookmarked URLs. This means lighthouse claims can be accessed without
+        # specifying type, even when multiple providers exist. Other providers require the
+        # type parameter to be explicitly specified to prevent ID collisions.
+        #
+        # For Lighthouse claims, routes through Mobile::V0::LighthouseClaims::Proxy to apply
+        # mobile-specific transforms. Other providers use their provider implementation directly.
+
+        # TODO: OBSERVABILITY GAP - Missing error instrumentation
+        # This override bypasses the base class error handling, losing:
+        # - StatsD metrics for provider errors (get_claim.provider_error)
+        # - Structured error logging with backtrace
+        # - RecordNotFound logging for missing claims
+        # Should wrap routing logic with rescue blocks + instrumentation for ops visibility
+        def get_claim_from_providers(claim_id, provider_type = nil)
+          # If provider_type is specified, route based on type
+          return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
+
+          # Default to lighthouse if no type parameter is specified
+          lighthouse_proxy.get_claim(claim_id)
+        end
+
+        # Routes claim request to appropriate implementation based on provider type
+        # Lighthouse uses Proxy (with mobile-specific transforms), others use provider directly
+        def get_claim_for_provider_type(claim_id, provider_type)
+          provider_class = provider_class_for_type(provider_type)
+
+          if lighthouse_provider?(provider_class)
+            lighthouse_proxy.get_claim(claim_id)
+          else
+            provider = provider_class.new(@current_user)
+            provider.get_claim(claim_id)
+          end
+        end
+
+        # Maps provider type strings to their provider classes
+        # Single source of truth for supported providers
+        #
+        # TODO: ARCHITECTURAL IMPROVEMENT - Replace with ProviderRegistry
+        # This static mapping duplicates provider registration logic and doesn't honor
+        # per-user feature flag enablement. Future improvement should:
+        # 1. Add ProviderRegistry.enabled_providers(user) method that returns both type and class
+        # 2. Replace PROVIDER_TYPE_MAPPINGS with memoized call to enabled_providers
+        # 3. Update provider_class_for_type, supported_provider_types, and provider_type_from_class
+        #    to use the registry instead of this static mapping
+        # 4. Add corresponding tests that mock ProviderRegistry.enabled_providers
+        # Benefits: Single source of truth, per-user enablement, better performance with memoization
+        PROVIDER_TYPE_MAPPINGS = {
+          'lighthouse' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
+          # TODO: Add CHAMPVA mapping when provider is onboarded to CST
+          # 'champva' => BenefitsClaims::Providers::Champva::ChampvaBenefitsClaimsProvider
+        }.freeze
+
+        def provider_class_for_type(type)
+          normalized_type = type.to_s.downcase
+          provider_class = PROVIDER_TYPE_MAPPINGS[normalized_type]
+
+          raise Common::Exceptions::InvalidFieldValue.new('type', type) if provider_class.nil?
+
+          provider_class
+        end
+
+        def supported_provider_types
+          PROVIDER_TYPE_MAPPINGS.keys
+        end
+
+        # Override base implementation to add provider field to each claim
+        def extract_claims_data(provider_class, response)
+          claims_data = super(provider_class, response)
+          provider_type = provider_type_from_class(provider_class)
+
+          # Add provider field to each claim
+          claims_data.each do |claim|
+            claim['provider'] = provider_type if claim.is_a?(Hash)
+          end
+
+          claims_data
+        end
+
+        # Maps provider class to provider type string
+        def provider_type_from_class(provider_class)
+          # Reverse lookup from PROVIDER_TYPE_MAPPINGS
+          PROVIDER_TYPE_MAPPINGS.each do |type, klass|
+            return type if klass == provider_class
+          end
+
+          # Fallback: derive from class name for testing/unknown providers
+          class_name = provider_class.name.to_s.downcase
+          return 'lighthouse' if class_name.include?('lighthouse')
+
+          # return 'champva' if class_name.include?('champva')
+
+          class_name.split('::').last.downcase
+        end
+
+        # Checks if a provider class is the Lighthouse provider
+        def lighthouse_provider?(provider_class)
+          provider_class.name.downcase.include?('lighthouse')
+        end
+
+        # Returns the mobile-specific Lighthouse Proxy
+        # This proxy includes mobile transforms (override_rv1, suppress_evidence_requests)
+        # Note: The controller should also route to the appropriate adapter, as adapters
+        # may contain provider-specific logic (e.g., status code mappings)
+        def lighthouse_proxy
+          @lighthouse_proxy ||= Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
+        end
       end
     end
   end

@@ -43,6 +43,11 @@ properties:
           - claimTypeCode
           - downloadEligibleDocuments
         properties:
+          provider:
+            type: string
+            nullable: true
+            description: The provider system that owns this claim.
+            example: "lighthouse"
           dateFiled:
             type: string
             example: "2017-12-08"
@@ -64,7 +69,7 @@ properties:
             type: array
             items:
               type: string
-              example: 'Abdominal pain, etiology unknown (New)'
+              example: "Abdominal pain, etiology unknown (New)"
           eventsTimeline:
             type: array
             items:
@@ -102,11 +107,11 @@ properties:
             type: boolean
           claimTypeCode:
             type: string
-            example: '020NEW'
+            example: "020NEW"
           claimTypeBase:
             type: string
             description: Base type of claim
-            example: 'compensation claim'
+            example: "compensation claim"
             nullable: true
           displayTitle:
             type: string

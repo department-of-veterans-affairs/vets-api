@@ -16,6 +16,16 @@ module V0
 
       # Maps provider type strings to their provider classes
       # Single source of truth for supported providers
+      #
+      # TODO: ARCHITECTURAL IMPROVEMENT - Replace with ProviderRegistry
+      # This static mapping duplicates provider registration logic and doesn't honor
+      # per-user feature flag enablement. Future improvement should:
+      # 1. Add ProviderRegistry.enabled_providers(user) method that returns both type and class
+      # 2. Replace PROVIDER_TYPE_MAPPINGS with memoized call to enabled_providers
+      # 3. Update provider_class_for_type, supported_provider_types, and provider_type_from_class
+      #    to use the registry instead of this static mapping
+      # 4. Add corresponding tests that mock ProviderRegistry.enabled_providers
+      # Benefits: Single source of truth, per-user enablement, better performance with memoization
       PROVIDER_TYPE_MAPPINGS = {
         'lighthouse' => BenefitsClaims::Providers::Lighthouse::LighthouseBenefitsClaimsProvider
         # TODO: Add CHAMPVA mapping when provider is onboarded
@@ -56,6 +66,13 @@ module V0
       #
       # Rollout strategy: Frontend will deploy first to send type parameter, then we enable
       # the second provider. This ensures type is always present before it becomes required.
+      #
+      # TODO: OBSERVABILITY GAP - Missing error instrumentation
+      # This override bypasses the base class error handling, losing:
+      # - StatsD metrics for provider errors (get_claim.provider_error)
+      # - Structured error logging with backtrace
+      # - RecordNotFound logging for missing claims
+      # Should wrap routing logic with rescue blocks + instrumentation for ops visibility
       def get_claim_from_providers(claim_id, provider_type = nil)
         # If provider_type is specified, route based on type
         return get_claim_for_provider_type(claim_id, provider_type) if provider_type.present?
@@ -92,9 +109,7 @@ module V0
         normalized_type = type.to_s.downcase
         provider_class = PROVIDER_TYPE_MAPPINGS[normalized_type]
 
-        if provider_class.nil?
-          raise Common::Exceptions::ParameterMissing.new('type', detail: "Unknown provider type: #{type}")
-        end
+        raise Common::Exceptions::InvalidFieldValue.new('type', type) if provider_class.nil?
 
         provider_class
       end

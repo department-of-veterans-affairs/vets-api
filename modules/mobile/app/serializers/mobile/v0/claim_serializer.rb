@@ -11,6 +11,10 @@ module Mobile
                  :va_representative, :events_timeline, :claim_type_code, :display_title, :claim_type_base,
                  :download_eligible_documents
 
+      attribute :provider do |record|
+        record.provider || 'lighthouse'
+      end
+
       attribute :claim_type_code do |data|
         data.attributes[:claim_type_code] || nil
       end
