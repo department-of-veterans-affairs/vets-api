@@ -57,7 +57,7 @@
     - Does the `else` branch default to 422 (`:unprocessable_entity`)?
       If so, any unknown or nil error code is silently misclassified
       as a client error. The safe default is 500
-      (`:internal_server_error`) — unknown errors are our problem
+      (`:internal_server_error`), unknown errors are our problem
       until proven otherwise.
     - Are there parallel mappers at different layers (controller AND
       service)? If both the service layer and the controller layer
@@ -72,7 +72,7 @@
     - Does the mapper handle both string error codes (e.g.,
       `'conflict'`, `'not-found'`) and numeric HTTP status codes
       (e.g., 409, 404)? If so, ensure the `else` branch is safe for
-      both code spaces — a numeric code not in the `when` list should
+      both code spaces, a numeric code not in the `when` list should
       not silently become 422.</step>
     <step>**Non-HTTP context check.** If the code is in a Sidekiq job
     or rake task, HTTP status classification does not apply. These
@@ -185,7 +185,7 @@ def appointment_error_status(error_code)
   when 'internal-error', 500, 502
     :bad_gateway
   else
-    :unprocessable_entity # 422 — unknown errors treated as client input problems!
+    :unprocessable_entity # 422, unknown errors treated as client input problems!
   end
 end
 # When error_code is nil (exception has no original_status), the else
@@ -204,7 +204,7 @@ def appointment_error_status(error_code)
   when 'internal-error', 500, 502
     :bad_gateway
   else
-    :internal_server_error # 500 — unknown errors are OUR problem until proven otherwise
+    :internal_server_error # 500, unknown errors are OUR problem until proven otherwise
   end
 end
 # If a new error code appears, it surfaces as 500 in dashboards

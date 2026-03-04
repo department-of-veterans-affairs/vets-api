@@ -35,8 +35,7 @@
     <rule enforcement="must">
       Never use `cause: e` with `Common::Exceptions` classes; they
       do not accept it (it is silently ignored). Ruby's implicit
-      cause chain handles this automatically. See the
-      Common::Exceptions API Reference in sre.agent.md.
+      cause chain handles this automatically.
     </rule>
     <rule enforcement="should">
       If not adding context when re-raising, use bare `raise` to
@@ -156,7 +155,7 @@ rescue => e
   )
       </bad>
       <good>
-rescue BGS::ServiceException, Faraday::Error
+rescue BGS::ShareError, Common::Client::Errors::ClientError
   raise Common::Exceptions::BadGateway.new(
     detail: 'BGS service unavailable'
   )

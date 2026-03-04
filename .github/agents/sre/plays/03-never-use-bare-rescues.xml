@@ -34,6 +34,14 @@
       Use `rescue StandardError` only at controller/job boundaries
       as the outermost handler.
     </rule>
+    <rule enforcement="note">
+      The platform's `ExceptionHandling` concern uses
+      `rescue_from 'Exception'` as the outermost boundary handler
+      for all controllers. This is the sanctioned platform-level
+      catch-all and is NOT a Play 03 violation. Play 03 applies to
+      module code (controllers, services, models, jobs), not to the
+      platform concern itself.
+    </rule>
   </rules>
 
   <investigate_before_answering>
@@ -85,6 +93,18 @@
     logic; a bare rescue around the main operation of a controller
     action, service call, or job is never defensive.
 
+    **Rescue body side-effect check (MANDATORY).** Does the rescue
+    body perform cleanup or bookkeeping (marking attempts as failed,
+    releasing locks, closing connections) that should execute for ALL
+    errors, not just expected ones? If so, narrowing the rescue to
+    typed exceptions would skip this cleanup for unexpected errors.
+    In this case, the recommendation should either: (a) move the
+    cleanup to an `ensure` block so it runs regardless, then narrow
+    the rescue; or (b) keep the broad rescue but note it as
+    intentional bookkeeping. Do not recommend narrowing a rescue
+    when doing so would break cleanup behavior without also
+    suggesting the `ensure` migration.
+
     **Log-and-reraise is NOT defensive.** A bare rescue that logs
     the error and then re-raises (`rescue => e; log; raise`) in
     primary business logic is still a Play 03 violation. The bare
@@ -105,7 +125,7 @@
        rather than the expected service failure. A NoMethodError
        from a typo silently "succeeds" and may trigger downstream
        side-effects (failure notifications, status updates) that
-       are incorrect — the job didn't fail due to a service
+       are incorrect, the job didn't fail due to a service
        outage, it failed due to a bug.
 
     2. **Does the rescue trigger user-facing side-effects?**
@@ -115,7 +135,7 @@
        side-effects incorrectly. The veteran receives a "your
        appointment could not be confirmed" email when the actual
        problem is a deployment bug. This is worse than a missing
-       notification — it's a false notification.
+       notification, it's a false notification.
 
     When both conditions are true (swallows + triggers
     side-effects), severity is CRITICAL regardless of what data
@@ -134,14 +154,24 @@
     <critical>bare rescue that swallows exceptions in a Sidekiq job's
 primary operation (e.g., the method called from `perform`); swallowing
 prevents Sidekiq retries and treats code bugs (NoMethodError, typos)
-identically to legitimate service failures — the job reports success,
+identically to legitimate service failures, the job reports success,
 no retry occurs, and the user may receive an incorrect failure
 notification triggered by a bug rather than an actual failure</critical>
+    <critical>bare rescue whose rescue body triggers an alternative
+business path (e.g., fallback submission to a different service); a
+code bug (NoMethodError, NameError) in the primary path silently
+activates the fallback, routing the operation through the wrong path
+for the wrong reason, the fallback was designed for upstream failures,
+not code defects</critical>
     <high>bare rescue in service layer calling external APIs</high>
     <high>bare rescue in Sidekiq job that logs and re-raises; the
 re-raise preserves retry behavior but the bare rescue still catches
 too broadly (typos, signals), potentially triggering retries for
-non-retryable code bugs and logging misleading error context</high>
+non-retryable code bugs and logging misleading error context. When
+the log statement adds contextual identifiers not present in the
+exception itself (user_uuid, claim_id, submission_id), note this as
+lower priority within HIGH, the log adds operational value even
+though the rescue is too broad</high>
     <medium
         >bare rescue in internal utility with no external dependencies</medium>
     <false_positive>bare rescue in defensive contexts: healthcheck
@@ -170,9 +200,9 @@ or job are never defensive.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    rescue BGS::ServiceException, Faraday::Error => e
-      Rails.logger.warn('BGS unavailable', { error: e.class.name })
-      raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS service unavailable')
+    rescue BGS::ShareError, Common::Client::Errors::ClientError => e
+      Rails.logger.warn('Service unavailable', { error: e.class.name })
+      raise Common::Exceptions::BadGateway.new(detail: 'Upstream service unavailable')
     end
     ```
 
@@ -184,20 +214,21 @@ or job are never defensive.</false_positive>
   </pr_comment_template>
 
   <examples>
-    <example name="VRE Veteran Claim - bare rescue returns nil">
+    <example name="BGS file number lookup - bare rescue returns nil">
       <bad>
-response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
-response.file_number
+response = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+response[:file_nbr]
 rescue  # Bare rescue catches ALL exceptions
-  Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user&amp;.uuid })
-  nil  # Returns nil for ALL failures
+  Rails.logger.warn('Unable to look up VA File Number')
+  nil  # Returns nil for ALL failures including code bugs
       </bad>
       <good>
-response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
-response.file_number
-rescue BGS::ServiceException, Faraday::Error => e
-  Rails.logger.warn('BGS unavailable', { user_uuid: user&amp;.uuid, error: e.class })
-  raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS service unavailable')
+response = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+response[:file_nbr]
+rescue BGS::ShareError, Common::Client::Errors::ClientError => e
+  Rails.logger.warn('Unable to look up VA File Number', { error_class: e.class.name })
+  nil
+# NoMethodError and other code bugs surface naturally
       </good>
     </example>
 
