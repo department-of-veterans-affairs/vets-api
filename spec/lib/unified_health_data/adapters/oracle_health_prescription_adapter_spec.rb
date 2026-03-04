@@ -264,6 +264,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         result = subject.parse(fhir_resource(status: 'active', dispense_status: 'in-progress'))
         expect(result.refill_status).to eq('refillinprocess')
       end
+
+      it 'maps active to "expired" when past expiration date regardless of refills remaining' do
+        result = subject.parse(fhir_resource(status: 'active', refills: 3, expiration: 1.day.ago, source: 'VA'))
+        expect(result.refill_status).to eq('expired')
+      end
     end
 
     context 'with disp_status mapping' do
