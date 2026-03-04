@@ -382,7 +382,8 @@ module ClaimsApi
       return if disabilities.blank?
 
       names = disabilities.map { |d| d['name'].downcase }
-      duplicates = names.select { |name| names.count(name) > 1 }.uniq
+      name_counts = names.tally
+      duplicates = name_counts.select { |_, count| count > 1 }.keys
       masked_duplicates = duplicates.map { |name| mask_all_but_first_character(name) }
 
       unless duplicates.empty?
@@ -452,15 +453,15 @@ module ClaimsApi
     end
 
     def validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities, dx)
-      # specialIssues cannot contain “HEPC” unless primary disability name is Hepatitis.
+      # specialIssues cannot contain “HEPC” unless secondary disability name is Hepatitis.
       # specialIssues cannot be POW unless the JSON request also has a valid confinements element.
       secondary_disabilities.each_with_index do |secondary_disability, index|
         special_issues = secondary_disability['specialIssues']
         next if special_issues.blank?
 
         if invalid_hepatitis_c_special_issue?(special_issues:, disability: secondary_disability)
-          message = "'secondaryDisabilities.#{index}.specialIssues' :: specialIssues cannot include 'HEPC' " \
-                    "unless the disability name is 'hepatitis'"
+          message = "'disabilities.#{dx}.secondaryDisabilities.#{index}.specialIssues'" \
+                    " :: specialIssues cannot include 'HEPC' unless the secondary disability name is 'hepatitis'"
           raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
         end
 
