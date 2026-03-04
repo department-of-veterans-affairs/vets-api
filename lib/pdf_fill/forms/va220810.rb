@@ -10,19 +10,22 @@ module PdfFill
         'applicantName' => {
           key: 'applicantName',
           question_text: 'APPLICANT\'S NAME (First, Middle Initial, Last Name)',
-          question_num: 1
+          question_num: 1,
+          limit: 100
         },
         'mailingAddress' => {
           key: 'mailingAddress',
           question_text: 'APPLICANT\'S ADDRESS (Number and street or rural route, P.O. Box, City, State, Zip Code)',
           question_num: 2,
-          question_suffix: 'A'
+          question_suffix: 'A',
+          limit: 120
         },
         'emailAddress' => {
           key: 'emailAddress',
           question_text: 'APPLICANT\'S EMAIL ADDRESS',
           question_num: 2,
-          question_suffix: 'B'
+          question_suffix: 'B',
+          limit: 100
         },
         'phone' => {
           question_text: 'TELEPHONE NUMBER (Include Area Code)',
@@ -30,23 +33,27 @@ module PdfFill
           'mobilePhone' => {
             key: 'mobilePhone',
             question_text: 'DAYTIME',
-            question_suffix: 'A'
+            question_suffix: 'A',
+            limit: 27
           },
           'homePhone' => {
             key: 'homePhone',
             question_text: 'EVENING',
-            question_suffix: 'B'
+            question_suffix: 'B',
+            limit: 27
           }
         },
         'ssn' => {
           key: 'ssn',
           question_text: 'SOCIAL SECURITY NUMBER OF APPLICANT',
-          question_num: 4
+          question_num: 4,
+          limit: 50
         },
         'vaFileNumber' => {
           key: 'vaFileNumber',
           question_text: 'VA FILE NUMBER (For chapter 35, enter the veteran\'s file number and include your suffix indicator. For Chapter 30 dependent\'s case, enter the file number of the person who transferred entitlement to you)', # rubocop:disable Layout/LineLength
-          question_num: 5
+          question_num: 5,
+          limit: 100
         },
         'hasPreviouslyApplied' => {
           question_text: 'HAVE YOU PREVIOUSLY APPLIED FOR VA EDUCATION BENEFITS?',
@@ -65,42 +72,50 @@ module PdfFill
           key: 'vaBenefitProgram',
           question_text: 'WHAT EDUCATION BENEFIT HAVE YOU APPLIED FOR PREVIOUSLY?',
           question_num: 6,
-          question_suffix: 'B'
+          question_suffix: 'B',
+          limit: 100
         },
         'examName' => {
           key: 'examName',
           question_text: 'NAME OF EXAM',
-          question_num: 7
+          question_num: 7,
+          limit: 50
         },
         'organization' => {
           key: 'organization',
           question_text: 'ORGANIZATION GIVING EXAM (Indicate if taken online)',
-          question_num: 8
+          question_num: 8,
+          limit: 50
         },
         'examDate' => {
           key: 'examDate',
           question_text: 'DATE EXAM TAKEN (MM/DD/YYYY) (Attach a copy of exam results)',
-          question_num: 9
+          question_num: 9,
+          limit: 50
         },
         'examCost' => {
           key: 'examCost',
           question_text: 'ITEMIZE EXAM COST INCLUDING FEES (Attach exam receipt)',
-          question_num: 10
+          question_num: 10,
+          limit: 265
         },
         'remarks' => {
           key: 'remarks',
           question_text: 'REMARKS (Optional)',
-          question_num: 11
+          question_num: 11,
+          limit: 635
         },
         'statementOfTruthSignature' => {
           key: 'statementOfTruthSignature',
           question_text: 'SIGNATURE OF APPLICANT (Sign in ink)',
-          question_num: 12
+          question_num: 12,
+          limit: 78
         },
         'dateSigned' => {
           key: 'dateSigned',
           question_text: 'DATE SIGNED (MM/DD/YYYY)',
-          question_num: 13
+          question_num: 13,
+          limit: 28
         }
       }.freeze
 
