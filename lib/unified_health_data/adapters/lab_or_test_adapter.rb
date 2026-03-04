@@ -206,13 +206,14 @@ module UnifiedHealthData
       end
 
       def resolve_hostname_location(organization)
-        station_number = extract_org_station_number(organization)
+        identifier = organization&.dig('identifier')&.find { |id| id['system'] == VA_STATION_OID }
+        station_number = identifier&.dig('value')
         return nil if station_number.blank?
 
         facility_name_resolver.lookup(station_number)
       rescue => e
         Rails.logger.warn(
-          "Failed to resolve facility name for hostname location " \
+          'Failed to resolve facility name for hostname location ' \
           "(organization_id=#{organization['id']}, station_number=#{station_number}, " \
           "error_class=#{e.class}): #{e.message}",
           {
@@ -223,13 +224,6 @@ module UnifiedHealthData
           }
         )
         nil
-      end
-
-      def extract_org_station_number(organization)
-        return nil unless organization&.dig('identifier')
-
-        identifier = organization['identifier'].find { |id| id['system'] == VA_STATION_OID }
-        identifier&.dig('value')
       end
 
       def facility_name_resolver
