@@ -51,7 +51,7 @@ module ClaimsApi
       # only retrieve separation locations if we'll need them
       need_locations = form_attributes['serviceInformation']['servicePeriods'].detect do |service_period|
         Date.parse(service_period['activeDutyEndDate']) > Time.zone.today &&
-          !service_period['separationLocationCode'].blank?
+          service_period['separationLocationCode'].present?
       end
       separation_locations = retrieve_separation_locations if need_locations
 
