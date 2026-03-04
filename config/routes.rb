@@ -86,6 +86,7 @@ Rails.application.routes.draw do
       resources :secondary, only: [:show] do
         member do
           post :start
+          post :complete
         end
       end
     end
@@ -93,8 +94,6 @@ Rails.application.routes.draw do
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
-
-    get 'enrollment_periods', to: 'enrollment_periods#index'
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'

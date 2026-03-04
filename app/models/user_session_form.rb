@@ -115,13 +115,15 @@ class UserSessionForm
                  end
 
     correlation_record = mpi_correlation_record(identifier:, identifier_type:)
+
     return if correlation_record.present? && correlation_record.ssn == saml_ssn
 
     raise SAML::UserAttributeError.new(
       message: SAML::UserAttributeError::ERRORS[:ssn_mismatch][:message],
       code: SAML::UserAttributeError::SSN_MISMATCH_CODE,
       tag: SAML::UserAttributeError::ERRORS[:ssn_mismatch][:tag],
-      context: { icn: saml_attributes[:mhv_icn], credential_uuid: identifier, type: identifier_type }
+      context: { icn: saml_attributes[:mhv_icn], credential_uuid: identifier, type: identifier_type },
+      force_logout: true
     )
   end
 

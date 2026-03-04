@@ -19,6 +19,10 @@ module SimpleFormsApi
 
         render json: { status:, confirmation_number: }
       rescue SimpleFormsApi::ScannedFormUploadService::UploadError => e
+        Rails.logger.error(
+          'Simple forms api - scanned form upload failed',
+          { form_number: params[:form_number], status: e.http_status }
+        )
         render json: { errors: e.errors }, status: e.http_status
       end
 

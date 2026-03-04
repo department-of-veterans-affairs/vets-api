@@ -2,15 +2,18 @@
 
 require_relative 'gateways/benefits_intake_gateway'
 require_relative 'gateways/decision_reviews_gateway'
+require_relative 'gateways/ivc_champva_gateway'
 require_relative 'formatters/benefits_intake_formatter'
 require_relative 'formatters/decision_reviews_formatter'
+require_relative 'formatters/ivc_champva_formatter'
 
 module Forms
   module SubmissionStatuses
     class Report
       FORMATTERS = {
         'lighthouse_benefits_intake' => Formatters::BenefitsIntakeFormatter.new,
-        'decision_reviews' => Formatters::DecisionReviewsFormatter.new
+        'decision_reviews' => Formatters::DecisionReviewsFormatter.new,
+        'ivc_champva' => Formatters::IvcChampvaFormatter.new
       }.freeze
 
       def initialize(user_account:, allowed_forms:, gateway_options: {})
@@ -81,24 +84,40 @@ module Forms
 
       def build_enabled_gateways(user_account:, allowed_forms:, gateway_options:)
         gateways = []
-
-        # Benefits Intake Gateway - enabled by default for backward compatibility
-        if gateway_options.fetch(:benefits_intake_enabled, true)
-          gateways << {
-            service: 'lighthouse_benefits_intake',
-            gateway: Gateways::BenefitsIntakeGateway.new(user_account:, allowed_forms:)
-          }
-        end
-
-        # Decision Reviews Gateway - controlled by feature flag
-        if gateway_options.fetch(:decision_reviews_enabled, false)
-          gateways << {
-            service: 'decision_reviews',
-            gateway: Gateways::DecisionReviewsGateway.new(user_account:, allowed_forms:)
-          }
-        end
-
+        append_benefits_intake_gateway(gateways:, user_account:, allowed_forms:, gateway_options:)
+        append_decision_reviews_gateway(gateways:, user_account:, allowed_forms:, gateway_options:)
+        append_ivc_champva_gateway(gateways:, user_account:, gateway_options:)
         gateways
+      end
+
+      def append_benefits_intake_gateway(gateways:, user_account:, allowed_forms:, gateway_options:)
+        return unless gateway_options.fetch(:benefits_intake_enabled, true)
+
+        gateways << {
+          service: 'lighthouse_benefits_intake',
+          gateway: Gateways::BenefitsIntakeGateway.new(user_account:, allowed_forms:)
+        }
+      end
+
+      def append_decision_reviews_gateway(gateways:, user_account:, allowed_forms:, gateway_options:)
+        return unless gateway_options.fetch(:decision_reviews_enabled, false)
+
+        gateways << {
+          service: 'decision_reviews',
+          gateway: Gateways::DecisionReviewsGateway.new(user_account:, allowed_forms:)
+        }
+      end
+
+      def append_ivc_champva_gateway(gateways:, user_account:, gateway_options:)
+        return unless gateway_options.fetch(:ivc_champva_enabled, false)
+
+        gateways << {
+          service: 'ivc_champva',
+          gateway: Gateways::IvcChampvaGateway.new(
+            user_account:,
+            user_email: gateway_options[:user_email]
+          )
+        }
       end
 
       def submission_recent?(submission)

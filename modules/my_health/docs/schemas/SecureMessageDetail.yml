@@ -67,6 +67,8 @@ properties:
         type: string
         nullable: true
         example: "Triage_Group_5"
+      triageGroup:
+        $ref: './TriageGroup.yml'
       proxySenderName:
         type: string
         nullable: true
@@ -80,6 +82,10 @@ properties:
         nullable: true
         description: The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)
         example: null
+      migratedToOracleHealth:
+        type: boolean
+        description: Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.
+        example: false
   relationships:
     type: object
     required:

@@ -603,6 +603,7 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
   accreditation_xlsx:
     password: ~
+    tmp_password: ~
     url: ~
     username: ~
 genisis:
@@ -1047,6 +1048,7 @@ mhv:
     app_token: faketoken
     host: https://mhv-api.example.com
     labs_logging_date_range_days: 30
+    medication_filtered_statuses:
     mock: false
     security_host: https://mhv-api.example.com
     subject: "Proxy Client"
@@ -1307,7 +1309,11 @@ representation_management:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  case_get_document:
+    mock: ~`
   ch_31_case_details:
+    mock: ~
+  ch_31_case_milestones:
     mock: ~
   ch_31_eligibility:
     mock: ~
@@ -1404,6 +1410,7 @@ travel_pay:
   client_number: '12345'
   mobile_client_number: '56789'
   mock: false
+  open_timeout: 15
   service_name: BTSSS-API
   sts:
     scope: ~
@@ -1411,6 +1418,7 @@ travel_pay:
   subscription_key: api_key
   subscription_key_e: ~
   subscription_key_s: ~
+  timeout: 90
   veis:
     auth_url: https://auth.veis.gov
     client_id: client_id
@@ -1419,11 +1427,16 @@ travel_pay:
     tenant_id: tenant_id
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: 500
     max_iterations: 20
@@ -1648,6 +1661,20 @@ vanotify:
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
           template_id: form8416_submitted_email_template_id
+    "22_0989":
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: false
+          template_id: form0989_error_email_template_id
+        received:
+          flipper_id: false
+          template_id: form0989_received_email_template_id
+    "22_10278":
+      api_key: fake_secret
+      email:
+        error:
+          template_id: form10278_error_email_template_id
     accredited_representative_portal:
       api_key: fake_secret
       email:
