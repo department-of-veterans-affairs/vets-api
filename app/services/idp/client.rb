@@ -21,10 +21,10 @@ module Idp
                  DEFAULT_TIMEOUT
       @hmac_key_id = hmac_key_id.presence ||
                      Settings.dig(:cave, :idp, :hmac, :key_id) ||
-                     ENV.fetch('IDP_HMAC_KEY_ID', nil)
+                     ENV.fetch('bio__IDP_HMAC_KEY_ID', nil)
       @hmac_secret = hmac_secret.presence ||
                      Settings.dig(:cave, :idp, :hmac, :secret) ||
-                     ENV.fetch('IDP_HMAC_SECRET', nil)
+                     ENV.fetch('bio__IDP_HMAC_SECRET', nil)
       raise Idp::Error, 'IDP base URL is not configured' if @base_url.blank?
     end
 
