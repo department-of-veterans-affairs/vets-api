@@ -684,6 +684,7 @@ ivc_champva_llm_processor_api:
   host: fake_base_path
 ivc_champva_ves_api:
   api_key: fake_api_key
+  ohi_api_key: fake_ohi_api_key
   app_id: ~
   host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
