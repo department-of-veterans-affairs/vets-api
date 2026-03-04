@@ -38,6 +38,7 @@ RSpec.describe SignIn::UserInfo do
         person_types: 'some-person-types',
         icn: 'some-icn',
         sec_id: 'some-sec',
+        sec_id_history: 'some-sec-id-history',
         edipi: 'some-edipi',
         mhv_ien: 'some-mhv-ien',
         npi_id: 'some-npi-id',
