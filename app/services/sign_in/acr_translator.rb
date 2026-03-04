@@ -69,19 +69,25 @@ module SignIn
     end
 
     def translate_logingov_values
-      ial2_enabled = ial2_enabled?(type:)
-
       case acr
-      when 'ial1' then Constants::Auth::LOGIN_GOV_IAL1
-      when 'ial2' then Constants::Auth::LOGIN_GOV_IAL2
+      when 'ial1'
+        Constants::Auth::LOGIN_GOV_IAL1
+      when 'ial2', Constants::Auth::IAL2_PREFERRED
+        logingov_ial2_level
       when Constants::Auth::IAL2_REQUIRED
-        ial2_enabled ? Constants::Auth::LOGIN_GOV_IAL2_REQUIRED : invalid_acr!(type:)
-      when Constants::Auth::IAL2_PREFERRED
-        ial2_enabled ? Constants::Auth::LOGIN_GOV_IAL2_PREFERRED : invalid_acr!(type:)
+        ial2_enabled?(type:) ? Constants::Auth::LOGIN_GOV_IAL2_REQUIRED : invalid_acr!(type:)
       when 'min'
-        uplevel ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL0
+        uplevel ? logingov_ial2_level : Constants::Auth::LOGIN_GOV_IAL0
       else
         invalid_acr!(type:)
+      end
+    end
+
+    def logingov_ial2_level
+      if Flipper.enabled?('identity_logingov_ial2_full_enforcement')
+        Constants::Auth::LOGIN_GOV_IAL2_PREFERRED
+      else
+        Constants::Auth::LOGIN_GOV_IAL2
       end
     end
 

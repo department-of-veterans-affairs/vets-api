@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 85c8e3f3def88f2aef09a0dae1f34c9e554baf3a
+  revision: 22e03a18004294ea1c60f32b4bd6df88d7c0da3e
   branch: master
   specs:
-    vets_json_schema (25.2.50)
+    vets_json_schema (25.2.51)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -623,7 +623,7 @@ GEM
     hashdiff (1.2.1)
     hashery (2.1.2)
     hashie (5.0.0)
-    hexapdf (1.4.1)
+    hexapdf (1.6.0)
       cmdparse (~> 3.0, >= 3.0.3)
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
@@ -821,8 +821,8 @@ GEM
       rails (>= 4.0)
     open4 (1.3.4)
     openapi_parser (2.3.1)
-    openssl (3.3.1)
-    openssl (3.3.1-java)
+    openssl (4.0.1)
+    openssl (4.0.1-java)
       jruby-openssl (~> 0.14)
     operating_hours (0.1.0)
     optimist (3.2.1)
@@ -1178,8 +1178,8 @@ GEM
     stringio (3.2.0)
     strong_migrations (2.5.0)
       activerecord (>= 7.1)
-    strscan (3.1.5)
-    strscan (3.1.5-java)
+    strscan (3.1.7)
+    strscan (3.1.7-java)
     super_diff (0.18.0)
       attr_extras (>= 6.2.4)
       diff-lcs

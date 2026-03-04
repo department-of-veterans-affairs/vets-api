@@ -61,8 +61,14 @@ module SimpleFormsApi
       pdf_path = Common::ConvertToPdf.new(attachment.file).run
       Rails.logger.info('Successfully converted file to PDF')
       pdf_path
-    rescue => e
-      Rails.logger.error("PDF conversion failed: #{e.message}")
+    rescue
+      Rails.logger.error(
+        'Simple forms api - PDF conversion failed',
+        {
+          attachment_guid: attachment.guid,
+          attachment_type: attachment.class.name
+        }
+      )
       raise ConversionError.new(
         'File conversion failed',
         [{
@@ -77,8 +83,14 @@ module SimpleFormsApi
       Common::PdfHelpers.unlock_pdf(pdf_path, password, output_path)
       @decrypted_file_path = output_path
       output_path
-    rescue Common::Exceptions::UnprocessableEntity => e
-      Rails.logger.error("PDF decryption failed: #{e.message}")
+    rescue Common::Exceptions::UnprocessableEntity
+      Rails.logger.error(
+        'Simple forms api - PDF decryption failed',
+        {
+          attachment_guid: attachment.guid,
+          attachment_type: attachment.class.name
+        }
+      )
       raise ValidationError.new(
         'PDF decryption failed',
         [{
