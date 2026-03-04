@@ -162,7 +162,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           {
             'serviceInformation' => {
               'servicePeriods' => [
-                { 'activeDutyEndDate' => 1.month.from_now.to_date.iso8601, 'separationLocationCode' => nil }
+                { 'activeDutyEndDate' => 1.month.from_now.to_date.iso8601, 'separationLocationCode' => '' }
               ]
             }
           }
