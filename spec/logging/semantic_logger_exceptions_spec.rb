@@ -4,7 +4,12 @@ require 'rails_helper'
 
 RSpec.describe SemanticLogger do
   before do
+    @original_level = SemanticLogger.default_level
     SemanticLogger.default_level = :info
+  end
+
+  after do
+    SemanticLogger.default_level = @original_level
   end
 
   # NOTE: never disabled now
