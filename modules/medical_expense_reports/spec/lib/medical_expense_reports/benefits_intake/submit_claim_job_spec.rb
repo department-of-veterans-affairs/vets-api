@@ -134,7 +134,8 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
     end
 
     it 'uploads to IBM MMS when govcio flipper is enabled' do
-      allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_govcio_mms).and_return(true)
+      allow(Flipper)
+        .to receive(:enabled?).with(:medical_expense_reports_structured_data_transmission).and_return(true)
 
       expect(Ibm::Service).to receive(:new)
       expect(ibm_service).to receive(:upload_form).with(form: { test: 'data' }.to_json, guid: 'test_guid')
@@ -143,7 +144,8 @@ RSpec.describe MedicalExpenseReports::BenefitsIntake::SubmitClaimJob, :uploader_
     end
 
     it 'does not upload to IBM MMS when govcio flipper is disabled' do
-      allow(Flipper).to receive(:enabled?).with(:medical_expense_reports_govcio_mms).and_return(false)
+      allow(Flipper)
+        .to receive(:enabled?).with(:medical_expense_reports_structured_data_transmission).and_return(false)
 
       expect(Ibm::Service).not_to receive(:new)
       expect(ibm_service).not_to receive(:upload_form)

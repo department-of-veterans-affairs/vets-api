@@ -187,7 +187,7 @@ module MedicalExpenseReports
 
       # Upload to IBM MMS if the govcio flipper is enabled
       def govcio_upload
-        if Flipper.enabled?(:medical_expense_reports_govcio_mms)
+        if Flipper.enabled?(:medical_expense_reports_structured_data_transmission)
           ibm_service = Ibm::Service.new
           ibm_service.upload_form(form: @ibm_payload.to_json, guid: @intake_service.uuid)
         end

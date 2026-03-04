@@ -24,7 +24,7 @@ RSpec.describe Ibm::Configuration do
 
   context 'valid settings' do
     it 'returns settings' do
-      expect(config.intake_settings).to eq(settings)
+      expect(config.structured_data_transmission_settings).to eq(settings)
     end
 
     it 'returns service_path' do
