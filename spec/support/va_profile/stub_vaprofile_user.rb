@@ -17,10 +17,11 @@ def stub_vaprofile_user(person = nil)
     )
   else
     # Lazily build the default person only when get_person is actually called.
-    # This avoids constructing 8 factory objects for the ~93% of tests that
+    # This avoids constructing 9 factory objects for the ~93% of tests that
     # never exercise VA Profile contact information.
+    memoized_response = nil
     allow_any_instance_of(service).to receive(:get_person) do
-      person_response.new(200, person: FactoryBot.build(
+      memoized_response ||= person_response.new(200, person: FactoryBot.build(
         :person,
         addresses: [
           FactoryBot.build(:va_profile_address, id: 577_127),
