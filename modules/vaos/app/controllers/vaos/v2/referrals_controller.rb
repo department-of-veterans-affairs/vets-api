@@ -48,7 +48,7 @@ module VAOS
       private
 
       def add_appointment_data_to_referral(referral)
-        result = appointments_service.get_active_appointments_for_referral(referral.referral_number)
+        result = community_care_coordinator.appointments_for_referral(referral.referral_number)
 
         eps_appointments = result[:EPS][:data]
         vaos_appointments = result[:VAOS][:data]
@@ -68,8 +68,8 @@ module VAOS
         referral.has_appointments = eps_has_active || vaos_has_active
       end
 
-      def appointments_service
-        @appointments_service ||= VAOS::V2::AppointmentsService.new(current_user)
+      def community_care_coordinator
+        @community_care_coordinator ||= VAOS::V2::CommunityCare::AppointmentCoordinator.new(current_user)
       end
 
       # Logs the count of referrals returned from CCRA

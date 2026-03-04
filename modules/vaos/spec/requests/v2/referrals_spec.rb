@@ -136,7 +136,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       end
 
       it 'returns referral detail in JSON:API format' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+        allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+          .to receive(:appointments_for_referral)
           .and_return({
                         EPS: { data: [] },
                         VAOS: { data: [] }
@@ -179,7 +180,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       end
 
       it 'increments the view metric' do
-        allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+        allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+          .to receive(:appointments_for_referral)
           .and_return({
                         EPS: { data: [] },
                         VAOS: { data: [] }
@@ -202,7 +204,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
       context 'when fetching appointments' do
         it 'includes appointments from both sources when available' do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+          allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+            .to receive(:appointments_for_referral)
             .and_return({
                           EPS: {
                             data: [
@@ -237,7 +240,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         end
 
         it 'returns empty data when no appointments found' do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+          allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+            .to receive(:appointments_for_referral)
             .and_return({
                           EPS: { data: [] },
                           VAOS: { data: [] }
@@ -259,7 +263,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         end
 
         it 'returns error response when appointment service raises BackendServiceException' do
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+          allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+            .to receive(:appointments_for_referral)
             .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502', { source: 'EPS' }))
 
           get "/vaos/v2/referrals/#{encrypted_uuid}"
@@ -287,7 +292,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           end
 
           it 'logs the appropriate error message with station_id' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+              .to receive(:appointments_for_referral)
               .and_return({
                             EPS: { data: [] },
                             VAOS: { data: [] }
@@ -333,7 +339,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
           end
 
           it 'logs with sanitized station_id as no_value' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+              .to receive(:appointments_for_referral)
               .and_return({
                             EPS: { data: [] },
                             VAOS: { data: [] }
@@ -351,7 +358,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         context 'when both provider IDs are present' do
           it 'does not log any error' do
-            allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_active_appointments_for_referral)
+            allow_any_instance_of(VAOS::V2::CommunityCare::AppointmentCoordinator)
+              .to receive(:appointments_for_referral)
               .and_return({
                             EPS: { data: [] },
                             VAOS: { data: [] }
