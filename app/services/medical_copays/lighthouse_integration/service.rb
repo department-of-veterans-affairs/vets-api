@@ -128,6 +128,7 @@ module MedicalCopays
             next unless date_str
 
             invoice_date = Time.iso8601(date_str)
+
             next if invoice_date < from
 
             collected_entries << entry

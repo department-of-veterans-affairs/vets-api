@@ -310,7 +310,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
           from = 6.months.ago.utc
 
           response.entries.each do |invoice|
-            date = Time.iso8601(invoice.instance_variable_get(:@params).dig("resource", "date"))
+            date = Time.iso8601(invoice.instance_variable_get(:@params).dig('resource', 'date'))
             expect(date).to be >= from
           end
         end
