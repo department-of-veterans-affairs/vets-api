@@ -53,7 +53,10 @@ module MHV
       end
 
       def current_tou_agreement
-        @current_tou_agreement ||= user_account.terms_of_use_agreements.current.last
+        last = user_account.terms_of_use_agreements.current.last
+        p '~~~~~~~~~~~~~', last
+        binding.pry unless last
+        @current_tou_agreement ||= last
       end
 
       def user_account
@@ -74,6 +77,8 @@ module MHV
           ('Current terms of use agreement must be present' if current_tou_agreement.blank?),
           ("Current terms of use agreement must be 'accepted'" unless current_tou_agreement&.accepted?)
         ].compact
+        p '~~~~~~~~~~~~~', errors
+        binding.pry if errors.present?
 
         raise Errors::ValidationError, errors.join(', ') if errors.present?
       end

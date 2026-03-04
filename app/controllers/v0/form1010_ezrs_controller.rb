@@ -46,7 +46,7 @@ module V0
         p "~~~~~ ezr#service_history resp", response
         p "~~~~~ ezr#service_history resp data", response['data']
       rescue => e
-        p "~~~~~ ezr#service_history err", e
+        p "~~~~~ ezr#service_history err #{e.message}"
       end
 
       # LH returns the ICN of the Veteran in the data.id field

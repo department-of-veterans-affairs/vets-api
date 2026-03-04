@@ -51,7 +51,14 @@ module VeteranVerification
     #   such as the launch context
     # @option options [string] :host a base host for the Lighthouse API call
     def get(path, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      p "~~~~~ vv#configuration for service_history #{[path, options, access_token]}"
+      p "~~~~~ vv#configuration for service_history 0 AT: #{[lighthouse_client_id, lighthouse_rsa_key_path, options]}"
+      access_token = access_token(
+        lighthouse_client_id,
+        lighthouse_rsa_key_path,
+        options
+      )
+
+      p "~~~~~ vv#configuration for service_history 1 #{[path, options, access_token]}"
 
       connection
         .get(
@@ -59,11 +66,7 @@ module VeteranVerification
           options[:params],
           {
             Authorization: "Bearer #{
-              access_token(
-                lighthouse_client_id,
-                lighthouse_rsa_key_path,
-                options
-              )
+              access_token
             }"
           }
         )
@@ -75,7 +78,7 @@ module VeteranVerification
     # @return [Faraday::Connection] a Faraday connection instance.
     #
     def connection
-      p "~~~~~ vv#configuration for service_history #{[base_api_path, base_request_headers, request_options]}"
+      p "~~~~~ vv#configuration for service_history 2 #{[base_api_path, base_request_headers, request_options]}"
 
       @conn ||= Faraday.new(base_api_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use(:breakers, service_name:)
@@ -100,7 +103,7 @@ module VeteranVerification
     end
 
     def get_access_token?
-      p "~~~~~ vv#configuration for service_history #{{use_mocks: use_mocks?, rec: Settings.betamocks.recording}}"
+      p "~~~~~ vv#configuration for service_history 3 #{{use_mocks: use_mocks?, rec: Settings.betamocks.recording}}"
 
       !use_mocks? || Settings.betamocks.recording
     end
