@@ -60,13 +60,15 @@ module ClaimsApi
 
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
-        next if service_period['separationLocationCode'].blank?
+
+        sep_loc_code = service_period['separationLocationCode']
+        next if sep_loc_code.blank?
         next if separation_locations.any? do |location|
-          location[:id]&.to_s == service_period['separationLocationCode']
+          location[:id]&.to_s == sep_loc_code
         end
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
-                                                          service_period['separationLocationCode'])
+                                                          sep_loc_code)
       end
     end
 
