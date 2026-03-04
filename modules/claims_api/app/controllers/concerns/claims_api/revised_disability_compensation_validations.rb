@@ -415,17 +415,17 @@ module ClaimsApi
 
       validate_form_526_secondary_disabilities_uniqueness!
 
-      disabilities.each do |disability|
+      disabilities.each_with_index do |disability, dx|
         secondary_disabilities = disability['secondaryDisabilities']
         next if secondary_disabilities.blank?
 
-        validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities)
-        validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities)
-        validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities)
+        validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities, dx)
+        validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities, dx)
+        validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities, dx)
       end
     end
 
-    def validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities)
+    def validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities, dx)
       # FES requires that if a secondary disability has a 'classificationCode', that code must be valid in BGS
       secondary_disabilities.each_with_index do |secondary_disability, index|
         classification_code = secondary_disability['classificationCode']
@@ -436,22 +436,22 @@ module ClaimsApi
           bgs_disability = contention_classification_type_code_list.find { |d| d[:clsfcn_id] == classification_code }
           end_date = bgs_disability[:end_dt] if bgs_disability
 
-          if end_date.present? && Date.parse(end_date) < Time.zone.today
+          if end_date.present? && parse_date_safely(end_date) < Time.zone.today
             raise ::Common::Exceptions::InvalidFieldValue.new(
-              "secondaryDisabilities.#{index}.classificationCode",
+              "disabilities.#{dx}.secondaryDisabilities.#{index}.classificationCode",
               classification_code
             )
           end
         else
           raise ::Common::Exceptions::InvalidFieldValue.new(
-            "secondaryDisabilities.#{index}.classificationCode",
+            "disabilities.#{dx}.secondaryDisabilities.#{index}.classificationCode",
             classification_code
           )
         end
       end
     end
 
-    def validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities)
+    def validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities, dx)
       # specialIssues cannot contain “HEPC” unless primary disability name is Hepatitis.
       # specialIssues cannot be POW unless the JSON request also has a valid confinements element.
       secondary_disabilities.each_with_index do |secondary_disability, index|
@@ -465,22 +465,22 @@ module ClaimsApi
         end
 
         if invalid_pow_special_issue?(special_issues:)
-          message = "'secondaryDisabilities.#{index}.specialIssues' :: serviceInformation.confinements is " \
-                    'required if specialIssues includes POW'
+          message = "'disabilities.#{dx}.secondaryDisabilities.#{index}.specialIssues'" \
+                    ':: serviceInformation.confinements is required if specialIssues includes POW'
           raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
         end
       end
     end
 
-    def validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities)
+    def validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities, dx)
       # FES requires that if a secondary disability has an 'approximateBeginDate', that date must be in the past
       secondary_disabilities.each_with_index do |secondary_disability, index|
         approx_begin_date = secondary_disability['approximateBeginDate']
         next if approx_begin_date.blank?
 
-        if Date.parse(approx_begin_date) >= Time.zone.today
+        if parse_date_safely(approx_begin_date) >= Time.zone.today
           raise ::Common::Exceptions::InvalidFieldValue.new(
-            "secondaryDisabilities.#{index}.approximateBeginDate",
+            "disabilities.#{dx}.secondaryDisabilities.#{index}.approximateBeginDate",
             approx_begin_date
           )
         end
