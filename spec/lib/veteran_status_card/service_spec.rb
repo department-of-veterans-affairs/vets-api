@@ -84,15 +84,15 @@ RSpec.describe VeteranStatusCard::Service do
     end
 
     context 'when user is nil' do
-      it 'logs STATSD_TOTAL and STATSD_FAILURE' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError)
-
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+      it 'does not raise an error' do
+        expect { described_class.new(nil) }.not_to raise_error
       end
 
-      it 'raises an argument error' do
-        expect { described_class.new(nil) }.to raise_error(ArgumentError, 'User cannot be nil')
+      it 'only logs STATSD_TOTAL' do
+        described_class.new(nil)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.failure')
       end
     end
 
@@ -101,15 +101,15 @@ RSpec.describe VeteranStatusCard::Service do
         allow(user).to receive_messages(edipi: nil, icn: nil)
       end
 
-      it 'logs STATSD_TOTAL and STATSD_FAILURE' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError)
-
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
-        expect(StatsD).to have_received(:increment).with('veteran_status_card.failure')
+      it 'does not raise an error' do
+        expect { described_class.new(user) }.not_to raise_error
       end
 
-      it 'raises an argument error' do
-        expect { described_class.new(user) }.to raise_error(ArgumentError, 'User missing required fields')
+      it 'only logs STATSD_TOTAL' do
+        described_class.new(user)
+
+        expect(StatsD).to have_received(:increment).with('veteran_status_card.total')
+        expect(StatsD).not_to have_received(:increment).with('veteran_status_card.failure')
       end
     end
   end
@@ -211,7 +211,7 @@ RSpec.describe VeteranStatusCard::Service do
         it 'logs the default NO_SSC_CHECK_MESSAGE when not otherwise set' do
           subject.send(:log_vsc_result, confirmed: true)
 
-          expect(StatsD).to have_received(:increment).with('veteran_status_card.no_ssc_check')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_no_ssc_check')
         end
       end
     end
@@ -231,13 +231,125 @@ RSpec.describe VeteranStatusCard::Service do
         it 'returns the uppercase default value' do
           result = subject.send(:confirmation_status_upcase)
 
-          expect(result).to eq('NO_SSC_CHECK')
+          expect(result).to eq('INELIGIBLE_NO_SSC_CHECK')
         end
       end
     end
   end
 
   describe '#status_card' do
+    context 'when user validation fails' do
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      context 'when user is nil' do
+        let(:user) { nil }
+
+        it 'returns a veteran_status_alert with person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:header]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:title])
+          expect(result[:attributes][:body]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:message])
+          expect(result[:attributes][:alert_type]).to eq(VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE[:status])
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('INELIGIBLE_NO_ICN')
+          expect(result[:attributes][:service_summary_code]).to be_nil
+        end
+
+        it 'logs STATSD_INELIGIBLE and NO_ICN_MESSAGE metrics' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_no_icn')
+        end
+
+        it 'does not call external APIs' do
+          subject.status_card
+
+          expect(vet_verification_service).not_to have_received(:get_vet_verification_status)
+          expect(military_personnel_service).not_to have_received(:get_dod_service_summary)
+        end
+      end
+
+      context 'when user is missing ICN' do
+        before do
+          allow(user).to receive_messages(icn: nil)
+        end
+
+        it 'returns a veteran_status_alert with person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('INELIGIBLE_NO_ICN')
+        end
+
+        it 'logs STATSD_INELIGIBLE and NO_ICN_MESSAGE metrics' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_no_icn')
+        end
+      end
+
+      context 'when user is missing EDIPI but has ICN and vet verification is not confirmed' do
+        let(:veteran_status) { 'not confirmed' }
+        let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
+        before do
+          allow(user).to receive(:edipi).and_return(nil)
+        end
+
+        it 'returns a veteran_status_alert with person_not_found details' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_alert')
+          expect(result[:attributes][:veteran_status]).to eq('not confirmed')
+          expect(result[:attributes][:not_confirmed_reason]).to eq('PERSON_NOT_FOUND')
+          expect(result[:attributes][:confirmation_status]).to eq('INELIGIBLE_NO_EDIPI')
+        end
+
+        it 'logs STATSD_INELIGIBLE and NO_EDIPI_MESSAGE metrics' do
+          subject.status_card
+
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible')
+          expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_no_edipi')
+        end
+
+        it 'does not call the DoD service' do
+          subject.status_card
+
+          expect(military_personnel_service).not_to have_received(:get_dod_service_summary)
+        end
+      end
+
+      context 'when user is missing EDIPI but vet verification confirms' do
+        let(:veteran_status) { 'confirmed' }
+
+        before do
+          allow(user).to receive(:edipi).and_return(nil)
+        end
+
+        it 'returns eligible_response without requiring EDIPI' do
+          result = subject.status_card
+
+          expect(result[:type]).to eq('veteran_status_card')
+          expect(result[:attributes][:veteran_status]).to eq('confirmed')
+        end
+
+        it 'does not call the DoD service' do
+          subject.status_card
+
+          expect(military_personnel_service).not_to have_received(:get_dod_service_summary)
+        end
+      end
+    end
+
     describe 'StatsD logging' do
       before do
         allow(StatsD).to receive(:increment)
@@ -300,7 +412,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs DISHONORABLE_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.dishonorable_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_dishonorable_ssc')
           end
         end
 
@@ -309,10 +421,10 @@ RSpec.describe VeteranStatusCard::Service do
           let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
           let(:ssc_code) { 'G2' }
 
-          it 'logs INELIGIBLE_SSC_MESSAGE to StatsD' do
+          it 'logs INELIGIBLE_SERVICE_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_service_ssc')
           end
         end
 
@@ -324,7 +436,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs UNKNOWN_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.unknown_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_unknown_ssc')
           end
         end
 
@@ -336,7 +448,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs EDIPI_NO_PNL_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.edipi_no_pnl_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_edipi_no_pnl_ssc')
           end
         end
 
@@ -348,7 +460,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs CURRENTLY_SERVING_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.currently_serving_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_currently_serving_ssc')
           end
         end
 
@@ -360,7 +472,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs ERROR_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.error_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_error_ssc')
           end
         end
 
@@ -372,7 +484,7 @@ RSpec.describe VeteranStatusCard::Service do
           it 'logs UNCAUGHT_SSC_MESSAGE to StatsD' do
             subject.status_card
 
-            expect(StatsD).to have_received(:increment).with('veteran_status_card.uncaught_ssc')
+            expect(StatsD).to have_received(:increment).with('veteran_status_card.ineligible_uncaught_ssc')
           end
         end
 
@@ -424,6 +536,202 @@ RSpec.describe VeteranStatusCard::Service do
           )
         end
       end
+
+      describe 'user_message logging' do
+        context 'when user is missing ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'logs user_message: person_not_found' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::PERSON_NOT_FOUND_MESSAGE)
+            )
+          end
+        end
+
+        context 'when user is missing EDIPI but vet verification is not confirmed' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+
+          before do
+            allow(user).to receive(:edipi).and_return(nil)
+          end
+
+          it 'logs user_message: person_not_found' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::PERSON_NOT_FOUND_MESSAGE)
+            )
+          end
+        end
+
+        context 'when veteran is confirmed via vet verification' do
+          let(:veteran_status) { 'confirmed' }
+
+          it 'logs user_message: status_card_confirmed' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::CONFIRMED_MESSAGE)
+            )
+          end
+        end
+
+        context 'when veteran is confirmed via SSC' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'A1' }
+
+          it 'logs user_message: status_card_confirmed' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::CONFIRMED_MESSAGE)
+            )
+          end
+        end
+
+        context 'when vet verification reason is PERSON_NOT_FOUND' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'PERSON_NOT_FOUND' }
+
+          it 'logs user_message: person_not_found' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::PERSON_NOT_FOUND_MESSAGE)
+            )
+          end
+        end
+
+        context 'when vet verification reason is ERROR' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'ERROR' }
+
+          it 'logs user_message: something_went_wrong' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::SOMETHING_WENT_WRONG_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is dishonorable' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'A5' }
+
+          it 'logs user_message: dishonorable' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::DISHONORABLE_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is ineligible service' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'G2' }
+
+          it 'logs user_message: ineligible_service' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::INELIGIBLE_SERVICE_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is unknown service' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'U' }
+
+          it 'logs user_message: unknown_eligibility' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::UNKNOWN_ELIGIBILITY_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is EDIPI_NO_PNL' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'X' }
+
+          it 'logs user_message: unknown_eligibility' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::UNKNOWN_ELIGIBILITY_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is currently serving' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'D' }
+
+          it 'logs user_message: currently_serving' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::CURRENTLY_SERVING_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is an error code' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'VNA' }
+
+          it 'logs user_message: unknown_eligibility' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::UNKNOWN_ELIGIBILITY_MESSAGE)
+            )
+          end
+        end
+
+        context 'when SSC code is uncaught' do
+          let(:veteran_status) { 'not confirmed' }
+          let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
+          let(:ssc_code) { 'UNKNOWN_CODE' }
+
+          it 'logs user_message: uncaught_error' do
+            subject.status_card
+
+            expect(Rails.logger).to have_received(:info).with(
+              '[VeteranStatusCard::Service] VSC Card Result',
+              hash_including(user_message: VeteranStatusCard::Service::UNCAUGHT_ERROR_MESSAGE)
+            )
+          end
+        end
+      end
     end
 
     context 'when veteran is eligible' do
@@ -449,11 +757,11 @@ RSpec.describe VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
 
         {
-          'AD_DSCH_VAL_SSC' => described_class::AD_DSCH_VAL_SSC_CODES,
-          'AD_VAL_PREV_QUAL_SSC' => described_class::AD_VAL_PREV_QUAL_SSC_CODES,
-          'AD_VAL_PREV_RES_GRD_SSC' => described_class::AD_VAL_PREV_RES_GRD_SSC_CODES,
-          'AD_UNCHAR_DSCH_SSC' => described_class::AD_UNCHAR_DSCH_SSC_CODES,
-          'VAL_PREV_QUAL_SSC' => described_class::VAL_PREV_QUAL_SSC
+          'ELIGIBLE_AD_DSCH_VAL_SSC' => described_class::AD_DSCH_VAL_SSC_CODES,
+          'ELIGIBLE_AD_VAL_PREV_QUAL_SSC' => described_class::AD_VAL_PREV_QUAL_SSC_CODES,
+          'ELIGIBLE_AD_VAL_PREV_RES_GRD_SSC' => described_class::AD_VAL_PREV_RES_GRD_SSC_CODES,
+          'ELIGIBLE_AD_UNCHAR_DSCH_SSC' => described_class::AD_UNCHAR_DSCH_SSC_CODES,
+          'ELIGIBLE_VAL_PREV_QUAL_SSC' => described_class::VAL_PREV_QUAL_SSC
         }.each do |category, codes|
           context "with #{category} codes" do
             codes.each do |code|
@@ -482,11 +790,11 @@ RSpec.describe VeteranStatusCard::Service do
         let(:not_confirmed_reason) { 'NOT_TITLE_38' }
 
         {
-          'AD_DSCH_VAL_SSC' => described_class::AD_DSCH_VAL_SSC_CODES,
-          'AD_VAL_PREV_QUAL_SSC' => described_class::AD_VAL_PREV_QUAL_SSC_CODES,
-          'AD_VAL_PREV_RES_GRD_SSC' => described_class::AD_VAL_PREV_RES_GRD_SSC_CODES,
-          'AD_UNCHAR_DSCH_SSC' => described_class::AD_UNCHAR_DSCH_SSC_CODES,
-          'VAL_PREV_QUAL_SSC' => described_class::VAL_PREV_QUAL_SSC
+          'ELIGIBLE_AD_DSCH_VAL_SSC' => described_class::AD_DSCH_VAL_SSC_CODES,
+          'ELIGIBLE_AD_VAL_PREV_QUAL_SSC' => described_class::AD_VAL_PREV_QUAL_SSC_CODES,
+          'ELIGIBLE_AD_VAL_PREV_RES_GRD_SSC' => described_class::AD_VAL_PREV_RES_GRD_SSC_CODES,
+          'ELIGIBLE_AD_UNCHAR_DSCH_SSC' => described_class::AD_UNCHAR_DSCH_SSC_CODES,
+          'ELIGIBLE_VAL_PREV_QUAL_SSC' => described_class::VAL_PREV_QUAL_SSC
         }.each do |category, codes|
           context "with #{category} codes" do
             codes.each do |code|
@@ -715,36 +1023,6 @@ RSpec.describe VeteranStatusCard::Service do
     end
   end
 
-  describe '#eligible?' do
-    context 'when vet_verification_eligible? returns true' do
-      let(:veteran_status) { 'confirmed' }
-
-      it 'returns true' do
-        expect(subject.send(:eligible?)).to be true
-      end
-    end
-
-    context 'when ssc_eligible? returns true' do
-      let(:veteran_status) { 'not confirmed' }
-      let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
-      let(:ssc_code) { 'A1' }
-
-      it 'returns true' do
-        expect(subject.send(:eligible?)).to be true
-      end
-    end
-
-    context 'when neither condition is met' do
-      let(:veteran_status) { 'not confirmed' }
-      let(:not_confirmed_reason) { 'MORE_RESEARCH_REQUIRED' }
-      let(:ssc_code) { 'U' }
-
-      it 'returns false' do
-        expect(subject.send(:eligible?)).to be false
-      end
-    end
-  end
-
   describe '#vet_verification_eligible?' do
     context 'when veteran_status is confirmed' do
       let(:veteran_status) { 'confirmed' }
@@ -844,6 +1122,20 @@ RSpec.describe VeteranStatusCard::Service do
       expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).and_return(70)
 
       expect(subject.send(:disability_rating)).to eq(70)
+    end
+
+    it 'memoizes the result so Lighthouse is only called once' do
+      expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).once.and_return(70)
+
+      subject.send(:disability_rating)
+      expect(subject.send(:disability_rating)).to eq(70)
+    end
+
+    it 'memoizes nil results' do
+      expect(lighthouse_disabilities_provider).to receive(:get_combined_disability_rating).once.and_return(nil)
+
+      subject.send(:disability_rating)
+      expect(subject.send(:disability_rating)).to be_nil
     end
   end
 
@@ -1152,7 +1444,7 @@ RSpec.describe VeteranStatusCard::Service do
         expect(result[:attributes][:alert_type]).to eq('error')
         expect(result[:attributes][:veteran_status]).to eq('not confirmed')
         expect(result[:attributes][:not_confirmed_reason]).to be_nil
-        expect(result[:attributes][:confirmation_status]).to eq('NO_SSC_CHECK')
+        expect(result[:attributes][:confirmation_status]).to eq('INELIGIBLE_NO_SSC_CHECK')
         expect(result[:attributes][:service_summary_code]).to eq(ssc_code)
       end
     end

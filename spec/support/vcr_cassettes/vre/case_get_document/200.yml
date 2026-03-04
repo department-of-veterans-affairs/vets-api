@@ -1,0 +1,32 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake_url.com/suite/webapi/get-case-get-document
+    body:
+      encoding: UTF-8
+      string: '{"icn":"1012662125V786396","resCaseId":4574,"documentType":"626"}'
+    headers:
+      Accept:
+      - application/pdf
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Appian-API-Key:
+      - <APPIAN_API_KEY>
+  response:
+    status:
+      code: 200
+      message: '200'
+    headers:
+      content-type:
+      - application/pdf
+      content-disposition:
+      - inline
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        JVBERi0xLjQK
+  recorded_at: Thu, 20 Feb 2026 18:00:00 GMT
+recorded_with: VCR 6.3.1

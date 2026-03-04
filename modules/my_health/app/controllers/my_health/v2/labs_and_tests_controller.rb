@@ -13,7 +13,7 @@ module MyHealth
       def index
         start_date = params[:start_date]
         end_date = params[:end_date]
-        result = service.get_labs(start_date:, end_date:)
+        result = service.get_labs(start_date:, end_date:, caller: 'web_v2')
         labs = sort_records(result[:records], params[:sort])
         serialized_labs = UnifiedHealthData::LabOrTestSerializer.new(labs).serializable_hash[:data]
 

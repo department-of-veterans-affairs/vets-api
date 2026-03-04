@@ -72,6 +72,8 @@ properties:
         type: string
         nullable: true
         example: "Triage_Group_5"
+      triageGroup:
+        $ref: './TriageGroup.yml'
       proxySenderName:
         type: string
         nullable: true
@@ -85,7 +87,7 @@ properties:
       attachments:
         type: object
         additionalProperties: false
-        required: 
+        required:
           - data
         properties:
           data:
@@ -114,6 +116,5 @@ properties:
         example: https://api.va.gov/mobile/v0/messaging/health/messages/123789
   included:
     type: array
-    items: 
+    items:
       $ref: './SecureMessageAttachment.yml'
-

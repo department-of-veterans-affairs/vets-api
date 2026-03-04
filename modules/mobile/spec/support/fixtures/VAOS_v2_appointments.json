@@ -1219,7 +1219,7 @@
         ],
         "note_type": "ambulatory_patient_summary",
         "content_type": "application/pdf",
-        "binary": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9TdWJ0e"
+        "binary": null
       }
     ],
     "avs_error": "Unable to retrieve AVS at this time"
