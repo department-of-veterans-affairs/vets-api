@@ -16,7 +16,7 @@ module VeteranStatusCard
       },
       {
         type: 'text',
-        value: "To fix the problem, contact VA.gov technical support. We're open #{SUPPORT_HOURS}"
+        value: "To fix the problem, contact VA.gov technical support. We're here #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -32,7 +32,7 @@ module VeteranStatusCard
       },
       {
         type: 'text',
-        value: "If you think this is incorrect, call us. We're open #{SUPPORT_HOURS}"
+        value: "If you think this is incorrect, call us. We're here #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -53,7 +53,7 @@ module VeteranStatusCard
       },
       {
         type: 'text',
-        value: "If you think this is incorrect, call us. We're open #{SUPPORT_HOURS}"
+        value: "If you think this is incorrect, call us. We're here #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -75,7 +75,7 @@ module VeteranStatusCard
       },
       {
         type: 'text',
-        value: "To fix the problem, call us. We're open #{SUPPORT_HOURS}"
+        value: "To fix the problem, call us. We're here #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -96,7 +96,7 @@ module VeteranStatusCard
       },
       {
         type: 'text',
-        value: "If you have a previous period of service, call us. We're open #{SUPPORT_HOURS}"
+        value: "If you have a previous period of service, call us. We're here #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
@@ -143,7 +143,7 @@ module VeteranStatusCard
       },
       {
         type: 'text',
-        value: "To fix the issue, call us. We're open #{SUPPORT_HOURS}"
+        value: "To fix the issue, call us. We're here #{SUPPORT_HOURS}"
       },
       {
         type: 'phone',
