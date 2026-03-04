@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'roo'
-require 'octokit'
 
 # rubocop:disable Rails/Output
 module RepresentationManagement
@@ -28,7 +27,6 @@ module RepresentationManagement
 
     def initialize
       @results = {}
-      @data_comparison_service = DataComparisonService.new
     end
 
     # Runs the investigation and outputs results
@@ -59,12 +57,19 @@ module RepresentationManagement
     end
 
     def download_and_extract_file_data
-      puts "[#{Time.zone.now}] Step 1/3: Downloading and extracting Excel file..."
-      file_content = @data_comparison_service.send(:download_file)
-      return nil unless file_content
+      puts "[#{Time.zone.now}] Step 1/3: Downloading Excel file from GCLAWS..."
+      individuals = nil
 
-      individuals = extract_individuals_from_file(file_content)
-      puts "[#{Time.zone.now}]   ✓ Found #{individuals.size} unique individuals in file\n\n"
+      GCLAWS::XlsxClient.download_accreditation_xlsx do |result|
+        unless result[:success]
+          puts "[#{Time.zone.now}]   ERROR: Failed to download file from GCLAWS: #{result[:error]}"
+          return nil
+        end
+
+        individuals = extract_individuals_from_file(result[:file_path])
+        puts "[#{Time.zone.now}]   ✓ Found #{individuals.size} unique individuals in file\n\n"
+      end
+
       individuals
     end
 
@@ -92,37 +97,42 @@ module RepresentationManagement
     end
 
     def categorize_registration_numbers(registration_numbers)
-      categories = {
+      categories = build_empty_categories
+
+      registration_numbers.each do |reg_num|
+        classify_registration_number(categories, reg_num)
+      end
+
+      populate_uuid_type_breakdown(categories) if categories[:uuid].any?
+
+      categories
+    end
+
+    def build_empty_categories
+      {
         numeric: [],
         uuid: [],
         other: [],
-        uuid_by_type: {
-          attorney: [],
-          claims_agent: [],
-          representative: []
-        }
+        uuid_by_type: { attorney: [], claims_agent: [], representative: [] }
       }
+    end
 
-      registration_numbers.each do |reg_num|
-        if reg_num.match?(NUMERIC_REGEX)
-          categories[:numeric] << reg_num
-        elsif reg_num.match?(UUID_REGEX)
-          categories[:uuid] << reg_num
-        else
-          categories[:other] << reg_num
-        end
+    def classify_registration_number(categories, reg_num)
+      if reg_num.match?(NUMERIC_REGEX)
+        categories[:numeric] << reg_num
+      elsif reg_num.match?(UUID_REGEX)
+        categories[:uuid] << reg_num
+      else
+        categories[:other] << reg_num
       end
+    end
 
-      # Fetch individual_type for all UUID records in one query
-      if categories[:uuid].any?
-        uuid_records = AccreditedIndividual.where(registration_number: categories[:uuid])
-                                           .pluck(:registration_number, :individual_type)
-        uuid_records.each do |reg_num, type|
-          categories[:uuid_by_type][type.to_sym] << reg_num if type
-        end
+    def populate_uuid_type_breakdown(categories)
+      AccreditedIndividual.where(registration_number: categories[:uuid])
+                          .pluck(:registration_number, :individual_type)
+                          .each do |reg_num, type|
+                            categories[:uuid_by_type][type.to_sym] << reg_num if type
       end
-
-      categories
     end
 
     def print_detailed_results
@@ -236,17 +246,40 @@ module RepresentationManagement
     end
 
     # Extracts all unique registration numbers from the Excel file
-    # Uses DataComparisonService's private methods for extraction logic
-    # @param file_content [String] The raw file content
+    # @param file_path [String] Path to the downloaded XLSX file
     # @return [Set] Set of individual registration numbers
-    def extract_individuals_from_file(file_content)
+    def extract_individuals_from_file(file_path)
       puts "[#{Time.zone.now}]   Opening Excel file..."
-      xlsx = Roo::Spreadsheet.open(StringIO.new(file_content), extension: :xlsx)
+      xlsx = Roo::Spreadsheet.open(file_path, extension: :xlsx)
 
       individuals = Set.new
-      @data_comparison_service.send(:extract_individuals_from_sheets, xlsx, individuals)
+      extract_individuals_from_sheets(xlsx, individuals)
 
       individuals
+    end
+
+    # Extracts registration numbers from Attorneys, Agents, and Representatives sheets
+    # @param xlsx [Roo::Spreadsheet] The opened spreadsheet
+    # @param individuals [Set] Set to collect registration numbers into
+    def extract_individuals_from_sheets(xlsx, individuals)
+      %w[Attorneys Agents Representatives].each do |sheet_name|
+        next unless xlsx.sheets.include?(sheet_name)
+
+        puts "[#{Time.zone.now}]   Processing #{sheet_name} sheet..."
+        sheet = xlsx.sheet(sheet_name)
+        number_col = sheet.row(1).index('Number')
+
+        unless number_col
+          puts "[#{Time.zone.now}]     WARNING: 'Number' column not found in #{sheet_name}"
+          next
+        end
+
+        (2..sheet.last_row).each do |row_num|
+          number = sheet.row(row_num)[number_col]
+          individuals.add(number.to_s) if number
+        end
+        puts "[#{Time.zone.now}]     #{sheet_name}: #{sheet.last_row - 1} rows"
+      end
     end
   end
 end
