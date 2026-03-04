@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'unique_user_events'
 
 RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validation, type: :request do
-  let(:default_params) { { start_date: '2015-01-01', end_date: '2015-12-31' } }
   let(:path) { '/my_health/v2/medical_records/immunizations' }
   let(:lh_immunizations_cassette) { 'lighthouse/veterans_health/get_immunizations' }
   let(:uhd_immunizations_cassette) { 'unified_health_data/get_immunizations_200' }
@@ -22,8 +21,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         allow(UniqueUserEvents).to receive(:log_events)
         VCR.use_cassette(lh_immunizations_cassette) do
-          get path, headers: { 'X-Key-Inflection' => 'camel' },
-                    params: default_params
+          get path, headers: { 'X-Key-Inflection' => 'camel' }
         end
       end
 
@@ -42,22 +40,10 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           )
         end
 
-        context 'when date parameters are not provided' do
-          before do
-            VCR.use_cassette(lh_immunizations_cassette) do
-              get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
-            end
-          end
-
-          it 'returns a successful response' do
-            expect(response).to be_successful
-          end
-        end
-
         it 'tracks metrics in StatsD with exact immunization count' do
           # First make a request to get the actual JSON response
           VCR.use_cassette(lh_immunizations_cassette) do
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           # Get the actual count of immunizations returned
@@ -69,7 +55,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
           # Make the request again with the mock in place
           VCR.use_cassette(lh_immunizations_cassette) do
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
         end
 
@@ -95,24 +81,18 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                    instance_of(User)).and_return(false)
-
           allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
         end
 
         context 'with client error' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(false)
-
             allow(mock_client).to receive(:get_immunizations)
               .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
 
             # Expect logger to receive error
             expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
 
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           it 'returns bad_gateway status code' do
@@ -132,9 +112,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         context 'with backend service exception' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(false)
-
             allow(mock_client).to receive(:get_immunizations)
               .and_raise(Common::Exceptions::BackendServiceException.new('VA900',
                                                                          detail: 'Backend Service Unavailable'))
@@ -142,7 +119,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             # Expect logger to receive error
             expect(Rails.logger).to receive(:error).with(/Backend service exception/)
 
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           it 'returns bad_gateway status code' do
@@ -157,9 +134,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         context 'when response has no entries' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(false)
-
             empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
             allow(mock_client).to receive(:get_immunizations)
               .and_return(OpenStruct.new(body: empty_response))
@@ -167,7 +141,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             # Expect StatsD to receive count of 0
             expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
 
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           it 'returns a successful response' do
@@ -245,22 +219,10 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           expect(dates).to eq(['2025-12-12T18:00:00Z', '2025-12-10T14:19:00-06:00', '2023', '2016-04-04'])
         end
 
-        context 'when date parameters are provided, they are ignored' do
-          before do
-            VCR.use_cassette(uhd_immunizations_cassette) do
-              get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
-            end
-          end
-
-          it 'returns a successful response' do
-            expect(response).to be_successful
-          end
-        end
-
         it 'tracks metrics in StatsD with exact immunization count' do
           # First make a request to get the actual JSON response
           VCR.use_cassette(uhd_immunizations_cassette) do
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           # Get the actual count of immunizations returned
@@ -272,7 +234,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
           # Make the request again with the mock in place
           VCR.use_cassette(uhd_immunizations_cassette) do
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
         end
 
@@ -295,13 +257,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
       context 'when response has no entries' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                    instance_of(User)).and_return(true)
           # Expect StatsD to receive count of 0
           expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
 
           VCR.use_cassette('unified_health_data/get_immunizations_no_records') do
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: nil
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
         end
 
@@ -319,17 +279,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         let(:mock_service) { instance_double(UnifiedHealthData::Service) }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                    instance_of(User)).and_return(true)
-
           allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:uhd_service).and_return(mock_service)
         end
 
         context 'with client error' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(true)
-
             allow(mock_service).to receive(:get_immunizations)
               .and_raise(Common::Client::Errors::ClientError.new(
                            'Internal server error', 500
@@ -338,7 +292,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             # Expect logger to receive error
             expect(Rails.logger).to receive(:error).with(/immunization records SCDF API error/)
 
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           it 'returns bad_gateway status code' do
@@ -358,9 +312,6 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
         context 'with backend service exception' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                      instance_of(User)).and_return(true)
-
             allow(mock_service).to receive(:get_immunizations)
               .and_raise(Common::Exceptions::BackendServiceException.new('VA900',
                                                                          detail: 'Backend Service Unavailable'))
@@ -368,7 +319,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
             # Expect logger to receive error
             expect(Rails.logger).to receive(:error).with(/Backend service exception/)
 
-            get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+            get path, headers: { 'X-Key-Inflection' => 'camel' }
           end
 
           it 'returns bad_gateway status code' do
@@ -387,30 +338,14 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
   describe 'GET /my_health/v2/medical_records/immunizations/:id' do
     let(:immunization_id) { '4-NsaRGtyJ4oKq' }
     let(:show_path) { "#{path}/#{immunization_id}" }
-    let(:show_params) { default_params }
 
-    context 'happy path' do
-      before do
-        # SCDF is not set up for single record retrieval yet, so we can only test LH
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
-                                                  instance_of(User)).and_return(false)
-        VCR.use_cassette(lh_immunizations_cassette) do
-          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
-        end
-      end
-
-      it 'returns a successful response' do
-        expect(response).to be_successful
-        json_response = JSON.parse(response.body)
-
-        expect(json_response['data']).to be_a(Hash)
-        expect(json_response['data']['id']).to eq(immunization_id)
-        expect(json_response['data']['type']).to eq('immunization')
-        expect(json_response['data']['attributes']).to have_key('location')
-      end
+    before do
+      # SCDF is not set up for single record retrieval yet, so we can only test LH
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_vaccines_enabled,
+                                                instance_of(User)).and_return(false)
     end
 
-    context 'when the date parameters are not provided' do
+    context 'happy path' do
       before do
         VCR.use_cassette(lh_immunizations_cassette) do
           get show_path, headers: { 'X-Key-Inflection' => 'camel' }
@@ -443,7 +378,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           # Expect logger to receive error
           expect(Rails.logger).to receive(:error).with(/immunization records FHIR API error/)
 
-          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
 
         it 'returns bad_gateway status code' do
@@ -469,7 +404,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           # Expect logger to receive error
           expect(Rails.logger).to receive(:error).with(/Backend service exception/)
 
-          get show_path, headers: { 'X-Key-Inflection' => 'camel' }, params: show_params
+          get show_path, headers: { 'X-Key-Inflection' => 'camel' }
         end
 
         it 'returns bad_gateway status code' do

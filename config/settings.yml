@@ -605,6 +605,7 @@ gclaws:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
   accreditation_xlsx:
     password: <%= ENV['gclaws__accreditation_xlsx__password'] %>
+    tmp_password: <%= ENV['gclaws__accreditation_xlsx__tmp_password'] %>
     url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
     username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:
@@ -1650,6 +1651,11 @@ vanotify:
           template_id: ~
         received:
           flipper_id: ~
+          template_id: ~
+    "22_10278":
+      api_key: <%= ENV['vanotify__services__22_10278__api_key'] %>
+      email:
+        error:
           template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>
