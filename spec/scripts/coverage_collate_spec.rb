@@ -41,7 +41,7 @@ RSpec.describe CoverageCollate do
       described_class.rewrite_paths([file_path], '/workspace')
 
       content = File.read(file_path)
-      # The leading "/app/ is rewritten, but the interior /app/ in the path is preserved
+      # The leading "/app/" is rewritten, but the interior /app/ in the path is preserved
       expect(content).to include('"/workspace/modules/my_health/app/controllers/foo.rb"')
     end
 
