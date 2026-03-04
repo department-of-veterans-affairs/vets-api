@@ -24,6 +24,17 @@ RSpec.describe SavedClaim::EducationBenefits::VA10278 do
       expect(EducationForm::SubmitEducationBenefitsClaimJob.jobs[0]['args'].first).to eq(claim.id)
       expect(EducationForm::SubmitEducationBenefitsClaimJob.jobs[0]['args'].second).to eq(user.user_account.id)
     end
+
+    context 'with a nil user' do
+      let(:user) { nil }
+
+      it 'queues up a submit claim job, but without an account uuid' do
+        claim.after_submit(user)
+        expect(EducationForm::SubmitEducationBenefitsClaimJob.jobs.size).to eq(1)
+        expect(EducationForm::SubmitEducationBenefitsClaimJob.jobs[0]['args'].first).to eq(claim.id)
+        expect(EducationForm::SubmitEducationBenefitsClaimJob.jobs[0]['args'].second).to be_nil
+      end
+    end
   end
 
   describe 'generate_benefits_intake_metadata' do
