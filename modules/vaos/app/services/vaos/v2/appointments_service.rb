@@ -73,7 +73,6 @@ module VAOS
       }.freeze
 
       # rubocop:disable Metrics/MethodLength
-      # rubocop:disable Metrics/PerceivedComplexity
       def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
                            end_date,
                            statuses = nil,
@@ -172,7 +171,6 @@ module VAOS
           meta: pagination(pagination_params).merge(partial_errors(response, __method__))
         }
       end
-      # rubocop:enable Metrics/PerceivedComplexity
 
       ##
       # Checks whether a referral has already been used in an existing appointment.

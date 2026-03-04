@@ -15,6 +15,8 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
     allow(Rails.cache).to receive(:exist?).and_return(false)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:warn)
+    facility = instance_double(HealthFacility, name: 'Portland VA Medical Center')
+    allow(HealthFacility).to receive(:find_by).and_return(facility)
   end
 
   describe '#parse' do
@@ -159,6 +161,16 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         resource['dispenseRequest'].delete('validityPeriod')
 
         result = subject.parse(resource)
+        expect(result.is_refillable).to be false
+      end
+
+      it 'marks prescription as not refillable when facility cannot be resolved' do
+        allow(HealthFacility).to receive(:find_by).and_return(nil)
+        allow_any_instance_of(Lighthouse::Facilities::V1::Client).to receive(:get_facilities).and_return([])
+
+        resource = fhir_resource(status: 'active', refills: 5, expiration: 1.year.from_now, source: 'VA')
+        result = subject.parse(resource)
+        expect(result.facility_name).to be_nil
         expect(result.is_refillable).to be false
       end
     end
