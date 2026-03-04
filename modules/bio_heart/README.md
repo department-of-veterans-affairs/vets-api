@@ -1,9 +1,15 @@
 # BIO HEART Module
 *Benefits Intake Optimization - Helping Ensure Accrued & Relationship Transitions*
 
-This module exists to facilitate submitting forms 21P-0537 and 21P-601 to the
-Mail Management System (MMS) Form Validation Service (FVS) structured data 
-endpoint.
+## What
+
+This is a module used to facilitate submitting forms 21P-0537 and 21P-601 to 
+both the Benefits Intake API and the Mail Management System (MMS) Form Validation
+Service (FVS) structured data endpoint.
+
+This module relies on the `simple_forms_api` module for submitting to Benefits 
+Intake API and the the `lib/ibm` service for submitting to MMS. It acts as a 
+coordinator for sending a single submission to both services.
 
 ## Why
 
@@ -27,8 +33,8 @@ perspective) action.
 This module includes a controller, `uploads_controller`, that directly inherits from
 the class of the same name in the Simple Forms API. By first calling the inherited 
 `submit` method, and then using an `after_action` to trigger a submission of the 
-form data to MMS, the PDF is submitted to Benefits Intake *and* structured data is
-submitted to MMS. 
+form data to MMS via the `lib/ibm` service, the PDF is submitted to Benefits 
+Intake *and* structured data is submitted to MMS. 
 
 The submissions both use the UUID provided from Benefits Intake, so 
 they are able to be connected between the two systems.
@@ -44,7 +50,7 @@ Yes. To add more forms, you must
 
 ## Miscellaneous
 
-You may see references to `IBM` and `GovCIO` used throughout the BIO HEART API 
-code. This was due to some initial naming confusion as to what the final service
-receiving the structured data was called (in actuality: `MMS`). Any time you see
-`IBM` or `GovCIO`, this most likely is meant to refer to `MMS`.
+The actual transmission of data to MMS happens via the main service in `lib/ibm`.
+This service handles setting up the encrypted connection between vets-api and 
+the MMS endpoint (through the fwd proxy). 
+The BIO HEART API merely uses this connection without making any modifications.
