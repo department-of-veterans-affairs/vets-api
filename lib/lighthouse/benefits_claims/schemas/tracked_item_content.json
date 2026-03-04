@@ -155,7 +155,14 @@
         "text": { "type": "string" },
         "href": { "type": "string", "format": "uri-reference" },
         "style": { "enum": ["active", "external", "default"] },
-        "testId": { "type": "string" }
+        "mobileText": {
+          "type": ["string", "null"],
+          "description": "Alternative link text for mobile app display. Falls back to text if null."
+        },
+        "isWebview": {
+          "type": "boolean",
+          "description": "Whether the mobile app should open this link in an in-app webview (true) or external browser (false). Treat missing as false."
+        }
       }
     },
     "telephone": {

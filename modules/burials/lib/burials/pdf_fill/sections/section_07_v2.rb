@@ -56,13 +56,11 @@ module Burials
         bank_account = form_data['bankAccount']
         return if bank_account.blank?
 
-        # Extract account type and convert to radiobutton value
-        account_type = bank_account['accountType']
-        form_data['bankAccountType'] = case account_type
-                                       when 'checking' then 0
-                                       when 'savings' then 1
-                                       else 2 if form_data['bankAccountType'].nil?
-                                       end
+        # Convert account type to radio button value
+        # Values correspond to the PDF's RadioButtonList[12] /Opt entries:
+        # 0 = CHECKING, 1 = SAVINGS, 2 = NO ACCOUNT
+        radio_values = { 'checking' => 0, 'savings' => 1, 'noAccount' => 2 }.freeze
+        form_data['bankAccountType'] = radio_values[bank_account['accountType']]
 
         # Extract routing number
         form_data['bankRoutingNumber'] = bank_account['routingNumber'] if bank_account['routingNumber'].present?

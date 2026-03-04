@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: (multi-claim provider) Enables the Lighthouse provider for benefits claims
     enable_in_development: true
+  benefits_claims_ivc_champva_provider:
+    actor_type: user
+    description: Enables IVC CHAMPVA form status entries in My VA submission statuses/cards
+    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -1483,6 +1487,13 @@ features:
     description: >
       Enables diagnostic logging for clinical notes only (response counts, filtering metrics,
       LOINC distributions). Falls back to mhv_medical_records_diagnostic_logging if not enabled.
+    enable_in_development: false
+  mhv_medical_records_labs_and_tests_diagnostic:
+    actor_type: user
+    description: >
+      Enables diagnostic logging for labs and tests only (test code distribution,
+      observation counts, filter rates). Falls back to mhv_medical_records_diagnostic_logging
+      if not enabled.
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
