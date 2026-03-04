@@ -212,6 +212,8 @@ features:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
     description: "Gateway: Enable push notifications"
+  event_bus_gateway_sms_notifications:
+    description: "Gateway: Enable sms notifications"
   event_bus_gateway_sign_in_token_validation:
     description: Enables SignInService token validation
   hca_browser_monitoring_enabled:
