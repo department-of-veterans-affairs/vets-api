@@ -29,7 +29,10 @@
     </rule>
     <rule enforcement="should">
       Include `meta.required_permission` in 403 responses to guide
-      clients and administrators.
+      clients and administrators. However, never include
+      `meta.required_permission` when returning 404 to hide resource
+      existence -- doing so reveals the resource exists and has
+      specific access controls, defeating the enumeration protection.
     </rule>
   </rules>
 
@@ -38,7 +41,7 @@
     <step>Determine whether the resource's existence should be hidden from unauthorized users. Claims, prescriptions, and health records should be hidden. Admin endpoints and public features with restricted access should not.</step>
     <step>Check whether the method has separate code paths for "not found" and "not authorized" that return different status codes (enumeration risk).</step>
     <step>Verify whether the 403 is actually an authentication issue (expired token, missing credentials) that should be 401, or a validation issue that should be 422.</step>
-    <step>Check if `meta.required_permission` is included in 403 responses.</step>
+    <step>Check if `meta.required_permission` is included in 403 responses. If the endpoint uses unified 404 to hide resource existence, verify that `meta.required_permission` is NOT included on the 404 response -- it would leak that the resource exists and has access controls.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -72,7 +75,21 @@ resource's existence is already implied by the parent access.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    unless current_user.token_valid?
+      raise Common::Exceptions::Unauthorized.new(
+        detail: 'Session expired. Please sign in again.'
+      )
+    end
+
+    unless current_user.can_access?(resource)
+      detail = 'Access denied'
+      error = Common::Exceptions::SerializableError.new(
+        status: '403',
+        detail:,
+        meta: { required_permission: 'replace_with_permission_name' }
+      )
+      raise Common::Exceptions::Forbidden.new(detail:, errors: [error])
+    end
     ```
 
     - [ ] Correct status code for failure type (401/403/404/422)
@@ -123,6 +140,24 @@ unless current_user.token_valid?
     detail: "Session expired. Please sign in again."
   )
 end
+      </good>
+    </example>
+
+    <example name="403 response includes required_permission guidance">
+      <bad>
+raise Common::Exceptions::Forbidden.new(
+  detail: 'Access denied'
+)
+# Missing required permission context for clients/admins
+      </bad>
+      <good>
+detail = 'Access denied'
+error = Common::Exceptions::SerializableError.new(
+  status: '403',
+  detail:,
+  meta: { required_permission: 'claims.read' }
+)
+raise Common::Exceptions::Forbidden.new(detail:, errors: [error])
       </good>
     </example>
   </examples>

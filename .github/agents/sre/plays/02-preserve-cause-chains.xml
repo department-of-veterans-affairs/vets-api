@@ -1,4 +1,8 @@
-<play id="preserve-cause-chains" title="Always Preserve the Cause Chain When Wrapping Exceptions" severity="CRITICAL">
+<play
+    id="preserve-cause-chains"
+    title="Always Preserve the Cause Chain When Wrapping Exceptions"
+    severity="CRITICAL"
+>
 
   <context>
     Preserving exception cause chains gives SREs a complete failure
@@ -46,11 +50,16 @@
   </rules>
 
   <investigate_before_answering>
-    <step>Read the full method containing the rescue block to understand what exception is being caught and what new exception is being raised.</step>
-    <step>Identify the exception class being raised: does its constructor accept a `cause:` keyword argument? If not, the class itself may need to be updated before the fix can be applied.</step>
-    <step>Check if the code uses `raise "string"` pattern; this always creates a new RuntimeError and is never correct. The fix is `raise` without arguments or a typed exception with `cause:` passing the caught exception.</step>
-    <step>Determine whether the rescue block catches specific exceptions or uses bare rescue. If bare rescue, the cause chain fix should be combined with narrowing the rescue clause (see Play: Never Use Broad Rescues).</step>
-    <step>Check if Sidekiq retry behavior depends on the exception type. If so, preserving the original class is critical for correct retry strategy. Do not suggest adding `cause: e` without first verifying that the exception constructor accepts it. Read the exception class definition if needed.</step>
+    <step
+        >Read the full method containing the rescue block to understand what exception is being caught and what new exception is being raised.</step>
+    <step
+        >Identify the exception class being raised: does its constructor accept a `cause:` keyword argument? If not, the class itself may need to be updated before the fix can be applied.</step>
+    <step
+        >Check if the code uses `raise "string"` pattern; this always creates a new RuntimeError and is never correct. The fix is `raise` without arguments, or a typed exception raised inside the rescue block (Ruby automatically sets the cause chain).</step>
+    <step
+        >Determine whether the rescue block catches specific exceptions or uses bare rescue. If bare rescue, the cause chain fix should be combined with narrowing the rescue clause (see Play: Never Use Broad Rescues).</step>
+    <step
+        >Check if Sidekiq retry behavior depends on the exception type. If so, preserving the original class is critical for correct retry strategy. Do not suggest adding `cause: e` without first verifying that the exception constructor accepts it. Read the exception class definition if needed.</step>
   </investigate_before_answering>
 
   <severity_assessment>
@@ -60,8 +69,8 @@ data</critical>
 depends on exception type</critical>
     <critical>cause chain lost in service layer calling external APIs (BGS,
 MPI, Lighthouse), causing APM blackout for upstream errors</critical>
-    <high>exception wrapped without cause: in controller handling user-
-facing requests</high>
+    <high>cause chain lost when wrapping exception in controller handling
+user-facing requests</high>
     <high>cause chain lost in code where HTTP status codes must
 propagate for correct error responses</high>
     <medium>cause chain lost in internal utility with no external
@@ -89,7 +98,10 @@ preserve the chain through a different mechanism than Ruby's implicit
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    rescue Faraday::ClientError
+      raise Common::Exceptions::BadGateway.new(detail: 'Upstream client error')
+    end
+    # Ruby automatically preserves cause chain when raising inside rescue
     ```
 
     **Verify:**
@@ -118,16 +130,20 @@ rescue
       </good>
     </example>
 
-    <example name="Lighthouse Benefits Claims - missing cause chain">
+    <example
+            name="Wraps only message string, discards exception type and backtrace"
+        >
       <bad>
-rescue Faraday::ClientError, Faraday::ServerError => e
-  raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
-  # Missing cause: parameter: original Faraday exception lost
+rescue Faraday::ClientError => e
+  raise StandardError.new(e.message)
+  # Discards original exception class and backtrace; cause chain is set
+  # but the wrapper is a generic StandardError with only a string message
       </bad>
       <good>
-rescue Faraday::ClientError, Faraday::ServerError
-  raise BenefitsClaims::ServiceException.new(e.response, 'Lighthouse Error')
+rescue Faraday::ClientError
+  raise Common::Exceptions::BadGateway.new(detail: 'Upstream client error')
   # Ruby automatically sets $!.cause to the caught Faraday exception
+  # Typed exception maps to correct HTTP status (502)
       </good>
     </example>
 
@@ -136,16 +152,16 @@ rescue Faraday::ClientError, Faraday::ServerError
 rescue => e
   raise Common::Exceptions::BackendServiceException.new(
     nil,
-    detail: e.message  # Only string: loses stack trace, exception type, cause chain
+    detail: e.message  # Only e.message preserved in error detail; exception class and structured metadata lost from response (Ruby's $!.cause chain is preserved, but consumers only see the string)
   )
       </bad>
       <good>
-rescue BGS::ServiceError
-  raise Common::Exceptions::BackendServiceException.new(
-    'BGS',
+rescue BGS::ServiceException, Faraday::Error
+  raise Common::Exceptions::BadGateway.new(
     detail: 'BGS service unavailable'
   )
   # Ruby automatically preserves the cause chain
+  # BadGateway (502) correctly signals upstream failure
       </good>
     </example>
 
@@ -154,11 +170,13 @@ rescue BGS::ServiceError
 rescue Faraday::TimeoutError => e
   raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out', cause: e)
   # cause: e is silently ignored by Common::Exceptions
+  # GatewayTimeout#errors ignores constructor arguments (it always returns i18n data); detail: and cause: are absorbed by StandardError#initialize but never used
       </bad>
       <good>
 rescue Faraday::TimeoutError
-  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')
+  raise Common::Exceptions::GatewayTimeout.new
   # Ruby automatically sets $!.cause to the caught Faraday::TimeoutError
+  # GatewayTimeout takes no arguments; it always returns 504
       </good>
     </example>
   </examples>

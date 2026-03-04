@@ -25,14 +25,16 @@
       credentials fail, 401 when the user's token fails.
     </rule>
     <rule enforcement="must">
-      Include `meta.auth_type` ("user_token" or "service_account")
-      on all authentication-related exceptions to enable monitoring
-      to distinguish failure modes.
+      Include `auth_type` ("user_token" or "service_account")
+      in either exception `meta` (via `errors:` +
+      `Common::Exceptions::SerializableError`) or structured logs,
+      so monitoring can distinguish failure modes.
     </rule>
     <rule enforcement="must">
-      Preserve upstream context with `meta.upstream_status: 401`
-      and `meta.upstream_service`. Ruby's implicit cause chain
-      preserves the original exception automatically.
+      Preserve upstream context (`upstream_status: 401`,
+      `upstream_service`) in exception `meta` or structured logs.
+      Ruby's implicit cause chain preserves the original exception
+      automatically.
     </rule>
     <rule enforcement="should">
       Include actionable detail messages: "Session expired. Please
@@ -54,12 +56,13 @@
 is passed through as 401 to the client</critical>
     <critical>rescue Faraday::UnauthorizedError raises Unauthorized without
 checking credential type</critical>
-    <high>401 exception raised without meta.auth_type, cannot
-distinguish user token from service account failures</high>
+    <high>401 handling missing auth_type context (in exception meta or
+  structured logs), cannot distinguish user token from service account
+  failures</high>
     <high>service account failure returns 401 and monitoring attributes
 it to client authentication</high>
-    <medium>401 exception missing meta.upstream_service or
-meta.upstream_status context</medium>
+    <medium>401 handling missing upstream context
+  (`upstream_service`, `upstream_status`) in exception meta or logs</medium>
     <false_positive>Proxy endpoints where the service account IS the
 user; some integrations use a single credential model where the
 upstream 401 genuinely means the user's session is invalid (e.g.,
@@ -99,14 +102,36 @@ checks, not to second-guess *present* ones.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    rescue Faraday::UnauthorizedError => e
+      if using_service_account_credentials?
+        Rails.logger.error(
+          message: 'Upstream service-account authentication failed',
+          auth_type: 'service_account',
+          upstream_status: 401,
+          upstream_service: 'replace_with_service_name'
+        )
+        raise Common::Exceptions::InternalServerError.new(e)
+      else
+        detail = 'User authentication failed. Please re-authenticate.'
+        error = Common::Exceptions::SerializableError.new(
+          status: '401',
+          detail:,
+          meta: {
+            auth_type: 'user_token',
+            upstream_status: 401,
+            upstream_service: 'replace_with_service_name'
+          }
+        )
+        raise Common::Exceptions::Unauthorized.new(detail:, errors: [error])
+      end
+    end
     ```
 
     **Verify:**
     - [ ] Checks whose credentials failed before choosing status code
     - [ ] Service account failures return 500, user token failures return 401
-    - [ ] Includes `meta.auth_type` ("user_token" or "service_account")
-    - [ ] Preserves upstream context: `meta.upstream_status`, `meta.upstream_service`
+    - [ ] Includes `auth_type` context in exception `meta` or structured logs
+    - [ ] Preserves upstream context (`upstream_status`, `upstream_service`) in exception `meta` or logs
     - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
 
     [Play: Handle 401 Authentication Errors](06-handle-401-token-ownership.xml)
@@ -126,12 +151,26 @@ rescue Faraday::UnauthorizedError
 rescue Faraday::UnauthorizedError => e
   if using_service_account_credentials?
     # Our service account failed: this is OUR problem, return 500
+    Rails.logger.error(
+      message: 'Upstream service-account authentication failed',
+      auth_type: 'service_account',
+      upstream_status: 401,
+      upstream_service: 'replace_with_service_name'
+    )
     raise Common::Exceptions::InternalServerError.new(e)
   else
     # User's token failed: this is THEIR problem, return 401
-    raise Common::Exceptions::Unauthorized.new(
-      detail: 'User authentication failed. Please re-authenticate.'
+    detail = 'User authentication failed. Please re-authenticate.'
+    error = Common::Exceptions::SerializableError.new(
+      status: '401',
+      detail:,
+      meta: {
+        auth_type: 'user_token',
+        upstream_status: 401,
+        upstream_service: 'replace_with_service_name'
+      }
     )
+    raise Common::Exceptions::Unauthorized.new(detail:, errors: [error])
   end
   # Ruby automatically preserves the cause chain
       </good>

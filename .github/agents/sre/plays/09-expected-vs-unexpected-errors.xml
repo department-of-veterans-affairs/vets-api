@@ -86,7 +86,19 @@ level.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    def report_mapped_exception(exception, va_exception)
+      log_level = va_exception.status_code >= 500 ? :error : :warn
+      Rails.logger.public_send(log_level, 'Exception occurred', {
+        exception: exception.class.name,
+        message: exception.message,
+        status: va_exception.status_code
+      })
+      log_exception_to_sentry(exception) if va_exception.status_code >= 500
+      if va_exception.status_code >= 500
+        Datadog::Tracing.active_span&amp;.set_error(exception)
+        request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&amp;.set_error(exception)
+      end
+    end
     ```
 
     **Verify:**
@@ -117,7 +129,7 @@ def report_mapped_exception(exception, va_exception)
     message: exception.message,
     status: va_exception.status_code
   })
-  Raven.capture_exception(exception) if va_exception.status_code >= 500
+  log_exception_to_sentry(exception) if va_exception.status_code >= 500
   if va_exception.status_code >= 500
     Datadog::Tracing.active_span&amp;.set_error(exception)
     request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&amp;.set_error(exception)

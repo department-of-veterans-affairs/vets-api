@@ -87,7 +87,12 @@ Common::Exceptions classes; suggest domain exceptions instead.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    unless form_number
+      raise Common::Exceptions::ParameterMissing.new(
+        'form_number',
+        detail: 'The form_number parameter is required for form uploads'
+      )
+    end
     ```
 
     - [ ] Uses typed exception class (not RuntimeError)
@@ -108,7 +113,7 @@ raise 'A user_key is required for session creation' unless user_key
 unless user_key
   raise Common::Exceptions::UnprocessableEntity.new(
     detail: 'Cannot establish MHV session: missing required user_key',
-    source: 'MHVLockedSessionClient#authenticate'
+    source: 'MhvLockedSessionClient#authenticate'
   )
 end
 # Returns 422: framework recognizes the type automatically

@@ -1,4 +1,8 @@
-<play id="classify-errors" title="Match status codes to the source (4xx vs 5xx)" severity="CRITICAL">
+<play
+    id="classify-errors"
+    title="Match status codes to the source (4xx vs 5xx)"
+    severity="CRITICAL"
+>
 
   <context>
     Honest status codes make the API's error contract trustworthy.
@@ -36,11 +40,40 @@
   </rules>
 
   <investigate_before_answering>
-    <step>Read the full method containing the rescue block to understand what code is protected and what exception types it can raise.</step>
-    <step>Identify which exceptions represent client data problems (should be 422) vs our code bugs (should be 500) vs upstream failures (should be 502/503/504).</step>
-    <step>Determine whether typed validation exceptions already exist in the module's namespace (check for `ValidationError` or similar classes).</step>
-    <step>Check if the method calls external services (BGS, MPI, Faraday) whose failures should NOT be classified as client errors.</step>
-    <step>Verify that `Common::Exceptions::UnprocessableEntity`, `InternalServerError`, and gateway exceptions are available in the module's namespace. Do not suggest returning 422 for any exception type that represents a server-side or upstream failure. The "who fixes it" question determines the status family.</step>
+    <step
+        >Read the full method containing the rescue block to understand what code is protected and what exception types it can raise.</step>
+    <step
+        >Identify which exceptions represent client data problems (should be 422) vs our code bugs (should be 500) vs upstream failures (should be 502/503/504).</step>
+    <step
+        >Determine whether typed validation exceptions already exist in the module's namespace (check for `ValidationError` or similar classes).</step>
+    <step
+        >Check if the method calls external services (BGS, MPI, Faraday) whose failures should NOT be classified as client errors.</step>
+    <step
+        >Verify that `Common::Exceptions::UnprocessableEntity`, `InternalServerError`, and gateway exceptions are available in the module's namespace. Do not suggest returning 422 for any exception type that represents a server-side or upstream failure. The "who fixes it" question determines the status family.</step>
+    <step>**Error-status mapper check (MANDATORY).** Search the module
+    for `case`/`when` methods that map error codes or status codes to
+    HTTP status symbols or integers. These mapper methods are a common
+    source of misclassification. Check:
+    - Does the `else` branch default to 422 (`:unprocessable_entity`)?
+      If so, any unknown or nil error code is silently misclassified
+      as a client error. The safe default is 500
+      (`:internal_server_error`) — unknown errors are our problem
+      until proven otherwise.
+    - Are there parallel mappers at different layers (controller AND
+      service)? If both the service layer and the controller layer
+      have their own error-to-status mapping, unknown errors may be
+      double-mapped: first to 422 in the service, then the controller
+      accepts 422 as valid. Check both layers.
+    - What values can reach the mapper? Trace callers to determine if
+      `nil`, unexpected strings, or numeric status codes can reach the
+      `else` branch. If the mapper receives `nil` (e.g., exception
+      has no `original_status`), the `else` branch fires on what is
+      likely a server error.
+    - Does the mapper handle both string error codes (e.g.,
+      `'conflict'`, `'not-found'`) and numeric HTTP status codes
+      (e.g., 409, 404)? If so, ensure the `else` branch is safe for
+      both code spaces — a numeric code not in the `when` list should
+      not silently become 422.</step>
     <step>**Non-HTTP context check.** If the code is in a Sidekiq job
     or rake task, HTTP status classification does not apply. These
     contexts do not return HTTP responses. Error handling in Sidekiq
@@ -90,7 +123,23 @@ equivalent to a typed rescue and should not be flagged.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    rescue ArgumentError, ValidationError => e
+      raise Common::Exceptions::UnprocessableEntity.new(detail: e.message)
+    rescue Faraday::TimeoutError
+      raise Common::Exceptions::GatewayTimeout.new
+    rescue Faraday::ConnectionFailed
+      raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')
+    rescue Faraday::ServerError => e
+      upstream_status = e.response&amp;.[](:status)
+      detail = "Upstream service error (status: #{upstream_status})"
+      error = Common::Exceptions::SerializableError.new(
+        status: '502',
+        detail:,
+        meta: { upstream_status:, upstream_service: 'replace_with_service_name' }
+      )
+      raise Common::Exceptions::BadGateway.new(detail:, errors: [error])
+    end
+    # Ruby automatically preserves cause chain for all raised wrappers
     ```
 
     **Verify:**
@@ -104,7 +153,9 @@ equivalent to a typed rescue and should not be flagged.</false_positive>
   </pr_comment_template>
 
   <examples>
-    <example name="DependentsBenefits UserData - bare rescue returns 422 for all failures">
+    <example
+            name="DependentsBenefits UserData - bare rescue returns 422 for all failures"
+        >
       <bad>
 rescue => e  # Bare rescue catches ALL errors
   monitor.track_user_data_error('DependentsBenefits::UserData#initialize error',
@@ -118,6 +169,48 @@ rescue ArgumentError, ValidationError => e
   raise Common::Exceptions::UnprocessableEntity.new(detail: e.message)
   # Ruby automatically preserves the cause chain
 # Don't catch NoMethodError, BGS::ServiceError, etc.: let them raise as 500s
+      </good>
+    </example>
+
+    <example name="Error-status mapper defaults unknown errors to 422">
+      <bad>
+def appointment_error_status(error_code)
+  case error_code
+  when 'not-found', 404
+    :not_found
+  when 'conflict', 409
+    :conflict
+  when 'bad-request', 400
+    :bad_request
+  when 'internal-error', 500, 502
+    :bad_gateway
+  else
+    :unprocessable_entity # 422 — unknown errors treated as client input problems!
+  end
+end
+# When error_code is nil (exception has no original_status), the else
+# branch fires: a server error or code bug is returned as 422.
+# Dashboards blame clients for our failures.
+      </bad>
+      <good>
+def appointment_error_status(error_code)
+  case error_code
+  when 'not-found', 404
+    :not_found
+  when 'conflict', 409
+    :conflict
+  when 'bad-request', 400
+    :bad_request
+  when 'internal-error', 500, 502
+    :bad_gateway
+  else
+    :internal_server_error # 500 — unknown errors are OUR problem until proven otherwise
+  end
+end
+# If a new error code appears, it surfaces as 500 in dashboards
+# and the team investigates. Known business-rule errors (too-far-in-future,
+# already-canceled) should be added as explicit when branches with
+# the correct status, not hidden behind a permissive else.
       </good>
     </example>
   </examples>

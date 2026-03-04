@@ -1,4 +1,8 @@
-<play id="map-upstream-network-errors" title="Don't let all upstream network errors fall through as 500 errors" severity="CRITICAL">
+<play
+    id="map-upstream-network-errors"
+    title="Don't let all upstream network errors fall through as 500 errors"
+    severity="CRITICAL"
+>
 
   <context>
     Mapping upstream network failures to specific gateway status
@@ -33,11 +37,16 @@
   </rules>
 
   <investigate_before_answering>
-    <step>Read the full method containing the rescue block to understand which Faraday methods are called and what upstream services are contacted.</step>
-    <step>Identify which Faraday exception types the upstream call can raise: TimeoutError, ConnectionFailed, ServerError, ClientError, etc.</step>
-    <step>Check whether the code is in a controller (boundary) or service layer. Controllers should map to HTTP status codes. Service layers may need to raise module-specific exceptions that controllers then translate.</step>
-    <step>Verify that `Common::Exceptions::GatewayTimeout`, `ServiceUnavailable`, and `BadGateway` are available in the module's namespace.</step>
-    <step>Check if the upstream response object (`e.response`) is available for the caught exception type. `Faraday::ConnectionFailed` has no response. Do not suggest adding `meta.upstream_status` for exceptions that lack a response object (e.g., TimeoutError, ConnectionFailed).</step>
+    <step
+        >Read the full method containing the rescue block to understand which Faraday methods are called and what upstream services are contacted.</step>
+    <step
+        >Identify which Faraday exception types the upstream call can raise: TimeoutError, ConnectionFailed, ServerError, ClientError, etc.</step>
+    <step
+        >Check whether the code is in a controller (boundary) or service layer. Controllers should map to HTTP status codes. Service layers may need to raise module-specific exceptions that controllers then translate.</step>
+    <step
+        >Verify that `Common::Exceptions::GatewayTimeout`, `ServiceUnavailable`, and `BadGateway` are available in the module's namespace.</step>
+    <step
+        >Check if the upstream response object (`e.response`) is available for the caught exception type. `Faraday::ConnectionFailed` has no response. Do not suggest adding `meta.upstream_status` for exceptions that lack a response object (e.g., TimeoutError, ConnectionFailed).</step>
     <step>**Non-HTTP context check.** If the code is in a Sidekiq job,
     rake task, or other non-HTTP context, HTTP status mapping does
     not apply. Sidekiq jobs should re-raise for retry or swallow
@@ -88,13 +97,22 @@ not to require every layer to map independently.</false_positive>
     **Suggested fix:**
     ```ruby
     rescue Faraday::TimeoutError
-      raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')  # 504
+      raise Common::Exceptions::GatewayTimeout.new  # 504
     rescue Faraday::ConnectionFailed
       raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')  # 503
     rescue Faraday::ServerError => e
-      raise Common::Exceptions::BadGateway.new(
-        detail: "Upstream service error (status: #{e.response&amp;.[](:status)})"
+      upstream_status = e.response&amp;.[](:status)
+      detail = "Upstream service error (status: #{upstream_status})"
+      error = Common::Exceptions::SerializableError.new(
+        status: '502',
+        detail:,
+        meta: {
+          upstream_status:,
+          upstream_service: 'replace_with_service_name'
+        }
       )
+
+      raise Common::Exceptions::BadGateway.new(detail:, errors: [error])
     end
     # Ruby automatically preserves cause chain when raising inside rescue
     ```
@@ -113,19 +131,24 @@ not to require every layer to map independently.</false_positive>
     <example name="Travel Pay Claims - all Faraday errors mapped to 500">
       <bad>
 rescue Faraday::ClientError, Faraday::ServerError => e
-  raise Common::Exceptions::InternalServerError, exception: e
+  raise Common::Exceptions::InternalServerError.new(e)
   # Maps ALL Faraday errors to 500 (our fault)
   # Should distinguish: timeout→504, connection→503, server→502
       </bad>
       <good>
 rescue Faraday::TimeoutError
-  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out')  # 504
+  raise Common::Exceptions::GatewayTimeout.new  # 504
 rescue Faraday::ConnectionFailed
   raise Common::Exceptions::ServiceUnavailable.new(detail: 'Upstream unreachable')  # 503
 rescue Faraday::ServerError => e
-  raise Common::Exceptions::BadGateway.new(
-    detail: "Upstream service error (status: #{e.response&amp;.[](:status)})"
+  upstream_status = e.response&amp;.[](:status)
+  detail = "Upstream service error (status: #{upstream_status})"
+  error = Common::Exceptions::SerializableError.new(
+    status: '502',
+    detail:,
+    meta: { upstream_status:, upstream_service: 'replace_with_service_name' }
   )
+  raise Common::Exceptions::BadGateway.new(detail:, errors: [error])
   # Ruby automatically preserves the cause chain when raising inside rescue
       </good>
     </example>

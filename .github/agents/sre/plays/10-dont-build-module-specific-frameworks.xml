@@ -80,7 +80,12 @@ logic (e.g., a one-line `def log_error(e)` that calls
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    Datadog::Tracing.trace('my_module.operation') do |span|
+      span.set_tag('module', 'my_module')
+      result = do_work
+      Rails.logger.info('my_module.operation completed')
+      result
+    end
     ```
 
     **Verify:**

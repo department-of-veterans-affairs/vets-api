@@ -1,4 +1,8 @@
-<play id="bare-rescue" title="Never Use Broad or Bare Rescues" severity="CRITICAL">
+<play
+    id="bare-rescue"
+    title="Never Use Broad or Bare Rescues"
+    severity="CRITICAL"
+>
 
   <context>
     Specific rescue clauses ensure the API returns meaningful error
@@ -88,15 +92,58 @@
     the error is not swallowed. The fix is to type the rescue to
     the expected exception classes. Only exclude log-and-reraise
     when it occurs in a cleanup/teardown path (e.g., `ensure`-like
-    cleanup that must not mask the original error).</step>
+    cleanup that must not mask the original error).
+
+    **Sidekiq job context check (MANDATORY for jobs).** When the
+    bare rescue is inside a Sidekiq job, assess two additional
+    dimensions that controllers don't have:
+
+    1. **Does the rescue swallow the exception (no re-raise)?**
+       If yes, Sidekiq considers the job successful. No retry
+       occurs. This is CRITICAL when the swallowed exception could
+       be a code bug (NoMethodError, NameError, ArgumentError)
+       rather than the expected service failure. A NoMethodError
+       from a typo silently "succeeds" and may trigger downstream
+       side-effects (failure notifications, status updates) that
+       are incorrect — the job didn't fail due to a service
+       outage, it failed due to a bug.
+
+    2. **Does the rescue trigger user-facing side-effects?**
+       If the rescue block sends notifications (email, SMS, VA
+       Notify), updates status records, or enqueues other jobs,
+       a code bug caught by the bare rescue will trigger these
+       side-effects incorrectly. The veteran receives a "your
+       appointment could not be confirmed" email when the actual
+       problem is a deployment bug. This is worse than a missing
+       notification — it's a false notification.
+
+    When both conditions are true (swallows + triggers
+    side-effects), severity is CRITICAL regardless of what data
+    the job handles. The fix is to type the rescue to expected
+    service exceptions and let unexpected errors (code bugs)
+    propagate to Sidekiq for retry or dead-queue handling.</step>
   </investigate_before_answering>
 
   <severity_assessment>
-    <critical>bare rescue in code handling PII, PHI, or financial data</critical>
-    <critical>bare rescue in controller actions handling user requests</critical>
-    <critical>bare rescue + nil return in code calling external services</critical>
+    <critical
+        >bare rescue in code handling PII, PHI, or financial data</critical>
+    <critical
+        >bare rescue in controller actions handling user requests</critical>
+    <critical
+        >bare rescue + nil return in code calling external services</critical>
+    <critical>bare rescue that swallows exceptions in a Sidekiq job's
+primary operation (e.g., the method called from `perform`); swallowing
+prevents Sidekiq retries and treats code bugs (NoMethodError, typos)
+identically to legitimate service failures — the job reports success,
+no retry occurs, and the user may receive an incorrect failure
+notification triggered by a bug rather than an actual failure</critical>
     <high>bare rescue in service layer calling external APIs</high>
-    <medium>bare rescue in internal utility with no external dependencies</medium>
+    <high>bare rescue in Sidekiq job that logs and re-raises; the
+re-raise preserves retry behavior but the bare rescue still catches
+too broadly (typos, signals), potentially triggering retries for
+non-retryable code bugs and logging misleading error context</high>
+    <medium
+        >bare rescue in internal utility with no external dependencies</medium>
     <false_positive>bare rescue in defensive contexts: healthcheck
 endpoints, feature flag checks, cache operations, serializer fields,
 monitoring/instrumentation, initialization/config with safe defaults,
@@ -123,7 +170,10 @@ or job are never defensive.</false_positive>
 
     **Suggested fix:**
     ```ruby
-    {{suggested_code}}
+    rescue BGS::ServiceException, Faraday::Error => e
+      Rails.logger.warn('BGS unavailable', { error: e.class.name })
+      raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS service unavailable')
+    end
     ```
 
     - [ ] Rescue specifies exception class(es)
@@ -145,7 +195,7 @@ rescue  # Bare rescue catches ALL exceptions
       <good>
 response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
 response.file_number
-rescue BGS::ServiceError, Faraday::Error => e
+rescue BGS::ServiceException, Faraday::Error => e
   Rails.logger.warn('BGS unavailable', { user_uuid: user&amp;.uuid, error: e.class })
   raise Common::Exceptions::ServiceUnavailable.new(detail: 'BGS service unavailable')
       </good>
@@ -159,8 +209,8 @@ rescue => e  # Same as bare rescue: catches EVERYTHING
   render json: { error: 'Unable to load cemetery data' }, status: :internal_server_error
       </bad>
       <good>
-rescue SimpleFormsApi::ServiceError, Faraday::Error => e
-  render_api_exception(e)
+rescue SimpleFormsApi::ProcessingError, Faraday::Error => e
+  render_errors(e)
 # NoMethodError raises to APM: code bugs visible
       </good>
     </example>
@@ -172,7 +222,7 @@ rescue  # Bare rescue catches everything just to set Sentry tags
   raise  # Re-raises after catching: tags ALL exceptions including bugs
       </bad>
       <good>
-rescue SAML::ValidationError, SAML::MissingAttributeError => e
+rescue SAML::UserAttributeError, SAML::FormError => e
   Sentry.set_tags(controller_name: 'sessions', sign_in_method: 'not-signed-in:saml-error')
   raise
 # Unexpected errors raise without misleading tags
