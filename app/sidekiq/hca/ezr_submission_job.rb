@@ -32,6 +32,10 @@ module HCA
       service: 'healthcare-application',
       function: '10-10EZR async form submission'
     }.freeze
+    API_KEY_PATH = 'Settings.vanotify.services.health_apps_1010.api_key'
+    CALLBACK_METADATA = {
+      callback_metadata: { notification_type: 'error', form_number: FORM_ID, statsd_tags: DD_ZSF_TAGS }
+    }.freeze
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -67,20 +71,38 @@ module HCA
 
       first_name = parsed_form.dig('veteranFullName', 'first')
       template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ezr_failure_email
-      api_key = Settings.vanotify.services.health_apps_1010.api_key
       salutation = first_name ? "Dear #{first_name}," : ''
 
+      if Flipper.enabled?(:va_notify_v2_form1010ezr_submission)
+        send_v2_failure_email(email, template_id, salutation)
+      else
+        send_v1_failure_email(email, template_id, salutation)
+      end
+
+      StatsD.increment("#{STATSD_KEY_PREFIX}.submission_failure_email_sent")
+    end
+
+    def self.send_v2_failure_email(email, template_id, salutation)
+      VANotify::V2::QueueEmailJob.enqueue(
+        email,
+        template_id,
+        { 'salutation' => salutation },
+        API_KEY_PATH,
+        CALLBACK_METADATA
+      )
+    end
+
+    def self.send_v1_failure_email(email, template_id, salutation)
       VANotify::EmailJob.perform_async(
         email,
         template_id,
         { 'salutation' => salutation },
-        api_key,
-        {
-          callback_metadata: { notification_type: 'error', form_number: FORM_ID, statsd_tags: DD_ZSF_TAGS }
-        }
+        Settings.vanotify.services.health_apps_1010.api_key,
+        CALLBACK_METADATA
       )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.submission_failure_email_sent")
     end
+
+    private_class_method :send_v2_failure_email, :send_v1_failure_email
 
     def perform(encrypted_form, user_uuid)
       user = User.find(user_uuid)

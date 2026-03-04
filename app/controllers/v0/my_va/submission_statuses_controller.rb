@@ -44,6 +44,10 @@ module V0
           21P-530EZ
           21P-0969
           21P-535
+          21-2680
+          21-0779
+          21-4192
+          21P-530a
         ] + uploadable_forms
       end
 
@@ -80,12 +84,16 @@ module V0
       end
 
       def gateway_options_for_user
-        {
+        options = {
           # ALWAYS enable benefits intake for backward compatibility
           # The feature flag only controls whether to show ALL forms vs restricted list
           benefits_intake_enabled: true,
-          decision_reviews_enabled: display_decision_reviews_forms?
+          decision_reviews_enabled: display_decision_reviews_forms?,
+          ivc_champva_enabled: display_ivc_champva_forms?
         }
+
+        options[:user_email] = @current_user.email if options[:ivc_champva_enabled]
+        options
       end
 
       def display_all_forms?
@@ -100,6 +108,13 @@ module V0
       def display_decision_reviews_forms?
         Flipper.enabled?(
           :my_va_display_decision_reviews_forms,
+          @current_user
+        )
+      end
+
+      def display_ivc_champva_forms?
+        Flipper.enabled?(
+          :benefits_claims_ivc_champva_provider,
           @current_user
         )
       end

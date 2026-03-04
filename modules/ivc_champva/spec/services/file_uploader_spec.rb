@@ -22,11 +22,62 @@ describe IvcChampva::FileUploader do
     context 'when all PDF uploads succeed' do
       before do
         allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(false)
       end
 
       it 'generates and uploads meta JSON' do
         expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
         uploader.handle_uploads
+      end
+    end
+
+    context 'when all PDF uploads succeed for form 10-10d' do
+      let(:form_id) { 'vha_10_10d' }
+
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(false)
+      end
+
+      it 'generates and uploads meta JSON' do
+        expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
+        uploader.handle_uploads
+      end
+    end
+
+    context 'when champva_bypass_metadata_json_file_for_1010d flipper is enabled and form is not 10-10d' do
+      let(:form_id) { 'vha_10_7959c' }
+
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(true)
+      end
+
+      it 'generates and uploads meta JSON' do
+        expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
+        uploader.handle_uploads
+      end
+    end
+
+    context 'when champva_bypass_metadata_json_file_for_1010d flipper is enabled and form is 10-10d' do
+      let(:form_id) { 'vha_10_10d' }
+
+      before do
+        allow(uploader).to receive(:upload).and_return([200])
+        allow(Flipper).to receive(:enabled?).with(:champva_bypass_metadata_json_file_for_1010d,
+                                                  @current_user).and_return(true)
+      end
+
+      it 'skips generating and uploading meta JSON' do
+        expect(uploader).not_to receive(:generate_and_upload_meta_json)
+        result = uploader.handle_uploads
+
+        # Be sure to still return a successful result even if we skip the meta JSON upload because
+        # calling code expects it.
+        expect(result).to eq([200, nil])
       end
     end
 
@@ -60,7 +111,7 @@ describe IvcChampva::FileUploader do
 
       it 'combines PDFs and uploads as a single file' do
         expect(IvcChampva::PdfCombiner).to receive(:combine)
-          .with(combined_pdf_path, file_paths.compact)
+          .with(combined_pdf_path, file_paths.compact, anything)
           .and_return(combined_pdf_path)
 
         expect(uploader).to receive(:upload)
@@ -77,7 +128,7 @@ describe IvcChampva::FileUploader do
 
       it 'handles errors during PDF combination' do
         expect(IvcChampva::PdfCombiner).to receive(:combine)
-          .with(combined_pdf_path, file_paths.compact)
+          .with(combined_pdf_path, file_paths.compact, anything)
           .and_raise(StandardError.new('PDF combination failed'))
 
         expect(FileUtils).to receive(:rm_f).with(combined_pdf_path)
@@ -87,7 +138,7 @@ describe IvcChampva::FileUploader do
 
       it 'handles meta data upload failures' do
         expect(IvcChampva::PdfCombiner).to receive(:combine)
-          .with(combined_pdf_path, file_paths.compact)
+          .with(combined_pdf_path, file_paths.compact, anything)
           .and_return(combined_pdf_path)
 
         expect(uploader).to receive(:upload)
@@ -148,7 +199,7 @@ describe IvcChampva::FileUploader do
         allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
 
         expect(IvcChampva::PdfCombiner).to receive(:combine)
-          .with(combined_pdf_path, file_paths.compact)
+          .with(combined_pdf_path, file_paths.compact, anything)
           .and_return(combined_pdf_path)
 
         expect(uploader).to receive(:upload)

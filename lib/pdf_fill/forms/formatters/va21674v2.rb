@@ -70,13 +70,14 @@ module PdfFill
             type_mapping = {
               'ch35' => 'Chapter 35',
               'fry' => 'Fry Scholarship',
-              'feca' => 'FECA',
-              'other' => 'Other Benefit'
+              'feca' => 'FECA'
             }
             # sanitize object of false values
-            parent_object.compact_blank!
+            parent_object = parent_object.compact_blank
+            return nil if parent_object.blank?
 
-            parent_object.map { |key, _value| type_mapping[key] }.join(', ')
+            # concat and sanitize values not in type_mapping
+            parent_object.map { |key, _value| type_mapping[key] }.compact_blank.join(', ')
           end
 
           # rubocop:disable Metrics/MethodLength

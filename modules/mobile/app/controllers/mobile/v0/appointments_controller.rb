@@ -43,6 +43,12 @@ module Mobile
         render json: { data: serialized }, status: :created
       end
 
+      def get_avs_binaries
+        avs_binaries = appointments_service.fetch_avs_binaries(avs_binaries_params[:appointment_id],
+                                                               avs_binaries_params[:doc_ids].split(','))
+        render json: VAOS::V2::AvsBinarySerializer.new(avs_binaries), status: :ok
+      end
+
       private
 
       # Builds the page metadata including counts and limits
@@ -85,6 +91,12 @@ module Mobile
             include: params[:include]
           )
         end
+      end
+
+      def avs_binaries_params
+        params.require(:appointment_id)
+        params.require(:doc_ids)
+        params.permit(:appointment_id, :doc_ids)
       end
 
       def appointments_service

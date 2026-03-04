@@ -36,7 +36,7 @@ http_interactions:
         string: |-
           {
             "message": [
-              { 
+              {
                 "message_id": 573059,
                 "category": "OTHER",
                 "subject": "Release 16.2 - SM last login ",
@@ -51,6 +51,7 @@ http_interactions:
                 "readReceipt": "READ",
                 "hasAttachments": false,
                 "triage_group_name": "VA Flagship mobile applications interface 1_DAYT29",
+                "triageGroup": {"name": "VA Flagship mobile applications interface 1_DAYT29", "triageTeamId": 384939, "preferredTeam": false, "active": true, "stationNumber": "989", "healthCareSystemName": null, "locationName": null, "locationStationNumber": null, "groupTypeEnumVal": null, "subGroupTypeEnumVal": null, "groupTypePatientDisplay": null, "subGroupTypePatientDisplay": null, "teamName": null, "leadProviderName": null, "suggestedNameDisplay": null, "description": null, "legacyName": null, "ohPoolId": null, "oplock": 1, "createdDate": "Mon, 20 Mar 2023 14:01:45 GMT", "modifiedDate": "Thu, 15 Jan 2026 15:49:06 GMT", "relationType": "PATIENT", "ohTriageGroup": false},
                 "proxy_sender_name": null,
                 "thread_id": 2800585,
                 "folder_id": -2,
@@ -74,6 +75,7 @@ http_interactions:
                 "readReceipt": "READ",
                 "hasAttachments": false,
                 "triage_group_name": "VA Flagship mobile applications interface 1_DAYT29",
+                "triageGroup": {"name": "VA Flagship mobile applications interface 1_DAYT29", "triageTeamId": 384939, "preferredTeam": false, "active": true, "stationNumber": "989", "healthCareSystemName": null, "locationName": null, "locationStationNumber": null, "groupTypeEnumVal": null, "subGroupTypeEnumVal": null, "groupTypePatientDisplay": null, "subGroupTypePatientDisplay": null, "teamName": null, "leadProviderName": null, "suggestedNameDisplay": null, "description": null, "legacyName": null, "ohPoolId": null, "oplock": 1, "createdDate": "Mon, 20 Mar 2023 14:01:45 GMT", "modifiedDate": "Thu, 15 Jan 2026 15:49:06 GMT", "relationType": "PATIENT", "ohTriageGroup": false},
                 "proxy_sender_name": null,
                 "thread_id": 2800585,
                 "folder_id": -2,
@@ -97,6 +99,7 @@ http_interactions:
                 "readReceipt": "READ",
                 "hasAttachments": false,
                 "triage_group_name": "VA Flagship mobile applications interface 1_DAYT29",
+                "triageGroup": {"name": "VA Flagship mobile applications interface 1_DAYT29", "triageTeamId": 345468, "preferredTeam": false, "active": true, "stationNumber": "989", "healthCareSystemName": null, "locationName": null, "locationStationNumber": null, "groupTypeEnumVal": null, "subGroupTypeEnumVal": null, "groupTypePatientDisplay": null, "subGroupTypePatientDisplay": null, "teamName": null, "leadProviderName": null, "suggestedNameDisplay": null, "description": null, "legacyName": null, "ohPoolId": null, "oplock": 1, "createdDate": "Mon, 20 Mar 2023 14:01:45 GMT", "modifiedDate": "Thu, 15 Jan 2026 15:49:06 GMT", "relationType": "PATIENT", "ohTriageGroup": false},
                 "proxy_sender_name": null,
                 "thread_id": 2800585,
                 "folder_id": -2,

@@ -23,6 +23,9 @@ module ClaimsApi
       validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
+      # ensure 'anticipatedSeparationDate' if provided, is in the future and
+      # occurs no more than 180 days from the claimDate or current date if claimDate is not provided
+      validate_form_526_title10_anticipated_separation_date!
       # ensure 'currentMailingAddress' attributes are valid
       validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
@@ -177,6 +180,27 @@ module ClaimsApi
                 Date.parse(title10_activation_date) <= Time.zone.now
 
       raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
+    end
+
+    def validate_form_526_title10_anticipated_separation_date!
+      anticipated_separation_date = form_attributes.dig('serviceInformation',
+                                                        'reservesNationalGuardService',
+                                                        'title10Activation',
+                                                        'anticipatedSeparationDate')
+      return if anticipated_separation_date.blank?
+
+      # validate anticipated_separation_date is in the future
+      if parse_date_safely(anticipated_separation_date) <= Date.current
+        raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
+      end
+
+      # validate anticipated_separation_date is within 180 days of claimDate or current date if
+      # claimDate is not provided. In line with v2 validation in revised_disability_compensation_validations.rb
+      start_date = parse_date_safely(form_attributes['claimDate'] || Date.current.to_s)
+
+      if parse_date_safely(anticipated_separation_date) > (start_date + 180.days)
+        raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
+      end
     end
 
     def valid_countries
@@ -375,6 +399,13 @@ module ClaimsApi
 
       # Mask all but the first character of the string
       value[0] + ('*' * (value.length - 1))
+    end
+
+    # utility method from v2 validations to parse dates without raising exceptions.
+    def parse_date_safely(date_string)
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ::Common::Exceptions::InvalidFieldValue.new('date', date_string)
     end
   end
 end

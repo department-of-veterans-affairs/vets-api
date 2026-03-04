@@ -68,6 +68,65 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
       )
     end
 
+    it 'monitors pension-related submissions' do
+      allow(form_686_claim).to receive_messages(
+        pension_related_submission?: true,
+        no_ssn_claim?: false
+      )
+      allow(form_674_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+
+      processor.enqueue_submissions
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Submitted pension-related claim',
+        action: 'pension.submission',
+        component:,
+        parent_claim_id:,
+        form_type: parent_claim.claim_form_type,
+        module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
+      )
+    end
+
+    it 'monitors no-SSN claim submissions' do
+      allow(form_686_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: true
+      )
+      allow(form_674_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+
+      processor.enqueue_submissions
+      expect(mock_monitor).to have_received(:track_info_event).with(
+        'Submitted no-SSN claim',
+        action: 'no_ssn_claim.submission',
+        component:,
+        parent_claim_id:,
+        form_type: parent_claim.claim_form_type,
+        module_stats_key: DependentsBenefits::Monitor::NO_SSN_SUBMISSION_STATS_KEY
+      )
+    end
+
+    it 'does not monitor no-SSN claim submissions when no child claims have no SSN' do
+      allow(form_686_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+      allow(form_674_claim).to receive_messages(
+        pension_related_submission?: false,
+        no_ssn_claim?: false
+      )
+
+      processor.enqueue_submissions
+      expect(mock_monitor).not_to have_received(:track_info_event).with(
+        'Submitted no-SSN claim',
+        hash_including(action: 'no_ssn_claim.submission')
+      )
+    end
+
     it 'handles enqueue failures' do
       error = StandardError.new('Enqueue failed')
       allow(mock_monitor).to receive(:track_info_event).and_raise(error)
@@ -264,11 +323,12 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           it 'tracks pension-related submission when any child claim is pension-related' do
             allow(processor).to receive(:child_claims).and_return([pension_claim, regular_claim])
             expect(mock_monitor).to receive(:track_info_event).with(
-              'Submitted pension-related claim',
+              'Successful pension-related claim submission',
               action: 'pension.submission',
               component:,
               parent_claim_id:,
-              form_type: '686c-674'
+              form_type: '686c-674',
+              module_stats_key: DependentsBenefits::Monitor::PENSION_SUBMISSION_STATS_KEY
             )
             processor.send(:handle_successful_submission)
           end
@@ -276,14 +336,54 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
           it 'does not track pension-related submission if no child is pension-related' do
             allow(processor).to receive(:child_claims).and_return([regular_claim])
             expect(mock_monitor).not_to receive(:track_info_event).with(
-              'Submitted pension-related claim',
+              'Successful pension-related claim submission',
               hash_including(action: 'submission', component: 'pension')
             )
             processor.send(:handle_successful_submission)
           end
         end
 
-        context 'when feature flag is disabled' do
+        context 'with no-SSN claims' do
+          let(:no_ssn_claim) do
+            claim = create(:add_remove_dependents_claim)
+            claim.parsed_form['dependents_application']['children_to_add'] = [{ 'no_ssn' => true }]
+            claim
+          end
+
+          it 'tracks no-SSN claim submission when any child claim has no SSN' do
+            # Mock all the necessary dependencies to get to the tracking call
+            allow(processor).to receive(:child_claims).and_return([no_ssn_claim, regular_claim])
+            allow(no_ssn_claim).to receive_messages(submissions_succeeded?: true)
+            allow(regular_claim).to receive_messages(submissions_succeeded?: true)
+            allow(processor).to receive(:mark_parent_claim_group_succeeded)
+            allow_any_instance_of(DependentsBenefits::NotificationEmail).to receive(:send_received_notification)
+
+            processor.send(:handle_successful_submission)
+
+            expect(mock_monitor).to have_received(:track_info_event).with(
+              'Successful no-SSN claim submission',
+              action: 'no_ssn_claim.submission',
+              component:,
+              parent_claim_id:,
+              form_type: '686c-674',
+              module_stats_key: DependentsBenefits::Monitor::NO_SSN_SUBMISSION_STATS_KEY
+            )
+          end
+
+          it 'does not track no-SSN submission if no child claims have no SSN' do
+            allow(processor).to receive(:child_claims).and_return([regular_claim])
+            allow(regular_claim).to receive(:no_ssn_claim?).and_return(false)
+
+            processor.send(:handle_successful_submission)
+
+            expect(mock_monitor).not_to have_received(:track_info_event).with(
+              'Successful no-SSN claim submission',
+              hash_including(action: 'no_ssn_claim.submission')
+            )
+          end
+        end
+
+        context 'when pension feature flag is disabled' do
           let(:claim_with_pension_data) { create(:student_claim) }
 
           before do
@@ -295,6 +395,27 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
             expect(mock_monitor).not_to receive(:track_info_event).with(
               'Submitted pension-related claim',
               hash_including(action: 'submission', component: 'pension')
+            )
+            processor.send(:handle_successful_submission)
+          end
+        end
+
+        context 'when no-SSN feature flag is disabled' do
+          let(:no_ssn_claim) do
+            claim = create(:add_remove_dependents_claim)
+            claim.parsed_form['dependents_application']['children_to_add'] = [{ 'no_ssn' => true }]
+            claim
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:va_dependents_no_ssn).and_return(false)
+            allow(processor).to receive(:child_claims).and_return([no_ssn_claim])
+          end
+
+          it 'does not track no-SSN claim submission when feature flag is disabled' do
+            expect(mock_monitor).not_to receive(:track_info_event).with(
+              'Successful no-SSN claim submission',
+              hash_including(action: 'no_ssn_claim.submission')
             )
             processor.send(:handle_successful_submission)
           end

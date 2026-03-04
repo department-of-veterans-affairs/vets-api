@@ -20,6 +20,10 @@ module DependentsBenefits
     SUBMISSION_STATS_KEY = 'worker.lighthouse.dependents_benefits_intake_job'
     # statsd key for generic module events
     MODULE_STATS_KEY = 'module.dependents_benefits'
+    # statsd key for pension-related submissions
+    PENSION_SUBMISSION_STATS_KEY = 'dependents_benefits.pension_submission'
+    # statsd key for no SSN claims
+    NO_SSN_SUBMISSION_STATS_KEY = 'dependents_benefits.no_ssn_claims'
 
     # Allowed context keys for logging
     ALLOWLIST = %w[
@@ -71,7 +75,9 @@ module DependentsBenefits
       tags = { action: }
       tags[:component] = component if component
       context = append_tags(context, **tags)
-      submit_event(:info, message, module_stats_key, **context)
+      stats_key = context[:module_stats_key] || module_stats_key
+      context.delete(:module_stats_key)
+      submit_event(:info, message, stats_key, **context)
     end
 
     ##

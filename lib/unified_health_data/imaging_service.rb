@@ -14,15 +14,18 @@ module UnifiedHealthData
       @user = user
     end
 
-    def get_imaging_studies(start_date:, end_date:, imaging_study_type: 'ALL')
+    def get_imaging_studies(start_date:, end_date:, imaging_study_type: 'ALL', site_ids: [])
       with_monitoring do
         response = uhd_client.get_imaging_studies(
           patient_id: @user.icn,
           start_date:,
           end_date:,
-          imaging_study_type:
+          imaging_study_type:,
+          site_ids:
         )
-        imaging_study_adapter.parse(response.body)
+        records = response.body['entry'] || []
+        log_operation_outcomes(records)
+        imaging_study_adapter.parse(records)
       end
     end
 
@@ -34,7 +37,8 @@ module UnifiedHealthData
           end_date:,
           record_id:
         )
-        imaging_study_adapter.parse(response.body)
+        records = response.body['entry'] || []
+        imaging_study_adapter.parse(records)
       end
     end
 
@@ -46,7 +50,8 @@ module UnifiedHealthData
           end_date:,
           record_id:
         )
-        imaging_study_adapter.parse(response.body)
+        records = response.body['entry'] || []
+        imaging_study_adapter.parse(records)
       end
     end
 
@@ -58,6 +63,26 @@ module UnifiedHealthData
 
     def imaging_study_adapter
       @imaging_study_adapter ||= UnifiedHealthData::Adapters::ImagingStudyAdapter.new
+    end
+
+    # Logs any OperationOutcome entries in the response for observability.
+    # SCDF returns OperationOutcome with severity: warning for partial failures
+    # (e.g., when one site fails while another succeeds).
+    def log_operation_outcomes(records)
+      outcomes = records.select { |r| r.dig('resource', 'resourceType') == 'OperationOutcome' }
+      outcomes.each do |outcome|
+        issues = outcome.dig('resource', 'issue') || []
+        issues.each do |issue|
+          next if issue['severity'] == 'information'
+
+          Rails.logger.warn(
+            message: 'UHD imaging OperationOutcome detected',
+            severity: issue['severity'],
+            code: issue['code'],
+            diagnostics: issue['diagnostics']
+          )
+        end
+      end
     end
   end
 end

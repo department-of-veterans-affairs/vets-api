@@ -17,6 +17,7 @@ module SM
   # Core class responsible for SM API interface operations
   #
   class Client < Common::Client::Base
+    include Vets::SharedLogging
     include Common::Client::Concerns::MHVSessionBasedClient
     include Preferences
     include Folders
@@ -137,10 +138,11 @@ module SM
     # @return the result of the block
     #
     def track_with_status(key, is_oh: false, **additional_tags)
-      result = yield
+      result = yield(additional_tags)
       track_metric(key, is_oh:, status: 'success', **additional_tags)
       result
     rescue => e
+      log_exception_to_sentry(e, { metric_key: key }, {}, 'error')
       track_metric(key, is_oh:, status: 'failure', **additional_tags)
       raise e
     end

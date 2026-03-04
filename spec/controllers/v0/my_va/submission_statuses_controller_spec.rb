@@ -8,6 +8,8 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
 
   before do
     sign_in_as(user)
+    allow(Flipper).to receive(:enabled?)
+      .with(:benefits_claims_ivc_champva_provider, user).and_return(false)
   end
 
   describe 'GET #show' do
@@ -133,6 +135,48 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
       end
     end
 
+    context 'gateway options for CHAMPVA email' do
+      let(:email_options_report) do
+        double('Report', submission_statuses: [], errors: [])
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_all_lighthouse_benefits_intake_forms,
+                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:my_va_display_decision_reviews_forms, user).and_return(false)
+        allow(Forms::SubmissionStatuses::Report).to receive(:new).and_return(email_options_report)
+        allow(email_options_report).to receive(:run).and_return(email_options_report)
+      end
+
+      it 'omits user_email when CHAMPVA flag is disabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:benefits_claims_ivc_champva_provider, anything).and_return(false)
+
+        get :show
+
+        expect(Forms::SubmissionStatuses::Report).to have_received(:new) do |args|
+          gateway_options = args[:gateway_options]
+
+          expect(gateway_options[:ivc_champva_enabled]).to be(false)
+          expect(gateway_options).not_to have_key(:user_email)
+        end
+      end
+
+      it 'includes user_email when CHAMPVA flag is enabled' do
+        allow(Flipper).to receive(:enabled?)
+          .with(:benefits_claims_ivc_champva_provider, anything).and_return(true)
+
+        get :show
+
+        expect(Forms::SubmissionStatuses::Report).to have_received(:new) do |args|
+          gateway_options = args[:gateway_options]
+
+          expect(gateway_options[:ivc_champva_enabled]).to be(true)
+          expect(gateway_options[:user_email]).to eq(user.email)
+        end
+      end
+    end
+
     context 'when report execution fails' do
       let(:failing_report) do
         double('Report')
@@ -152,6 +196,14 @@ RSpec.describe V0::MyVA::SubmissionStatusesController, type: :controller do
 
         # If it doesn't raise an error, it should return a 500 status
         expect(response).to have_http_status(:internal_server_error)
+      end
+    end
+
+    context 'when feature flag is disabled (restricted list)' do
+      it 'includes multi-party form IDs in the restricted benefits intake forms' do
+        forms = controller.send(:restricted_benefits_intake_forms)
+
+        expect(forms).to include('21-2680', '21-0779', '21-4192', '21P-530a')
       end
     end
 
