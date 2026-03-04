@@ -400,24 +400,18 @@ RSpec.describe Dependents::Monitor do
       form_id = '686C-674-V2'
       type = 'submitted'
       metric = "#{described_class::NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
-      method_tags = ["form_id:#{form_id}"]
-      payload_tags = ["form_id:#{form_id}", 'service:dependents-application']
+      message = "No-SSN claim #{type} for claim: #{claim_v2.id}"
       payload = {
         claim: claim_v2,
         service: 'dependents-application',
-        tags: payload_tags,
+        tags: ['form_id:686C-674-V2', 'service:dependents-application'],
         user_account_uuid: nil,
         statsd: metric,
         form_id:,
         claim_id: claim_v2.id
       }
 
-      # Allow any StatsD calls to happen for test setup or the test will fail
-      allow(StatsD).to receive(:increment)
-      allow(Rails.logger).to receive(:info)
-
-      expect(StatsD).to receive(:increment).with(metric, tags: method_tags)
-      expect(Rails.logger).to receive(:info).with("No-SSN claim #{type}", payload)
+      expect(monitor_v2).to receive(:track_event).with('info', message, metric, payload)
 
       monitor_v2.track_no_ssn_claims(form_id:, type:)
     end
