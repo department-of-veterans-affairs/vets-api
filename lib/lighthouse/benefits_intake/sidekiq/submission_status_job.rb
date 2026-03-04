@@ -32,6 +32,15 @@ module BenefitsIntake
       stale: 'stale'      # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
     }.freeze
 
+    # List of allowed context keys for logging/metrics
+    MONITOR_ALLOWLIST = %w[
+      form_id
+      saved_claim_id
+      status
+      result
+      uuid
+    ].freeze
+
     # A hash mapping form IDs to their corresponding handlers.
     # This constant is intentionally mutable.
     # @see register_handler
@@ -246,7 +255,7 @@ module BenefitsIntake
 
     # @return [Logging::Monitor] the monitor used for tracking
     def monitor
-      @monitor ||= Logging::Monitor.new('benefits_intake_submission_status_job')
+      @monitor ||= Logging::Monitor.new('benefits_intake_submission_status_job', allowlist: MONITOR_ALLOWLIST)
     end
 
     # end class SubmissionStatusJob

@@ -59,6 +59,19 @@ module BenefitsClaims
       {}.freeze
     end
 
+    # Normalizes a display name key for fallback matching:
+    # downcases and collapses whitespace around hyphens
+    # (e.g., "AO - med evid" → "ao-med evid", "RADIATION - medical" → "radiation-medical")
+    def self.normalize_key(key)
+      key.downcase.gsub(/\s*-\s*/, '-')
+    end
+
+    # Pre-computed normalized lookup index for fallback matching
+    # Maps normalized keys to original CONTENT values for O(1) lookup
+    CONTENT_NORMALIZED = CONTENT.each_with_object({}) do |(key, value), index|
+      index[normalize_key(key)] ||= value
+    end.freeze
+
     class << self
       # Validates all CONTENT entries against the JSON schema
       # @return [Hash<String, Array<String>>] Hash mapping display names to validation errors
@@ -84,15 +97,21 @@ module BenefitsClaims
         JSON::Validator.fully_validate(SCHEMA, entry.deep_stringify_keys)
       end
 
-      # Looks up content override for a given display name
+      # Looks up content override for a given display name or normalized display name
       # Returns entry merged with defaults so all fields are present
       # @param display_name [String] The tracked item display name
       # @return [Hash, nil] The content override with defaults applied, or nil if not found
       def find_by_display_name(display_name)
-        entry = CONTENT[display_name]
-        return nil unless entry
+        return nil unless display_name.is_a?(String)
 
-        DEFAULTS.merge(entry)
+        entry = CONTENT[display_name]
+        return DEFAULTS.merge(entry) if entry
+
+        normalized = normalize_key(display_name)
+        entry = CONTENT_NORMALIZED[normalized]
+        return DEFAULTS.merge(entry) if entry
+
+        nil
       end
     end
   end

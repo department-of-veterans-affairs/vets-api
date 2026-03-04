@@ -27,7 +27,11 @@ module Burials
         },
         # 31D
         'bankAccountNumber' => {
-          key: 'form1[0].#subform[95].Routing_Or_Transit_Number[1]'
+          key: 'form1[0].#subform[95].Routing_Or_Transit_Number[1]',
+          limit: 15,
+          question_num: 31,
+          question_label: 'Account Number',
+          question_text: 'ACCOUNT NUMBER'
         }
       }.freeze
 
@@ -52,9 +56,11 @@ module Burials
         bank_account = form_data['bankAccount']
         return if bank_account.blank?
 
-        # Extract account type and convert to radiobutton value
-        account_type = bank_account['accountType']
-        form_data['bankAccountType'] = Constants::BANK_ACCOUNT_TYPES[account_type] if account_type.present?
+        # Convert account type to radio button value
+        # Values correspond to the PDF's RadioButtonList[12] /Opt entries:
+        # 0 = CHECKING, 1 = SAVINGS, 2 = NO ACCOUNT
+        radio_values = { 'checking' => 0, 'savings' => 1, 'noAccount' => 2 }.freeze
+        form_data['bankAccountType'] = radio_values[bank_account['accountType']]
 
         # Extract routing number
         form_data['bankRoutingNumber'] = bank_account['routingNumber'] if bank_account['routingNumber'].present?

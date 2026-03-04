@@ -21,7 +21,7 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
 
-      def alt_rev_validate_form_526_submission_values(target_veteran)
+      def alt_rev_validate_form_526_submission_values
         return if form_attributes.empty?
 
         alt_rev_validate_claim_process_type_bdd if bdd_claim?
@@ -29,8 +29,6 @@ module ClaimsApi
         alt_rev_validate_form_526_identification
         # ensure disabilities are valid
         alt_rev_validate_form_526_disabilities
-        # ensure homeless information is valid
-        alt_rev_validate_form_526_veteran_homelessness
         # ensure toxic exposure info is valid
         alt_rev_validate_form_526_toxic_exposure
         # ensure new address is valid
@@ -40,7 +38,7 @@ module ClaimsApi
         # ensure treatment centers information is valid
         alt_rev_validate_form_526_treatments
         # ensure service information is valid
-        alt_rev_validate_form_526_service_information(target_veteran)
+        alt_rev_validate_form_526_service_information
         # collect errors and pass back to the controller
         error_collection if @errors
       end
@@ -90,46 +88,29 @@ module ClaimsApi
       end
 
       def alt_rev_validate_form_526_change_of_address_beginning_date
-        change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'beginDate')
-        return if date.nil? # nullable on schema
+        # beginning date only needs to be validated for TEMPORARY address changes
+        return unless form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase == 'TEMPORARY'
+
+        begin_date = form_attributes&.dig('changeOfAddress', 'dates', 'beginDate')
 
         begin
-          begins_in_past = Date.strptime(date, '%Y-%m-%d') <= Date.current
-          if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
-            collect_error_messages(
-              detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
-              source: '/changeOfAddress/dates/beginDate'
-            )
-          end
-        rescue
+          change_of_address_beginning_date_validations(begin_date)
+        rescue ArgumentError, TypeError
           # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end
 
       def alt_rev_validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes&.dig('changeOfAddress')
-        date = change_of_address&.dig('dates', 'endDate')
-        return if date.nil? # nullable on schema
+        end_date = form_attributes&.dig('changeOfAddress', 'dates', 'endDate')
 
-        if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
-          collect_error_messages(
-            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
-            source: '/changeOfAddress/dates/endDate'
-          )
-        end
+        case form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase
+        when 'PERMANENT'
+          change_of_address_end_date_permanent_type_validations(end_date)
 
-        return if change_of_address['dates']['beginDate'].blank? # nothing to check against
-
-        # cannot compare invalid dates so need to return here if date is invalid
-        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
-
-        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-          collect_error_messages(
-            source: '/changeOfAddress/dates/endDate',
-            detail: 'endDate needs to be after beginDate.'
-          )
+        when 'TEMPORARY'
+          begin_date = form_attributes.dig('changeOfAddress', 'dates', 'beginDate')
+          change_of_address_end_date_temporary_type_validations(end_date, begin_date)
         end
       end
 
@@ -155,7 +136,11 @@ module ClaimsApi
 
       def alt_rev_validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        alt_rev_validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+        if address['country'] == 'USA'
+          alt_rev_validate_form_526_usa_coa_conditions(address)
+        else
+          alt_rev_validate_form_526_international_address(address)
+        end
       end
 
       def alt_rev_validate_form_526_usa_coa_conditions(address)
@@ -175,6 +160,16 @@ module ClaimsApi
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
+      end
+
+      def alt_rev_validate_form_526_international_address(address)
+        # international post code required for international addresses
+        if address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         end
       end
@@ -244,6 +239,11 @@ module ClaimsApi
           collect_error_messages(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA (international).'
           )
         end
       end
@@ -409,47 +409,6 @@ module ClaimsApi
                                detail: "approximateDate (#{dis_idx}) must be a date in the past.")
       end
 
-      def alt_rev_validate_form_526_veteran_homelessness
-        return if form_attributes&.dig('homeless').nil? # nullable on schema
-
-        handle_empty_other_description
-
-        if international_phone_too_long?
-          collect_error_messages(source: '/homeless/pointOfContactNumber/internationalTelephone',
-                                 detail: 'International telephone number must be shorter than 25 characters')
-        end
-      end
-
-      def get_homelessness_attributes
-        currently_homeless_attr = form_attributes.dig('homeless', 'currentlyHomeless')
-        homelessness_risk_attr = form_attributes.dig('homeless', 'riskOfBecomingHomeless')
-        [currently_homeless_attr, homelessness_risk_attr]
-      end
-
-      def handle_empty_other_description
-        currently_homeless_attr, homelessness_risk_attr = get_homelessness_attributes
-
-        # Set otherDescription to ' ' to bypass docker container validation
-        if currently_homeless_attr.present?
-          homeless_situation_options = currently_homeless_attr['homelessSituationOptions']
-          other_description = currently_homeless_attr['otherDescription']
-          if homeless_situation_options == 'OTHER' && other_description.blank?
-            form_attributes['homeless']['currentlyHomeless']['otherDescription'] = ' '
-          end
-        elsif homelessness_risk_attr.present?
-          living_situation_options = homelessness_risk_attr['livingSituationOptions']
-          other_description = homelessness_risk_attr['otherDescription']
-          if living_situation_options == 'other' && other_description.blank?
-            form_attributes['homeless']['riskOfBecomingHomeless']['otherDescription'] = ' '
-          end
-        end
-      end
-
-      def international_phone_too_long?
-        phone = form_attributes.dig('homeless', 'pointOfContactNumber', 'internationalTelephone')
-        phone.length > 25 if phone
-      end
-
       def alt_rev_validate_form_526_toxic_exposure
         return if form_attributes&.dig('toxicExposure').nil? # nullable on schema
 
@@ -552,7 +511,10 @@ module ClaimsApi
       end
 
       def alt_rev_validate_treatment_dates(treatments)
-        first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
+        service_information = form_attributes['serviceInformation']
+        return unless service_periods_present?(service_information)
+
+        first_service_period = service_information['servicePeriods'].min_by do |per|
           per['activeDutyBeginDate']
         end
 
@@ -574,18 +536,20 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_service_information(target_veteran)
+      def alt_rev_validate_form_526_service_information
         service_information = form_attributes['serviceInformation']
 
         return if service_information.nil? || service_information.blank?
 
         alt_rev_validate_service_after_13th_birthday!
-        alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        alt_rev_validate_service_periods(service_information, target_veteran)
-        alt_rev_validate_service_branch_names(service_information)
+        if service_periods_present?(service_information)
+          alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
+          alt_rev_validate_service_periods(service_information)
+          alt_rev_validate_service_branch_names(service_information)
+          alt_rev_validate_form_526_location_codes(service_information)
+        end
         alt_rev_validate_confinements(service_information)
         alt_rev_validate_reserves_required_values(service_information)
-        alt_rev_validate_form_526_location_codes(service_information)
       end
 
       def alt_rev_validate_service_after_13th_birthday!
@@ -603,7 +567,6 @@ module ClaimsApi
       end
 
       def age_exception(idx)
-        Rails.logger.debug 'in the alt file?'
         collect_error_messages(
           source: "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate",
           detail: "Active Duty Begin Date (#{idx}) cannot be before Veteran's thirteenth birthday."
@@ -611,39 +574,61 @@ module ClaimsApi
       end
 
       def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
-        unless service_information['servicePeriods'].nil?
-          max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
-        end
-        max_active_duty_end_date = max_period['activeDutyEndDate']
+        ant_sep_date = service_information&.dig('federalActivation', 'anticipatedSeparationDate')
+        return unless service_periods_present?(service_information)
 
+        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        max_active_duty_end_date = max_period['activeDutyEndDate']
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
 
-        return if max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
 
-        if ant_sep_date.present? && max_active_duty_end_date.present? && max_date_valid && ((Date.strptime(
-          max_period['activeDutyEndDate'], '%Y-%m-%d'
-        ) > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') +
-           180.days) || (Date.strptime(ant_sep_date,
-                                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days))
+        beyond_180_days = duty_end_date_check(max_period) || anticipated_separation_date_check(ant_sep_date)
 
-          collect_error_messages(
-            detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
-          )
+        return if !beyond_180_days || eligible_for_future_end_date?(service_information)
+
+        collect_error_messages(
+          detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
+        )
+      end
+
+      def duty_end_date_check(max_period)
+        Date.strptime(max_period['activeDutyEndDate'],
+                      '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
+      end
+
+      def anticipated_separation_date_check(ant_sep_date)
+        Date.strptime(ant_sep_date, '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
+      end
+
+      def eligible_for_future_end_date?(service_information)
+        reserves_national_guard_service = service_information['reservesNationalGuardService']
+        reserves_national_guard_service.present? && past_service_period?(service_information['servicePeriods'])
+      end
+
+      def past_service_period?(service_periods)
+        service_periods.any? do |sp|
+          end_date = sp['activeDutyEndDate']
+          next false if end_date.blank?
+
+          Date.parse(end_date) <= Time.zone.today.end_of_day
         end
       end
 
-      def alt_rev_validate_service_periods(service_information, target_veteran)
-        Date.strptime(target_veteran.birth_date, '%Y%m%d')
+      def alt_rev_validate_service_periods(service_information)
+        return unless service_periods_present?(service_information)
+
+        validate_service_periods_quantity!(service_information['servicePeriods'])
+
         service_information['servicePeriods'].each_with_index do |sp, idx|
           if sp['activeDutyBeginDate']
             next unless date_is_valid?(sp['activeDutyBeginDate'],
-                                       'serviceInformation/servicePeriods/activeDutyBeginDate', true)
+                                       "serviceInformation/servicePeriods/#{idx}/activeDutyBeginDate", true)
 
             if sp['activeDutyEndDate']
               next unless date_is_valid?(sp['activeDutyEndDate'],
-                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
+                                         "serviceInformation/servicePeriods/#{idx}/activeDutyEndDate", true)
 
               if Date.strptime(sp['activeDutyBeginDate'], '%Y-%m-%d') > Date.strptime(
                 sp['activeDutyEndDate'], '%Y-%m-%d'
@@ -652,6 +637,16 @@ module ClaimsApi
               end
             end
           end
+        end
+      end
+
+      def validate_service_periods_quantity!(service_periods)
+        sp_size = service_periods.size
+        if sp_size > 100
+          collect_error_messages(
+            source: '/serviceInformation/servicePeriods',
+            detail: "Number of service periods #{sp_size} must be less than or equal to 100"
+          )
         end
       end
 
@@ -697,8 +692,10 @@ module ClaimsApi
 
       def alt_rev_validate_confinements(service_information) # rubocop:disable Metrics/MethodLength
         confinements = service_information&.dig('confinements')
-
         return if confinements.blank?
+
+        service_periods = service_information&.dig('servicePeriods')
+        return unless service_periods_present?(service_information)
 
         confinements.each_with_index do |confinement, idx|
           approximate_begin_date = confinement&.dig('approximateBeginDate')
@@ -719,7 +716,6 @@ module ClaimsApi
                                      "#{form_object_desc}/approximateBeginDate") &&
                       date_is_valid?(approximate_end_date, "#{form_object_desc}/approximateEndDate")
 
-          service_periods = service_information&.dig('servicePeriods')
           earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
           next if earliest_active_duty_begin_date['activeDutyBeginDate'].blank? # nothing to check against below
@@ -854,6 +850,7 @@ module ClaimsApi
       def activation_date_not_after_duty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']
         service_periods = service_information&.dig('servicePeriods')
+        return unless service_periods_present?(service_information)
 
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
@@ -904,6 +901,8 @@ module ClaimsApi
       def alt_rev_validate_claim_process_type_bdd
         claim_date = Date.parse(CLAIM_DATE.to_s)
         service_information = form_attributes['serviceInformation']
+        return unless service_periods_present?(service_information)
+
         active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
@@ -1007,6 +1006,10 @@ module ClaimsApi
         false
       end
 
+      def service_periods_present?(service_information)
+        service_information&.dig('servicePeriods').present?
+      end
+
       def collect_date_error(date, property = '/')
         collect_error_messages(
           detail: "#{date} is not a valid date.",
@@ -1026,6 +1029,61 @@ module ClaimsApi
       def error_collection
         errors_array.uniq! { |e| e[:detail] }
         errors_array # set up the object to match other error returns
+      end
+
+      def change_of_address_beginning_date_validations(begin_date)
+        # if the address type is TEMPORARY, the beginDate must exist and be in the future.
+        if begin_date.blank?
+          collect_error_messages(
+            detail: 'Change of address beginDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+          return
+        end
+
+        begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
+
+        if begins_in_past
+          collect_error_messages(
+            detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+        end
+      end
+
+      # if the address type is PERMANENT, the endDate should not be included
+      def change_of_address_end_date_permanent_type_validations(end_date)
+        if end_date.present?
+          collect_error_messages(
+            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
+      end
+
+      # if the address type is TEMPORARY, the endDate must exist and be in chronological order from beginDate
+      def change_of_address_end_date_temporary_type_validations(end_date, begin_date)
+        if end_date.blank?
+          collect_error_messages(
+            detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/endDate'
+          )
+          return # skip remaining validations if end_date is blank since they are dependent on it being present
+        end
+
+        begin
+          if Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
+            collect_error_messages(
+              detail: 'endDate needs to be after beginDate.',
+              source: '/changeOfAddress/dates/endDate'
+            )
+          end
+        rescue ArgumentError, TypeError
+          collect_error_messages(
+            detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
       end
     end
   end

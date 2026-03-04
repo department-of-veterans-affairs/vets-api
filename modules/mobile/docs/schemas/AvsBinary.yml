@@ -1,0 +1,14 @@
+type: object
+required:
+  - docId
+properties:
+  docId:
+    description: The document ID of the After Visit Summary PDF.
+    type: string
+    example: 20875041789
+  binary:
+    type: string
+    description: The base64 encoded PDF binary data.
+  error:
+    type: string
+    description: Error message if the AVS could not be retrieved.

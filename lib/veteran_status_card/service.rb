@@ -13,27 +13,32 @@ module VeteranStatusCard
     STATSD_FAILURE = 'failure'
     STATSD_ELIGIBLE = 'eligible'
     STATSD_INELIGIBLE = 'ineligible'
+    STATSD_SUCCESS = 'success'
+
+    # Messages for user's missing fields
+    NO_ICN_MESSAGE = 'ineligible_no_icn'
+    NO_EDIPI_MESSAGE = 'ineligible_no_edipi'
 
     # Default value in case SSC codes are never checked
-    NO_SSC_CHECK_MESSAGE = 'no_ssc_check'
+    ELIGIBLE_NO_SSC_CHECK_MESSAGE = 'eligible_no_ssc_check'
+    INELIGIBLE_NO_SSC_CHECK_MESSAGE = 'ineligible_no_ssc_check'
 
     # Ineligibility reasons based on logic
     # Used in logging, responses to the frontend, and StatsD suffixes
-    DISHONORABLE_SSC_MESSAGE = 'dishonorable_ssc'
-    INELIGIBLE_SSC_MESSAGE = 'ineligible_ssc'
-    UNKNOWN_SSC_MESSAGE = 'unknown_ssc'
-    EDIPI_NO_PNL_SSC_MESSAGE = 'edipi_no_pnl_ssc'
-    CURRENTLY_SERVING_SSC_MESSAGE = 'currently_serving_ssc'
-    ERROR_SSC_MESSAGE = 'error_ssc'
-    UNCAUGHT_SSC_MESSAGE = 'uncaught_ssc'
-    UNKNOWN_REASON_MESSAGE = 'unknown_reason'
+    DISHONORABLE_SSC_MESSAGE = 'ineligible_dishonorable_ssc'
+    INELIGIBLE_SERVICE_SSC_MESSAGE = 'ineligible_service_ssc'
+    UNKNOWN_SSC_MESSAGE = 'ineligible_unknown_ssc'
+    EDIPI_NO_PNL_SSC_MESSAGE = 'ineligible_edipi_no_pnl_ssc'
+    CURRENTLY_SERVING_SSC_MESSAGE = 'ineligible_currently_serving_ssc'
+    ERROR_SSC_MESSAGE = 'ineligible_error_ssc'
+    UNCAUGHT_SSC_MESSAGE = 'ineligible_uncaught_ssc'
 
     # Confirmed SSC messages
-    AD_DSCH_VAL_SSC_MESSAGE = 'ad_dsch_val_ssc'
-    AD_VAL_PREV_QUAL_SSC_MESSAGE = 'ad_val_prev_qual_ssc'
-    AD_VAL_PREV_RES_GRD_SSC_MESSAGE = 'ad_val_prev_res_grd_ssc'
-    AD_UNCHAR_DSCH_SSC_MESSAGE = 'ad_unchar_dsch_ssc'
-    VAL_PREV_QUAL_SSC_MESSAGE = 'val_prev_qual_ssc'
+    AD_DSCH_VAL_SSC_MESSAGE = 'eligible_ad_dsch_val_ssc'
+    AD_VAL_PREV_QUAL_SSC_MESSAGE = 'eligible_ad_val_prev_qual_ssc'
+    AD_VAL_PREV_RES_GRD_SSC_MESSAGE = 'eligible_ad_val_prev_res_grd_ssc'
+    AD_UNCHAR_DSCH_SSC_MESSAGE = 'eligible_ad_unchar_dsch_ssc'
+    VAL_PREV_QUAL_SSC_MESSAGE = 'eligible_val_prev_qual_ssc'
 
     # Response type constants
     VETERAN_STATUS_CARD = 'veteran_status_card'
@@ -69,6 +74,16 @@ module VeteranStatusCard
     # Codes where a real status could not be determined
     ERROR_SSC_CODES = %w[VNA DVN DVU CVI].freeze
 
+    # Message codes to signify what message the end user is seeing for logging purposes
+    CONFIRMED_MESSAGE = 'status_card_confirmed'
+    SOMETHING_WENT_WRONG_MESSAGE = 'something_went_wrong'
+    DISHONORABLE_MESSAGE = 'dishonorable'
+    INELIGIBLE_SERVICE_MESSAGE = 'ineligible_service'
+    UNKNOWN_ELIGIBILITY_MESSAGE = 'unknown_eligibility'
+    CURRENTLY_SERVING_MESSAGE = 'currently_serving'
+    UNCAUGHT_ERROR_MESSAGE = 'uncaught_error'
+    PERSON_NOT_FOUND_MESSAGE = 'person_not_found'
+
     ##
     # Initializes the VeteranStatusCard::Service
     #
@@ -77,17 +92,8 @@ module VeteranStatusCard
     def initialize(user)
       log_statsd(STATSD_TOTAL)
       @user = user
-      @confirmation_status = NO_SSC_CHECK_MESSAGE
-
-      if @user.nil?
-        log_statsd(STATSD_FAILURE)
-        raise ArgumentError, 'User cannot be nil'
-      end
-
-      if @user.edipi.blank? || @user.icn.blank?
-        log_statsd(STATSD_FAILURE)
-        raise ArgumentError, 'User missing required fields'
-      end
+      @confirmation_status = INELIGIBLE_NO_SSC_CHECK_MESSAGE
+      @user_message = nil
     end
 
     ##
@@ -102,12 +108,41 @@ module VeteranStatusCard
     #     - When not eligible: { header:, body:, alert_type:, veteran_status:,
     #         not_confirmed_reason:, confirmation_status:, service_summary_code: }
     #
-    def status_card
-      if eligible?
-        log_vsc_result(confirmed: true)
+    def status_card # rubocop:disable Metrics/MethodLength
+      # Check up front that the ICN is present, as this is required for the VetVerificationStatus service
+      if @user&.icn.blank?
+        @confirmation_status = NO_ICN_MESSAGE
+        log_missing_fields
+        return person_not_found_response_hash
+      end
 
+      # Fire VetVerification and DoD Summary in parallel. DoD Summary requires EDIPI,
+      # so only start that thread when it is present.
+      prefetch_service_data
+
+      # If the ICN is present, check if the VetVerificationStatus is confirmed first
+      if vet_verification_eligible?
+        @confirmation_status = ELIGIBLE_NO_SSC_CHECK_MESSAGE
+        log_vsc_result(confirmed: true)
+        return eligible_response
+      end
+
+      # If the VetVerificationStatus is not confirmed, check that EDIPI is present as this
+      # is required for the VAProfile request
+      if @user&.edipi.blank?
+        @confirmation_status = NO_EDIPI_MESSAGE
+        log_missing_fields
+        return person_not_found_response_hash
+      end
+
+      # If the EDIPI is present, check for SSC eligibility through VAProfile
+      if ssc_eligible?
+        log_vsc_result(confirmed: true)
         eligible_response
       else
+        # If we've hit this point, ICN and EDIPI are present but neither VetVerificationStatus
+        # nor VAProfile showed eligible; from here we check the error details to send
+        # back to the user
         error_details = error_results
 
         log_vsc_result(confirmed: false)
@@ -149,6 +184,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def something_went_wrong_response
+      @user_message = SOMETHING_WENT_WRONG_MESSAGE
       VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
     end
 
@@ -159,6 +195,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def dishonorable_response
+      @user_message = DISHONORABLE_MESSAGE
       VeteranStatusCard::Constants::DISHONORABLE_RESPONSE
     end
 
@@ -169,6 +206,7 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def ineligible_service_response
+      @user_message = INELIGIBLE_SERVICE_MESSAGE
       VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
     end
 
@@ -178,18 +216,9 @@ module VeteranStatusCard
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def unknown_service_response
-      VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
-    end
-
-    ##
-    # Returns the response when EDIPI has no PNL (Personnel Number List) record
-    # Override in subclasses to use different messaging
-    #
-    # @return [Hash] response with :title, :message, :status keys
-    #
-    def edipi_no_pnl_response
-      VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+    def unknown_eligibility_response
+      @user_message = UNKNOWN_ELIGIBILITY_MESSAGE
+      VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
     end
 
     ##
@@ -199,17 +228,30 @@ module VeteranStatusCard
     # @return [Hash] response with :title, :message, :status keys
     #
     def currently_serving_response
+      @user_message = CURRENTLY_SERVING_MESSAGE
       VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE
     end
 
     ##
-    # Returns the generic error response
+    # Returns the uncaught error response
     # Override in subclasses to use different messaging
     #
     # @return [Hash] response with :title, :message, :status keys
     #
-    def error_response
-      VeteranStatusCard::Constants::ERROR_RESPONSE
+    def uncaught_error_response
+      @user_message = UNCAUGHT_ERROR_MESSAGE
+      VeteranStatusCard::Constants::UNCAUGHT_ERROR_RESPONSE
+    end
+
+    ##
+    # Returns the person not found response
+    # Override in subclasses to use different messaging
+    #
+    # @return [Hash] response with :title, :message, :status keys
+    #
+    def person_not_found_response
+      @user_message = PERSON_NOT_FOUND_MESSAGE
+      VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
     end
 
     private
@@ -222,7 +264,40 @@ module VeteranStatusCard
     #
     def log_statsd(key)
       # Ensure statsd is logged with downcase suffixes
+      return if key.blank?
+
       StatsD.increment("#{statsd_key_prefix}.#{key.downcase}")
+    end
+
+    ##
+    # Logs multiple StatsD metrics in a single call
+    #
+    # @param keys [Array<String>] the metric key suffixes to log
+    # @return [void]
+    #
+    def log_multiple_statsd(keys)
+      keys.each do |key|
+        log_statsd(key)
+      end
+    end
+
+    ##
+    # Logs metrics and structured result when the user is missing required fields
+    # (nil user, missing EDIPI, or missing ICN). Treats the outcome as PERSON_NOT_FOUND.
+    #
+    # @return [void]
+    #
+    def log_missing_fields
+      keys = [STATSD_INELIGIBLE, @confirmation_status, STATSD_SUCCESS]
+      log_multiple_statsd(keys)
+
+      Rails.logger.info("#{service_name} VSC Card Result", {
+                          veteran_status: NOT_CONFIRMED_TEXT,
+                          not_confirmed_reason: nil,
+                          confirmation_status: confirmation_status_upcase,
+                          service_summary_code: nil,
+                          user_message: PERSON_NOT_FOUND_MESSAGE
+                        })
     end
 
     ##
@@ -232,20 +307,20 @@ module VeteranStatusCard
     # @return [void]
     #
     def log_vsc_result(confirmed: false)
-      key = confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE
-      log_statsd(key)
-
-      # Log the vet verification reason if it exists
-      log_statsd(vet_verification_status[:reason]) if vet_verification_status[:reason].present?
-
-      # confirmation_status will always be present - it defaults to NO_SSC_CHECK_MESSAGE
-      log_statsd(@confirmation_status)
+      keys = [
+        confirmed ? STATSD_ELIGIBLE : STATSD_INELIGIBLE,
+        vet_verification_status[:reason],
+        @confirmation_status,
+        STATSD_SUCCESS
+      ]
+      log_multiple_statsd(keys)
 
       Rails.logger.info("#{service_name} VSC Card Result", {
                           veteran_status: confirmed ? CONFIRMED_TEXT : NOT_CONFIRMED_TEXT,
                           not_confirmed_reason: vet_verification_status[:reason],
                           confirmation_status: confirmation_status_upcase,
-                          service_summary_code: ssc_code
+                          service_summary_code: ssc_code,
+                          user_message: confirmed ? CONFIRMED_MESSAGE : @user_message
                         })
     end
 
@@ -300,16 +375,6 @@ module VeteranStatusCard
     end
 
     ##
-    # Determines if the veteran is eligible for a status card
-    # Checks vet verification status first, then falls back to SSC code eligibility
-    #
-    # @return [Boolean] true if eligible, false otherwise
-    #
-    def eligible?
-      vet_verification_eligible? || ssc_eligible?
-    end
-
-    ##
     # Generates error response details based on the reason for ineligibility
     # Returns appropriate messaging based on vet verification status reason or SSC code
     #
@@ -317,13 +382,9 @@ module VeteranStatusCard
     #
     def error_results
       # Vet verification status already has title and message for PERSON_NOT_FOUND, ERROR
-      if [VET_STATUS_PERSON_NOT_FOUND_TEXT, VET_STATUS_ERROR_TEXT].include?(vet_verification_status[:reason])
-        return {
-          title: vet_verification_status[:title],
-          message: vet_verification_status[:message],
-          status: vet_verification_status[:status]
-        }
-      end
+      return person_not_found_response if vet_verification_status[:reason] == VET_STATUS_PERSON_NOT_FOUND_TEXT
+
+      return something_went_wrong_response if vet_verification_status[:reason] == VET_STATUS_ERROR_TEXT
 
       # By this point, the remaining reasons are MORE_RESEARCH_REQUIRED and NOT_TITLE_38
       response_for_ssc_code
@@ -341,23 +402,23 @@ module VeteranStatusCard
         @confirmation_status = DISHONORABLE_SSC_MESSAGE
         dishonorable_response
       when *INELIGIBLE_SERVICE_SSC_CODES
-        @confirmation_status = INELIGIBLE_SSC_MESSAGE
+        @confirmation_status = INELIGIBLE_SERVICE_SSC_MESSAGE
         ineligible_service_response
       when UNKNOWN_SERVICE_SSC_CODE
         @confirmation_status = UNKNOWN_SSC_MESSAGE
-        unknown_service_response
+        unknown_eligibility_response
       when EDIPI_NO_PNL_CODE
         @confirmation_status = EDIPI_NO_PNL_SSC_MESSAGE
-        edipi_no_pnl_response
+        unknown_eligibility_response
       when *CURRENTLY_SERVING_CODES
         @confirmation_status = CURRENTLY_SERVING_SSC_MESSAGE
         currently_serving_response
       when *ERROR_SSC_CODES
         @confirmation_status = ERROR_SSC_MESSAGE
-        error_response
+        unknown_eligibility_response
       else
         @confirmation_status = UNCAUGHT_SSC_MESSAGE
-        error_response
+        uncaught_error_response
       end
     end
 
@@ -381,16 +442,20 @@ module VeteranStatusCard
     end
 
     ##
-    # Gets the disability rating from Lighthouse API
+    # Gets the disability rating from Lighthouse API (memoized)
     # Returns nil if service call fails or user missing ICN
     #
     # @return [Integer, nil] the combined disability rating percentage from Lighthouse or nil on error
     #
     def disability_rating
-      lighthouse_disabilities_provider.get_combined_disability_rating
-    rescue => e
-      Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
-      nil
+      return @disability_rating if defined?(@disability_rating)
+
+      @disability_rating = begin
+        lighthouse_disabilities_provider.get_combined_disability_rating
+      rescue => e
+        Rails.logger.error("Disability rating error: #{e.message}", backtrace: e.backtrace)
+        nil
+      end
     end
 
     ##
@@ -412,6 +477,12 @@ module VeteranStatusCard
       more_research_required_not_title_38? && ssc_confirmed?
     end
 
+    ##
+    # Checks whether the SSC code corresponds to a confirmed (eligible) veteran status
+    # Sets @confirmation_status as a side effect when a match is found
+    #
+    # @return [Boolean] true if the SSC code is in any confirmed code group, false otherwise
+    #
     def ssc_confirmed?
       case ssc_code
       when *AD_DSCH_VAL_SSC_CODES
@@ -463,6 +534,22 @@ module VeteranStatusCard
           }
         end
       end
+    end
+
+    ##
+    # Fires VetVerification, DisabilityRating, and DoD Summary requests in parallel threads.
+    # DoD Summary requires EDIPI, so that thread is only started when EDIPI is present.
+    # All results are memoized, so subsequent calls within the request are free.
+    #
+    # @return [void]
+    #
+    def prefetch_service_data
+      futures = [
+        Concurrent::Future.execute { vet_verification_response },
+        Concurrent::Future.execute { disability_rating }
+      ]
+      futures << Concurrent::Future.execute { military_personnel_response } if @user.edipi.present?
+      futures.each(&:value)
     end
 
     ##
@@ -523,9 +610,9 @@ module VeteranStatusCard
           {
             veteran_status: nil,
             reason: VET_STATUS_ERROR_TEXT,
-            message: error_response[:message],
-            title: error_response[:title],
-            status: error_response[:status]
+            message: unknown_eligibility_response[:message],
+            title: unknown_eligibility_response[:title],
+            status: unknown_eligibility_response[:status]
           }
         else
           {
@@ -564,6 +651,28 @@ module VeteranStatusCard
     #
     def vet_verification_service
       @vet_verification_service ||= VeteranVerification::Service.new
+    end
+
+    ##
+    # Returns a response for early errors finding no ICN or EDIPI
+    #
+    # @return [Hash] formatted error response with :type, :veteran_status, :service_summary_code,
+    #    :not_confirmed_reason, :confirmation_status
+    #
+    def person_not_found_response_hash
+      response = person_not_found_response
+      {
+        type: VETERAN_STATUS_ALERT,
+        attributes: {
+          header: response[:title],
+          body: response[:message],
+          alert_type: response[:status],
+          veteran_status: NOT_CONFIRMED_TEXT,
+          not_confirmed_reason: VET_STATUS_PERSON_NOT_FOUND_TEXT,
+          confirmation_status: confirmation_status_upcase,
+          service_summary_code: nil
+        }
+      }
     end
 
     ##

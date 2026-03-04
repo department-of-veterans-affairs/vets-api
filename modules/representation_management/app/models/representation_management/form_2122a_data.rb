@@ -49,6 +49,8 @@ module RepresentationManagement
     end
 
     def representative_zip_code_expanded
+      return '' if representative.zip_code.blank?
+
       if representative.zip_suffix.blank?
         [representative.zip_code[0..4], representative.zip_code[5..8]]
       else

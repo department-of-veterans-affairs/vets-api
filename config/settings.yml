@@ -300,6 +300,14 @@ covid_vaccine:
 database_url: <%= ENV['database_url'] %>
 decision_review:
   api_key: <%= ENV['decision_review__api_key'] %>
+  appealable_issues:
+    auth:
+      aud_claim_url: <%= ENV['decision_review__appealable_issues__auth__aud_claim_url'] %>
+      client_id: <%= ENV['decision_review__appealable_issues__auth__client_id'] %>
+      rsa_key: /srv/vets-api/secret/decision_review_appealable_issues.key
+      token_url: <%= ENV['decision_review__appealable_issues__auth__token_url'] %>
+    mock: <%= ENV['decision_review__appealable_issues__mock'] %>
+    url: <%= ENV['decision_review__appealable_issues__url'] %>
   benchmark_performance: <%= ENV['decision_review__benchmark_performance'] %>
   delete_saved_claim_records_job_enabled: <%= ENV['decision_review__delete_saved_claim_records_job_enabled'] %>
   email_pdf_upload_cutoff_date: <%= ENV['decision_review__email_pdf_upload_cutoff_date'] %>
@@ -357,6 +365,16 @@ dhp:
     aws_secret_access_key: <%= ENV['dhp__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['dhp__s3__bucket'] %>
     region: us-gov-west-1
+digital_forms_api:
+  base_url: <%= ENV['digital_forms_api__base_url'] %>
+  breakers_error_threshold: 80
+  include_request: false
+  jwt_secret: <%= ENV['digital_forms_api__jwt_secret'] %>
+  mock: false
+  ssl: true
+  timeout:
+    open: 30
+    read: 30
 directory:
   apikey: fake_apikey
   health_server_id: <%= ENV['directory__health_server_id'] %>
@@ -550,6 +568,13 @@ form_10_10cg:
       bucket: <%= ENV['form_10_10cg__poa__s3__bucket'] %>
       enabled: true
       region: us-gov-west-1
+form_intake:
+  api_version: 'v1'
+  breakers_error_threshold: 80
+  host: <%= ENV['form_intake__host'] %>
+  path: <%= ENV['form_intake__path'] %>
+  timeout: 30
+  use_mocks: false
 form_mock_ae_design_patterns:
   prefill: true
 form_mock_prefill:
@@ -579,7 +604,7 @@ gclaws:
     veteran_service_organizations:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
   accreditation_xlsx:
-    password: <%= ENV['gclaws__accreditation_xlsx__password'] %>
+    password: "<%= ENV['gclaws__accreditation_xlsx__password'] %>"
     url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
     username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:
@@ -1009,6 +1034,7 @@ mhv:
     app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
     host: <%= ENV['mhv__uhd__host'] %>
     labs_logging_date_range_days: <%= ENV['mhv__uhd__labs_logging_date_range_days'] %>
+    medication_filtered_statuses: <%= ENV['mhv__uhd__medication_filtered_statuses'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
@@ -1267,8 +1293,12 @@ representation_management:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  case_get_document:
+    mock: <%= ENV['res__case_get_document__mock'] %>
   ch_31_case_details:
     mock: <%= ENV['res__ch_31_case_details__mock'] %>
+  ch_31_case_milestones:
+    mock: <%= ENV['res__ch_31_case_milestones__mock'] %>
   ch_31_eligibility:
     mock: <%= ENV['res__ch_31_eligibility__mock'] %>
   mock_ch_31: <%= ENV['res__mock_ch31'] %>
@@ -1299,6 +1329,7 @@ saml:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   claims_and_appeals_get_claim: modules/mobile/app/schemas/claims_and_appeals_get_claim.json
+  get_awards_pension: modules/mobile/app/schemas/get_awards_pension.json
   test_index: spec/fixtures/schema_contract/test_schema.json
 search:
   access_key: <%= ENV['search__access_key'] %>
@@ -1360,6 +1391,7 @@ travel_pay:
   client_number: <%= ENV['travel_pay__client_number'] %>
   mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
+  open_timeout: <%= ENV['travel_pay__open_timeout'] || 15 %>
   service_name: BTSSS-API
   sts:
     scope: <%= ENV['travel_pay__sts__scope'] %>
@@ -1367,6 +1399,7 @@ travel_pay:
   subscription_key: <%= ENV['travel_pay__subscription_key'] %>
   subscription_key_e: <%= ENV['travel_pay__subscription_key_e'] %>
   subscription_key_s: <%= ENV['travel_pay__subscription_key_s'] %>
+  timeout: <%= ENV['travel_pay__timeout'] || 90 %>
   veis:
     auth_url: https://login.microsoftonline.us
     client_id: <%= ENV['travel_pay__veis__client_id'] %>
@@ -1375,11 +1408,16 @@ travel_pay:
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
 unique_user_metrics:
   oracle_health_tracked_facility_ids:
-  - '757'
   - '506'
   - '515'
   - '553'
+  - '556'
+  - '653'
   - '655'
+  - '668'
+  - '687'
+  - '692'
+  - '757'
   processor_job:
     batch_size: <%= ENV['unique_user_metrics__processor_job__batch_size'] %>
     max_iterations: <%= ENV['unique_user_metrics__processor_job__max_iterations'] %>
@@ -1603,6 +1641,20 @@ vanotify:
           template_id: ~
         submitted:
           flipper_id: survivors_benefits_submitted_email_notification
+          template_id: ~
+    "22_0989":
+      api_key: ~
+      email:
+        error:
+          flipper_id: ~
+          template_id: ~
+        received:
+          flipper_id: ~
+          template_id: ~
+    "22_10278":
+      api_key: <%= ENV['vanotify__services__22_10278__api_key'] %>
+      email:
+        error:
           template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>

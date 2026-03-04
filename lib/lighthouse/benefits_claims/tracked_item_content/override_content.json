@@ -49,7 +49,8 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -92,7 +93,8 @@
               "type": "link",
               "text": "VA Form 21-4142a",
               "href": "/find-forms/about-form-21-4142a/",
-              "testId": "VA Form 21-4142a"
+              "mobileText": "Get VA Form 21-4142a on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -145,7 +147,8 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -196,9 +199,313 @@
               "type": "link",
               "text": "VA Form 21-4142a",
               "href": "/find-forms/about-form-21-4142a/",
-              "testId": "VA Form 21-4142a"
+              "mobileText": "Get VA Form 21-4142a on VA.gov",
+              "isWebview": false
             }
           ]
+        }
+      ]
+    }
+  },
+  "AO - Blue Water Notice": {
+    "friendlyName": "Service information related to herbicide exposure",
+    "shortDescription": "We need information about your service in Vietnam to confirm your exposure to herbicides (like Agent Orange).",
+    "supportAliases": [
+      "AO - Blue Water Notice"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "If you served on a U.S. Navy or Coast Guard ship off the coast (“blue waters”) of Vietnam between January 9, 1962, and May 7, 1975, we may presume you were exposed to herbicides (like Agent Orange). To confirm your exposure, we need evidence that you spent time in Vietnam or on its inland waterways. Please provide:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "The name of your ship",
+            "The approximate dates your ship entered inland waterways, docked, or sent you ashore",
+            "Whether you went ashore if your ship docked",
+            "If you went ashore from a ship at anchorage, a description of the circumstances"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "We may not presume Agent Orange exposure if your ship only anchored temporarily in an open deep-water harbor (such as Da Nang, Cam Ranh Bay, or Vung Tau) and you stayed on the ship."
+        },
+        {
+          "type": "paragraph",
+          "content": "Some Veterans served on smaller, shallow-draft vessels on Vietnam's rivers, canals, estuaries, and delta areas (“brown waters”). If you're one of these Veterans, we may presume you were exposed to herbicides. Tell us the name of your vessel and your dates of service in Vietnam."
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed in this request under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "After completing and signing the form, you can upload or mail it. ",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4138 to download",
+              "href": "/find-forms/about-form-21-4138/",
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Make sure your name and Social Security number are included on any document you upload or send."
+        }
+      ]
+    }
+  },
+  "AO - Explain how exposed to herbicides": {
+    "friendlyName": "Herbicide exposure information",
+    "shortDescription": "To process your disability claim for herbicide exposure, we need more information from you.",
+    "supportAliases": [
+      "AO - Explain how exposed to herbicides"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "We need to know how your military duties exposed you to herbicides (like Agent Orange). You may have been exposed if:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "You served in the Republic of Vietnam between January 9, 1962, and May 7, 1975 (including service in offshore waters or other locations with duty in the Republic of Vietnam)",
+            "Your job exposed you to herbicides outside of Vietnam"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "If you served in Vietnam, upload or send us evidence of your service, such as your DD214. ",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Learn how to request your military service records from the National Archives",
+              "href": "/records/get-military-service-records/",
+              "mobileText": "Learn how to request your military service records on VA.gov",
+              "isWebview": true
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "If you didn’t serve in Vietnam, tell us when, where, and how you were exposed. You can include statements from people who know about your exposure. Any person making a statement should include:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "A description of the exposure",
+            "Their name",
+            "Service number",
+            "Unit assignment",
+            "Dates of service"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed in this request under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            "."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "After completing and signing the form, you can upload or mail it. ",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4138 to download",
+              "href": "/find-forms/about-form-21-4138/",
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Make sure your name and Social Security number are included on any document you upload or send."
+        }
+      ]
+    }
+  },
+  "AO - med evid of disab fm herbicide needed": {
+    "friendlyName": "Medical documentation of herbicide exposure",
+    "shortDescription": "To process your disability claim, we need medical information about your exposure to herbicides.",
+    "supportAliases": [
+      "AO - med evid of disab fm herbicide needed"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "We need medical evidence to process your disability claim for herbicide exposure (like Agent Orange). This evidence should show the diagnosis and earliest symptoms for each disability related to your exposure. Check your claim letter for the specific disabilities we're asking about."
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "bold",
+              "content": "If you’re claiming a skin condition"
+            },
+            ": We need medical evidence that shows the condition was present within the first year after your last year of service in Vietnam."
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed in this request under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            ". ",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4138 to download",
+              "href": "/find-forms/about-form-21-4138/",
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "To have us request your medical records, fill out General Release for Medical Provider Information (VA Form 21-4142).",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4142",
+              "href": "/find-forms/about-form-21-4142/",
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Make sure your name and Social Security number are included on any document you upload or send."
+        }
+      ]
+    }
+  },
+  "AO-Tell us specific disability fm herbicides": {
+    "friendlyName": "Disease or disability related to herbicide exposure",
+    "shortDescription": "To process your disability claim, we need to know the disease or disability caused by the herbicide exposure.",
+    "supportAliases": [
+      "AO - Tell us specific disability fm herbicides"
+    ],
+    "canUploadFile": true,
+    "isSensitive": true,
+    "longDescription": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "Tell us the specific disease or disability that herbicide exposure (like Agent Orange) caused and provide medical evidence that shows:"
+        },
+        {
+          "type": "list",
+          "style": "bullet",
+          "items": [
+            "When your symptoms first appeared",
+            "What treatment you've received since discharge"
+          ]
+        }
+      ]
+    },
+    "nextSteps": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": [
+            "Use Statement in Support of Claim (VA Form 21-4138) to answer the questions listed in this request under ",
+            {
+              "type": "bold",
+              "content": "What we need from you"
+            },
+            ". ",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4138 to download",
+              "href": "/find-forms/about-form-21-4138/",
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            "To have us request your medical records, fill out General Release for Medical Provider Information (VA Form 21-4142).",
+            {
+              "type": "lineBreak"
+            },
+            {
+              "type": "link",
+              "text": "Get VA Form 21-4142",
+              "href": "/find-forms/about-form-21-4142/",
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Make sure your name and Social Security number are included on any document you upload or send."
         }
       ]
     }
@@ -259,7 +566,8 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -270,7 +578,7 @@
     "friendlyName": "Asbestos exposure medical documentation",
     "shortDescription": "We need medical documentation that supports your claim.",
     "supportAliases": [
-      "ASB-medical evid of disease (biopsy) needed"
+      "ASB - medical evid of disease (biopsy) needed"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -312,7 +620,8 @@
               "type": "link",
               "text": "VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -322,7 +631,7 @@
   "ASB-tell us specific disability fm asbestos exposure": {
     "friendlyName": "Disease or disability related to the asbestos exposure",
     "supportAliases": [
-      "ASB-tell us specific disability fm asbestos exposure"
+      "ASB - tell us specific disability fm asbestos exposure"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -367,7 +676,8 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -407,7 +717,8 @@
               "type": "link",
               "text": "VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -598,7 +909,8 @@
               "type": "link",
               "text": "Add or change direct deposit information",
               "href": "/profile/direct-deposit",
-              "testId": "Add or change direct deposit information"
+              "mobileText": null,
+              "isWebview": false
             }
           ]
         },
@@ -614,7 +926,8 @@
               "text": "Set up a bank account through VBBP",
               "href": "https://veteransbenefitsbanking.org/",
               "style": "external",
-              "testId": "Set up a bank account through VBBP"
+              "mobileText": null,
+              "isWebview": false
             }
           ]
         }
@@ -665,7 +978,8 @@
               "type": "link",
               "text": "VA Form 21-4192",
               "href": "/find-forms/about-form-21-4192/",
-              "testId": "VA Form 21-4192"
+              "mobileText": "Get VA Form 21-4192 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -784,25 +1098,30 @@
               "type": "link",
               "text": "VA Form 21-526EZ",
               "href": "/find-forms/about-form-21-526ez/",
-              "testId": "VA Form 21-526EZ"
+              "mobileText": "Get VA Form 21-526EZ on VA.gov",
+              "isWebview": false
             }
           ]
         },
         {
           "type": "paragraph",
           "content": [
-            "Or, you can call the VA benefits hotline at ",
+            "Or, you can call the VA benefits hotline to give us the name of your disability:",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "telephone",
               "contact": "8008271000"
             },
-            " (",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "telephone",
               "contact": "711",
               "tty": true
-            },
-            ") to give us the name of your disability."
+            }
           ]
         }
       ]
@@ -877,13 +1196,17 @@
         {
           "type": "paragraph",
           "content": [
-            "You can also ",
+            "You can also request your military service records yourself from the National Archives:",
+            {
+              "type": "lineBreak"
+            },
             {
               "type": "link",
-              "text": "request your military service records",
-              "href": "/records/get-military-service-records/"
-            },
-            " yourself from the National Archives."
+              "text": "Request your military service records",
+              "href": "/records/get-military-service-records/",
+              "mobileText": null,
+              "isWebview": true
+            }
           ]
         }
       ]
@@ -936,7 +1259,8 @@
               "type": "link",
               "text": "Get VA Form 21-4138",
               "href": "/find-forms/about-form-21-4138/",
-              "testId": "Get VA Form 21-4138"
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -961,7 +1285,8 @@
               "type": "link",
               "text": "Get VA Form 21-4142",
               "href": "/find-forms/about-form-21-4142/",
-              "testId": "Get VA Form 21-4142"
+              "mobileText": "Get VA Form 21-4142 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -976,7 +1301,7 @@
     "friendlyName": "Radiation exposure information",
     "shortDescription": "To process your disability claim for radiation exposure, we need more information from you.",
     "supportAliases": [
-      "Radiation-tell us how you were exposed"
+      "Radiation - tell us how you were exposed"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -1005,7 +1330,7 @@
     "friendlyName": "disease or disability related to the radiation exposure",
     "shortDescription": "To process your disability claim, we need to know the disease or disability caused by the radiation exposure.",
     "supportAliases": [
-      "Radiation-tell us specific disability fm exposure"
+      "Radiation - tell us specific disability fm exposure"
     ],
     "canUploadFile": true,
     "isSensitive": true,
@@ -1040,8 +1365,10 @@
             {
               "type": "link",
               "text": "Get VA Form 21-4138",
-              "href": "/forms/21-4138/",
-              "style": "default"
+              "href": "/find-forms/about-form-21-4138/",
+              "style": "default",
+              "mobileText": "Get VA Form 21-4138 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -1188,7 +1515,8 @@
               "type": "link",
               "text": "VA Form 21-10210",
               "href": "/find-forms/about-form-21-10210/",
-              "testId": "VA Form 21-10210"
+              "mobileText": "Get VA Form 21-10210 on VA.gov",
+              "isWebview": false
             }
           ]
         }
@@ -1232,7 +1560,8 @@
               "type": "link",
               "text": "VA Form 21-8940",
               "href": "/find-forms/about-form-21-8940/",
-              "testId": "VA Form 21-8940"
+              "mobileText": "Get VA Form 21-8940 on VA.gov",
+              "isWebview": false
             }
           ]
         },
@@ -1252,7 +1581,8 @@
               "type": "link",
               "text": "VA Form 21-4192",
               "href": "/find-forms/about-form-21-4192/",
-              "testId": "VA Form 21-4192"
+              "mobileText": "Get VA Form 21-4192 on VA.gov",
+              "isWebview": false
             }
           ]
         }

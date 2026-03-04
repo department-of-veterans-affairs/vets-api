@@ -23,6 +23,9 @@ module ClaimsApi
       validate_form_526_service_periods_begin_in_past!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
+      # ensure 'anticipatedSeparationDate' if provided, is in the future and
+      # occurs no more than 180 days from the claimDate or current date if claimDate is not provided
+      validate_form_526_title10_anticipated_separation_date!
       # ensure 'currentMailingAddress' attributes are valid
       validate_form_526_current_mailing_address!
       # ensure 'changeOfAddress.beginningDate' is in the future if 'addressChangeType' is 'TEMPORARY'
@@ -177,6 +180,27 @@ module ClaimsApi
       raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
     end
 
+    def validate_form_526_title10_anticipated_separation_date!
+      anticipated_separation_date = form_attributes.dig('serviceInformation',
+                                                        'reservesNationalGuardService',
+                                                        'title10Activation',
+                                                        'anticipatedSeparationDate')
+      return if anticipated_separation_date.blank?
+
+      # validate anticipated_separation_date is in the future
+      if parse_date_safely(anticipated_separation_date) <= Date.current
+        raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
+      end
+
+      # validate anticipated_separation_date is within 180 days of claimDate or current date if
+      # claimDate is not provided. In line with v2 validation in revised_disability_compensation_validations.rb
+      start_date = parse_date_safely(form_attributes['claimDate'] || Date.current.to_s)
+
+      if parse_date_safely(anticipated_separation_date) > (start_date + 180.days)
+        raise ::Common::Exceptions::InvalidFieldValue.new('anticipatedSeparationDate', anticipated_separation_date)
+      end
+    end
+
     def valid_countries
       @valid_countries ||= ClaimsApi::BRD.new.countries
     end
@@ -196,22 +220,25 @@ module ClaimsApi
     def validate_form_526_change_of_address!
       change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
 
+      # skip validations if no change of address
+      return if change_of_address.blank?
+
       validate_form_526_change_of_address_beginning_date!(change_of_address)
       validate_form_526_change_of_address_ending_date!(change_of_address)
       validate_form_526_change_of_address_country!(change_of_address)
     end
 
     def validate_form_526_change_of_address_beginning_date!(change_of_address)
-      return if change_of_address.blank?
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
-      return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
 
-      raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
+      beginning_date = change_of_address['beginningDate']
+      # if 'TEMPORARY' address, 'beginningDate' is required and must be in the future.
+      if beginning_date.blank? || (Date.parse(beginning_date) <= Time.zone.now)
+        raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', beginning_date)
+      end
     end
 
     def validate_form_526_change_of_address_ending_date!(change_of_address)
-      return if change_of_address.blank?
-
       change_type = change_of_address['addressChangeType']
       ending_date = change_of_address['endingDate']
 
@@ -222,14 +249,13 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
 
         beginning_date = change_of_address['beginningDate']
-        if Date.parse(beginning_date) >= Date.parse(ending_date)
+        if Date.parse(beginning_date) > Date.parse(ending_date)
           raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
         end
       end
     end
 
     def validate_form_526_change_of_address_country!(change_of_address)
-      return if change_of_address.blank?
       return if valid_countries.include?(change_of_address['country'])
 
       raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
@@ -373,6 +399,13 @@ module ClaimsApi
 
       # Mask all but the first character of the string
       value[0] + ('*' * (value.length - 1))
+    end
+
+    # utility method from v2 validations to parse dates without raising exceptions.
+    def parse_date_safely(date_string)
+      Date.parse(date_string)
+    rescue ArgumentError, TypeError
+      raise ::Common::Exceptions::InvalidFieldValue.new('date', date_string)
     end
   end
 end

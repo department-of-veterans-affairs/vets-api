@@ -9,7 +9,11 @@ module VRE
 
       def create
         if claim.save
-          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user)
+          if Flipper.enabled?(:vre_form_submission_tracking)
+            submission_id = setup_form_submission_tracking(claim,
+                                                           user_account)
+          end
+          VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user, submission_id)
           Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
           clear_saved_form(claim.form_id)
           render json: ::SavedClaimSerializer.new(claim)
@@ -31,6 +35,27 @@ module VRE
 
       def claim
         @claim ||= SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form], user_account:)
+      end
+
+      def setup_form_submission_tracking(claim, user_account)
+        submission = claim.form_submissions.create(
+          form_type: claim.form_id,
+          user_account:
+        )
+
+        if submission.persisted?
+          Rails.logger.info('VR&E Form Submission created',
+                            claim_id: claim.id,
+                            form_type: claim.form_id,
+                            submission_id: submission.id)
+          submission.id
+        else
+          Rails.logger.warn('VR&E Form Submission creation failed - continuing without tracking',
+                            claim_id: claim.id,
+                            form_type: claim.form_id,
+                            errors: submission.errors.full_messages)
+          nil
+        end
       end
 
       def filtered_params

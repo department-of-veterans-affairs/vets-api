@@ -44,6 +44,170 @@ describe 'sm client' do
       expect(message.subject).to eq('Quote test: “test”')
     end
 
+    describe '#get_message OH migration phase derivation' do
+      let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+
+      before do
+        allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+      end
+
+      it 'sets oh_migration_phase when station_number is found in triage_group' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return('p3')
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to eq('p3')
+        end
+      end
+
+      it 'sets oh_migration_phase to nil when station_number is not in migration' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return(nil)
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+        end
+      end
+
+      it 'sets oh_migration_phase to nil when triage_group is nil' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow_any_instance_of(Message).to receive(:triage_group).and_return(nil)
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+        end
+      end
+
+      it 'sets oh_migration_phase to nil when station_number is blank' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow_any_instance_of(Message).to receive(:triage_group)
+            .and_return(TriageGroupInfo.new(station_number: nil))
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+        end
+      end
+
+      it 'logs error and sets oh_migration_phase to nil when an exception occurs' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
+          allow(Rails.logger).to receive(:error)
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.oh_migration_phase).to be_nil
+          expect(Rails.logger).to have_received(:error).with(
+            'Error deriving OH migration phase',
+            hash_including(:error_class, :error_message, :message_id)
+          )
+        end
+      end
+    end
+
+    describe '#get_message migrated_to_oracle_health derivation' do
+      let(:mock_user) { instance_double(User) }
+
+      before do
+        allow(client).to receive(:current_user).and_return(mock_user)
+      end
+
+      it 'sets migrated_to_oracle_health to true when oh_triage_group is false and facility is Cerner' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be true
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when facility is not Cerner' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['200'])
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when cerner_facility_ids is empty' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return([])
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when cerner_facility_ids is nil' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(nil)
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when triage_group is nil' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+          # Override triage_group to nil to test the guard clause
+          allow(message).to receive(:triage_group).and_return(nil)
+
+          result = client.send(:derive_migrated_to_oracle_health, message)
+
+          expect(result).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when station_number is blank' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+          allow(message).to receive(:triage_group)
+            .and_return(TriageGroupInfo.new(oh_triage_group: false))
+
+          result = client.send(:derive_migrated_to_oracle_health, message)
+
+          expect(result).to be false
+        end
+      end
+
+      it 'sets migrated_to_oracle_health to false when oh_triage_group is true' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_return(['979'])
+
+          message = client.get_message(existing_message_id)
+          allow(message).to receive(:triage_group)
+            .and_return(TriageGroupInfo.new(station_number: '979', oh_triage_group: true))
+
+          result = client.send(:derive_migrated_to_oracle_health, message)
+
+          expect(result).to be false
+        end
+      end
+
+      it 'logs error and returns false when an exception occurs' do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_with_id' do
+          allow(mock_user).to receive(:cerner_facility_ids).and_raise(StandardError.new('MPI error'))
+
+          message = client.get_message(existing_message_id)
+
+          expect(message.migrated_to_oracle_health).to be false
+        end
+      end
+    end
+
     it 'gets a message thread', :vcr do
       thread = client.get_message_history(existing_message_id)
       expect(thread).to be_a(Vets::Collection)
@@ -56,6 +220,95 @@ describe 'sm client' do
       expect(categories.message_category_type).to contain_exactly(
         'OTHER', 'APPOINTMENTS', 'MEDICATIONS', 'TEST_RESULTS', 'EDUCATION'
       )
+    end
+
+    describe '#get_full_messages_for_thread' do
+      let(:message_id) { 3_188_782 }
+
+      it 'returns a collection of MessageThreadDetails', :vcr do
+        VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+          result = client.get_full_messages_for_thread(message_id)
+
+          expect(result).to be_a(Vets::Collection)
+          expect(result.type).to eq(MessageThreadDetails)
+          expect(result.data).not_to be_empty
+        end
+      end
+
+      describe 'OH migration phase derivation' do
+        let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+        let(:triage_team_id) { 3_188_767 }
+
+        before do
+          allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+        end
+
+        it 'sets oh_migration_phase on all messages when station_number is found in triage_group' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return('p3')
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to eq('p3')
+          end
+        end
+
+        it 'does not set oh_migration_phase when station_number is not in migration' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).with('979').and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'returns nil when triage_group is nil' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            result.data.each { |msg| allow(msg).to receive(:triage_group).and_return(nil) }
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'returns nil when station_number is blank' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).and_return(nil)
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            result.data.each do |msg|
+              allow(msg).to receive(:triage_group).and_return(TriageGroupInfo.new(station_number: nil))
+            end
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+
+        it 'logs error and returns nil when an exception occurs' do
+          VCR.use_cassette 'sm_client/messages/gets_a_message_thread_full_body' do
+            allow(oh_service).to receive(:get_phase_for_station_number).and_raise(StandardError.new('Test error'))
+
+            result = client.get_full_messages_for_thread(message_id)
+
+            expect(Rails.logger).to receive(:error).with(
+              'Error deriving OH migration phase',
+              hash_including(:error_class, :error_message, :message_id)
+            )
+
+            phase = client.send(:derive_oh_migration_phase, result)
+            expect(phase).to be_nil
+          end
+        end
+      end
     end
 
     context 'creates' do
@@ -341,6 +594,90 @@ describe 'sm client' do
           result = client.get_attachment(message_id, attachment_id)
 
           expect(result[:filename]).to eq('encoded-file.pdf')
+        end
+      end
+    end
+
+    context 'get_attachment_info method' do
+      let(:message_id) { 123 }
+      let(:attachment_id) { 456 }
+      let(:client) { SM::Client.new(session: { user_id: '10616687' }) }
+
+      before do
+        allow(client).to receive(:token_headers).and_return({})
+      end
+
+      context 'when response contains S3-backed attachment' do
+        let(:s3_url) { 'https://s3.us-gov-west-1.amazonaws.com/bucket/file.pdf?presigned=true' }
+        let(:mock_response) do
+          double('response',
+                 body: {
+                   data: {
+                     url: s3_url,
+                     mime_type: 'application/pdf',
+                     name: 'document.pdf'
+                   }
+                 })
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(mock_response)
+        end
+
+        it 'returns S3 metadata with nil body' do
+          result = client.get_attachment_info(message_id, attachment_id)
+
+          expect(result).to eq({
+                                 s3_url:,
+                                 mime_type: 'application/pdf',
+                                 filename: 'document.pdf',
+                                 body: nil
+                               })
+        end
+
+        it 'does not make HTTP request to S3' do
+          expect(Net::HTTP).not_to receive(:start)
+          client.get_attachment_info(message_id, attachment_id)
+        end
+      end
+
+      context 'when response is direct binary (non-S3)' do
+        let(:mock_response) do
+          double('response',
+                 body: 'binary file content',
+                 response_headers: { 'content-disposition' => 'attachment; filename="file.pdf"' })
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(mock_response)
+        end
+
+        it 'returns body with nil s3_url' do
+          result = client.get_attachment_info(message_id, attachment_id)
+          expect(result).to eq({
+                                 s3_url: nil,
+                                 mime_type: nil,
+                                 filename: 'file.pdf',
+                                 body: 'binary file content'
+                               })
+        end
+      end
+
+      context 'when response body is malformed' do
+        let(:mock_response) do
+          double('response',
+                 body: { data: { url: nil } },
+                 response_headers: { 'content-disposition' => 'attachment; filename="fallback.pdf"' })
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return(mock_response)
+        end
+
+        it 'treats as non-S3 when URL is missing' do
+          result = client.get_attachment_info(message_id, attachment_id)
+          expect(result[:s3_url]).to be_nil
+          expect(result[:body]).to eq({ data: { url: nil } })
         end
       end
     end

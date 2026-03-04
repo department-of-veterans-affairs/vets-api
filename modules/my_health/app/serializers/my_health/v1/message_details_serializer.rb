@@ -7,6 +7,7 @@ module MyHealth
 
       set_id :message_id
 
+      attribute :reply_disabled
       attribute :message_id, &:id
       attribute :body, &:message_body
       attribute :message_id
@@ -16,6 +17,8 @@ module MyHealth
       attribute :draft_date
       attribute :to_date
       attribute :has_attachments
+      attribute :oh_migration_phase
+      attribute :migrated_to_oracle_health
       attribute :attachments do |object|
         Array(object.attachments).map do |att|
           {

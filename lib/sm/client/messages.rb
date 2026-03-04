@@ -27,7 +27,12 @@ module SM
       def get_message(id)
         path = "message/#{id}/read"
         json = perform(:get, path, nil, token_headers).body
-        Message.new(json[:data].merge(json[:metadata]))
+        message = Message.new(json[:data].merge(json[:metadata]))
+
+        # Derive OH migration phase from the message's triage group (e.g., station number)
+        message.oh_migration_phase = derive_oh_migration_phase_for_message(message)
+        message.migrated_to_oracle_health = derive_migrated_to_oracle_health(message)
+        message
       end
 
       ##
@@ -76,6 +81,15 @@ module SM
         is_oh = json[:data].any? { |msg| msg[:is_oh_message] == true }
         result = Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata],
                                                                          errors: json[:errors])
+
+        # Derive OH migration phase from triage team attribute
+        oh_migration_phase = derive_oh_migration_phase(result)
+        result.data.each { |msg| msg.oh_migration_phase = oh_migration_phase } if oh_migration_phase
+
+        # Derive migrated_to_oracle_health for each message based on its triage_group
+        migrated_to_oracle_health = derive_migrated_to_oracle_health(result.data.first)
+        result.data.each { |msg| msg.migrated_to_oracle_health = migrated_to_oracle_health }
+
         track_metric('get_full_messages_for_thread', is_oh:, status: 'success')
         result
       rescue => e
@@ -121,6 +135,73 @@ module SM
         response = perform(:post, "message/#{id}", nil, custom_headers)
 
         response&.status
+      end
+
+      private
+
+      ##
+      # Derives OH migration phase for a single message based on its triage group's station number
+      #
+      # @param message [Message] the message to derive phase for
+      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window,
+      #                       or nil if no migration data exists
+      #
+      def derive_oh_migration_phase_for_message(message)
+        oh_service = MHV::OhFacilitiesHelper::Service.new(current_user)
+
+        station_number = message&.triage_group&.station_number
+        return nil if station_number.blank?
+
+        # Look up migration phase for this station number
+        oh_service.get_phase_for_station_number(station_number)
+      rescue => e
+        Rails.logger.error(
+          'Error deriving OH migration phase',
+          { error_class: e.class.name, error_message: e.message, message_id: message&.id }
+        )
+        nil
+      end
+
+      ##
+      # Determines if the message relates to a post-migration Oracle Health state.
+      # A message is considered post-migration when the triage group's station_number
+      # matches a facility in the veteran's VA profile that is marked as Cerner (isCerner),
+      # but the triage group in a message is not an OH triage group (oh_triage_group is false).
+      #
+      # @param message [Message] the message to check
+      # @return [Boolean] true if the message is in a post-migration state
+      #
+      def derive_migrated_to_oracle_health(message)
+        triage_group = message&.triage_group
+        return false if triage_group.blank?
+
+        station_number = triage_group.station_number&.to_s
+        return false if station_number.blank?
+
+        oh_triage_group = triage_group.oh_triage_group
+        # Post-migration: facility is Cerner in VA profile but triage group is not yet OH
+        cerner_facility_ids = Array(current_user&.cerner_facility_ids).map(&:to_s)
+        cerner_facility_ids.include?(station_number) && oh_triage_group == false
+      rescue => e
+        Rails.logger.error(
+          'Error deriving migrated_to_oracle_health',
+          { error_class: e.class.name, error_message: e.message, message_id: message&.id }
+        )
+        false
+      end
+
+      ##
+      # Derives OH migration phase from cached triage teams based on the first message's triage_group_id
+      #
+      # @param result [Vets::Collection] collection of MessageThreadDetails
+      # @return [String, nil] current migration phase (e.g., "p1"), or phase of soonest migration window
+      #                       if team not found in cache, or nil if no migration data exists
+      #
+      def derive_oh_migration_phase(message_thread_collection)
+        return nil if message_thread_collection.data.blank?
+
+        first_message = message_thread_collection.data.first
+        derive_oh_migration_phase_for_message(first_message)
       end
     end
   end

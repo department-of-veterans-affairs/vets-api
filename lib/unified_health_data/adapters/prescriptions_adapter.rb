@@ -3,6 +3,7 @@
 require_relative 'vista_prescription_adapter'
 require_relative 'oracle_health_prescription_adapter'
 require_relative 'v2_status_mapping'
+require_relative '../source_constants'
 
 module UnifiedHealthData
   module Adapters
@@ -92,7 +93,7 @@ module UnifiedHealthData
       end
 
       def parse_vista_medications(body)
-        vista_data = body['vista']
+        vista_data = body[SourceConstants::VISTA]
         return [] unless vista_data && vista_data['medicationList']
 
         medications = vista_data.dig('medicationList', 'medication')
@@ -102,7 +103,7 @@ module UnifiedHealthData
       end
 
       def parse_oracle_medications(body)
-        oracle_data = body['oracle-health']
+        oracle_data = body[SourceConstants::ORACLE_HEALTH]
         return [] unless oracle_data && oracle_data['entry']
 
         entries = oracle_data['entry']

@@ -35,6 +35,7 @@ module Mobile
         # @return [Hash] mobile-specific something went wrong response
         #
         def something_went_wrong_response
+          @user_message = SOMETHING_WENT_WRONG_MESSAGE
           Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
         end
 
@@ -43,6 +44,7 @@ module Mobile
         # @return [Hash] mobile-specific dishonorable discharge response
         #
         def dishonorable_response
+          @user_message = DISHONORABLE_MESSAGE
           Mobile::V0::VeteranStatusCard::Constants::DISHONORABLE_RESPONSE
         end
 
@@ -51,23 +53,17 @@ module Mobile
         # @return [Hash] mobile-specific ineligible service response
         #
         def ineligible_service_response
+          @user_message = INELIGIBLE_SERVICE_MESSAGE
           Mobile::V0::VeteranStatusCard::Constants::INELIGIBLE_SERVICE_RESPONSE
         end
 
         ##
-        # @see VeteranStatusCard::Service#unknown_service_response
-        # @return [Hash] mobile-specific unknown service response
+        # @see VeteranStatusCard::Service#unknown_eligibility_response
+        # @return [Hash] mobile-specific unknown eligibility response
         #
-        def unknown_service_response
-          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_SERVICE_RESPONSE
-        end
-
-        ##
-        # @see VeteranStatusCard::Service#edipi_no_pnl_response
-        # @return [Hash] mobile-specific EDIPI no PNL response
-        #
-        def edipi_no_pnl_response
-          Mobile::V0::VeteranStatusCard::Constants::EDIPI_NO_PNL_RESPONSE
+        def unknown_eligibility_response
+          @user_message = UNKNOWN_ELIGIBILITY_MESSAGE
+          Mobile::V0::VeteranStatusCard::Constants::UNKNOWN_ELIGIBILITY_RESPONSE
         end
 
         ##
@@ -75,15 +71,26 @@ module Mobile
         # @return [Hash] mobile-specific currently serving response
         #
         def currently_serving_response
+          @user_message = CURRENTLY_SERVING_MESSAGE
           Mobile::V0::VeteranStatusCard::Constants::CURRENTLY_SERVING_RESPONSE
         end
 
         ##
-        # @see VeteranStatusCard::Service#error_response
-        # @return [Hash] mobile-specific error response
+        # @see VeteranStatusCard::Service#uncaught_error_response
+        # @return [Hash] mobile-specific uncaught error response
         #
-        def error_response
-          Mobile::V0::VeteranStatusCard::Constants::ERROR_RESPONSE
+        def uncaught_error_response
+          @user_message = UNCAUGHT_ERROR_MESSAGE
+          Mobile::V0::VeteranStatusCard::Constants::SOMETHING_WENT_WRONG_RESPONSE
+        end
+
+        ##
+        # @see VeteranStatusCard::Service#person_not_found_response
+        # @return [Hash] mobile-specific person not found response
+        #
+        def person_not_found_response
+          @user_message = PERSON_NOT_FOUND_MESSAGE
+          Mobile::V0::VeteranStatusCard::Constants::PERSON_NOT_FOUND_RESPONSE
         end
       end
     end

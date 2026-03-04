@@ -15,10 +15,15 @@ RSpec.describe Message do
                                                                :sender_id, :sender_name, :recipient_id,
                                                                :recipient_name, :read_receipt, :uploads,
                                                                :suggested_name_display, :is_oh_message,
-                                                               :triage_group_name, :proxy_sender_name,
+                                                               :oh_migration_phase,
+                                                               :triage_group_name, :triage_group_id,
+                                                               :triage_group,
+                                                               :proxy_sender_name,
                                                                :has_attachments, :attachment1_id,
                                                                :attachment2_id, :attachment3_id,
-                                                               :attachment4_id, :metadata, :is_large_attachment_upload)
+                                                               :attachment4_id, :metadata,
+                                                               :is_large_attachment_upload, :reply_disabled,
+                                                               :migrated_to_oracle_health)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
@@ -30,6 +35,7 @@ RSpec.describe Message do
       expect(subject.recipient_id).to eq(params[:recipient_id])
       expect(subject.recipient_name).to eq(params[:recipient_name])
       expect(subject.read_receipt).to eq(params[:read_receipt])
+      expect(subject.reply_disabled).to eq(params[:reply_disabled])
     end
 
     it 'sorts by sent_date DESC' do

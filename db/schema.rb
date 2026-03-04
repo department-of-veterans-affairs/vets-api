@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_20_132346) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1341,6 +1341,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
     t.text "ves_request_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.text "request_json_ciphertext"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
     t.index ["needs_kms_rotation"], name: "index_ivc_champva_forms_on_needs_kms_rotation"
   end
@@ -1447,6 +1448,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_10_181448) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["primary_in_progress_form_id"], name: "index_mpf_submissions_on_primary_form"
+    t.index ["primary_user_uuid", "status", "form_type"], name: "index_mpf_submissions_on_primary_user_status_form"
+    t.index ["saved_claim_id"], name: "index_mpf_submissions_on_saved_claim"
+    t.index ["secondary_email", "status"], name: "index_mpf_submissions_on_secondary_email_status"
+    t.index ["secondary_in_progress_form_id"], name: "index_mpf_submissions_on_secondary_form"
+    t.index ["secondary_user_uuid", "status"], name: "index_mpf_submissions_on_secondary_user_status"
+    t.index ["status", "created_at"], name: "index_mpf_submissions_on_status_created"
   end
 
   create_table "nod_notifications", force: :cascade do |t|

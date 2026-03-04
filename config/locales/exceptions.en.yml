@@ -60,6 +60,12 @@ en:
         detail: "\"%{sort_criteria}\" is not a valid sort criteria for \"%{resource}\""
         code: 106
         status: 400
+      max_array_size_exceeded:
+        <<: *defaults
+        title: Too many items submitted
+        detail: "\"%{field}\" cannot exceed %{max_size} items (submitted %{actual_size})"
+        code: 111
+        status: 400
       invalid_pagination_params:
         <<: *defaults
         title: Invalid pagination params
@@ -812,6 +818,36 @@ en:
         code: 'PPMS_502'
         detail: 'PPMS returned an invalid response'
         status: 502
+      RES_CASE_GET_DOCUMENT_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CASE_GET_DOCUMENT_400'
+        detail: 'Bad Request'
+        status: 400
+      RES_CASE_GET_DOCUMENT_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'RES_CASE_GET_DOCUMENT_403'
+        detail: 'Forbidden'
+        status: 403
+      RES_CASE_GET_DOCUMENT_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'RES_CASE_GET_DOCUMENT_404'
+        detail: 'Not Found'
+        status: 404
+      RES_CASE_GET_DOCUMENT_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CASE_GET_DOCUMENT_500'
+        detail: 'Internal Server Error'
+        status: 500
+      RES_CASE_GET_DOCUMENT_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CASE_GET_DOCUMENT_503'
+        detail: 'Service Unavailable'
+        status: 503
       RES_CH31_CASE_DETAILS_400:
         <<: *external_defaults
         title: Bad Request

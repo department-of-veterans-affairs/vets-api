@@ -8,6 +8,7 @@ require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
+require 'ibm/service'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -27,13 +28,21 @@ module Lighthouse
 
     sidekiq_retries_exhausted do |msg, _ex|
       Rails.logger.error(
-        "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
+        "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}",
+        { retry_count: msg['retry_count'], saved_claim_id: msg['args']&.first }
       )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      saved_claim_id = msg['args']&.first
+      form_id = saved_claim_id ? SavedClaim.find_by(id: saved_claim_id)&.form_id : nil
+      tags = form_id ? ["form_id:#{form_id}"] : []
+      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags:)
     end
 
     def perform(saved_claim_id)
       init(saved_claim_id)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.started", tags: ["form_id:#{@claim.form_id}"])
+
+      # Build IBM payload if form supports it
+      @ibm_payload = @claim.respond_to?(:to_ibm) ? @claim.to_ibm : nil
 
       # Create document stamps
       @pdf_path = process_record(@claim)
@@ -45,15 +54,22 @@ module Lighthouse
       response = @lighthouse_service.upload_doc(**lighthouse_service_upload_payload)
       raise BenefitsIntakeClaimError, response.body unless response.success?
 
+      # Upload to IBM MMS after successful Lighthouse submission
+      govcio_upload if @ibm_payload.present?
+
+      # Worker success = Lighthouse accepted the upload and worker completed
+      # This does NOT mean Lighthouse has fully processed the submission
+      # FormSubmissionAttempt remains 'pending' until confirmed via polling or webhook
       Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim succeeded', generate_log_details)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["form_id:#{@claim.form_id}"])
 
       send_confirmation_email
 
       @lighthouse_service.uuid
     rescue => e
+      # Worker failure = upload to Lighthouse failed (network, validation, etc.)
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim failed, retrying...', generate_log_details(e))
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: ["form_id:#{@claim.form_id}"])
       @form_submission_attempt&.fail!
       raise
     ensure
@@ -68,8 +84,10 @@ module Lighthouse
 
     def generate_metadata
       md = @claim.metadata_for_benefits_intake
+      # Use docType from metadata if provided (for GCIO-enabled forms), otherwise use form_id
+      doc_type = md[:docType] || @claim.form_id
       ::BenefitsIntake::Metadata.generate(md[:veteranFirstName], md[:veteranLastName], md[:fileNumber],
-                                          md[:zipCode], "#{@claim.class} va.gov", @claim.form_id,
+                                          md[:zipCode], "#{@claim.class} va.gov", doc_type,
                                           md[:businessLine])
     end
 
@@ -78,7 +96,7 @@ module Lighthouse
 
       @lighthouse_service.valid_document?(document:)
     rescue => e
-      StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error", tags: ["form_id:#{@claim.form_id}"])
       raise e
     end
 
@@ -156,7 +174,27 @@ module Lighthouse
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
-      StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure", tags: ["form_id:#{@claim.form_id}"])
+    end
+
+    # Upload to IBM MMS if the govcio flipper is enabled
+    # Feature flag format: form_21_0779_govcio_mms, form_21_2680_govcio_mms, etc.
+    def govcio_upload
+      form_id = @claim.form_id.tr('-', '_').downcase
+      flipper_key = :"form_#{form_id}_govcio_mms"
+
+      return unless Flipper.enabled?(flipper_key)
+
+      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim uploading to IBM MMS', generate_log_details)
+      ibm_service = Ibm::Service.new
+      ibm_service.upload_form(form: @ibm_payload.to_json, guid: @lighthouse_service.uuid)
+      Rails.logger.info('Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload succeeded', generate_log_details)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.success", tags: ["form_id:#{@claim.form_id}"])
+    rescue => e
+      Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim IBM MMS upload failed',
+                        generate_log_details(e))
+      StatsD.increment("#{STATSD_KEY_PREFIX}.govcio_upload.failure", tags: ["form_id:#{@claim.form_id}"])
+      # Don't raise - IBM upload failure shouldn't fail the entire job
     end
   end
 end

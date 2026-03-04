@@ -32,7 +32,7 @@ module Burials
           key: 'form1[0].#subform[95].Place_Of_Death[0]',
           limit: 42,
           question_num: 26,
-          question_suffix: 'B',
+          question_suffix: 'C',
           question_label: "Please Provide Veteran's Specific Place Of Death Including The Name And Location Of The Nursing Home, Va Medical Center Or State Veteran Facility.",
           question_text: "PLEASE PROVIDE VETERAN'S SPECIFIC PLACE OF DEATH INCLUDING THE NAME AND LOCATION OF THE NURSING HOME, VA MEDICAL CENTER OR STATE VETERAN FACILITY."
         },
@@ -82,7 +82,7 @@ module Burials
       #
       # @return [void]
       def expand_burial_allowance(form_data)
-        form_data['hasPreviouslyReceivedAllowance'] = select_radio(form_data['previouslyReceivedAllowance'])
+        form_data['hasPreviouslyReceivedAllowance'] = select_radio(form_data['previouslyReceivedAllowance'] || false)
 
         burial_allowance = form_data['burialAllowanceRequested']
         return if burial_allowance.blank?
@@ -103,9 +103,7 @@ module Burials
       #
       # @return [void]
       def expand_burial_expense_responsibility(form_data)
-        return if form_data['burialExpenseResponsibility'].blank?
-
-        form_data['hasBurialExpenseResponsibility'] = select_radio(form_data['burialExpenseResponsibility'])
+        form_data['hasBurialExpenseResponsibility'] = select_radio(form_data['burialExpenseResponsibility'] || false)
       end
 
       ##
@@ -117,7 +115,8 @@ module Burials
       def expand_confirmation_question(form_data)
         if form_data['confirmation'].present?
           confirmation = form_data['confirmation']
-          form_data['hasConfirmation'] = select_radio(confirmation['checkBox'])
+
+          form_data['hasConfirmation'] = select_radio(confirmation['checkBox'] || false)
         end
       end
 
@@ -136,12 +135,18 @@ module Burials
         home_hospice_care_after_discharge = form_data['homeHospiceCareAfterDischarge']
 
         location = location_of_death['location']
-        options = form_data[location]
-        if options.present? && location != 'other'
-          form_data['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
-        end
 
-        form_data.delete(location)
+        if location == 'other'
+          # For 'other' location, use the free-text value
+          form_data['placeAndLocation'] = location_of_death['other']
+        else
+          # For specific facility types, format with name and location
+          options = form_data[location]
+          if options.present?
+            form_data['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
+          end
+          form_data.delete(location)
+        end
 
         # Map atHome based on hospice care to appropriate nursing home option
         if location == 'atHome' && home_hospice_care && home_hospice_care_after_discharge
@@ -162,9 +167,7 @@ module Burials
       # @return [void]
       #
       def expand_death_under_va_covered_home_hospice_care(form_data)
-        return if form_data['homeHospiceCare'].blank?
-
-        form_data['deathUnderVaCoveredHomeHospiceCare'] = select_radio(form_data['homeHospiceCare'])
+        form_data['deathUnderVaCoveredHomeHospiceCare'] = select_radio(form_data['homeHospiceCare'] || false)
       end
 
       ##
@@ -175,10 +178,8 @@ module Burials
       # @return [void]
       #
       def expand_veteran_transferred_to_va_covered_home_hospice_care(form_data)
-        return if form_data['homeHospiceCareAfterDischarge'].blank?
-
         form_data['veteranTransferredToVaCoveredHomeHospiceCare'] =
-          select_radio(form_data['homeHospiceCareAfterDischarge'])
+          select_radio(form_data['homeHospiceCareAfterDischarge'] || false)
       end
     end
   end

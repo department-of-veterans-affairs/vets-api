@@ -4,8 +4,10 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'lib/pdf_fill/fill_form_examples'
 
-# This whole suite is approx 57 tests as of this review. It looks deceptively smaller
-# than it is.
+# Unit tests and fill_form integration tests for PdfFill::Filler.
+# Ancillary form fill tests are split into separate files for CI parallelization:
+#   - filler_ancillary_forms_1_spec.rb (heavy forms: 22-10215, 21-674, 21-0781V2, etc.)
+#   - filler_ancillary_forms_2_spec.rb (lighter forms: 21-4142, 28-1900, 5655, etc.)
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
@@ -62,63 +64,6 @@ describe PdfFill::Filler, type: :model do
       { form_id: '686C-674-V2', factory: :dependency_claim_v2 }
     ].each do |options|
       it_behaves_like 'a form filler', options
-    end
-  end
-
-  # there are approx. 46 tests here which is deceptive.
-  describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    def overflow_file_suffix(extras_redesign, show_jumplinks)
-      return '_extras.pdf' unless extras_redesign
-
-      show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
-    end
-
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 26-1880 5655
-       22-10216 22-10215 22-10215a 22-1919 22-10275 22-10272].each do |form_id|
-      context "form #{form_id}" do
-        form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
-        form_types.push(['overflow', true, false], ['overflow', true, true]) if form_id == '21-0781V2'
-        form_types.each do |type, extras_redesign, show_jumplinks|
-          context "with type=#{type} extras_redesign=#{extras_redesign} show_jumplinks=#{show_jumplinks}" do
-            let(:form_data) do
-              get_fixture("pdf_fill/#{form_id}/#{type}")
-            end
-
-            it 'fills the form correctly' do
-              if type == 'overflow'
-                the_extras_generator = nil
-                expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
-                  the_extras_generator = extras_generator
-                  old_file_path
-                end
-              end
-
-              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
-              student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
-
-              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
-
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id,
-                                                              { extras_redesign:, student:, show_jumplinks: })
-
-              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
-
-              if type == 'overflow'
-                extras_path = the_extras_generator.generate
-                fixture_pdf = fixture_pdf_base + overflow_file_suffix(extras_redesign, show_jumplinks)
-                expect(extras_path).to match_file_exactly(fixture_pdf)
-
-                File.delete(extras_path)
-              end
-
-              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
-              expect(file_path).to match_pdf_fields(fixture_pdf)
-
-              File.delete(file_path)
-            end
-          end
-        end
-      end
     end
   end
 
@@ -244,6 +189,176 @@ describe PdfFill::Filler, type: :model do
         expect(Rails.logger).to have_received(:error).with(
           "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
         )
+      end
+    end
+  end
+
+  describe '#validate_field_names' do
+    let(:form_id) { '28-1900' }
+    let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+    let(:template_fields) { %w[field1 field2 field3] }
+
+    before do
+      allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return(template_fields)
+    end
+
+    context 'when all field names match the template' do
+      let(:data_hash) { { 'field1' => 'value1', 'field2' => 'value2', 'field3' => 'value3' } }
+
+      it 'does not increment any StatsD metrics' do
+        expect(StatsD).not_to receive(:increment)
+
+        described_class.validate_field_names(template_path, data_hash, form_id)
+      end
+    end
+
+    context 'when some field names do not match the template' do
+      let(:data_hash) { { 'field1' => 'value1', 'wrong_field' => 'value2', 'another_wrong' => 'value3' } }
+
+      it 'increments StatsD mismatch metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                   tags: ["form_id:#{form_id}"])
+
+        described_class.validate_field_names(template_path, data_hash, form_id)
+      end
+    end
+
+    context 'when template fields cannot be extracted' do
+      let(:data_hash) { { 'field1' => 'value1' } }
+
+      before do
+        allow(described_class).to receive(:extract_template_field_names).with(template_path).and_return([])
+      end
+
+      it 'increments StatsD mismatch metric' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                   tags: ["form_id:#{form_id}"])
+
+        described_class.validate_field_names(template_path, data_hash, form_id)
+      end
+    end
+
+    context 'when overflow_only fields are present in pdftk_keys' do
+      let(:data_hash) { { 'field1' => 'value1', 'overflow_field' => 'value2', 'wrong_field' => 'value3' } }
+      let(:pdftk_keys) do
+        {
+          normal: { key: 'field1' },
+          overflow: { key: 'overflow_field', overflow_only: true },
+          nested: { inner: { key: 'other_overflow', overflow_only: true } }
+        }
+      end
+
+      it 'excludes overflow_only fields from mismatch reporting' do
+        expect(StatsD).to receive(:increment).with('api.pdf_fill.field_validation.mismatch',
+                                                   tags: ["form_id:#{form_id}"])
+
+        described_class.validate_field_names(template_path, data_hash, form_id, pdftk_keys)
+      end
+
+      it 'does not report overflow_only fields as unmatched' do
+        allow(StatsD).to receive(:increment)
+
+        expect(Rails.logger).to receive(:warn).with(
+          "PDF field validation mismatch for form #{form_id}",
+          hash_including(unmatched_fields: ['wrong_field'])
+        )
+
+        described_class.validate_field_names(template_path, data_hash, form_id, pdftk_keys)
+      end
+    end
+
+    context 'when all mismatches are overflow_only fields' do
+      let(:data_hash) { { 'field1' => 'value1', 'overflow_field' => 'value2' } }
+      let(:pdftk_keys) do
+        { overflow: { key: 'overflow_field', overflow_only: true } }
+      end
+
+      it 'does not increment StatsD mismatch metric' do
+        expect(StatsD).not_to receive(:increment)
+
+        described_class.validate_field_names(template_path, data_hash, form_id, pdftk_keys)
+      end
+    end
+  end
+
+  describe '#extract_overflow_only_keys' do
+    it 'returns keys where overflow_only is true' do
+      hash = {
+        normal: { key: 'field1' },
+        overflow: { key: 'overflow_field', overflow_only: true }
+      }
+
+      expect(described_class.extract_overflow_only_keys(hash)).to eq(['overflow_field'])
+    end
+
+    it 'recursively finds nested overflow_only keys' do
+      hash = {
+        top: {
+          nested: { key: 'nested_overflow', overflow_only: true }
+        }
+      }
+
+      expect(described_class.extract_overflow_only_keys(hash)).to eq(['nested_overflow'])
+    end
+
+    it 'returns an empty array when no overflow_only keys exist' do
+      hash = {
+        normal: { key: 'field1' },
+        another: { key: 'field2' }
+      }
+
+      expect(described_class.extract_overflow_only_keys(hash)).to eq([])
+    end
+
+    it 'returns an empty array for an empty hash' do
+      expect(described_class.extract_overflow_only_keys({})).to eq([])
+    end
+  end
+
+  describe '#extract_template_field_names' do
+    let(:template_path) { 'lib/pdf_fill/forms/pdfs/28-1900.pdf' }
+    let(:field_names) do
+      [
+        'form1[0].#subform[0].FirstName[0]',
+        'form1[0].#subform[0].LastName[0]'
+      ]
+    end
+
+    context 'when pdftk successfully extracts fields' do
+      before do
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:get_field_names)
+          .with(template_path)
+          .and_return(field_names)
+      end
+
+      it 'returns array of field names' do
+        result = described_class.extract_template_field_names(template_path)
+
+        expect(result).to eq(field_names)
+      end
+    end
+
+    context 'when pdftk command fails' do
+      before do
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:get_field_names)
+          .with(template_path)
+          .and_raise(StandardError.new('Error: file not found'))
+      end
+
+      it 'returns empty array' do
+        result = described_class.extract_template_field_names(template_path)
+
+        expect(result).to eq([])
+      end
+
+      it 'logs warning message' do
+        expect(Rails.logger).to receive(:warn).with(
+          'Failed to extract fields from PDF template',
+          template_path:,
+          error: 'Error: file not found'
+        )
+
+        described_class.extract_template_field_names(template_path)
       end
     end
   end

@@ -179,6 +179,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.post_appointment(va_booked_request_body)
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method path query]) do
@@ -304,6 +316,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.post_appointment(va_booked_request_body)
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
@@ -354,6 +378,18 @@ describe VAOS::V2::AppointmentsService do
             expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq(
               'Wed, 08 Sep 2021 06:00:00 -0600'
             )
+          end
+        end
+
+        context 'when user has an invalid ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'requires a valid ICN' do
+            expect do
+              subject.get_appointments(start_date2, end_date2)
+            end.to raise_error(ArgumentError)
           end
         end
       end
@@ -882,6 +918,22 @@ describe VAOS::V2::AppointmentsService do
         expect(subject).to eq(mock_appointment_three)
       end
     end
+
+    context 'when data is a hash (error response)' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: {},
+                                                                            meta: { failures: ['test error'] } })
+      end
+
+      it 'returns nil when fetch_clinic_appointments gets non-Array data' do
+        allow(Rails.logger).to receive(:warn)
+        result = subject
+        warn_string = 'VAOS fetch_clinic_appointments - appointments response data is not an array'
+
+        expect(result).to be_nil
+        expect(Rails.logger).to have_received(:warn).at_least(:once).with(warn_string)
+      end
+    end
   end
 
   describe '#get_sorted_recent_appointments' do
@@ -913,6 +965,22 @@ describe VAOS::V2::AppointmentsService do
       it 'returns nil' do
         expect(subject.first).to be_nil
         expect(instance_of_class).to have_received(:get_appointments).once
+      end
+    end
+
+    context 'when data is a hash (error response)' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: {},
+                                                                            meta: { failures: ['test error'] } })
+      end
+
+      it 'returns an empty array with non-Array data and logs warning' do
+        allow(Rails.logger).to receive(:warn)
+        result = subject
+        warn_string = 'VAOS get_sorted_recent_appointments - appointments response data is not an array'
+
+        expect(result).to eq([])
+        expect(Rails.logger).to have_received(:warn).with(warn_string)
       end
     end
   end
@@ -1048,6 +1116,18 @@ describe VAOS::V2::AppointmentsService do
             expect(response[:service_types]).to be_nil
             expect(response[:show_schedule_link]).to be_nil
           end
+        end
+      end
+
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.get_appointment('159472')
+          end.to raise_error(ArgumentError)
         end
       end
 
@@ -1225,6 +1305,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.get_appointment('159472')
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_500_vpg', match_requests_on: %i[method path query]) do
@@ -1279,6 +1371,18 @@ describe VAOS::V2::AppointmentsService do
           end
         end
 
+        context 'when user has an invalid ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'requires a valid ICN' do
+            expect do
+              subject.update_appointment('42081', 'cancelled')
+            end.to raise_error(ArgumentError)
+          end
+        end
+
         context 'using vaos-service' do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
@@ -1301,6 +1405,18 @@ describe VAOS::V2::AppointmentsService do
                   expect(response[:future]).to be(false)
                 end
               end
+            end
+          end
+
+          context 'when user has an invalid ICN' do
+            before do
+              allow(user).to receive(:icn).and_return(nil)
+            end
+
+            it 'requires a valid ICN' do
+              expect do
+                subject.update_appointment('42081', 'cancelled')
+              end.to raise_error(ArgumentError)
             end
           end
 
@@ -1694,6 +1810,29 @@ describe VAOS::V2::AppointmentsService do
         end
       end
     end
+
+    context 'when VAOS returns non-array data' do
+      it 'returns empty array for VAOS data without crashing and logs warning' do
+        appointments_service = VAOS::V2::AppointmentsService.new(user)
+        allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+        allow(appointments_service).to receive(:get_all_appointments)
+          .and_return({ data: {}, meta: {} })
+        allow(Rails.logger).to receive(:warn)
+
+        VCR.use_cassette('vaos/eps/token/token_200',
+                         match_requests_on: %i[method path],
+                         allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            result = appointments_service.get_active_appointments_for_referral('test-referral-1234')
+            warn_msg = 'VAOS process_vaos_appointments - appointments_data is not an array'
+            expect(result[:VAOS][:data]).to eq([])
+            expect(Rails.logger).to have_received(:warn).with(warn_msg)
+          end
+        end
+      end
+    end
   end
 
   describe '#referral_appointment_already_exists?' do
@@ -1786,7 +1925,7 @@ describe VAOS::V2::AppointmentsService do
         end
 
         context 'when a MAP token error occurs' do
-          it 'logs missing ICN error' do
+          it 'logs missing ICN error and combines with format errors' do
             expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
             allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
             allow(Rails.logger).to receive(:warn).at_least(:once)
@@ -1796,8 +1935,28 @@ describe VAOS::V2::AppointmentsService do
             expect(Rails.logger)
               .to have_received(:warn)
               .with(expected_message)
-            expect(check[:failures]).to eq('Missing ICN message')
+            expect(check[:failures]).to be_a(String)
+            expect(check[:failures]).to include('Missing ICN message')
           end
+        end
+      end
+
+      context 'when get_all_appointments returns non-array data' do
+        it 'logs error and returns failure with VAOS_RESPONSE_FORMAT_ERROR' do
+          appointments_service = described_class.new(user)
+          mock_response = double(body: { data: {} })
+          allow(mock_response).to receive(:dig).with(:meta, :failures).and_return(nil)
+          allow(appointments_service).to receive(:send_appointments_request).and_return(mock_response)
+          allow(Rails.logger).to receive(:error)
+          result = appointments_service.referral_appointment_already_exists?('ref-150')
+
+          expect(result[:error]).to be(true)
+          expect(result[:failures]).to be_a(String)
+          expect(result[:failures]).to include('Unexpected VAOS response')
+          expect(Rails.logger).to have_received(:error).with(
+            'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
+            'Unexpected VAOS response format: data is Hash, expected Array'
+          )
         end
       end
     end
@@ -2794,7 +2953,19 @@ describe VAOS::V2::AppointmentsService do
 
     it 'is claimExamAppointment for comp & pen service_category' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
-      appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
+      appt[:service_category] =
+        [
+          {
+            coding: [
+              {
+                system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
+                code: 'COMPENSATION & PENSION',
+                display: 'COMPENSATION & PENSION'
+              }
+            ],
+            text: 'COMPENSATION & PENSION'
+          }
+        ]
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('claimExamAppointment')
     end
@@ -3097,6 +3268,86 @@ describe VAOS::V2::AppointmentsService do
           expect(subject.send(:schedulable?, appt)).to be(false)
         end
       end
+    end
+  end
+
+  describe '#set_type_of_care' do
+    it 'sets type_of_care for claims exams' do
+      allow(Rails.logger).to receive(:warn)
+      appt = build(:appointment_form_v2, :va_booked).attributes
+      appt[:service_category] =
+        [
+          {
+            coding: [
+              {
+                system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_1',
+                code: 'COMPENSATION & PENSION',
+                display: 'COMPENSATION & PENSION'
+              }
+            ],
+            text: 'COMPENSATION & PENSION'
+          }
+        ]
+      subject.send(:set_type_of_care, appt)
+      expect(appt[:type_of_care]).to eq('Claim exam')
+      expect(Rails.logger).not_to receive(:warn)
+    end
+
+    context 'sets type_of_care based on service_type' do
+      [
+
+        ['CCOPT', 'Optometry'],
+        ['CCAUDHEAR', 'Hearing aid support'],
+        ['CCAUDRTNE', 'Routine hearing exam'],
+        ['CCNUTRN', 'Nutrition and Food'],
+        ['CCPRMYRTNE', 'Primary Care'],
+        ['amputation', 'Amputation care'],
+        ['audiology', 'Audiology and speech (including hearing aid support)'],
+        ['clinicalPharmacyPrimaryCare', 'Pharmacy'],
+        ['covid', 'COVID-19 vaccine'],
+        ['cpap', 'Continuous Positive Airway Pressure (CPAP)'],
+        ['foodAndNutrition', 'Nutrition and Food'],
+        ['homeSleepTesting', 'Sleep medicine and home sleep testing'],
+        ['individualSubstanceUseDisorder', 'Substance use problem services'],
+        ['moveProgram', 'MOVE! weight management program'],
+        ['ophthalmology', 'Ophthalmology'],
+        ['optometry', 'Optometry'],
+        ['outpatientMentalHealth', 'Mental health care with a specialist'],
+        ['primaryCare', 'Primary Care'],
+        ['primaryCareMentalHealth', 'Mental health care in a primary care setting'],
+        ['socialWork', 'Social Work']
+      ].each do |service_type, type_of_care|
+        it "#{service_type} resolves to #{type_of_care}" do
+          allow(Rails.logger).to receive(:warn)
+          appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+          appt[:service_type] = service_type
+          subject.send(:set_type_of_care, appt)
+          expect(appt[:type_of_care]).to eq(type_of_care)
+          expect(Rails.logger).not_to receive(:warn)
+        end
+      end
+    end
+
+    it 'sets type_of_care to description for cerner appointments with unknown service_type' do
+      allow(Rails.logger).to receive(:warn)
+      appt = build(:appointment_form_v2, :va_booked).attributes
+      appt[:identifier] = [{ system: 'urn:va.gov:masv2:cerner:appointment', value: 'Appointment/1234567' }]
+      appt[:service_type] = 'unknownServiceType'
+      appt[:description] = 'Cerner description'
+      subject.send(:set_type_of_care, appt)
+      expect(appt[:type_of_care]).to eq('Cerner description')
+      expect(Rails.logger).not_to receive(:warn)
+    end
+
+    it 'logs a warning when type_of_care cannot be determined' do
+      allow(Rails.logger).to receive(:warn)
+      appt = build(:appointment_form_v2, :va_booked).attributes
+      appt[:service_type] = 'unknownServiceType'
+      subject.send(:set_type_of_care, appt)
+      expect(appt[:type_of_care]).to be_nil
+      expect(Rails.logger).to have_received(:warn).with(
+        "VAOS appointment id #{appt[:id]} type of care cannot be determined", any_args
+      ).at_least(:once)
     end
   end
 end

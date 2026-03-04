@@ -589,6 +589,74 @@ RSpec.describe ApplicationController, type: :controller do
       end
     end
 
+    describe 'authorization failure logging (AU-3)' do
+      let(:test_remote_ip) { '192.168.1.100' }
+      let(:test_request_id) { 'abc-123-def-456' }
+
+      before do
+        request.env['REMOTE_ADDR'] = test_remote_ip
+        allow(controller).to receive(:request).and_wrap_original do |original|
+          req = original.call
+          req.request_id = test_request_id
+          req
+        end
+      end
+
+      context 'when a Pundit::NotAuthorizedError is raised' do
+        let(:expected_detail) do
+          [{ title: 'Forbidden',
+             detail: 'User does not have access to the requested resource',
+             code: '403',
+             status: '403' }]
+        end
+
+        it 'logs a forbidden response with AU-3 required fields' do
+          allow(Rails.logger).to receive(:info)
+
+          get :not_authorized
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Forbidden access (403)',
+            hash_including(
+              request_id: test_request_id,
+              remote_ip: test_remote_ip,
+              detail: expected_detail
+            )
+          )
+          expect(response).to have_http_status(:forbidden)
+        end
+
+        it 'does not log user_uuid' do
+          allow(Rails.logger).to receive(:info)
+
+          get :not_authorized
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Forbidden access (403)',
+            hash_not_including(:user_uuid)
+          )
+        end
+      end
+
+      context 'when a Common::Exceptions::Forbidden is raised directly' do
+        it 'logs a forbidden response with AU-3 required fields' do
+          allow(Rails.logger).to receive(:info)
+
+          get :forbidden
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Forbidden access (403)',
+            hash_including(
+              request_id: test_request_id,
+              remote_ip: test_remote_ip,
+              detail: [{ title: 'Forbidden', detail: 'Forbidden', code: '403', status: '403' }]
+            )
+          )
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
     describe '#test_authentication' do
       let(:user) { build(:user, :loa3) }
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }

@@ -5,7 +5,6 @@ module UnifiedHealthData
     include JSONAPI::Serializer
 
     set_id :id
-    # TODO: should this be 'lab_or_test' so it matches the model name?
     set_type 'DiagnosticReport'
 
     attributes :display,
@@ -17,8 +16,10 @@ module UnifiedHealthData
                :location,
                :ordered_by,
                :body_site,
+               :comments,
                :status,
                :source,
+               :facility_timezone,
                :observations
   end
 end
