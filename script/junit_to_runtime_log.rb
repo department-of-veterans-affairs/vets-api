@@ -6,9 +6,9 @@
 # Example: ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
 # Regex to extract individual <testcase ...> opening tags (up to > or />).
-TESTCASE_TAG_RE = /<testcase\b([^>]*?)\/?>/.freeze
-FILE_ATTR_RE = /\bfile="([^"]*)"/.freeze
-TIME_ATTR_RE = /\btime="([^"]*)"/.freeze
+TESTCASE_TAG_RE = %r{<testcase\b([^>]*?)/?>}
+FILE_ATTR_RE = /\bfile="([^"]*)"/
+TIME_ATTR_RE = /\btime="([^"]*)"/
 
 module JunitToRuntimeLog
   # Parse JUnit XML files and return a hash of { "spec/file_spec.rb" => total_seconds }
