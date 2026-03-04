@@ -604,6 +604,7 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
   accreditation_xlsx:
     password: ~
+    tmp_password: ~
     url: ~
     username: ~
 genisis:
