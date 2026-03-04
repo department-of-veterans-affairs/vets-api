@@ -128,7 +128,6 @@ module MedicalCopays
             next unless date_str
 
             invoice_date = Time.iso8601(date_str)
-
             next if invoice_date < from
 
             collected_entries << entry
@@ -136,6 +135,9 @@ module MedicalCopays
 
           page += 1
         end
+
+        # Sort newest first
+        collected_entries.sort_by! { |entry| entry.dig('resource', 'date') }.reverse!
 
         {
           'raw_bundle' => last_raw_bundle,

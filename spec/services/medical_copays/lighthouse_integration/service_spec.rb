@@ -298,6 +298,26 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
     end
   end
 
+  describe '#list_months' do
+    it 'returns invoices from the last 6 months' do
+      Timecop.freeze(Time.zone.parse('2025-09-01')) do
+        VCR.use_cassette('lighthouse/hcc/copay_list_by_month', match_requests_on: %i[method path query]) do
+          allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+
+          service = MedicalCopays::LighthouseIntegration::Service.new('123')
+          response = service.list_months
+
+          from = 6.months.ago.utc
+
+          response.entries.each do |invoice|
+            date = Time.iso8601(invoice.instance_variable_get(:@params).dig("resource", "date"))
+            expect(date).to be >= from
+          end
+        end
+      end
+    end
+  end
+
   describe '#get_detail' do
     it 'returns copay detail with populated attributes' do
       VCR.use_cassette('lighthouse/hcc/copay_detail_success') do
