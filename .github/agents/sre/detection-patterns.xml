@@ -15,6 +15,7 @@
       <pattern confidence="MEDIUM" context="error.try(:original_body) in hash values rendered to client">\.try\(:original_body\)</pattern>
       <pattern confidence="MEDIUM" context="render json: with error hash that may include raw upstream data">render.*json:.*error</pattern>
       <pattern confidence="MEDIUM" context="vamf_body often contains raw upstream response">vamf_body</pattern>
+      <pattern confidence="MEDIUM" context="Ruby shorthand dumps exception#inspect which may contain PII from message">\be:\s*[,})\]]</pattern>
     </grep_helpers>
 
     <context_check>
