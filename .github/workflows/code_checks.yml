@@ -361,6 +361,48 @@ jobs:
           mkdir -p tmp
           ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
+      # --- BEGIN RUNTIME LOG VERIFICATION (remove after confirmed) ---
+      - name: Generate runtime log via REXML for comparison
+        if: always()
+        run: |
+          ruby -e '
+            require "rexml/document"
+            file_times = Hash.new(0.0)
+            Dir.glob("Test Results Group*/*.xml").each do |xml_path|
+              xml_content = File.read(xml_path)
+              next if xml_content.include?("<!DOCTYPE")
+              doc = REXML::Document.new(xml_content)
+              doc.elements.each("//testcase") do |tc|
+                file = tc.attributes["file"]
+                time = tc.attributes["time"]
+                next unless file && time
+                file = file.sub(%r{^\./}, "")
+                file_times[file] += time.to_f
+              end
+            rescue REXML::ParseException, SystemCallError => e
+              warn "Skipping #{xml_path}: #{e.class} - #{e.message}"
+            end
+            File.open("tmp/parallel_runtime_rspec_rexml.log", "w") do |f|
+              file_times.sort_by { |path, _| path }.each do |path, time|
+                f.puts "#{path}:#{format("%.4f", time)}"
+              end
+            end
+            warn "REXML: Generated #{file_times.size} entries"
+          '
+
+      - name: Compare regex vs REXML runtime logs
+        if: always()
+        run: |
+          echo "Regex entries: $(wc -l < tmp/parallel_runtime_rspec.log)"
+          echo "REXML entries: $(wc -l < tmp/parallel_runtime_rspec_rexml.log)"
+          if diff tmp/parallel_runtime_rspec.log tmp/parallel_runtime_rspec_rexml.log; then
+            echo "Runtime logs match perfectly."
+          else
+            echo "::error::Runtime log mismatch between regex and REXML parsers!"
+            exit 1
+          fi
+      # --- END RUNTIME LOG VERIFICATION ---
+
       - name: Save runtime log to cache
         if: always()
         uses: actions/cache/save@v4
