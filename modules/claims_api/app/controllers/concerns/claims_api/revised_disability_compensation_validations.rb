@@ -421,21 +421,7 @@ module ClaimsApi
         validate_form_526_secondary_disabilities_classification_code!(disability['secondaryDisabilities'])
         validate_form_526_secondary_disabilities_special_issues!(disability['secondaryDisabilities'])
         validate_form_526_secondary_disabilities_approximate_begin_date!(disability['secondaryDisabilities'])
-        disability['secondaryDisabilities'].each do |secondary_disability|
-          validate_form_526_secondary_disability_name!(secondary_disability)
-        end
       end
-    end
-
-    def validate_form_526_secondary_disability_name!(secondary_disability)
-      # the EVSS validator checks the name, not the schema
-      return if %r{([a-zA-Z0-9\-'.,/()]([a-zA-Z0-9\-',. ])?)+$}.match?(secondary_disability['name']) &&
-                secondary_disability['name'].length <= 255
-
-      raise ::Common::Exceptions::InvalidFieldValue.new(
-        'disabilities.secondaryDisabilities.name',
-        secondary_disability['name']
-      )
     end
 
     def validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities)

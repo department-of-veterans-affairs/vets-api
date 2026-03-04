@@ -1543,48 +1543,4 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
   end
-
-  describe '#validate_form_526_secondary_disability_name!' do
-    context 'when secondary disability name is valid' do
-      let(:secondary_disability) { { 'name' => 'PTSD (post traumatic stress disorder)' } }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_secondary_disability_name!(secondary_disability) }.not_to raise_error
-      end
-    end
-
-    context 'when secondary disability name contains valid special characters' do
-      let(:secondary_disability) { { 'name' => "Back pain-related (lower/upper), Dr. Smith's" } }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_secondary_disability_name!(secondary_disability) }.not_to raise_error
-      end
-    end
-
-    context 'when secondary disability name is exactly 255 characters' do
-      let(:secondary_disability) { { 'name' => 'A' * 255 } }
-
-      it 'does not raise an error' do
-        expect { subject.validate_form_526_secondary_disability_name!(secondary_disability) }.not_to raise_error
-      end
-    end
-
-    context 'when secondary disability name is longer than 255 characters' do
-      let(:secondary_disability) { { 'name' => 'A' * 256 } }
-
-      it 'raises an InvalidFieldValue error' do
-        expect { subject.validate_form_526_secondary_disability_name!(secondary_disability) }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
-      end
-    end
-
-    context 'when secondary disability name has invalid characters' do
-      let(:secondary_disability) { { 'name' => 'PTSD_;;' } }
-
-      it 'raises an InvalidFieldValue error' do
-        expect { subject.validate_form_526_secondary_disability_name!(secondary_disability) }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
-      end
-    end
-  end
 end

@@ -2638,6 +2638,36 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
+      context "when 'disabilities.secondaryDisabilities.classificationCode' is not present" do
+        it 'accepts the request when classificationCode is omitted' do
+          mock_acg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
+              VCR.use_cassette('claims_api/brd/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                disabilities = [
+                  {
+                    disabilityActionType: 'NONE',
+                    name: 'PTSD (post traumatic stress disorder)',
+                    diagnosticCode: 9999,
+                    secondaryDisabilities: [
+                      {
+                        disabilityActionType: 'SECONDARY',
+                        name: 'PTSD',
+                        serviceRelevance: 'Caused by a service-connected disability.'
+                      }
+                    ]
+                  }
+                ]
+                params['data']['attributes']['disabilities'] = disabilities
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+      end
+
       context "when 'disabilities.secondaryDisabilities.approximateBeginDate' is present" do
         it 'raises an exception if date is invalid' do
           mock_acg(scopes) do |auth_header|
@@ -2694,7 +2724,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilities.secondaryDisabilities.classificationCode' is not present" do
+      context "when 'disabilities.secondaryDisabilities.name' validations" do
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
+        end
         it 'raises an exception if name is not valid structure' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
@@ -2716,7 +2750,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:bad_request)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2743,7 +2777,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 ]
                 params['data']['attributes']['disabilities'] = disabilities
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:bad_request)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
