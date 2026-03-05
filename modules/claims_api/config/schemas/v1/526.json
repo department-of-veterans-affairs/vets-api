@@ -1183,8 +1183,6 @@
                 "amount": {
                   "description": "Amount being received.",
                   "type": "number",
-                  "minimum": 1,
-                  "maximum": 999999,
                   "example": 100
                 }
               }
@@ -1194,17 +1192,6 @@
               "type": "string",
               "example": "Will be retiring soon."
             }
-          },
-          "if": {
-            "properties": {
-              "willReceiveInFuture": {
-                "const": true
-              }
-            },
-            "required": ["willReceiveInFuture"]
-          },
-          "then": {
-            "required": ["futurePayExplanation"]
           }
         },
         "separationPay": {
@@ -1259,8 +1246,6 @@
                 "amount": {
                   "description": "Amount being received.",
                   "type": "number",
-                  "minimum": 1,
-                  "maximum": 999999,
                   "example": 100
                 }
               }
@@ -1268,7 +1253,6 @@
             "receivedDate": {
               "description": "Approximate date separation pay was received.",
               "type": "string",
-              "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
               "example": "2018-03-02"
             }
           }

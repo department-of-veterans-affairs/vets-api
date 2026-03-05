@@ -2495,6 +2495,175 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
     end
 
+    describe 'removed servicePay validations - confirming no errors when violating old schema rules' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
+      end
+
+      describe "'militaryRetiredPay.payment.amount' no longer has min/max constraints" do
+        let(:service_pay_attribute) do
+          {
+            militaryRetiredPay: {
+              receiving: true,
+              willReceiveInFuture: false,
+              payment: {
+                serviceBranch: 'Air Force',
+                amount: military_retired_payment_amount
+              }
+            }
+          }
+        end
+
+        context "when 'amount' is 0 (was below old minimum of 1)" do
+          let(:military_retired_payment_amount) { 0 }
+
+          it 'responds with a 200 (no longer validated at schema level)' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'amount' is 1000000 (was above old maximum of 999999)" do
+          let(:military_retired_payment_amount) { 1_000_000 }
+
+          it 'responds with a 200 (no longer validated at schema level)' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      describe "'militaryRetiredPay.futurePayExplanation' no longer required when willReceiveInFuture is true" do
+        let(:service_pay_attribute) do
+          {
+            militaryRetiredPay: {
+              receiving: false,
+              willReceiveInFuture: true,
+              payment: {
+                serviceBranch: 'Air Force'
+              }
+            }
+          }
+        end
+
+        it 'responds with a 200 (futurePayExplanation no longer required)' do
+          mock_acg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/claims/claims') do
+              VCR.use_cassette('claims_api/brd/countries') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['servicePay'] = service_pay_attribute
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+      end
+
+      describe "'separationPay.payment.amount' no longer has min/max constraints" do
+        let(:service_pay_attribute) do
+          {
+            separationPay: {
+              received: true,
+              receivedDate: (Time.zone.today - 1.year).to_s,
+              payment: {
+                serviceBranch: 'Air Force',
+                amount: separation_payment_amount
+              }
+            }
+          }
+        end
+
+        context "when 'amount' is 0 (was below old minimum of 1)" do
+          let(:separation_payment_amount) { 0 }
+
+          it 'responds with a 200 (no longer validated at schema level)' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'amount' is 1000000 (was above old maximum of 999999)" do
+          let(:separation_payment_amount) { 1_000_000 }
+
+          it 'responds with a 200 (no longer validated at schema level)' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      describe "'separationPay.receivedDate' no longer enforces date format pattern" do
+        let(:service_pay_attribute) do
+          {
+            separationPay: {
+              received: true,
+              receivedDate: received_date,
+              payment: {
+                serviceBranch: 'Air Force',
+                amount: 100
+              }
+            }
+          }
+        end
+
+        context "when 'receivedDate' is an arbitrary string" do
+          let(:received_date) { 'invalid-date-format' }
+
+          it 'responds with a 200 (format pattern no longer enforced at schema level)' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
     describe "'disabilities.secondaryDisabilities' validations" do
       context 'when disabilityActionType is NONE without secondaryDisabilities' do
         it 'raises an exception' do

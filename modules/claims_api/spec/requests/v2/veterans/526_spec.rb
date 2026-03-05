@@ -358,5 +358,142 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
     end
+
+    context 'removed servicePay validations - confirming no errors when violating old schema rules' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+      end
+
+      describe "'militaryRetiredPay.payment.monthlyAmount' no longer has min/max constraints" do
+        let(:service_pay_data) do
+          temp = JSON.parse(data)
+          temp['data']['attributes']['servicePay'] = {
+            'receivingMilitaryRetiredPay' => 'YES',
+            'futureMilitaryRetiredPay' => 'NO',
+            'militaryRetiredPay' => {
+              'branchOfService' => 'Army',
+              'monthlyAmount' => monthly_amount
+            },
+            'retiredStatus' => 'PERMANENT_DISABILITY_RETIRED_LIST',
+            'favorMilitaryRetiredPay' => false
+          }
+          temp.to_json
+        end
+
+        context "when 'monthlyAmount' is 0 (was below old minimum of 1)" do
+          let(:monthly_amount) { 0 }
+
+          it 'returns a 202 accepted (no longer validated at schema level)' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: service_pay_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context "when 'monthlyAmount' is 1000000 (was above old maximum of 999999)" do
+          let(:monthly_amount) { 1_000_000 }
+
+          it 'returns a 202 accepted (no longer validated at schema level)' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: service_pay_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+      end
+
+      describe "'separationSeverancePay.preTaxAmountReceived' no longer has min/max constraints" do
+        let(:service_pay_data) do
+          temp = JSON.parse(data)
+          temp['data']['attributes']['servicePay'] = {
+            'receivingMilitaryRetiredPay' => 'NO',
+            'futureMilitaryRetiredPay' => 'NO',
+            'receivedSeparationOrSeverancePay' => 'YES',
+            'separationSeverancePay' => {
+              'datePaymentReceived' => '2022-03-12',
+              'branchOfService' => 'Army',
+              'preTaxAmountReceived' => pre_tax_amount
+            },
+            'favorTrainingPay' => false
+          }
+          temp.to_json
+        end
+
+        context "when 'preTaxAmountReceived' is 0 (was below old minimum of 1)" do
+          let(:pre_tax_amount) { 0 }
+
+          it 'returns a 202 accepted (no longer validated at schema level)' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: service_pay_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context "when 'preTaxAmountReceived' is 1000000 (was above old maximum of 999999)" do
+          let(:pre_tax_amount) { 1_000_000 }
+
+          it 'returns a 202 accepted (no longer validated at schema level)' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: service_pay_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+      end
+
+      describe "'separationSeverancePay.datePaymentReceived' no longer enforces date format pattern" do
+        let(:service_pay_data) do
+          temp = JSON.parse(data)
+          temp['data']['attributes']['servicePay'] = {
+            'receivingMilitaryRetiredPay' => 'NO',
+            'futureMilitaryRetiredPay' => 'NO',
+            'receivedSeparationOrSeverancePay' => 'YES',
+            'separationSeverancePay' => {
+              'datePaymentReceived' => date_received,
+              'branchOfService' => 'Army',
+              'preTaxAmountReceived' => 100
+            },
+            'favorTrainingPay' => false
+          }
+          temp.to_json
+        end
+
+        context "when 'datePaymentReceived' is an arbitrary string" do
+          let(:date_received) { 'invalid-date-format' }
+
+          it 'returns a 202 accepted (format pattern no longer enforced at schema level)' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: service_pay_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context "when 'datePaymentReceived' is null" do
+          let(:date_received) { nil }
+
+          it 'returns a 202 accepted (field is nullable)' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                post synchronous_path, params: service_pay_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+      end
+    end
   end
 end
