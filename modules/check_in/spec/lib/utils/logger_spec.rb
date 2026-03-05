@@ -11,6 +11,28 @@ RSpec.describe CheckIn::Utils::Logger do
     end
   end
 
+  describe '#uuid' do
+    context 'when permitted_params raises ActionController::ParameterMissing' do
+      let(:controller) do
+        double('FooController',
+               controller_name: 'sessions',
+               action_name: 'show',
+               params: { foo: 'bar' })
+      end
+
+      before do
+        allow(controller).to receive(:permitted_params).and_raise(
+          ActionController::ParameterMissing.new(:travel_claims)
+        )
+      end
+
+      it 'returns nil for uuid without raising' do
+        logger = described_class.build(controller)
+        expect(logger.send(:uuid)).to be_nil
+      end
+    end
+  end
+
   describe '#before' do
     context 'when endpoint called without facility_type' do
       let(:controller) do

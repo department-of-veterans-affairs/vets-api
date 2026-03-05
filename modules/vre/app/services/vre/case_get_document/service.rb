@@ -39,8 +39,8 @@ module VRE
       def build_payload(document_params)
         {
           icn: @icn,
-          resCaseId: document_params[:resCaseId],
-          documentType: document_params[:documentType]
+          resCaseId: document_params[:res_case_id],
+          documentType: document_params[:document_type]
         }
       end
 
