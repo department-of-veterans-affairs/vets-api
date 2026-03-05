@@ -391,12 +391,14 @@ module PdfFill
           'veteranSignature' => {
             key: 'Text1',
             question_num: 37,
-            question_suffix: 'A'
+            question_suffix: 'A',
+            overflow_only: true
           },
           'veteranDateSigned' => {
             key: 'Text3',
             question_num: 37,
-            question_suffix: 'B'
+            question_suffix: 'B',
+            overflow_only: true
           }
         }
       }.freeze

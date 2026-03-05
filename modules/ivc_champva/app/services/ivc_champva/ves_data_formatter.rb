@@ -44,16 +44,13 @@ module IvcChampva
 
       # Propagate UUIDs and attach as subforms
       ohi_requests.each do |ohi_request|
-        # Find matching beneficiary by SSN + name
-        # TODO: is SSN required?  Is this a good way to match?
-        matching_beneficiary = find_matching_beneficiary(ves_request.beneficiaries, ohi_request.beneficiary)
+        # Find matching beneficiary by SSN + name (using beneficiary_medicare for new structure)
+        ohi_bene = ohi_request.beneficiary_medicare
+        matching_beneficiary = find_matching_beneficiary(ves_request.beneficiaries, ohi_bene)
 
         # Propagate UUIDs from parent
         ohi_request.application_uuid = ves_request.application_uuid
-        if matching_beneficiary
-          ohi_request.person_uuid = matching_beneficiary.person_uuid
-          ohi_request.beneficiary.person_uuid = matching_beneficiary.person_uuid
-        end
+        ohi_bene.person_uuid = matching_beneficiary.person_uuid if matching_beneficiary
 
         ves_request.add_subform(IvcChampva::VesOhiRequest::FORM_TYPE, ohi_request)
       end
@@ -80,10 +77,7 @@ module IvcChampva
 
         ohi_requests << IvcChampva::VesOhiRequest.new(
           application_uuid: ohi_data[:application_uuid],
-          person_uuid: ohi_data[:person_uuid],
-          beneficiary: ohi_data[:beneficiary],
-          medicare: ohi_data[:medicare],
-          health_insurance: ohi_data[:health_insurance],
+          beneficiary_medicare: ohi_data[:beneficiary_medicare],
           certification: ohi_data[:certification]
         )
       end
@@ -227,17 +221,20 @@ module IvcChampva
 
     ##
     # Transforms applicant data to VES OHI format.
+    # Returns the combined beneficiary_medicare structure per VES swagger.
     #
     # @param applicant_data [Hash] the applicant data
     # @param parsed_form_data [Hash] the full form data (for certification)
     # @return [Hash] the transformed data
     def self.transform_ohi_to_ves_format(applicant_data, parsed_form_data)
+      beneficiary_data = map_ohi_beneficiary(applicant_data)
+
       {
         application_uuid: SecureRandom.uuid,
-        person_uuid: SecureRandom.uuid,
-        beneficiary: map_ohi_beneficiary(applicant_data),
-        medicare: map_medicare(applicant_data['medicare'] || []),
-        health_insurance: map_health_insurance(applicant_data['health_insurance'] || []),
+        beneficiary_medicare: beneficiary_data.merge(
+          medicare_parts: map_medicare_parts(applicant_data['medicare'] || []),
+          other_insurances: map_other_insurances(applicant_data['health_insurance'] || [])
+        ),
         certification: map_ohi_certification(parsed_form_data)
       }
     end
@@ -266,48 +263,61 @@ module IvcChampva
       }
     end
 
+    MEDICARE_PART_CONFIGS = [
+      { type: 'a', date_key: 'medicare_part_a_effective_date', desc_keys: ['medicare_part_a_description'] },
+      { type: 'b', date_key: 'medicare_part_b_effective_date', desc_keys: ['medicare_part_b_description'] },
+      { type: 'd',
+        date_key: 'medicare_part_d_effective_date',
+        desc_keys: %w[medicare_part_d_carrier medicare_part_d_description],
+        flag_key: 'has_medicare_part_d' }
+    ].freeze
+
     ##
-    # Maps medicare data array to VES format.
+    # Maps medicare data array to VES medicareParts format.
     #
     # @param medicare_array [Array<Hash>] medicare entries from the form
-    # @return [Array<Hash>]
-    def self.map_medicare(medicare_array)
+    # @return [Array<Hash>] array of medicare part hashes for VesOhiRequest::MedicarePart
+    def self.map_medicare_parts(medicare_array)
       return [] unless medicare_array.is_a?(Array)
 
-      medicare_array.map do |medicare|
-        {
-          plan_type: medicare['medicare_plan_type'],
-          medicare_number: medicare['medicare_number'],
-          part_a_effective_date: format_date(medicare['medicare_part_a_effective_date']),
-          part_b_effective_date: format_date(medicare['medicare_part_b_effective_date']),
-          part_c_carrier: medicare['medicare_part_c_carrier'],
-          part_c_effective_date: format_date(medicare['medicare_part_c_effective_date']),
-          has_pharmacy_benefits: medicare['has_pharmacy_benefits'],
-          has_part_d: medicare['has_medicare_part_d'],
-          part_d_carrier: medicare['medicare_part_d_carrier'],
-          part_d_effective_date: format_date(medicare['medicare_part_d_effective_date'])
-        }.compact
+      medicare_array.flat_map do |medicare|
+        MEDICARE_PART_CONFIGS.filter_map do |config|
+          build_medicare_part(medicare, config)
+        end
       end
     end
 
+    def self.build_medicare_part(medicare, config)
+      has_date = medicare[config[:date_key]].present?
+      has_flag = config[:flag_key] && medicare[config[:flag_key]]
+      return nil unless has_date || has_flag
+
+      {
+        medicare_part_type: config[:type],
+        effective_date: format_date(medicare[config[:date_key]]),
+        description: config[:desc_keys].lazy.map { |k| medicare[k] }.find(&:present?)
+      }.compact
+    end
+
     ##
-    # Maps health_insurance data array to VES format.
+    # Maps health_insurance data array to VES otherInsurances format.
     #
     # @param health_insurance_array [Array<Hash>] health insurance entries from the form
-    # @return [Array<Hash>]
-    def self.map_health_insurance(health_insurance_array)
+    # @return [Array<Hash>] array of insurance hashes for VesOhiRequest::OtherInsurance
+    def self.map_other_insurances(health_insurance_array)
       return [] unless health_insurance_array.is_a?(Array)
 
       health_insurance_array.map do |insurance|
         {
-          insurance_type: insurance['insurance_type'],
-          medigap_plan: insurance['medigap_plan'],
-          provider: insurance['provider'],
+          description: insurance['description'],
+          insurance_name: insurance['provider'] || insurance['insurance_name'],
           effective_date: format_date(insurance['effective_date']),
-          expiration_date: format_date(insurance['expiration_date']),
-          through_employer: insurance['through_employer'],
-          eob: insurance['eob'],
-          additional_comments: insurance['additional_comments']
+          termination_date: format_date(insurance['expiration_date'] || insurance['termination_date']),
+          insurance_plan_type: insurance['insurance_type'] || insurance['insurance_plan_type'],
+          is_through_employment: insurance['through_employer'] || insurance['is_through_employment'],
+          is_prescription_covered: insurance['is_prescription_covered'],
+          eob_indicator: insurance['eob'] || insurance['eob_indicator'],
+          comments: insurance['additional_comments'] || insurance['comments']
         }.compact
       end
     end
