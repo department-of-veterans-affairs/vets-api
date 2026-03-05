@@ -14,10 +14,14 @@ RSpec.describe Common::VirusScan do
 
     # Stub ClamAV client
     allow(ClamAV::PatchClient).to receive(:new).and_return(clamav_client)
-    allow(clamav_client).to receive(:safe?).and_return(true)
+    allow(clamav_client).to receive(:scan_with_result).and_return({ safe: true, virus_name: nil })
 
     # Stub Settings without receive_message_chain
     allow(Settings.clamav).to receive(:mock).and_return(false)
+
+    # Allow all logger calls broadly to avoid breaking expectations from audit logging
+    allow(Rails.logger).to receive(:info).and_call_original
+    allow(Rails.logger).to receive(:warn).and_call_original
   end
 
   after do
@@ -46,6 +50,15 @@ RSpec.describe Common::VirusScan do
         expect(ClamAV::PatchClient).not_to receive(:new)
         expect(described_class.scan(file_path)).to be true
       end
+
+      it 'does not emit an audit log' do
+        file_path = 'tmp/pdfs/test.pdf'
+        File.write(file_path, test_file_content)
+
+        expect(Rails.logger).not_to receive(:info).with('ClamAV Virus Scan Audit', anything)
+
+        described_class.scan(file_path)
+      end
     end
 
     context 'when file is already in clamav_tmp/' do
@@ -57,7 +70,8 @@ RSpec.describe Common::VirusScan do
 
       it 'scans the file directly' do
         expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
-        expect(clamav_client).to receive(:safe?).with(file_path).and_return(true)
+        expect(clamav_client).to receive(:scan_with_result).with(file_path)
+                                                           .and_return({ safe: true, virus_name: nil })
 
         result = described_class.scan(file_path)
         expect(result).to be true
@@ -77,7 +91,8 @@ RSpec.describe Common::VirusScan do
 
       context 'when scan finds a virus' do
         before do
-          allow(clamav_client).to receive(:safe?).and_return(false)
+          allow(clamav_client).to receive(:scan_with_result)
+            .and_return({ safe: false, virus_name: 'Eicar-Test-Signature' })
         end
 
         it 'returns false' do
@@ -107,8 +122,8 @@ RSpec.describe Common::VirusScan do
         end
 
         it 'scans the temporary copy' do
-          expect(clamav_client).to receive(:safe?).with(%r{clamav_tmp/scan_.*_document\.pdf})
-                                                  .and_return(true)
+          expect(clamav_client).to receive(:scan_with_result).with(%r{clamav_tmp/scan_.*_document\.pdf})
+                                                             .and_return({ safe: true, virus_name: nil })
 
           result = described_class.scan(file_path)
           expect(result).to be true
@@ -146,7 +161,8 @@ RSpec.describe Common::VirusScan do
 
         context 'when scan finds a virus' do
           before do
-            allow(clamav_client).to receive(:safe?).and_return(false)
+            allow(clamav_client).to receive(:scan_with_result)
+              .and_return({ safe: false, virus_name: 'Eicar-Test-Signature' })
           end
 
           it 'returns false' do
@@ -188,7 +204,7 @@ RSpec.describe Common::VirusScan do
 
         context 'when scan raises an error' do
           before do
-            allow(clamav_client).to receive(:safe?).and_raise(StandardError, 'Connection refused')
+            allow(clamav_client).to receive(:scan_with_result).and_raise(StandardError, 'Connection refused')
           end
 
           it 'raises the error' do
@@ -216,7 +232,7 @@ RSpec.describe Common::VirusScan do
         end
 
         it 'does not scan the file' do
-          expect(clamav_client).not_to receive(:safe?)
+          expect(clamav_client).not_to receive(:scan_with_result)
 
           described_class.scan(file_path)
         end
@@ -260,6 +276,129 @@ RSpec.describe Common::VirusScan do
         expect(temp_files).to be_empty
       end
       # rubocop:enable ThreadSafety/NewThread
+    end
+  end
+
+  describe '.scan audit logging' do
+    let(:file_path) { 'clamav_tmp/audit_test.pdf' }
+
+    before do
+      File.write(file_path, test_file_content)
+      RequestStore.store['additional_request_attributes'] = {
+        'user_uuid' => 'test-user-uuid-123',
+        'remote_ip' => '192.168.1.1'
+      }
+    end
+
+    after do
+      RequestStore.store['additional_request_attributes'] = nil
+    end
+
+    context 'when scan is clean' do
+      let(:expected_audit_fields) do
+        {
+          event: 'virus_scan',
+          scan_result: 'clean',
+          virus_name: nil,
+          user_uuid: 'test-user-uuid-123',
+          ip_address: '192.168.1.1'
+        }
+      end
+
+      it 'emits audit log with scan_result clean' do
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(expected_audit_fields))
+
+        described_class.scan(file_path)
+      end
+
+      it 'includes scan_duration_ms that is positive' do
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(scan_duration_ms: a_value > 0))
+
+        described_class.scan(file_path)
+      end
+    end
+
+    context 'when scan finds a virus' do
+      before do
+        allow(clamav_client).to receive(:scan_with_result)
+          .and_return({ safe: false, virus_name: 'Eicar-Test-Signature' })
+      end
+
+      it 'emits audit log with virus_name populated' do
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit',
+                hash_including(scan_result: 'infected', virus_name: 'Eicar-Test-Signature'))
+
+        described_class.scan(file_path)
+      end
+    end
+
+    context 'when file name is hashed' do
+      it 'logs SHA-256 hashed file name' do
+        expected_hash = Digest::SHA256.hexdigest('audit_test.pdf')
+
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(file_name: expected_hash))
+
+        described_class.scan(file_path)
+      end
+    end
+
+    context 'when upload_context is provided' do
+      it 'passes upload_context through to audit log' do
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(upload_context: 'hca_attachment'))
+
+        described_class.scan(file_path, upload_context: 'hca_attachment')
+      end
+    end
+
+    context 'when scan raises an error' do
+      before do
+        allow(clamav_client).to receive(:scan_with_result).and_raise(StandardError, 'ClamAV timeout')
+      end
+
+      it 'emits audit log with scan_result error before re-raising' do
+        expect(Rails.logger).to receive(:info).with('Scanning file already in clamav_tmp')
+        expect(Rails.logger).to receive(:info)
+          .with('ClamAV Virus Scan Audit', hash_including(scan_result: 'error', virus_name: nil))
+
+        expect { described_class.scan(file_path) }.to raise_error(StandardError, 'ClamAV timeout')
+      end
+    end
+  end
+
+  describe '.collect_file_metadata' do
+    let(:file_path) { 'tmp/pdfs/metadata_test.pdf' }
+
+    before do
+      FileUtils.mkdir_p('tmp/pdfs')
+      File.write(file_path, test_file_content)
+    end
+
+    it 'returns correct metadata hash' do
+      metadata = described_class.collect_file_metadata(file_path)
+
+      expect(metadata[:file_name_hashed]).to eq(Digest::SHA256.hexdigest('metadata_test.pdf'))
+      expect(metadata[:file_size]).to eq(test_file_content.bytesize)
+      expect(metadata[:content_type]).to be_a(String)
+    end
+
+    context 'when file cannot be read' do
+      it 'returns safe defaults' do
+        metadata = described_class.collect_file_metadata('nonexistent_file.pdf')
+
+        expect(metadata[:file_name_hashed]).to be_nil
+        expect(metadata[:file_size]).to be_nil
+        expect(metadata[:content_type]).to be_nil
+      end
     end
   end
 

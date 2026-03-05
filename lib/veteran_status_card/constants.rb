@@ -9,21 +9,6 @@ module VeteranStatusCard
     ERROR_STATUS = 'error'
 
     STANDARD_ERROR_TITLE = "You're not eligible for a Veteran Status Card"
-    STANDARD_ERROR_MESSAGE = [
-      {
-        type: 'text',
-        value: 'Your record is missing information about your service history or discharge status.'
-      },
-      {
-        type: 'text',
-        value: "To fix the problem, contact VA.gov technical support. We're here #{SUPPORT_HOURS}"
-      },
-      {
-        type: 'phone',
-        value: SUPPORT_PHONE,
-        tty: true
-      }
-    ].freeze
 
     DISHONORABLE_MESSAGE = [
       {
@@ -49,7 +34,7 @@ module VeteranStatusCard
     INELIGIBLE_SERVICE_MESSAGE = [
       {
         type: 'text',
-        value: "Your service doesn't meet the requirements for a Veteran Status Card."
+        value: "Your service history doesn't meet the requirements for a Veteran Status Card."
       },
       {
         type: 'text',

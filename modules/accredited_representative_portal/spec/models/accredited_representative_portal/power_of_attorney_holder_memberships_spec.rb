@@ -4,6 +4,12 @@ require 'rails_helper'
 
 module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
   RSpec.describe PowerOfAttorneyHolderMemberships do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:accredited_representative_portal_disable_ogc_client)
+        .and_return(false)
+    end
+
     describe '#all' do
       subject(:all) { described_class.new(icn: 'some_icn', emails:).send(:all) }
 
