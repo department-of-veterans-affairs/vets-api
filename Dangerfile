@@ -19,6 +19,7 @@ module VSPDanger
         MigrationIsolator.new.run,
         CodeownersCheck.new.run,
         GemfileLockPlatformChecker.new.run,
+        RubocopDisableChecker.new.run,
         ::Dangerfile::ParameterFilteringAllowlistChecker.new(base_sha: BASE_SHA, head_sha: HEAD_SHA).run
       ]
     end
@@ -475,6 +476,34 @@ module VSPDanger
 
     def gemfile_lock
       File.read('Gemfile.lock')
+    end
+  end
+
+  class RubocopDisableChecker
+    def run
+      added_disables = diff_lines.select { |line| line.match?(/^\+.*#\s*rubocop:disable\b/) }
+
+      return Result.success('No new rubocop:disable comments.') if added_disables.empty?
+
+      Result.error(error_message(added_disables))
+    end
+
+    private
+
+    def error_message(lines)
+      formatted = lines.map { |line| "- `#{line[1..].strip}`" }.join("\n")
+
+      <<~EMSG
+        This PR adds new `rubocop:disable` comments. Please resolve the rubocop offense instead of disabling them.
+
+        If the offense is unresolvable please add comment explain why.
+
+        #{formatted}
+      EMSG
+    end
+
+    def diff_lines
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -w -- '*.rb'`.split("\n").select { |line| line.start_with?('+') && !line.start_with?('+++') }
     end
   end
 
