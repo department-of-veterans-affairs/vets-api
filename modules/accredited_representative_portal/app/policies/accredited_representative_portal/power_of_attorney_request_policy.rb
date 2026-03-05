@@ -33,6 +33,7 @@ module AccreditedRepresentativePortal
 
     def authorize_with_individual_accept
       return legacy_authorize unless individual_accept_enabled?
+      return legacy_authorize unless @record.respond_to?(:power_of_attorney_holder_poa_code)
 
       return false unless record_org_participates?
 
@@ -55,7 +56,7 @@ module AccreditedRepresentativePortal
 
       org_rep = Veteran::Service::OrganizationRepresentative
                 .active
-                .where(organization_poa: poa_code, representative_id: @user.registration_numbers)
+                .where(organization_poa: poa_code, representative_id: Array(@user.registration_numbers))
                 .order(created_at: :desc)
                 .first
 

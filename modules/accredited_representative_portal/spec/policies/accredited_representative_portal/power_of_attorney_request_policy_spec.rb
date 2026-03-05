@@ -114,6 +114,25 @@ module AccreditedRepresentativePortal # rubocop:disable Metrics/ModuleLength
         end
       end
 
+      context 'when policy is instantiated with a class instead of a record' do
+        subject(:policy) { described_class.new(user, AccreditedRepresentativePortal::PowerOfAttorneyRequest) }
+
+        let(:power_of_attorney_holders) do
+          [
+            PowerOfAttorneyHolder.new(
+              type: 'veteran_service_organization',
+              poa_code:,
+              name: 'Org Name',
+              can_accept_digital_poa_requests: true
+            )
+          ]
+        end
+
+        it 'falls back to legacy authorization (allows access)' do
+          expect(policy.show?).to be true
+        end
+      end
+
       context 'when feature flag is enabled' do
         let(:vso_org) { create(:veteran_organization, poa: poa_code) }
         let(:vso_rep) { create(:veteran_representative) }
