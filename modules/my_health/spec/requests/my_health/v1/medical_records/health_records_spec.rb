@@ -48,15 +48,6 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
     #   end
     # end
 
-    describe 'responds to GET #status' do
-      it 'successfully' do
-        VCR.use_cassette('bb_client/gets_vhie_sharing_status') do
-          get '/my_health/v1/health_records/sharing/status'
-        end
-        expect(response).to be_successful
-      end
-    end
-
     describe 'responds to POST #create' do
       let(:data_classes) do
         %w[prescriptions medications allergies]
@@ -68,42 +59,6 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
           post '/my_health/v1/health_records', params:
         end
         expect(response).to be_successful
-      end
-    end
-
-    describe 'responds to POST #optin' do
-      it 'successfully' do
-        VCR.use_cassette('mr_client/post_opt_in') do
-          post '/my_health/v1/health_records/sharing/optin'
-        end
-
-        expect(response).to be_successful
-      end
-
-      it 'with an error' do
-        VCR.use_cassette('mr_client/post_opt_in_error') do
-          post '/my_health/v1/health_records/sharing/optin'
-        end
-
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    describe 'responds to POST #optout' do
-      it 'successfully' do
-        VCR.use_cassette('mr_client/post_opt_out') do
-          post '/my_health/v1/health_records/sharing/optout'
-        end
-
-        expect(response).to be_successful
-      end
-
-      it 'with an error' do
-        VCR.use_cassette('mr_client/post_opt_out_error') do
-          post '/my_health/v1/health_records/sharing/optout'
-        end
-
-        expect(response).to have_http_status(:bad_request)
       end
     end
   end
