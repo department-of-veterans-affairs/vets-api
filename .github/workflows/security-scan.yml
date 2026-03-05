@@ -4,9 +4,10 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+permissions:
+  contents: read  
 jobs:
-  build:
-  
+  build:  
     uses: department-of-veterans-affairs/vsp-github-actions/.github/workflows/security-pipeline.yml@main
     with:
       image-name: vets-api-pipeline-testing
