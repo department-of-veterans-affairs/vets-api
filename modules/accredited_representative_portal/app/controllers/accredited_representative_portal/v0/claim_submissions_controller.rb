@@ -6,6 +6,10 @@ module AccreditedRepresentativePortal
       class NotFound < StandardError; end
 
       def index
+        if params[:id].present? && !Flipper.enabled?(:accredited_representative_portal_claimant_details)
+          raise Common::Exceptions::BadRequest.new(detail: 'Claimant details is not enabled.')
+        end
+
         authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy
         serializer = SavedClaimClaimantRepresentativeSerializer.new(claim_submissions)
         render json: ({
@@ -21,10 +25,6 @@ module AccreditedRepresentativePortal
       private
 
       def include_claimant(json)
-        unless Flipper.enabled?(:accredited_representative_portal_claimant_details)
-          raise Common::Exceptions::BadRequest.new(detail: 'Claimant details is not enabled.')
-        end
-
         json[:claimant] = {
           'firstName' => claimant_profile.given_names.first,
           'lastName' => claimant_profile.family_name
