@@ -155,8 +155,6 @@ module UnifiedHealthData
     end
 
     def fetch_access_token
-      puts '***** Fetching access token *****'
-
       with_monitoring do
         response = connection.post(config.token_path) do |req|
           req.headers['Content-Type'] = 'application/json'
