@@ -63,7 +63,7 @@ module V0
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
-          if parsed_form_data['disability_comp_new_conditions_workflow'] == true || parsed_form_data['disability_comp_new_conditions_workflow'] == 'true'
+          if [true, 'true'].include?(parsed_form_data[WORKFLOW_FLAG_KEY])
             metadata['returnUrl'] = '/conditions/summary'
           end
         end
