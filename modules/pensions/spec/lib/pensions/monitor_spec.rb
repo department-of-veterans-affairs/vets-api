@@ -7,8 +7,8 @@ RSpec.describe Pensions::Monitor do
   let(:monitor) { described_class.new }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
-  let(:claim) { create(:pensions_saved_claim) }
-  let(:ipf) { create(:in_progress_form) }
+  let(:claim) { build_stubbed(:pensions_saved_claim) }
+  let(:ipf) { build_stubbed(:in_progress_form) }
 
   describe '#service_name' do
     it 'returns expected name' do
@@ -17,8 +17,8 @@ RSpec.describe Pensions::Monitor do
   end
 
   context 'with all params supplied' do
-    let(:current_user) { create(:user) }
-    let(:monitor_error) { create(:monitor_error) }
+    let(:current_user) { build_stubbed(:user) }
+    let(:monitor_error) { build_stubbed(:monitor_error) }
     let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
     let(:message_prefix) { "#{described_class} #{Pensions::FORM_ID}" }
 

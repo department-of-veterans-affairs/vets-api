@@ -9,8 +9,8 @@ RSpec.describe SignIn::UserInfoGenerator do
   let(:user_verification) { create(:idme_user_verification, idme_uuid: credential_uuid, user_account:) }
 
   let(:mpi_profile) do
-    build(:mpi_profile, icn:, sec_id:, given_names: [first_name], family_name: last_name, edipi:, mhv_ien:, cerner_id:,
-                        participant_id: corp_id, birls_id: birls, full_mvi_ids: gcids)
+    build(:mpi_profile, icn:, sec_id:, sec_id_history:, given_names: [first_name], family_name: last_name, edipi:,
+                        mhv_ien:, cerner_id:, participant_id: corp_id, birls_id: birls, full_mvi_ids: gcids)
   end
   let(:user) do
     build(
@@ -26,6 +26,7 @@ RSpec.describe SignIn::UserInfoGenerator do
   let(:credential_uuid) { 'some-uuid' }
   let(:icn) { 'some-icn' }
   let(:sec_id) { 'some-sec-id' }
+  let(:sec_id_history) { %w[hist-sec-id-1 hist-sec-id-2] }
   let(:first_name) { 'some-first-name' }
   let(:last_name) { 'some-last-name' }
   let(:email) { 'some-email' }
@@ -78,6 +79,7 @@ RSpec.describe SignIn::UserInfoGenerator do
         expect(user_info.person_types).to eq(user.person_types&.join('|') || '')
         expect(user_info.icn).to eq(user.icn)
         expect(user_info.sec_id).to eq(user.sec_id)
+        expect(user_info.sec_id_history).to eq(user.sec_id_history.join('^'))
         expect(user_info.edipi).to eq(user.edipi)
         expect(user_info.mhv_ien).to eq(user.mhv_ien)
         expect(user_info.cerner_id).to eq(user.cerner_id)

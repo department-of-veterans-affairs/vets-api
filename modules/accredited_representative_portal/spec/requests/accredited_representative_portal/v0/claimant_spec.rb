@@ -195,20 +195,26 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
     let(:mpi_service) { instance_double(MPI::Service) }
     let(:claimant_details_service) { instance_double(AccreditedRepresentativePortal::ClaimantDetailsService) }
 
+    let(:claimant_representative) do
+      instance_double(AccreditedRepresentativePortal::ClaimantRepresentative,
+                      power_of_attorney_holder: OpenStruct.new(name: 'Space Force Cadets'))
+    end
+
     before do
       stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
 
       allow(IcnTemporaryIdentifier).to receive(:lookup_icn).with(identifier_id).and_return(icn)
 
-      allow(AccreditedRepresentativePortal::ClaimantRepresentative)
-        .to receive(:find)
-        .and_return(instance_double(AccreditedRepresentativePortal::ClaimantRepresentative))
+      # Policy: allow happy path POA check
+      allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find)
+        .and_return(claimant_representative)
 
       allow(MPI::Service).to receive(:new).and_return(mpi_service)
       allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
 
       allow(AccreditedRepresentativePortal::ClaimantDetailsService).to receive(:new).with(
         icn:,
+        representative_name: 'Space Force Cadets',
         benefit_type_param: benefit_type
       ).and_return(claimant_details_service)
 
