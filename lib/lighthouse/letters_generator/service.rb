@@ -131,8 +131,8 @@ module Lighthouse
       end
 
       def transform_letters(letters, user = nil)
-        letters.select! { |l| valid_type?(l['letterType'], user) }
-        letters.map do |letter|
+        filtered_letters = letters.select { |l| valid_type?(l['letterType'], user) }
+        filtered_letters.map do |letter|
           {
             letterType: letter['letterType'].downcase,
             name: letter['letterName']
