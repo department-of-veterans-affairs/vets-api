@@ -300,7 +300,7 @@ module DependentsBenefits::Sidekiq
     #
     # @return [DependentsBenefits::Monitor] Monitor instance for tracking events and errors
     def monitor
-      @monitor ||= DependentsBenefits::Monitor.new
+      @monitor ||= DependentsBenefits::Monitor.new(parent_claim_id, generate_user_struct)
     end
 
     # Returns the parent claim ID for the current claim

@@ -115,6 +115,29 @@ RSpec.describe Kafka do
     end
   end
 
+  describe '#build_additional_ids' do
+    context 'when participant_id is present' do
+      it 'returns an array with the labeled participant_id' do
+        result = Kafka.build_additional_ids(participant_id: '12345')
+        expect(result).to eq(['participant_id:12345'])
+      end
+    end
+
+    context 'when participant_id is nil' do
+      it 'returns an empty array' do
+        result = Kafka.build_additional_ids(participant_id: nil)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when participant_id is blank' do
+      it 'returns an empty array' do
+        result = Kafka.build_additional_ids(participant_id: '')
+        expect(result).to eq([])
+      end
+    end
+  end
+
   describe '#submit_test_event' do
     let(:icn) { '154786' }
     let(:current_id) { 'eded0764-7f5f-46c5-b40f-3c24335bf24f' }

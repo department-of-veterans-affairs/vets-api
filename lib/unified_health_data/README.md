@@ -23,13 +23,15 @@ lib/unified_health_data/
 │   ├── prescriptions_adapter.rb           # Main prescription parser
 │   ├── vista_prescription_adapter.rb      # VistA medication parser
 │   └── oracle_health_prescription_adapter.rb # Oracle Health FHIR parser
+├── concerns/                   # Logging concerns
+│   ├── clinical_notes_logging.rb          # Clinical notes logging concern
+│   └── labs_and_tests_logging.rb          # Labs & tests logging concern
 ├── serializers/                # API response serializers
 │   ├── clinical_notes_serializer.rb       # Clinical notes serialization
 │   ├── conditions_serializer.rb          # Conditions serialization 
 │   ├── labs_or_test_serializer.rb          # Labs and tests serialization
 │   ├── prescriptions_serializer.rb           # Main prescription serialization
 │   └── prescriptions_refills_serializer.rb     # Prescription refills serialization
-└── logging.rb                  # Logging utilities
 ```
 
 ## Available Methods
@@ -47,12 +49,14 @@ The main service class provides the following public methods:
 ## Data Sources
 
 ### VistA (Veterans Health Information Systems and Technology Architecture)
+
 - Legacy VA system containing historical health records
 - JSON-based API responses via `/v1/medicalrecords/medications` endpoint
 - Medication data in `vista.medicationList.medication[]`
 - Includes facility transition status (`inCernerTransition`)
 
 ### Oracle Health (formerly Cerner)
+
 - Modern FHIR-compliant health records system  
 - FHIR Bundle responses with entry arrays via `/v1/medicalrecords/medications` endpoint
 - Medication data as FHIR MedicationRequest resources
@@ -64,35 +68,35 @@ The prescription adapters map fields from different data sources to a unified mo
 
 ### Complete Field Mapping Table
 
-| **Mobile Serializer Field** | **VistA API Field** | **Oracle Health FHIR Field** | **Data Type** | **Notes** |
-|------------------------------|---------------------|-------------------------------|---------------|-----------|
-| `prescription_id` | `prescriptionId` | `id` | String | Primary identifier |
-| `refill_status` | `refillStatus` | `status` (mapped) | String | active, expired, discontinued |
-| `refill_submit_date` | `refillSubmitDate` | (not available) | String | Date last refill submitted |
-| `refill_date` | `refillDate` | `dispenseRequest.validityPeriod.start` | String | Date of last refill |
-| `refill_remaining` | `refillRemaining` | `dispenseRequest.numberOfRepeatsAllowed` | Integer | Number of refills left |
-| `facility_name` | `facilityName` | `dispenseRequest.performer.display` | String | Dispensing facility |
-| `ordered_date` | `orderedDate` | `authoredOn` | String | Date prescription ordered |
-| `quantity` | `quantity` | `dispenseRequest.quantity.value` | String | Quantity dispensed |
-| `expiration_date` | `expirationDate` | `dispenseRequest.validityPeriod.end` | String | Prescription expiration |
-| `prescription_number` | `prescriptionNumber` | `identifier[].value` | String | Pharmacy prescription number |
-| `prescription_name` | `prescriptionName` | `medicationCodeableConcept.text` | String | Medication name |
-| `dispensed_date` | `dispensedDate` | `dispenseRequest.initialFill.date` | String | Date medication dispensed |
-| `station_number` | `stationNumber` | `dispenseRequest.performer.identifier.value` | String | VA station identifier |
-| `is_refillable` | `isRefillable` | (calculated from status + refills) | Boolean | Can prescription be refilled |
-| `is_trackable` | `isTrackable` | `false` (default) | Boolean | Can shipment be tracked |
-| `instructions` | `sig` | `dosageInstruction[0].text` | String | Patient instructions |
-| `facility_phone_number` | `cmopDivisionPhone` | (not available) | String | Pharmacy phone number |
-| `disp_status` | `dispStatus` | (not available) | String | Detailed dispensing status from VistA |
+| **Mobile Serializer Field** | **VistA API Field**  | **Oracle Health FHIR Field**                 | **Data Type** | **Notes**                             |
+| --------------------------- | -------------------- | -------------------------------------------- | ------------- | ------------------------------------- |
+| `prescription_id`           | `prescriptionId`     | `id`                                         | String        | Primary identifier                    |
+| `refill_status`             | `refillStatus`       | `status` (mapped)                            | String        | active, expired, discontinued         |
+| `refill_submit_date`        | `refillSubmitDate`   | (not available)                              | String        | Date last refill submitted            |
+| `refill_date`               | `refillDate`         | `dispenseRequest.validityPeriod.start`       | String        | Date of last refill                   |
+| `refill_remaining`          | `refillRemaining`    | `dispenseRequest.numberOfRepeatsAllowed`     | Integer       | Number of refills left                |
+| `facility_name`             | `facilityName`       | `dispenseRequest.performer.display`          | String        | Dispensing facility                   |
+| `ordered_date`              | `orderedDate`        | `authoredOn`                                 | String        | Date prescription ordered             |
+| `quantity`                  | `quantity`           | `dispenseRequest.quantity.value`             | String        | Quantity dispensed                    |
+| `expiration_date`           | `expirationDate`     | `dispenseRequest.validityPeriod.end`         | String        | Prescription expiration               |
+| `prescription_number`       | `prescriptionNumber` | `identifier[].value`                         | String        | Pharmacy prescription number          |
+| `prescription_name`         | `prescriptionName`   | `medicationCodeableConcept.text`             | String        | Medication name                       |
+| `dispensed_date`            | `dispensedDate`      | `dispenseRequest.initialFill.date`           | String        | Date medication dispensed             |
+| `station_number`            | `stationNumber`      | `dispenseRequest.performer.identifier.value` | String        | VA station identifier                 |
+| `is_refillable`             | `isRefillable`       | (calculated from status + refills)           | Boolean       | Can prescription be refilled          |
+| `is_trackable`              | `isTrackable`        | `false` (default)                            | Boolean       | Can shipment be tracked               |
+| `instructions`              | `sig`                | `dosageInstruction[0].text`                  | String        | Patient instructions                  |
+| `facility_phone_number`     | `cmopDivisionPhone`  | (not available)                              | String        | Pharmacy phone number                 |
+| `disp_status`               | `dispStatus`         | (not available)                              | String        | Detailed dispensing status from VistA |
 
 ### Status Mapping (Oracle Health → Mobile API)
 
-| **FHIR Status** | **Mobile API Status** | **Description** |
-|-----------------|----------------------|-----------------|
-| `active` | `active` | Prescription is active and available |
-| `completed` | `expired` | Prescription has been completed |
-| `stopped` | `discontinued` | Prescription was stopped |
-| `cancelled` | `discontinued` | Prescription was cancelled |
+| **FHIR Status** | **Mobile API Status** | **Description**                      |
+| --------------- | --------------------- | ------------------------------------ |
+| `active`        | `active`              | Prescription is active and available |
+| `completed`     | `expired`             | Prescription has been completed      |
+| `stopped`       | `discontinued`        | Prescription was stopped             |
+| `cancelled`     | `discontinued`        | Prescription was cancelled           |
 
 ### Additional VistA Fields Available
 
@@ -180,6 +184,7 @@ end
 ## Authentication
 
 The service handles authentication automatically by:
+
 1. Using the user's ICN (Integration Control Number) as the patient identifier
 2. Fetching access tokens from the security endpoint using configured credentials
 3. Adding required headers (`Authorization`, `x-api-key`) to all requests
@@ -191,18 +196,21 @@ Users must have a valid ICN for the service to function properly.
 The service includes comprehensive error handling:
 
 ### Service-Level Errors
+
 - Network timeouts and connection failures via circuit breaker
 - Authentication/authorization errors with custom UHD error prefix
 - Invalid response formats with JSON parsing fallbacks
 - Prescription refill failures with graceful degradation
 
 ### Adapter-Level Errors
+
 - Malformed data from individual sources
 - Missing required fields with safe defaults
 - Type conversion errors
 - FHIR resource parsing errors
 
 ### Logging
+
 - StatsD metrics with `api.uhd` prefix for monitoring
 - Structured logging with service context
 - Test code distribution analytics for lab results
@@ -210,9 +218,81 @@ The service includes comprehensive error handling:
 
 All errors are logged with appropriate context for debugging while returning graceful fallbacks to prevent user-facing failures.
 
+## Labs & Tests Logging
+
+Labs & tests uses `MedicalRecords::MedicalRecordsLog` for structured, PII-safe logging. See the [Medical Records Logging Guide](../medical_records/README.md) for the core utility and the "Adding a New Domain" checklist.
+
+### Feature Toggle
+
+| Toggle                                           | Actor  | Purpose                                                   |
+| ------------------------------------------------ | ------ | --------------------------------------------------------- |
+| `:mhv_medical_records_labs_and_tests_diagnostic` | `user` | Gates diagnostic logging for labs & tests                 |
+| `:mhv_medical_records_diagnostic_logging`        | `user` | Global fallback — enables diagnostics for **all** domains |
+
+`diagnostic_enabled?` checks the domain toggle first, then the global.
+
+**In tests**, always stub — never use `Flipper.enable`:
+
+```ruby
+allow(Flipper).to receive(:enabled?)
+  .with(:mhv_medical_records_labs_and_tests_diagnostic, user).and_return(true)
+```
+
+### Service Concern (`lib/unified_health_data/concerns/labs_and_tests_logging.rb`)
+
+| Method                       | Logs                                                      | Level        |
+| ---------------------------- | --------------------------------------------------------- | ------------ |
+| `log_test_code_distribution` | Test code & display name frequencies                      | `diagnostic` |
+| `log_labs_response_count`    | Raw entry count vs. parsed count vs. filtered count       | `diagnostic` |
+| `log_labs_index_metrics`     | VistA/OH counts, observations, date range                 | `diagnostic` |
+| `warn_labs_high_filter_rate` | >50 % of DiagnosticReports filtered                       | `warn`       |
+| `warn_missing_dates`         | ≥3 records with missing dates                             | `warn`       |
+| `warn_empty_observations`    | ≥3 records with empty observation arrays                  | `warn`       |
+| `warn_short_test_names`      | Any test display names ≤3 characters                      | `warn`       |
+| `log_labs_metrics`           | Orchestrator — calls response count, index, filter checks | mixed        |
+
+### Adapter (`lib/unified_health_data/adapters/lab_or_test_adapter.rb`)
+
+Accepts an optional `mr_log:` parameter injected by the service. Uses a `log_adapter` dual-path helper: structured `mr_log` when present, `Rails.logger` fallback otherwise.
+
+| Method                           | Logs                                        | Level  |
+| -------------------------------- | ------------------------------------------- | ------ |
+| `log_filtered_diagnostic_report` | Report id, status, filter reason            | `info` |
+| `log_filtered_observations`      | Filtered observation count per report       | `info` |
+| `log_final_status_warning`       | `final` status with no data                 | `warn` |
+| `log_missing_date_warning`       | Missing effectiveDateTime / effectivePeriod | `warn` |
+| `log_warnings`                   | Orchestrator — calls final-status + date    | mixed  |
+
+### StatsD Metrics
+
+| Metric                                                       | Type    |
+| ------------------------------------------------------------ | ------- |
+| `api.uhd.labs_and_tests.index.total`                         | Gauge   |
+| `api.uhd.labs_and_tests.index.vista`                         | Gauge   |
+| `api.uhd.labs_and_tests.index.oracle_health`                 | Gauge   |
+| `api.uhd.labs_and_tests.diagnostic.test_code_count`          | Gauge   |
+| `api.uhd.labs_and_tests.anomaly.high_filter_rate`            | Counter |
+| `api.uhd.labs_and_tests.anomaly.elevated_missing_dates`      | Counter |
+| `api.uhd.labs_and_tests.anomaly.elevated_empty_observations` | Counter |
+| `api.uhd.labs_and_tests.anomaly.short_test_names`            | Counter |
+| `unified_health_data.lab_or_test.filtered_diagnostic_report` | Counter |
+| `unified_health_data.lab_or_test.filtered_observations`      | Counter |
+
+### Key Files
+
+| File                                                                   | Purpose                                |
+| ---------------------------------------------------------------------- | -------------------------------------- |
+| `lib/medical_records/medical_records_log.rb`                           | Core utility — PII stripping, toggles  |
+| `lib/unified_health_data/concerns/labs_and_tests_logging.rb`           | Service concern (diagnostic + anomaly) |
+| `lib/unified_health_data/adapters/lab_or_test_adapter.rb`              | Adapter-level dual-path logging        |
+| `spec/lib/unified_health_data/concerns/labs_and_tests_logging_spec.rb` | Concern specs (29 examples)            |
+| `spec/lib/unified_health_data/adapters/lab_or_test_adapter_spec.rb`    | Adapter specs (209 examples)           |
+| `spec/lib/unified_health_data/service_spec.rb`                         | Integration tests for toggle fallback  |
+
 ## Data Source System Tracking
 
 Each prescription model includes a `data_source_system` attribute to track origin:
+
 - `"VISTA"` - Data from VistA system
 - `"ORACLE_HEALTH"` - Data from Oracle Health/Cerner system
 
@@ -221,6 +301,7 @@ This enables analytics and debugging of data source-specific issues.
 ## Method Aliases
 
 The Prescription model provides aliases to match Mobile API serializer expectations:
+
 - `refillable?` → `is_refillable`
 - `trackable?` → `is_trackable`
 - `sig` → `instructions`
@@ -236,6 +317,7 @@ The Prescription model provides aliases to match Mobile API serializer expectati
 ## Configuration
 
 The service uses `UnifiedHealthData::Configuration` for:
+
 - API endpoints (`Settings.mhv.uhd.host`) and authentication
 - Security token endpoint (`Settings.mhv.uhd.security_host`)
 - API credentials (`app_id`, `app_token`, `x_api_key`)
@@ -246,6 +328,7 @@ The service uses `UnifiedHealthData::Configuration` for:
 ## Testing
 
 Each component includes comprehensive test coverage:
+
 - Unit tests for models and adapters in `spec/lib/unified_health_data/`
 - Integration tests for the full service
 - VCR cassettes for external API responses

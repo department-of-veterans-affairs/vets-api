@@ -123,7 +123,8 @@ module MedicalRecords
     #
     # Domains without an entry here still work — they just rely on the global toggle only.
     DOMAIN_TOGGLES = {
-      CLINICAL_NOTES => :mhv_medical_records_clinical_notes_diagnostic
+      CLINICAL_NOTES => :mhv_medical_records_clinical_notes_diagnostic,
+      LABS_AND_TESTS => :mhv_medical_records_labs_and_tests_diagnostic
     }.freeze
 
     # Keys that are always stripped from log output. Checked case-insensitively.

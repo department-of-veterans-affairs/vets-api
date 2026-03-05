@@ -31,13 +31,15 @@ module Pensions
 
         if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
           # TODO: Set this back to claim&.user_account_id once the DB migration is done
-          user_icn = UserAccount.find_by(id: msg['args'].last)&.icn.to_s
+          user_icn = UserAccount.find_by(id: msg['args'][1])&.icn.to_s
+          participant_id = msg['args'][2]
 
           Kafka.submit_event(
             icn: user_icn,
             current_id: claim&.confirmation_number.to_s,
             submission_name: Pensions::FORM_ID,
-            state: Kafka::State::ERROR
+            state: Kafka::State::ERROR,
+            additional_ids: Kafka.build_additional_ids(participant_id:)
           )
         end
 
@@ -50,10 +52,11 @@ module Pensions
       #
       # @param saved_claim_id [Integer] the pension claim id
       # @param user_account_uuid [UUID] the user submitting the form
+      # @param participant_id [String, nil] the participant ID for Kafka event traceability
       #
       # @return [UUID] benefits intake upload uuid
-      def perform(saved_claim_id, user_account_uuid = nil)
-        init(saved_claim_id, user_account_uuid)
+      def perform(saved_claim_id, user_account_uuid = nil, participant_id = nil)
+        init(saved_claim_id, user_account_uuid, participant_id)
 
         return if lighthouse_submission_pending_or_success
 
@@ -86,7 +89,8 @@ module Pensions
       # @raise [PensionBenefitIntakeError] if unable to find SavedClaim::Pension
       #
       # @param (see #perform)
-      def init(saved_claim_id, user_account_uuid)
+      def init(saved_claim_id, user_account_uuid, participant_id = nil)
+        @participant_id = participant_id
         @user_account_uuid = user_account_uuid
         @user_account = UserAccount.find(@user_account_uuid) unless @user_account_uuid.nil?
         # UserAccount.find will raise an error if unable to find the user_account record
@@ -175,7 +179,8 @@ module Pensions
           current_id: @claim&.confirmation_number.to_s,
           submission_name: Pensions::FORM_ID,
           state: Kafka::State::SENT,
-          next_id: @intake_service&.uuid.to_s
+          next_id: @intake_service&.uuid.to_s,
+          additional_ids: Kafka.build_additional_ids(participant_id: @participant_id)
         )
       end
 
