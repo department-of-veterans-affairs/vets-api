@@ -284,7 +284,6 @@ module ClaimsApi
       end
 
       # 'treatments' is optional
-      # If 'treatments' is provided 'treatedDisabilityNames' and 'center' are required via the schema
       def section_5_treatment_centers
         treatment_info = lookup_in_auto_claim(:treatments)
         return if treatment_info.blank?
