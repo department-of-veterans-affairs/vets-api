@@ -233,7 +233,13 @@ module Mobile
         return if station_number.blank?
 
         oh_service = MHV::OhFacilitiesHelper::Service.new(@current_user)
-        phase = oh_service.get_phase_for_station_number(station_number)
+        phase = begin
+          oh_service.get_phase_for_station_number(station_number)
+        rescue => e
+          Rails.logger.error('Error checking migration phase',
+                             { error_class: e.class.name, error_message: e.message })
+          ''
+        end
         return unless %w[p3 p4 p5].include?(phase)
 
         StatsD.increment('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])

@@ -647,12 +647,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         context 'when station is not in a blocked migration phase' do
           before do
             allow(oh_service).to receive(:get_phase_for_station_number).with('983').and_return('p1')
+            allow(StatsD).to receive(:increment)
           end
 
           it 'does not return 418 on create' do
-            expect(StatsD).not_to receive(:increment)
-              .with('mobile.sm.send_to_facility_in_migration_error', anything)
-
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages',
                    headers: sis_headers,
@@ -660,6 +658,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             end
 
             expect(response).not_to have_http_status(418)
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
           end
         end
 
@@ -667,12 +667,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           before do
             allow(Flipper).to receive(:enabled?).with(:sm_custom_migration_errors).and_return(false)
             allow(oh_service).to receive(:get_phase_for_station_number).with('983').and_return('p3')
+            allow(StatsD).to receive(:increment)
           end
 
           it 'does not return 418 on create' do
-            expect(StatsD).not_to receive(:increment)
-              .with('mobile.sm.send_to_facility_in_migration_error', anything)
-
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages',
                    headers: sis_headers,
@@ -680,14 +678,17 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             end
 
             expect(response).not_to have_http_status(418)
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
           end
         end
 
         context 'when station_number is not provided' do
-          it 'does not return 418 on create' do
-            expect(StatsD).not_to receive(:increment)
-              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+          before do
+            allow(StatsD).to receive(:increment)
+          end
 
+          it 'does not return 418 on create' do
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages',
                    headers: sis_headers,
@@ -695,6 +696,33 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             end
 
             expect(response).not_to have_http_status(418)
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+          end
+        end
+
+        context 'when migration phase lookup raises an error' do
+          before do
+            allow(oh_service).to receive(:get_phase_for_station_number)
+              .and_raise(StandardError.new('connection timeout'))
+            allow(Rails.logger).to receive(:error)
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'fails open and allows the message to be sent' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: message_params.merge(station_number: '983') }
+            end
+
+            expect(response).not_to have_http_status(418)
+            expect(Rails.logger).to have_received(:error).with(
+              'Error checking migration phase',
+              { error_class: 'StandardError', error_message: 'connection timeout' }
+            )
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
           end
         end
       end
