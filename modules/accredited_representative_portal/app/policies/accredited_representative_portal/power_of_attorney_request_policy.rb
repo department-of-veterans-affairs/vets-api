@@ -71,11 +71,69 @@ module AccreditedRepresentativePortal
 
     class Scope < ApplicationPolicy::Scope
       def resolve
+        base = base_scope
+        return base unless individual_accept_enabled?
+
+        any_request_orgs, self_only_orgs = partition_orgs_by_acceptance_mode
+        return base.none if any_request_orgs.empty? && self_only_orgs.empty?
+
+        any_request_scope =
+          any_request_orgs.empty? ? base.none : base.where(power_of_attorney_holder_poa_code: any_request_orgs)
+
+        self_only_scope =
+          if self_only_orgs.empty?
+            base.none
+          else
+            base
+              .where(power_of_attorney_holder_poa_code: self_only_orgs)
+              .where(accredited_individual_registration_number: Array(@user.registration_numbers))
+          end
+
+        any_request_scope.or(self_only_scope)
+      end
+
+      private
+
+      def individual_accept_enabled?
+        Flipper.enabled?(:accredited_representative_portal_individual_accept, @user)
+      end
+
+      def base_scope
         @scope.unredacted.for_power_of_attorney_holders(
           @user.power_of_attorney_holders.select(
             &:accepts_digital_power_of_attorney_requests?
           )
         )
+      end
+
+      def allowed_poa_codes
+        @user.power_of_attorney_holders
+             .select(&:accepts_digital_power_of_attorney_requests?)
+             .map(&:poa_code)
+      end
+
+      def latest_org_reps
+        Veteran::Service::OrganizationRepresentative
+          .active
+          .where(organization_poa: allowed_poa_codes, representative_id: Array(@user.registration_numbers))
+          .select('DISTINCT ON (organization_poa) organization_poa, acceptance_mode')
+          .order('organization_poa, created_at DESC')
+      end
+
+      def partition_orgs_by_acceptance_mode
+        any_request_orgs = []
+        self_only_orgs = []
+
+        latest_org_reps.each do |org_rep|
+          case org_rep.acceptance_mode
+          when 'any_request'
+            any_request_orgs << org_rep.organization_poa
+          when 'self_only'
+            self_only_orgs << org_rep.organization_poa
+          end
+        end
+
+        [any_request_orgs, self_only_orgs]
       end
     end
   end
