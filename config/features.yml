@@ -788,6 +788,10 @@ features:
     actor_type: user
     description: Log VBMS errors when submitting 686c and 674
     enable_in_development: true
+  dependents_v3_removal_picklist_logging:
+    actor_type: user
+    description: Enables specific logging for v3 removal picklist feature in 686c-674 flow
+    enable_in_development: true
   dependents_digital_forms_api_submission_enabled:
     actor_type: user
     description: Enables submission of dependents forms via Forms API
