@@ -31,7 +31,7 @@ RSpec.describe IvcChampva::VesOhiRequest do
         beneficiary_medicare: {
           first_name: 'Jane',
           last_name: 'Doe',
-          medicare_parts: [{ medicare_part_type: 'a', effective_date: '2024-01-01' }],
+          medicare_parts: [{ medicare_part_type: 'MEDICARE_PART_A', effective_date: '2024-01-01' }],
           other_insurances: [{ insurance_name: 'Aetna' }]
         },
         certification: { signature: 'Jane Doe' }
@@ -62,7 +62,7 @@ RSpec.describe IvcChampva::VesOhiRequest do
           date_of_birth: '1990-01-15',
           address: { street_address: '123 Main St', city: 'Anytown', state: 'VA', zip_code: '12345' },
           medicare_bene_id: '1EG4TE5MK73',
-          medicare_parts: [{ medicare_part_type: 'a', effective_date: '2024-01-01' }],
+          medicare_parts: [{ medicare_part_type: 'MEDICARE_PART_A', effective_date: '2024-01-01' }],
           other_insurances: [{ insurance_name: 'Blue Cross', insurance_plan_type: 'hmo' }],
           email_address: 'jane@example.com',
           phone_number: '5551234567',
@@ -115,35 +115,30 @@ RSpec.describe IvcChampva::VesOhiRequest do
 
   describe 'MedicarePart' do
     describe '#initialize' do
-      it 'normalizes part type to VES enum format' do
-        part = described_class::MedicarePart.new(medicare_part_type: 'a')
-        expect(part.medicare_part_type).to eq('MEDICARE_PART_A')
-
-        part = described_class::MedicarePart.new(medicare_part_type: 'B')
-        expect(part.medicare_part_type).to eq('MEDICARE_PART_B')
-
-        part = described_class::MedicarePart.new(medicare_part_type: 'd')
-        expect(part.medicare_part_type).to eq('MEDICARE_PART_D')
-      end
-
-      it 'preserves already-formatted part types' do
+      it 'stores medicare_part_type as provided (normalization happens in formatter)' do
         part = described_class::MedicarePart.new(medicare_part_type: 'MEDICARE_PART_A')
         expect(part.medicare_part_type).to eq('MEDICARE_PART_A')
+
+        part = described_class::MedicarePart.new(medicare_part_type: 'MEDICARE_PART_B')
+        expect(part.medicare_part_type).to eq('MEDICARE_PART_B')
+
+        part = described_class::MedicarePart.new(medicare_part_type: 'MEDICARE_PART_D')
+        expect(part.medicare_part_type).to eq('MEDICARE_PART_D')
       end
     end
 
     describe '#to_hash' do
-      it 'includes description field' do
+      it 'serializes to VES format' do
         part = described_class::MedicarePart.new(
-          medicare_part_type: 'd',
+          medicare_part_type: 'MEDICARE_PART_D',
           effective_date: '2024-01-01',
-          description: 'PharmaCare Plus prescription coverage'
+          termination_date: '2025-12-31'
         )
         hash = part.to_hash
 
         expect(hash[:medicarePartType]).to eq('MEDICARE_PART_D')
         expect(hash[:effectiveDate]).to eq('2024-01-01')
-        expect(hash[:description]).to eq('PharmaCare Plus prescription coverage')
+        expect(hash[:terminationDate]).to eq('2025-12-31')
       end
     end
   end
