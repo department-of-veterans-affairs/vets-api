@@ -84,7 +84,7 @@ module UnifiedHealthData
             ndc_number: medication['ndcNumber'],
             prescription_id: medication['prescriptionId'],
             tracking_number: tracking['trackingNumber'],
-            shipped_date: format_shipped_date(tracking['shippedDate']),
+            complete_date_time: format_shipped_date(tracking['shippedDate']),
             carrier: tracking['deliveryService'],
             other_prescriptions: build_other_prescriptions(tracking['otherPrescriptionListIncluded'] || [])
           }

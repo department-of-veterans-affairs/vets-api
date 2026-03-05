@@ -323,7 +323,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           ndc_number: '12345-678-90',
           prescription_id: '12345',
           tracking_number: '1Z999AA1012345675',
-          shipped_date: '2016-09-07T04:00:00.000Z', # Converted to UTC ISO format
+          complete_date_time: '2016-09-07T04:00:00.000Z', # Converted to UTC ISO format
           carrier: 'UPS',
           other_prescriptions: [
             {
@@ -749,14 +749,14 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
       first_tracking = prescription.tracking.first
       expect(first_tracking[:tracking_number]).to eq('1Z999AA1012345675')
       expect(first_tracking[:carrier]).to eq('UPS')
-      expect(first_tracking[:shipped_date]).to eq('2025-07-16T14:30:00.000Z')
+      expect(first_tracking[:complete_date_time]).to eq('2025-07-16T14:30:00.000Z')
       expect(first_tracking[:other_prescriptions].size).to eq(2)
 
       # Check second tracking entry
       second_tracking = prescription.tracking.second
       expect(second_tracking[:tracking_number]).to eq('1Z999AA1012345676')
       expect(second_tracking[:carrier]).to eq('UPS')
-      expect(second_tracking[:shipped_date]).to eq('2025-07-17T18:15:00.000Z')
+      expect(second_tracking[:complete_date_time]).to eq('2025-07-17T18:15:00.000Z')
       expect(second_tracking[:other_prescriptions]).to eq([])
     end
   end
