@@ -7,17 +7,12 @@ module V0
   class Form1095BsController < ApplicationController
     service_tag 'form-1095b'
     before_action { authorize :form1095, :access? }
-    before_action :validate_year, only: %i[download_pdf download_txt], if: -> { fetch_from_enrollment_system? }
-    before_action :validate_pdf_template, only: %i[download_pdf], if: -> { fetch_from_enrollment_system? }
-    before_action :validate_txt_template, only: %i[download_txt], if: -> { fetch_from_enrollment_system? }
+    before_action :validate_year, only: %i[download_pdf download_txt]
+    before_action :validate_pdf_template, only: %i[download_pdf]
+    before_action :validate_txt_template, only: %i[download_txt]
 
     def available_forms
-      if fetch_from_enrollment_system?
-        forms = fetch_enrollment_periods
-      else
-        current_form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
-        forms = current_form.nil? ? [] : [{ year: current_form.tax_year, last_updated: current_form.updated_at }]
-      end
+      forms = fetch_enrollment_periods
       render json: { available_forms: forms }
     end
 
@@ -43,20 +38,9 @@ module V0
     end
 
     def form
-      if fetch_from_enrollment_system?
-        service = VeteranEnrollmentSystem::Form1095B::Service.new
-        form_data = service.get_form_by_icn(icn: current_user[:icn], tax_year:)
-        model_class.parse(form_data)
-      else
-        return current_form_record if current_form_record.present?
-
-        Rails.logger.error("Form 1095-B for #{tax_year} not found", user_uuid: current_user&.uuid)
-        raise Common::Exceptions::RecordNotFound, tax_year
-      end
-    end
-
-    def current_form_record
-      @current_form_record ||= Form1095B.find_by(veteran_icn: current_user[:icn], tax_year:)
+      service = VeteranEnrollmentSystem::Form1095B::Service.new
+      form_data = service.get_form_by_icn(icn: current_user[:icn], tax_year:)
+      model_class.parse(form_data)
     end
 
     def download_params
@@ -93,10 +77,6 @@ module V0
 
     def model_class
       VeteranEnrollmentSystem::Form1095B::Form1095B
-    end
-
-    def fetch_from_enrollment_system?
-      Flipper.enabled?(:fetch_1095b_from_enrollment_system, current_user)
     end
   end
 end
