@@ -232,14 +232,7 @@ module Mobile
         station_number = message_params[:station_number]
         return if station_number.blank?
 
-        oh_service = MHV::OhFacilitiesHelper::Service.new(@current_user)
-        phase = begin
-          oh_service.get_phase_for_station_number(station_number)
-        rescue => e
-          Rails.logger.error('Error checking migration phase',
-                             { error_class: e.class.name, error_message: e.message })
-          ''
-        end
+        phase = migration_phase_for(station_number)
         return unless %w[p3 p4 p5].include?(phase)
 
         StatsD.increment('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
@@ -251,6 +244,15 @@ module Mobile
           telephone: nil,
           refreshable: false
         )
+      end
+
+      def migration_phase_for(station_number)
+        oh_service = MHV::OhFacilitiesHelper::Service.new(@current_user)
+        oh_service.get_phase_for_station_number(station_number)
+      rescue => e
+        Rails.logger.error('Error checking migration phase',
+                           { error_class: e.class.name, error_message: e.message })
+        ''
       end
     end
   end
