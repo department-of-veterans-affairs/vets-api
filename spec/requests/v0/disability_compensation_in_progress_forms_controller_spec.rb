@@ -632,7 +632,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
           end
 
-          it 'sets returnUrl when rated disabilities have updates and claimingIncrease is true and disability_comp_new_conditions_workflow is not set' do
+          it 'sets returnUrl when rated disabilities have updates and new-flow flag is not set' do
             fd = JSON.parse(in_progress_form_lighthouse.form_data)
             fd['ratedDisabilities'].first['diagnosticCode'] = '111'
             fd['view:claimType'] = { 'view:claimingIncrease' => true }
@@ -649,7 +649,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
           end
 
-          it 'sets returnUrl when rated disabilities have updates and claimingIncrease is true and disability_comp_new_conditions_workflow is false' do
+          it 'sets returnUrl when rated disabilities have updates and the new-flow flag is false' do
             fd = JSON.parse(in_progress_form_lighthouse.form_data)
             fd['ratedDisabilities'].first['diagnosticCode'] = '111'
             fd['view:claimType'] = { 'view:claimingIncrease' => true }
@@ -667,7 +667,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
           end
 
-          it 'sets returnUrl to a v2 url when rated disabilities have updates and claimingIncrease is true and disability_comp_new_conditions_workflow is true' do
+          it 'sets returnUrl to a new-flow url when rated disabilities have updates and the new-flow flag is true' do
             fd = JSON.parse(in_progress_form_lighthouse.form_data)
             fd['ratedDisabilities'].first['diagnosticCode'] = '111'
             fd['view:claimType'] = { 'view:claimingIncrease' => true }
