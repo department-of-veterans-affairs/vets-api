@@ -3,10 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
-  subject(:service_call) { described_class.new(icn:, benefit_type_param:).call }
+  subject(:service_call) { described_class.new(icn:, representative_name:, benefit_type_param:).call }
 
   let(:icn) { '1008714701V416111' }
   let(:benefit_type_param) { 'compensation' }
+  let(:representative_name) { 'Space Force Cadets' }
 
   let(:mpi_profile) do
     build(
@@ -79,6 +80,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantDetailsService do
           state: 'VA',
           zip: '12345'
         )
+        expect(data[:representative_name]).to eq('Space Force Cadets')
       end
 
       it 'returns itf as an array' do
