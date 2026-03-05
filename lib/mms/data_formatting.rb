@@ -145,7 +145,7 @@ module Mms
     # Build a set of IBM fields for a currency amount, breaking it into full, thousands, hundreds, and cents.
     #
     # @param amount [Numeric, nil]
-    # @param keys [Hash] A hash with keys :full, :thousands, :hundreds, and :cents mapping to the corresponding IBM fields
+    # @param keys [Hash] hash with keys :full, :thousands, :hundreds, and :cents mapping to the corresponding IBM fields
     # @return [Hash]
     def build_currency_fields(amount, keys)
       {
