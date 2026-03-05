@@ -63,6 +63,9 @@ module V0
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
+          if parsed_form_data['disability_comp_new_conditions_workflow'] == true
+            metadata['returnUrl'] = '/conditions/summary'
+          end
         end
         # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
         evss_rated_disabilities = rated_disabilities_evss&.rated_disabilities&.map(&:as_json)
