@@ -525,6 +525,8 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
       end
 
       context 'when user is only authorized to access claims, not appeals' do
+        # ssn: nil makes AppealsPolicy#access? return false (requires loa3? && ssn.present?)
+        # while LighthousePolicy#access? still passes (requires icn + participant_id, not ssn)
         let!(:user) do
           sis_user(icn: '1008596379V859838', ssn: nil)
         end
