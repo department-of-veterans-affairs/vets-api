@@ -6,7 +6,8 @@
 # Example: ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
 # Regex to extract individual <testcase ...> opening tags (up to > or />), allowing '>' inside quotes.
-TESTCASE_TAG_RE = %r{<testcase\b((?:"[^"]*"|'[^']*'|[^>])*)/?>}
+# [^>"'] keeps the three alternatives disjoint, preventing exponential backtracking.
+TESTCASE_TAG_RE = %r{<testcase\b((?:"[^"]*"|'[^']*'|[^>"'])*)/?>}
 FILE_ATTR_RE = /\bfile="([^"]*)"/
 TIME_ATTR_RE = /\btime="([^"]*)"/
 
