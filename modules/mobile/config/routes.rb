@@ -65,6 +65,7 @@ Mobile::Engine.routes.draw do
     post '/messaging/health/messages', to: 'messages#create'
     get '/messaging/health/messages/categories', to: 'messages#categories'
     get '/messaging/health/messages/signature', to: 'messages#signature'
+    get '/messaging/health/messages/oh_sync_status', to: 'messages#oh_sync_status'
     delete '/messaging/health/messages/:id', to: 'messages#destroy'
     get '/messaging/health/messages/:id', to: 'messages#show', as: 'message'
     patch '/messaging/health/messages/:id/move', to: 'messages#move'

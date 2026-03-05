@@ -3,16 +3,33 @@
 module AccreditedRepresentativePortal
   module V0
     class ClaimSubmissionsController < ApplicationController
+      class NotFound < StandardError; end
+
       def index
+        if params[:id].present? && !Flipper.enabled?(:accredited_representative_portal_claimant_details)
+          raise Common::Exceptions::BadRequest.new(detail: 'Claimant details is not enabled.')
+        end
+
         authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy
         serializer = SavedClaimClaimantRepresentativeSerializer.new(claim_submissions)
-        render json: {
+        render json: ({
           data: serializer.serializable_hash,
           meta: pagination_meta(claim_submissions)
-        }, status: :ok
+        }.tap do |json|
+          include_claimant(json) if params[:id].present?
+        end)
+      rescue ActiveRecord::RecordNotFound, NotFound
+        render json: { error: 'Claimant id not found.' }, status: :not_found
       end
 
       private
+
+      def include_claimant(json)
+        json[:claimant] = {
+          'firstName' => claimant_profile.given_names.first,
+          'lastName' => claimant_profile.family_name
+        }
+      end
 
       def pagination_meta(submissions)
         {
@@ -46,10 +63,24 @@ module AccreditedRepresentativePortal
       end
 
       def claim_submissions
-        policy_scope(SavedClaimClaimantRepresentative)
+        scope = policy_scope(SavedClaimClaimantRepresentative).preload(scope_includes)
+
+        if params[:id].present?
+          raise NotFound unless claimant_profile
+
+          scope = scope.where(claimant_id: params[:id])
+        end
+
+        scope
           .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
-          .preload(scope_includes)
           .paginate(page:, per_page:)
+      end
+
+      def claimant_profile
+        @claimant_profile ||= MPI::Service.new.find_profile_by_identifier(
+          identifier: IcnTemporaryIdentifier.lookup_icn(params[:id]),
+          identifier_type: MPI::Constants::ICN
+        )&.profile
       end
 
       def scope_includes
