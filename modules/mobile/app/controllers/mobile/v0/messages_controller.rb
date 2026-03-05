@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/exceptions/custom_errors'
 require 'unique_user_events'
 
 module Mobile
@@ -51,6 +52,8 @@ module Mobile
       end
 
       def create
+        raise_if_in_migration
+
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
@@ -88,6 +91,8 @@ module Mobile
       end
 
       def reply
+        raise_if_in_migration
+
         message = Message.new(message_params.merge(upload_params)).as_reply
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
@@ -219,6 +224,26 @@ module Mobile
 
       def validate_message_id
         raise Common::Exceptions::ParameterMissing, 'id' if params[:id].blank?
+      end
+
+      def raise_if_in_migration
+        return unless Flipper.enabled?(:sm_custom_migration_errors)
+
+        station_number = message_params[:station_number]
+        return if station_number.blank?
+
+        oh_service = MHV::OhFacilitiesHelper::Service.new(@current_user)
+        phase = oh_service.get_phase_for_station_number(station_number)
+        return unless %w[p3 p4 p5].include?(phase)
+
+        raise Mobile::V0::Exceptions::CustomErrors.new(
+          title: 'This facility is currently migrating to a new health portal',
+          body: 'This facility is transitioning to a new system and messaging is temporarily unavailable. ' \
+                'Please try again later or contact the facility directly.',
+          source: 'SM',
+          telephone: nil,
+          refreshable: false
+        )
       end
     end
   end
