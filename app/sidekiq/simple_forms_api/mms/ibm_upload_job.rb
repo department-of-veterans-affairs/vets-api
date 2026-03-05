@@ -33,6 +33,12 @@ module SimpleFormsApi
         )
 
         handle_response(ibm_response)
+
+        Rails.logger.info(
+          'Simple Forms API - MMS submission complete',
+          guid: confirmation_number,
+          form_number:
+        )
       rescue => e
         Rails.logger.error(
           "Simple Forms API - MMS submission failed: #{e.message}",

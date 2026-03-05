@@ -176,6 +176,7 @@ module SimpleFormsApi
           send_confirmation_email_safely(parsed_form_data, confirmation_number)
 
           presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+
           add_vsi_flash_safely(form, submission)
           submit_to_mms_if_applicable(form, confirmation_number)
         end

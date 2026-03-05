@@ -26,6 +26,15 @@ RSpec.describe SimpleFormsApi::Mms::IbmUploadJob, type: :job do
         allow(ibm_service).to receive(:upload_form).and_return(response)
       end
 
+      it 'logs the success message' do
+        expect(Rails.logger).to receive(:info).with(
+          'Simple Forms API - MMS submission complete',
+          hash_including(guid: confirmation_number, form_number:)
+        )
+
+        described_class.new.perform(ibm_payload, form_number, confirmation_number)
+      end
+
       it 'does not log an error and does not raise' do
         expect do
           job.perform(ibm_payload, form_number, confirmation_number)
@@ -95,6 +104,21 @@ RSpec.describe SimpleFormsApi::Mms::IbmUploadJob, type: :job do
             form_number:
           )
         )
+      end
+    end
+
+    context 'when job retries are exhausted' do
+      it 'logs the retries exhausted message' do
+        msg = { 'args' => [ibm_payload, form_number, confirmation_number] }
+        ex = StandardError.new('Upload error')
+
+        expect(Rails.logger).to receive(:error).with(
+          'Sidekiq retries exhausted for SimpleForms::API::MMS::IbmUploadJob - StandardError: Upload error',
+          guid: confirmation_number,
+          form_number:
+        )
+
+        described_class.sidekiq_retries_exhausted_block.call(msg, ex)
       end
     end
   end
