@@ -18,7 +18,10 @@ module RepresentationManagement
       end
 
       attribute :accredited_organizations do |object|
-        RepresentationManagement::OriginalEntities::OrganizationSerializer.new(object.organizations)
+        orgs = object.organizations.map do |org|
+          RepresentationManagement::OrganizationWithRepContext.new(org, representative: object)
+        end
+        RepresentationManagement::OriginalEntities::OrganizationSerializer.new(orgs)
       end
     end
   end
