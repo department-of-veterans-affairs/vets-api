@@ -81,7 +81,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
 
             expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).at_least(:once)
             expect(ves_client).to have_received(:submit_1010d)
-              .with(anything, 'fake-user', ves_request)
+              .with(anything, ves_request)
             expect(mock_form).to have_received(:update)
               .with(hash_including(
                       application_uuid: 'test-uuid',
@@ -113,7 +113,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
           it 'handles VES API errors gracefully and still returns success' do
             # Mock a StandardError being raised during VES submission
             allow(ves_client).to receive(:submit_1010d)
-              .with(anything, anything, anything)
+              .with(anything, anything)
               .and_raise(StandardError.new('api error'))
 
             # Make sure the FileUploader returns success to allow form submission to succeed
@@ -344,7 +344,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
         it 'submits each subform after primary succeeds' do
           controller.send(:submit_ves_request_with_subforms, ves_request, metadata)
 
-          expect(ves_client).to have_received(:submit_7959c).with(anything, 'fake-user', mock_ohi_request)
+          expect(ves_client).to have_received(:submit_7959c).with(anything, mock_ohi_request)
         end
 
         it 'generates fresh transaction_uuid for each subform' do
@@ -415,10 +415,10 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
         context 'when one subform fails' do
           before do
             allow(ves_client).to receive(:submit_7959c)
-              .with(anything, anything, mock_ohi_request)
+              .with(anything, mock_ohi_request)
               .and_raise(StandardError.new('first subform failed'))
             allow(ves_client).to receive(:submit_7959c)
-              .with(anything, anything, mock_ohi_request2)
+              .with(anything, mock_ohi_request2)
               .and_return(success_response)
           end
 
@@ -427,7 +427,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
 
             controller.send(:submit_ves_request_with_subforms, ves_request, metadata)
 
-            expect(ves_client).to have_received(:submit_7959c).with(anything, anything, mock_ohi_request2)
+            expect(ves_client).to have_received(:submit_7959c).with(anything, mock_ohi_request2)
           end
 
           it 'logs the error for the failed subform' do
@@ -445,7 +445,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
 
         controller.send(:send_to_ves_by_form_type, ves_client, ves_request, 'vha_10_10d')
 
-        expect(ves_client).to have_received(:submit_1010d).with('test-uuid', 'fake-user', ves_request)
+        expect(ves_client).to have_received(:submit_1010d).with('test-uuid', ves_request)
       end
 
       it 'routes vha_10_7959c to submit_7959c' do
@@ -454,7 +454,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
 
         controller.send(:send_to_ves_by_form_type, ves_client, mock_ohi_request, 'vha_10_7959c')
 
-        expect(ves_client).to have_received(:submit_7959c).with('ohi-uuid', 'fake-user', mock_ohi_request)
+        expect(ves_client).to have_received(:submit_7959c).with('ohi-uuid', mock_ohi_request)
       end
 
       it 'raises ArgumentError for unknown form types' do

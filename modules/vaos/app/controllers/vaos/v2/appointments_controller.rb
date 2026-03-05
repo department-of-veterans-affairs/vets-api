@@ -531,7 +531,7 @@ module VAOS
           :bad_gateway # 502
         else
           # too-far-in-the-future, already-canceled, too-late-to-cancel, etc.
-          :unprocessable_entity # 422
+          :unprocessable_content # 422
         end
       end
 

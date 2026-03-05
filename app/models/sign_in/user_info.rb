@@ -48,6 +48,7 @@ module SignIn
     attribute :person_types, :string
     attribute :icn, :string
     attribute :sec_id, :string
+    attribute :sec_id_history, :string
     attribute :edipi, :string
     attribute :mhv_ien, :string
     attribute :npi_id, :string
