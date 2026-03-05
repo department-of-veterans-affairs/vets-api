@@ -1057,10 +1057,6 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "treatedDisabilityNames",
-          "center"
-        ],
         "properties": {
           "startDate": {
             "description": "Date Veteran started treatment. Date must be after the earliest servicePeriods.activeDutyBeginDate.",
