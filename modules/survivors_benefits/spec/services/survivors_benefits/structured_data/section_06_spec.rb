@@ -7,7 +7,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section06 do
   describe '#build_section6' do
     describe 'when claimant lives with children' do
       it 'does not call merge_custodian_fields' do
-        form = { 'childrenLiveTogetherButNotWithSpouse' => true }
+        form = { 'childrenLiveTogetherButNotWithSpouse' => false }
         service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
         expect(service).not_to receive(:merge_custodian_fields)
         service.build_section6
@@ -16,7 +16,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section06 do
 
     describe 'when claimant does not live with children' do
       it 'calls merge_custodian_fields' do
-        form = { 'childrenLiveTogetherButNotWithSpouse' => false }
+        form = { 'childrenLiveTogetherButNotWithSpouse' => true }
         service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
         expect(service).to receive(:merge_custodian_fields)
         service.build_section6
@@ -68,8 +68,8 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section06 do
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       service.build_section6
       expect(service.fields).to include(
-        'CHILD_DO_NOT_LIVE_WITH_CL_Y' => false,
-        'CHILD_DO_NOT_LIVE_WITH_CL_N' => true,
+        'CHILD_DO_NOT_LIVE_WITH_CL_Y' => true,
+        'CHILD_DO_NOT_LIVE_WITH_CL_N' => false,
         'NUMBER_OF_DEP_CHILD' => 3
       )
     end

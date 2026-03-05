@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'mms/data_formatting'
+
 module SurvivorsBenefits
   module StructuredData
     class StructuredDataService
-      include HasStructuredData
+      include Mms::DataFormatting
       include SurvivorsBenefits::StructuredData::Section01
       include SurvivorsBenefits::StructuredData::Section02
       include SurvivorsBenefits::StructuredData::Section03

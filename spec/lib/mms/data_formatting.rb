@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mms/data_formatting'
 
-RSpec.describe HasStructuredData do
+RSpec.describe Mms::DataFormatting do
   subject { dummy_class.new }
 
   let(:dummy_class) do
     Class.new do
-      include HasStructuredData
+      include Mms::DataFormatting
     end
   end
 

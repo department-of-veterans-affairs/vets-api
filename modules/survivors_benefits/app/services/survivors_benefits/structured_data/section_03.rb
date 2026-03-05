@@ -56,8 +56,8 @@ module SurvivorsBenefits::StructuredData::Section03
           'BRANCH_OF_SERVICE_MARINE' => branch == 'marineCorps',
           'BRANCH_OF_SERVICE_COAST-GUARD' => branch == 'coastGuard',
           'BRANCH_OF_SERVICE_SPACE' => branch == 'spaceForce',
-          'BRANCH_OF_SERVICE_NOAA' => branch == 'usphs',
-          'BRANCH_OF_SERVICE_USPHS' => branch == 'noaa'
+          'BRANCH_OF_SERVICE_NOAA' => branch == 'noaa',
+          'BRANCH_OF_SERVICE_USPHS' => branch == 'usphs'
         }
       )
     end

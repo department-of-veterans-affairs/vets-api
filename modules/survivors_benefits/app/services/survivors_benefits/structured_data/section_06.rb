@@ -5,10 +5,12 @@ module SurvivorsBenefits::StructuredData::Section06
   # Section VI
   # Build and mergethe children of the veteran structured data entries.
   def build_section6
-    live_w_children = form['childrenLiveTogetherButNotWithSpouse']
-    merge_custodian_fields unless live_w_children
+    children_do_not_live_with_claimant = form['childrenLiveTogetherButNotWithSpouse']
+    merge_custodian_fields if children_do_not_live_with_claimant
     fields.merge!({ 'NUMBER_OF_DEP_CHILD' => form['veteranChildrenCount'] })
-    fields.merge!(y_n_pair(live_w_children, 'CHILD_DO_NOT_LIVE_WITH_CL_N', 'CHILD_DO_NOT_LIVE_WITH_CL_Y'))
+    fields.merge!(
+      y_n_pair(children_do_not_live_with_claimant, 'CHILD_DO_NOT_LIVE_WITH_CL_Y', 'CHILD_DO_NOT_LIVE_WITH_CL_N')
+    )
 
     children = form['veteransChildren'] || []
     children&.each_with_index do |child, index|

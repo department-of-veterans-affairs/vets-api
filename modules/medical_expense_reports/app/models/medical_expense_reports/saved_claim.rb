@@ -3,6 +3,7 @@
 require 'medical_expense_reports/benefits_intake/submit_claim_job'
 require 'medical_expense_reports/pdf_fill/va21p8416'
 require 'pdf_fill/filler'
+require 'mms/data_formatting'
 
 module MedicalExpenseReports
   ##
@@ -10,7 +11,7 @@ module MedicalExpenseReports
   # @see app/model/saved_claim
   #
   class SavedClaim < ::SavedClaim
-    include HasStructuredData
+    include Mms::DataFormatting
 
     # Medical Expense Reports Form ID
     FORM = MedicalExpenseReports::FORM_ID

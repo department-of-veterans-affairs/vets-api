@@ -66,7 +66,25 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section03 do
   end
 
   describe '#merge_service_branch_fields' do
-    it 'merges service branch fields' do
+    service_branches ={
+      'army' => 'ARMY',
+      'navy' => 'NAVY',
+      'airForce' => 'AIR-FORCE',
+      'marineCorps' => 'MARINE',
+      'coastGuard' => 'COAST-GUARD',
+      'spaceForce' => 'SPACE',
+      'noaa' => 'NOAA',
+      'usphs' => 'USPHS'
+    }
+    service_branches.each do |branch, branch_titleized|
+      it "merges service branch fields for #{branch}" do
+        form = { 'serviceBranch' => branch }
+        service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
+        service.merge_service_branch_fields(form['serviceBranch'])
+        expect(service.fields["BRANCH_OF_SERVICE_#{branch_titleized}"]).to be(true)
+      end
+    end
+    it 'merges all service branch fields' do
       form = { 'serviceBranch' => 'navy' }
       service = SurvivorsBenefits::StructuredData::StructuredDataService.new(form)
       service.merge_service_branch_fields(form['serviceBranch'])
