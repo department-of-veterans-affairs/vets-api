@@ -236,6 +236,7 @@ module Mobile
         phase = oh_service.get_phase_for_station_number(station_number)
         return unless %w[p3 p4 p5].include?(phase)
 
+        StatsD.increment('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
         raise Mobile::V0::Exceptions::CustomErrors.new(
           title: 'You can\'t send this message right now',
           body: 'You can\'t send messages to providers at some facilities right now. ' \

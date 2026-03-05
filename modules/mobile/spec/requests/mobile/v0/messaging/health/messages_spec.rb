@@ -617,6 +617,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           context "when station is in migration phase #{phase}" do
             before do
               allow(oh_service).to receive(:get_phase_for_station_number).with('983').and_return(phase)
+              allow(StatsD).to receive(:increment)
             end
 
             it "returns 418 on create when facility is in #{phase}" do
@@ -626,6 +627,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
               expect(response).to have_http_status(418)
               expect(response.parsed_body).to eq(expected_error_response)
+              expect(StatsD).to have_received(:increment)
+                .with('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
             end
 
             it "returns 418 on reply when facility is in #{phase}" do
@@ -635,6 +638,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
               expect(response).to have_http_status(418)
               expect(response.parsed_body).to eq(expected_error_response)
+              expect(StatsD).to have_received(:increment)
+                .with('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
             end
           end
         end
@@ -645,6 +650,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           end
 
           it 'does not return 418 on create' do
+            expect(StatsD).not_to receive(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages',
                    headers: sis_headers,
@@ -662,6 +670,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           end
 
           it 'does not return 418 on create' do
+            expect(StatsD).not_to receive(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages',
                    headers: sis_headers,
@@ -674,6 +685,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
         context 'when station_number is not provided' do
           it 'does not return 418 on create' do
+            expect(StatsD).not_to receive(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
               post '/mobile/v0/messaging/health/messages',
                    headers: sis_headers,
