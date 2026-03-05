@@ -21,12 +21,13 @@ module AccreditedRepresentativePortal
     def self.disable_online_submission!(org_scope)
       orgs_to_update = org_scope.where.not(can_accept_digital_poa_requests: false)
 
-      updated = 0
-      orgs_to_update.find_each do |vso|
-        vso.update!(can_accept_digital_poa_requests: false)
-        updated += 1
-      end
+      expected = orgs_to_update.count
+      updated = orgs_to_update.update_all(can_accept_digital_poa_requests: false) # rubocop:disable Rails/SkipsModelValidations
 
+      if updated != expected
+        raise MismatchError,
+              "DisableOnlineSubmission2122Service mismatch: expected #{expected} orgs, updated #{updated}"
+      end
       updated
     end
     private_class_method :disable_online_submission!

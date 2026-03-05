@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   module Poa2122ServiceHelpers
+    class MismatchError < StandardError; end
+
     def normalize_codes(input)
       Array(input)
         .flatten
@@ -22,10 +24,13 @@ module AccreditedRepresentativePortal
         .where(organization_poa: org_scope.select(:poa))
         .where.not(acceptance_mode: mode)
 
-      updated = 0
-      reps_scope.find_each do |org_rep|
-        org_rep.update!(acceptance_mode: mode)
-        updated += 1
+      expected = reps_scope.count
+
+      updated = reps_scope.update_all(acceptance_mode: mode) # rubocop:disable Rails/SkipsModelValidations -- bulk update for performance
+
+      if updated != expected
+        raise MismatchError,
+              "Poa2122ServiceHelpers#set_active_reps_mode! mismatch: expected #{expected} reps, updated #{updated}"
       end
 
       updated

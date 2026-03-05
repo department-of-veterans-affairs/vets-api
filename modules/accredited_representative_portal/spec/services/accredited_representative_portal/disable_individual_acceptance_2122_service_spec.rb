@@ -20,6 +20,33 @@ RSpec.describe AccreditedRepresentativePortal::DisableIndividualAcceptance2122Se
       end
     end
 
+    context 'when rep update count mismatches expected (fail loudly + rollback)' do
+      let!(:org) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: true, name: 'SVS') }
+      let(:poa_codes) { 'SVS' }
+
+      let!(:active_join) do
+        create(
+          :veteran_organization_representative,
+          organization: org,
+          acceptance_mode: 'self_only',
+          deactivated_at: nil
+        )
+      end
+
+      it 'raises and rolls back so rep acceptance_mode is not changed' do
+        error_class = AccreditedRepresentativePortal::Poa2122ServiceHelpers::MismatchError
+
+        allow(described_class).to receive(:set_active_reps_mode!)
+          .and_raise(error_class, 'mismatch')
+
+        expect { call_service }.to raise_error(error_class, /mismatch/i)
+
+        # rollback: no persistence
+        expect(org.reload.can_accept_digital_poa_requests).to be(true)
+        expect(active_join.reload.acceptance_mode).to eq('self_only')
+      end
+    end
+
     context 'when blank after normalization' do
       let(:poa_codes) { ' , , ' }
 

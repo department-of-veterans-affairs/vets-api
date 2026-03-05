@@ -136,5 +136,31 @@ RSpec.describe AccreditedRepresentativePortal::EnableOnlineSubmission2122Service
         expect(active_join.reload.acceptance_mode).to eq('any_request')
       end
     end
+
+    context 'when org update count mismatches expected (fail loudly + rollback)' do
+      let!(:org) { create(:veteran_organization, poa: 'SVS', can_accept_digital_poa_requests: false, name: 'SVS') }
+      let(:poa_codes) { 'SVS' }
+
+      let!(:active_join) do
+        create(
+          :veteran_organization_representative,
+          organization: org,
+          acceptance_mode: 'no_acceptance',
+          deactivated_at: nil
+        )
+      end
+
+      it 'raises and rolls back so rep acceptance_mode is not changed' do
+        error_class = AccreditedRepresentativePortal::Poa2122ServiceHelpers::MismatchError
+
+        allow(described_class).to receive(:enable_online_submission!)
+          .and_raise(error_class, 'mismatch')
+
+        expect { call_service }.to raise_error(error_class, /mismatch/i)
+
+        expect(org.reload.can_accept_digital_poa_requests).to be(false)
+        expect(active_join.reload.acceptance_mode).to eq('no_acceptance')
+      end
+    end
   end
 end
