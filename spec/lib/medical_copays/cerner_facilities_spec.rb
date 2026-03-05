@@ -27,6 +27,15 @@ RSpec.describe MedicalCopays::CernerFacilities do
       end
     end
 
+    context 'when the user has a future cerner facility with mixed-type IDs' do
+      before do
+        allow(user).to receive_messages(cerner_facility_ids: [], vha_facility_ids: ['553', 553, '999'])
+      end
+
+      it 'returns true' do
+        expect(described_class.cerner_copay_user?(user)).to be true
+      end
+    end
     context 'when the user has no cerner or future cerner facilities' do
       before do
         allow(user).to receive_messages(cerner_facility_ids: [], vha_facility_ids: %w[999])
