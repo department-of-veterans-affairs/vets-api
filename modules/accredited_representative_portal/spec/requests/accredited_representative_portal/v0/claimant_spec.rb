@@ -15,6 +15,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
       .to receive(:enabled?)
       .with(:accredited_representative_portal_claimant_details, anything)
       .and_return(feature_flag_state)
+
+    allow(Flipper)
+      .to receive(:enabled?)
+      .with(:accredited_representative_portal_individual_accept, anything)
+      .and_return(false)
   end
 
   let!(:poa_code) { '067' }
