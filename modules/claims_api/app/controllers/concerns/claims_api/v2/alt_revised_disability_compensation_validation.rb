@@ -90,46 +90,29 @@ module ClaimsApi
       end
 
       def alt_rev_validate_form_526_change_of_address_beginning_date
-        change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'beginDate')
-        return if date.nil? # nullable on schema
+        # beginning date only needs to be validated for TEMPORARY address changes
+        return unless form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase == 'TEMPORARY'
+
+        begin_date = form_attributes&.dig('changeOfAddress', 'dates', 'beginDate')
 
         begin
-          begins_in_past = Date.strptime(date, '%Y-%m-%d') <= Date.current
-          if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
-            collect_error_messages(
-              detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
-              source: '/changeOfAddress/dates/beginDate'
-            )
-          end
-        rescue
+          change_of_address_beginning_date_validations(begin_date)
+        rescue ArgumentError, TypeError
           # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end
 
       def alt_rev_validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes&.dig('changeOfAddress')
-        date = change_of_address&.dig('dates', 'endDate')
-        return if date.nil? # nullable on schema
+        end_date = form_attributes&.dig('changeOfAddress', 'dates', 'endDate')
 
-        if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
-          collect_error_messages(
-            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
-            source: '/changeOfAddress/dates/endDate'
-          )
-        end
+        case form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase
+        when 'PERMANENT'
+          change_of_address_end_date_permanent_type_validations(end_date)
 
-        return if change_of_address['dates']['beginDate'].blank? # nothing to check against
-
-        # cannot compare invalid dates so need to return here if date is invalid
-        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
-
-        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-          collect_error_messages(
-            source: '/changeOfAddress/dates/endDate',
-            detail: 'endDate needs to be after beginDate.'
-          )
+        when 'TEMPORARY'
+          begin_date = form_attributes.dig('changeOfAddress', 'dates', 'beginDate')
+          change_of_address_end_date_temporary_type_validations(end_date, begin_date)
         end
       end
 
@@ -155,7 +138,11 @@ module ClaimsApi
 
       def alt_rev_validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        alt_rev_validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+        if address['country'] == 'USA'
+          alt_rev_validate_form_526_usa_coa_conditions(address)
+        else
+          alt_rev_validate_form_526_international_address(address)
+        end
       end
 
       def alt_rev_validate_form_526_usa_coa_conditions(address)
@@ -175,6 +162,16 @@ module ClaimsApi
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
+      end
+
+      def alt_rev_validate_form_526_international_address(address)
+        # international post code required for international addresses
+        if address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         end
       end
@@ -1016,6 +1013,61 @@ module ClaimsApi
       def error_collection
         errors_array.uniq! { |e| e[:detail] }
         errors_array # set up the object to match other error returns
+      end
+
+      def change_of_address_beginning_date_validations(begin_date)
+        # if the address type is TEMPORARY, the beginDate must exist and be in the future.
+        if begin_date.blank?
+          collect_error_messages(
+            detail: 'Change of address beginDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+          return
+        end
+
+        begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
+
+        if begins_in_past
+          collect_error_messages(
+            detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+        end
+      end
+
+      # if the address type is PERMANENT, the endDate should not be included
+      def change_of_address_end_date_permanent_type_validations(end_date)
+        if end_date.present?
+          collect_error_messages(
+            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
+      end
+
+      # if the address type is TEMPORARY, the endDate must exist and be in chronological order from beginDate
+      def change_of_address_end_date_temporary_type_validations(end_date, begin_date)
+        if end_date.blank?
+          collect_error_messages(
+            detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/endDate'
+          )
+          return # skip remaining validations if end_date is blank since they are dependent on it being present
+        end
+
+        begin
+          if Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
+            collect_error_messages(
+              detail: 'endDate needs to be after beginDate.',
+              source: '/changeOfAddress/dates/endDate'
+            )
+          end
+        rescue ArgumentError, TypeError
+          collect_error_messages(
+            detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
       end
     end
   end

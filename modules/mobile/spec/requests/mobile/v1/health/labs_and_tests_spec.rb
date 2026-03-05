@@ -97,7 +97,14 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns not_implemented when a value attachment is received' do
         expect(Rails.logger).to have_received(:error).with(
-          { message: 'Observation with ID 4e0a8d43-1281-4d11-97b8-f77452bea53a has unsupported value type: Attachment' }
+          hash_including(
+            service: 'medical_records',
+            resource: 'labs_and_tests',
+            action: 'parse',
+            anomaly: 'unsupported_value_type',
+            observation_id: '4e0a8d43-1281-4d11-97b8-f77452bea53a',
+            value_type: 'Attachment'
+          )
         )
         expect(response).to have_http_status(:not_implemented)
       end

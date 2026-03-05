@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: (multi-claim provider) Enables the Lighthouse provider for benefits claims
     enable_in_development: true
+  benefits_claims_ivc_champva_provider:
+    actor_type: user
+    description: Enables IVC CHAMPVA form status entries in My VA submission statuses/cards
+    enable_in_development: true
   benefits_documents_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
@@ -208,6 +212,8 @@ features:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
     description: "Gateway: Enable push notifications"
+  event_bus_gateway_sms_notifications:
+    description: "Gateway: Enable sms notifications"
   event_bus_gateway_sign_in_token_validation:
     description: Enables SignInService token validation
   hca_browser_monitoring_enabled:
@@ -1483,6 +1489,13 @@ features:
     description: >
       Enables diagnostic logging for clinical notes only (response counts, filtering metrics,
       LOINC distributions). Falls back to mhv_medical_records_diagnostic_logging if not enabled.
+    enable_in_development: false
+  mhv_medical_records_labs_and_tests_diagnostic:
+    actor_type: user
+    description: >
+      Enables diagnostic logging for labs and tests only (test code distribution,
+      observation counts, filter rates). Falls back to mhv_medical_records_diagnostic_logging
+      if not enabled.
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
@@ -2788,6 +2801,9 @@ features:
   va_notify_v2_form1010cg_submission:
     actor_type: user
     description: If enabled, Form1010cg::SubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
+  va_notify_v2_form1010ezr_submission:
+    actor_type: user
+    description: If enabled, HCA::EzrSubmissionJob will use VANotify::V2::QueueEmailJob instead of VANotify::EmailJob
   va_notify_v2_in_progress_form_reminder:
     actor_type: user
     description: If enabled, InProgressFormReminder uses VANotify::V2::QueueUserAccountJob instead of VANotify::UserAccountJob
