@@ -60,16 +60,18 @@ module VeteranVerification
 
       p "~~~~~ vv#configuration for service_history 1 #{[path, options, access_token]}"
 
-      connection
-        .get(
-          path,
-          options[:params],
-          {
-            Authorization: "Bearer #{
-              access_token
-            }"
-          }
-        )
+      connection_get = connection
+                         .get(
+                           path,
+                           options[:params],
+                           {
+                             Authorization: "Bearer #{
+                               access_token
+                             }"
+                           }
+                         )
+      p "~~~~~ vv#configuration for service_history 1b get done: #{connection_get}"
+      connection_get
     end
 
     ##
@@ -91,6 +93,8 @@ module VeteranVerification
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
+      p "~~~~~ vv#configuration for service_history 2 connection set"
+      @conn
     end
 
     private
