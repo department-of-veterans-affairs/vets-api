@@ -7,7 +7,7 @@ module RepresentationManagement
       skip_before_action :authenticate
       before_action :feature_enabled
 
-      INVALID_ORG_PREFIX = 'zzz-'
+      INVALID_ORG_PREFIX = 'zzz'
 
       def index
         model_class = use_accredited_model? ? AccreditedOrganization : Veteran::Service::Organization
