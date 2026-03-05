@@ -369,7 +369,7 @@ module ClaimsApi
       end
 
       def invalid_pow_special_issue?(special_issues, confinements = nil)
-        # if 'specialIssues' includes 'POW', then FES requires there also be a 'serviceInformation.confinements'']
+        # if 'specialIssues' includes 'POW', then FES requires there also be a 'serviceInformation.confinements'
         special_issues.include?('POW') && confinements.blank?
       end
 
