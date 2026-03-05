@@ -6068,6 +6068,58 @@
         "summary": "/v0/messaging/health/messages/signature"
       }
     },
+    "/v0/messaging/health/messages/oh_sync_status": {
+      "get": {
+        "description": "Get the Oracle Health sync status",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OhSyncStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/messages/oh_sync_status"
+      }
+    },
     "/v0/messaging/health/messages/{id}": {
       "delete": {
         "description": "Moves a secure message to the \"Deleted\" folder",
@@ -22907,6 +22959,109 @@
           }
         }
       },
+      "TriageGroup": {
+        "type": "object",
+        "nullable": true,
+        "description": "Embedded triage group (provider recipient) details from the MHV Secure Messaging API",
+        "properties": {
+          "triageTeamId": {
+            "type": "integer",
+            "example": 401155
+          },
+          "name": {
+            "type": "string",
+            "example": "SM_TO_VA_GOV_TRIAGE_GROUP_TEST"
+          },
+          "preferredTeam": {
+            "type": "boolean",
+            "example": false
+          },
+          "active": {
+            "type": "boolean",
+            "example": true
+          },
+          "stationNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "979"
+          },
+          "healthCareSystemName": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationStationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupTypeEnumVal": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGroupTypeEnumVal": {
+            "type": "string",
+            "nullable": true
+          },
+          "groupTypePatientDisplay": {
+            "type": "string",
+            "nullable": true
+          },
+          "subGroupTypePatientDisplay": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "leadProviderName": {
+            "type": "string",
+            "nullable": true
+          },
+          "suggestedNameDisplay": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "legacyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "ohPoolId": {
+            "type": "string",
+            "nullable": true
+          },
+          "oplock": {
+            "type": "integer",
+            "example": 1
+          },
+          "createdDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "Mon, 20 Mar 2023 14:01:45 GMT"
+          },
+          "modifiedDate": {
+            "type": "string",
+            "nullable": true,
+            "example": "Thu, 15 Jan 2026 15:49:06 GMT"
+          },
+          "relationType": {
+            "type": "string",
+            "nullable": true,
+            "example": "PATIENT"
+          },
+          "ohTriageGroup": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
       "SecureMessageSummary": {
         "type": "object",
         "additionalProperties": false,
@@ -23007,6 +23162,9 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "$ref": "#/components/schemas/TriageGroup"
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -23022,6 +23180,11 @@
                 "nullable": true,
                 "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
                 "example": null
+              },
+              "migratedToOracleHealth": {
+                "type": "boolean",
+                "description": "Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.",
+                "example": false
               }
             }
           },
@@ -23463,6 +23626,9 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "$ref": "#/components/schemas/TriageGroup"
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -23628,6 +23794,50 @@
           }
         }
       },
+      "OhSyncStatus": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Resource identifier"
+              },
+              "type": {
+                "type": "string",
+                "example": "oh_sync_status"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "The current Oracle Health sync status.\n",
+                    "enum": [
+                      "FINISHED",
+                      "ERROR",
+                      "NOT_STARTED",
+                      "STARTED",
+                      "IN_PROGRESS",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "syncComplete": {
+                    "type": "boolean",
+                    "description": "Whether the sync process has completed. True when status is FINISHED, ERROR, NOT_STARTED, or UNKNOWN. False when STARTED or IN_PROGRESS.\n"
+                  },
+                  "error": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Optional error message providing details when an error occurred during sync.\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "GetSecureMessageDetail": {
         "type": "object",
         "additionalProperties": false,
@@ -23735,6 +23945,9 @@
                 "nullable": true,
                 "example": "Triage_Group_5"
               },
+              "triageGroup": {
+                "$ref": "#/components/schemas/TriageGroup"
+              },
               "proxySenderName": {
                 "type": "string",
                 "nullable": true,
@@ -23749,6 +23962,11 @@
                 "nullable": true,
                 "description": "The Oracle Health migration phase for the facility associated with this message (p0-p7 or null)",
                 "example": null
+              },
+              "migratedToOracleHealth": {
+                "type": "boolean",
+                "description": "Indicates if the message relates to a post-migration Oracle Health state. True when the triage group's facility is Cerner in the veteran's VA profile but the triage group is a VistA triage group.",
+                "example": false
               }
             }
           },
@@ -23986,6 +24204,9 @@
                       "nullable": true,
                       "example": "Triage_Group_5"
                     },
+                    "triageGroup": {
+                      "$ref": "#/components/schemas/TriageGroup"
+                    },
                     "proxySenderName": {
                       "type": "string",
                       "nullable": true,
@@ -24089,7 +24310,7 @@
               "messageCounts": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count \nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
+                "description": "Count of read and unread messages. `readReceipt` field containing \"READ\" count towards \"read\" count\nwhile a null value will count towards \"unread\". If either read or unread is 0, the key will not be included.\n",
                 "properties": {
                   "read": {
                     "type": "integer",
