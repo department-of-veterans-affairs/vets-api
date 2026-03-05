@@ -525,8 +525,11 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
       end
 
       context 'when user is only authorized to access claims, not appeals' do
+        let!(:user) do
+          sis_user(icn: '1008596379V859838', ssn: nil)
+        end
+
         before do
-          allow_any_instance_of(User).to receive(:loa3?).and_return(nil)
           allow(Flipper).to receive(:enabled?).with('benefits_claims_lighthouse_provider', anything).and_return(true)
         end
 
