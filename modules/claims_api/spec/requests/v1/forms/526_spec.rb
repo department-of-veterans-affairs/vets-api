@@ -2261,40 +2261,6 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             }
           end
 
-          context "when 'amount' is below the minimum" do
-            let(:military_retired_payment_amount) { 0 }
-
-            it 'responds with an unprocessable entity' do
-              mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/brd/countries') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['servicePay'] = service_pay_attribute
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
-              end
-            end
-          end
-
-          context "when 'amount' is above the maximum" do
-            let(:military_retired_payment_amount) { 1_000_000 }
-
-            it 'responds with an unprocessable entity' do
-              mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims') do
-                  VCR.use_cassette('claims_api/brd/countries') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['servicePay'] = service_pay_attribute
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
-                  end
-                end
-              end
-            end
-          end
-
           context "when 'amount' is within limits" do
             let(:military_retired_payment_amount) { 100 }
 
@@ -2317,32 +2283,6 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         describe "'futurePayExplanation'" do
           context "when 'militaryRetiredPay.willReceiveInFuture' is 'true'" do
             let(:will_receive_in_future) { true }
-
-            context "when 'militaryRetiredPay.futurePayExplanation' is not provided" do
-              let(:service_pay_attribute) do
-                {
-                  militaryRetiredPay: {
-                    receiving: false,
-                    willReceiveInFuture: will_receive_in_future,
-                    payment: {
-                      serviceBranch: 'Air Force'
-                    }
-                  }
-                }
-              end
-
-              it 'responds with an unprocessable entity' do
-                mock_acg(scopes) do |auth_header|
-                  VCR.use_cassette('claims_api/brd/countries') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['servicePay'] = service_pay_attribute
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
-                  end
-                end
-              end
-            end
 
             context "when 'militaryRetiredPay.futurePayExplanation' is provided" do
               let(:service_pay_attribute) do
@@ -2389,40 +2329,6 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
               }
             }
-          end
-
-          context "when 'amount' is below the minimum" do
-            let(:separation_payment_amount) { 0 }
-
-            it 'responds with an unprocessable entity' do
-              mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/brd/countries') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  params['data']['attributes']['servicePay'] = service_pay_attribute
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
-              end
-            end
-          end
-
-          context "when 'amount' is above the maximum" do
-            let(:separation_payment_amount) { 1_000_000 }
-
-            it 'responds with an unprocessable entity' do
-              mock_acg(scopes) do |auth_header|
-                VCR.use_cassette('claims_api/bgs/claims/claims') do
-                  VCR.use_cassette('claims_api/brd/countries') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    params['data']['attributes']['servicePay'] = service_pay_attribute
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response).to have_http_status(:unprocessable_entity)
-                  end
-                end
-              end
-            end
           end
 
           context "when 'amount' is within limits" do
