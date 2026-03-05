@@ -30,6 +30,7 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
 
     context 'when fmp_benefits_authorization_letter feature flag is enabled' do
       it 'returns true for foreign_medical_program letter type' do
+        allow(Flipper).to receive(:enabled?).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter).and_return(true)
         service = Lighthouse::LettersGenerator::Service.new
 
