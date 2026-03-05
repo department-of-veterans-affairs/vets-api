@@ -28,27 +28,12 @@ module V0
         render json: ReceiveApplicationSerializer.new(@resource)
       end
 
-      # rubocop:disable Metrics/MethodLength
       def send_confirmation_email
+        @name = confirmation_email_name
         email = @form.claimant.email
-        claimant = @form.applicant.name.first
-        first_name = @form.applicant.name.first
-        last_initial = @form.applicant.name.last.first
-
-        if @form.applicant.applicant_relationship_to_claimant != 'Self'
-          first_name = @form.claimant.name.first
-          last_initial = @form.claimant.name.last.first
-        end
-
         template_id = Settings.vanotify.services.va_gov.template_id.preneeds_burial_form_email
 
-        personalisation = {
-          'form_name' => 'Burial Pre-Need (Form 40-10007)',
-          'first_name' => claimant&.upcase.presence,
-          'applicant_1_first_name_last_initial' => "#{first_name} #{last_initial}",
-          'confirmation_number' => @resource.application_uuid,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
-        }
+        personalisation = confirmation_email_personalisation
 
         if Flipper.enabled?(:va_notify_v2_preneeds_burial_form_job)
           VANotify::V2::QueueEmailJob.enqueue(email, template_id, personalisation, API_KEY_PATH)
@@ -56,9 +41,26 @@ module V0
           VANotify::EmailJob.perform_async(email, template_id, personalisation)
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
+
+      def confirmation_email_personalisation
+        {
+          'form_name' => 'Burial Pre-Need (Form 40-10007)',
+          'first_name' => @form.applicant.name.first&.upcase.presence,
+          'applicant_1_first_name_last_initial' => "#{@name.first} #{@name.last.first}",
+          'confirmation_number' => @resource.application_uuid,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+        }
+      end
+
+      def confirmation_email_name
+        if @form.applicant.applicant_relationship_to_claimant == 'Self'
+          @form.applicant.name
+        else
+          @form.claimant.name
+        end
+      end
 
       def burial_form_params
         params.require(:application).permit(
