@@ -116,12 +116,9 @@ module VAOS
           cnp_count += 1 if cnp?(appt)
         end
 
-        appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+        appointments = community_care_coordinator.merge_eps_into_list(appointments) if include[:eps]
 
         if Flipper.enabled?(:va_online_scheduling_log_mobile, user) && tp_client == 'mobile'
-          # Log upcoming mobile appointments when feature flag is enabled
-          # Appointments have already been prepared so can check :pending (and also determine)
-          # if :pending can be used in the later adapter
           some_appointments = appointments.any? { |appt| appt[:pending] == true }
           Rails.logger.info("VAOS: include: #{include} statuses: #{statuses} pending?: #{some_appointments}")
         end
@@ -129,118 +126,25 @@ module VAOS
         # Merge travel claims - either from parallel fetch or sequential fetch
         if should_fetch_travel_claims
           appointments = if parallelize_fetch && travel_claims_result
-                           # Use pre-fetched claims data from parallel execution
                            merge_claims_with_appointments(appointments, travel_claims_result)
                          else
-                           # Fetch and merge sequentially (original behavior)
                            merge_all_travel_claims(start_date, end_date, appointments, tp_client)
                          end
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
-          eps_before_appts = appointments.select do |appt|
-            appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-          end
-          eps_before_facilities = extract_facility_identifiers(eps_before_appts)
-
           filterer = AppointmentsPresentationFilter.new
           appointments.keep_if { |appt| filterer.user_facing?(appt) }
-
-          eps_after_appts = appointments.select do |appt|
-            appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-          end
-          eps_after_facilities = extract_facility_identifiers(eps_after_appts)
-          removed_facilities = eps_before_facilities - eps_after_facilities
-
-          removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
-          Rails.logger.info("EPS Debug: Presentation filter kept #{eps_after_facilities}#{removed_msg}")
         end
 
-        # log count of C&P appointments in the appointments list, per GH#78141
         log_cnp_appt_count(cnp_count) if cnp_count.positive?
 
-        # Log final EPS appointments
-        final_eps_appts = appointments.select do |appt|
-          appt[:type] == 'epsAppointment' || appt.dig(:provider, :id).present?
-        end
-        final_eps_facilities = extract_facility_identifiers(final_eps_appts)
-        Rails.logger.info("EPS Debug: Final response #{final_eps_facilities.any? ? final_eps_facilities : 'none'}")
+        meta = pagination(pagination_params).merge(partial_errors(response, __method__))
+        append_eps_failures(meta)
 
         {
           data: deserialized_appointments(appointments),
-          meta: pagination(pagination_params).merge(partial_errors(response, __method__))
-        }
-      end
-
-      ##
-      # Checks whether a referral has already been used in an existing appointment.
-      #
-      # This method first retrieves all VAOS appointments using a 200‐year date range via
-      # #get_all_appointments. If that response contains any failures, it returns an error hash
-      # with the failure messages. If a VAOS appointment is found with a matching referral_id,
-      # it returns { exists: true }. Otherwise, it checks the EPS appointments for a matching
-      # referral number, excluding draft appointments, and returns { exists: true } if found.
-      # If no matching appointment is found, it returns { exists: false }.
-      #
-      # @param referral_id [String] the referral identifier to check.
-      # @param pagination_params [Hash] (optional) pagination options (e.g. page and per_page).
-      #
-      # @return [Hash] a result hash that is one of:
-      #   - { error: true, failures: [...] } if an error occurred during the appointment retrieval,
-      #   - { exists: true } if an appointment with the given referral exists,
-      #   - { exists: false } if no appointment with the referral is found.
-      def referral_appointment_already_exists?(referral_id, pagination_params = {})
-        # Bypass VAOS call if EPS mocks are enabled since we don't have betamocks for it.
-        unless eps_appointments_service.config.mock_enabled?
-          vaos_response = get_all_appointments(pagination_params)
-          vaos_request_failures = vaos_response[:meta][:failures]
-          vaos_data = vaos_response[:data]
-
-          unless vaos_data.is_a?(Array)
-            Rails.logger.error(
-              'VAOS::V2::AppointmentsService#referral_appointment_already_exists?: ' \
-              "Unexpected VAOS response format: data is #{vaos_data.class.name}, expected Array"
-            )
-            msg = 'Unexpected VAOS response in referral_appointment_already_exists? - data is not an Array'
-            vaos_request_failures = msg if vaos_request_failures.blank?
-          end
-
-          return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
-
-          return { exists: true } if vaos_data.any? { |appt| appt[:referral_id] == referral_id }
-        end
-
-        eps_appointments = eps_appointments_service.get_appointments(referral_number: referral_id)
-
-        # Filter out draft EPS appointments when checking referral usage
-        non_draft_eps_appointments = eps_appointments&.reject { |appt| appt[:state] == 'draft' } || []
-        { exists: non_draft_eps_appointments.any? }
-      end
-
-      ##
-      # Get appointments for a referral from both EPS and VAOS
-      #
-      # Returns appointments from both sources with normalized status (active/cancelled)
-      # Deduplicates appointments within each source by start time + providerServiceId (EPS) or start time (VAOS)
-      # Logs discrepancies when same start time has different status across sources
-      #
-      # @param referral_number [String] The referral number to search for
-      # @return [Hash] Contains EPS and VAOS data: { EPS: { data: [...] }, VAOS: { data: [...] } }
-      # @raise [BackendServiceException] If either EPS or VAOS fails
-      #
-      def get_active_appointments_for_referral(referral_number)
-        start_time = Time.current
-        eps_appointments = fetch_and_normalize_eps_appointments(referral_number)
-        vaos_appointments = fetch_and_normalize_vaos_appointments(referral_number)
-
-        StatsD.histogram('vaos.get_active_appointments_for_referral.duration',
-                         (Time.current - start_time) * 1000)
-
-        log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
-
-        {
-          EPS: { data: eps_appointments },
-          VAOS: { data: vaos_appointments }
+          meta:
         }
       end
 
@@ -423,52 +327,7 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
-      def merge_appointments(eps_appointments, appointments)
-        normalized_new = eps_appointments.map(&:serializable_hash)
-        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
-        date_and_time_for_referral_list = appointments.pluck(:start)
-
-        # Track which EPS appointments get rejected as duplicates
-        rejected_ids = []
-        merged_data = appointments + normalized_new.reject do |a|
-          duplicate = existing_referral_ids.include?(a.dig(:referral, :referral_number)) &&
-                      date_and_time_for_referral_list.include?(a[:start])
-          rejected_ids << a[:id] if duplicate
-          duplicate
-        end
-
-        kept_eps_appts = normalized_new.reject { |appt| rejected_ids.include?(appt[:id]) }
-        kept_eps_facilities = extract_facility_identifiers(kept_eps_appts)
-        rejected_eps_appts = normalized_new.select { |appt| rejected_ids.include?(appt[:id]) }
-        rejected_facilities = extract_facility_identifiers(rejected_eps_appts)
-        duplicates_msg = rejected_facilities.any? ? ", removed duplicates #{rejected_facilities}" : ''
-        Rails.logger.info("EPS Debug: Merge kept #{kept_eps_facilities}#{duplicates_msg}")
-
-        merged_data.sort_by { |appt| appt[:start] || '' }
-      end
-
       memoize :get_facility_timezone_memoized
-
-      # Extract facility identifiers from appointments for privacy-safe logging
-      # Returns array of "facility_name (facility_id)" strings, or location_id if facility info unavailable
-      def extract_facility_identifiers(appointments)
-        appointments.map do |appt|
-          if appt.is_a?(Hash)
-            # For regular appointments with merged facility info
-            if appt.dig(:location, 'name') && appt.dig(:location, 'id')
-              "#{appt[:location]['name']} (#{appt[:location]['id']})"
-            elsif appt[:location_id]
-              "facility #{appt[:location_id]}"
-            else
-              'unknown facility'
-            end
-          else
-            # For EPS appointments or other objects
-            location_id = appt.try(:location_id) || appt.try(:[], :location_id)
-            location_id ? "facility #{location_id}" : 'unknown facility'
-          end
-        end
-      end
 
       def fetch_avs_binaries(appt_id, doc_ids)
         return nil if appt_id.nil? || doc_ids.nil? || doc_ids.empty?
@@ -492,128 +351,26 @@ module VAOS
         responses
       end
 
+      ##
+      # Retrieves all appointments over a 2-year window for cross-system referral checks.
+      #
+      # @param pagination_params [Hash] pagination options (e.g. page and per_page).
+      # @return [Hash] with :data [Array] and :meta [Hash]
+      def get_all_appointments(pagination_params = {})
+        start_date = (Time.zone.today - 1.year).in_time_zone
+        end_date   = (Time.zone.today + 1.year).in_time_zone
+
+        response = send_appointments_request(start_date, end_date, __method__, pagination_params)
+
+        return response if response.dig(:meta, :failures)
+
+        {
+          data: response.body[:data],
+          meta: partial_errors(response, __method__)
+        }
+      end
+
       private
-
-      def fetch_and_normalize_eps_appointments(referral_number)
-        raw_appointments = eps_appointments_service.get_appointments(referral_number:)
-        filtered = raw_appointments.reject { |appt| appt[:state] == 'draft' }
-        normalized = filtered.map do |appt|
-          {
-            id: appt[:id],
-            status: normalize_eps_status(appt),
-            start: appt.dig(:appointment_details, :start),
-            provider_service_id: appt[:provider_service_id],
-            last_retrieved: appt.dig(:appointment_details, :last_retrieved)
-          }
-        end
-
-        deduplicated = deduplicate_eps_appointments(normalized)
-        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
-      rescue Common::Exceptions::BackendServiceException => e
-        log_fetch_error('EPS', referral_number, e.class.name.to_s)
-        raise
-      end
-
-      def fetch_and_normalize_vaos_appointments(referral_number)
-        vaos_response = get_all_appointments({})
-        check_vaos_response_for_failures(vaos_response, referral_number)
-        process_vaos_appointments(vaos_response[:data], referral_number)
-      rescue Common::Exceptions::BackendServiceException => e
-        log_fetch_error('VAOS', referral_number, e.class.name.to_s)
-        raise
-      end
-
-      def check_vaos_response_for_failures(vaos_response, referral_number)
-        return if vaos_response[:meta][:failures].blank?
-
-        log_fetch_error('VAOS', referral_number, vaos_response[:meta][:failures])
-        raise Common::Exceptions::BackendServiceException.new('VAOS_502',
-                                                              { detail: vaos_response[:meta][:failures].to_s })
-      end
-
-      def process_vaos_appointments(appointments_data, referral_number)
-        unless appointments_data.is_a?(Array)
-          Rails.logger.warn('VAOS process_vaos_appointments - appointments_data is not an array')
-          return []
-        end
-
-        filtered = appointments_data.select { |appt| appt[:referral_id] == referral_number }
-        normalized = filtered.map do |appt|
-          {
-            id: appt[:id],
-            status: normalize_vaos_status(appt),
-            start: appt[:start],
-            created: appt[:created]
-          }
-        end
-
-        deduplicated = deduplicate_vaos_appointments(normalized)
-        deduplicated.sort_by { |appt| appt[:start] || '' }.reverse
-      end
-
-      def log_fetch_error(source, referral_number, error_details)
-        masked_referral = "***#{referral_number.to_s.last(4)}"
-        Rails.logger.error("Failed to fetch #{source} appointments for referral #{masked_referral}: #{error_details}")
-      end
-
-      def normalize_eps_status(appointment)
-        if appointment.dig(:appointment_details, :status) == 'cancelled'
-          'cancelled'
-        else
-          'active'
-        end
-      end
-
-      def normalize_vaos_status(appointment)
-        appointment[:status] == 'cancelled' ? 'cancelled' : 'active'
-      end
-
-      def deduplicate_eps_appointments(appointments)
-        grouped = appointments.group_by { |appt| [appt[:start], appt[:provider_service_id]] }
-
-        grouped.map do |_key, duplicates|
-          next duplicates.first if duplicates.size == 1
-
-          active = duplicates.select { |appt| appt[:status] == 'active' }
-          candidates = active.any? ? active : duplicates
-
-          # Choose most recent lastRetrieved
-          candidates.max_by { |appt| appt[:last_retrieved] || '' }
-        end
-      end
-
-      def deduplicate_vaos_appointments(appointments)
-        grouped = appointments.group_by { |appt| appt[:start] }
-
-        grouped.map do |_key, duplicates|
-          next duplicates.first if duplicates.size == 1
-
-          active = duplicates.select { |appt| appt[:status] == 'active' }
-          candidates = active.any? ? active : duplicates
-          candidates.max_by { |appt| appt[:created] || '' }
-        end
-      end
-
-      def log_status_discrepancies(eps_appointments, vaos_appointments, referral_number)
-        eps_by_start = eps_appointments.group_by { |appt| appt[:start] }
-        vaos_by_start = vaos_appointments.group_by { |appt| appt[:start] }
-
-        common_start_times = eps_by_start.keys & vaos_by_start.keys
-
-        common_start_times.each do |start_time|
-          eps_statuses = eps_by_start[start_time].map { |appt| appt[:status] }.uniq
-          vaos_statuses = vaos_by_start[start_time].map { |appt| appt[:status] }.uniq
-
-          next if eps_statuses == vaos_statuses
-
-          masked_referral = referral_number&.last(4) || 'unknown'
-          Rails.logger.warn('Appointment status discrepancy between EPS and VAOS',
-                            { referral_ending_in: masked_referral,
-                              start_time:,
-                              eps_statuses:,
-                              vaos_statuses: })
-        end
-      end
 
       # Fetches appointments and travel claims in parallel using Concurrent::Promises
       # @return [Array] Array containing [response, travel_claims_result]
@@ -903,6 +660,10 @@ module VAOS
 
       def mobile_facility_service
         @mobile_facility_service ||= VAOS::V2::MobileFacilityService.new(user)
+      end
+
+      def community_care_coordinator
+        @community_care_coordinator ||= VAOS::V2::CommunityCare::AppointmentCoordinator.new(user)
       end
 
       def avs_service
@@ -1640,77 +1401,11 @@ module VAOS
         service.associate_single_appointment_to_claim({ 'appointment' => appointment })
       end
 
-      def eps_appointments_service
-        @eps_appointments_service ||=
-          Eps::AppointmentService.new(user)
-      end
+      def append_eps_failures(meta)
+        failure = community_care_coordinator.eps_failure
+        return unless failure
 
-      def eps_appointments
-        @eps_appointments ||= begin
-          eps_appts = eps_appointments_service.get_appointments_with_providers
-          if eps_appts.blank?
-            []
-          else
-            kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
-            log_appointment_separation(kept_appts, removed_appts)
-            kept_appts
-          end
-        end
-      end
-
-      def eps_serializer
-        @eps_serializer ||= VAOS::V2::EpsAppointment.new
-      end
-
-      def separate_appointments_by_start_time(appointments)
-        kept_appts = []
-        removed_appts = []
-
-        appointments.each do |appt|
-          if appt.start.present?
-            kept_appts << appt
-          else
-            removed_appts << appt
-          end
-        end
-
-        [kept_appts, removed_appts]
-      end
-
-      def log_appointment_separation(kept_appts, removed_appts)
-        removed_facilities = extract_facility_identifiers(removed_appts)
-        kept_facilities = extract_facility_identifiers(kept_appts)
-        removed_msg = removed_facilities.any? ? ", removed #{removed_facilities}" : ''
-        Rails.logger.info("EPS Debug: Kept #{kept_facilities}#{removed_msg}")
-      end
-
-      ##
-      # Retrieves all appointments over a 2-year window, a temporary range to be replaced with passed
-      # in date from referral data.
-      #
-      # Uses a fixed date range to fetch all appointments.
-      # If the response contains failures (in :meta), it returns the raw response.
-      # Otherwise, it returns a hash with appointment data and any partial errors.
-      #
-      # @param pagination_params [Hash] pagination options (e.g. page and per_page).
-      #
-      # @return [Hash] A hash consistent with the structure returned by #get_appointments:
-      #   - :data [Array] the appointment data
-      #   - :meta [Hash] any partial error details
-      #
-      # TODO: accept date from cached referral data to use for range
-      def get_all_appointments(pagination_params)
-        start_date = (Time.zone.today - 1.year).in_time_zone
-        end_date   = (Time.zone.today + 1.year).in_time_zone
-
-        response = send_appointments_request(start_date, end_date, __method__, pagination_params)
-
-        return response if response.dig(:meta, :failures)
-
-        {
-          data: response.body[:data],
-          meta: partial_errors(response, __method__)
-        }
+        meta[:failures] = Array.wrap(meta[:failures]) << failure
       end
 
       ##

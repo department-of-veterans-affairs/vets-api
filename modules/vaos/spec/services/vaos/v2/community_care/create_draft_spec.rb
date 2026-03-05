@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
+RSpec.describe VAOS::V2::CommunityCare::CreateDraft, type: :service do
   include ActiveSupport::Testing::TimeHelpers
   subject { described_class.call(current_user, referral_id, referral_consult_id) }
 
@@ -13,7 +13,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
   let(:ccra_referral_service) { instance_double(Ccra::ReferralService) }
   let(:eps_appointment_service) { instance_double(Eps::AppointmentService) }
   let(:eps_provider_service) { instance_double(Eps::ProviderService) }
-  let(:appointments_service) { instance_double(VAOS::V2::AppointmentsService) }
+  let(:appointments_service) { instance_double(VAOS::V2::CommunityCare::AppointmentCoordinator) }
   let(:referral_data) do
     data = OpenStruct.new(
       provider_npi: '1234567890',
@@ -73,7 +73,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     allow(Ccra::ReferralService).to receive(:new).and_return(ccra_referral_service)
     allow(Eps::AppointmentService).to receive(:new).and_return(eps_appointment_service)
     allow(Eps::ProviderService).to receive(:new).and_return(eps_provider_service)
-    allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+    allow(VAOS::V2::CommunityCare::AppointmentCoordinator).to receive(:new).and_return(appointments_service)
     allow(PersonalInformationLog).to receive(:create)
     # Set up RequestStore for controller name logging
     RequestStore.store['controller_name'] = 'VAOS::V2::AppointmentsController'
@@ -123,7 +123,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
   # Shared setup for successful scenarios
   def setup_successful_services
     # NOTE: ccra_referral_service stubbing is done in the main before hook
-    allow(appointments_service).to receive(:referral_appointment_already_exists?)
+    allow(appointments_service).to receive(:referral_already_used?)
       .and_return({ error: false, exists: false })
     allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
                                                        config: OpenStruct.new(mock_enabled?: false))
@@ -219,7 +219,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
         expect(ccra_referral_service).to have_received(:get_referral)
           .with(referral_consult_id, current_user.icn)
-        expect(appointments_service).to have_received(:referral_appointment_already_exists?)
+        expect(appointments_service).to have_received(:referral_already_used?)
           .with(referral_id)
         expect(eps_provider_service).to have_received(:search_provider_services)
           .with(
@@ -288,7 +288,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           subject
         end
 
-        include_examples 'returns error response', /Required referral data is missing/, :unprocessable_entity
+        include_examples 'returns error response', /Required referral data is missing/, :unprocessable_content
       end
 
       context 'when referral data is nil' do
@@ -296,7 +296,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(nil)
         end
 
-        include_examples 'returns error response', /all required attributes/, :unprocessable_entity
+        include_examples 'returns error response', /all required attributes/, :unprocessable_content
       end
 
       context 'when referral date format is invalid' do
@@ -318,7 +318,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
         end
 
-        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
+        include_examples 'returns error response', /invalid date format/, :unprocessable_content
       end
 
       context 'when expiration date format is invalid' do
@@ -340,7 +340,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
         end
 
-        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
+        include_examples 'returns error response', /invalid date format/, :unprocessable_content
       end
 
       context 'when Redis connection fails' do
@@ -366,7 +366,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
       context 'when appointment check fails' do
         before do
-          allow(appointments_service).to receive(:referral_appointment_already_exists?)
+          allow(appointments_service).to receive(:referral_already_used?)
             .and_return({ error: true, failures: 'Service unavailable' })
         end
 
@@ -386,7 +386,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
 
       context 'when referral is already used' do
         before do
-          allow(appointments_service).to receive(:referral_appointment_already_exists?)
+          allow(appointments_service).to receive(:referral_already_used?)
             .and_return({ error: false, exists: true })
         end
 
@@ -402,14 +402,14 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         include_examples 'returns error response', 'No new appointment created: referral is already used',
-                         :unprocessable_entity
+                         :unprocessable_content
       end
     end
 
     context 'provider validation errors' do
       before do
         allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
-        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+        allow(appointments_service).to receive(:referral_already_used?)
           .and_return({ error: false, exists: false })
       end
 
@@ -425,7 +425,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
     context 'draft appointment creation errors' do
       before do
         allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
-        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+        allow(appointments_service).to receive(:referral_already_used?)
           .and_return({ error: false, exists: false })
         allow(eps_provider_service).to receive(:search_provider_services).and_return(provider_data)
       end
@@ -436,14 +436,14 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             .and_return(OpenStruct.new(id: nil))
         end
 
-        include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_entity
+        include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_content
       end
     end
 
     context 'when external service errors bubble up' do
       before do
         allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
-        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+        allow(appointments_service).to receive(:referral_already_used?)
           .and_return({ error: false, exists: false })
         allow(eps_provider_service).to receive(:search_provider_services)
           .and_raise(Common::Exceptions::BackendServiceException.new('TEST_ERROR', {}, 500, 'Test error'))
@@ -464,7 +464,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           .with(:va_online_scheduling_use_referring_provider_npi, current_user)
           .and_return(false)
         allow(ccra_referral_service).to receive(:get_referral).and_return(referral_data)
-        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+        allow(appointments_service).to receive(:referral_already_used?)
           .and_return({ error: false, exists: false })
         allow(eps_appointment_service).to receive_messages(create_draft_appointment: draft_appointment,
                                                            config: OpenStruct.new(mock_enabled?: false))
