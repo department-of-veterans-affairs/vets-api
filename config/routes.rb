@@ -231,6 +231,7 @@ Rails.application.routes.draw do
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
     post 'event_bus_gateway/send_push', to: 'event_bus_gateway#send_push'
+    post 'event_bus_gateway/send_sms', to: 'event_bus_gateway#send_sms'
     post 'event_bus_gateway/send_notifications', to: 'event_bus_gateway#send_notifications'
 
     resources :maintenance_windows, only: [:index]

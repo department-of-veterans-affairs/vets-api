@@ -212,6 +212,8 @@ features:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
     description: "Gateway: Enable push notifications"
+  event_bus_gateway_sms_notifications:
+    description: "Gateway: Enable sms notifications"
   event_bus_gateway_sign_in_token_validation:
     description: Enables SignInService token validation
   hca_browser_monitoring_enabled:
@@ -1487,6 +1489,13 @@ features:
     description: >
       Enables diagnostic logging for clinical notes only (response counts, filtering metrics,
       LOINC distributions). Falls back to mhv_medical_records_diagnostic_logging if not enabled.
+    enable_in_development: false
+  mhv_medical_records_labs_and_tests_diagnostic:
+    actor_type: user
+    description: >
+      Enables diagnostic logging for labs and tests only (test code distribution,
+      observation counts, filter rates). Falls back to mhv_medical_records_diagnostic_logging
+      if not enabled.
     enable_in_development: false
   mhv_accelerated_delivery_uhd_oh_lab_type_logging_enabled:
     actor_type: user
