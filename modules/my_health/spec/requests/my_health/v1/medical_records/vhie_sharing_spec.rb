@@ -11,7 +11,7 @@ RSpec.describe 'MyHealth::V1::VhieSharingController', type: :request do
 
   let(:user_id) { '11375034' }
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv) }
+  let(:current_user) { build(:user, :mhv, va_patient:) }
 
   before do
     bb_client = BB::Client.new(
@@ -23,6 +23,7 @@ RSpec.describe 'MyHealth::V1::VhieSharingController', type: :request do
     )
 
     allow(BB::Client).to receive(:new).and_return(bb_client)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     sign_in_as(current_user)
   end
 
