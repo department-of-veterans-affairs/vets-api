@@ -47,7 +47,6 @@ module V0
         p "~~~~~ ezr#service_history resp data", response['data']
       rescue => e
         p "~~~~~ ezr#service_history err #{e.message}"
-        p "~~~~~ ezr#service_history err code #{e.code}"
         p "~~~~~ ezr#service_history err json #{e.as_json}"
       end
 
