@@ -54,7 +54,6 @@ module UploaderVirusScan
                              scan_result:,
                              virus_name:,
                              scan_duration_ms:,
-                             upload_context:
-    )
+                             upload_context:)
   end
 end
