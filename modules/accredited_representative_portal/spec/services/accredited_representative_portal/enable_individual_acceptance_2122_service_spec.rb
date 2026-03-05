@@ -187,7 +187,6 @@ RSpec.describe AccreditedRepresentativePortal::EnableIndividualAcceptance2122Ser
 
         expect { call_service }.to raise_error(error_class, /mismatch/i)
 
-        # rollback: no persistence
         expect(org.reload.can_accept_digital_poa_requests).to be(true)
         expect(active_join.reload.acceptance_mode).to eq('any_request')
       end
