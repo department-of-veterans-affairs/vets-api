@@ -26,7 +26,7 @@ module AccreditedRepresentativePortal
 
       expected = reps_scope.count
 
-      updated = reps_scope.update_all(acceptance_mode: mode) # rubocop:disable Rails/SkipsModelValidations -- bulk update for performance
+      updated = reps_scope.update_all(acceptance_mode: mode) # rubocop:disable Rails/SkipsModelValidations
 
       if updated != expected
         raise MismatchError,

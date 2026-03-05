@@ -22,7 +22,7 @@ module AccreditedRepresentativePortal
       orgs_to_update = org_scope.where.not(can_accept_digital_poa_requests: true)
 
       expected = orgs_to_update.count
-      updated = orgs_to_update.update_all(can_accept_digital_poa_requests: true) # rubocop:disable Rails/SkipsModelValidations -- bulk update for performance
+      updated = orgs_to_update.update_all(can_accept_digital_poa_requests: true) # rubocop:disable Rails/SkipsModelValidations
 
       if updated != expected
         raise MismatchError,
