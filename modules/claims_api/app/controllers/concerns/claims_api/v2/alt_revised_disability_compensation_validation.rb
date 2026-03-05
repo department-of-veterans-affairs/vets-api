@@ -21,7 +21,7 @@ module ClaimsApi
       YYYY_YYYYMM_REGEX = '^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$'.freeze
       YYYY_MM_DD_REGEX = '^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$'.freeze
 
-      def alt_rev_validate_form_526_submission_values(target_veteran)
+      def alt_rev_validate_form_526_submission_values
         return if form_attributes.empty?
 
         alt_rev_validate_claim_process_type_bdd if bdd_claim?
@@ -38,7 +38,7 @@ module ClaimsApi
         # ensure treatment centers information is valid
         alt_rev_validate_form_526_treatments
         # ensure service information is valid
-        alt_rev_validate_form_526_service_information(target_veteran)
+        alt_rev_validate_form_526_service_information
         # collect errors and pass back to the controller
         error_collection if @errors
       end
@@ -88,46 +88,29 @@ module ClaimsApi
       end
 
       def alt_rev_validate_form_526_change_of_address_beginning_date
-        change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'beginDate')
-        return if date.nil? # nullable on schema
+        # beginning date only needs to be validated for TEMPORARY address changes
+        return unless form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase == 'TEMPORARY'
+
+        begin_date = form_attributes&.dig('changeOfAddress', 'dates', 'beginDate')
 
         begin
-          begins_in_past = Date.strptime(date, '%Y-%m-%d') <= Date.current
-          if 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange']) && begins_in_past
-            collect_error_messages(
-              detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
-              source: '/changeOfAddress/dates/beginDate'
-            )
-          end
-        rescue
+          change_of_address_beginning_date_validations(begin_date)
+        rescue ArgumentError, TypeError
           # If the date parse fails, then fall back to the InvalidFieldValue
           collect_error_messages(source: '/changeOfAddress/dates/beginDate', detail: 'beginDate is not a valid date.')
         end
       end
 
       def alt_rev_validate_form_526_change_of_address_ending_date
-        change_of_address = form_attributes&.dig('changeOfAddress')
-        date = change_of_address&.dig('dates', 'endDate')
-        return if date.nil? # nullable on schema
+        end_date = form_attributes&.dig('changeOfAddress', 'dates', 'endDate')
 
-        if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
-          collect_error_messages(
-            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
-            source: '/changeOfAddress/dates/endDate'
-          )
-        end
+        case form_attributes&.dig('changeOfAddress', 'typeOfAddressChange')&.upcase
+        when 'PERMANENT'
+          change_of_address_end_date_permanent_type_validations(end_date)
 
-        return if change_of_address['dates']['beginDate'].blank? # nothing to check against
-
-        # cannot compare invalid dates so need to return here if date is invalid
-        return unless date_is_valid?(date, 'changeOfAddress/dates/endDate')
-
-        if Date.strptime(date, '%Y-%m-%d') < Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
-          collect_error_messages(
-            source: '/changeOfAddress/dates/endDate',
-            detail: 'endDate needs to be after beginDate.'
-          )
+        when 'TEMPORARY'
+          begin_date = form_attributes.dig('changeOfAddress', 'dates', 'beginDate')
+          change_of_address_end_date_temporary_type_validations(end_date, begin_date)
         end
       end
 
@@ -153,7 +136,11 @@ module ClaimsApi
 
       def alt_rev_validate_form_526_change_of_address_zip
         address = form_attributes['changeOfAddress'] || {}
-        alt_rev_validate_form_526_usa_coa_conditions(address) if address['country'] == 'USA'
+        if address['country'] == 'USA'
+          alt_rev_validate_form_526_usa_coa_conditions(address)
+        else
+          alt_rev_validate_form_526_international_address(address)
+        end
       end
 
       def alt_rev_validate_form_526_usa_coa_conditions(address)
@@ -173,6 +160,16 @@ module ClaimsApi
           collect_error_messages(
             source: '/changeOfAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        end
+      end
+
+      def alt_rev_validate_form_526_international_address(address)
+        # international post code required for international addresses
+        if address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/changeOfAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA.'
           )
         end
       end
@@ -242,6 +239,11 @@ module ClaimsApi
           collect_error_messages(
             source: '/veteranIdentification/mailingAddress/internationalPostalCode',
             detail: 'The internationalPostalCode should not be provided if the country is USA.'
+          )
+        elsif mailing_address['country'] != 'USA' && mailing_address['internationalPostalCode'].blank?
+          collect_error_messages(
+            source: '/veteranIdentification/mailingAddress/internationalPostalCode',
+            detail: 'The internationalPostalCode is required if the country is not USA (international).'
           )
         end
       end
@@ -534,7 +536,7 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_form_526_service_information(_target_veteran)
+      def alt_rev_validate_form_526_service_information
         service_information = form_attributes['serviceInformation']
 
         return if service_information.nil? || service_information.blank?
@@ -572,7 +574,7 @@ module ClaimsApi
       end
 
       def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        ant_sep_date = form_attributes&.dig('serviceInformation', 'federalActivation', 'anticipatedSeparationDate')
+        ant_sep_date = service_information&.dig('federalActivation', 'anticipatedSeparationDate')
         return unless service_periods_present?(service_information)
 
         max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
@@ -760,22 +762,22 @@ module ClaimsApi
         tos_start_date = tos&.dig('beginDate')
         tos_end_date = tos&.dig('endDate')
 
-        form_obj_desc = 'obligation terms of service'
+        form_obj_desc = 'serviceInformation/reservesNationalGuardService/obligationTermsOfService'
 
         # if one is present both need to be present
         if tos_start_date.blank? && tos_end_date.present?
-          collect_error_if_value_not_present('begin date', form_obj_desc)
+          collect_error_if_value_not_present('begin date', "#{form_obj_desc}/beginDate")
         end
         if tos_end_date.blank? && tos_start_date.present?
           collect_error_if_value_not_present('end date',
-                                             form_obj_desc)
+                                             "#{form_obj_desc}/endDate")
         end
         if tos_start_date.present? && tos_end_date.present? && (Date.strptime(tos_start_date,
                                                                               '%Y-%m-%d') > Date.strptime(tos_end_date,
                                                                                                           '%Y-%m-%d'))
           collect_error_messages(
             detail: 'Terms of service begin date must be before the terms of service end date.',
-            source: '/serviceInformation/reservesNationalGuardService/obligationTermsOfService'
+            source: form_obj_desc
           )
         end
       end
@@ -787,32 +789,40 @@ module ClaimsApi
 
         return if federal_activation.blank?
 
-        form_obj_desc = '/serviceInformation/federalActivation'
-
         # For a valid BDD EP code to be assigned we need these values
         alt_rev_validate_required_values_for_federal_activation(federal_activation_date, anticipated_separation_date)
 
-        alt_rev_validate_federal_activation_date(federal_activation_date, form_obj_desc)
+        if federal_activation_date.blank?
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The activationDate must be present for federalActivation.'
+          )
+        end
 
-        alt_rev_validate_federal_activation_date_order(federal_activation_date) if federal_activation_date.present?
+        if federal_activation_date.present?
+          alt_rev_validate_federal_activation_and_duty_date_order(federal_activation_date)
+          alt_rev_validate_federal_activation_date_chronology(federal_activation_date)
+        end
+
         if anticipated_separation_date.present?
           alt_rev_validate_anticipated_separation_date_in_past(anticipated_separation_date)
         end
       end
 
-      def alt_rev_validate_federal_activation_date(federal_activation_date, form_obj_desc)
-        if federal_activation_date.blank?
-          collect_error_if_value_not_present('federal activation date',
-                                             form_obj_desc)
-        end
-      end
-
-      def alt_rev_validate_federal_activation_date_order(federal_activation_date)
-        # we know the dates are present
+      def alt_rev_validate_federal_activation_and_duty_date_order(federal_activation_date)
         if activation_date_not_after_duty_begin_date?(federal_activation_date)
           collect_error_messages(
             source: '/serviceInformation/federalActivation/',
-            detail: 'The federalActivation date must be after the earliest service period active duty begin date.'
+            detail: 'The activationDate must be after the earliest service period active duty begin date.'
+          )
+        end
+      end
+
+      def alt_rev_validate_federal_activation_date_chronology(federal_activation_date)
+        if activation_date_in_future?(federal_activation_date)
+          collect_error_messages(
+            source: '/serviceInformation/federalActivation/',
+            detail: 'The activationDate must be today or a date in the past.'
           )
         end
       end
@@ -852,21 +862,17 @@ module ClaimsApi
 
         earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
-        # return true if activationDate is an earlier date
         return unless date_is_valid?(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                      'serviceInformation/servicePeriods/activeDutyEndDate', true)
 
         return false if earliest_active_duty_begin_date['activeDutyBeginDate'].nil?
 
-        if activation_date.blank?
-          collect_error_messages(
-            source: '/serviceInformation/federalActivation/',
-            detail: 'The activationDate must be present for federalActivation.'
-          )
-        else
-          Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
-                                                      '%Y-%m-%d')
-        end
+        Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                                    '%Y-%m-%d')
+      end
+
+      def activation_date_in_future?(activation_date)
+        Date.strptime(activation_date, '%Y-%m-%d') > Date.current
       end
 
       def find_earliest_active_duty_begin_date(service_periods)
@@ -1027,6 +1033,61 @@ module ClaimsApi
       def error_collection
         errors_array.uniq! { |e| e[:detail] }
         errors_array # set up the object to match other error returns
+      end
+
+      def change_of_address_beginning_date_validations(begin_date)
+        # if the address type is TEMPORARY, the beginDate must exist and be in the future.
+        if begin_date.blank?
+          collect_error_messages(
+            detail: 'Change of address beginDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+          return
+        end
+
+        begins_in_past = Date.strptime(begin_date, '%Y-%m-%d') <= Date.current
+
+        if begins_in_past
+          collect_error_messages(
+            detail: 'Change of address beginDate must be in the future if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/beginDate'
+          )
+        end
+      end
+
+      # if the address type is PERMANENT, the endDate should not be included
+      def change_of_address_end_date_permanent_type_validations(end_date)
+        if end_date.present?
+          collect_error_messages(
+            detail: 'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT',
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
+      end
+
+      # if the address type is TEMPORARY, the endDate must exist and be in chronological order from beginDate
+      def change_of_address_end_date_temporary_type_validations(end_date, begin_date)
+        if end_date.blank?
+          collect_error_messages(
+            detail: 'Change of address endDate is required if addressChangeType is TEMPORARY',
+            source: '/changeOfAddress/dates/endDate'
+          )
+          return # skip remaining validations if end_date is blank since they are dependent on it being present
+        end
+
+        begin
+          if Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
+            collect_error_messages(
+              detail: 'endDate needs to be after beginDate.',
+              source: '/changeOfAddress/dates/endDate'
+            )
+          end
+        rescue ArgumentError, TypeError
+          collect_error_messages(
+            detail: "#{end_date} is not a valid date. Expected format: yyyy-mm-dd.",
+            source: '/changeOfAddress/dates/endDate'
+          )
+        end
       end
     end
   end

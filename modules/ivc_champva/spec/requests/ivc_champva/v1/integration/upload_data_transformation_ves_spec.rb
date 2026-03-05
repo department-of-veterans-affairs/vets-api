@@ -18,7 +18,7 @@ RSpec.describe 'TransformationVES', type: :request do
     @original_aws_config = Aws.config.dup
     Aws.config.update(stub_responses: true)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
-    allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
+    allow(ves_client).to receive(:submit_1010d).with(anything, anything)
   end
 
   after do
@@ -59,7 +59,6 @@ RSpec.describe 'TransformationVES', type: :request do
             # check the base attributes on the call to submit_1010d and the VesRequest object
             expect(ves_client).to have_received(:submit_1010d).with(
               anything, # transaction uuid may be auto generated per submission
-              'fake-user', # acting_user
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
                   application_type: 'CHAMPVA_APPLICATION',
@@ -71,7 +70,6 @@ RSpec.describe 'TransformationVES', type: :request do
 
             # check the attributes on VesRequest::Sponsor
             expect(ves_client).to have_received(:submit_1010d).with(
-              anything,
               anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
@@ -105,7 +103,6 @@ RSpec.describe 'TransformationVES', type: :request do
 
             # check the attributes on VesRequest::Beneficiaries item one
             expect(ves_client).to have_received(:submit_1010d).with(
-              anything,
               anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
@@ -143,7 +140,6 @@ RSpec.describe 'TransformationVES', type: :request do
             # check the attributes on VesRequest::Beneficiaries item two
             expect(ves_client).to have_received(:submit_1010d).with(
               anything,
-              anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
                   beneficiaries: array_including(
@@ -179,7 +175,6 @@ RSpec.describe 'TransformationVES', type: :request do
 
             # check the attributes on VesRequest::Beneficiaries item three
             expect(ves_client).to have_received(:submit_1010d).with(
-              anything,
               anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
@@ -217,7 +212,6 @@ RSpec.describe 'TransformationVES', type: :request do
             # check the attributes on VesRequest::Beneficiaries item four
             expect(ves_client).to have_received(:submit_1010d).with(
               anything,
-              anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
                   beneficiaries: array_including(
@@ -254,7 +248,6 @@ RSpec.describe 'TransformationVES', type: :request do
             # check the attributes on VesRequest::Beneficiaries item five
             expect(ves_client).to have_received(:submit_1010d).with(
               anything,
-              anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
                   beneficiaries: array_including(
@@ -290,7 +283,6 @@ RSpec.describe 'TransformationVES', type: :request do
 
             # check the attributes on VesRequest::Certification
             expect(ves_client).to have_received(:submit_1010d).with(
-              anything,
               anything,
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(

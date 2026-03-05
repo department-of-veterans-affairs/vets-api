@@ -47,7 +47,7 @@ module IvcChampva
       # Generate a new transaction UUID
       ves_request['transaction_uuid'] = SecureRandom.uuid
 
-      response = ves_client.submit_1010d(ves_request['transaction_uuid'], 'fake-user', ves_request)
+      response = ves_client.submit_1010d(ves_request['transaction_uuid'], ves_request)
       ves_status = response.status == 200 ? 'ok' : response.body
 
       # update the database record

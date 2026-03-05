@@ -46,7 +46,8 @@ module UnifiedHealthData
       uhd_service = UnifiedHealthData::Service.new(user)
       result = uhd_service.get_labs(
         start_date: start_date.strftime('%Y-%m-%d'),
-        end_date: end_date.strftime('%Y-%m-%d')
+        end_date: end_date.strftime('%Y-%m-%d'),
+        caller: 'labs_refresh_job'
       )
       result[:records]
     end

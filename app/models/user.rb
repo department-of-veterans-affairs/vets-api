@@ -151,6 +151,10 @@ class User < Common::RedisStore
     identity&.sec_id || mpi_profile&.sec_id
   end
 
+  def sec_id_history
+    mpi_profile&.sec_id_history || []
+  end
+
   def ssn
     identity&.ssn || ssn_mpi
   end

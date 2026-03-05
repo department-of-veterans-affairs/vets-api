@@ -24,6 +24,7 @@ module MPI
         attribute :participant_ids,     array: true, default: []
         attribute :sec_id,              :string
         attribute :sec_ids,             array: true, default: []
+        attribute :sec_id_history,      array: true, default: []
         attribute :vet360_id,           :string
         attribute :vha_facility_hash,   hash: true, default: {}
         attribute :vha_facility_ids,    array: true, default: []
