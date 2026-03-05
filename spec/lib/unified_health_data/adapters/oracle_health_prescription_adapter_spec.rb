@@ -255,7 +255,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.refill_status).to eq('discontinued')
       end
 
-      it 'maintains active status to "active" when no refills remaining' do
+      it 'maintains active status when no refills remain but expiration is in the future' do
         result = subject.parse(fhir_resource(status: 'active', refills: 0, dispense_status: nil))
         expect(result.refill_status).to eq('active')
       end
