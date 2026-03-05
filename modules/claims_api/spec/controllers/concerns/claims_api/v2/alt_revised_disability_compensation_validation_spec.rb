@@ -1208,17 +1208,10 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
       context "when disabilityActionType is 'INCREASE'" do
         let(:emp_disabilities) { [{ 'specialIssues' => ['EMP'], 'disabilityActionType' => 'INCREASE' }] }
-        let(:rrd_disabilities) { [{ 'specialIssues' => ['RRD'], 'disabilityActionType' => 'INCREASE' }] }
         let(:oth_disabilities) { [{ 'specialIssues' => ['OTHER'], 'disabilityActionType' => 'INCREASE' }] }
 
         it "does not raise an error if specialIssues includes 'EMP'" do
           subject.send(:alt_rev_validate_special_issues, emp_disabilities)
-
-          expect(current_error_array).to be_nil
-        end
-
-        it "does not raise an error if specialIssues includes 'RRD'" do
-          subject.send(:alt_rev_validate_special_issues, rrd_disabilities)
 
           expect(current_error_array).to be_nil
         end
