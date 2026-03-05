@@ -968,6 +968,103 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     end
   end
 
+  describe '#alt_rev_validate_reserves_tos_dates' do
+    let(:reserves) do
+      {
+        'reservesNationalGuardService' => {
+          'component' => 'National Guard',
+          'obligationTermsOfService' => {
+            'beginDate' => '1990-11-24',
+            'endDate' => '1995-11-17'
+          },
+          'unitName' => 'National Guard Unit Name',
+          'unitAddress' => '1243 Main Street',
+          'unitPhone' => {
+            'areaCode' => '555',
+            'phoneNumber' => '5555555'
+          },
+          'receivingInactiveDutyTrainingPay' => 'YES'
+        }
+      }
+    end
+    let(:base_path) do
+      'serviceInformation/reservesNationalGuardService/obligationTermsOfService'
+    end
+
+    it 'returns a 422 if the beginDate is not inlcuded' do
+      reserves['reservesNationalGuardService']['obligationTermsOfService'].delete('beginDate')
+      no_begin_reserves = reserves['reservesNationalGuardService']
+
+      test_526_validation_instance.send(:alt_rev_validate_reserves_tos_dates, no_begin_reserves)
+
+      expect(current_error_array[0][:detail]).to eq("The begin date is required for #{base_path}/beginDate.")
+      expect(current_error_array[0][:source]).to eq("#{base_path}/beginDate")
+    end
+
+    it 'returns a 422 if the endDate is not included' do
+      reserves['reservesNationalGuardService']['obligationTermsOfService'].delete('endDate')
+      no_end_reserves = reserves['reservesNationalGuardService']
+
+      test_526_validation_instance.send(:alt_rev_validate_reserves_tos_dates, no_end_reserves)
+
+      expect(current_error_array[0][:detail]).to eq("The end date is required for #{base_path}/endDate.")
+      expect(current_error_array[0][:source]).to eq("#{base_path}/endDate")
+    end
+  end
+
+  describe '#alt_rev_validate_federal_activation_and_duty_date_order' do
+    let(:past_federal_activation_date) { '1901-01-01' }
+    let(:future_federal_activation_date) { "#{Time.current.year + 1}-12-20" }
+
+    it 'returns a 422 if the activation date is not after the duty begin date' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_and_duty_date_order,
+                                        past_federal_activation_date)
+
+      expect(current_error_array.count).to eq(1)
+      expect(current_error_array[0][:detail]).to eq(
+        'The activationDate must be after the earliest service period active duty begin date.'
+      )
+      expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
+    end
+
+    it 'does not raise an error if the activation date is not after the duty begin date' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_and_duty_date_order,
+                                        future_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
+  describe '#alt_rev_validate_federal_activation_date_chronology', run_at: '2024-03-21 00:00:00 EDT' do
+    let(:past_federal_activation_date) { '1901-01-01' }
+    let(:future_federal_activation_date) { "#{Time.current.year + 1}-12-20" }
+    let(:today_federal_activation_date) { Date.current.strftime('%Y-%m-%d') }
+
+    it 'returns a 422 if the activation date is not in the past' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        future_federal_activation_date)
+
+      expect(current_error_array[0][:detail]).to eq(
+        'The activationDate must be today or a date in the past.'
+      )
+      expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
+    end
+
+    it 'does not raise an error if the activation date is not in the past' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        past_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+
+    it 'does not raise an error if the activation date is today' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        today_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
   describe 'validation for BDD_PROGRAM claim' do
     future_date = "#{Time.current.year + 1}-12-20"
 
