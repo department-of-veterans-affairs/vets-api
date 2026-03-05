@@ -6069,6 +6069,58 @@
         "summary": "/v0/messaging/health/messages/signature"
       }
     },
+    "/v0/messaging/health/messages/oh_sync_status": {
+      "get": {
+        "description": "Get the Oracle Health sync status",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OhSyncStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/messages/oh_sync_status"
+      }
+    },
     "/v0/messaging/health/messages/{id}": {
       "delete": {
         "description": "Moves a secure message to the \"Deleted\" folder",
@@ -23738,6 +23790,50 @@
                   "signatureTitle": {
                     "type": "string",
                     "example": "My Signature Title"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "OhSyncStatus": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Resource identifier"
+              },
+              "type": {
+                "type": "string",
+                "example": "oh_sync_status"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "The current Oracle Health sync status.\n",
+                    "enum": [
+                      "FINISHED",
+                      "ERROR",
+                      "NOT_STARTED",
+                      "STARTED",
+                      "IN_PROGRESS",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "syncComplete": {
+                    "type": "boolean",
+                    "description": "Whether the sync process has completed. True when status is FINISHED, ERROR, NOT_STARTED, or UNKNOWN. False when STARTED or IN_PROGRESS.\n"
+                  },
+                  "error": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Optional error message providing details when an error occurred during sync.\n"
                   }
                 }
               }

@@ -12,6 +12,7 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('/tmp/dummy.pdf')
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
     allow(DependentsBenefits::Monitor).to receive(:new).and_return(monitor)
+    allow(job).to receive(:monitor).and_return(monitor)
     allow(monitor).to receive(:track_info_event)
     allow(monitor).to receive(:track_error_event)
     allow(DependentsBenefits::ClaimProcessor).to receive(:new).and_return(claim_processor)
@@ -384,12 +385,13 @@ RSpec.describe DependentsBenefits::Sidekiq::DependentSubmissionJob, type: :job d
 
   describe '#sidekiq_retries_exhausted' do
     it 'handles retries exhausted with parent_claim_id' do
-      described_class.within_sidekiq_retries_exhausted_block(
-        { 'args' => [parent_claim.id], 'class' => described_class.name }, 'Failure!'
-      ) do
-        allow(described_class).to receive(:new).and_return(job)
-        expect(job).to receive(:handle_permanent_failure).with(parent_claim.id, 'Failure!')
-      end
+      msg = { 'args' => [parent_claim.id], 'class' => described_class.name }
+      exception = 'Failure!'
+
+      allow(described_class).to receive(:new).and_return(job)
+      expect(job).to receive(:handle_permanent_failure).with(parent_claim.id, exception)
+
+      described_class.sidekiq_retries_exhausted_block.call(msg, exception)
     end
   end
 

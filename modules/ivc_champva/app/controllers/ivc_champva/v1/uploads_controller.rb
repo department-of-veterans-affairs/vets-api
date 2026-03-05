@@ -194,7 +194,7 @@ module IvcChampva
             # omitting retry_on to always retry for now
             IvcChampva::Retry.do(1, on_failure:) do
               ves_request.transaction_uuid = SecureRandom.uuid
-              response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
+              response = ves_client.submit_1010d(ves_request.transaction_uuid, ves_request)
             end
 
             begin
@@ -276,9 +276,9 @@ module IvcChampva
       def send_to_ves_by_form_type(ves_client, request, form_type)
         case form_type
         when 'vha_10_10d'
-          ves_client.submit_1010d(request.transaction_uuid, 'fake-user', request)
+          ves_client.submit_1010d(request.transaction_uuid, request)
         when 'vha_10_7959c'
-          ves_client.submit_7959c(request.transaction_uuid, 'fake-user', request)
+          ves_client.submit_7959c(request.transaction_uuid, request)
         else
           raise ArgumentError, "Unknown VES form type: #{form_type}"
         end
