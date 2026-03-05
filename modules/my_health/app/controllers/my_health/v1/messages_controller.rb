@@ -101,6 +101,12 @@ module MyHealth
         head :no_content
       end
 
+      def oh_sync_status
+        result = client.get_oh_sync_status
+        data = result[:data] || {}
+        render json: OhSyncStatusSerializer.new(data)
+      end
+
       private
 
       def prepare_message_params_h

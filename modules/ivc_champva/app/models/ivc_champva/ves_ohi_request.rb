@@ -5,16 +5,12 @@ module IvcChampva
   # VES request model for 10-7959C OHI (Other Health Insurance) submissions.
   #
   # This model represents the data structure expected by the VES API for OHI form submissions.
-  # Field mapping is best-effort based on the 10-7959c form structure. TODOs mark fields
-  # requiring VES swagger confirmation.
-  #
-  # TODO: Consider cloning/refactoring `instance_vars_to_hash` from `VesRequest` for more
-  # generic serialization of nested objects in the final implementation this class.
+  # Field mappings are based on the VES OHI swagger specification.
   #
   # @example Standalone submission
   #   ohi_request = VesOhiRequest.new(
   #     application_uuid: SecureRandom.uuid,
-  #     beneficiary: { first_name: 'Jane', last_name: 'Doe', ssn: '123456789' }
+  #     beneficiary_medicare: { first_name: 'Jane', last_name: 'Doe', ssn: '123456789' }
   #   )
   #
   # @example As a subform of 10-10d
@@ -22,9 +18,9 @@ module IvcChampva
   #
   class VesOhiRequest
     FORM_TYPE = 'vha_10_7959c'
+    APPLICATION_TYPE = 'CHAMPVA_INS_APPLICATION'
 
-    attr_accessor :application_uuid, :transaction_uuid, :person_uuid,
-                  :beneficiary, :medicare, :health_insurance, :certification
+    attr_accessor :application_uuid, :transaction_uuid, :beneficiary_medicare, :certification
 
     ##
     # Initialize a new VES OHI request.
@@ -32,18 +28,12 @@ module IvcChampva
     # @param params [Hash] request parameters
     # @option params [String] :application_uuid unique application identifier
     # @option params [String] :transaction_uuid unique transaction identifier (generated if nil)
-    # @option params [String] :person_uuid beneficiary person identifier (for linked submissions)
-    # @option params [Hash] :beneficiary beneficiary/applicant information
-    # @option params [Array<Hash>] :medicare Medicare coverage details
-    # @option params [Array<Hash>] :health_insurance other health insurance policies
+    # @option params [Hash] :beneficiary_medicare combined beneficiary, medicare, and insurance data
     # @option params [Hash] :certification certification/signature information
     def initialize(params = {})
       @application_uuid = params[:application_uuid] || SecureRandom.uuid
       @transaction_uuid = params[:transaction_uuid] || SecureRandom.uuid
-      @person_uuid = params[:person_uuid]
-      @beneficiary = Beneficiary.new(params[:beneficiary] || {})
-      @medicare = (params[:medicare] || []).map { |m| Medicare.new(m) }
-      @health_insurance = (params[:health_insurance] || []).map { |hi| HealthInsurance.new(hi) }
+      @beneficiary_medicare = BeneficiaryMedicare.new(params[:beneficiary_medicare] || {})
       @certification = Certification.new(params[:certification] || {})
     end
 
@@ -58,195 +48,198 @@ module IvcChampva
     ##
     # Serializes the request to JSON for VES API submission.
     #
-    # TODO: Confirm exact JSON structure with VES swagger spec
-    #
     # @return [String] JSON representation of the request
     def to_json(*_args)
       {
-        # TODO: Confirm VES expects these top-level field names
         applicationUUID: @application_uuid,
-        transactionUUID: @transaction_uuid,
-        personUUID: @person_uuid,
-        beneficiary: @beneficiary.to_hash,
-        medicare: @medicare.map(&:to_hash),
-        healthInsurance: @health_insurance.map(&:to_hash),
+        applicationType: APPLICATION_TYPE,
+        beneficiaryMedicare: @beneficiary_medicare.to_hash,
         certification: @certification.to_hash
       }.compact.to_json
     end
 
     ##
-    # Beneficiary/Applicant information for OHI form.
+    # Combined beneficiary and Medicare/insurance information for OHI form.
     #
-    # TODO: Consider moving to a shared base class with VesRequest::Beneficiary.
+    # This matches the VES swagger schema where beneficiary data, Medicare parts,
+    # and other insurances are nested under a single `beneficiaryMedicare` object.
     #
-    class Beneficiary
-      attr_accessor :first_name, :last_name, :middle_initial, :suffix, :ssn, :email_address,
-                    :phone_number, :gender, :enrolled_in_medicare,
-                    :has_other_insurance, :relationship_to_sponsor, :child_type,
-                    :date_of_birth, :address, :person_uuid
+    class BeneficiaryMedicare
+      attr_accessor :person_uuid, :first_name, :last_name, :middle_initial,
+                    :ssn, :date_of_birth, :address, :medicare_bene_id,
+                    :medicare_parts, :other_insurances, :email_address,
+                    :phone_number, :gender, :is_new_address
 
       def initialize(params = {})
         @person_uuid = params[:person_uuid]
         @first_name = params[:first_name]
         @last_name = params[:last_name]
         @middle_initial = params[:middle_initial]
-        @suffix = params[:suffix]
         @ssn = params[:ssn]
+        @date_of_birth = params[:date_of_birth]
+        @address = Address.new(params[:address] || {})
+        @medicare_bene_id = params[:medicare_bene_id] || params[:medicare_number]
+        @medicare_parts = (params[:medicare_parts] || []).map { |mp| MedicarePart.new(mp) }
+        @other_insurances = (params[:other_insurances] || []).map { |oi| OtherInsurance.new(oi) }
         @email_address = params[:email_address]
         @phone_number = params[:phone_number]
         @gender = params[:gender]
-        @enrolled_in_medicare = params[:enrolled_in_medicare]
-        @has_other_insurance = params[:has_other_insurance]
-        @relationship_to_sponsor = params[:relationship_to_sponsor]
-        @child_type = params[:child_type]
-        @date_of_birth = params[:date_of_birth]
-        @address = Address.new(params[:address] || {})
+        @is_new_address = params[:is_new_address]
       end
 
       def to_hash
         {
           personUUID: @person_uuid,
-          firstName: @first_name,
           lastName: @last_name,
+          firstName: @first_name,
           middleInitial: @middle_initial,
-          suffix: @suffix,
           ssn: @ssn,
+          dateOfBirth: @date_of_birth,
+          address: @address.to_hash,
+          medicareBeneId: @medicare_bene_id,
+          medicareParts: @medicare_parts.map(&:to_hash),
+          otherInsurances: @other_insurances.map(&:to_hash),
           emailAddress: @email_address,
           phoneNumber: @phone_number,
           gender: @gender,
-          enrolledInMedicare: @enrolled_in_medicare,
-          hasOtherInsurance: @has_other_insurance,
-          relationshipToSponsor: @relationship_to_sponsor,
-          childType: @child_type,
-          dateOfBirth: @date_of_birth,
-          address: @address.to_hash
+          isNewAddress: @is_new_address
         }.compact
       end
     end
 
     ##
-    # Medicare coverage details.
+    # Medicare Part information (A, B, D).
     #
-    # Maps to `applicants[0].medicare[]` in the form submission.
-    # Supports Parts A, B, C (Advantage), and D (Prescription).
+    # Maps to VES `medicareParts[]` array structure.
+    # VES enum: MEDICARE_PART_A, MEDICARE_PART_B, MEDICARE_PART_D (no Part C)
     #
-    class Medicare
-      attr_accessor :plan_type, :medicare_number,
-                    :part_a_effective_date, :part_b_effective_date,
-                    :part_c_carrier, :part_c_effective_date,
-                    :has_pharmacy_benefits, :has_part_d,
-                    :part_d_carrier, :part_d_effective_date
+    class MedicarePart
+      # VES enum values for medicarePartType
+      PART_TYPE_MAP = {
+        'a' => 'MEDICARE_PART_A',
+        'b' => 'MEDICARE_PART_B',
+        'd' => 'MEDICARE_PART_D'
+      }.freeze
 
-      # TODO: Confirm field names with VES swagger spec
+      attr_accessor :description, :effective_date, :medicare_part_type, :termination_date
+
       def initialize(params = {})
-        @plan_type = params[:plan_type] || params[:medicare_plan_type]
-        @medicare_number = params[:medicare_number]
-        @part_a_effective_date = params[:part_a_effective_date] || params[:medicare_part_a_effective_date]
-        @part_b_effective_date = params[:part_b_effective_date] || params[:medicare_part_b_effective_date]
-        @part_c_carrier = params[:part_c_carrier] || params[:medicare_part_c_carrier]
-        @part_c_effective_date = params[:part_c_effective_date] || params[:medicare_part_c_effective_date]
-        @has_pharmacy_benefits = params[:has_pharmacy_benefits]
-        @has_part_d = params[:has_part_d] || params[:has_medicare_part_d]
-        @part_d_carrier = params[:part_d_carrier] || params[:medicare_part_d_carrier]
-        @part_d_effective_date = params[:part_d_effective_date] || params[:medicare_part_d_effective_date]
+        @description = params[:description]
+        @effective_date = params[:effective_date]
+        @medicare_part_type = normalize_part_type(params[:medicare_part_type] || params[:part_type])
+        @termination_date = params[:termination_date]
       end
 
-      # TODO: Confirm exact JSON field names with VES swagger spec
       def to_hash
         {
-          planType: @plan_type,
-          medicareNumber: @medicare_number,
-          partAEffectiveDate: @part_a_effective_date,
-          partBEffectiveDate: @part_b_effective_date,
-          partCCarrier: @part_c_carrier,
-          partCEffectiveDate: @part_c_effective_date,
-          hasPharmacyBenefits: @has_pharmacy_benefits,
-          hasPartD: @has_part_d,
-          partDCarrier: @part_d_carrier,
-          partDEffectiveDate: @part_d_effective_date
+          description: @description,
+          effectiveDate: @effective_date,
+          medicarePartType: @medicare_part_type,
+          terminationDate: @termination_date
         }.compact
+      end
+
+      private
+
+      def normalize_part_type(part_type)
+        return nil unless part_type
+
+        PART_TYPE_MAP[part_type.to_s.downcase] || part_type.to_s.upcase
       end
     end
 
     ##
     # Other Health Insurance policy details.
     #
-    # Maps to `applicants[0].health_insurance[]` in the form submission.
+    # Maps to VES `otherInsurances[]` array structure.
     #
-    class HealthInsurance
-      attr_accessor :insurance_type, :medigap_plan, :provider,
-                    :effective_date, :expiration_date,
-                    :through_employer, :eob, :additional_comments
+    class OtherInsurance
+      # VES enum values for insurancePlanType
+      PLAN_TYPE_MAP = {
+        'hmo' => 'HMO',
+        'ppo' => 'PPO',
+        'medicare_advantage' => 'MEDICARE_ADVANTAGE',
+        'medicaid' => 'MEDICAID',
+        'medigap_plan' => 'MEDIGAP_PLAN',
+        'other' => 'OTHER'
+      }.freeze
 
-      # TODO: Confirm field names with VES swagger spec
+      attr_accessor :description, :insurance_name, :effective_date, :termination_date,
+                    :insurance_plan_type, :is_through_employment,
+                    :is_prescription_covered, :eob_indicator, :comments
+
       def initialize(params = {})
-        @insurance_type = params[:insurance_type]
-        @medigap_plan = params[:medigap_plan]
-        @provider = params[:provider]
+        @description = params[:description]
+        @insurance_name = params[:insurance_name] || params[:provider]
         @effective_date = params[:effective_date]
-        @expiration_date = params[:expiration_date]
-        @through_employer = params[:through_employer]
-        @eob = params[:eob]
-        @additional_comments = params[:additional_comments]
+        @termination_date = params[:termination_date] || params[:expiration_date]
+        @insurance_plan_type = normalize_plan_type(params[:insurance_plan_type] || params[:insurance_type])
+        @is_through_employment = params[:is_through_employment] || params[:through_employer]
+        @is_prescription_covered = params[:is_prescription_covered]
+        @eob_indicator = params[:eob_indicator] || params[:eob]
+        @comments = params[:comments] || params[:additional_comments]
       end
 
-      # TODO: Confirm exact JSON field names with VES swagger spec
       def to_hash
         {
-          insuranceType: @insurance_type,
-          medigapPlan: @medigap_plan,
-          provider: @provider,
+          description: @description,
+          insuranceName: @insurance_name,
           effectiveDate: @effective_date,
-          expirationDate: @expiration_date,
-          throughEmployer: @through_employer,
-          eob: @eob,
-          additionalComments: @additional_comments
+          terminationDate: @termination_date,
+          insurancePlanType: @insurance_plan_type,
+          isThroughEmployment: @is_through_employment,
+          isPrescriptionCovered: @is_prescription_covered,
+          eobIndicator: @eob_indicator,
+          comments: @comments
         }.compact
+      end
+
+      private
+
+      def normalize_plan_type(plan_type)
+        return nil unless plan_type
+
+        PLAN_TYPE_MAP[plan_type.to_s.downcase] || plan_type.to_s.upcase
       end
     end
 
     ##
     # Certification/signature information.
     #
-    # TODO: Consider moving to a shared base class with VesRequest::Certification.
+    # Based on actual form data, we populate signature, signature_date, and signed_by_other.
+    # signed_by_other is derived from certifier_role - true if certifier is not the applicant.
+    # Additional swagger fields (firstName, lastName, etc.) are optional and not collected.
     #
     class Certification
-      attr_accessor :signature, :signature_date, :first_name, :last_name,
-                    :middle_initial, :phone_number, :address, :relationship
+      # Possible certifier_role values from form data:
+      # - 'applicant': The applicant is signing (signed_by_other = false)
+      # - 'sponsor': The veteran/sponsor is signing (signed_by_other = true)
+      # - 'other': A third party is signing (signed_by_other = true)
+      APPLICANT_ROLE = 'applicant'
+
+      attr_accessor :signature, :signature_date, :signed_by_other
 
       def initialize(params = {})
         @signature = params[:signature] || params[:statement_of_truth_signature]
         @signature_date = params[:signature_date] || params[:certification_date]
-        @first_name = params[:first_name]
-        @last_name = params[:last_name]
-        @middle_initial = params[:middle_initial]
-        @phone_number = params[:phone_number]
-        @relationship = params[:relationship] || params[:certifier_role]
-        @address = params[:address].present? ? Address.new(params[:address]) : nil
+        @signed_by_other = params[:certifier_role]&.to_s&.downcase != APPLICANT_ROLE
       end
 
       def to_hash
-        hash = {
+        {
           signature: @signature,
           signatureDate: @signature_date,
-          firstName: @first_name,
-          lastName: @last_name,
-          middleInitial: @middle_initial,
-          phoneNumber: @phone_number,
-          relationship: @relationship
-        }
-        hash[:address] = @address.to_hash if @address
-        hash.compact
+          signedbyOther: @signed_by_other
+        }.compact
       end
     end
 
     ##
-    # Address structure.
-    #
-    # TODO: Consider moving to a shared base class with VesRequest::Address.
+    # Address structure matching VES swagger schema.
     #
     class Address
-      attr_accessor :street_address, :city, :state, :zip_code, :country, :province, :postal_code
+      attr_accessor :street_address, :city, :province, :state,
+                    :zip_code, :postal_code, :country
 
       def initialize(params = {})
         @street_address = params[:street_address] ||
@@ -254,31 +247,23 @@ module IvcChampva
                           params[:street] ||
                           params[:street_combined]
         @city = params[:city]
+        @province = params[:province]
         @state = params[:state]
         @zip_code = params[:zip_code] || params[:zipCode] || params[:postal_code]
-        @country = params[:country]
-        @province = params[:province]
         @postal_code = params[:postal_code] || params[:postalCode]
+        @country = params[:country]
       end
 
       def to_hash
-        hash = {
+        {
           streetAddress: @street_address,
-          city: @city
-        }
-
-        # For USA addresses, include state and zipCode
-        if @country.nil? || @country.upcase == 'USA'
-          hash[:state] = @state
-          hash[:zipCode] = @zip_code
-        else
-          # For international addresses, include country, province, and postalCode
-          hash[:country] = @country
-          hash[:province] = @province if @province
-          hash[:postalCode] = @postal_code if @postal_code
-        end
-
-        hash
+          city: @city,
+          province: @province,
+          state: @state,
+          zipCode: @zip_code,
+          postalCode: @postal_code,
+          country: @country
+        }.compact
       end
     end
   end

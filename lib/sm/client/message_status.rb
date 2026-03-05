@@ -25,6 +25,16 @@ module SM
       end
 
       ##
+      # Get the Oracle Health sync status
+      #
+      # @return [Hash] JSON response containing the sync status
+      #
+      def get_oh_sync_status
+        path = 'exchange/ohsyncstatus'
+        perform(:get, path, nil, token_headers.merge('mhvCorrelationId' => session.user_id.to_s)).body
+      end
+
+      ##
       # Poll OH message status until terminal state or timeout
       #
       # @param message_id [Fixnum] the message id
