@@ -13,8 +13,7 @@ module RepresentationManagement
           if record.is_a?(Veteran::Service::Representative)
             RepresentationManagement::OriginalEntities::RepresentativeSerializer.new(record).serializable_hash
           elsif record.is_a?(Veteran::Service::Organization)
-            wrapped = RepresentationManagement::OrganizationWithAcceptanceCheck.new(record)
-            RepresentationManagement::OriginalEntities::OrganizationSerializer.new(wrapped).serializable_hash
+            RepresentationManagement::OriginalEntities::OrganizationSerializer.new(record).serializable_hash
           end
         end
         render json: json_response
