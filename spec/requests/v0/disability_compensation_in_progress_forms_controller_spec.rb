@@ -632,7 +632,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
           end
 
-          it 'sets returnUrl when rated disabilities have updates and claimingIncrease is true' do
+          it 'sets returnUrl when rated disabilities have updates and claimingIncrease is true and disability_comp_new_conditions_workflow is not set' do
             fd = JSON.parse(in_progress_form_lighthouse.form_data)
             fd['ratedDisabilities'].first['diagnosticCode'] = '111'
             fd['view:claimType'] = { 'view:claimingIncrease' => true }
@@ -647,6 +647,42 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(response).to have_http_status(:ok)
             json_response = JSON.parse(response.body)
             expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
+          end
+
+          it 'sets returnUrl when rated disabilities have updates and claimingIncrease is true and disability_comp_new_conditions_workflow is false' do
+            fd = JSON.parse(in_progress_form_lighthouse.form_data)
+            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+            fd['view:claimType'] = { 'view:claimingIncrease' => true }
+            fd['disability_comp_new_conditions_workflow'] = false
+            in_progress_form_lighthouse.update(form_data: fd)
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              VCR.use_cassette('disability_max_ratings/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
+          end
+
+          it 'sets returnUrl to a v2 url when rated disabilities have updates and claimingIncrease is true and disability_comp_new_conditions_workflow is true' do
+            fd = JSON.parse(in_progress_form_lighthouse.form_data)
+            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+            fd['view:claimType'] = { 'view:claimingIncrease' => true }
+            fd['disability_comp_new_conditions_workflow'] = true
+            in_progress_form_lighthouse.update(form_data: fd)
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              VCR.use_cassette('disability_max_ratings/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            expect(json_response['metadata']['returnUrl']).to eq('/conditions/summary')
           end
         end
       end
