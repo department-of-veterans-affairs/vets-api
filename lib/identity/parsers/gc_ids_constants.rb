@@ -20,6 +20,9 @@ module Identity
       # SEC_ID_REGEX, ex. 1008830476^PN^200PROV^USDVA^A
       SEC_ID_REGEX = /^\w+\^PN\^200PROV\^USDVA\^A$/
 
+      # SEC_ID_HISTORY_REGEX, ex. 1008830476^PN^200PROV^USDVA^H
+      SEC_ID_HISTORY_REGEX = /^\w+\^PN\^200PROV\^USDVA\^H$/
+
       # MHV_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^P
       MHV_IDS_REGEX = /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/
 
@@ -70,6 +73,7 @@ module Identity
         icn: { regex: PERMANENT_ICN_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         sec_id: { regex: SEC_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
         sec_ids: { regex: SEC_ID_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
+        sec_id_history: { regex: SEC_ID_HISTORY_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
         edipi: { regex: EDIPI_REGEX, root_oid: DOD_ROOT_OID, type: :single_id },
         edipis: { regex: EDIPI_REGEX, root_oid: DOD_ROOT_OID, type: :multiple_ids },
         vba_corp_id: { regex: VBA_CORP_ID_REGEX, root_oid: VA_ROOT_OID, type: :single_id },
