@@ -125,11 +125,11 @@ caseflow:
 cave:
   idp:
     base_url: ~
-    timeout: ~
-    mock: false
     hmac:
       key_id: <%= ENV['bio__IDP_HMAC_KEY_ID'] %>
       secret: <%= ENV['bio__IDP_HMAC_SECRET'] %>
+    mock: false
+    timeout: ~
 central_mail:
   upload:
     enabled: true
