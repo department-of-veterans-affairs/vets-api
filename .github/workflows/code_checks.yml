@@ -310,13 +310,13 @@ jobs:
     needs: [build, tests]
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
-    env:
-      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
 
     steps:
       - uses: actions/checkout@v6
 
       - uses: ruby/setup-ruby@v1
+        env:
+          BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
         with:
           bundler-cache: ${{ needs.tests.result == 'success' }}
 
@@ -376,6 +376,8 @@ jobs:
 
       - name: Collate coverage and generate report
         if: needs.tests.result == 'success'
+        env:
+          BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
         run: bundle exec ruby script/coverage_collate.rb
 
       - name: Upload Combined Coverage HTML

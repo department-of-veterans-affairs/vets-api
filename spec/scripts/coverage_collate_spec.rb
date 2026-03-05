@@ -72,4 +72,28 @@ RSpec.describe CoverageCollate do
       expect(File.read(file2)).to include('"/ws/lib/b.rb"')
     end
   end
+
+  describe '.run' do
+    it 'aborts when no resultset files match the glob' do
+      expect { described_class.run(glob: 'nonexistent-*/.resultset.json') }
+        .to raise_error(SystemExit)
+    end
+
+    it 'rewrites paths and invokes SimpleCov.collate with matched files' do
+      shard_dir = File.join(temp_dir, 'simplecov-resultset-1')
+      FileUtils.mkdir_p(shard_dir)
+      resultset_path = File.join(shard_dir, '.resultset.json')
+      File.write(resultset_path, '{ "/app/lib/foo.rb": [1, 1] }')
+
+      glob = File.join(temp_dir, 'simplecov-resultset-*/.resultset.json')
+
+      allow(SimpleCov).to receive(:collate)
+
+      described_class.run(glob:, workspace_root: '/workspace')
+
+      # Verify paths were rewritten before collation
+      expect(File.read(resultset_path)).to include('"/workspace/lib/foo.rb"')
+      expect(SimpleCov).to have_received(:collate).with([resultset_path])
+    end
+  end
 end

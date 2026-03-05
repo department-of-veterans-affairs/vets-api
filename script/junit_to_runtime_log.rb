@@ -5,13 +5,13 @@
 # Usage: ruby script/junit_to_runtime_log.rb <output_file> <xml_glob>
 # Example: ruby script/junit_to_runtime_log.rb tmp/parallel_runtime_rspec.log "Test Results Group*/*.xml"
 
-# Regex to extract individual <testcase ...> opening tags (up to > or />), allowing '>' inside quotes.
-# [^>"'] keeps the three alternatives disjoint, preventing exponential backtracking.
-TESTCASE_TAG_RE = %r{<testcase\b((?:"[^"]*"|'[^']*'|[^>"'])*)/?>}
-FILE_ATTR_RE = /\bfile="([^"]*)"/
-TIME_ATTR_RE = /\btime="([^"]*)"/
-
 module JunitToRuntimeLog
+  # Regex to extract individual <testcase ...> opening tags (up to > or />), allowing '>' inside quotes.
+  # [^>"'] keeps the three alternatives disjoint, preventing exponential backtracking.
+  TESTCASE_TAG_RE = %r{<testcase\b((?:"[^"]*"|'[^']*'|[^>"'])*)/?>}
+  FILE_ATTR_RE = /\bfile="([^"]*)"/
+  TIME_ATTR_RE = /\btime="([^"]*)"/
+
   # Parse JUnit XML files and return a hash of { "spec/file_spec.rb" => total_seconds }
   # Uses regex instead of DOM parsing for speed (~20x faster than REXML on large files).
   def self.aggregate_times(xml_paths)
