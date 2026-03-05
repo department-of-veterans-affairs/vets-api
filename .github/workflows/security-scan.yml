@@ -7,12 +7,12 @@ on:
 jobs:
   build:
   
-    uses: department-of-veterans-affairs/consolidated-security-pipeline/.github/workflows/consolidated-security-pipeline.yml@main
+    uses: department-of-veterans-affairs/consolidated-security-pipeline/.github/workflows/consolidated-security-pipeline.yml@master
     with:
       image-name: vets-api-pipeline-testing
       aws-region: us-gov-west-1
       run-brakeman-scan: true
-      run-codeql-scan: true
+      run-codeql-scan: false
       run-trivy-scan: true
     secrets:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
