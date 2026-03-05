@@ -49,6 +49,7 @@ module IncreaseCompensation
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        log_attachment_meta(@attachment_paths, @claim, user_account_uuid, @intake_service.uuid)
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
         @ibm_payload = @claim.to_ibm
@@ -88,6 +89,19 @@ module IncreaseCompensation
       # @see IncreaseCompensation::Monitor
       def monitor
         @monitor ||= IncreaseCompensation::Monitor.new
+      end
+
+      def log_attachment_meta(attachment_paths, claim, user_account_uuid, benefits_intake_uuid)
+        Rails.logger.info(
+          "IncreaseCompensation::Monitor 21-8940V1 - Attachments Count: #{attachment_paths.length}",
+          {
+            guid: claim.guid,
+            attacments: claim.persistent_attachments.count,
+            attachment_proccessed: attachment_paths.length,
+            user_account_uuid:,
+            benefits_intake_uuid:
+          }
+        )
       end
 
       # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
