@@ -222,6 +222,33 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           )
         end
 
+        it 'routes to message/renewal/attach with attachments when prescription_id is present' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          expect_any_instance_of(SM::Client).to receive(:perform)
+            .with(:post, 'message/renewal/attach', anything, anything)
+            .and_call_original
+
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message_with_attachments') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params_with_rx, uploads: }
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
+        it 'routes to message/renewal/attach with attachments when camel-inflected' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message_with_attachments') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params_with_rx, uploads: },
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments
@@ -653,6 +680,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+
+        it 'routes to message/renewal/attach with large attachments when prescription_id is present' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
+          params_with_rx = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_renewal') do
+            post '/my_health/v1/messaging/messages', params: { message: params_with_rx, uploads: }
           end
 
           expect(response).to be_successful

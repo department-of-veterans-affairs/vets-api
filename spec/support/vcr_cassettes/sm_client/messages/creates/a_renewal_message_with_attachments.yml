@@ -1,0 +1,52 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/v1/sm/patient/message/renewal/attach"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        LS0tLS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURpc3Bv
+        c2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9Im1lc3NhZ2UiOyBmaWxlbmFtZT0i
+        bWVzc2FnZSINCkNvbnRlbnQtTGVuZ3RoOiAxMjANCkNvbnRlbnQtVHlwZTog
+        YXBwbGljYXRpb24vanNvbg0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzog
+        YmluYXJ5DQoNCnsiY2F0ZWdvcnkiOiJPVEhFUiIsInN1YmplY3QiOiJDSSBS
+        dW4iLCJyZWNpcGllbnRJZCI6NjEzNTg2LCJib2R5IjoiQ29udGludW91cyBJ
+        bnRlZ3JhdGlvbiIsInByZXNjcmlwdGlvbklkIjoiMjQ2NTQ0OTEifQ0KLS0t
+        LS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0LS0NCg0K
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Content-Length:
+      - '2800'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - Apache-Coyote/1.1
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '447'
+      Date:
+      - Tue, 31 Jan 2017 21:30:48 GMT
+    body:
+      encoding: UTF-8
+      string: '{"id":674853,"category":"OTHER","subject":"CI Run","body":"Continuous
+        Integration","attachment":true,"attachments":{"attachment":[{"id":674847,"name":"sm_file1.jpg","attachmentSize":210000},{"id":674848,"name":"sm_file2.jpg","attachmentSize":210000},{"id":674849,"name":"sm_file3.jpg","attachmentSize":210000},{"id":674850,"name":"sm_file4.jpg","attachmentSize":210000}]},"sentDate":"Tue,
+        31 Jan 2017 21:30:49 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":613586,"recipientName":"Vets.gov
+        Testing_DAYT29","readReceipt":null,"suggestedNameDisplay":null }'
+    http_version: 
+  recorded_at: Tue, 31 Jan 2017 21:30:49 GMT
+recorded_with: VCR 3.0.3
