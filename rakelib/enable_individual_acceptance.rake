@@ -2,6 +2,16 @@
 
 namespace :vso do
   desc 'Enable individual acceptance of VA Form 21-22 for the given POA code(s)'
+
+  # Usage:
+  #   # Single POA
+  #   bundle exec rake "vso:enable_individual_acceptance[072]"
+  #
+  #   # Multiple POAs (comma-separated in a single arg)
+  #   bundle exec rake "vso:enable_individual_acceptance[072,083]"
+  #
+  # Notes:
+  #   - POA codes are normalized by the service (splits commas, strips whitespace, de-dupes).
   task :enable_individual_acceptance, [:poa_codes] => :environment do |_t, args|
     raise ArgumentError, 'POA codes required (comma-separated)' if args[:poa_codes].blank?
 

@@ -2,6 +2,14 @@
 
 namespace :vso do
   desc 'Disable online submission of VA Form 21-22 for the given POA code(s)'
+  #
+  # Usage:
+  #   # Single POA:
+  #   bundle exec rake "vso:disable_online_submission[083]"
+  #
+  #   # Multiple POAs (comma-separated in brackets):
+  #   bundle exec rake "vso:disable_online_submission[083,074,095]"
+  #
   task :disable_online_submission, [:poa_codes] => :environment do |_t, args|
     raise ArgumentError, 'POA codes required (comma-separated)' if args[:poa_codes].blank?
 
