@@ -102,6 +102,33 @@ RSpec.describe 'MyHealth::V2::AllergiesController', :skip_json_api_validation, t
       end
     end
 
+    context 'with API gateway security endpoint enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(true)
+      end
+
+      it 'returns a successful response using the gateway security path' do
+        VCR.use_cassette('unified_health_data/get_allergies_200_api_gateway',
+                         match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/allergies', headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['data'].count).to eq(10)
+        expect(json_response['data'].first['type']).to eq('allergy')
+      end
+
+      it 'returns a successful response with an empty data array using the gateway security path' do
+        VCR.use_cassette('unified_health_data/get_allergies_no_records_api_gateway',
+                         match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/allergies', headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']).to eq([])
+      end
+    end
+
     context 'error responses' do
       it 'returns a 500 response when there is a server error' do
         allow_any_instance_of(UnifiedHealthData::Service).to receive(:get_allergies)
@@ -157,6 +184,32 @@ RSpec.describe 'MyHealth::V2::AllergiesController', :skip_json_api_validation, t
       # TODO: Probably this should return a 404? Maybe?
       it 'returns a 404 not found' do
         VCR.use_cassette('unified_health_data/get_allergies_no_records', match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/allergies/12345',
+              headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'with API gateway security endpoint enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(true)
+      end
+
+      it 'returns a successful response for a single allergy using the gateway security path' do
+        VCR.use_cassette('unified_health_data/get_allergies_200_api_gateway',
+                         match_requests_on: %i[method path]) do
+          get '/my_health/v2/medical_records/allergies/2677', headers: { 'X-Key-Inflection' => 'camel' }
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['data']['type']).to eq('allergy')
+        expect(json_response['data']['attributes']).to include('id', 'name', 'reactions')
+      end
+
+      it 'returns a 404 not found using the gateway security path' do
+        VCR.use_cassette('unified_health_data/get_allergies_no_records_api_gateway',
+                         match_requests_on: %i[method path]) do
           get '/my_health/v2/medical_records/allergies/12345',
               headers: { 'X-Key-Inflection' => 'camel' }
         end
