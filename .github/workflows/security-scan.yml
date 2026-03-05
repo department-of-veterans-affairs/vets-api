@@ -18,3 +18,4 @@ jobs:
     secrets:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       AWS_ASSUME_ROLE: ${{ vars.AWS_ASSUME_ROLE }}
+      
