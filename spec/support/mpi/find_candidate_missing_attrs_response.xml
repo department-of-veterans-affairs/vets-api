@@ -43,6 +43,7 @@
                 <id extension="796122306^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="9100792239^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="1008714701^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/>
+                <id extension="0001234567^PN^200PROV^USDVA^H" root="2.16.840.1.113883.4.349"/>
                 <id extension="1100792239^PI^200MHS^USVHA^A" root="2.16.840.1.113883.4.349"/>
                 <statusCode code="active"/>
                 <patientPerson>

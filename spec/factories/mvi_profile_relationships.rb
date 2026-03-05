@@ -37,6 +37,7 @@ FactoryBot.define do
     mhv_iens { [] }
     vha_facility_ids { %w[916 593 200HD 200IP 200MHV] }
     sec_id { '9901234567' }
+    sec_id_history { [] }
     birls_id { birls_ids.first }
     birls_ids { ['996122306'] }
     vet360_id { '993456789' }

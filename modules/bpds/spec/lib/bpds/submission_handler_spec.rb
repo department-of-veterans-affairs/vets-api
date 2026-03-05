@@ -43,6 +43,7 @@ RSpec.describe BPDS::SubmissionHandler do
       before { allow(Flipper).to receive(:enabled?).with(:bpds_service_enabled).and_return(true) }
 
       it 'tracks skip event and returns false' do
+        expect(bpds_monitor).to receive(:track_service_begun).with(claim.id)
         expect(bpds_monitor).to receive(:track_skip_bpds_job).with(claim.id)
         expect(controller.submit_claim_to_bpds(claim)).to be false
       end
@@ -59,6 +60,8 @@ RSpec.describe BPDS::SubmissionHandler do
       end
 
       it 'queues job with encrypted payload' do
+        expect(bpds_monitor).to receive(:track_service_begun).with(claim.id)
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, 'encrypted')
         expect(controller.submit_claim_to_bpds(claim)).to be true
       end
@@ -75,6 +78,8 @@ RSpec.describe BPDS::SubmissionHandler do
       end
 
       it 'queues job with encrypted payload' do
+        expect(bpds_monitor).to receive(:track_service_begun).with(claim.id)
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, 'encrypted')
         expect(controller.submit_claim_to_bpds(claim)).to be true
       end
