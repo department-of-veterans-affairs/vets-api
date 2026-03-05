@@ -146,7 +146,7 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
         longDescription: {
           blocks: [{ type: 'paragraph',
                      content: [{ type: 'link', text: 'External', href: 'https://example.com', style: 'external' },
-                               { type: 'link', text: 'Active', href: '/active', style: 'active', testId: 'my-link' }] }]
+                               { type: 'link', text: 'Active', href: '/active', style: 'active' }] }]
         }
       },
       'numbered list' => {
@@ -211,7 +211,7 @@ RSpec.describe BenefitsClaims::TrackedItemContent do
             { type: 'paragraph', content: [
               'Test paragraph with line break and link.',
               { type: 'lineBreak' },
-              { type: 'link', text: 'Test Active Link', href: '/test/path/', style: 'active', testId: 'test-link-id' }
+              { type: 'link', text: 'Test Active Link', href: '/test/path/', style: 'active' }
             ] },
             { type: 'paragraph', content: [
               'Test paragraph with phone ',

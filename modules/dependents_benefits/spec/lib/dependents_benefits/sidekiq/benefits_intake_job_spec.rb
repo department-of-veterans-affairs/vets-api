@@ -226,7 +226,8 @@ RSpec.describe DependentsBenefits::Sidekiq::BenefitsIntakeJob, type: :job do
     let(:msg) { { 'args' => [parent_claim.id, StandardError.new('Test error')] } }
 
     it 'handles failure events and sends failure email to veteran' do
-      expect { described_class.new.handle_permanent_failure(msg, StandardError.new('Test error')) }.not_to raise_error
+      expect { described_class.new.handle_permanent_failure(parent_claim.id, StandardError.new('Test error')) }
+        .not_to raise_error
     end
   end
 

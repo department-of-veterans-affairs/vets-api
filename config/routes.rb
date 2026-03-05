@@ -95,8 +95,6 @@ Rails.application.routes.draw do
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
 
-    get 'enrollment_periods', to: 'enrollment_periods#index'
-
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
     post 'medical_copays/send_statement_notifications', to: 'medical_copays#send_statement_notifications'
@@ -233,6 +231,7 @@ Rails.application.routes.draw do
 
     post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
     post 'event_bus_gateway/send_push', to: 'event_bus_gateway#send_push'
+    post 'event_bus_gateway/send_sms', to: 'event_bus_gateway#send_sms'
     post 'event_bus_gateway/send_notifications', to: 'event_bus_gateway#send_notifications'
 
     resources :maintenance_windows, only: [:index]

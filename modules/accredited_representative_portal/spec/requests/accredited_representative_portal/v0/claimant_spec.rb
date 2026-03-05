@@ -2,11 +2,19 @@
 
 require_relative '../../../rails_helper'
 
+# Ensure the top-level constant exists at file load time for verified doubles in CI.
+IcnTemporaryIdentifier = AccreditedRepresentativePortal::IcnTemporaryIdentifier unless defined?(IcnTemporaryIdentifier)
+
 RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :request do
   before do
     login_as(test_user)
     travel_to(time)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+
+    allow(Flipper)
+      .to receive(:enabled?)
+      .with(:accredited_representative_portal_claimant_details, anything)
+      .and_return(feature_flag_state)
   end
 
   let!(:poa_code) { '067' }
@@ -36,6 +44,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
+
   let(:feature_flag_state) { true }
 
   describe 'GET /accredited_representative_portal/v0/claimant/search' do
@@ -145,6 +154,178 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
           returned_ids = parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }
           expect(returned_ids).not_to include(withdrawn_poa_request.id)
         end
+      end
+    end
+  end
+
+  describe 'GET /accredited_representative_portal/v0/claimant/:id' do
+    let(:json_headers) { { 'ACCEPT' => 'application/json' } }
+    let(:identifier_id) { SecureRandom.uuid }
+    let(:benefit_type) { 'compensation' }
+
+    let(:path) { "/accredited_representative_portal/v0/claimant/#{identifier_id}" }
+
+    let(:mpi_profile) do
+      build(
+        :mpi_profile,
+        icn: '1008714701V416111',
+        given_names: ['John'],
+        family_name: 'Smith',
+        birth_date: '1980-01-01',
+        ssn: '666-66-6666',
+        home_phone: '555-555-5555',
+        address: OpenStruct.new(
+          street: '123 Main St',
+          street2: 'Apt 4',
+          city: 'Springfield',
+          state: 'VA',
+          postal_code: '12345'
+        )
+      )
+    end
+
+    let(:icn) { mpi_profile.icn }
+    let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+    let(:mpi_service) { instance_double(MPI::Service) }
+    let(:claimant_details_service) { instance_double(AccreditedRepresentativePortal::ClaimantDetailsService) }
+
+    let(:claimant_representative) do
+      instance_double(AccreditedRepresentativePortal::ClaimantRepresentative,
+                      power_of_attorney_holder: OpenStruct.new(name: 'Space Force Cadets'))
+    end
+
+    before do
+      stub_const('IcnTemporaryIdentifier', AccreditedRepresentativePortal::IcnTemporaryIdentifier)
+
+      allow(IcnTemporaryIdentifier).to receive(:lookup_icn).with(identifier_id).and_return(icn)
+
+      # Policy: allow happy path POA check
+      allow(AccreditedRepresentativePortal::ClaimantRepresentative).to receive(:find)
+        .and_return(claimant_representative)
+
+      allow(MPI::Service).to receive(:new).and_return(mpi_service)
+      allow(mpi_service).to receive(:find_profile_by_identifier).and_return(mpi_profile_response)
+
+      allow(AccreditedRepresentativePortal::ClaimantDetailsService).to receive(:new).with(
+        icn:,
+        representative_name: 'Space Force Cadets',
+        benefit_type_param: benefit_type
+      ).and_return(claimant_details_service)
+
+      allow(claimant_details_service).to receive(:call).and_return(
+        {
+          data: {
+            first_name: 'John',
+            last_name: 'Smith',
+            birth_date: '1980-01-01',
+            ssn: '6666', # NEW: masked
+            itf: [{ 'status' => 'ok' }]
+          }
+        }
+      )
+    end
+
+    context 'when feature flag is disabled' do
+      let(:feature_flag_state) { false }
+
+      it 'returns 404 not found (routing error)' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when benefitType is invalid' do
+      let(:benefit_type) { 'burial' }
+
+      it 'returns 422 unprocessable entity' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context 'when the claimant exists in MPI' do
+      it 'returns claimant profile fields (SSN masked to last 4)' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+
+        expect(response).to have_http_status(:ok)
+        data = parsed_response.fetch('data')
+        expect(data['first_name']).to eq('John')
+        expect(data['last_name']).to eq('Smith')
+        expect(data['birth_date']).to eq('1980-01-01')
+        expect(data['ssn']).to eq('6666')
+      end
+
+      it 'includes itf payload' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.dig('data', 'itf')).to be_present
+      end
+    end
+
+    context 'when itf lookup fails' do
+      before do
+        allow(claimant_details_service).to receive(:call).and_return(
+          {
+            data: {
+              first_name: 'John',
+              last_name: 'Smith',
+              birth_date: '1980-01-01',
+              ssn: '6666',
+              itf: []
+            }
+          }
+        )
+      end
+
+      it 'still returns claimant profile fields and itf is an empty array' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+
+        expect(response).to have_http_status(:ok)
+        data = parsed_response.fetch('data')
+        expect(data['first_name']).to eq('John')
+        expect(data['last_name']).to eq('Smith')
+        expect(data['birth_date']).to eq('1980-01-01')
+        expect(data['ssn']).to eq('6666')
+        expect(data['itf']).to eq([])
+      end
+    end
+
+    context 'when rep does not have POA for claimant' do
+      before do
+        allow(AccreditedRepresentativePortal::ClaimantRepresentative)
+          .to receive(:find)
+          .and_raise(AccreditedRepresentativePortal::ClaimantRepresentative::Finder::Error)
+      end
+
+      it 'returns 403 forbidden' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when MPI returns no profile' do
+      before do
+        allow(mpi_service).to receive(:find_profile_by_identifier).and_return(OpenStruct.new(profile: nil))
+        allow(claimant_details_service).to receive(:call)
+          .and_raise(Common::Exceptions::RecordNotFound, 'Claimant not found')
+      end
+
+      it 'returns 404 not found' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when the temporary identifier does not exist' do
+      before do
+        allow(IcnTemporaryIdentifier).to receive(:lookup_icn).with(identifier_id).and_raise(ActiveRecord::RecordNotFound)
+      end
+
+      it 'returns 404 not found' do
+        get(path, params: { benefitType: benefit_type }, headers: json_headers)
+        expect(response).to have_http_status(:not_found)
       end
     end
   end

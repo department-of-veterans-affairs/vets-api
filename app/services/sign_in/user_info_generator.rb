@@ -11,8 +11,8 @@ module SignIn
     def perform
       SignIn::UserInfo.new(sub:, ial:, aal:, csp_type:, csp_uuid:, email:, first_name:, last_name:, full_name:,
                            address_street1:, address_street2:, address_city:, address_state:, address_country:,
-                           address_postal_code:, phone_number:, person_types:, icn:, sec_id:, edipi:, mhv_ien:,
-                           npi_id:, cerner_id:, corp_id:, birls:, gcids:, birth_date:, ssn:, gender:)
+                           address_postal_code:, phone_number:, person_types:, icn:, sec_id:, sec_id_history:, edipi:,
+                           mhv_ien:, npi_id:, cerner_id:, corp_id:, birls:, gcids:, birth_date:, ssn:, gender:)
     end
 
     private
@@ -38,6 +38,7 @@ module SignIn
     def person_types        = user.person_types&.join('|') || ''
     def icn                 = user.icn
     def sec_id              = user.sec_id
+    def sec_id_history      = user.sec_id_history&.join('^') || ''
     def edipi               = user.edipi
     def mhv_ien             = user.mhv_ien
     def npi_id              = user.npi_id

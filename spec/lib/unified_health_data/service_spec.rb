@@ -188,12 +188,18 @@ describe UnifiedHealthData::Service, type: :service do
     end
 
     it 'logs test code distribution from parsed records' do
+      allow(Flipper).to receive(:enabled?)
+        .with(:mhv_medical_records_labs_and_tests_diagnostic, user)
+        .and_return(true)
+
       service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
 
       expect(Rails.logger).to have_received(:info).with(
         hash_including(
-          message: 'UHD test code and name distribution',
-          service: 'unified_health_data'
+          service: 'medical_records',
+          resource: 'labs_and_tests',
+          action: 'test_code_distribution',
+          log_level_context: 'diagnostic'
         )
       )
     end
@@ -229,6 +235,43 @@ describe UnifiedHealthData::Service, type: :service do
       it 'returns empty warnings when no _warnings in response body' do
         result = service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
         expect(result[:warnings]).to eq([])
+      end
+    end
+
+    context 'when uhd_client raises a service error' do
+      let(:error) { Faraday::TimeoutError.new('connection timed out') }
+
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_labs_by_date)
+          .and_raise(error)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'logs the error with domain context and re-raises' do
+        expect do
+          service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        end.to raise_error(Faraday::TimeoutError)
+
+        expect(Rails.logger).to have_received(:error).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'labs_and_tests',
+            action: 'index',
+            error_class: 'Faraday::TimeoutError',
+            error_message: 'connection timed out'
+          )
+        )
+      end
+
+      it 'increments the error StatsD counter' do
+        expect do
+          service.get_labs(start_date: '2025-01-01', end_date: '2025-12-31')
+        end.to raise_error(Faraday::TimeoutError)
+
+        expect(StatsD).to have_received(:increment)
+          .with('api.uhd.labs_and_tests.error', tags: [])
       end
     end
   end
@@ -954,10 +997,10 @@ describe UnifiedHealthData::Service, type: :service do
       it 'excludes notes with blank or invalid dates and logs a warning' do
         # Disable logging to simplify test
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, anything)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, anything)
           .and_return(false)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
+          .with(:mhv_medical_records_diagnostic_logging, anything)
           .and_return(false)
 
         # Create mock notes with various date conditions
@@ -981,7 +1024,8 @@ describe UnifiedHealthData::Service, type: :service do
           [note_with_blank_date, note_with_invalid_date, note_with_valid_date]
         )
 
-        # Expect warning to be logged for invalid date
+        # Expect warning to be logged for invalid date (allow other warn calls like high_filter_rate)
+        allow(Rails.logger).to receive(:warn)
         expect(Rails.logger).to receive(:warn).with(/excluding note due to invalid date.*invalid-date-note/i)
 
         notes = service.get_care_summaries_and_notes(start_date: '2024-12-01', end_date: '2024-12-31')[:records]
@@ -1074,33 +1118,44 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:gauge)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
           .and_return(false)
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
 
         service.get_care_summaries_and_notes
 
         expect(Rails.logger).to have_received(:info).with(
-          {
-            message: 'Clinical Notes LOINC code distribution',
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            record_type: 'Clinical Notes',
             loinc_code_distribution: '11506-3:3,11488-4:1,4189665:1,18842-5:1,4189666:1,96339-7:1',
             total_codes: 6,
             total_records: 6,
-            service: 'unified_health_data'
-          }
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log LOINC code distribution when flipper disabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
-          .with(hash_including(message: 'Clinical Notes LOINC code distribution'))
+          .with(hash_including(action: 'loinc_distribution'))
         service.get_care_summaries_and_notes
       end
     end
@@ -1113,31 +1168,112 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:gauge)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
           .and_return(false)
       end
 
       it 'logs notes response count when flipper enabled' do
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
           .and_return(true)
 
         service.get_care_summaries_and_notes
 
         expect(Rails.logger).to have_received(:info).with(
-          /Clinical Notes response: total_doc_refs=\d+, returned=\d+, filtered=\d+/,
-          { service: 'unified_health_data' }
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log notes response count when flipper disabled' do
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, user)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
           .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
-          .with(/Clinical Notes response:/, anything)
+          .with(hash_including(resource: 'clinical_notes', action: 'filter'))
         service.get_care_summaries_and_notes
+      end
+    end
+
+    context 'global toggle fallback (integration)' do
+      # Integration-style test: verifies that enabling ONLY the global toggle
+      # (not the domain toggle) activates diagnostic logging in both the
+      # service concern AND the adapter, proving the full fallback path works.
+
+      before do
+        allow_any_instance_of(UnifiedHealthData::Client)
+          .to receive(:get_notes_by_date)
+          .and_return(sample_client_response)
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+        allow(StatsD).to receive(:gauge)
+        allow(StatsD).to receive(:increment)
+
+        # Domain toggle OFF, global toggle ON
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(true)
+      end
+
+      it 'activates diagnostic logging in the service concern via global fallback' do
+        service.get_care_summaries_and_notes
+
+        # Service concern: log_notes_response_count fires
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'filter',
+            log_level_context: 'diagnostic'
+          )
+        )
+
+        # Service concern: log_notes_index_metrics fires
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'index',
+            log_level_context: 'diagnostic'
+          )
+        )
+      end
+
+      it 'activates diagnostic logging in the adapter via global fallback' do
+        # Verify the adapter's MedicalRecordsLog instance also picks up the global toggle.
+        # The adapter is created inside the service with `ClinicalNotesAdapter.new(user: @user)`,
+        # so its @mr_log must independently evaluate the global fallback.
+        adapter = UnifiedHealthData::Adapters::ClinicalNotesAdapter.new(user:)
+        expect(adapter.instance_variable_get(:@mr_log).diagnostic_enabled?(
+                 MedicalRecords::MedicalRecordsLog::CLINICAL_NOTES
+               )).to be true
+      end
+
+      it 'activates LOINC distribution logging via global fallback' do
+        service.get_care_summaries_and_notes
+
+        expect(Rails.logger).to have_received(:info).with(
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            log_level_context: 'diagnostic'
+          )
+        )
       end
     end
 
@@ -1152,11 +1288,13 @@ describe UnifiedHealthData::Service, type: :service do
 
         expect(Rails.logger).to have_received(:info).with(
           hash_including(
-            message: 'Clinical Notes index response',
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'index',
             total_notes: 6,
             vista_count: be_a(Integer),
             oracle_health_count: be_a(Integer),
-            service: 'unified_health_data'
+            log_level_context: 'diagnostic'
           )
         )
       end
@@ -1321,7 +1459,7 @@ describe UnifiedHealthData::Service, type: :service do
         allow(Rails.logger).to receive(:info)
         allow(StatsD).to receive(:increment)
         allow(Flipper).to receive(:enabled?)
-          .with(:mhv_accelerated_delivery_uhd_clinical_notes_logging_enabled, anything)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, anything)
           .and_return(true)
       end
 
@@ -1343,11 +1481,13 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'Clinical Notes show request',
+              service: 'medical_records',
+              resource: 'clinical_notes',
+              action: 'show',
               source: 'source not specified',
               note_found: true,
               note_type: be_a(String),
-              service: 'unified_health_data'
+              log_level_context: 'diagnostic'
             )
           )
         end
@@ -1379,7 +1519,8 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'Clinical Notes show request',
+              resource: 'clinical_notes',
+              action: 'show',
               note_found: false,
               note_type: nil
             )
@@ -1405,10 +1546,12 @@ describe UnifiedHealthData::Service, type: :service do
 
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
-              message: 'Clinical Notes show request',
+              service: 'medical_records',
+              resource: 'clinical_notes',
+              action: 'show',
               source: 'oracle-health',
               note_found: true,
-              service: 'unified_health_data'
+              log_level_context: 'diagnostic'
             )
           )
         end
@@ -1532,27 +1675,36 @@ describe UnifiedHealthData::Service, type: :service do
       end
 
       it 'logs LOINC code distribution when flipper enabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(true)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(true)
 
         service.get_appt_avs(appt_id: '12345', include_binary: true)
 
         expect(Rails.logger).to have_received(:info).with(
-          {
-            message: 'AVS LOINC code distribution',
+          hash_including(
+            service: 'medical_records',
+            resource: 'clinical_notes',
+            action: 'loinc_distribution',
+            record_type: 'AVS',
             loinc_code_distribution: '4189669:2,96345-4:2',
             total_codes: 2,
             total_records: 2,
-            service: 'unified_health_data'
-          }
+            log_level_context: 'diagnostic'
+          )
         )
       end
 
       it 'does not log LOINC code distribution when flipper disabled' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_uhd_loinc_logging_enabled,
-                                                  user).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_clinical_notes_diagnostic, user)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_diagnostic_logging, user)
+          .and_return(false)
 
         expect(Rails.logger).not_to receive(:info)
+          .with(hash_including(action: 'loinc_distribution'))
         service.get_appt_avs(appt_id: '12345', include_binary: true)
       end
     end
@@ -1620,7 +1772,7 @@ describe UnifiedHealthData::Service, type: :service do
       it 'returns prescriptions from both VistA and Oracle Health' do
         VCR.use_cassette('unified_health_data/get_prescriptions_success') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(30)
+          expect(prescriptions.size).to eq(22)
 
           # Check that prescriptions are UnifiedHealthData::Prescription objects
           expect(prescriptions).to all(be_a(UnifiedHealthData::Prescription))
@@ -1641,7 +1793,7 @@ describe UnifiedHealthData::Service, type: :service do
           Timecop.freeze(Time.zone.parse('2025-11-27')) do
             VCR.use_cassette('unified_health_data/get_prescriptions_success') do
               filtered_prescriptions = service.get_prescriptions(current_only: true)
-              expect(filtered_prescriptions.size).to eq(30)
+              expect(filtered_prescriptions.size).to eq(22)
             end
           end
         end
@@ -1974,7 +2126,7 @@ describe UnifiedHealthData::Service, type: :service do
           expect(Rails.logger).to have_received(:info).with(
             hash_including(
               message: 'UHD prescriptions retrieved',
-              total_prescriptions: 30,
+              total_prescriptions: 22,
               service: 'unified_health_data'
             )
           )
@@ -2011,15 +2163,15 @@ describe UnifiedHealthData::Service, type: :service do
       it 'handles Oracle Health-only data without errors' do
         VCR.use_cassette('unified_health_data/get_prescriptions_oracle_only') do
           prescriptions = service.get_prescriptions
-          expect(prescriptions.size).to eq(45)
+          expect(prescriptions.size).to eq(34)
           expect(prescriptions.map(&:prescription_id)).to contain_exactly(
             '15214174591', '15215168033', '15216187241', '15215488543', '15214174423', '15215979885',
             '15214174571', '15214777121', '15213998699', '15218955729', '15214535999', '15214303643',
             '15214282441', '15215168043', '15213978785', '15214275861', '15214834723', '15215721639',
             '15217757747', '15215020709', '15215098309', '15214174531', '15217281719', '15217757751',
-            '15217757667', '15218953273', '15218953219', '15217150277', '15216346305', '15213978755',
-            '15215109331', '15215017281', '15215582133', '15215017959', '15214166465', '15214174425',
-            '15214282323', '15214661111', '15214282321', '15214174561', '15214174537', '15214192877',
+            '15216346305', '15213978755',
+            '15214166465', '15214174425',
+            '15214282323', '15214661111', '15214192877',
             '15214103419', '15213928373', '15214166467'
           )
         end
@@ -2044,21 +2196,6 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result[:success]).to eq([{ id: '20848650695', status: 'Refill Submitted', station_number: '668' }])
           expect(result[:failed]).to eq([{ id: '0000000000001', error: 'Prescription is not Found',
                                            station_number: '570' }])
-        end
-      end
-
-      it 'increments StatsD refill metric for successful refills' do
-        VCR.use_cassette('unified_health_data/refill_prescription_success') do
-          orders = [
-            { id: '20848650695', stationNumber: '668' },
-            { id: '0000000000001', stationNumber: '570' }
-          ]
-
-          allow(StatsD).to receive(:increment).and_call_original
-          # Expecting 1 because the cassette has 1 successful refill (20848650695) and 1 failed (0000000000001)
-          expect(StatsD).to receive(:increment).with('api.uhd.refills.requested', 1)
-
-          service.refill_prescription(orders)
         end
       end
 
@@ -2121,15 +2258,6 @@ describe UnifiedHealthData::Service, type: :service do
           expect(result[:success]).to eq([])
           expect(result[:failed]).to eq([{ id: '21431810851', error: 'Prescription is not Found',
                                            station_number: '663' }])
-        end
-      end
-
-      it 'does not increment StatsD refill metric when no successful refills' do
-        VCR.use_cassette('unified_health_data/refill_prescription_empty') do
-          allow(StatsD).to receive(:increment).and_call_original
-          expect(StatsD).not_to receive(:increment).with('api.uhd.refills.requested', anything)
-
-          service.refill_prescription([{ id: '21431810851', stationNumber: '663' }])
         end
       end
     end

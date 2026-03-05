@@ -55,6 +55,14 @@ module Kafka
     hash
   end
 
+  # Builds an additional_ids array from a participant_id.
+  # @param participant_id [String, nil] the participant ID to include
+  # @return [Array<String>] an array with the labeled participant_id, or empty if nil/blank
+  def self.build_additional_ids(participant_id:)
+    labeled_pid = participant_id.present? ? "participant_id:#{participant_id}" : nil
+    [labeled_pid].compact
+  end
+
   # Submits an test event to the Kafka EventBusSubmissionJob
   #
   # @param payload [Hash] Hash must have only string values

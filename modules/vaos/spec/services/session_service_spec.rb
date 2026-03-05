@@ -37,4 +37,18 @@ describe VAOS::SessionService do
       end
     end
   end
+
+  describe 'initialize' do
+    context 'when user has an invalid ICN' do
+      before do
+        allow(user).to receive(:icn).and_return(nil)
+      end
+
+      it 'requires a valid ICN' do
+        expect do
+          subject.initialize(user)
+        end.to raise_error(ArgumentError)
+      end
+    end
+  end
 end

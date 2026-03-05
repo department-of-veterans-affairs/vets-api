@@ -54,7 +54,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(service).to receive(:perform_upload)
         expect(job).to receive(:cleanup_file_paths)
 
-        result = job.perform(claim.id, user_account_uuid, service)
+        result = job.perform(claim.id, user_account_uuid)
         expect(result).to eq(service.uuid)
       end
 
@@ -65,7 +65,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(claim).not_to receive(:to_pdf)
         expect(service).not_to receive(:perform_upload)
 
-        result = job.perform(claim.id, user_account_uuid, service)
+        result = job.perform(claim.id, user_account_uuid)
         expect(result).to be_nil
       end
     end
@@ -89,7 +89,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
       )
       expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id, :user_account_uuid, service)
+      job.perform(claim.id, :user_account_uuid)
     end
 
     it 'is unable to find user_account' do
