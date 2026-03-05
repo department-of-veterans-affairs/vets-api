@@ -49,7 +49,18 @@ module SimpleFormsApi
     end
 
     def veteran_full_name
-      data['veteran_full_name'].presence || data['full_name'] || {}
+      if veteran_is_filing?
+        # for self/veteran, profile confirms name as top-level first/middle/last
+        name = {
+          'first' => data['first'],
+          'middle' => data['middle'],
+          'last' => data['last']
+        }.compact_blank
+        name.presence || data['full_name'] || {}
+      else
+        # for non-veteran claimant, veteran's name is in veteran_full_name
+        data['veteran_full_name'].presence || {}
+      end
     end
 
     def veteran_id_data
