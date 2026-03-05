@@ -496,7 +496,7 @@ module VSPDanger
       <<~EMSG
         This PR adds new `rubocop:disable` comments. Please resolve the rubocop offense instead of disabling them.
 
-        If the offense is unresolvable please add comment explain why.
+        If the offense is unresolvable please add comment explaining why.
 
         #{formatted}
       EMSG
