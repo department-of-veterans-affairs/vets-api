@@ -34,7 +34,7 @@ module MedicalCopays
     def self.cerner_copay_user?(user)
       return true if user.cerner_facility_ids&.any?
 
-      user_facility_ids = user.vha_facility_ids
+      user_facility_ids = Array(user.vha_facility_ids).map(&:to_s)
       user_facility_ids.any? { |id| FUTURE_CERNER_FACILITY_IDS.include?(id) }
     end
   end
