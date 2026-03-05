@@ -1159,4 +1159,80 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       # rubocop:enable RSpec/NoExpectationExample
     end
   end
+
+  describe 'disabilities' do
+    let(:valid_disabilities) { [{ 'specialIssues' => ['HEPC'], 'name' => 'hepatitis' }] }
+    let(:invalid_disabilities) { [{ 'specialIssues' => ['HEPC'], 'name' => 'PTSD' }] }
+
+    context 'specialIssues' do
+      context "when specialIssues includes 'HEPC'" do
+        it "does not raise an error when name is 'hepatitis'" do
+          subject.send(:alt_rev_validate_special_issues, valid_disabilities)
+
+          expect(current_error_array).to be_nil
+        end
+
+        it "raises a 422 when name is not 'hepatitis'" do
+          subject.send(:alt_rev_validate_special_issues, invalid_disabilities)
+
+          expect(current_error_array.count).to eq(1)
+          expect(current_error_array[0][:detail]).to eq(
+            "'disability.specialIssues' :: Claim must include a disability " \
+            "with the name 'hepatitis'"
+          )
+        end
+      end
+
+      context "when specialIssues includes 'POW'" do
+        let(:valid_disabilities) { [{ 'specialIssues' => ['POW'], 'name' => 'hepatitis' }] }
+
+        # confinements are included in the submitted form data for these tests
+        it 'does not raise an error when confinements is present' do
+          subject.send(:alt_rev_validate_special_issues, valid_disabilities)
+
+          expect(current_error_array).to be_nil
+        end
+
+        it 'raises a 422 when confinements is not present' do
+          subject.form_attributes['serviceInformation'].delete('confinements')
+
+          subject.send(:alt_rev_validate_special_issues, valid_disabilities)
+
+          expect(current_error_array.count).to eq(1)
+          expect(current_error_array[0][:detail]).to eq(
+            "'disability.specialIssues' :: Claim must include " \
+            "valid 'serviceInformation.confinements' value"
+          )
+        end
+      end
+
+      context "when disabilityActionType is 'INCREASE'" do
+        let(:emp_disabilities) { [{ 'specialIssues' => ['EMP'], 'disabilityActionType' => 'INCREASE' }] }
+        let(:rrd_disabilities) { [{ 'specialIssues' => ['RRD'], 'disabilityActionType' => 'INCREASE' }] }
+        let(:oth_disabilities) { [{ 'specialIssues' => ['OTHER'], 'disabilityActionType' => 'INCREASE' }] }
+
+        it "does not raise an error if specialIssues includes 'EMP'" do
+          subject.send(:alt_rev_validate_special_issues, emp_disabilities)
+
+          expect(current_error_array).to be_nil
+        end
+
+        it "does not raise an error if specialIssues includes 'RRD'" do
+          subject.send(:alt_rev_validate_special_issues, rrd_disabilities)
+
+          expect(current_error_array).to be_nil
+        end
+
+        it 'raises an InvalidFieldValue error if specialIssues includes other value' do
+          subject.send(:alt_rev_validate_special_issues, oth_disabilities)
+
+          expect(current_error_array.count).to eq(1)
+          expect(current_error_array[0][:detail]).to eq(
+            "'disability.specialIssues' :: A Special Issue cannot be added to a primary " \
+            'disability after the disability has been rated'
+          )
+        end
+      end
+    end
+  end
 end
