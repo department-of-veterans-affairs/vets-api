@@ -222,9 +222,9 @@ module IncreaseCompensation
 
       # VANotify job to send Submission in Progress email to veteran
       def send_received_email
-        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:received)
+        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
       rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'received', e)
+        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
       end
 
       # Delete temporary stamped PDF files for this instance.
