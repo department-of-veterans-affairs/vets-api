@@ -343,7 +343,6 @@ Style/OptionalBooleanParameter:
     - 'app/controllers/v1/sessions_controller.rb'
     - 'app/sidekiq/education_form/forms/base.rb'
     - 'lib/common/models/redis_store.rb'
-    - 'lib/evss/base_service.rb'
     - 'lib/pdf_fill/hash_converter.rb'
     - 'spec/support/authenticated_session_helper.rb'
 

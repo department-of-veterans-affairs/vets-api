@@ -11,10 +11,12 @@ module EVSS
     SYSTEM_NAME = 'vets.gov'
     DEFAULT_TIMEOUT = 40 # in seconds
 
+    # rubocop:disable Style/OptionalBooleanParameter
     def initialize(headers, use_mock = false)
       @headers = headers
       @use_mock = use_mock
     end
+    # rubocop:enable Style/OptionalBooleanParameter
 
     def self.create_breakers_service(name:, url:)
       path = URI.parse(url).path
