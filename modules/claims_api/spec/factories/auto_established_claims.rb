@@ -17,8 +17,11 @@ FactoryBot.define do
     end
   end
   factory :auto_established_claim_with_supporting_documents, parent: :auto_established_claim do
-    after(:create) do |auto_established_claim|
-      create_list(:supporting_document, 1, auto_established_claim:)
+    transient do
+      supporting_documents_count { 1 }
+    end
+    after(:create) do |auto_established_claim, evaluator|
+      create_list(:supporting_document, evaluator.supporting_documents_count, auto_established_claim:)
     end
   end
 
