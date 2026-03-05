@@ -5,6 +5,7 @@ module V1
     service_tag 'debt-resolution'
     before_action :authorize_icn
     rescue_from MedicalCopays::LighthouseIntegration::Service::ServiceError, with: :service_error
+    rescue_from MedicalCopays::VBS::Service::StatementNotFound, with: :render_not_found
 
     def index
       if current_user.cerner_facility_ids.any?
