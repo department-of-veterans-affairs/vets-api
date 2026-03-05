@@ -63,7 +63,7 @@ RSpec.describe 'RepresentationManagement::V0::OriginalEntities', type: :request 
       end
     end
 
-    context 'when there are search results'  do
+    context 'when there are search results' do
       it 'returns a array of individuals and organizations' do
         get path, params: { query: 'Bob' }
 
@@ -75,6 +75,96 @@ RSpec.describe 'RepresentationManagement::V0::OriginalEntities', type: :request 
         expect(parsed_response[1]['data']['attributes']['full_name']).to eq('Bob Smith')
         expect(parsed_response[2]['data']['attributes']['name']).to eq('Bob Law Firm')
         expect(parsed_response[3]['data']['attributes']['name']).to eq('Bob Smith Firm')
+      end
+    end
+
+    describe 'can_accept_digital_poa_requests reflects acceptance_mode' do
+      let!(:org) do
+        create(:organization, :with_address, poa: 'GHI', name: 'Test Org',
+                                             can_accept_digital_poa_requests: true)
+      end
+      let!(:rep) do
+        create(:representative, :with_address, representative_id: '00099',
+                                               first_name: 'Test', last_name: 'Rep', poa_codes: ['GHI'])
+      end
+
+      context 'for org cards' do
+        it 'returns true when an active any_request rep exists' do
+          create(:veteran_organization_representative,
+                 representative: rep, organization: org, acceptance_mode: 'any_request')
+
+          get path, params: { query: 'Test Org' }
+
+          parsed_response = JSON.parse(response.body)
+          org_card = parsed_response.find { |r| r.dig('data', 'attributes', 'name') == 'Test Org' }
+
+          expect(org_card.dig('data', 'attributes', 'can_accept_digital_poa_requests')).to be true
+        end
+
+        it 'returns false when only self_only reps exist' do
+          create(:veteran_organization_representative,
+                 representative: rep, organization: org, acceptance_mode: 'self_only')
+
+          get path, params: { query: 'Test Org' }
+
+          parsed_response = JSON.parse(response.body)
+          org_card = parsed_response.find { |r| r.dig('data', 'attributes', 'name') == 'Test Org' }
+
+          expect(org_card.dig('data', 'attributes', 'can_accept_digital_poa_requests')).to be false
+        end
+
+        it 'returns false when no organization_representative records exist' do
+          get path, params: { query: 'Test Org' }
+
+          parsed_response = JSON.parse(response.body)
+          org_card = parsed_response.find { |r| r.dig('data', 'attributes', 'name') == 'Test Org' }
+
+          expect(org_card.dig('data', 'attributes', 'can_accept_digital_poa_requests')).to be false
+        end
+      end
+
+      context 'for rep cards with nested org' do
+        it 'returns true when the rep has an active non-no_acceptance org_rep record' do
+          create(:veteran_organization_representative,
+                 representative: rep, organization: org, acceptance_mode: 'any_request')
+
+          get path, params: { query: 'Test Rep' }
+
+          parsed_response = JSON.parse(response.body)
+          rep_card = parsed_response.find { |r| r.dig('data', 'attributes', 'full_name') == 'Test Rep' }
+          nested_orgs = rep_card.dig('data', 'attributes', 'accredited_organizations', 'data')
+          nested_org = nested_orgs.find { |o| o.dig('attributes', 'name') == 'Test Org' }
+
+          expect(nested_org.dig('attributes', 'can_accept_digital_poa_requests')).to be true
+        end
+
+        it 'returns true when the rep has a self_only org_rep record' do
+          create(:veteran_organization_representative,
+                 representative: rep, organization: org, acceptance_mode: 'self_only')
+
+          get path, params: { query: 'Test Rep' }
+
+          parsed_response = JSON.parse(response.body)
+          rep_card = parsed_response.find { |r| r.dig('data', 'attributes', 'full_name') == 'Test Rep' }
+          nested_orgs = rep_card.dig('data', 'attributes', 'accredited_organizations', 'data')
+          nested_org = nested_orgs.find { |o| o.dig('attributes', 'name') == 'Test Org' }
+
+          expect(nested_org.dig('attributes', 'can_accept_digital_poa_requests')).to be true
+        end
+
+        it 'returns false when the rep has a no_acceptance org_rep record' do
+          create(:veteran_organization_representative,
+                 representative: rep, organization: org, acceptance_mode: 'no_acceptance')
+
+          get path, params: { query: 'Test Rep' }
+
+          parsed_response = JSON.parse(response.body)
+          rep_card = parsed_response.find { |r| r.dig('data', 'attributes', 'full_name') == 'Test Rep' }
+          nested_orgs = rep_card.dig('data', 'attributes', 'accredited_organizations', 'data')
+          nested_org = nested_orgs.find { |o| o.dig('attributes', 'name') == 'Test Org' }
+
+          expect(nested_org.dig('attributes', 'can_accept_digital_poa_requests')).to be false
+        end
       end
     end
   end
