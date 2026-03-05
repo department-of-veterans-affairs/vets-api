@@ -36,6 +36,7 @@ RSpec.describe MedicalCopays::CernerFacilities do
         expect(described_class.cerner_copay_user?(user)).to be true
       end
     end
+
     context 'when the user has no cerner or future cerner facilities' do
       before do
         allow(user).to receive_messages(cerner_facility_ids: [], vha_facility_ids: %w[999])
