@@ -7,8 +7,11 @@ require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 require 'unified_health_data/service'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::AllergiesController', :skip_json_api_validation, type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:user_id) { '11898795' }
   let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }
   let(:path) { '/my_health/v2/medical_records/allergies' }

@@ -2,8 +2,11 @@
 
 require 'rails_helper'
 require 'unified_health_data/service'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::CcdController', type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:user_id) { '11898795' }
   let(:current_user) { build(:user, :mhv, icn: '1000123456V123456') }
   let(:path) { '/my_health/v2/medical_records/ccd/download' }

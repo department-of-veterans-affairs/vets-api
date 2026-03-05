@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'unified_health_data/service'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
@@ -9,6 +10,7 @@ require_relative '../../../../support/helpers/committee_helper'
 RSpec.describe 'Mobile::V1::AllergyIntolerances', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
   include CommitteeHelper
+  include_context 'uhd legacy security endpoint'
 
   let(:user_id) { '11898795' }
   let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }

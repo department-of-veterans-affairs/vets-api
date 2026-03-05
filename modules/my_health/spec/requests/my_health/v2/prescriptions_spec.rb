@@ -3,8 +3,11 @@
 require 'rails_helper'
 require 'unified_health_data/service'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:current_user) { build(:user, :mhv) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:refill_path) { '/my_health/v2/prescriptions/refill' }

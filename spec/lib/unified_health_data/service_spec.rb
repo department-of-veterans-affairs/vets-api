@@ -2,8 +2,11 @@
 
 require 'rails_helper'
 require 'unified_health_data/service'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 describe UnifiedHealthData::Service, type: :service do
+  include_context 'uhd legacy security endpoint'
+
   subject { described_class }
 
   let(:user) { build(:user, :loa3, icn: '1000123456V123456') }
