@@ -9,7 +9,6 @@ module SurvivorsBenefits
   # @see app/model/saved_claim
   #
   class SavedClaim < ::SavedClaim
-    include HasStructuredData
 
     # Survivors Benefits Form ID
     FORM = SurvivorsBenefits::FORM_ID

@@ -66,7 +66,7 @@ RSpec.describe SurvivorsBenefits::StructuredData::Section03 do
   end
 
   describe '#merge_service_branch_fields' do
-    service_branches ={
+    service_branches = {
       'army' => 'ARMY',
       'navy' => 'NAVY',
       'airForce' => 'AIR-FORCE',
