@@ -222,4 +222,61 @@ RSpec.describe 'CAVE API', type: :request do
         .to eq('Document processing service is temporarily unavailable')
     end
   end
+
+  describe 'POST /v0/cave/diff' do
+    let(:json_headers) { { 'CONTENT_TYPE' => 'application/json' } }
+
+    it 'returns 401 when unauthenticated' do
+      post '/v0/cave/diff', params: { lhs: {}, rhs: {} }.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'requires a JSON object request body' do
+      sign_in_as(user)
+
+      post '/v0/cave/diff', params: '[]', headers: json_headers
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it "requires both 'lhs' and 'rhs'" do
+      sign_in_as(user)
+
+      post '/v0/cave/diff', params: { lhs: {} }.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns coarse and fine-grained differences' do
+      sign_in_as(user)
+      payload = {
+        lhs: { first_name: 'jee', last_name: 'doe' },
+        rhs: { first_name: 'john', last_name: 'doe' }
+      }
+
+      post '/v0/cave/diff', params: payload.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response).to eq(
+        'is_different' => true,
+        'diff' => [
+          { 'first_name' => { 'lhs' => 'jee', 'rhs' => 'john', 'is_different' => true } }
+        ]
+      )
+    end
+
+    it 'returns no differences when payloads are equal' do
+      sign_in_as(user)
+      payload = {
+        lhs: { first_name: 'john', last_name: 'doe' },
+        rhs: { first_name: 'john', last_name: 'doe' }
+      }
+
+      post '/v0/cave/diff', params: payload.to_json, headers: json_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response).to eq('is_different' => false, 'diff' => [])
+    end
+  end
 end

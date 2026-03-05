@@ -30,6 +30,12 @@ module V0
       render json: client.download(document_id, kvpid:, user_id: idp_user_id)
     end
 
+    def diff
+      payload = diff_payload
+
+      render json: Idp::JsonDiff.new(lhs: payload['lhs'], rhs: payload['rhs']).call
+    end
+
     def update
       kvpid = params.require(:kvpid)
       render json: client.update(
@@ -53,6 +59,17 @@ module V0
     end
 
     def update_payload
+      parsed_json_object_body
+    end
+
+    def diff_payload
+      payload = parsed_json_object_body
+      return payload if payload.key?('lhs') && payload.key?('rhs')
+
+      raise Common::Exceptions::BadRequest, detail: "Request body must include 'lhs' and 'rhs'"
+    end
+
+    def parsed_json_object_body
       body_text = request.raw_post
       raise ActionController::ParameterMissing, :body if body_text.blank?
 
