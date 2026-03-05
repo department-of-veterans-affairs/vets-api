@@ -632,75 +632,44 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
           end
 
-          it 'sets returnUrl when rated disabilities have updates and new-flow flag is not set' do
-            fd = JSON.parse(in_progress_form_lighthouse.form_data)
-            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
-            fd['view:claimType'] = { 'view:claimingIncrease' => true }
-            in_progress_form_lighthouse.update(form_data: fd)
+          context 'returnUrl based on new-flow flag' do
+            def get_with_updated_disabilities(flag_value: :not_set)
+              fd = JSON.parse(in_progress_form_lighthouse.form_data)
+              fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+              fd['view:claimType'] = { 'view:claimingIncrease' => true }
+              fd['disability_comp_new_conditions_workflow'] = flag_value unless flag_value == :not_set
+              in_progress_form_lighthouse.update(form_data: fd)
 
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              VCR.use_cassette('disability_max_ratings/max_ratings') do
-                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                VCR.use_cassette('disability_max_ratings/max_ratings') do
+                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+                end
               end
             end
 
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
-          end
-
-          it 'sets returnUrl when rated disabilities have updates and the new-flow flag is false' do
-            fd = JSON.parse(in_progress_form_lighthouse.form_data)
-            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
-            fd['view:claimType'] = { 'view:claimingIncrease' => true }
-            fd['disability_comp_new_conditions_workflow'] = false
-            in_progress_form_lighthouse.update(form_data: fd)
-
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              VCR.use_cassette('disability_max_ratings/max_ratings') do
-                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-              end
+            it 'sets returnUrl when new-flow flag is not set' do
+              get_with_updated_disabilities
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
             end
 
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
-          end
-
-          it 'sets returnUrl to a new-flow url when rated disabilities have updates and the new-flow flag is true' do
-            fd = JSON.parse(in_progress_form_lighthouse.form_data)
-            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
-            fd['view:claimType'] = { 'view:claimingIncrease' => true }
-            fd['disability_comp_new_conditions_workflow'] = true
-            in_progress_form_lighthouse.update(form_data: fd)
-
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              VCR.use_cassette('disability_max_ratings/max_ratings') do
-                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-              end
+            it 'sets returnUrl when new-flow flag is false' do
+              get_with_updated_disabilities(flag_value: false)
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
             end
 
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['metadata']['returnUrl']).to eq('/conditions/summary')
-          end
-
-          it 'sets returnUrl to a new-flow url when rated disabilities have updates and the new-flow flag is "true" (string)' do
-            fd = JSON.parse(in_progress_form_lighthouse.form_data)
-            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
-            fd['view:claimType'] = { 'view:claimingIncrease' => true }
-            fd['disability_comp_new_conditions_workflow'] = 'true'
-            in_progress_form_lighthouse.update(form_data: fd)
-
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              VCR.use_cassette('disability_max_ratings/max_ratings') do
-                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-              end
+            it 'sets returnUrl to new-flow url when new-flow flag is true' do
+              get_with_updated_disabilities(flag_value: true)
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['metadata']['returnUrl']).to eq('/conditions/summary')
             end
 
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['metadata']['returnUrl']).to eq('/conditions/summary')
+            it 'sets returnUrl to new-flow url when new-flow flag is "true" (string)' do
+              get_with_updated_disabilities(flag_value: 'true')
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['metadata']['returnUrl']).to eq('/conditions/summary')
+            end
           end
         end
       end
