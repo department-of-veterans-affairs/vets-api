@@ -35,9 +35,8 @@ module VaNotify
 
     def send_email(args)
       Datadog::Tracing.trace('api.vanotify.service.send_email', service: 'va-notify') do |span|
-        span.set_tag('template_id', args[:template_id])
-
-        @template_id = args[:template_id]
+        @template_id = args[:template_id] || args['template_id']
+        span.set_tag('template_id', @template_id)
         response = with_monitoring do
           if Flipper.enabled?(:va_notify_request_level_callbacks)
             notify_client.send_email(append_callback_url(args))
@@ -53,7 +52,7 @@ module VaNotify
     end
 
     def send_sms(args)
-      @template_id = args[:template_id]
+      @template_id = args[:template_id] || args['template_id']
       response = with_monitoring do
         if Flipper.enabled?(:va_notify_request_level_callbacks)
           notify_client.send_sms(append_callback_url(args))
@@ -68,7 +67,7 @@ module VaNotify
     end
 
     def send_push(args)
-      @template_id = args[:template_id]
+      @template_id = args[:template_id] || args['template_id']
       # Push notifications currently do not support notification creation or callbacks
       unless Flipper.enabled?(:va_notify_push_notifications)
         Rails.logger.warn('Push notifications are disabled via feature flag va_notify_push_notifications')
@@ -109,15 +108,17 @@ module VaNotify
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        log_error_details(error)
         if error.status >= 400
           context = {
-            template_id: callback_options[:template_id] || callback_options['template_id'],
+            template_id: @template_id,
             callback_metadata: sanitize_metadata(
               callback_options[:callback_metadata] || callback_options['callback_metadata']
             )
           }
+          log_error_details(error, context)
           raise VANotify::Error.from_generic_error(error, context)
+        else
+          log_error_details(error)
         end
       else
         raise error
@@ -131,8 +132,12 @@ module VaNotify
       metadata.slice(:notification_type, :form_number)
     end
 
-    def log_error_details(error)
-      log_message_to_rails(error.message, 'error', { url: config.base_path, body: error.try(:body) })
+    def log_error_details(error, context = {})
+      log_message_to_rails(
+        error.message,
+        'error',
+        { url: config.base_path, body: error.try(:body) }.merge(context.compact)
+      )
     end
 
     def append_callback_url(args)
