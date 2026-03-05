@@ -10,7 +10,7 @@ RSpec.describe VRE::CaseGetDocument::Service do
     let(:raw_env) { instance_double(Faraday::Env, status: 200) }
     let(:url) { "#{Settings.res.base_url}/suite/webapi/get-case-get-document" }
     let(:headers) { { 'Appian-API-Key' => Settings.res.api_key, 'Accept' => 'application/pdf' } }
-    let(:params) { { resCaseId: 4574, documentType: '626' } }
+    let(:params) { { res_case_id: 4574, document_type: '626' } }
     let(:expected_body) { { icn:, resCaseId: 4574, documentType: '626' }.to_json }
     let(:request_params) { [:post, url, expected_body, headers] }
 

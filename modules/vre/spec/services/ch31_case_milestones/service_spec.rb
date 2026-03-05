@@ -30,6 +30,23 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
       ActionController::Parameters.new(
         milestones: [
           {
+            milestone_type: 'ORIENTATION_COMPLETION',
+            is_milestone_completed: true,
+            milestone_completion_date: '2025-01-15',
+            milestone_submission_user: 'john.smith',
+            postpone: false
+          }
+        ]
+      ).permit(
+        milestones: %i[milestone_type is_milestone_completed milestone_completion_date
+                       milestone_submission_user postpone]
+      )
+    end
+    let(:payload) do
+      {
+        icn:,
+        milestones: [
+          {
             milestoneType: 'ORIENTATION_COMPLETION',
             isMilestoneCompleted: true,
             milestoneCompletionDate: '2025-01-15',
@@ -37,9 +54,8 @@ RSpec.describe VRE::Ch31CaseMilestones::Service do
             postpone: false
           }
         ]
-      )
+      }
     end
-    let(:payload) { { icn:, milestones: milestone_params[:milestones] } }
     let(:request_params) { [:post, url, payload.to_json, headers] }
 
     context 'when successful' do

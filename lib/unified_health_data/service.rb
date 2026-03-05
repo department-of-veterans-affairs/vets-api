@@ -12,10 +12,10 @@ require_relative 'adapters/conditions_adapter'
 require_relative 'adapters/lab_or_test_adapter'
 require_relative 'adapters/vital_adapter'
 require_relative 'reference_range_formatter'
-require_relative 'logging'
 require_relative 'client'
 require_relative 'source_constants'
 require_relative 'concerns/clinical_notes_logging'
+require_relative 'concerns/labs_and_tests_logging'
 require_relative 'concerns/facility_cache_warming'
 
 module UnifiedHealthData
@@ -23,6 +23,7 @@ module UnifiedHealthData
     STATSD_KEY_PREFIX = 'api.uhd'
     include Common::Client::Concerns::Monitoring
     include Concerns::ClinicalNotesLogging
+    include Concerns::LabsAndTestsLogging
     include Concerns::FacilityCacheWarming
 
     def initialize(user)
@@ -30,7 +31,8 @@ module UnifiedHealthData
       @user = user
     end
 
-    def get_labs(start_date:, end_date:)
+    def get_labs(start_date:, end_date:, caller: nil)
+      @labs_caller = caller
       with_monitoring do
         response = uhd_client.get_labs_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
@@ -44,10 +46,15 @@ module UnifiedHealthData
 
         parsed_records = lab_or_test_adapter.parse_labs(combined_records)
 
-        # Log test code distribution
-        logger.log_test_code_distribution(parsed_records)
+        log_test_code_distribution(parsed_records)
+        log_labs_metrics(combined_records, parsed_records, start_date, end_date)
 
         { records: parsed_records, warnings: }
+      rescue Common::Exceptions::BackendServiceException,
+             Common::Client::Errors::ClientError,
+             Faraday::Error => e
+        log_labs_error(e, start_date, end_date)
+        raise
       end
     end
 
@@ -113,7 +120,6 @@ module UnifiedHealthData
         response = uhd_client.refill_prescription_orders(build_refill_request_body(normalized_orders))
         result = parse_refill_response(response)
         validate_refill_response_count(normalized_orders, result)
-        increment_refill(result[:success].size) if result[:success].present?
         result
       end
     rescue Common::Exceptions::BackendServiceException => e
@@ -492,10 +498,6 @@ module UnifiedHealthData
       doc_entry&.dig('resource')
     end
 
-    def increment_refill(count = 1)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.refills.requested", count)
-    end
-
     def uhd_client
       @uhd_client ||= UnifiedHealthData::Client.new
     end
@@ -505,7 +507,7 @@ module UnifiedHealthData
     end
 
     def lab_or_test_adapter
-      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new
+      @lab_or_test_adapter ||= UnifiedHealthData::Adapters::LabOrTestAdapter.new(mr_log:)
     end
 
     def clinical_notes_adapter
@@ -522,10 +524,6 @@ module UnifiedHealthData
 
     def immunization_adapter
       @immunization_adapter ||= UnifiedHealthData::Adapters::ImmunizationAdapter.new(@user)
-    end
-
-    def logger
-      @logger ||= UnifiedHealthData::Logging.new(@user)
     end
 
     def default_start_date

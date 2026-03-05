@@ -40,8 +40,25 @@ module DependentsBenefits
       parent_claim_id
     ].freeze
 
-    def initialize
+    # @param claim_id [Integer, nil] optional SavedClaim id used to inspect claim for tags
+    # @param user [Object, nil] optional user used for flipper checks
+    def initialize(claim_id = nil, user = nil)
+      @claim_id = claim_id
+      @claim = find_claim(claim_id)
+      @user = user
+
       super(service_name, allowlist: ALLOWLIST, safe_keys: SAFE_KEYS)
+
+      @use_v3 = get_use_v3
+      @use_v3_removal = get_use_v3_removal(@claim)
+      @tags = get_tags
+    end
+
+    ##
+    # Checks if v3 logging is enabled
+    # @return [Boolean] true if v3 logging is enabled, false otherwise
+    def v3_logging_enabled?
+      @v3_logging_enabled ||= Flipper.enabled?(:dependents_v3_removal_picklist_logging)
     end
 
     ##
@@ -113,6 +130,9 @@ module DependentsBenefits
     # @param tags [Mixed] the list of tags to be appended - key:value
     def append_tags(context, **tags)
       context[:tags] ||= []
+      # Include monitor's base tags (service, use_v3, v3_removal, etc...)
+      context[:tags] += @tags if @tags.present?
+      # Add any additional tags passed in
       tags.each { |k, v| context[:tags] += ["#{k}:#{v}"] }
       context[:tags].uniq!
       context
@@ -151,6 +171,91 @@ module DependentsBenefits
     # @return [String]
     def form_id
       DependentsBenefits::FORM_ID
+    end
+
+    ##
+    # Load a saved claim for inspection
+    # @param claim_id [Integer] the id of the claim to load
+    # @return [SavedClaim, nil] the loaded claim or nil if not found
+    def find_claim(claim_id)
+      return nil if claim_id.nil?
+
+      ::SavedClaim.find(claim_id)
+    rescue => e
+      Rails.logger.warn('Unable to find claim for DependentsBenefits::Monitor', { claim_id:, e: })
+      nil
+    end
+
+    ##
+    # tag used for logging to identify ALL claims with v3 flipper active
+    # @return [Boolean] whether the v3 flipper is enabled for the user
+    def get_use_v3
+      return false unless v3_logging_enabled?
+      return false if @user.nil?
+
+      actor = actor_for_flipper(@user)
+      Flipper.enabled?(:va_dependents_v3, actor)
+    end
+
+    ##
+    # Normalize a user-like object into something Flipper can accept as an actor (based on User#flipper_id)
+    # This can either be current_user from the claims controller or what's
+    # generated in DependentSubmissionJob#generate_user_struct
+    # @param user [Object] the user-like object to normalize
+    # @return [Object] the normalized actor for Flipper checks
+    def actor_for_flipper(user)
+      return user if user.respond_to?(:flipper_id)
+
+      OpenStruct.new(flipper_id: user.uuid)
+    end
+
+    ##
+    # tag used for logging to identify claims with v3 removal flow active
+    # @param claim [SavedClaim] the claim to inspect for v3 removal flow
+    # @return [Boolean] whether the claim is part of the v3 removal flow
+    def get_use_v3_removal(claim)
+      return false unless v3_logging_enabled?
+      return false if claim.nil?
+
+      # The code below is really just for spec purposes, since in prod the claim.parsed_form should always be present
+      # and return a Hash object. If for some reason it doesn't, we don't want the entire monitor to fail,
+      # so we rescue and return false.
+      begin
+        parsed_form = claim.parsed_form
+      rescue
+        return false
+      end
+
+      return false if parsed_form.nil?
+
+      # Handle parsed_form being a JSON string, nil, or a Hash-like object
+      parsed = if parsed_form.is_a?(String)
+                 begin
+                   JSON.parse(parsed_form)
+                 rescue JSON::ParserError
+                   {}
+                 end
+               else
+                 parsed_form
+               end
+
+      parsed = parsed.with_indifferent_access if parsed.respond_to?(:with_indifferent_access)
+
+      !!parsed['is_v3_removal_flow']
+    end
+
+    ##
+    # Generate tags for logging based on flipper states and claim attributes
+    # @return [Array<String>] the list of tags to be included in logs
+    def get_tags
+      additional_tags = @tags.dup || []
+      additional_tags << "service:#{service}"
+      if v3_logging_enabled?
+        # if user is nil, but claim dta has is_v3_removal_flow true, we know that feature flag is ON
+        additional_tags << "use_v3:#{@use_v3 || @use_v3_removal}" if @user.present? || @use_v3_removal
+        additional_tags << "v3_removal:#{@use_v3_removal}" if @claim.present?
+      end
+      additional_tags
     end
   end
 end
