@@ -1540,7 +1540,7 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "beginDate": {
-                                    "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
+                                    "description": "Begin date for treatment.",
                                     "type": "string",
                                     "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                     "example": "2018-06 or 2018",
@@ -2983,7 +2983,7 @@
                               "additionalProperties": false,
                               "properties": {
                                 "beginDate": {
-                                  "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
+                                  "description": "Begin date for treatment.",
                                   "type": "string",
                                   "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                   "example": "2018-06 or 2018",
@@ -5162,7 +5162,7 @@
                               "additionalProperties": false,
                               "properties": {
                                 "beginDate": {
-                                  "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
+                                  "description": "Begin date for treatment.",
                                   "type": "string",
                                   "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
                                   "example": "2018-06 or 2018",
@@ -6712,7 +6712,7 @@
                               "additionalProperties": false,
                               "properties": {
                                 "beginDate": {
-                                  "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
+                                  "description": "Begin date for treatment.",
                                   "type": "string",
                                   "pattern": "^(\\d{4}(-\\d{2})?)?$",
                                   "example": "2018-06 or 2018",
