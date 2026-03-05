@@ -23,8 +23,6 @@ module AccreditedRepresentativePortal
     end
 
     def record_org_participates?
-      return false unless @record.respond_to?(:power_of_attorney_holder_poa_code)
-
       poa_code = @record.power_of_attorney_holder_poa_code
       @user.power_of_attorney_holders.any? do |holder|
         holder.poa_code == poa_code && holder.accepts_digital_power_of_attorney_requests?
