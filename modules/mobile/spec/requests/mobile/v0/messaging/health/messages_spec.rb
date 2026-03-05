@@ -598,12 +598,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
         let(:message_params) { { category: 'OTHER', body: 'Test', recipient_id: '1', subject: 'Test' } }
         let(:reply_message_id) { 674_838 }
         let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
-
         let(:expected_error_response) do
-          { 'errors' => [{ 'title' => 'This facility is currently migrating to a new health portal',
-                           'body' => 'This facility is transitioning to a new system and messaging is ' \
-                                     'temporarily unavailable. Please try again later or contact the ' \
-                                     'facility directly.',
+          { 'errors' => [{ 'title' => "You can't send this message right now",
+                           'body' => "You can't send messages to providers at some facilities " \
+                                     'right now. For more information, update the app.',
                            'status' => 418,
                            'source' => 'SM',
                            'telephone' => nil,
@@ -626,6 +624,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                    headers: sis_headers,
                    params: { message: message_params.merge(station_number: '983') }
 
+              binding.pry
               expect(response).to have_http_status(418)
               expect(response.parsed_body).to eq(expected_error_response)
             end

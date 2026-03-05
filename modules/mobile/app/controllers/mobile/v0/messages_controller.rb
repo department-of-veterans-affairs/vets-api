@@ -237,9 +237,9 @@ module Mobile
         return unless %w[p3 p4 p5].include?(phase)
 
         raise Mobile::V0::Exceptions::CustomErrors.new(
-          title: 'This facility is currently migrating to a new health portal',
-          body: 'This facility is transitioning to a new system and messaging is temporarily unavailable. ' \
-                'Please try again later or contact the facility directly.',
+          title: 'You can\'t send this message right now',
+          body: 'You can\'t send messages to providers at some facilities right now. ' \
+                'For more information, update the app.',
           source: 'SM',
           telephone: nil,
           refreshable: false
