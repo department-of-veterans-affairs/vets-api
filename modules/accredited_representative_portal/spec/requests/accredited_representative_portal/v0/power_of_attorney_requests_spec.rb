@@ -18,8 +18,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     login_as(test_user)
     travel_to(time)
 
+    allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?)
-      .with(:accredited_representative_portal_individual_accept, test_user)
+      .with(:accredited_representative_portal_individual_accept, anything)
       .and_return(false)
 
     test_user
@@ -68,6 +69,94 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['data'].size).to eq(1)
         expect(parsed_response['data'].first['id']).to eq(poa_request.id)
         expect(parsed_response['data'].map { |p| p['id'] }).not_to include(other_poa_request.id)
+      end
+
+      context 'when individual accept feature flag is enabled (scope filtering)' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:accredited_representative_portal_individual_accept, anything)
+            .and_return(true)
+
+          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
+            .to receive(:registration_numbers)
+            .and_return([representative.representative_id])
+        end
+
+        let!(:same_org_request_one) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code:) }
+        let!(:same_org_request_two) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code:) }
+
+        context 'when acceptance_mode is any_request' do
+          before do
+            create(
+              :veteran_organization_representative,
+              organization: vso,
+              representative:,
+              acceptance_mode: 'any_request'
+            )
+          end
+
+          it 'returns all requests for the org' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+            expect(response).to have_http_status(:ok)
+            ids = parsed_response['data'].map { |p| p['id'] }
+            expect(ids).to include(poa_request.id, same_org_request_one.id, same_org_request_two.id)
+            expect(ids).not_to include(other_poa_request.id)
+          end
+        end
+
+        context 'when acceptance_mode is self_only' do
+          before do
+            create(
+              :veteran_organization_representative,
+              organization: vso,
+              representative:,
+              acceptance_mode: 'self_only'
+            )
+
+            poa_request.update!(accredited_individual_registration_number: representative.representative_id)
+            same_org_request_one.update!(accredited_individual_registration_number: representative.representative_id)
+            same_org_request_two.update!(accredited_individual_registration_number: '999999')
+          end
+
+          it 'returns only requests assigned to the representative' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+            expect(response).to have_http_status(:ok)
+            ids = parsed_response['data'].map { |p| p['id'] }
+
+            expect(ids).to include(poa_request.id, same_org_request_one.id)
+            expect(ids).not_to include(same_org_request_two.id)
+            expect(ids).not_to include(other_poa_request.id)
+          end
+        end
+
+        context 'when acceptance_mode is no_acceptance' do
+          before do
+            create(
+              :veteran_organization_representative,
+              organization: vso,
+              representative:,
+              acceptance_mode: 'no_acceptance'
+            )
+          end
+
+          it 'returns an empty list' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response['data']).to eq([])
+          end
+        end
+
+        context 'when org participates but acceptance_mode is blank (no org rep row)' do
+          it 'returns an empty list' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response['data']).to eq([])
+          end
+        end
       end
 
       describe 'sorting' do
@@ -597,13 +686,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       context 'when individual accept feature flag is enabled (record authorization)' do
         before do
           allow(Flipper).to receive(:enabled?)
-            .with(:accredited_representative_portal_individual_accept, test_user)
+            .with(:accredited_representative_portal_individual_accept, anything)
             .and_return(true)
 
-          # Ensure the policy can find the rep by registration number
-          allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyHolderMemberships)
-            .to receive(:registration_numbers)
-            .and_return([representative.representative_id])
+          allow(test_user).to receive(:registration_numbers).and_return([representative.representative_id])
         end
 
         it 'allows show when acceptance_mode is any_request' do
@@ -618,7 +704,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           expect(response).to have_http_status(:ok)
         end
 
-        it 'denies show when acceptance_mode is no_acceptance' do
+        it 'returns 404 when acceptance_mode is no_acceptance' do
           create(
             :veteran_organization_representative,
             organization: vso,
@@ -627,7 +713,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           )
 
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:not_found)
         end
 
         it 'allows show when acceptance_mode is self_only and request is assigned to the rep' do
@@ -644,7 +730,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           expect(response).to have_http_status(:ok)
         end
 
-        it 'denies show when acceptance_mode is self_only and request is assigned to someone else' do
+        it 'returns 404 when acceptance_mode is self_only and request is assigned to someone else' do
           create(
             :veteran_organization_representative,
             organization: vso,
@@ -655,7 +741,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           poa_request.update!(accredited_individual_registration_number: '999999')
 
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:not_found)
         end
       end
 
