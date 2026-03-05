@@ -348,7 +348,7 @@ module ClaimsApi
           raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
         end
 
-        if invalid_type_increase_special_issue?(special_issues:)
+        if invalid_type_increase_special_issue?(special_issues:, disability:)
           message = "'disability.specialIssues' :: A Special Issue cannot be added to a primary disability after " \
                     'the disability has been rated'
           raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
@@ -369,8 +369,8 @@ module ClaimsApi
       confinements.blank?
     end
 
-    def invalid_type_increase_special_issue?(special_issues:)
-      return false unless form_attributes['disabilityActionType'] == 'INCREASE'
+    def invalid_type_increase_special_issue?(special_issues:, disability:)
+      return false unless disability['disabilityActionType'] == 'INCREASE'
       return false if special_issues.blank?
 
       # if 'specialIssues' includes 'EMP' or 'RRD', then EVSS allows the disability to be submitted with a type of
