@@ -2,7 +2,7 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
-module AuthenticationAndSSOConcerns
+module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
   include ActionController::Cookies
   include SignIn::Authentication
