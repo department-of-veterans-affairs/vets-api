@@ -9,7 +9,6 @@ module SurvivorsBenefits
   # @see app/model/saved_claim
   #
   class SavedClaim < ::SavedClaim
-
     # Survivors Benefits Form ID
     FORM = SurvivorsBenefits::FORM_ID
 
