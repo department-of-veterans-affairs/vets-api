@@ -624,7 +624,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
                    headers: sis_headers,
                    params: { message: message_params.merge(station_number: '983') }
 
-              binding.pry
               expect(response).to have_http_status(418)
               expect(response.parsed_body).to eq(expected_error_response)
             end
