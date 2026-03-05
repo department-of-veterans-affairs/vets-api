@@ -90,7 +90,7 @@ module MyHealth
           next status_comparison if status_comparison != 0
 
           # 2nd sort by medication name (case-insensitive)
-          name_comparison = (a.prescription_name || '').downcase <=> (b.prescription_name || '').downcase
+          name_comparison = (a.prescription_name || '').casecmp(b.prescription_name || '')
           next name_comparison if name_comparison != 0
 
           # 3rd sort by fill date(sorted_dispensed_date) - newest to oldest

@@ -776,7 +776,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           prescription_names = prescriptions.map { |rx| rx['attributes']['prescription_name'] }
 
           # Verify they are sorted alphabetically (case-insensitive)
-          expect(prescription_names).to eq(prescription_names.sort_by(&:downcase))
+          expect(prescription_names).to eq(prescription_names.sort_by { |n| n.to_s.downcase })
 
           # If prescriptions have the same name, verify secondary sort by dispensed_date (newest first)
           prescriptions.group_by { |rx| rx['attributes']['prescription_name'] }.each_value do |meds|

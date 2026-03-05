@@ -102,7 +102,7 @@ module MyHealth
         status_comparison = (a.disp_status || '') <=> (b.disp_status || '')
         return status_comparison if status_comparison != 0
 
-        name_comparison = (a.prescription_name || '').downcase <=> (b.prescription_name || '').downcase
+        name_comparison = (a.prescription_name || '').casecmp(b.prescription_name || '')
         return name_comparison if name_comparison != 0
 
         compare_by_fill_date(a, b)
