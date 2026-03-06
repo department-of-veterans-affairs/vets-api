@@ -66,7 +66,7 @@ module IncreaseCompensation
     # Only removed Sidekiq call from super
     def process_attachments!(docs = nil)
       refs = docs || parsed_form['files'] || []
-      files = PersistentAttachment.where(guid: refs.map { |f| f['confirmation_code'] })
+      files = PersistentAttachment.where(guid: refs.map { |f| f['confirmation_code'] || f['confirmationCode'] })
       files.find_each { |f| f.update(saved_claim_id: id, form_id: FORM_REAL_ID) }
 
       # Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
