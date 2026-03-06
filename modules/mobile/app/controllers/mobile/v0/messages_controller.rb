@@ -9,6 +9,7 @@ module Mobile
       include Filterable
 
       before_action :validate_message_id, only: %i[show destroy thread reply move]
+      before_action :raise_if_in_migration, only: %i[create reply]
       before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def index
@@ -52,8 +53,6 @@ module Mobile
       end
 
       def create
-        raise_if_in_migration
-
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
@@ -91,8 +90,6 @@ module Mobile
       end
 
       def reply
-        raise_if_in_migration
-
         message = Message.new(message_params.merge(upload_params)).as_reply
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
