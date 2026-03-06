@@ -110,7 +110,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             return_url = perform_return_url_test(workflow_value: false)
             expect(return_url).to eq('/disabilities/rated-disabilities')
           end
-          
+
           it "sets returnUrl to '/disabilities/rated-disabilities' when new-flow key is not present" do
             return_url = perform_return_url_test(workflow_value: :absent)
             expect(return_url).to eq('/disabilities/rated-disabilities')
