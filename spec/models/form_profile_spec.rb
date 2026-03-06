@@ -1003,6 +1003,21 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vsurvivors_benefits_expected) do
+    {
+      'claimant_full_name' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'claimant_address' => address,
+      'claimant_phone' => us_phone,
+      'claimant_email' => user.email,
+      'claimantDateOfBirth' => user.date_of_birth
+    }
+  end
+
   let(:initialize_va_profile_prefill_military_information_expected) do
     expected_service_episodes_by_date = [
       {
@@ -2407,6 +2422,7 @@ RSpec.describe FormProfile, type: :model do
           21-2680
           FORM-MOCK-AE-DESIGN-PATTERNS
           FORM-MOCK-PREFILL
+          21P-534EZ
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
