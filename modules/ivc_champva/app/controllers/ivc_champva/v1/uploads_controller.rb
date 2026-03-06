@@ -104,7 +104,7 @@ module IvcChampva
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
 
           # call handle_file_uploads with new signature
-          statuses, error_messages = call_upload_form(form_id, file_paths, metadata)
+          statuses, error_messages = call_upload_form(form_id, file_paths, metadata, parsed_form_data)
 
           response = build_json(statuses, error_messages)
 
@@ -316,11 +316,11 @@ module IvcChampva
       ##
       # Wrapper around handle_file_uploads that allows us to use the new retry logic
       # based on the feature flag
-      def call_upload_form(form_id, file_paths, metadata)
+      def call_upload_form(form_id, file_paths, metadata, parsed_form_data = nil)
         if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          upload_form_with_refactored_retry(form_id, file_paths, metadata)
+          upload_form_with_refactored_retry(form_id, file_paths, metadata, parsed_form_data)
         else
-          upload_form(form_id, file_paths, metadata)
+          upload_form(form_id, file_paths, metadata, parsed_form_data)
         end
       end
 
@@ -741,7 +741,6 @@ module IvcChampva
       #   and an array with 1 or more message strings.
       def handle_file_uploads(form_id, parsed_form_data)
         attempt = 0
-        max_attempts = 1
 
         # Initialize with default values to handle nil reference cases
         statuses = [500]
@@ -749,10 +748,10 @@ module IvcChampva
 
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
+          options = { insert_db_row: true, current_user: @current_user, parsed_form_data: }
+          hu_result = FileUploader.new(form_id, metadata, file_paths, **options).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
-
           # Since some or all of the files failed to upload to S3, trigger retry
           raise StandardError, error_messages if error_messages.compact.length.positive?
         rescue => e
@@ -760,7 +759,7 @@ module IvcChampva
           error_message_downcase = e.message.downcase
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
 
-          if should_retry?(error_message_downcase, attempt, max_attempts)
+          if should_retry?(error_message_downcase, attempt)
             Rails.logger.error 'Retrying in 1 seconds...'
             sleep 1
             retry
@@ -778,19 +777,21 @@ module IvcChampva
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
       # @param [Array<String>] file_paths The file paths of the files to upload
       # @param [Hash] metadata The metadata for the form
+      # @param [Hash] parsed_form_data Optional original form data for storage
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def upload_form(form_id, file_paths, metadata)
+      def upload_form(form_id, file_paths, metadata, parsed_form_data = nil)
         attempt = 0
-        max_attempts = 1
 
         # Initialize with default values to handle nil reference cases
         statuses = [500]
         error_messages = ['Server error occurred']
 
         begin
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          options = { insert_db_row: true, current_user: @current_user, parsed_form_data: }
+          uploader = FileUploader.new(form_id, metadata, file_paths, **options)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -801,7 +802,7 @@ module IvcChampva
           error_message_downcase = e.message.downcase
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
 
-          if should_retry?(error_message_downcase, attempt, max_attempts)
+          if should_retry?(error_message_downcase, attempt)
             Rails.logger.error 'Retrying in 1 seconds...'
             sleep 1
             retry
@@ -830,7 +831,9 @@ module IvcChampva
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
+          options = { insert_db_row: true, current_user: @current_user, parsed_form_data: }
+          uploader = FileUploader.new(form_id, metadata, file_paths, **options)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -847,10 +850,11 @@ module IvcChampva
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
       # @param [Array<String>] file_paths The file paths of the files to upload
       # @param [Hash] metadata The metadata for the form
+      # @param [Hash] parsed_form_data Optional original form data for storage
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def upload_form_with_refactored_retry(form_id, file_paths, metadata)
+      def upload_form_with_refactored_retry(form_id, file_paths, metadata, parsed_form_data = nil)
         on_failure = lambda { |e, attempt|
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
         }
@@ -860,7 +864,9 @@ module IvcChampva
         error_messages = ['Server error occurred']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          options = { insert_db_row: true, current_user: @current_user, parsed_form_data: }
+          uploader = FileUploader.new(form_id, metadata, file_paths, **options)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -871,7 +877,7 @@ module IvcChampva
         [statuses, error_messages]
       end
 
-      def should_retry?(error_message_downcase, attempt, max_attempts)
+      def should_retry?(error_message_downcase, attempt, max_attempts = 1)
         error_conditions = [
           'failed to generate',
           'no such file',

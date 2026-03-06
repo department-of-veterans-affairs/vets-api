@@ -36,6 +36,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(ves_request).to receive(:transaction_uuid=)
     allow(ves_request).to receive(:to_json).and_return('{}')
     allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:champva_store_request_json, anything).and_return(false)
   end
 
   after do
@@ -374,10 +375,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
-  describe 'stored ves data is encrypted' do
+  describe 'stored data encryption' do
     it 'ves_request_data is encrypted' do
-      # This is the only part of the test we actually need
       expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
+    end
+
+    it 'request_json is encrypted' do
+      expect(IvcChampvaForm.new).to encrypt_attr(:request_json)
     end
   end
 
@@ -1360,7 +1364,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           context 'when require_all_s3_success feature is enabled' do
-            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row: true) }
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
@@ -1487,7 +1491,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           context 'when require_all_s3_success feature is enabled' do
-            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row: true) }
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
