@@ -3,14 +3,19 @@
 require 'rails_helper'
 
 RSpec.describe V0::Form214192Controller, type: :controller do
-  before do
-    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
-  end
-
+  let(:monitor) { instance_double(Form214192::Monitor) }
   let(:valid_payload) { JSON.parse(Rails.root.join('spec', 'fixtures', 'form214192', 'valid_form.json').read) }
-
   let(:form_data) do
     JSON.parse(Rails.root.join('spec', 'fixtures', 'pdf_fill', '21-4192', 'simple.json').read)
+  end
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:form_4192_enabled).and_return(true)
+    allow(Form214192::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_submission_begun)
+    allow(monitor).to receive(:track_submission_success)
+    allow(monitor).to receive(:track_submission_failure)
+    allow(monitor).to receive(:track_request_code)
   end
 
   describe 'POST #create' do
@@ -95,13 +100,80 @@ RSpec.describe V0::Form214192Controller, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
+
+    describe 'monitoring' do
+      it 'tracks submission begun when claim is created' do
+        expect(monitor).to receive(:track_submission_begun) do |claim|
+          expect(claim).to be_a(SavedClaim::Form214192)
+        end
+
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks submission success when claim saves successfully' do
+        expect(monitor).to receive(:track_submission_success) do |claim|
+          expect(claim).to be_a(SavedClaim::Form214192)
+          expect(claim.persisted?).to be true
+        end
+
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks submission failure when validation fails' do
+        invalid_payload = { veteranInformation: { fullName: { first: 'OnlyFirst' } } }
+
+        expect(monitor).to receive(:track_submission_failure) do |claim, error|
+          expect(claim).to be_a(SavedClaim::Form214192)
+          expect(error.message).to eq('Validation failed')
+        end
+
+        post(:create, body: invalid_payload.to_json, as: :json)
+      end
+
+      it 'tracks request code for successful submission' do
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'create', user_uuid: nil))
+
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks request code for PDF download success' do
+        temp_pdf = '/tmp/test.pdf'
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_pdf)
+        allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_pdf)
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(temp_pdf).and_return('PDF_CONTENT')
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(temp_pdf).and_return(true)
+        allow(File).to receive(:delete).and_call_original
+        allow(File).to receive(:delete).with(temp_pdf)
+
+        expect(monitor).to receive(:track_request_code).with(200,
+                                                             hash_including(action: 'download_pdf', user_uuid: nil))
+
+        post(:download_pdf, body: form_data.to_json, as: :json)
+      end
+
+      it 'tracks request code for PDF generation errors' do
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
+        expect(monitor).to receive(:track_pdf_generation_failure)
+
+        post(:download_pdf, body: form_data.to_json, as: :json)
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
   end
 
   describe 'POST #download_pdf' do
     let(:pdf_content) { 'PDF_BINARY_CONTENT' }
     let(:temp_file_path) { '/tmp/test_pdf.pdf' }
+    let(:monitor) { instance_double(Form214192::Monitor) }
 
     before do
+      allow(Form214192::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive(:track_request_code)
+      allow(monitor).to receive(:track_pdf_generation_success)
+      allow(monitor).to receive(:track_pdf_generation_failure)
+
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file_path)
       allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_file_path)
       allow(File).to receive(:read).and_call_original
@@ -254,6 +326,24 @@ RSpec.describe V0::Form214192Controller, type: :controller do
       end
 
       it 'accepts street2 values up to 30 characters for PDF generation' do
+        # Stub monitor for this test
+        monitor_stub = instance_double(Form214192::Monitor)
+        allow(Form214192::Monitor).to receive(:new).and_return(monitor_stub)
+        allow(monitor_stub).to receive(:track_request_code)
+        allow(monitor_stub).to receive(:track_pdf_generation_success)
+        allow(monitor_stub).to receive(:track_pdf_generation_failure)
+
+        # Stub PDF generation
+        temp_file = '/tmp/test.pdf'
+        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(temp_file)
+        allow(PdfFill::Forms::Va214192).to receive(:stamp_signature).and_return(temp_file)
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(temp_file).and_return('PDF_CONTENT')
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(temp_file).and_return(true)
+        allow(File).to receive(:delete).and_call_original
+        allow(File).to receive(:delete).with(temp_file)
+
         post(:download_pdf, body: payload_with_long_street2.to_json, as: :json)
 
         expect(response).to have_http_status(:ok)

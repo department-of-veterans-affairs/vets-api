@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'form214192/monitor'
+
 module V0
   class Form214192Controller < ApplicationController
     include RetriableConcern
@@ -9,53 +11,41 @@ module V0
     before_action :load_user, :check_feature_enabled
 
     def create
-      # Body parsed by Rails; schema validated by committee before hitting here.
-      payload = request.raw_post
-
-      claim = SavedClaim::Form214192.new(form: payload)
+      claim = build_claim
+      monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
 
       if claim.save
         claim.process_attachments!
-
-        Rails.logger.info(
-          "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-        )
-        StatsD.increment("#{stats_key}.success")
-
+        monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       else
-        StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
-    rescue => e
-      # Include validation errors when present; helpful in logs/Sentry.
-      Rails.logger.error(
-        'Form214192: error submitting claim',
-        { error: e.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
+    rescue Common::Exceptions::ValidationErrors
+      monitor.track_submission_failure(claim, StandardError.new('Validation failed'), user_uuid: current_user&.uuid)
       raise
+    rescue => e
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
+      raise
+    ensure
+      track_response_code('create', claim)
     end
 
     def download_pdf
-      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
+      pdf_start_time = Time.current
       parsed_form = JSON.parse(request.raw_post)
+      source_file_path = generate_and_stamp_pdf(parsed_form)
 
-      source_file_path = with_retries('Generate 21-4192 PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
-      end
-
-      # Stamp signature (SignatureStamper returns original path if signature is blank)
-      source_file_path = PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
+      monitor.track_pdf_generation_success(pdf_start_time)
 
       client_file_name = "21-4192_#{SecureRandom.uuid}.pdf"
-
       file_contents = File.read(source_file_path)
-
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     rescue => e
       handle_pdf_generation_error(e)
     ensure
+      track_response_code('download_pdf')
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
@@ -66,7 +56,7 @@ module V0
     end
 
     def handle_pdf_generation_error(error)
-      Rails.logger.error('Form214192: Error generating PDF', error: error.message, backtrace: error.backtrace)
+      monitor.track_pdf_generation_failure(error)
       render json: {
         errors: [{
           title: 'PDF Generation Failed',
@@ -78,6 +68,33 @@ module V0
 
     def stats_key
       'api.form214192'
+    end
+
+    def monitor
+      @monitor ||= Form214192::Monitor.new
+    end
+
+    def build_claim
+      payload = request.raw_post
+      SavedClaim::Form214192.new(form: payload)
+    end
+
+    def generate_and_stamp_pdf(parsed_form)
+      source_file_path = with_retries('Generate 21-4192 PDF') do
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21-4192')
+      end
+      PdfFill::Forms::Va214192.stamp_signature(source_file_path, parsed_form)
+    end
+
+    def track_response_code(action, claim = nil)
+      return unless response.status
+
+      monitor.track_request_code(
+        response.status,
+        action:,
+        user_uuid: current_user&.uuid,
+        claim_guid: claim&.guid
+      )
     end
   end
 end

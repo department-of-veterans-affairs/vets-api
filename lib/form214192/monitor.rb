@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'logging/monitor'
+require 'logging/base_monitor'
 
 module Form214192
   ##
@@ -9,19 +9,22 @@ module Form214192
   # Provides methods for tracking Committee validation failures and other
   # form-related events with StatsD metrics and structured logging.
   #
-  class Monitor < ::Logging::Monitor
+  class Monitor < ::Logging::BaseMonitor
     SERVICE_NAME = 'form214192'
     FORM_ID = '21-4192'
-    STATS_KEY = 'api.form214192'
+    CLAIM_STATS_KEY = 'api.form214192'
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
+      action
       data_pointer
       error_type
-      form_id
       method
       path
       source_app
+      code
+      user_uuid
+      claim_guid
     ].freeze
 
     def initialize
@@ -44,7 +47,7 @@ module Form214192
       track_request(
         :warn,
         "#{self.class.name} #{FORM_ID} Committee validation failed",
-        "#{STATS_KEY}.validation_error",
+        "#{CLAIM_STATS_KEY}.validation_error",
         call_location:,
         form_id: FORM_ID,
         path: request.path,
@@ -52,6 +55,124 @@ module Form214192
         source_app: extract_source_app(request),
         error_type: validation_details[:error_type],
         data_pointer: validation_details[:data_pointer]
+      )
+    end
+
+    # Required BaseMonitor abstract method implementations
+    def claim_stats_key
+      CLAIM_STATS_KEY
+    end
+
+    def name
+      SERVICE_NAME
+    end
+
+    def form_id
+      FORM_ID
+    end
+
+    ##
+    # Track submission begun in controller
+    # Called when submission processing starts, before validation and persistence
+    #
+    # @param claim [SavedClaim::Form214192]
+    # @param user_uuid [String, nil] Optional user UUID for tracking
+    def track_submission_begun(claim, user_uuid: nil)
+      submit_event(
+        :info,
+        "#{self.class.name} #{FORM_ID} submission begun",
+        "#{CLAIM_STATS_KEY}.submission.begun",
+        claim:,
+        user_uuid:,
+        claim_guid: claim&.guid
+      )
+    end
+
+    ##
+    # Track successful submission in controller
+    # Called when claim is successfully validated, saved, and attachments processed
+    #
+    # @param claim [SavedClaim::Form214192]
+    # @param user_uuid [String, nil] Optional user UUID for tracking
+    def track_submission_success(claim, user_uuid: nil)
+      submit_event(
+        :info,
+        "#{self.class.name} #{FORM_ID} submission success",
+        "#{CLAIM_STATS_KEY}.submission.success",
+        claim:,
+        user_uuid:,
+        claim_guid: claim&.guid
+      )
+    end
+
+    ##
+    # Track submission failure in controller
+    # Called when claim validation or save fails in the controller action
+    #
+    # @param claim [SavedClaim::Form214192]
+    # @param error [Exception]
+    # @param user_uuid [String, nil] Optional user UUID for tracking
+    def track_submission_failure(claim, error, user_uuid: nil)
+      submit_event(
+        :error,
+        "#{self.class.name} #{FORM_ID} submission failure",
+        "#{CLAIM_STATS_KEY}.submission.failure",
+        claim:,
+        user_uuid:,
+        claim_guid: claim&.guid,
+        error: error&.message
+      )
+    end
+
+    ##
+    # Track API response code for distribution analysis
+    # Used to track HTTP response codes (200, 422, 500, etc.) for monitoring
+    #
+    # @param code [Integer] HTTP response code
+    # @param action [String, nil] Optional action name (e.g., 'create', 'download_pdf')
+    # @param user_uuid [String, nil] Optional user UUID for correlation
+    # @param claim_guid [String, nil] Optional claim GUID for correlation
+    def track_request_code(code, action: nil, user_uuid: nil, claim_guid: nil)
+      submit_event(
+        :info,
+        "#{message_prefix} request completed with status #{code}",
+        "#{CLAIM_STATS_KEY}.request",
+        code:,
+        action:,
+        user_uuid:,
+        claim_guid:
+      )
+    end
+
+    ##
+    # Track successful PDF generation with timing
+    # Called when PDF is successfully generated and ready to send
+    #
+    # @param start_time [Time] When PDF generation started
+    def track_pdf_generation_success(start_time)
+      duration_ms = (Time.current - start_time) * 1000
+      StatsD.measure("#{CLAIM_STATS_KEY}.pdf_generation.duration", duration_ms)
+
+      submit_event(
+        :info,
+        "#{self.class.name} #{FORM_ID} PDF generation success",
+        "#{CLAIM_STATS_KEY}.pdf_generation.success",
+        duration_ms:
+      )
+    end
+
+    ##
+    # Track PDF generation failure
+    # Called when PDF generation fails at any stage
+    #
+    # @param error [Exception] The error that occurred
+    def track_pdf_generation_failure(error)
+      submit_event(
+        :error,
+        "#{self.class.name} #{FORM_ID} PDF generation failure",
+        "#{CLAIM_STATS_KEY}.pdf_generation.failure",
+        error_class: error.class.name,
+        error_message: error.message
       )
     end
 
