@@ -91,5 +91,27 @@ describe MHVPrescriptionsPolicy do
         expect(described_class.new(user, mhv_prescriptions).access?).to be(false)
       end
     end
+
+    context 'when user does not have mhv_correlation_id' do
+      let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+
+      before do
+        allow(user).to receive(:mhv_correlation_id).and_return(nil)
+      end
+
+      it 'returns false and logs access denial' do
+        expect(Rails.logger).to receive(:info).with(
+          'RX ACCESS DENIED',
+          hash_including(
+            mhv_id: 'false',
+            sign_in_service: anything,
+            va_facilities: anything,
+            va_patient: anything
+          )
+        )
+
+        expect(described_class.new(user, mhv_prescriptions).access?).to be(false)
+      end
+    end
   end
 end

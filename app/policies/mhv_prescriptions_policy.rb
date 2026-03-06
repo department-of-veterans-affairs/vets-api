@@ -6,6 +6,11 @@ MHVPrescriptionsPolicy = Struct.new(:user, :mhv_prescriptions) do
   RX_ACCESS_LOG_MESSAGE = 'RX ACCESS DENIED'
 
   def access?
+    unless user.mhv_correlation_id
+      log_access_denied(RX_ACCESS_LOG_MESSAGE)
+      return false
+    end
+
     return true if user.loa3? && (mhv_user_account&.patient || mhv_user_account&.champ_va)
 
     log_access_denied(RX_ACCESS_LOG_MESSAGE)
