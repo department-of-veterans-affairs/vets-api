@@ -1,0 +1,32 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<CLAIMS_API_BD_URL>/services/benefits-documents/v1/claim-letters/search"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"docTypeIds":[184],"fileNumber":"999012105"}}'
+    headers:
+      Authorization: Bearer <TOKEN>
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 06 Mar 2026 16:43:48 GMT
+    body:
+      encoding: UTF-8
+      string: '{"data":{"documents":[{"docTypeId":184,"subject":"string","documentUuid":"12345678-ABCD-0123-cdef-124345679ABC","originalFileName":"SupportingDocument.pdf","documentTypeLabel":"VA 21-526 Veterans Application for Compensation or Pension","trackedItemId":600000001,"uploadedDateTime":"2016-02-04T17:51:56Z","receivedAt":"2016-02-04"}]}}'
+  recorded_at: Fri, 06 Mar 2026 16:43:48 GMT
+recorded_with: VCR 6.4.0

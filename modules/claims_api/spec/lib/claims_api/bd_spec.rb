@@ -72,6 +72,38 @@ describe ClaimsApi::BD do
       end
     end
 
+    describe '#claim_letters_search', vcr: 'claims_api/bd/claim_letters_search' do
+      let(:file_number) { '999012105' }
+      let(:doc_type_ids) { [184] }
+
+      it 'locates claim letters when provided docTypeIds and fileNumber' do
+        result = subject.claim_letters_search(doc_type_ids, file_number)
+
+        expect(result).to be_a Hash
+        expect(result[:data]).to be_truthy
+        expect(result[:data][:documents]).to be_an Array
+      end
+
+      it 'returns documents with documentUuid and trackedItemId' do
+        result = subject.claim_letters_search(doc_type_ids, file_number)
+        documents = result[:data][:documents]
+
+        expect(documents).not_to be_empty
+        first_doc = documents.first
+        expect(first_doc).to have_key(:documentUuid)
+        expect(first_doc).to have_key(:trackedItemId)
+        expect(first_doc).to have_key(:originalFileName)
+      end
+
+      it 'handles errors gracefully' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('API Error'))
+
+        result = subject.claim_letters_search(doc_type_ids, file_number)
+
+        expect(result).to eq({})
+      end
+    end
+
     describe '#build_body' do
       it 'builds an L122 (526) body correctly' do
         result = subject.send(:build_body, doc_type: 'L122', file_name: '21-526EZ.pdf', claim_id: claim.id)
