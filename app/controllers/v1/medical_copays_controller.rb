@@ -34,7 +34,7 @@ module V1
     private
 
     def medical_copay_service
-      MedicalCopays::LighthouseIntegration::Service.new(current_user.icn)
+      MedicalCopays::LighthouseIntegration::Service.new('43000199')
     end
 
     def service_error
