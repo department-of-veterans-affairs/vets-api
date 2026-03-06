@@ -2,8 +2,11 @@
 
 require 'rails_helper'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validation, type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:path) { '/my_health/v2/medical_records/immunizations' }
   let(:lh_immunizations_cassette) { 'lighthouse/veterans_health/get_immunizations' }
   let(:uhd_immunizations_cassette) { 'unified_health_data/get_immunizations_200' }

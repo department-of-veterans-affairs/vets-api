@@ -4,8 +4,11 @@ require 'rails_helper'
 require 'support/mr_client_helpers'
 require 'support/shared_examples_for_mhv'
 require 'unified_health_data/imaging_service'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::ImagingController', :skip_json_api_validation, type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:path) { '/my_health/v2/medical_records/imaging' }
   let(:default_params) { { start_date: '2024-01-01', end_date: '2025-05-31' } }
   let(:current_user) { build(:user, :mhv) }

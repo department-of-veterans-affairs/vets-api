@@ -3,8 +3,11 @@
 require 'rails_helper'
 require 'unified_health_data/service'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:current_user) { build(:user, :mhv) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:refill_path) { '/my_health/v2/prescriptions/refill' }
@@ -681,6 +684,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         before do
           # Override the parent context's generic stub - be specific about feature flags
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(true)
         end
@@ -710,6 +714,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         before do
           # Override the parent context's generic stub - be specific about feature flags
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(false)
         end
@@ -1138,6 +1143,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
         VCR.use_cassette('unified_health_data/get_prescriptions_success', match_requests_on: %i[method path]) do
           # Enable pending meds flipper
           allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_cerner_pilot, anything).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:mhv_medications_display_pending_meds, anything).and_return(true)
 

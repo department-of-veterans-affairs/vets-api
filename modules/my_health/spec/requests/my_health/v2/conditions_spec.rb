@@ -7,8 +7,11 @@ require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 require 'unified_health_data/service'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'MyHealth::V2::ConditionsController', :skip_json_api_validation, type: :request do
+  include_context 'uhd legacy security endpoint'
+
   let(:path) { '/my_health/v2/medical_records/conditions' }
   let(:current_user) { build(:user, :mhv) }
 

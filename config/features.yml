@@ -1782,6 +1782,9 @@ features:
   mhv_email_confirmation:
     actor_type: user
     description: Enables/disables email confirmation alerts on MHV and My VA pages
+  mhv_uhd_api_gateway_security_endpoint:
+    actor_type: user
+    description: Enables use of the new MHV API Gateway for the security auth endpoint
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health

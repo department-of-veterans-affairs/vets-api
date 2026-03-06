@@ -2,12 +2,14 @@
 
 require 'rails_helper'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 require 'support/shared_examples_for_labs_and_tests'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
+  include_context 'uhd legacy security endpoint'
   let!(:user) { sis_user(icn: '1000123456V123456') }
   let(:default_params) { { startDate: '2025-01-01', endDate: '2025-09-30' } }
   let(:path) { '/mobile/v1/health/labs-and-tests' }

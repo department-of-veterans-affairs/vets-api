@@ -3,9 +3,11 @@
 require_relative '../../../../support/helpers/rails_helper'
 require 'unified_health_data/service'
 require 'unique_user_events'
+require 'support/shared_contexts/uhd_security_endpoint'
 
 RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
   include JsonSchemaMatchers
+  include_context 'uhd legacy security endpoint'
 
   let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }

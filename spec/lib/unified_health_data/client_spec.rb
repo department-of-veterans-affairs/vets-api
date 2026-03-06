@@ -186,6 +186,72 @@ RSpec.describe UnifiedHealthData::Client do
     end
   end
 
+  describe '#fetch_access_token' do
+    let(:host) { Settings.mhv.uhd.host }
+    let(:legacy_security_url) { "#{Settings.mhv.uhd.security_host}/mhvapi/security/v1/login" }
+    let(:gateway_security_url) { "#{Settings.mhv.api_gateway.hosts.security}/v1/security/login" }
+
+    context 'when mhv_uhd_api_gateway_security_endpoint is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(false)
+        stub_request(:post, legacy_security_url)
+          .to_return(status: 200, headers: { 'authorization' => 'Bearer legacy-token' })
+        stub_request(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/})
+          .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'posts to the legacy security host' do
+        client.get_allergies_by_date(patient_id: '123', start_date: '2024-01-01', end_date: '2025-01-01')
+
+        expect(WebMock).to have_requested(:post, legacy_security_url)
+      end
+
+      it 'does not send x-api-key header on the login request' do
+        client.get_allergies_by_date(patient_id: '123', start_date: '2024-01-01', end_date: '2025-01-01')
+
+        expect(WebMock).to have_requested(:post, legacy_security_url)
+          .with { |req| req.headers.keys.none? { |k| k.casecmp('x-api-key').zero? } }
+      end
+
+      it 'reads the authorization header from the login response' do
+        client.get_allergies_by_date(patient_id: '123', start_date: '2024-01-01', end_date: '2025-01-01')
+
+        expect(WebMock).to have_requested(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/allergies})
+          .with(headers: { 'Authorization' => 'Bearer legacy-token' })
+      end
+    end
+
+    context 'when mhv_uhd_api_gateway_security_endpoint is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(true)
+        stub_request(:post, gateway_security_url)
+          .to_return(status: 200, headers: { 'x-amzn-remapped-authorization' => 'Bearer gateway-token' })
+        stub_request(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/})
+          .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'posts to the API gateway security endpoint' do
+        client.get_allergies_by_date(patient_id: '123', start_date: '2024-01-01', end_date: '2025-01-01')
+
+        expect(WebMock).to have_requested(:post, gateway_security_url)
+      end
+
+      it 'sends x-api-key header on the login request' do
+        client.get_allergies_by_date(patient_id: '123', start_date: '2024-01-01', end_date: '2025-01-01')
+
+        expect(WebMock).to have_requested(:post, gateway_security_url)
+          .with(headers: { 'x-api-key' => Settings.mhv.uhd.x_api_key })
+      end
+
+      it 'reads the x-amzn-remapped-authorization header from the login response' do
+        client.get_allergies_by_date(patient_id: '123', start_date: '2024-01-01', end_date: '2025-01-01')
+
+        expect(WebMock).to have_requested(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/allergies})
+          .with(headers: { 'Authorization' => 'Bearer gateway-token' })
+      end
+    end
+  end
+
   # WebMock is used instead of VCR cassettes here because these tests verify URL-encoding
   # of path segments (slashes, spaces, `#`). VCR matches on the final URI so it cannot
   # assert that the client correctly encodes special characters before the request is sent.
@@ -200,6 +266,7 @@ RSpec.describe UnifiedHealthData::Client do
     let(:expected_query) { { 'patientId' => patient_id, 'startDate' => start_date, 'endDate' => end_date } }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_uhd_api_gateway_security_endpoint).and_return(false)
       stub_request(:post, "#{security_host}/mhvapi/security/v1/login")
         .to_return(status: 200, headers: { 'authorization' => 'Bearer test-token' })
       stub_request(:get, %r{#{Regexp.escape(host)}/v1/medicalrecords/notes})

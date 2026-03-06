@@ -24,7 +24,11 @@ module UnifiedHealthData
     end
 
     def token_path
-      "#{settings.security_host}/mhvapi/security/v1/login"
+      if Flipper.enabled?(:mhv_uhd_api_gateway_security_endpoint)
+        "#{Settings.mhv.api_gateway.hosts.security}/v1/security/login"
+      else
+        "#{settings.security_host}/mhvapi/security/v1/login"
+      end
     end
 
     def connection

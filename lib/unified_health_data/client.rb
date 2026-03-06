@@ -158,6 +158,7 @@ module UnifiedHealthData
       with_monitoring do
         response = connection.post(config.token_path) do |req|
           req.headers['Content-Type'] = 'application/json'
+          req.headers['x-api-key'] = config.x_api_key if Flipper.enabled?(:mhv_uhd_api_gateway_security_endpoint)
           req.body = {
             appId: config.app_id,
             appToken: config.app_token,
@@ -165,7 +166,11 @@ module UnifiedHealthData
             userType: config.user_type
           }.to_json
         end
-        response.headers['authorization']
+        if Flipper.enabled?(:mhv_uhd_api_gateway_security_endpoint)
+          response.headers['x-amzn-remapped-authorization']
+        else
+          response.headers['authorization']
+        end
       end
     end
 
