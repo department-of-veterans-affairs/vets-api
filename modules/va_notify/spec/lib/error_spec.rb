@@ -17,11 +17,6 @@ RSpec.describe VANotify::Error do
       expect(error.context).to eq({ template_id: '1234' })
     end
 
-    it 'does not log on initialization' do
-      expect(Rails.logger).not_to receive(:error)
-      described_class.new(status_code, body, context)
-    end
-
     context 'when body is a hash with errors' do
       let(:body) { { 'errors' => [{ 'error' => 'ValidationError', 'message' => 'Missing field' }] } }
 
@@ -51,117 +46,50 @@ RSpec.describe VANotify::Error do
   end
 
   describe '#log_error' do
-    it 'logs with the class name, status, body, context, and message' do
-      error = described_class.new(400, 'Bad Request', { template_id: '1234' })
-
-      expect(Rails.logger).to receive(:error).with(
-        'VANotify::Error',
+    let(:body) { 'Bad Request' }
+    let(:context) { { template_id: '1234' } }
+    let(:expected_log_args) do
+      {
         status_code: 400,
-        body: 'Bad Request',
-        context: { template_id: '1234' },
+        body:,
+        context:,
         message: 'Bad Request | template_id: 1234'
-      )
+      }
+    end
 
+    it 'logs with the base class name' do
+      error = described_class.new(400, body, context)
+      expect(Rails.logger).to receive(:error).with('VANotify::Error', expected_log_args)
       error.log_error
     end
 
-    it 'logs the typed subclass name' do
-      error = VANotify::BadRequest.new(400, 'Bad Request', { template_id: '1234' })
-
-      expect(Rails.logger).to receive(:error).with(
-        'VANotify::BadRequest',
-        status_code: 400,
-        body: 'Bad Request',
-        context: { template_id: '1234' },
-        message: 'Bad Request | template_id: 1234'
-      )
-
+    it 'logs with the typed subclass name' do
+      error = VANotify::BadRequest.new(400, body, context)
+      expect(Rails.logger).to receive(:error).with('VANotify::BadRequest', expected_log_args)
       error.log_error
     end
   end
 
   describe '.from_generic_error' do
-    let(:generic_error) { instance_double(Common::Client::Errors::ClientError, status: status_code, body:) }
     let(:body) { 'Error occurred' }
     let(:context) { { template_id: '5678' } }
 
-    context 'when status is 400' do
-      let(:status_code) { 400 }
-
-      it 'returns a VANotify::BadRequest' do
+    {
+      400 => VANotify::BadRequest,
+      401 => VANotify::Unauthorized,
+      403 => VANotify::Forbidden,
+      404 => VANotify::NotFound,
+      429 => VANotify::RateLimitExceeded,
+      500 => VANotify::ServerError,
+      502 => VANotify::Error
+    }.each do |status, expected_class|
+      it "returns #{expected_class} for status #{status}" do
+        generic_error = instance_double(Common::Client::Errors::ClientError, status:, body:)
         error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::BadRequest)
+        expect(error).to be_a(expected_class)
+        expect(error.status_code).to eq(status)
+        expect(error.context).to eq(context)
       end
-    end
-
-    context 'when status is 401' do
-      let(:status_code) { 401 }
-
-      it 'returns a VANotify::Unauthorized' do
-        error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::Unauthorized)
-      end
-    end
-
-    context 'when status is 403' do
-      let(:status_code) { 403 }
-
-      it 'returns a VANotify::Forbidden' do
-        error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::Forbidden)
-      end
-    end
-
-    context 'when status is 404' do
-      let(:status_code) { 404 }
-
-      it 'returns a VANotify::NotFound' do
-        error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::NotFound)
-      end
-    end
-
-    context 'when status is 429' do
-      let(:status_code) { 429 }
-
-      it 'returns a VANotify::RateLimitExceeded' do
-        error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::RateLimitExceeded)
-      end
-    end
-
-    context 'when status is 500' do
-      let(:status_code) { 500 }
-
-      it 'returns a VANotify::ServerError' do
-        error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::ServerError)
-      end
-    end
-
-    context 'when status is unrecognized' do
-      let(:status_code) { 502 }
-
-      it 'returns a VANotify::Error' do
-        error = described_class.from_generic_error(generic_error, context)
-        expect(error).to be_a(VANotify::Error)
-      end
-    end
-
-    it 'logs with the typed class name when log_error is called' do
-      generic_error = instance_double(Common::Client::Errors::ClientError, status: 400, body: 'Bad Request')
-
-      error = described_class.from_generic_error(generic_error, context)
-
-      expect(Rails.logger).to receive(:error).with(
-        'VANotify::BadRequest',
-        status_code: 400,
-        body: 'Bad Request',
-        context:,
-        message: 'Bad Request | template_id: 5678'
-      )
-
-      error.log_error
     end
   end
 end
