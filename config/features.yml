@@ -2154,6 +2154,10 @@ features:
     actor_type: user
     description: Enables the under 18 flow for form 22-5490
     enable_in_development: true
+  meb_block_under_18:
+    actor_type: user
+    description: Blocks users under 18 years old from filing the 1990e and 5490 forms
+    enable_in_development: true
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
     description: Hides benefit selection page on original claims application.
