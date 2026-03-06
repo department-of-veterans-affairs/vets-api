@@ -141,7 +141,7 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
       transformations[:metadata_after_merge] = merged_metadata.dup
 
       # Process through file uploader
-      file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, true)
+      file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, insert_db_row: true)
       allow(file_uploader).to receive(:insert_form) do |_file_name, _response_status|
         transformations[:db_record] = db_record
         db_record
@@ -350,7 +350,7 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
       allow(controller).to receive(:get_attachment_ids_and_form).and_return([['Test Document'], form_instance])
       file_paths, merged_metadata = controller.send(:get_file_paths_and_metadata, @request_data)
 
-      file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, true)
+      file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, insert_db_row: true)
       file_uploader.send(:handle_iterative_uploads)
 
       # Verify record creation with expected values
@@ -457,7 +457,7 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
         test_db_record = instance_double(IvcChampvaForm, db_record_properties)
 
         # Mock form uploader
-        file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, true)
+        file_uploader = IvcChampva::FileUploader.new(form_number, merged_metadata, file_paths, insert_db_row: true)
         allow(file_uploader).to receive_messages(
           insert_form: test_db_record,
           upload: [200, nil]

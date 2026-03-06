@@ -18,7 +18,7 @@ describe IvcChampva::FileUploader do
   let(:insert_db_row) { false }
   let(:current_user) { nil }
   let(:parsed_form_data) { { 'form_number' => '10-10D', 'applicants' => [] } }
-  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row) }
+  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row:) }
 
   describe '#initialize' do
     context 'when champva_store_request_json flipper is enabled' do
@@ -28,14 +28,16 @@ describe IvcChampva::FileUploader do
 
       it 'stores parsed_form_data when provided' do
         uploader_with_data = IvcChampva::FileUploader.new(
-          form_id, metadata, file_paths, insert_db_row, current_user, parsed_form_data
+          form_id, metadata, file_paths,
+          insert_db_row:, current_user:, parsed_form_data:
         )
         expect(uploader_with_data.instance_variable_get(:@parsed_form_data)).to eq(parsed_form_data)
       end
 
       it 'stores nil when parsed_form_data is not provided' do
         uploader_without_data = IvcChampva::FileUploader.new(
-          form_id, metadata, file_paths, insert_db_row, current_user, nil
+          form_id, metadata, file_paths,
+          insert_db_row:, current_user:
         )
         expect(uploader_without_data.instance_variable_get(:@parsed_form_data)).to be_nil
       end
@@ -48,7 +50,8 @@ describe IvcChampva::FileUploader do
 
       it 'does not store parsed_form_data even when provided' do
         uploader_with_data = IvcChampva::FileUploader.new(
-          form_id, metadata, file_paths, insert_db_row, current_user, parsed_form_data
+          form_id, metadata, file_paths,
+          insert_db_row:, current_user:, parsed_form_data:
         )
         expect(uploader_with_data.instance_variable_get(:@parsed_form_data)).to be_nil
       end
@@ -204,8 +207,7 @@ describe IvcChampva::FileUploader do
           form_id,
           metadata.merge('attachment_ids' => [1, 2, 3, 4, 5]),
           mixed_file_paths,
-          true,
-          @current_user
+          insert_db_row: true, current_user: @current_user
         )
 
         # set up tracking for inserted files

@@ -12,20 +12,21 @@ module IvcChampva
     # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
     # @param [Hash] metadata The metadata accompanying this form submission (see IvcChampva::VHA1010d.metadata example)
     # @param [Array] file_paths List of local file paths of all attachments to be uploaded
-    # @param [Boolean] insert_db_row whether or not to record the uploads and S3 responses in the database
-    # @param [User] current_user The current user, used for feature flags
-    # @param [Hash] parsed_form_data Optional original form data for storage (when feature flag enabled)
+    # @param [Hash] options Optional arguments:
+    #   - :insert_db_row [Boolean] whether to record the uploads and S3 responses in the database (default: false)
+    #   - :current_user [User] The current user, used for feature flags
+    #   - :parsed_form_data [Hash] Original form data for storage (when feature flag enabled)
     #
     # @return [IvcChampva::FileUploader]
     #
-    def initialize(form_id, metadata, file_paths, insert_db_row = false, current_user = nil, parsed_form_data = nil) # rubocop:disable Style/OptionalBooleanParameter, Metrics/ParameterLists
+    def initialize(form_id, metadata, file_paths, **options)
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
-      @insert_db_row = insert_db_row
-      @current_user = current_user
-      @parsed_form_data = if parsed_form_data && Flipper.enabled?(:champva_store_request_json, current_user)
-                            parsed_form_data
+      @insert_db_row = options.fetch(:insert_db_row, false)
+      @current_user = options[:current_user]
+      @parsed_form_data = if options[:parsed_form_data] && Flipper.enabled?(:champva_store_request_json, @current_user)
+                            options[:parsed_form_data]
                           end
     end
 
