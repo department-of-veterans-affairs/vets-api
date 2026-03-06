@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'veteran_status_card/service'
+
 module V0
   class VeteranStatusCardsController < ApplicationController
     service_tag 'veteran-status-card'

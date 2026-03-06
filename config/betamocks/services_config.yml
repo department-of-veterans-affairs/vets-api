@@ -1020,6 +1020,13 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator: _id
+    # Veteran Verification API
+    - :method: :get
+      :path: "/services/veteran_verification/v2/status/*"
+      :file_path: "/lighthouse/veteran_verification/veteran_status"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/services\/veteran_verification\/v2\/status\/(.+)'
 
 # EPS (Enhanced Patient Services) API
 - :name: "EPS API"
@@ -1145,9 +1152,13 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+    # Military Personnel - DoD Service Summary (keyed by EDIPI for SSC fallthrough)
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
-      :file_path: "vet360/profile-service/default"
+      :file_path: "vet360/military_personnel/dod_service_summary"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/profile-service\/profile\/v3\/[^\/]+\/(\d+)'
     - :method: :get
       :path: "/contact-information-hub/contact-information/v2/*/*"
       :file_path: "vet360/contact_information_hub/default"
