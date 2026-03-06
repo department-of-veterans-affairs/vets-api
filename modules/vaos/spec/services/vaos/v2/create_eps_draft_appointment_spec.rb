@@ -288,7 +288,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           subject
         end
 
-        include_examples 'returns error response', /Required referral data is missing/, :unprocessable_entity
+        include_examples 'returns error response', /Required referral data is missing/, :unprocessable_content
       end
 
       context 'when referral data is nil' do
@@ -296,7 +296,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(nil)
         end
 
-        include_examples 'returns error response', /all required attributes/, :unprocessable_entity
+        include_examples 'returns error response', /all required attributes/, :unprocessable_content
       end
 
       context 'when referral date format is invalid' do
@@ -318,7 +318,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
         end
 
-        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
+        include_examples 'returns error response', /invalid date format/, :unprocessable_content
       end
 
       context 'when expiration date format is invalid' do
@@ -340,7 +340,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
           allow(ccra_referral_service).to receive(:get_referral).and_return(invalid_date_referral)
         end
 
-        include_examples 'returns error response', /invalid date format/, :unprocessable_entity
+        include_examples 'returns error response', /invalid date format/, :unprocessable_content
       end
 
       context 'when Redis connection fails' do
@@ -402,7 +402,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
         end
 
         include_examples 'returns error response', 'No new appointment created: referral is already used',
-                         :unprocessable_entity
+                         :unprocessable_content
       end
     end
 
@@ -436,7 +436,7 @@ RSpec.describe VAOS::V2::CreateEpsDraftAppointment, type: :service do
             .and_return(OpenStruct.new(id: nil))
         end
 
-        include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_entity
+        include_examples 'returns error response', 'Could not create draft appointment', :unprocessable_content
       end
     end
 
