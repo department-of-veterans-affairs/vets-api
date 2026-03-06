@@ -13,6 +13,7 @@ module Lighthouse
       attribute :previous_balance, String
       attribute :previous_unpaid_balance, String
       attribute :last_updated_at, String
+      attribute :invoice_date, String
       attribute :last_credit_debit, Float
       attribute :url, String
 
@@ -45,6 +46,7 @@ module Lighthouse
 
         @url = @params.dig('resource', 'fullUrl')
         @external_id = @params.dig('resource', 'id')
+        @invoice_date = @params.dig('resource', 'date')
       end
 
       def calculate_current_balance
