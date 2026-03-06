@@ -71,7 +71,7 @@ module Mobile
       end
 
       def oh_transition_filter
-        @oh_transition_filter ||= MHV::Prescriptions::OhTransitionRefillFilter.new(@current_user)
+        @oh_transition_filter ||= MHV::Prescriptions::OhTransitionRefillFilter.new(@current_user, platform: 'mobile')
       end
 
       def fetch_prescriptions

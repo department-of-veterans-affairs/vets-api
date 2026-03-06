@@ -122,7 +122,7 @@ module MyHealth
       end
 
       def oh_transition_filter
-        @oh_transition_filter ||= MHV::Prescriptions::OhTransitionRefillFilter.new(@current_user)
+        @oh_transition_filter ||= MHV::Prescriptions::OhTransitionRefillFilter.new(@current_user, platform: 'web')
       end
 
       def validate_feature_flag

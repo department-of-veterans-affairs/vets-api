@@ -520,7 +520,7 @@ RSpec.describe 'Mobile::V1::Health::Prescriptions', type: :request do
                                                         anything).and_return(true)
             end
 
-            it 'blocks all orders when all facilities are in blocked phases (p4-p6)' do
+            it 'blocks all orders when all facilities are in blocked phases (p4-p5)' do
               allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
                 .with(%w[556 570])
                 .and_return({ '556' => 'p5', '570' => 'p4' })
