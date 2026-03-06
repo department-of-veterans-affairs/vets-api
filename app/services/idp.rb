@@ -10,7 +10,7 @@ module Idp
       @operation = operation
     end
   end
-end
+
   # Returns the appropriate IDP client for the current environment.
   #
   # - Production/staging: Idp::Client (real HTTP calls)
