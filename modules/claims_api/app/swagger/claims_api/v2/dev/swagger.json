@@ -1541,7 +1541,7 @@
                                 "properties": {
                                   "beginDate": {
                                     "description": "Begin date for treatment.",
-                                    "type": "string",
+                                    "type": ["string", "null"],
                                     "example": "2018-06 or 2018",
                                     "nullable": true
                                   },
@@ -2983,7 +2983,7 @@
                               "properties": {
                                 "beginDate": {
                                   "description": "Begin date for treatment.",
-                                  "type": "string",
+                                  "type": ["string", "null"],
                                   "example": "2018-06 or 2018",
                                   "nullable": true
                                 },
@@ -5161,7 +5161,7 @@
                               "properties": {
                                 "beginDate": {
                                   "description": "Begin date for treatment.",
-                                  "type": "string",
+                                  "type": ["string", "null"],
                                   "example": "2018-06 or 2018",
                                   "nullable": true
                                 },
@@ -6710,7 +6710,7 @@
                               "properties": {
                                 "beginDate": {
                                   "description": "Begin date for treatment.",
-                                  "type": "string",
+                                  "type": ["string", "null"],
                                   "example": "2018-06 or 2018",
                                   "nullable": true
                                 },
