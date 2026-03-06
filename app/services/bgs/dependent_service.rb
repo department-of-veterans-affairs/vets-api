@@ -31,6 +31,7 @@ module BGS
     # Copies identifying fields onto the service instance for later use
     # when interacting with BGS and building submission payloads.
     def initialize(user)
+      @user = user
       @first_name = user.first_name
       @middle_name = user.middle_name
       @last_name = user.last_name
@@ -395,7 +396,7 @@ module BGS
 
     # Initialize or return the monitor instance used for tracking events tied to a saved claim id.
     def init_monitor(saved_claim_id)
-      @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
+      @monitor ||= ::Dependents::Monitor.new(saved_claim_id, nil, @user)
     end
   end
 end

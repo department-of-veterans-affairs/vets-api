@@ -161,7 +161,7 @@ RSpec.describe BGS::DependentService do
       let(:monitor) { instance_double(Dependents::Monitor) }
 
       before do
-        allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+        allow(Dependents::Monitor).to receive(:new).with(claim.id, nil, user).and_return(monitor)
         allow(monitor).to receive(:track_event)
       end
 
@@ -230,7 +230,7 @@ RSpec.describe BGS::DependentService do
       let(:uploader) { double('uploader') }
 
       before do
-        allow(Dependents::Monitor).to receive(:new).and_return(monitor).at_least(:once)
+        allow(Dependents::Monitor).to receive(:new).with(claim.id, nil, user).and_return(monitor).at_least(:once)
         allow(monitor).to receive(:track_event).at_least(:once)
 
         allow(ClaimsEvidenceApi::Uploader).to receive(:new).and_return(uploader)
@@ -261,7 +261,7 @@ RSpec.describe BGS::DependentService do
         let(:monitor) { instance_double(Dependents::Monitor) }
 
         before do
-          allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+          allow(Dependents::Monitor).to receive(:new).with(claim.id, nil, user).and_return(monitor)
           allow(monitor).to receive(:track_event)
         end
 
@@ -491,7 +491,7 @@ RSpec.describe BGS::DependentService do
     end
 
     it 'submits evidence pdf via claims evidence uploader' do
-      expect(Dependents::Monitor).to receive(:new).with(claim.id).and_return(monitor)
+      expect(Dependents::Monitor).to receive(:new).with(claim.id, nil, user).and_return(monitor)
       expect(monitor).to receive(:track_event).with(
         'info', 'BGS::DependentService#submit_pdf_job called to begin ClaimsEvidenceApi::Uploader',
         "#{stats_key}.submit_pdf.begin"

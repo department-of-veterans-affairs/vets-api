@@ -21,7 +21,34 @@ module IncomeAndAssets
     SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
 
     def initialize
-      super('income-and-assets')
+      super('income-and-assets', allowlist: %w[claimant_type])
+    end
+
+    ##
+    # Override of {Logging::Include::Controller#track_create_success} to include
+    # the claimant type in the logged context.
+    #
+    # Extracts `claimantType` from the claim's parsed form data and passes it
+    # as `claimant_type` for DataDog tracking. This value (e.g., "SPOUSE",
+    # "VETERAN") is not PII and is safe to log.
+    #
+    # @param in_progress_form [InProgressForm, nil] the in-progress form, if any
+    # @param claim [SavedClaim] the income and assets claim being submitted
+    # @param current_user [User, nil] the authenticated user, if present
+    #
+    def track_create_success(in_progress_form, claim, current_user)
+      parsed_form = claim&.parsed_form || {}
+      claimant_type = parsed_form['claimantType']
+
+      submit_event(
+        :info,
+        "#{message_prefix} submission to Sidekiq success",
+        "#{claim_stats_key}.success",
+        claim:,
+        user_account_uuid: current_user&.user_account_uuid,
+        in_progress_form_id: in_progress_form&.id,
+        claimant_type:
+      )
     end
 
     private

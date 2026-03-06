@@ -26,7 +26,7 @@ module HCA
         'oaxaca' => 'OAX.',
         'puebla' => 'PUE.',
         'queretaro' => 'QRO.',
-        'quintana-roo' => 'Q.ROO.',
+        'quintana-roo' => 'Q. ROO.',
         'san-luis-potosi' => 'S.L.P.',
         'sinaloa' => 'SIN.',
         'sonora' => 'SON.',

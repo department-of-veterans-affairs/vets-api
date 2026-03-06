@@ -31,7 +31,8 @@ module VRE
 
       def milestone_params
         params.permit(
-          milestones: %i[milestoneType isMilestoneCompleted milestoneCompletionDate milestoneSubmissionUser postpone]
+          milestones: %i[milestone_type is_milestone_completed milestone_completion_date
+                         milestone_submission_user postpone]
         )
       end
     end

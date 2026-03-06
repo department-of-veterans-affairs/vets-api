@@ -47,6 +47,21 @@ RSpec.describe HCA::OverridesParser do
         expect(parsed_form['veteranAddress']['state']).to eq('AGS.')
         expect(parsed_form['spouseAddress']['state']).to eq('Test')
       end
+
+      it "returns 'Q. ROO.' for Quintana Roo" do
+        quintana_roo_json = {
+          veteranHomeAddress: {
+            street: '456 Main St',
+            city: 'Cancun',
+            country: 'MEX',
+            state: 'quintana-roo',
+            postalCode: '77500'
+          }
+        }.as_json
+        parser = described_class.new(quintana_roo_json)
+        parsed_form = parser.override.as_json
+        expect(parsed_form['veteranHomeAddress']['state']).to eq('Q. ROO.')
+      end
     end
 
     context 'without overriden data' do

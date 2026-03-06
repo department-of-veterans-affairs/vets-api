@@ -13,7 +13,6 @@ module Mobile
         ERROR_STATUS = ::VeteranStatusCard::Constants::ERROR_STATUS
 
         STANDARD_ERROR_TITLE = ::VeteranStatusCard::Constants::STANDARD_ERROR_TITLE
-        STANDARD_ERROR_MESSAGE = ::VeteranStatusCard::Constants::STANDARD_ERROR_MESSAGE
 
         DISHONORABLE_RESPONSE = {
           title: STANDARD_ERROR_TITLE,
