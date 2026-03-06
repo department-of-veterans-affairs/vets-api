@@ -52,7 +52,7 @@ module DependentsBenefits
         track_pension_related_submission('Submitted pension-related claim')
       end
 
-      track_no_ssn_claim_submission('Submitted no-SSN claim') if child_claims.any?(&:no_ssn_claim?)
+      track_no_ssn_claim_submission("Submitted no-SSN claim: #{parent_claim_id}") if child_claims.any?(&:no_ssn_claim?)
 
       jobs_enqueued = 0
       DependentsBenefits::Sidekiq::BGS::BGSFormJob.perform_async(parent_claim_id)
@@ -145,7 +145,9 @@ module DependentsBenefits
             if child_claims.any?(&:pension_related_submission?)
               track_pension_related_submission('Successful pension-related claim submission')
             end
-            track_no_ssn_claim_submission('Successful no-SSN claim submission') if child_claims.any?(&:no_ssn_claim?)
+            if child_claims.any?(&:no_ssn_claim?)
+              track_no_ssn_claim_submission("Successful no-SSN claim submission: #{parent_claim_id}")
+            end
           end
         end
       end
