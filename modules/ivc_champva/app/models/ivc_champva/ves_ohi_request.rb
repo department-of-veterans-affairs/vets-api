@@ -114,37 +114,20 @@ module IvcChampva
     # VES enum: MEDICARE_PART_A, MEDICARE_PART_B, MEDICARE_PART_D (no Part C)
     #
     class MedicarePart
-      # VES enum values for medicarePartType
-      PART_TYPE_MAP = {
-        'a' => 'MEDICARE_PART_A',
-        'b' => 'MEDICARE_PART_B',
-        'd' => 'MEDICARE_PART_D'
-      }.freeze
-
-      attr_accessor :description, :effective_date, :medicare_part_type, :termination_date
+      attr_accessor :effective_date, :medicare_part_type, :termination_date
 
       def initialize(params = {})
-        @description = params[:description]
         @effective_date = params[:effective_date]
-        @medicare_part_type = normalize_part_type(params[:medicare_part_type] || params[:part_type])
+        @medicare_part_type = params[:medicare_part_type]
         @termination_date = params[:termination_date]
       end
 
       def to_hash
         {
-          description: @description,
           effectiveDate: @effective_date,
           medicarePartType: @medicare_part_type,
           terminationDate: @termination_date
         }.compact
-      end
-
-      private
-
-      def normalize_part_type(part_type)
-        return nil unless part_type
-
-        PART_TYPE_MAP[part_type.to_s.downcase] || part_type.to_s.upcase
       end
     end
 
@@ -164,12 +147,11 @@ module IvcChampva
         'other' => 'OTHER'
       }.freeze
 
-      attr_accessor :description, :insurance_name, :effective_date, :termination_date,
+      attr_accessor :insurance_name, :effective_date, :termination_date,
                     :insurance_plan_type, :is_through_employment,
                     :is_prescription_covered, :eob_indicator, :comments
 
       def initialize(params = {})
-        @description = params[:description]
         @insurance_name = params[:insurance_name] || params[:provider]
         @effective_date = params[:effective_date]
         @termination_date = params[:termination_date] || params[:expiration_date]
@@ -182,7 +164,6 @@ module IvcChampva
 
       def to_hash
         {
-          description: @description,
           insuranceName: @insurance_name,
           effectiveDate: @effective_date,
           terminationDate: @termination_date,
