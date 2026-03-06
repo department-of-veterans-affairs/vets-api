@@ -49,7 +49,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     allow(old_record).to receive(:ves_request_data).and_return(initial_request_data)
 
     # Mock submit_1010d to verify the request data is properly modified
-    allow(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+    allow(ves_client).to receive(:submit_1010d) do |uuid, request_data|
       expect(request_data['transaction_uuid']).to eq(uuid)
       success_response
     end
@@ -84,9 +84,8 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
           ves_status: 'ok'
         )
 
-        expect(ves_client).to have_received(:submit_1010d) do |transaction_uuid, user, _request|
+        expect(ves_client).to have_received(:submit_1010d) do |transaction_uuid, _request|
           expect(transaction_uuid).to eq('tx-new')
-          expect(user).to eq('fake-user')
         end
       end
 
@@ -132,7 +131,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     context 'with a successful response' do
       it 'updates the record status to ok' do
         # Verify the request data is modified before being sent to VES
-        expect(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+        expect(ves_client).to receive(:submit_1010d) do |uuid, request_data|
           expect(request_data['transaction_uuid']).to eq(uuid)
           success_response
         end
@@ -152,7 +151,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
       it 'updates the record status with the error body' do
         # Verify the request data is modified before being sent to VES
-        expect(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+        expect(ves_client).to receive(:submit_1010d) do |uuid, request_data|
           expect(request_data['transaction_uuid']).to eq(uuid)
           error_response
         end

@@ -203,6 +203,7 @@ describe MPI::Responses::ProfileParser do
             mhv_iens: ['1100792239'],
             sec_id: '1008714701',
             sec_ids: ['1008714701'],
+            sec_id_history: ['0001234567'],
             edipi: nil,
             edipis: [],
             mhv_ids: ['1100792239'],
@@ -213,6 +214,7 @@ describe MPI::Responses::ProfileParser do
               '796122306^PI^200BRLS^USVBA^A',
               '9100792239^PI^200CORP^USVBA^A',
               '1008714701^PN^200PROV^USDVA^A',
+              '0001234567^PN^200PROV^USDVA^H',
               '1100792239^PI^200MHS^USVHA^A'
             ],
             search_token: 'WSDOC1908201553145951848240311',

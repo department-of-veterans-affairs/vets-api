@@ -306,6 +306,46 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
   end
 
+  describe '#submit_traceability_to_event_bus' do
+    let(:user_account) { create(:user_account) }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+      job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@user_account, user_account)
+      allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:uuid).and_return('intake-uuid-123')
+    end
+
+    context 'when participant_id is present' do
+      it 'includes participant_id in additional_ids' do
+        job.instance_variable_set(:@participant_id, '99887766')
+
+        expect(Kafka).to receive(:submit_event).with(
+          hash_including(
+            additional_ids: ['participant_id:99887766'],
+            state: Kafka::State::SENT,
+            next_id: 'intake-uuid-123'
+          )
+        )
+
+        job.send(:submit_traceability_to_event_bus)
+      end
+    end
+
+    context 'when participant_id is nil' do
+      it 'passes empty additional_ids' do
+        job.instance_variable_set(:@participant_id, nil)
+
+        expect(Kafka).to receive(:submit_event).with(
+          hash_including(additional_ids: [])
+        )
+
+        job.send(:submit_traceability_to_event_bus)
+      end
+    end
+  end
+
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
       { 'args' => [], 'class' => 'Pensions::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
@@ -343,6 +383,35 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
             allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
             expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
             expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+
+            exhaustion_msg['args'] = [claim.id, 2]
+
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+        end
+      end
+
+      it 'includes participant_id in additional_ids when provided as 3rd arg' do
+        pid = '99887766'
+        Pensions::BenefitsIntake::SubmitClaimJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2, pid] }) do
+            allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+            expect(Kafka).to receive(:submit_event).with(
+              hash_including(additional_ids: ["participant_id:#{pid}"], state: Kafka::State::ERROR)
+            )
+
+            exhaustion_msg['args'] = [claim.id, 2, pid]
+
+            expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+        end
+      end
+
+      it 'passes empty additional_ids when no participant_id arg' do
+        Pensions::BenefitsIntake::SubmitClaimJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+            allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+            expect(Kafka).to receive(:submit_event).with(
+              hash_including(additional_ids: [])
+            )
 
             exhaustion_msg['args'] = [claim.id, 2]
 

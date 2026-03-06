@@ -7,45 +7,50 @@ RSpec.describe VAProfile::PersonSettings::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:frozen_time) { '2026-03-04T21:30:00.000Z' }
+
+  before do
+    Timecop.freeze(frozen_time)
+  end
+
+  after do
+    Timecop.return
+  end
 
   describe '#get_person_options' do
-    # TODO: Replace stubs with VCR cassettes once recording access is available
-    # Cassettes: va_profile/person_settings/get_person_options*
     context 'when successful' do
-      let(:mock_response) do
-        double('response',
-               status: 200,
-               body: { personOptions: [{ itemId: 2, optionId: 7 }] })
-      end
-
-      before do
-        allow_any_instance_of(VAProfile::Service).to receive(:perform)
-          .with(:get, anything)
-          .and_return(mock_response)
-      end
-
       it 'returns a status of 200' do
-        response = subject.get_person_options
-        expect(response).to be_ok
+        VCR.use_cassette('va_profile/person_settings/get_person_options_success') do
+          response = subject.get_person_options
+          expect(response).to be_ok
+        end
       end
 
       it 'returns a PersonOptionsResponse with an array of person options' do
-        response = subject.get_person_options
-        expect(response).to be_a(VAProfile::PersonSettings::PersonOptionsResponse)
-        expect(response.person_options).to be_an(Array)
+        VCR.use_cassette('va_profile/person_settings/get_person_options_success') do
+          response = subject.get_person_options
+          expect(response).to be_a(VAProfile::PersonSettings::PersonOptionsResponse)
+          expect(response.person_options).to be_an(Array)
+        end
       end
     end
 
     context 'when user not found' do
-      before do
-        allow_any_instance_of(VAProfile::Service).to receive(:perform)
-          .and_raise(Common::Client::Errors::ClientError.new('Not Found', 404))
-      end
+      let(:user) { build(:user, :loa3, vet360_id: 0) } # Use known bad id to trigger 404 response
 
       it 'returns a status of 404 and empty person options array' do
-        response = subject.get_person_options
-        expect(response.status).to eq(404)
-        expect(response.person_options).to be_empty
+        VCR.use_cassette('va_profile/person_settings/get_person_options_404') do
+          response = subject.get_person_options
+          expect(response.status).to eq(404)
+        end
+      end
+
+      it 'returns a PersonOptionsResponse with an empty array of person options' do
+        VCR.use_cassette('va_profile/person_settings/get_person_options_404') do
+          response = subject.get_person_options
+          expect(response).to be_a(VAProfile::PersonSettings::PersonOptionsResponse)
+          expect(response.person_options).to eq([])
+        end
       end
 
       it 'logs a warning for user not found' do
@@ -53,7 +58,9 @@ RSpec.describe VAProfile::PersonSettings::Service do
           'User not found in VAProfile', vaprofile_id: user.vet360_id
         )
 
-        subject.get_person_options
+        VCR.use_cassette('va_profile/person_settings/get_person_options_404') do
+          subject.get_person_options
+        end
       end
     end
 
@@ -70,58 +77,79 @@ RSpec.describe VAProfile::PersonSettings::Service do
   end
 
   describe '#update_person_options' do
-    # TODO: Replace stubs with VCR cassettes once recording access is available
-    # Cassettes: va_profile/person_settings/post_person_options*
     context 'when successful' do
-      let(:person_options_data) { { bio: { personOptions: [] } } }
-      let(:mock_response) do
-        double('response',
-               status: 200,
-               body: {
-                 'tx_audit_id' => 'test-transaction-123',
-                 'status' => 'COMPLETED_SUCCESS',
-                 'tx_status' => 'COMPLETED_SUCCESS',
-                 'tx_type' => 'PUSH',
-                 'tx_interaction_type' => 'ATTENDED',
-                 'tx_push_input' => {
-                   'person_options' => []
-                 },
-                 'tx_output' =>
-                 [{ 'person_options' => [] }]
-               })
-      end
-
-      before do
-        allow_any_instance_of(VAProfile::Service).to receive(:perform)
-          .with(:post, anything, person_options_data.to_json)
-          .and_return(mock_response)
-      end
+      let(:person_options_data) { { bio: { personOptions: [{ itemId: 1, optionId: 5, sourceDate: frozen_time }] } } }
 
       it 'returns a status of 200' do
-        response = subject.update_person_options(person_options_data)
-        expect(response).to be_ok
+        VCR.use_cassette('va_profile/person_settings/post_person_options_success') do
+          response = subject.update_person_options(person_options_data)
+          expect(response).to be_ok
+        end
       end
 
       it 'returns a PersonOptionsTransactionResponse' do
-        response = subject.update_person_options(person_options_data)
-        expect(response).to be_a(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse)
-        expect(response.transaction).to be_a(VAProfile::Models::Transaction)
-        expect(response.transaction.id).to be_present
+        VCR.use_cassette('va_profile/person_settings/post_person_options_success') do
+          response = subject.update_person_options(person_options_data)
+          expect(response).to be_a(VAProfile::ContactInformation::V2::PersonOptionsTransactionResponse)
+          expect(response.transaction).to be_a(VAProfile::Models::Transaction)
+          expect(response.transaction.id).to be_present
+        end
       end
     end
 
     context 'when missing required fields' do
-      let(:person_options_data) { { bio: { personOptions: [{ itemId: 2, optionId: 7 }] } } } # missing source date
-
-      before do
-        allow_any_instance_of(VAProfile::Service).to receive(:perform)
-          .with(:post, anything, person_options_data.to_json)
-          .and_raise(Common::Client::Errors::ClientError.new('Bad Request', 400))
-      end
+      let(:person_options_data) { { bio: { personOptions: [{ itemId: 1, optionId: 5 }] } } } # missing source date
 
       it 'raises an exception' do
-        expect { subject.update_person_options(person_options_data) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        VCR.use_cassette('va_profile/person_settings/post_person_options_400') do
+          expect { subject.update_person_options(person_options_data) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          end
+        end
+      end
+    end
+
+    context 'when posting effectiveEndDate for DELETE action' do
+      let(:delete_source_date) { (Time.zone.parse(frozen_time) + 10.seconds).iso8601 }
+
+      context 'when successful' do
+        let(:person_options_data) do
+          { bio:
+            { personOptions:
+              [{
+                itemId: 1,
+                optionId: 5,
+                sourceDate: delete_source_date,
+                effectiveEndDate: frozen_time
+              }] } }
+        end
+
+        it 'returns a status of 200' do
+          VCR.use_cassette('va_profile/person_settings/delete_person_options_success') do
+            response = subject.update_person_options(person_options_data)
+            expect(response).to be_ok
+          end
+        end
+      end
+
+      context 'when there is an error' do
+        let(:person_options_data) do
+          { bio:
+            { personOptions:
+              [{
+                itemId: 1,
+                optionId: 999, # Invalid option ID
+                sourceDate: delete_source_date,
+                effectiveEndDate: frozen_time
+              }] } }
+        end
+
+        it 'raises an exception' do
+          VCR.use_cassette('va_profile/person_settings/delete_person_options_400') do
+            expect { subject.update_person_options(person_options_data) }.to raise_error do |e|
+              expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            end
+          end
         end
       end
     end

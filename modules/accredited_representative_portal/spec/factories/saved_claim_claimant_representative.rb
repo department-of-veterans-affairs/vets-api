@@ -9,5 +9,10 @@ FactoryBot.define do
     power_of_attorney_holder_type { 'veteran_service_organization' }
     power_of_attorney_holder_poa_code { '067' }
     accredited_individual_registration_number { '357458' }
+
+    trait :dependent do
+      saved_claim { create(:saved_claim_benefits_intake, :dependent) }
+      claimant_type { 'dependent' }
+    end
   end
 end

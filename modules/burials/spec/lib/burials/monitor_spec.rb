@@ -145,6 +145,7 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          relationship_to_veteran: claim.parsed_form['relationshipToVeteran'],
           claim_id: claim.id,
           form_id: claim.form_id,
           tags: monitor.tags

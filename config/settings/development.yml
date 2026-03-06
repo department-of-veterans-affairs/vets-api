@@ -513,12 +513,6 @@ form0781_remediation:
   aws:
     bucket: ~
     region: ~
-form1095_b:
-  s3:
-    aws_access_key_id: ~
-    aws_secret_access_key: ~
-    bucket: bucket
-    region: region
 form526_backup:
   api_key: ~
   aws:
@@ -604,7 +598,6 @@ gclaws:
       url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
   accreditation_xlsx:
     password: ~
-    tmp_password: ~
     url: ~
     username: ~
 genisis:
