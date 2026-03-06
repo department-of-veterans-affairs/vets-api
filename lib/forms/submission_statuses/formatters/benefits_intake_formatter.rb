@@ -31,7 +31,10 @@ module Forms
               created_at: submission.created_at,
               updated_at: nil,
               pdf_support: supported,
-              presigned_url: supported ? fetch_presigned_url(submission.form_type, submission.benefits_intake_uuid) : nil
+              presigned_url: if supported
+                               fetch_presigned_url(submission.form_type,
+                                                   submission.benefits_intake_uuid)
+                             end
             )
           end
         end
