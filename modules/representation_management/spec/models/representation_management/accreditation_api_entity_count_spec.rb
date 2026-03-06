@@ -164,6 +164,26 @@ RSpec.describe RepresentationManagement::AccreditationApiEntityCount, type: :mod
         expect(model.valid_count?(type)).to be false
       end
     end
+
+    context 'when new count is nil (API down)' do
+      before do
+        allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: nil })
+      end
+
+      it 'returns false without raising an error' do
+        expect(model.valid_count?(type)).to be false
+      end
+    end
+
+    context 'when new count is zero (API returned empty results)' do
+      before do
+        allow(model).to receive_messages(current_db_counts: { agents: 100 }, current_api_counts: { agents: 0 })
+      end
+
+      it 'returns false' do
+        expect(model.valid_count?(type)).to be false
+      end
+    end
   end
 
   describe '#notify_threshold_exceeded' do

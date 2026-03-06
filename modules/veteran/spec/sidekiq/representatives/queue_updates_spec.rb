@@ -32,18 +32,26 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
       }
     end
     let(:batch) { instance_double(Sidekiq::Batch) }
+    let(:temp_file) { Tempfile.new(['test', '.xlsx']) }
 
     before do
       stub_const('Sidekiq::Batch', Class.new) unless defined?(Sidekiq::Batch)
       Veteran::Service::Representative.create(representative_id: '123', poa_codes: ['A1'])
       Veteran::Service::Representative.create(representative_id: '234', poa_codes: ['A1'])
       Veteran::Service::Representative.create(representative_id: '345', poa_codes: ['A1'])
-      allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
+      temp_file.binmode
+      temp_file.write(file_content)
+      temp_file.close
+      allow(RepresentationManagement::GCLAWS::XlsxClient)
+        .to receive(:download_accreditation_xlsx)
+        .and_yield({ success: true, file_path: temp_file.path })
       allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_return(processed_data)
       allow(Sidekiq::Batch).to receive(:new).and_return(batch)
       allow(batch).to receive(:description=)
       allow(batch).to receive(:jobs).and_yield
     end
+
+    after { temp_file.unlink }
 
     context 'when file processing is successful' do
       it 'processes the file and queues updates' do
@@ -76,9 +84,11 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
       end
     end
 
-    context 'when fetch_file_content returns nil' do
+    context 'when GCLAWS download fails' do
       before do
-        allow_any_instance_of(described_class).to receive(:fetch_file_content).and_return(nil)
+        allow(RepresentationManagement::GCLAWS::XlsxClient)
+          .to receive(:download_accreditation_xlsx)
+          .and_yield({ success: false, error: 'timeout', status: :request_timeout })
       end
 
       it 'does not process the file or queue updates' do

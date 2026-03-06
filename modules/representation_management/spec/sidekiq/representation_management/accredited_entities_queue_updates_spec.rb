@@ -1546,6 +1546,7 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
 
     before do
       allow(job).to receive(:log_to_slack_channel)
+      allow(RepresentationManagement::AccreditationXlsxProcessor).to receive(:perform_async)
       job.instance_variable_set(:@report, String.new)
       job.instance_variable_set(:@start_time, 2.minutes.ago)
       job.instance_variable_set(:@processing_error_types, [])
@@ -1570,6 +1571,119 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
       job.send(:finalize_and_send_report)
 
       expect(job).to have_received(:log_to_slack_channel).with(initial_report)
+    end
+
+    it 'calls trigger_xlsx_fallback before sending the report' do
+      allow(job).to receive(:calculate_duration).and_return('1m 0s')
+      job.instance_variable_set(:@processing_error_types, %w[agents])
+
+      job.send(:finalize_and_send_report)
+
+      expect(RepresentationManagement::AccreditationXlsxProcessor).to have_received(:perform_async).with(%w[agents])
+      report = job.instance_variable_get(:@report)
+      expect(report).to include('XLSX Fallback')
+    end
+  end
+
+  describe '#trigger_xlsx_fallback' do
+    let(:job) { described_class.new }
+
+    before do
+      allow(RepresentationManagement::AccreditationXlsxProcessor).to receive(:perform_async)
+      allow(Settings).to receive(:vsp_environment).and_return('development')
+      job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@processing_error_types, [])
+      job.instance_variable_set(:@count_mismatch_types, [])
+    end
+
+    context 'when no failed types exist' do
+      it 'does not enqueue AccreditationXlsxProcessor' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor).not_to have_received(:perform_async)
+      end
+
+      it 'does not append to the report' do
+        job.send(:trigger_xlsx_fallback)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).not_to include('XLSX Fallback')
+      end
+    end
+
+    context 'when @processing_error_types has entries' do
+      before do
+        job.instance_variable_set(:@processing_error_types, %w[agents attorneys])
+      end
+
+      it 'enqueues AccreditationXlsxProcessor with those types' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor)
+          .to have_received(:perform_async).with(%w[agents attorneys])
+      end
+
+      it 'appends fallback info to the report' do
+        job.send(:trigger_xlsx_fallback)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).to include('XLSX Fallback')
+        expect(report).to include('agents, attorneys')
+      end
+    end
+
+    context 'when @count_mismatch_types has entries (symbols)' do
+      before do
+        job.instance_variable_set(:@count_mismatch_types, %i[attorneys veteran_service_organizations])
+      end
+
+      it 'converts to strings and enqueues AccreditationXlsxProcessor' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor)
+          .to have_received(:perform_async).with(%w[attorneys veteran_service_organizations])
+      end
+    end
+
+    context 'when both lists have overlapping entries' do
+      before do
+        job.instance_variable_set(:@processing_error_types, %w[agents attorneys])
+        job.instance_variable_set(:@count_mismatch_types, %i[attorneys representatives])
+      end
+
+      it 'deduplicates and enqueues with the union' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(RepresentationManagement::AccreditationXlsxProcessor)
+          .to have_received(:perform_async).with(%w[agents attorneys representatives])
+      end
+    end
+
+    context 'when perform_async raises an error' do
+      before do
+        job.instance_variable_set(:@processing_error_types, %w[agents])
+        allow(RepresentationManagement::AccreditationXlsxProcessor)
+          .to receive(:perform_async).and_raise(StandardError.new('Redis connection failed'))
+        allow(job).to receive(:log_error)
+      end
+
+      it 'does not crash the parent job' do
+        expect { job.send(:trigger_xlsx_fallback) }.not_to raise_error
+      end
+
+      it 'logs the error' do
+        job.send(:trigger_xlsx_fallback)
+
+        expect(job).to have_received(:log_error).with(/XLSX fallback enqueue failed/)
+      end
+
+      it 'appends failure info to the report' do
+        job.send(:trigger_xlsx_fallback)
+
+        report = job.instance_variable_get(:@report)
+        expect(report).to include('XLSX Fallback')
+        expect(report).to include('FAILED to enqueue')
+      end
     end
   end
 
@@ -2363,4 +2477,98 @@ RSpec.describe RepresentationManagement::AccreditedEntitiesQueueUpdates, type: :
   end
 
   # Method removed - see comment on individual_representative_json
+
+  describe '#process_entity_type error propagation' do
+    let(:entity_counts) { instance_double(RepresentationManagement::AccreditationApiEntityCount) }
+    let(:ingestion_log) { instance_double(RepresentationManagement::AccreditationDataIngestionLog) }
+
+    before do
+      job.instance_variable_set(:@entity_counts, entity_counts)
+      job.instance_variable_set(:@force_update_types, [])
+      job.instance_variable_set(:@processing_error_types, [])
+      job.instance_variable_set(:@ingestion_log, ingestion_log)
+      job.instance_variable_set(:@report, String.new)
+      allow(ingestion_log).to receive(:mark_entity_running!)
+      allow(ingestion_log).to receive(:mark_entity_failed!)
+    end
+
+    context 'when valid_count? raises an error (e.g., API down returning nil counts)' do
+      before do
+        allow(entity_counts).to receive(:valid_count?)
+          .with(RepresentationManagement::AGENTS)
+          .and_raise(NoMethodError, "undefined method '>=' for nil")
+      end
+
+      it 'does not re-raise the error' do
+        expect { job.send(:process_entity_type, RepresentationManagement::AGENTS) }.not_to raise_error
+      end
+
+      it 'adds the entity type to @processing_error_types' do
+        job.send(:process_entity_type, RepresentationManagement::AGENTS)
+        expect(job.instance_variable_get(:@processing_error_types)).to include(RepresentationManagement::AGENTS)
+      end
+
+      it 'marks the entity as failed in the ingestion log' do
+        job.send(:process_entity_type, RepresentationManagement::AGENTS)
+        expect(ingestion_log).to have_received(:mark_entity_failed!)
+          .with(RepresentationManagement::AGENTS, error: /undefined method/)
+      end
+    end
+
+    context 'when multiple entity types fail' do
+      before do
+        allow(entity_counts).to receive(:valid_count?)
+          .and_raise(NoMethodError, "undefined method '>=' for nil")
+      end
+
+      it 'allows all entity types to be attempted independently' do
+        job.send(:process_entity_type, RepresentationManagement::AGENTS)
+        job.send(:process_entity_type, RepresentationManagement::ATTORNEYS)
+
+        processing_errors = job.instance_variable_get(:@processing_error_types)
+        expect(processing_errors).to include(RepresentationManagement::AGENTS)
+        expect(processing_errors).to include(RepresentationManagement::ATTORNEYS)
+      end
+    end
+  end
+
+  describe '#process_orgs_and_reps error propagation' do
+    let(:entity_counts) { instance_double(RepresentationManagement::AccreditationApiEntityCount) }
+    let(:ingestion_log) { instance_double(RepresentationManagement::AccreditationDataIngestionLog) }
+
+    before do
+      job.instance_variable_set(:@entity_counts, entity_counts)
+      job.instance_variable_set(:@force_update_types, [])
+      job.instance_variable_set(:@processing_error_types, [])
+      job.instance_variable_set(:@vso_ids, [])
+      job.instance_variable_set(:@representative_ids, [])
+      job.instance_variable_set(:@representative_ids_for_address_validation, [])
+      job.instance_variable_set(:@rep_to_vso_associations, {})
+      job.instance_variable_set(:@accreditation_ids, [])
+      job.instance_variable_set(:@report, String.new)
+      job.instance_variable_set(:@expected_counts, {})
+      job.instance_variable_set(:@count_mismatch_types, [])
+      job.instance_variable_set(:@ingestion_log, ingestion_log)
+      allow(ingestion_log).to receive(:mark_entity_running!)
+      allow(ingestion_log).to receive(:mark_entity_failed!)
+    end
+
+    context 'when valid_count? raises an error during can_process_orgs_and_reps?' do
+      before do
+        allow(entity_counts).to receive(:valid_count?)
+          .and_raise(NoMethodError, "undefined method '>=' for nil")
+      end
+
+      it 'does not re-raise the error' do
+        expect { job.send(:process_orgs_and_reps) }.not_to raise_error
+      end
+
+      it 'adds both VSOS and REPRESENTATIVES to @processing_error_types' do
+        job.send(:process_orgs_and_reps)
+        processing_errors = job.instance_variable_get(:@processing_error_types)
+        expect(processing_errors).to include(RepresentationManagement::VSOS)
+        expect(processing_errors).to include(RepresentationManagement::REPRESENTATIVES)
+      end
+    end
+  end
 end

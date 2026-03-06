@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require_relative '../concerns/gclaws_xlsx_downloader'
 
 module Representatives
   class QueueUpdates
     include Sidekiq::Job
+    include GCLAWSXlsxDownloader
 
     SLICE_SIZE = 30
 
@@ -17,11 +19,10 @@ module Representatives
     end
 
     def perform
-      file_content = fetch_file_content
-      return unless file_content
-
-      processed_data = Representatives::XlsxFileProcessor.new(file_content).process
-      queue_address_updates(processed_data)
+      with_xlsx_file_content do |file_content|
+        processed_data = Representatives::XlsxFileProcessor.new(file_content).process
+        queue_address_updates(processed_data)
+      end
     rescue => e
       log_error("Error in file fetching process: #{e.message}")
     ensure
@@ -33,10 +34,6 @@ module Representatives
     end
 
     private
-
-    def fetch_file_content
-      Representatives::XlsxFileFetcher.new.fetch
-    end
 
     def queue_address_updates(data)
       delay = 0

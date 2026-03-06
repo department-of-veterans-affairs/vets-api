@@ -4,10 +4,11 @@ This directory contains Sidekiq background jobs that handle the synchronization 
 
 ## Overview
 
-The synchronization process consists of two main jobs that work together:
+The synchronization process consists of two main jobs that work together, plus a fallback mechanism:
 
 1. **AccreditedEntitiesQueueUpdates** - Fetches and processes entity data from GCLAWS API
 2. **AccreditedIndividualsUpdate** - Validates addresses and updates database records
+3. **AccreditationXlsxProcessor** *(fallback)* - Processes GCLAWS XLSX data for entity types that failed API processing
 
 ## Jobs
 
@@ -61,6 +62,34 @@ RepresentationManagement::AccreditedEntitiesQueueUpdates.perform_async(['represe
    - Representative-VSO associations are tracked and stored
    - Accreditation join records are created/updated
 5. Removes obsolete records (individuals, organizations, and accreditations)
+6. **XLSX Fallback**: After processing completes (or fails), any entity types that encountered processing errors or count mismatches are automatically enqueued for processing via `AccreditationXlsxProcessor.perform_async`. This runs as a separate Sidekiq job with its own retry policy (10 retries over ~21 hours) and independent Slack reporting.
+
+### AccreditationXlsxProcessor (XLSX Fallback)
+
+**Location:** `app/sidekiq/representation_management/accreditation_xlsx_processor.rb`
+
+**Schedule:** Not scheduled independently — enqueued as a fallback by `AccreditedEntitiesQueueUpdates` when entity types fail API processing.
+
+**Retry Policy:** 10 retries (~21 hours) with `sidekiq_retries_exhausted` Slack alerting.
+
+This job provides a secondary data pipeline using the GCLAWS SSRS XLSX export. It accepts API-level entity types (`agents`, `attorneys`, `representatives`, `veteran_service_organizations`) and maps them internally to processing types (`claims_agent`, `attorney`, `representative`, `organization`).
+
+#### Key Features:
+- Downloads and parses GCLAWS SSRS XLSX file
+- Calls VSOReloader to ensure records exist before applying updates
+- Directly writes email, phone, name, and raw_address updates to the database
+- Queues address validation jobs for records with changed addresses
+- Independent Slack reporting (separate from the parent job's report)
+- Feature-flagged via `accredited_entity_models_populate_with_xlsx_data`
+
+#### Usage:
+```ruby
+# Process specific failed entity types (called automatically by AccreditedEntitiesQueueUpdates)
+RepresentationManagement::AccreditationXlsxProcessor.perform_async(%w[agents attorneys])
+
+# Process all entity types manually
+RepresentationManagement::AccreditationXlsxProcessor.perform_async
+```
 
 ### AccreditedIndividualsUpdate
 
@@ -106,6 +135,12 @@ AccreditedEntitiesQueueUpdates
     ├─► Fetches entity data
     ├─► Creates/updates records
     ├─► Identifies address changes
+    │
+    ├─► On failure ──► AccreditationXlsxProcessor (async fallback)
+    │                       │
+    │                       ├─► Downloads GCLAWS XLSX
+    │                       ├─► Parses & writes to DB
+    │                       └─► Queues address validation
     │
     ▼
 AccreditedIndividualsUpdate (batched)

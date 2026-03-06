@@ -69,6 +69,9 @@ module RepresentationManagement
       # If no previous count exists, allow the update
       return true if previous_count.nil? || previous_count.zero?
 
+      # If new count is nil or zero (e.g., API down), treat as invalid
+      return false if new_count.nil? || new_count.zero?
+
       # If new count is greater or equal, allow the update
       return true if new_count >= previous_count
 

@@ -88,6 +88,7 @@ module RepresentationManagement
       # Add deletion skip summary
       add_deletion_skip_summary
       add_address_quality_report_by_individual_type
+      trigger_xlsx_fallback
 
       @report << "\nJob Duration: #{duration}\n"
       log_to_slack_channel(@report)
@@ -190,8 +191,9 @@ module RepresentationManagement
         handle_invalid_entity_count(entity_type)
       end
     rescue => e
+      @processing_error_types << entity_type unless @processing_error_types.include?(entity_type)
       @ingestion_log&.mark_entity_failed!(entity_type, error: e.message)
-      raise
+      log_error("Error processing #{entity_type}: #{e.message}")
     end
 
     # Determines if an entity type should be skipped
@@ -277,8 +279,10 @@ module RepresentationManagement
       process_vsos_and_reps
       create_or_update_accreditations
     rescue => e
+      @processing_error_types << VSOS unless @processing_error_types.include?(VSOS)
+      @processing_error_types << REPRESENTATIVES unless @processing_error_types.include?(REPRESENTATIVES)
       mark_orgs_and_reps_failed(e.message)
-      raise
+      log_error("Error processing orgs and reps: #{e.message}")
     end
 
     # Determines if orgs and reps should be skipped
@@ -834,6 +838,22 @@ module RepresentationManagement
     def log_error(message)
       log_to_slack_channel("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
       Rails.logger.error("RepresentationManagement::AccreditedEntitiesQueueUpdates error: #{message}")
+    end
+
+    # Enqueues AccreditationXlsxProcessor as a fallback for any entity types that failed
+    # during API processing (due to processing errors or count mismatches).
+    # Uses perform_async to leverage the processor's retry: 10 and sidekiq_retries_exhausted.
+    #
+    # @return [void]
+    def trigger_xlsx_fallback
+      failed_types = (@processing_error_types.map(&:to_s) + @count_mismatch_types.map(&:to_s)).uniq
+      return if failed_types.empty?
+
+      RepresentationManagement::AccreditationXlsxProcessor.perform_async(failed_types)
+      @report << "\n📦 **XLSX Fallback:** Enqueued for: #{failed_types.join(', ')}\n"
+    rescue => e
+      log_error("XLSX fallback enqueue failed: #{e.message}")
+      @report << "\n⚠️ **XLSX Fallback:** FAILED to enqueue - #{e.message}\n"
     end
 
     def log_to_slack_channel(message)

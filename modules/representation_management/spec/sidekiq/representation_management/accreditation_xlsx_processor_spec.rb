@@ -46,16 +46,16 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
           .and_yield({ success: true, file_path: fixture_path })
       end
 
-      it 'calls VSOReloader with the specified types' do
+      it 'calls VSOReloader with mapped internal types for the specified API types' do
         expect_any_instance_of(RepresentationManagement::VSOReloader)
           .to receive(:perform).with(%w[attorney])
 
-        subject.perform(%w[attorney])
+        subject.perform(%w[attorneys])
       end
 
-      it 'calls VSOReloader with all types when none specified' do
+      it 'calls VSOReloader with all mapped internal types when none specified' do
         expect_any_instance_of(RepresentationManagement::VSOReloader)
-          .to receive(:perform).with(described_class::VALID_TYPES)
+          .to receive(:perform).with(%w[claims_agent attorney representative organization])
 
         subject.perform
       end
@@ -80,14 +80,14 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
         end
 
         it 'directly updates individual email and phone in the database' do
-          subject.perform(%w[attorney])
+          subject.perform(%w[attorneys])
           attorney.reload
           expect(attorney.email).to eq('maria.glover@goodwin.test')
           expect(attorney.phone).to eq('(367) 319-2072')
         end
 
         it 'directly updates individual raw_address in the database' do
-          subject.perform(%w[attorney])
+          subject.perform(%w[attorneys])
           attorney.reload
           expect(attorney.raw_address['address_line1']).to eq('82611 Klocko Summit')
           expect(attorney.raw_address['city']).to eq('West Rachele')
@@ -95,13 +95,13 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
         end
 
         it 'directly updates organization phone in the database' do
-          subject.perform(%w[organization])
+          subject.perform(%w[veteran_service_organizations])
           organization.reload
           expect(organization.phone).not_to eq('555-000-0001')
         end
 
         it 'directly updates organization raw_address in the database' do
-          subject.perform(%w[organization])
+          subject.perform(%w[veteran_service_organizations])
           organization.reload
           expect(organization.raw_address['address_line1']).not_to eq('Old Org Address')
         end
@@ -110,14 +110,14 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
           expect(RepresentationManagement::AccreditedIndividualsUpdate)
             .to receive(:perform_in).with(0.minutes, [attorney.id])
 
-          subject.perform(%w[attorney])
+          subject.perform(%w[attorneys])
         end
 
         it 'queues organization address validation jobs with ID arrays' do
           expect(RepresentationManagement::AccreditedOrganizationsUpdate)
             .to receive(:perform_in).with(0.minutes, [organization.id])
 
-          subject.perform(%w[organization])
+          subject.perform(%w[veteran_service_organizations])
         end
 
         it 'does not queue updates for unchanged records' do
@@ -138,7 +138,7 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
           expect(RepresentationManagement::AccreditedIndividualsUpdate)
             .not_to receive(:perform_in)
 
-          subject.perform(%w[attorney])
+          subject.perform(%w[attorneys])
         end
 
         context 'when only email/phone changed (no address change)' do
@@ -160,7 +160,7 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
             expect(RepresentationManagement::AccreditedIndividualsUpdate)
               .not_to receive(:perform_in)
 
-            subject.perform(%w[attorney])
+            subject.perform(%w[attorneys])
 
             attorney.reload
             expect(attorney.email).to eq('maria.glover@goodwin.test')
@@ -200,6 +200,10 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
         expect { subject.perform(['invalid_type']) }.to raise_error(ArgumentError, /No valid entity types/)
       end
 
+      it 'raises ArgumentError for old internal type names' do
+        expect { subject.perform(['attorney']) }.to raise_error(ArgumentError, /No valid entity types/)
+      end
+
       it 'filters out invalid types and processes valid ones' do
         allow(RepresentationManagement::GCLAWS::XlsxClient).to receive(:download_accreditation_xlsx)
           .and_yield({ success: true, file_path: fixture_path })
@@ -208,7 +212,25 @@ RSpec.describe RepresentationManagement::AccreditationXlsxProcessor do
         expect_any_instance_of(RepresentationManagement::VSOReloader)
           .to receive(:perform).with(%w[attorney])
 
-        subject.perform(%w[attorney invalid_type])
+        subject.perform(%w[attorneys invalid_type])
+      end
+    end
+
+    context 'with API_TYPE_MAP' do
+      it 'maps agents to claims_agent' do
+        expect(described_class::API_TYPE_MAP['agents']).to eq('claims_agent')
+      end
+
+      it 'maps attorneys to attorney' do
+        expect(described_class::API_TYPE_MAP['attorneys']).to eq('attorney')
+      end
+
+      it 'maps representatives to representative' do
+        expect(described_class::API_TYPE_MAP['representatives']).to eq('representative')
+      end
+
+      it 'maps veteran_service_organizations to organization' do
+        expect(described_class::API_TYPE_MAP['veteran_service_organizations']).to eq('organization')
       end
     end
 
