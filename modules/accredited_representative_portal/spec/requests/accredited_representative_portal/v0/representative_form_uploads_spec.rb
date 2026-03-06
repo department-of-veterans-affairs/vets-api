@@ -38,6 +38,38 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     login_as(representative_user)
   end
 
+  describe 'accredited_representative_portal_killswitch' do
+    let(:killswitch_params) { { form_id: 'invalid-form' } }
+
+    context 'when killswitch is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_killswitch).and_return(false)
+      end
+
+      it 'allows request to reach endpoint logic' do
+        post('/accredited_representative_portal/v0/representative_form_upload',
+             params: killswitch_params)
+        # Request reaches endpoint logic, which processes the form (returns 422 or other error from form validation)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when killswitch is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_killswitch).and_return(true)
+      end
+
+      it 'denies access with routing error before reaching endpoint logic' do
+        post('/accredited_representative_portal/v0/representative_form_upload',
+             params: killswitch_params)
+        # Request is blocked before reaching endpoint logic (killswitch returns 404)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
   describe '#submit' do
     let(:attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f3' }
     let(:supporting_attachment_guid) { '743a0ec2-6eeb-49b9-bd70-0a195b74e9f2' }

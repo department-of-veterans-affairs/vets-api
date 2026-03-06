@@ -23,11 +23,16 @@ module AccreditedRepresentativePortal
 
     validates_access_token_audience IdentitySettings.sign_in.arp_client_id
 
+    before_action :enforce_accredited_representative_portal_killswitch
     before_action :track_unique_session
     around_action :handle_exceptions
     after_action :verify_pundit_authorization
 
     private
+
+    def enforce_accredited_representative_portal_killswitch
+      routing_error if Flipper.enabled?(:accredited_representative_portal_killswitch)
+    end
 
     def deny_access_unless_form_enabled(form_id)
       form_class = SavedClaim::BenefitsIntake.form_class_from_proper_form_id(form_id)

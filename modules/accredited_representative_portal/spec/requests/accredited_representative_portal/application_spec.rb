@@ -56,6 +56,50 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
       end
     end
   end
+
+  describe 'accredited_representative_portal_killswitch' do
+    subject do
+      get '/accredited_representative_portal/arbitrary'
+      response
+    end
+
+    let(:arp_client_id) { 'arp' }
+    let(:valid_access_token) { create(:access_token, audience: [arp_client_id]) }
+    let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: valid_access_token).perform }
+
+    before do
+      cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
+      AccreditedRepresentativePortal::Engine.routes.draw do
+        get 'arbitrary', to: 'arbitrary#arbitrary'
+      end
+    end
+
+    after do
+      Rails.application.reload_routes!
+    end
+
+    context 'when killswitch is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_killswitch).and_return(false)
+      end
+
+      it 'allows access to endpoints' do
+        expect(subject).to have_http_status(:ok)
+      end
+    end
+
+    context 'when killswitch is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_killswitch).and_return(true)
+      end
+
+      it 'denies access to all endpoints with routing error' do
+        expect(subject).to have_http_status(:not_found)
+      end
+    end
+  end
 end
 
 module AccreditedRepresentativePortal
