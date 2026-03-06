@@ -91,7 +91,7 @@ describe UnifiedHealthData::Adapters::OracleHealthTrackingHelper do
           tracking = result.first
           expect(tracking[:tracking_number]).to eq('9400111899223100000001')
           expect(tracking[:carrier]).to eq('USPS')
-          expect(tracking[:shipped_date]).to eq('2026-01-10 14:35:02.0')
+          expect(tracking[:complete_date_time]).to eq('2026-01-10 14:35:02.0')
           expect(tracking[:prescription_name]).to eq('albuterol 90 mcg/inh Aerosol')
           expect(tracking[:ndc_number]).to eq('00487-9801-01')
           expect(tracking[:prescription_number]).to eq('RX-PLACER-001')
