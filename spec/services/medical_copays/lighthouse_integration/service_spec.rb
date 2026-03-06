@@ -106,7 +106,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         before do
           allow(service).to receive_messages(base_stubs)
           allow(service).to receive_messages(
-            fetch_organization_address: {
+            retrieve_organization_address: {
               address_line1: '123 Test St',
               address_line2: nil,
               address_line3: nil,
@@ -123,16 +123,19 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         end
 
         it 'increments initiated metric' do
+          allow(service).to receive(:invoices_for_organization).and_return([])
           expect { service.get_detail(id: 'invoice-1') }
             .to trigger_statsd_increment('api.mcp.lighthouse.detail.initiated')
         end
 
         it 'increments success metric' do
+          allow(service).to receive(:invoices_for_organization).and_return([])
           expect { service.get_detail(id: 'invoice-1') }
             .to trigger_statsd_increment('api.mcp.lighthouse.detail.success')
         end
 
         it 'measures latency' do
+          allow(service).to receive(:invoices_for_organization).and_return([])
           expect { service.get_detail(id: 'invoice-1') }
             .to trigger_statsd_measure('api.mcp.lighthouse.detail.latency')
         end
@@ -141,7 +144,8 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
       context 'when organization address is missing' do
         before do
           allow(service).to receive_messages(base_stubs)
-          allow(service).to receive_messages(fetch_organization_address: nil, fetch_patient_data: nil)
+          allow(service).to receive_messages(retrieve_organization_address: nil, fetch_patient_data: nil)
+          allow(service).to receive(:invoices_for_organization).and_return([])
         end
 
         it 'still builds a CopayDetail with nil facility_address' do
@@ -156,9 +160,11 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
         before do
           allow(service).to receive_messages(base_stubs)
           allow(service).to receive_messages(
-            fetch_organization_address: { city: 'Tampa' },
+            retrieve_organization_address: { city: 'Tampa' },
             fetch_patient_data: nil
           )
+
+          allow(service).to receive(:invoices_for_organization).and_return([])
         end
 
         it 'still builds a CopayDetail with nil patient_data' do
@@ -325,6 +331,7 @@ RSpec.describe MedicalCopays::LighthouseIntegration::Service do
           .to receive(:generate_token).and_return('fake-jwt')
 
         service = MedicalCopays::LighthouseIntegration::Service.new('32000551')
+        allow(service).to receive(:invoices_for_organization).and_return([])
         result = service.get_detail(id: '4-1abZUKu7LnbcQc')
 
         expect(result).to be_a(Lighthouse::HCC::CopayDetail)

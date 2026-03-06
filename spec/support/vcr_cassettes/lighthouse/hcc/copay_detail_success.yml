@@ -21,21 +21,21 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:30 GMT
+      - Wed, 25 Feb 2026 04:54:10 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
-      - '238'
-      X-Ratelimit-Limit-Minute:
-      - '240'
-      Ratelimit-Remaining:
-      - '238'
+      - '239'
       Ratelimit-Limit:
       - '240'
+      Ratelimit-Remaining:
+      - '239'
       Ratelimit-Reset:
-      - '30'
+      - '51'
+      X-Ratelimit-Limit-Minute:
+      - '240'
       Vary:
       - Origin
       Cache-Control:
@@ -45,15 +45,15 @@ http_interactions:
       Etag:
       - W/"598-v8PeRpsJTMmIenchBXkcQLcOtLM:dtagent10323250822043923XVuO"
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="615270522"
+      - dtSInfo;desc="0", dtRpid;desc="-930563670"
       X-Envoy-Upstream-Service-Time:
-      - '403'
+      - '890'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#3205571
+      - 5b8af9cc-be5c-4d5d-935e-adf5d51b6738#2601520
       Transfer-Encoding:
       - chunked
     body:
@@ -61,7 +61,7 @@ http_interactions:
       string: '{"access_token":"fake_client_id","token_type":"Bearer","scope":"launch
         system/PaymentReconciliation.read system/Account.read system/ChargeItem.read
         system/Encounter.read system/Medication.read system/Invoice.read system/MedicationDispense.read system/Organization.read","expires_in":300,"state":null,"patient":"32000551"}'
-  recorded_at: Mon, 29 Dec 2025 15:27:30 GMT
+  recorded_at: Wed, 25 Feb 2026 04:54:10 GMT
 - request:
     method: get
     uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LnbcQc"
@@ -75,8 +75,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -85,27 +84,23 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:31 GMT
+      - Wed, 25 Feb 2026 04:54:11 GMT
       Content-Type:
       - application/fhir+json;charset=UTF-8
       Content-Length:
       - '3884'
       Connection:
       - keep-alive
-      Ratelimit-Remaining:
-      - '53'
-      Ratelimit-Reset:
-      - '29'
-      X-Ratelimit-Limit-Minute:
-      - '60'
       X-Ratelimit-Remaining-Minute:
-      - '53'
+      - '59'
       Ratelimit-Limit:
       - '60'
-      X-Oneagent-Js-Injection:
-      - 'true'
-      Server-Timing:
-      - dtRpid;desc="67195202", dtSInfo;desc="0"
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '49'
+      X-Ratelimit-Limit-Minute:
+      - '60'
       Pragma:
       - no-cache
       - no-cache
@@ -121,14 +116,14 @@ http_interactions:
       Content-Security-Policy:
       - script-src 'self'
       X-Envoy-Upstream-Service-Time:
-      - '61'
+      - '74'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - f032d926-2145-44fd-b342-dc321835505b#3202073
+      - 9690de36-4102-49a7-a37b-da7b183433b5#2647559
       Cache-Control:
       - no-cache, no-store
     body:
@@ -161,7 +156,7 @@ http_interactions:
         Paid"},"amount":{"value":33.12}},{"type":"surcharge","code":{"text":"Interest
         Paid"},"amount":{"value":4.04}},{"type":"surcharge","code":{"text":"Administrative
         Cost Paid"},"amount":{"value":2.44}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:31 GMT
+  recorded_at: Wed, 25 Feb 2026 04:54:11 GMT
 - request:
     method: get
     uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account?_id=4-Nsb4VwsletHs"
@@ -175,8 +170,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -185,7 +179,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:31 GMT
+      - Wed, 25 Feb 2026 04:54:12 GMT
       Content-Type:
       - application/fhir+json;charset=UTF-8
       Content-Length:
@@ -193,19 +187,19 @@ http_interactions:
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
-      - '50'
+      - '56'
       X-Ratelimit-Limit-Minute:
       - '60'
       Ratelimit-Remaining:
-      - '50'
+      - '56'
       Ratelimit-Limit:
       - '60'
       Ratelimit-Reset:
-      - '29'
+      - '48'
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1768976030", dtSInfo;desc="0"
+      - dtRpid;desc="1341692542", dtSInfo;desc="0"
       Pragma:
       - no-cache
       - no-cache
@@ -221,21 +215,21 @@ http_interactions:
       Content-Security-Policy:
       - script-src 'self'
       X-Envoy-Upstream-Service-Time:
-      - '60'
+      - '116'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#3205577
+      - 200eae4d-19a0-4725-9a99-7c570ca19579#2593871
       Cache-Control:
       - no-cache, no-store
     body:
       encoding: UTF-8
       string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account?_count=100&_id=4-6Z8ZnAptcHIIsFU&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account?_count=100&_id=4-6Z8ZnAptcHIIsFU&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account?_count=100&_id=4-6Z8ZnAptcHIIsFU&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs","resource":{"resourceType":"Account","id":"4-Nsb4VwsletHs","meta":{"lastUpdated":"2024-05-28T00:00:00Z"},"extension":[{"url":"http://va.gov/fhir/StructureDefinition/account-statementGeneratedDay","valueInteger":0}],"identifier":[{"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"AN","display":"Account
         number"}],"text":"Account number"},"value":"5730000000038703KIRLI"}],"status":"active","subject":[{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551"}]},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:31 GMT
+  recorded_at: Wed, 25 Feb 2026 04:54:12 GMT
 - request:
     method: get
     uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem?_count=100&patient=32000551"
@@ -249,8 +243,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -259,7 +252,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:31 GMT
+      - Wed, 25 Feb 2026 04:54:12 GMT
       Content-Type:
       - application/fhir+json;charset=UTF-8
       Content-Length:
@@ -267,19 +260,19 @@ http_interactions:
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
-      - '52'
+      - '57'
       X-Ratelimit-Limit-Minute:
       - '60'
       Ratelimit-Remaining:
-      - '52'
+      - '57'
+      Ratelimit-Reset:
+      - '48'
       Ratelimit-Limit:
       - '60'
-      Ratelimit-Reset:
-      - '29'
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="221564983", dtSInfo;desc="0"
+      - dtRpid;desc="-1228710513", dtSInfo;desc="0"
       Pragma:
       - no-cache
       - no-cache
@@ -295,14 +288,14 @@ http_interactions:
       Content-Security-Policy:
       - script-src 'self'
       X-Envoy-Upstream-Service-Time:
-      - '66'
+      - '116'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#3205575
+      - 05cdc4e8-49d3-4b60-824a-a41c588c9ac7#2563004
       Cache-Control:
       - no-cache, no-store
     body:
@@ -346,7 +339,7 @@ http_interactions:
         CHARGE"},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551"},"occurrenceDateTime":"2025-06-29T21:49:43Z","enteredDate":"2025-06-30T21:49:43Z","supportingInformation":[{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7Lnb4KY"}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FVPel6","resource":{"resourceType":"ChargeItem","id":"4-1bKirHw3FVPel6","meta":{"lastUpdated":"2025-05-30T00:00:00Z"},"identifier":[{"type":{"text":"Sta3n-IBAction.IEN"},"system":"http://va.gov/identifiers/573/350","value":"573-966896109"}],"status":"billed","code":{"text":"OUTPATIENT
         CARE(NSC)"},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551"},"context":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Encounter/4-1abOMcaun6yY0h"},"occurrencePeriod":{"start":"2025-05-29T21:49:43Z","end":"2025-05-29T22:19:43Z"},"enteredDate":"2025-05-30T21:49:43Z","note":[{"text":"DG
         OPT COPAY NEW"}],"supportingInformation":[{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7Lnb4KY"}]},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:32 GMT
+  recorded_at: Wed, 25 Feb 2026 04:54:12 GMT
 - request:
     method: get
     uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/PaymentReconciliation?_count=100&patient=32000551"
@@ -360,8 +353,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -370,7 +362,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:31 GMT
+      - Wed, 25 Feb 2026 04:54:12 GMT
       Content-Type:
       - application/fhir+json;charset=UTF-8
       Content-Length:
@@ -378,19 +370,19 @@ http_interactions:
       Connection:
       - keep-alive
       X-Ratelimit-Remaining-Minute:
-      - '51'
-      X-Ratelimit-Limit-Minute:
-      - '60'
-      Ratelimit-Remaining:
-      - '51'
+      - '58'
       Ratelimit-Limit:
       - '60'
+      Ratelimit-Remaining:
+      - '58'
       Ratelimit-Reset:
-      - '29'
+      - '48'
+      X-Ratelimit-Limit-Minute:
+      - '60'
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-2117707822", dtSInfo;desc="0"
+      - dtRpid;desc="1443488140", dtSInfo;desc="0"
       Pragma:
       - no-cache
       - no-cache
@@ -406,14 +398,14 @@ http_interactions:
       Content-Security-Policy:
       - script-src 'self'
       X-Envoy-Upstream-Service-Time:
-      - '67'
+      - '85'
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#3205576
+      - 9690de36-4102-49a7-a37b-da7b183433b5#2647560
       Cache-Control:
       - no-cache, no-store
     body:
@@ -506,159 +498,7 @@ http_interactions:
         (IN PART)","paymentDate":"2025-07-29","paymentAmount":{"value":4.09},"paymentIdentifier":{"value":"P9621691"},"detail":[{"type":{"text":"Administrative
         Charge Collected"},"amount":{"value":0.72}},{"type":{"text":"Interest Collected"},"amount":{"value":0.92}},{"type":{"text":"Principal
         Collected"},"amount":{"value":2.45}}]},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:32 GMT
-- request:
-    method: get
-    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_id=4-1abU4wmNqJSELr"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json+fhir
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 29 Dec 2025 15:27:32 GMT
-      Content-Type:
-      - application/fhir+json;charset=UTF-8
-      Content-Length:
-      - '1726'
-      Connection:
-      - keep-alive
-      Ratelimit-Remaining:
-      - '59'
-      Ratelimit-Reset:
-      - '28'
-      X-Ratelimit-Limit-Minute:
-      - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '59'
-      Ratelimit-Limit:
-      - '60'
-      X-Oneagent-Js-Injection:
-      - 'true'
-      Server-Timing:
-      - dtRpid;desc="363750855", dtSInfo;desc="0"
-      Pragma:
-      - no-cache
-      - no-cache
-      Content-Language:
-      - en-US
-      X-Content-Type-Options:
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
-      - SAMEORIGIN
-      Content-Security-Policy:
-      - script-src 'self'
-      X-Envoy-Upstream-Service-Time:
-      - '58'
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-      - max-age=31536000; includeSubDomains; preload
-      Access-Control-Allow-Origin:
-      - "*"
-      Correlation-Id:
-      - f032d926-2145-44fd-b342-dc321835505b#3202077
-      Cache-Control:
-      - no-cache, no-store
-    body:
-      encoding: UTF-8
-      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_count=100&_id=4-R76F1KGm3n2oNDC0&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_count=100&_id=4-R76F1KGm3n2oNDC0&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_count=100&_id=4-R76F1KGm3n2oNDC0&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-1abU4wmNqJSELr","resource":{"resourceType":"MedicationDispense","id":"4-1abU4wmNqJSELr","meta":{"lastUpdated":"2025-02-28T21:49:43Z"},"status":"completed","category":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/medicationdispense-category","code":"outpatient"}]},"medicationReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication/4-1abOXGgQXfojCN","display":"Clopidogrel
-        75 MG Oral Tablet"},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551"},"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ActCode","code":"FF","display":"First
-        Fill"}],"text":"First Fill"},"quantity":{"value":10},"daysSupply":{"value":5,"unit":"days","system":"http://unitsofmeasure.org","code":"d"},"whenPrepared":"2025-02-28T21:49:43Z","dosageInstruction":[{"text":"TAKE
-        TWO TABLETS BY MOUTH EVERYDAY","timing":{"code":{"text":"DAILY"}},"asNeededBoolean":false,"route":{"text":"ORAL"},"doseAndRate":[{"doseQuantity":{"unit":"MG"}}]}]},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:32 GMT
-- request:
-    method: get
-    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_id=4-1abOXGgQXfojCN"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json+fhir
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 29 Dec 2025 15:27:33 GMT
-      Content-Type:
-      - application/fhir+json;charset=UTF-8
-      Content-Length:
-      - '1104'
-      Connection:
-      - keep-alive
-      X-Ratelimit-Limit-Minute:
-      - '60'
-      Ratelimit-Remaining:
-      - '49'
-      Ratelimit-Reset:
-      - '27'
-      Ratelimit-Limit:
-      - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '49'
-      X-Oneagent-Js-Injection:
-      - 'true'
-      Server-Timing:
-      - dtRpid;desc="1621639695", dtSInfo;desc="0"
-      Pragma:
-      - no-cache
-      - no-cache
-      Content-Language:
-      - en-US
-      X-Content-Type-Options:
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
-      - SAMEORIGIN
-      Content-Security-Policy:
-      - script-src 'self'
-      X-Envoy-Upstream-Service-Time:
-      - '52'
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-      - max-age=31536000; includeSubDomains; preload
-      Access-Control-Allow-Origin:
-      - "*"
-      Correlation-Id:
-      - cde2d494-1737-402a-9a53-0572d5492356#3241626
-      Cache-Control:
-      - no-cache, no-store
-    body:
-      encoding: UTF-8
-      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_count=100&_id=4-R74iVyVrt6kazP8O&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_count=100&_id=4-R74iVyVrt6kazP8O&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_count=100&_id=4-R74iVyVrt6kazP8O&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication/4-1abOXGgQXfojCN","resource":{"resourceType":"Medication","id":"4-1abOXGgQXfojCN","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"text":{"status":"additional","div":"<div>Clopidogrel
-        75 MG Oral Tablet</div>"},"identifier":[{"id":"4013159"}],"code":{"coding":[{"system":"http://www.nlm.nih.gov/research/umls/rxnorm","code":"309362","display":"Clopidogrel
-        75 MG Oral Tablet"}],"text":"Clopidogrel 75 MG Oral Tablet"},"form":{"text":"2
-        dose(s) 2 time(s) per 1 days"}},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:33 GMT
+  recorded_at: Wed, 25 Feb 2026 04:54:12 GMT
 - request:
     method: get
     uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_id=4-5pFm5Av0PHt"
@@ -672,8 +512,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -682,27 +521,27 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:32 GMT
+      - Wed, 25 Feb 2026 04:54:13 GMT
       Content-Type:
       - application/fhir+json;charset=UTF-8
       Content-Length:
-      - '394'
+      - '1464'
       Connection:
       - keep-alive
-      Ratelimit-Remaining:
-      - '55'
-      Ratelimit-Limit:
-      - '60'
-      Ratelimit-Reset:
-      - '29'
       X-Ratelimit-Remaining-Minute:
       - '55'
       X-Ratelimit-Limit-Minute:
       - '60'
+      Ratelimit-Remaining:
+      - '55'
+      Ratelimit-Reset:
+      - '48'
+      Ratelimit-Limit:
+      - '60'
       X-Oneagent-Js-Injection:
       - 'true'
       Server-Timing:
-      - dtRpid;desc="123456789", dtSInfo;desc="0"
+      - dtRpid;desc="-1162016807", dtSInfo;desc="0"
       Pragma:
       - no-cache
       - no-cache
@@ -718,20 +557,24 @@ http_interactions:
       Content-Security-Policy:
       - script-src 'self'
       X-Envoy-Upstream-Service-Time:
-      - '45'
+      - '165'
       Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload
+      - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#3205578
+      - 05cdc4e8-49d3-4b60-824a-a41c588c9ac7#2563006
       Cache-Control:
       - no-cache, no-store
     body:
       encoding: UTF-8
-      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","resource":{"resourceType":"Organization","id":"4-5pFm5Av0PHt","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"5768763296"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_482"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"3000 CORAL HILLS DR CORAL SPRINGS FL 330654108","line":["3000 CORAL HILLS DR"],"city":"CORAL SPRINGS","state":"FL","postalCode":"330654108"}]},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:33 GMT
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization?_count=100&_id=4-1bKzbFnKD1vOy2&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","resource":{"resourceType":"Organization","id":"4-5pFm5Av0PHt","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"5768763296"},{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"FI","display":"Facility
+        ID"}],"text":"Facility ID"},"system":"https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier","value":"vha_482"}],"active":true,"type":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/4.1-.01","code":"prov","display":"Healthcare
+        Provider"}],"text":"Healthcare Provider"}],"name":"TEST VAMC","address":[{"text":"3000
+        CORAL HILLS DR CORAL SPRINGS FL 330654108","line":["3000 CORAL HILLS DR"],"city":"CORAL
+        SPRINGS","state":"FL","postalCode":"330654108"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 25 Feb 2026 04:54:13 GMT
 - request:
     method: get
     uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient?_id=32000551"
@@ -745,8 +588,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Bearer <TOKEN>
+      Authorization: Bearer <TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -755,27 +597,23 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Dec 2025 15:27:33 GMT
+      - Wed, 25 Feb 2026 04:54:47 GMT
       Content-Type:
       - application/fhir+json;charset=UTF-8
       Content-Length:
-      - '2847'
+      - '2555'
       Connection:
       - keep-alive
-      Ratelimit-Remaining:
+      X-Ratelimit-Remaining-Minute:
       - '54'
       Ratelimit-Limit:
       - '60'
-      Ratelimit-Reset:
-      - '28'
-      X-Ratelimit-Remaining-Minute:
+      Ratelimit-Remaining:
       - '54'
+      Ratelimit-Reset:
+      - '13'
       X-Ratelimit-Limit-Minute:
       - '60'
-      X-Oneagent-Js-Injection:
-      - 'true'
-      Server-Timing:
-      - dtRpid;desc="123456790", dtSInfo;desc="0"
       Pragma:
       - no-cache
       - no-cache
@@ -791,18 +629,471 @@ http_interactions:
       Content-Security-Policy:
       - script-src 'self'
       X-Envoy-Upstream-Service-Time:
-      - '42'
+      - '71'
       Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload
+      - max-age=16000000; includeSubDomains; preload;
       - max-age=31536000; includeSubDomains; preload
       Access-Control-Allow-Origin:
       - "*"
       Correlation-Id:
-      - 3e0564e5-949d-4674-9b1a-888378211583#3205579
+      - 5b8af9cc-be5c-4d5d-935e-adf5d51b6738#2601575
       Cache-Control:
       - no-cache, no-store
     body:
       encoding: UTF-8
-      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"},{"relation":"self","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"},{"relation":"last","url":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"}],"entry":[{"fullUrl":"https://sandbox-api.va.gov/services/health-care-costs-coverage/v0/r4/Patient/32000551","resource":{"resourceType":"Patient","id":"32000551","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"extension":[{"extension":[{"url":"ombCategory","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2106-3","display":"White"}},{"url":"text","valueString":"White"}],"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"},{"extension":[{"url":"ombCategory","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2135-2","display":"Hispanic or Latino"}},{"url":"text","valueString":"Hispanic or Latino"}],"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"},{"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex","valueCode":"F"}],"identifier":[{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"PN"}]},"system":"http://va.gov/mpi","value":"32000551","assigner":{"display":"Master Patient Index"}}],"name":[{"use":"usual","text":"Mrs. Ivory697 Britta584 Kirlin939","family":"Kirlin939","given":["Ivory697"]}],"telecom":[{"system":"phone","value":"5559987693","use":"home"}],"gender":"female","birthDate":"1929-03-15","deceasedBoolean":false,"address":[{"line":["197 Ullrich Well"],"city":"Broadview Park","state":"FL","postalCode":"00000"}],"contact":[{"relationship":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0131","code":"C","display":"Emergency Contact"},{"system":"http://va.gov/terminology/vistaDefinedTerms/2","code":".3311","display":"SECONDARY EMERGENCY CONTACT"}],"text":"SECONDARY EMERGENCY CONTACT"}],"name":{"text":"O''Conner582, Anneliese959"},"telecom":[{"system":"phone","value":"5552902741","use":"home"},{"system":"phone","value":"5558725482","use":"work"},{"system":"email","value":"stewart.skiles@example.com"}],"address":{"line":["76210 Stehr Causeway","Suite 315"],"city":"South Carleetown","state":"TX","postalCode":"42094"}}],"communication":[{"language":{"text":"ENGLISH"}}]},"search":{"mode":"match"}}]}'
-  recorded_at: Mon, 29 Dec 2025 15:27:33 GMT
-recorded_with: VCR 6.3.1
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient?_count=100&_id=32000551&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","resource":{"resourceType":"Patient","id":"32000551","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"extension":[{"extension":[{"url":"ombCategory","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2106-3","display":"White"}},{"url":"text","valueString":"White"}],"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"},{"extension":[{"url":"ombCategory","valueCoding":{"system":"urn:oid:2.16.840.1.113883.6.238","code":"2135-2","display":"Hispanic
+        or Latino"}},{"url":"text","valueString":"Hispanic or Latino"}],"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"},{"url":"http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex","valueCode":"F"}],"identifier":[{"use":"usual","type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0203","code":"PN"}]},"system":"http://va.gov/mpi","value":"32000551","assigner":{"display":"Master
+        Patient Index"}}],"name":[{"use":"usual","text":"Mrs. Ivory697 Britta584 Kirlin939","family":"Kirlin939","given":["Ivory697"]}],"telecom":[{"system":"phone","value":"5559987693","use":"home"}],"gender":"female","birthDate":"1929-03-15","deceasedBoolean":false,"address":[{"line":["197
+        Ullrich Well"],"city":"Broadview Park","state":"FL","postalCode":"00000"}],"contact":[{"relationship":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0131","code":"C","display":"Emergency
+        Contact"},{"system":"http://va.gov/terminology/vistaDefinedTerms/2","code":".3311","display":"SECONDARY
+        EMERGENCY CONTACT"}],"text":"SECONDARY EMERGENCY CONTACT"}],"name":{"text":"O''Conner582,
+        Anneliese959"},"telecom":[{"system":"phone","value":"5552902741","use":"home"},{"system":"phone","value":"5558725482","use":"work"},{"system":"email","value":"stewart.skiles@example.com"}],"address":{"line":["76210
+        Stehr Causeway","Suite 315"],"city":"South Carleetown","state":"TX","postalCode":"42094"}}],"communication":[{"language":{"text":"ENGLISH"}}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 25 Feb 2026 04:54:47 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&page=1&patient=32000551"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 25 Feb 2026 04:54:50 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '24097'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '53'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '53'
+      Ratelimit-Reset:
+      - '10'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1863532364", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '116'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 9690de36-4102-49a7-a37b-da7b183433b5#2647625
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":8,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=32000551&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=32000551&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=32000551&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7Lpr2Dy","resource":{"resourceType":"Invoice","id":"4-1abZUKu7Lpr2Dy","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FD301"}],"status":"cancelled","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"39","display":"CANCELLATION"}],"text":"CANCELLATION"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2024-06-30T18:26:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FcCedU","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":37.55}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FcCvgW","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":37.55}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FcD4D4","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.83}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.26}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FcDLG6","display":"EXEMPT
+        INT/ADM. COST"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest
+        Charged"},"amount":{"value":-0.83}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":-0.43}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":-1.26}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":37.55}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LpqlAw","resource":{"resourceType":"Invoice","id":"4-1abZUKu7LpqlAw","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FE740"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2025-01-30T16:03:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZxmwC","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":25.26}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZxvSk","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.06}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.66}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.72}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FcCF3y","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.06}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.66}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.72}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":25.26}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":25.26}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":2.12}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":1.32}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LncRZi","resource":{"resourceType":"Invoice","id":"4-1abZUKu7LncRZi","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FDDA0"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2025-04-30T14:27:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZxVtA","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":22.02}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":22.02}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":22.02}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LncAWg","resource":{"resourceType":"Invoice","id":"4-1abZUKu7LncAWg","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FEDF3"}],"status":"balanced","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"22","display":"COLLECTED/CLOSED"}],"text":"COLLECTED/CLOSED"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2024-12-30T16:56:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZw8e0","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":70.33}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZwHAY","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.13}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.73}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZwYDa","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.13}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.73}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZwpGc","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.13}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.73}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZx6Je","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.13}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.73}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.86}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":70.33}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":70.33}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":4.52}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":2.92}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LnbtTe","resource":{"resourceType":"Invoice","id":"4-1abZUKu7LnbtTe","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FD2B7"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2025-08-12T20:29:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5BD7R1d","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZvray","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":533.8}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":533.8}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":533.8}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.0}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.0}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.0}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LnbcQc","resource":{"resourceType":"Invoice","id":"4-1abZUKu7LnbcQc","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FDEC0"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2025-03-01T21:49:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXgAka","display":"PSO
+        NSC RX COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total
+        Charge"},"amount":{"value":86.21}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXgJH8","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.61}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.62}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXgaKA","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.61}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.62}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXgrNC","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.61}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.62}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXh8QE","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.61}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.62}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FZvS1S","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.61}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.62}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":86.21}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":53.09}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":1.01}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.61}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":33.12}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":4.04}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":2.44}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7LnbLNa","resource":{"resourceType":"Invoice","id":"4-1abZUKu7LnbLNa","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FBD1E"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2025-03-01T21:49:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-5pFm5Av0PHt","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FVQTuC","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":88.13}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXeeyw","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.93}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.33}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.26}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXew1y","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.93}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.33}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.26}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXfD50","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.93}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.33}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.26}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXfU82","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.93}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.33}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.26}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FXflB4","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.93}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.33}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.26}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":88.13}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":80.13}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.93}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.33}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":8.0}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":3.72}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":1.32}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice/4-1abZUKu7Lnb4KY","resource":{"resourceType":"Invoice","id":"4-1abZUKu7Lnb4KY","meta":{"lastUpdated":"2025-08-29T00:00:00Z"},"identifier":[{"type":{"text":"Bill
+        Number"},"value":"573-K3FB724"}],"status":"issued","_status":{"url":"http://hl7.org/fhir/StructureDefinition/alternate-codes","valueCodeableConcept":{"coding":[{"system":"http://va.gov/terminology/vistaDefinedTerms/430.3","code":"16","display":"ACTIVE"}],"text":"ACTIVE"}},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551","display":"Kirlin939,
+        Ivory697"},"date":"2025-05-30T21:49:43Z","issuer":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Organization/4-O3d8XK49CrXY","display":"TEST
+        VAMC"},"account":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Account/4-Nsb4VwsletHs"},"lineItem":[{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FVPel6","display":"DG
+        OPT COPAY NEW"},"priceComponent":[{"type":"base","code":{"text":"Total Charge"},"amount":{"value":54.12}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FVPnHe","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.92}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.72}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.64}}]},{"chargeItemReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/ChargeItem/4-1bKirHw3FVQ4Kg","display":"INTEREST/ADM.
+        CHARGE"},"priceComponent":[{"type":"surcharge","code":{"text":"Interest Charged"},"amount":{"value":0.92}},{"type":"surcharge","code":{"text":"Administrative
+        Charged"},"amount":{"value":0.72}},{"type":"informational","code":{"text":"Total
+        Charge"},"amount":{"value":1.64}}]}],"totalPriceComponent":[{"type":"informational","code":{"text":"Original
+        Amount"},"amount":{"value":54.12}},{"type":"base","code":{"text":"Principal
+        Balance"},"amount":{"value":51.67}},{"type":"surcharge","code":{"text":"Interest
+        Balance"},"amount":{"value":0.92}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Balance"},"amount":{"value":0.72}},{"type":"base","code":{"text":"Principal
+        Paid"},"amount":{"value":2.45}},{"type":"surcharge","code":{"text":"Interest
+        Paid"},"amount":{"value":0.92}},{"type":"surcharge","code":{"text":"Administrative
+        Cost Paid"},"amount":{"value":0.72}}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 25 Feb 2026 04:54:50 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&page=2&patient=32000551"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 25 Feb 2026 04:54:51 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '203'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '52'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '52'
+      Ratelimit-Reset:
+      - '9'
+      Ratelimit-Limit:
+      - '60'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1902316372", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '81'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 05cdc4e8-49d3-4b60-824a-a41c588c9ac7#2563070
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","link":[{"url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Invoice?_count=50&patient=32000551&page=2","relation":"self"}],"entry":[]}'
+  recorded_at: Wed, 25 Feb 2026 04:54:51 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_id=4-1abU4wmNqJSELr"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 25 Feb 2026 04:54:52 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1726'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '51'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '51'
+      Ratelimit-Reset:
+      - '8'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="940435261", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '103'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 9690de36-4102-49a7-a37b-da7b183433b5#2647628
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_count=100&_id=4-R76F1KGm3n2oNDC0&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_count=100&_id=4-R76F1KGm3n2oNDC0&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense?_count=100&_id=4-R76F1KGm3n2oNDC0&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/MedicationDispense/4-1abU4wmNqJSELr","resource":{"resourceType":"MedicationDispense","id":"4-1abU4wmNqJSELr","meta":{"lastUpdated":"2025-02-28T21:49:43Z"},"status":"completed","category":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/medicationdispense-category","code":"outpatient"}]},"medicationReference":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication/4-1abOXGgQXfojCN","display":"Clopidogrel
+        75 MG Oral Tablet"},"subject":{"reference":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Patient/32000551"},"type":{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ActCode","code":"FF","display":"First
+        Fill"}],"text":"First Fill"},"quantity":{"value":10},"daysSupply":{"value":5,"unit":"days","system":"http://unitsofmeasure.org","code":"d"},"whenPrepared":"2025-02-28T21:49:43Z","dosageInstruction":[{"text":"TAKE
+        TWO TABLETS BY MOUTH EVERYDAY","timing":{"code":{"text":"DAILY"}},"asNeededBoolean":false,"route":{"text":"ORAL"},"doseAndRate":[{"doseQuantity":{"unit":"MG"}}]}]},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 25 Feb 2026 04:54:52 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_id=4-1abOXGgQXfojCN"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json+fhir
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 25 Feb 2026 04:54:52 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '1104'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '50'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '50'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '8'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="2060613542", dtSInfo;desc="0"
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      X-Envoy-Upstream-Service-Time:
+      - '176'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Correlation-Id:
+      - 200eae4d-19a0-4725-9a99-7c570ca19579#2593936
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","total":1,"link":[{"relation":"first","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_count=100&_id=4-R74iVyVrt6kazP8O&page=1"},{"relation":"self","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_count=100&_id=4-R74iVyVrt6kazP8O&page=1"},{"relation":"last","url":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication?_count=100&_id=4-R74iVyVrt6kazP8O&page=1"}],"entry":[{"fullUrl":"<LIGHTHOUSE_HCC_HOST>/services/health-care-costs-coverage/v0/r4/Medication/4-1abOXGgQXfojCN","resource":{"resourceType":"Medication","id":"4-1abOXGgQXfojCN","meta":{"lastUpdated":"2022-11-25T00:00:00Z"},"text":{"status":"additional","div":"<div>Clopidogrel
+        75 MG Oral Tablet</div>"},"identifier":[{"id":"4013159"}],"code":{"coding":[{"system":"http://www.nlm.nih.gov/research/umls/rxnorm","code":"309362","display":"Clopidogrel
+        75 MG Oral Tablet"}],"text":"Clopidogrel 75 MG Oral Tablet"},"form":{"text":"2
+        dose(s) 2 time(s) per 1 days"}},"search":{"mode":"match"}}]}'
+  recorded_at: Wed, 25 Feb 2026 04:54:52 GMT
+recorded_with: VCR 6.4.0

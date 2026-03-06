@@ -20,6 +20,8 @@ module MedicalCopays
       PAYMENT_FETCH_LIMIT = 100
       STATSD_KEY_PREFIX = 'api.mcp.lighthouse'
       MAX_SUMMARY_PAGES = 20
+      DEFAULT_MONTH_COUNT = 6
+      DEFAULT_INVOICE_COUNT = 50
 
       class MissingOrganizationIdError < StandardError; end
       class MissingOrganizationRefError < StandardError; end
@@ -80,17 +82,6 @@ module MedicalCopays
         Lighthouse::HCC::Bundle.new(new_bundle, formatted_entries)
       end
 
-      def summary_output(total_amount, count, month_count)
-        {
-          entries: [],
-          meta: {
-            total_amount_due: total_amount.to_f,
-            total_copays: count,
-            month_window: month_count
-          }
-        }
-      end
-
       def get_detail(id:)
         StatsD.increment("#{STATSD_KEY_PREFIX}.detail.initiated")
 
@@ -144,23 +135,16 @@ module MedicalCopays
           'entries' => collected_entries
         }
       end
-      # rubocop:enable Metrics/MethodLength
-
-      def record_success(operation)
-        start_time = Time.current
-        result = yield
-        StatsD.measure("#{STATSD_KEY_PREFIX}.#{operation}.latency", (Time.current - start_time) * 1000)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{operation}.success")
-        result
-      end
 
       def build_copay_detail(id)
         invoice_data = invoice_service.read(id)
 
         patient_future = Concurrent::Promises.future { fetch_patient_data }
         invoice_deps = fetch_invoice_dependencies(invoice_data, id)
-        org_address = fetch_organization_address(invoice_data)
+        org_id = extract_org_id_from_invoice(invoice_data, optional_org_data: true)
+        org_address = retrieve_organization_address(org_id)
         patient_data = patient_future.value!
+        associated_statements = invoices_for_organization(DEFAULT_MONTH_COUNT, DEFAULT_INVOICE_COUNT, org_id, id)
 
         charge_item_deps = fetch_charge_item_dependencies(invoice_deps[:charge_items])
         medications = fetch_medications(charge_item_deps[:medication_dispenses])
@@ -170,12 +154,28 @@ module MedicalCopays
           account_data: invoice_deps[:account],
           charge_items: invoice_deps[:charge_items],
           encounters: charge_item_deps[:encounters],
+          associated_statements:,
           medication_dispenses: charge_item_deps[:medication_dispenses],
           medications:,
           payments: invoice_deps[:payments],
           facility_address: org_address,
           patient_data:
         )
+      end
+      # rubocop:enable Metrics/MethodLength
+
+      def invoices_for_organization(month_count, count, organization_id, current_invoice_id)
+        result = collect_invoices_in_range(month_count, count)
+
+        filtered = result['entries'].select do |entry|
+          next if entry.dig('resource', 'id') == current_invoice_id # do not return the current invoice data
+
+          issuer_ref = entry.dig('resource', 'issuer', 'reference')
+          entry_org_id = issuer_ref.split('/').last
+          entry_org_id == organization_id
+        end
+
+        filtered.sort_by { |entry| entry.dig('resource', 'date') }.reverse
       end
 
       def build_invoice_entries(raw_invoices)
@@ -200,6 +200,8 @@ module MedicalCopays
       end
 
       def retrieve_organization_address(org_id)
+        return nil if org_id.blank?
+
         address = Rails.cache.fetch("lighthouse:org:#{org_id}:address", expires_in: 24.hours) do
           org_data = organization_service.read(org_id)
           org_data.dig('entry', 0, 'resource', 'address', 0)
@@ -215,6 +217,9 @@ module MedicalCopays
           state: address['state'],
           postalCode: address['postalCode']
         }
+      rescue => e
+        Rails.logger.error { "Failed to fetch organization address: #{e.class}" }
+        raise e
       end
 
       def fetch_invoice_dependencies(invoice_data, invoice_id)
@@ -250,19 +255,6 @@ module MedicalCopays
         response.dig('entry', 0, 'resource')
       rescue => e
         Rails.logger.warn { "Failed to fetch account #{account_id}: #{e.class}" }
-        nil
-      end
-
-      def fetch_organization_address(invoice_data)
-        org_ref = invoice_data.dig('issuer', 'reference')
-        raise MissingOrganizationRefError, 'No organization reference found' unless org_ref
-
-        org_id = org_ref.split('/').last
-        raise MissingOrganizationIdError, 'No organization ID found' unless org_id
-
-        retrieve_organization_address(org_id)
-      rescue => e
-        Rails.logger.warn { "Failed to fetch organization address: #{e.class}" }
         nil
       end
 
@@ -377,6 +369,53 @@ module MedicalCopays
         return nil unless reference
 
         reference.split('/').last
+      end
+
+      def extract_org_id_from_invoice(invoice_data, optional_org_data: false)
+        org_ref = invoice_data.dig('issuer', 'reference')
+        return nil if optional_org_data && org_ref.blank? # how do we feel about this?
+
+        raise MissingOrganizationRefError, 'No organization reference found' unless org_ref
+
+        org_id = org_ref.split('/').last
+        raise MissingOrganizationIdError, 'No organization ID found' unless org_id
+
+        org_id
+      end
+
+      def process_entries(entries, from, total_amount, count)
+        entries.each do |entry|
+          date_str = entry.dig('resource', 'date')
+          next unless date_str
+
+          invoice_date = Time.iso8601(date_str)
+          return [true, total_amount, count] if invoice_date < from
+
+          invoice = Lighthouse::HCC::Invoice.new(entry)
+          total_amount += invoice.current_balance.to_d
+          count += 1
+        end
+
+        [false, total_amount, count]
+      end
+
+      def summary_output(total_amount, count, month_count)
+        {
+          entries: [],
+          meta: {
+            total_amount_due: total_amount.to_f,
+            total_copays: count,
+            month_window: month_count
+          }
+        }
+      end
+
+      def record_success(operation)
+        start_time = Time.current
+        result = yield
+        StatsD.measure("#{STATSD_KEY_PREFIX}.#{operation}.latency", (Time.current - start_time) * 1000)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{operation}.success")
+        result
       end
 
       def organization_service

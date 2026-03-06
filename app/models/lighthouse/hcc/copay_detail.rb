@@ -24,6 +24,7 @@ module Lighthouse
       attribute :principal_paid, Float
       attribute :interest_paid, Float
       attribute :administrative_cost_paid, Float
+      attribute :associated_statements, Array
 
       attribute :line_items, Hash, array: true
       attribute :payments, Hash, array: true
@@ -38,6 +39,7 @@ module Lighthouse
         @payments_data = attrs[:payments] || []
         @facility_address = attrs[:facility_address]
         @patient_data = attrs[:patient_data]
+        @associated_statements_data = attrs[:associated_statements] || []
         assign_attributes
       end
 
@@ -57,6 +59,17 @@ module Lighthouse
         assign_payments
         assign_facility
         assign_patient
+        assign_associated_statements
+      end
+
+      def assign_associated_statements
+        data = @associated_statements_data.presence || []
+
+        @associated_statements = data.map do |statement|
+          resource = statement['resource']
+
+          { 'id' => resource['id'], 'date' => format_date(resource['date']) }
+        end
       end
 
       def assign_balances
@@ -248,6 +261,10 @@ module Lighthouse
         return nil unless reference
 
         reference.split('/').last
+      end
+
+      def format_date(time_stamp_string)
+        Date.parse(time_stamp_string).strftime('%B %-d, %Y')
       end
     end
   end

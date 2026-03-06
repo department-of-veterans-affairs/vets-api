@@ -85,62 +85,66 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
     it 'returns copay detail for authenticated user' do
       VCR.use_cassette('lighthouse/hcc/copay_detail_success', vcr_options) do
-        allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
+        travel_to Time.utc(2025, 8, 1) do
+          allow(Auth::ClientCredentials::JWTGenerator).to receive(:generate_token).and_return('fake-jwt')
 
-        get '/v1/medical_copays/4-1abZUKu7LnbcQc'
+          get '/v1/medical_copays/4-1abZUKu7LnbcQc'
 
-        expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:ok)
 
-        response_body = JSON.parse(response.body)
-        data = response_body['data']
+          response_body = JSON.parse(response.body)
+          data = response_body['data']
 
-        expect(data['type']).to eq('medicalCopayDetails')
-        expect(data['id']).to be_present
-        expect(data['attributes'].keys).to match_array(
-          %w[
-            externalId
-            facility
-            patient
-            billNumber
-            status
-            statusDescription
-            invoiceDate
-            paymentDueDate
-            accountNumber
-            originalAmount
-            principalBalance
-            interestBalance
-            administrativeCostBalance
-            principalPaid
-            interestPaid
-            administrativeCostPaid
-            lineItems
-            payments
-          ]
-        )
-        expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
+          expect(data['type']).to eq('medicalCopayDetails')
+          expect(data['id']).to be_present
+          expect(data['attributes'].keys).to match_array(
+            %w[
+              externalId
+              facility
+              patient
+              billNumber
+              status
+              statusDescription
+              invoiceDate
+              paymentDueDate
+              accountNumber
+              originalAmount
+              principalBalance
+              interestBalance
+              administrativeCostBalance
+              principalPaid
+              interestPaid
+              administrativeCostPaid
+              lineItems
+              payments
+              associatedStatements
+            ]
+          )
+          expect(data['meta'].keys).to match_array(%w[line_item_count payment_count])
 
-        facility = data['attributes']['facility']
-        expect(facility).to be_a(Hash)
-        expect(facility['name']).to be_present
-        expect(facility['address']).to be_a(Hash)
+          facility = data['attributes']['facility']
+          expect(facility).to be_a(Hash)
+          expect(facility['name']).to be_present
+          expect(facility['address']).to be_a(Hash)
+          expect(data.dig('attributes', 'associatedStatements').pluck('id'))
+            .to eq(%w[4-1abZUKu7LncRZi 4-1abZUKu7LnbLNa])
+          address = facility['address']
+          expect(address['address_line1']).to eq('3000 CORAL HILLS DR')
+          expect(address['city']).to eq('CORAL SPRINGS')
+          expect(address['state']).to eq('FL')
+          expect(address['postalCode']).to eq('330654108')
 
-        address = facility['address']
-        expect(address['address_line1']).to eq('3000 CORAL HILLS DR')
-        expect(address['city']).to eq('CORAL SPRINGS')
-        expect(address['state']).to eq('FL')
-        expect(address['postalCode']).to eq('330654108')
-
-        patient = data['attributes']['patient']
-        expect(patient).to be_a(Hash)
-        expect(patient['first_name']).to eq('Ivory697')
-        expect(patient['middle_name']).to be_nil
-        expect(patient['last_name']).to eq('Kirlin939')
-        expect(patient['address']).to be_a(Hash)
-        expect(patient['address']['address_line1']).to eq('197 Ullrich Well')
-        expect(patient['address']['city']).to eq('Broadview Park')
-        expect(patient['address']['state']).to eq('FL')
-        expect(patient['address']['postalCode']).to eq('00000')
+          patient = data['attributes']['patient']
+          expect(patient).to be_a(Hash)
+          expect(patient['first_name']).to eq('Ivory697')
+          expect(patient['middle_name']).to be_nil
+          expect(patient['last_name']).to eq('Kirlin939')
+          expect(patient['address']).to be_a(Hash)
+          expect(patient['address']['address_line1']).to eq('197 Ullrich Well')
+          expect(patient['address']['city']).to eq('Broadview Park')
+          expect(patient['address']['state']).to eq('FL')
+          expect(patient['address']['postalCode']).to eq('00000')
+        end
       end
     end
 
