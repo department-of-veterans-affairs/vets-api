@@ -1,8 +1,6 @@
 name: Delete Datadog service from Datadog
 on:
-  pull_request:
-    types:
-      - merged
+  push:
     branches:
       - master
     paths:
@@ -22,15 +20,17 @@ jobs:
       - id: one
         name: 'Check for deleted DataDog service files'
         run: |
-          git fetch origin master
-          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only origin/master.. -- "datadog-service-catalog/**.yml"))
+          arr=$(jq -ncR '[inputs]' <<< $(git diff --diff-filter=D --name-only ${{ github.event.before }}...${{ github.sha }} -- "datadog-service-catalog/**.yml"))
           out=$(echo $arr | jq '.[] | select(. !="datadog-service-catalog/datadog-service-catalog.yml") | [.]')
           echo $out
-          echo ::set-output name=files::$out
+          echo "files=$out" >> $GITHUB_OUTPUT
 
   delete_services:
     name: 'Delete services from Datadog'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs:
       - get_deleted_services
     strategy:
@@ -53,6 +53,21 @@ jobs:
         uses: mikefarah/yq@master
         with:
           cmd: yq -o=json '.schema-version' ${{matrix.file}}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          aws-region: us-gov-west-1
+      - name: Get DD API Key
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /dsva-vagov/vets-api/prod/env_vars/DD_API_KEY
+          env_variable_name: DD_API_KEY
+      - name: Get DD App Key
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb
+        with:
+          ssm_parameter: /dsva-vagov/vets-api/prod/env_vars/DD_APP_KEY
+          env_variable_name: DD_APP_KEY
       - name: 'Delete service'
         run: |
               service=${{steps.parse_service_name.outputs.result}}
@@ -60,5 +75,5 @@ jobs:
               echo "Deleting $service@$schema from Datadog Service Catalog"
               curl --location --request DELETE 'https://api.ddog-gov.com/api/v2/services/definitions/$service?schema_version=$schema' \
               --header 'Accept: application/json' \
-              --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
-              --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \
+              --header 'DD-API-KEY: ${{ env.DD_API_KEY }}' \
+              --header 'DD-APPLICATION-KEY: ${{ env.DD_APP_KEY }}' \
