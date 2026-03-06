@@ -9,7 +9,7 @@ module MHV
     # without being sent to the upstream service.
     #
     # Usage:
-    #   filter = MHV::Prescriptions::OhTransitionRefillFilter.new(current_user)
+    #   filter = MHV::Prescriptions::OhTransitionRefillFilter.new(current_user, platform: 'web')
     #   allowed_orders, blocked_failures = filter.partition_orders(parsed_orders)
     #
     # Gated by the :mhv_medications_oh_transition_refill_block Flipper flag.
@@ -17,8 +17,11 @@ module MHV
       BLOCKED_PHASES = %w[p4 p5 p6].freeze
       BLOCKED_ERROR_MESSAGE = 'Refill blocked: facility is transitioning to Oracle Health'
 
-      def initialize(user)
+      # @param user [User] the current user
+      # @param platform [String] 'mobile' or 'web' — used for StatsD metric tagging
+      def initialize(user, platform:)
         @user = user
+        @platform = platform
       end
 
       # Partitions orders into allowed and OH-blocked groups.
@@ -30,6 +33,7 @@ module MHV
 
         phases_map = fetch_phases_map(orders)
         allowed, blocked_failures = split_orders(orders, phases_map)
+        track_requested_by_station(orders)
         log_blocked_orders(blocked_failures, orders.size) if blocked_failures.present?
 
         [allowed, blocked_failures]
@@ -67,14 +71,29 @@ module MHV
       end
 
       def log_blocked_orders(blocked_failures, total_count)
+        blocked_stations = blocked_failures.map { |f| f[:station_number] }.uniq
         Rails.logger.warn(
           'OhTransitionRefillFilter: blocked refill orders for OH-transitioning facilities',
           {
             blocked_count: blocked_failures.size,
             total_count:,
-            blocked_stations: blocked_failures.map { |f| f[:station_number] }.uniq
+            blocked_stations:
           }
         )
+        blocked_stations.each do |station|
+          station_count = blocked_failures.count { |f| f[:station_number] == station }
+          StatsD.increment('api.uhd.oh_transition.refills.blocked', station_count,
+                           tags: ["station_number:#{station}", "platform:#{@platform}"])
+        end
+      end
+
+      def track_requested_by_station(orders)
+        stations = orders.map { |o| o['stationNumber'] }.compact.uniq
+        stations.each do |station|
+          count = orders.count { |o| o['stationNumber'] == station }
+          StatsD.increment('api.uhd.oh_transition.refills.requested_by_station', count,
+                           tags: ["station_number:#{station}", "platform:#{@platform}"])
+        end
       end
 
       def oh_facilities_helper

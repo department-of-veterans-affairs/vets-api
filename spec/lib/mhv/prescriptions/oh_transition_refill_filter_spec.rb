@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mhv/prescriptions/oh_transition_refill_filter'
 
 RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
-  subject(:filter) { described_class.new(user) }
+  subject(:filter) { described_class.new(user, platform: 'web') }
 
   let(:user) { build(:user) }
   let(:mock_oh_helper) { instance_double(MHV::OhFacilitiesHelper::Service) }
@@ -81,6 +81,21 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
             { blocked_count: 2, total_count: 2, blocked_stations: %w[556 570] }
           )
         end
+
+        it 'increments the blocked metric per station with platform tag' do
+          allow(Rails.logger).to receive(:warn)
+
+          filter.partition_orders(orders)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.blocked', 1,
+            tags: %w[station_number:556 platform:web]
+          )
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.blocked', 1,
+            tags: %w[station_number:570 platform:web]
+          )
+        end
       end
 
       context 'when some facilities are blocked and some are not' do
@@ -130,6 +145,14 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
           filter.partition_orders(orders)
 
           expect(Rails.logger).not_to have_received(:warn)
+        end
+
+        it 'does not increment the blocked metric' do
+          filter.partition_orders(orders)
+
+          expect(StatsD).not_to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.blocked', anything, anything
+          )
         end
       end
 
@@ -207,6 +230,68 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
 
           expect(allowed).to be_empty
           expect(blocked).to be_empty
+        end
+      end
+
+      context 'when tracking requested_by_station metric' do
+        before do
+          allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+            .with(%w[556 570])
+            .and_return({ '556' => 'p5', '570' => nil })
+          allow(Rails.logger).to receive(:warn)
+        end
+
+        it 'increments the requested_by_station metric for each station' do
+          filter.partition_orders(orders)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.requested_by_station', 1,
+            tags: %w[station_number:556 platform:web]
+          )
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.requested_by_station', 1,
+            tags: %w[station_number:570 platform:web]
+          )
+        end
+
+        it 'uses the platform passed to the constructor' do
+          mobile_filter = described_class.new(user, platform: 'mobile')
+
+          mobile_filter.partition_orders(orders)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.requested_by_station', 1,
+            tags: %w[station_number:556 platform:mobile]
+          )
+        end
+      end
+
+      context 'when orders have multiple entries for the same station' do
+        let(:orders) do
+          [
+            { 'stationNumber' => '556', 'id' => '111' },
+            { 'stationNumber' => '556', 'id' => '222' },
+            { 'stationNumber' => '570', 'id' => '333' }
+          ]
+        end
+
+        before do
+          allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
+            .with(%w[556 570])
+            .and_return({ '556' => 'p3', '570' => 'p3' })
+        end
+
+        it 'increments the requested_by_station metric with the correct count per station' do
+          filter.partition_orders(orders)
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.requested_by_station', 2,
+            tags: %w[station_number:556 platform:web]
+          )
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.oh_transition.refills.requested_by_station', 1,
+            tags: %w[station_number:570 platform:web]
+          )
         end
       end
     end
