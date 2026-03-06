@@ -3191,7 +3191,7 @@
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -5079,8 +5079,7 @@
                               "additionalProperties": false,
                               "required": [
                                 "obligationTermOfServiceFromDate",
-                                "obligationTermOfServiceToDate",
-                                "unitName"
+                                "obligationTermOfServiceToDate"
                               ],
                               "properties": {
                                 "title10Activation": {
@@ -6941,8 +6940,7 @@
                                 "additionalProperties": false,
                                 "required": [
                                   "obligationTermOfServiceFromDate",
-                                  "obligationTermOfServiceToDate",
-                                  "unitName"
+                                  "obligationTermOfServiceToDate"
                                 ],
                                 "properties": {
                                   "title10Activation": {
@@ -9192,8 +9190,7 @@
                                 "additionalProperties": false,
                                 "required": [
                                   "obligationTermOfServiceFromDate",
-                                  "obligationTermOfServiceToDate",
-                                  "unitName"
+                                  "obligationTermOfServiceToDate"
                                 ],
                                 "properties": {
                                   "title10Activation": {

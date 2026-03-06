@@ -506,8 +506,7 @@
           "additionalProperties": false,
           "required": [
             "obligationTermOfServiceFromDate",
-            "obligationTermOfServiceToDate",
-            "unitName"
+            "obligationTermOfServiceToDate"
           ],
           "properties": {
             "title10Activation": {
