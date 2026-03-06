@@ -8,7 +8,7 @@ require 'lib/pdf_fill/fill_form_examples'
 describe PdfFill::Filler, type: :model do
   describe '#fill_ancillary_form (lighter forms)', run_at: '2017-07-25 00:00:00 -0400' do
     %w[22-10215a 21-4142 28-8832 22-10275 22-10272 26-1880 21-0781a 28-1900 5655 22-10216
-       22-1919].each do |form_id|
+       22-1919 22-0810].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].map { |type| [type, false, false] }
         form_types.each do |type, extras_redesign, show_jumplinks|
