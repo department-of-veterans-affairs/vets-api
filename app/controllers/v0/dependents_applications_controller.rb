@@ -20,15 +20,17 @@ module V0
     def create # rubocop:disable Metrics/MethodLength
       claim = create_claim(dependent_params.to_json)
 
-      monitor.track_create_attempt(claim, current_user)
-      monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'created') if claim.no_ssn_claim?
+      @monitor = monitor(claim.id)
+
+      @monitor.track_create_attempt(claim, current_user)
+      @monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'created') if claim.no_ssn_claim?
 
       # Populate the form_start_date from the IPF if available
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.form_start_date = in_progress_form.created_at if in_progress_form
 
       unless claim.save
-        monitor.track_create_validation_error(in_progress_form, claim, current_user)
+        @monitor.track_create_validation_error(in_progress_form, claim, current_user)
         log_validation_error_to_metadata(in_progress_form, claim)
         raise Common::Exceptions::ValidationErrors, claim
       end
@@ -51,7 +53,7 @@ module V0
             return render json: response
           end
         rescue => e
-          monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
+          @monitor.track_event(:error, e.message, 'dependents_controller.forms_api_submission', { error: e })
         end
       end
 
@@ -65,7 +67,7 @@ module V0
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
       render json: SavedClaimSerializer.new(claim)
     rescue => e
-      monitor.track_create_error(in_progress_form, claim, current_user, e)
+      @monitor.track_create_error(in_progress_form, claim, current_user, e)
       raise e
     end
 
@@ -87,7 +89,7 @@ module V0
       response = digital_forms_api_submission_service.submit(payload, metadata)
       raise response.to_s unless response.success?
 
-      monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
+      @monitor.track_event(:info, 'success', 'dependents_controller.forms_api_submission', { claim:, response: })
 
       upload_evidence_documents(claim, participant_id)
 
@@ -112,8 +114,8 @@ module V0
         claims_evidence_uploader.upload_evidence(claim.id, pa.id, file_path:, form_id:, doctype:)
       end
     rescue
-      monitor.track_event(:error, 'Evidence submission during Forms API processing failed',
-                          "#{STATS_KEY}.submit_pdf.failure", error: e.message)
+      @monitor.track_event(:error, 'Evidence submission during Forms API processing failed',
+                           "#{STATS_KEY}.submit_pdf.failure", error: e.message)
     end
 
     def dependent_params
@@ -167,9 +169,9 @@ module V0
     end
 
     def log_submitted(in_progress_form, claim)
-      monitor.track_create_success(in_progress_form, claim, current_user)
+      @monitor.track_create_success(in_progress_form, claim, current_user)
       if claim.pension_related_submission?
-        monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
+        @monitor.track_pension_related_submission(form_id: claim.form_id, form_type: claim.claim_form_type)
       end
       monitor.track_no_ssn_claims(form_id: claim.form_id, type: 'submitted') if claim.no_ssn_claim?
     end

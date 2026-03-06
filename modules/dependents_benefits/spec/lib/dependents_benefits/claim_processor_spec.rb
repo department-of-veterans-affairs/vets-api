@@ -101,7 +101,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
       processor.enqueue_submissions
       expect(mock_monitor).to have_received(:track_info_event).with(
-        'Submitted no-SSN claim',
+        "Submitted no-SSN claim: #{parent_claim.id}",
         action: 'no_ssn_claim.submission',
         component:,
         parent_claim_id:,
@@ -122,7 +122,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
       processor.enqueue_submissions
       expect(mock_monitor).not_to have_received(:track_info_event).with(
-        'Submitted no-SSN claim',
+        "Submitted no-SSN claim: #{parent_claim.id}",
         hash_including(action: 'no_ssn_claim.submission')
       )
     end
@@ -361,7 +361,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
             processor.send(:handle_successful_submission)
 
             expect(mock_monitor).to have_received(:track_info_event).with(
-              'Successful no-SSN claim submission',
+              "Successful no-SSN claim submission: #{parent_claim_id}",
               action: 'no_ssn_claim.submission',
               component:,
               parent_claim_id:,
@@ -377,7 +377,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
             processor.send(:handle_successful_submission)
 
             expect(mock_monitor).not_to have_received(:track_info_event).with(
-              'Successful no-SSN claim submission',
+              "Successful no-SSN claim submission: #{parent_claim_id}",
               hash_including(action: 'no_ssn_claim.submission')
             )
           end
@@ -414,7 +414,7 @@ RSpec.describe DependentsBenefits::ClaimProcessor, type: :model do
 
           it 'does not track no-SSN claim submission when feature flag is disabled' do
             expect(mock_monitor).not_to receive(:track_info_event).with(
-              'Successful no-SSN claim submission',
+              "Successful no-SSN claim submission: #{parent_claim_id}",
               hash_including(action: 'no_ssn_claim.submission')
             )
             processor.send(:handle_successful_submission)
