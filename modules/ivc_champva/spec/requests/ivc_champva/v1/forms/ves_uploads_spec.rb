@@ -50,134 +50,126 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
     Aws.config = @original_aws_config
   end
 
-  describe 'run this section with both values of champva_retry_logic_refactor expecting identical behavior' do
-    retry_logic_refactor_values = [true, false]
-    retry_logic_refactor_values.each do |champva_retry_logic_refactor_state|
-      describe '#submit with VES integration' do
-        let(:form_data) do
-          JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
-        end
+  describe '#submit with VES integration' do
+    let(:form_data) do
+      JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json').read)
+    end
 
-        context 'with flipper champva_send_to_ves enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:champva_send_to_ves, anything)
-              .and_return(true)
-            allow(Flipper).to receive(:enabled?)
-              .with(:champva_retry_logic_refactor, @current_user)
-              .and_return(champva_retry_logic_refactor_state)
-          end
+    context 'with flipper champva_send_to_ves enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_send_to_ves, anything)
+          .and_return(true)
+      end
 
-          it 'uploads a PDF file to S3 and submits to VES for form 10-10D' do
-            # Allow for transaction_uuid= to be called but preserve the original 'fake-id' value
-            allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
+      it 'uploads a PDF file to S3 and submits to VES for form 10-10D' do
+        # Allow for transaction_uuid= to be called but preserve the original 'fake-id' value
+        allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
 
-            post '/ivc_champva/v1/forms', params: form_data
+        post '/ivc_champva/v1/forms', params: form_data
 
-            record = IvcChampvaForm.first
-            expect(record.first_name).to eq('Veteran')
-            expect(record.last_name).to eq('Surname')
-            expect(record.form_uuid).to be_present
+        record = IvcChampvaForm.first
+        expect(record.first_name).to eq('Veteran')
+        expect(record.last_name).to eq('Surname')
+        expect(record.form_uuid).to be_present
 
-            expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).at_least(:once)
-            expect(ves_client).to have_received(:submit_1010d)
-              .with(anything, ves_request)
-            expect(mock_form).to have_received(:update)
-              .with(hash_including(
-                      application_uuid: 'test-uuid',
-                      ves_status: 'ok'
-                    ))
+        expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).at_least(:once)
+        expect(ves_client).to have_received(:submit_1010d)
+          .with(anything, ves_request)
+        expect(mock_form).to have_received(:update)
+          .with(hash_including(
+                  application_uuid: 'test-uuid',
+                  ves_status: 'ok'
+                ))
 
-            expect(response).to have_http_status(:ok)
-          end
+        expect(response).to have_http_status(:ok)
+      end
 
-          it 'handles VES formatter errors gracefully' do
-            allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
-              .and_raise(StandardError.new('formatting error'))
+      it 'handles VES formatter errors gracefully' do
+        allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)
+          .and_raise(StandardError.new('formatting error'))
 
-            post '/ivc_champva/v1/forms', params: form_data
+        post '/ivc_champva/v1/forms', params: form_data
 
-            expect(response).to have_http_status(:internal_server_error)
-            expect(response.parsed_body['error_message']).to eq('Error: formatting error')
-          end
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body['error_message']).to eq('Error: formatting error')
+      end
 
-          it 'handles nil VES request gracefully' do
-            allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
+      it 'handles nil VES request gracefully' do
+        allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
 
-            post '/ivc_champva/v1/forms', params: form_data
+        post '/ivc_champva/v1/forms', params: form_data
 
-            expect(response).to have_http_status(:internal_server_error)
-            expect(response.parsed_body['error_message']).to eq('Error: Failed to format data for VES submission')
-          end
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body['error_message']).to eq('Error: Failed to format data for VES submission')
+      end
 
-          it 'handles VES API errors gracefully and still returns success' do
-            # Mock a StandardError being raised during VES submission
-            allow(ves_client).to receive(:submit_1010d)
-              .with(anything, anything)
-              .and_raise(StandardError.new('api error'))
+      it 'handles VES API errors gracefully and still returns success' do
+        # Mock a StandardError being raised during VES submission
+        allow(ves_client).to receive(:submit_1010d)
+          .with(anything, anything)
+          .and_raise(StandardError.new('api error'))
 
-            # Make sure the FileUploader returns success to allow form submission to succeed
-            allow_any_instance_of(IvcChampva::FileUploader).to receive(:handle_uploads)
-              .and_return([200, nil])
+        # Make sure the FileUploader returns success to allow form submission to succeed
+        allow_any_instance_of(IvcChampva::FileUploader).to receive(:handle_uploads)
+          .and_return([200, nil])
 
-            post '/ivc_champva/v1/forms', params: form_data
+        post '/ivc_champva/v1/forms', params: form_data
 
-            # Should still be successful even if VES fails
-            expect(response).to have_http_status(:ok)
-          end
+        # Should still be successful even if VES fails
+        expect(response).to have_http_status(:ok)
+      end
 
-          it 'does not submit non-10-10D forms to VES' do
-            controller = IvcChampva::V1::UploadsController.new
-            other_form_data = form_data.merge({ 'form_number' => '10-7959C' })
+      it 'does not submit non-10-10D forms to VES' do
+        controller = IvcChampva::V1::UploadsController.new
+        other_form_data = form_data.merge({ 'form_number' => '10-7959C' })
 
-            allow(controller).to receive_messages(get_form_id: 'vha_10_7959c',
-                                                  params: ActionController::Parameters.new(other_form_data),
-                                                  call_handle_file_uploads: [[200], nil])
-            allow(controller).to receive(:render)
+        allow(controller).to receive_messages(get_form_id: 'vha_10_7959c',
+                                              params: ActionController::Parameters.new(other_form_data),
+                                              call_handle_file_uploads: [[200], nil])
+        allow(controller).to receive(:render)
 
-            controller.send(:submit)
+        controller.send(:submit)
 
-            expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request).with(other_form_data)
-            expect(ves_client).not_to have_received(:submit_1010d)
-          end
+        expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request).with(other_form_data)
+        expect(ves_client).not_to have_received(:submit_1010d)
+      end
 
-          it 'handles file upload failures' do
-            allow(mock_s3).to receive(:put_object).and_return({
-                                                                success: false,
-                                                                error_message: 'Upload failed'
-                                                              })
+      it 'handles file upload failures' do
+        allow(mock_s3).to receive(:put_object).and_return({
+                                                            success: false,
+                                                            error_message: 'Upload failed'
+                                                          })
 
-            post '/ivc_champva/v1/forms', params: form_data
+        post '/ivc_champva/v1/forms', params: form_data
 
-            expect(response).to have_http_status(:internal_server_error)
-            expect(ves_client).not_to have_received(:submit_1010d)
-          end
-        end
+        expect(response).to have_http_status(:internal_server_error)
+        expect(ves_client).not_to have_received(:submit_1010d)
+      end
+    end
 
-        context 'with flipper champva_send_to_ves disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?)
-              .with(:champva_send_to_ves, anything)
-              .and_return(false)
-            allow(Flipper).to receive(:enabled?)
-              .with(:champva_send_ves_to_pega, anything)
-              .and_return(false)
-          end
+    context 'with flipper champva_send_to_ves disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_send_to_ves, anything)
+          .and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_send_ves_to_pega, anything)
+          .and_return(false)
+      end
 
-          it 'does not submit to VES' do
-            post '/ivc_champva/v1/forms', params: form_data
+      it 'does not submit to VES' do
+        post '/ivc_champva/v1/forms', params: form_data
 
-            expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
-            expect(ves_client).not_to have_received(:submit_1010d)
-            expect(response).to have_http_status(:ok)
-          end
-        end
+        expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+        expect(ves_client).not_to have_received(:submit_1010d)
+        expect(response).to have_http_status(:ok)
       end
     end
   end
 
   # Test for refactored retry logic
-  describe 'retry logic with feature flag' do
+  describe 'retry logic' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:form_id) { 'vha_10_10d' }
     let(:parsed_form_data) do
@@ -197,56 +189,31 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
       allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
     end
 
-    context 'with champva_retry_logic_refactor enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_retry_logic_refactor, anything)
-          .and_return(true)
-      end
+    it 'uses the refactored retry method' do
+      allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
 
-      it 'uses the refactored retry method' do
-        allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
+      expect(IvcChampva::Retry).to receive(:do).and_yield
 
-        expect(IvcChampva::Retry).to receive(:do).and_yield
-
-        controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
-      end
-
-      it 'correctly handles successful uploads' do
-        allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
-        allow(IvcChampva::Retry).to receive(:do).and_yield
-
-        statuses, error_messages = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
-
-        expect(statuses).to eq([200])
-        expect(error_messages).to eq([])
-      end
-
-      it 'correctly handles upload failures' do
-        # Use the actual controller method but simplify the test
-        # Instead of testing the complex behavior of handling errors with actual values
-        # just verify that the correct method (handle_file_uploads_with_refactored_retry) is called
-        expect(controller).to receive(:handle_file_uploads_with_refactored_retry).with(form_id, parsed_form_data)
-
-        controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
-      end
+      controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
     end
 
-    context 'with champva_retry_logic_refactor disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_retry_logic_refactor, anything)
-          .and_return(false)
-      end
+    it 'correctly handles successful uploads' do
+      allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
+      allow(IvcChampva::Retry).to receive(:do).and_yield
 
-      it 'uses the original retry logic' do
-        allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
+      statuses, error_messages = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
-        # Original method doesn't use the Retry class
-        expect(IvcChampva::Retry).not_to receive(:do)
+      expect(statuses).to eq([200])
+      expect(error_messages).to eq([])
+    end
 
-        controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
-      end
+    it 'correctly handles upload failures' do
+      # Use the actual controller method but simplify the test
+      # Instead of testing the complex behavior of handling errors with actual values
+      # just verify that the correct method (handle_file_uploads_with_refactored_retry) is called
+      expect(controller).to receive(:handle_file_uploads_with_refactored_retry).with(form_id, parsed_form_data)
+
+      controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
     end
   end
 

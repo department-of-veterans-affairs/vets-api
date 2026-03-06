@@ -44,7 +44,7 @@ The VES integration follows a specific workflow:
      - `ves_request_data`: Encrypted copy of the submitted data
 
 ### Retry Mechanisms
-The module implements a robust retry mechanism with configurable parameters for failed operations. A `IvcChampva::Retry` service handles retrying problematic operations with configurable max retries, delay, and condition-based retry logic. Feature flags like `champva_retry_logic_refactor` control which retry implementation is used. The system automatically retries when specific error messages occur during form processing.
+The module implements a robust retry mechanism with configurable parameters for failed operations. A `IvcChampva::Retry` service handles retrying problematic operations with configurable max retries, delay, and condition-based retry logic. The system automatically retries when specific error messages occur during form processing.
 
 ### Email Notifications
 The system includes an email notification service that sends confirmation emails to applicants once their form is processed by PEGA. Email templates are form-specific and dynamically selected based on the form number. Email notifications can be tracked and use custom callbacks for monitoring successful deliveries.
@@ -91,7 +91,6 @@ Current feature flags used to control functionality:
 | Flag | Purpose | Notes |
 |------|---------|-------|
 | `champva_send_to_ves` | Enables sending form submission data to the VES API | Long-running feature flag pending integration signoff from VES team |
-| `champva_retry_logic_refactor` | Enables refactored retry logic for form submissions | |
 | `champva_fmp_single_file_upload` | Enables combining FMP form and supporting docs into a single PDF | Only applies to form 10-7959f-2 |
 | `champva_vanotify_custom_callback` | Enables custom callback for failure emails with VA Notify | |
 | `champva_vanotify_custom_confirmation_callback` | Enables custom callback for confirmation emails | |
