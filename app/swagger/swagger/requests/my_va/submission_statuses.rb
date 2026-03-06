@@ -117,6 +117,8 @@ module Swagger
                                 description: 'The last time the submission status was updated'
           property :pdf_support, type: :boolean, example: true,
                                  description: 'True if submission supports archived pdf downloads'
+          property :presigned_url, type: [:string, 'null'], example: 'https://s3.example.com/...',
+                                   description: 'Presigned S3 URL for downloading the archived PDF (nil if unavailable)'
         end
       end
     end

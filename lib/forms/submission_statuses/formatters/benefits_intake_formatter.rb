@@ -21,6 +21,7 @@ module Forms
 
         def build_submissions_map(submissions)
           submissions.each_with_object({}) do |submission, hash|
+            supported = pdf_supported?(submission)
             hash[submission.benefits_intake_uuid] = OpenStruct.new(
               id: submission.benefits_intake_uuid,
               detail: nil,
@@ -29,7 +30,11 @@ module Forms
               status: nil,
               created_at: submission.created_at,
               updated_at: nil,
-              pdf_support: pdf_supported?(submission)
+              pdf_support: supported,
+              presigned_url: if supported
+                               fetch_presigned_url(submission.form_type,
+                                                   submission.benefits_intake_uuid)
+                             end
             )
           end
         end
@@ -39,6 +44,17 @@ module Forms
             form_id: submission.form_type,
             submission_guid: submission.benefits_intake_uuid
           ).supported?
+        end
+
+        def fetch_presigned_url(form_id, submission_guid)
+          PdfUrls.new(form_id:, submission_guid:).fetch_url
+        rescue => e
+          Rails.logger.warn(
+            'Failed to fetch presigned URL for submission in Forms::SubmissionStatuses',
+            submission_guid:,
+            error: e.message
+          )
+          nil
         end
       end
     end
