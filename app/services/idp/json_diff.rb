@@ -76,7 +76,7 @@ module Idp
     end
 
     def add_difference(differences, path:, lhs_value:, rhs_value:)
-      key = path.nil? || path.empty? ? 'value' : path
+      key = path.presence || 'value'
       differences << {
         key => {
           lhs: lhs_value,
@@ -87,13 +87,13 @@ module Idp
     end
 
     def append_key(path, key)
-      return key.to_s if path.nil? || path.empty?
+      return key.to_s if path.blank?
 
       "#{path}.#{key}"
     end
 
     def append_index(path, index)
-      return "[#{index}]" if path.nil? || path.empty?
+      return "[#{index}]" if path.blank?
 
       "#{path}[#{index}]"
     end

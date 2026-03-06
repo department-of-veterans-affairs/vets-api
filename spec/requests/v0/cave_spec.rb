@@ -125,7 +125,8 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'returns bad gateway when upstream fails' do
       sign_in_as(user)
-      allow(client).to receive(:output).with('abc123', type: 'artifact', user_id: idp_user_id).and_raise(Idp::Error, 'boom')
+      allow(client).to receive(:output).with('abc123', type: 'artifact', user_id: idp_user_id).and_raise(Idp::Error,
+                                                                                                         'boom')
 
       get '/v0/cave/abc123/output'
 
@@ -161,7 +162,8 @@ RSpec.describe 'CAVE API', type: :request do
 
     it 'returns bad gateway when upstream fails' do
       sign_in_as(user)
-      allow(client).to receive(:download).with('abc123', kvpid: 'kvp1', user_id: idp_user_id).and_raise(Idp::Error, 'boom')
+      allow(client).to receive(:download).with('abc123', kvpid: 'kvp1', user_id: idp_user_id).and_raise(Idp::Error,
+                                                                                                        'boom')
 
       get '/v0/cave/abc123/download', params: { kvpid: 'kvp1' }
 

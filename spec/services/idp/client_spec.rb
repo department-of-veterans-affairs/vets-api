@@ -87,7 +87,7 @@ RSpec.describe Idp::Client do
       expect(response).to eq('scan_status' => 'completed')
       expect(WebMock).to have_requested(:get, %r{#{Regexp.escape(base_url)}/status}).with { |request|
         request_query(request) == { 'id' => 'abc123' } &&
-        valid_signed_headers?(request, user_id:, hmac_key_id:)
+          valid_signed_headers?(request, user_id:, hmac_key_id:)
       }
     end
 
@@ -103,7 +103,7 @@ RSpec.describe Idp::Client do
       expect(response).to eq('forms' => [])
       expect(WebMock).to have_requested(:get, %r{#{Regexp.escape(base_url)}/output}).with { |request|
         request_query(request) == { 'id' => 'abc123', 'type' => 'artifact' } &&
-        valid_signed_headers?(request, user_id:, hmac_key_id:)
+          valid_signed_headers?(request, user_id:, hmac_key_id:)
       }
     end
 
@@ -119,7 +119,7 @@ RSpec.describe Idp::Client do
       expect(response).to eq('data' => { 'foo' => 'bar' })
       expect(WebMock).to have_requested(:get, %r{#{Regexp.escape(base_url)}/download}).with { |request|
         request_query(request) == { 'id' => 'abc123', 'kvpid' => 'kvp1' } &&
-        valid_signed_headers?(request, user_id:, hmac_key_id:)
+          valid_signed_headers?(request, user_id:, hmac_key_id:)
       }
     end
 
@@ -142,7 +142,7 @@ RSpec.describe Idp::Client do
       expect(WebMock).to have_requested(:post, %r{#{Regexp.escape(base_url)}/update}).with { |request|
         request_query(request) == { 'id' => 'abc123', 'kvpid' => 'kvp1' } &&
           request.body == expected_payload &&
-        request.headers['Content-Type'].to_s.include?('application/json') &&
+          request.headers['Content-Type'].to_s.include?('application/json') &&
           valid_signed_headers?(request, user_id:, hmac_key_id:)
       }
     end

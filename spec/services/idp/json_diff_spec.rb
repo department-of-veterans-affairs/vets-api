@@ -37,24 +37,24 @@ RSpec.describe Idp::JsonDiff do
         {
           age: 30,
           profile: { middle_name: nil },
-          aliases: ['A', 'B']
+          aliases: %w[A B]
         }
       end
       let(:rhs) do
         {
           age: '30',
           profile: { middle_name: 'Marie' },
-          aliases: ['A']
+          aliases: %w[A]
         }
       end
 
       it 'returns path-based differences' do
-        expect(result[:is_different]).to eq(true)
-        expect(result[:diff]).to match_array([
-                                               { 'age' => { lhs: 30, rhs: '30', is_different: true } },
-                                               { 'aliases[1]' => { lhs: 'B', rhs: nil, is_different: true } },
-                                               { 'profile.middle_name' => { lhs: nil, rhs: 'Marie', is_different: true } }
-                                             ])
+        expect(result[:is_different]).to be(true)
+        expect(result[:diff]).to contain_exactly(
+          { 'age' => { lhs: 30, rhs: '30', is_different: true } },
+          { 'aliases[1]' => { lhs: 'B', rhs: nil, is_different: true } },
+          { 'profile.middle_name' => { lhs: nil, rhs: 'Marie', is_different: true } }
+        )
       end
     end
 
@@ -63,11 +63,11 @@ RSpec.describe Idp::JsonDiff do
       let(:rhs) { { first_name: 'Ada', current_id: 'abcd' } }
 
       it 'includes each missing-key difference' do
-        expect(result[:is_different]).to eq(true)
-        expect(result[:diff]).to match_array([
-                                               { 'legacy_id' => { lhs: '1234', rhs: nil, is_different: true } },
-                                               { 'current_id' => { lhs: nil, rhs: 'abcd', is_different: true } }
-                                             ])
+        expect(result[:is_different]).to be(true)
+        expect(result[:diff]).to contain_exactly(
+          { 'legacy_id' => { lhs: '1234', rhs: nil, is_different: true } },
+          { 'current_id' => { lhs: nil, rhs: 'abcd', is_different: true } }
+        )
       end
     end
   end

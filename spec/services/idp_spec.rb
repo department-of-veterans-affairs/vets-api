@@ -8,8 +8,8 @@ RSpec.describe Idp do
     context 'in production' do
       before do
         allow(Rails.env).to receive(:production?).and_return(true)
-        allow(ENV).to receive(:fetch).and_call_original
-        allow(ENV).to receive(:fetch).with('IDP_API_BASE_URL', nil).and_return('https://idp.example.com')
+        allow(Settings).to receive(:dig).and_call_original
+        allow(Settings).to receive(:dig).with(:cave, :idp, :base_url).and_return('https://idp.example.com')
       end
 
       it 'returns the real client' do
@@ -45,9 +45,9 @@ RSpec.describe Idp do
       before do
         allow(Rails.env).to receive(:production?).and_return(false)
         allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:fetch).and_call_original
         allow(ENV).to receive(:[]).with('IDP_USE_LIVE').and_return('true')
-        allow(ENV).to receive(:fetch).with('IDP_API_BASE_URL', nil).and_return('https://idp.example.com')
+        allow(Settings).to receive(:dig).and_call_original
+        allow(Settings).to receive(:dig).with(:cave, :idp, :base_url).and_return('https://idp.example.com')
       end
 
       it 'returns the real client even outside production' do

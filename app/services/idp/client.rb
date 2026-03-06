@@ -29,7 +29,12 @@ module Idp
     end
 
     def intake(file_name:, pdf_base64:, user_id:)
-      post('intake', { pdf_b64: pdf_base64 }, operation: 'intake', user_id:, headers: { 'X-Filename' => file_name })
+      post(
+        'intake',
+        { pdf_b64: pdf_base64 },
+        request_context: { operation: 'intake', user_id: },
+        headers: { 'X-Filename' => file_name }
+      )
     end
 
     def status(id, user_id:)
@@ -45,7 +50,12 @@ module Idp
     end
 
     def update(id, kvpid:, payload:, user_id:)
-      post('update', payload, operation: 'update', user_id:, params: { id:, kvpid: })
+      post(
+        'update',
+        payload,
+        request_context: { operation: 'update', user_id: },
+        params: { id:, kvpid: }
+      )
     end
 
     private
@@ -68,24 +78,31 @@ module Idp
     end
 
     def get(path, params = {}, operation:, user_id:)
+      request_context = {
+        method: 'GET',
+        operation:,
+        params:,
+        body: nil,
+        user_id:
+      }
+
       perform_request(operation:) do
         connection.get(path, params) do |req|
-          add_identity_headers(
-            req:,
-            method: 'GET',
-            operation:,
-            params:,
-            body: nil,
-            user_id:
-          )
+          add_identity_headers(req:, request_context:)
         end
       end
     end
 
-    def post(path, body, operation:, user_id:, headers: {}, params: {})
+    def post(path, body, request_context:, headers: {}, params: {})
       canonical_body = canonical_json(body)
       canonical_params = params.to_h
-      perform_request(operation:) do
+      signed_request_context = request_context.merge(
+        method: 'POST',
+        params: canonical_params,
+        body: canonical_body
+      )
+
+      perform_request(operation: request_context[:operation]) do
         connection.post(path) do |req|
           req.params.update(canonical_params) if canonical_params.present?
           req.headers['Content-Type'] = 'application/json'
@@ -93,20 +110,13 @@ module Idp
             req.headers[key] = value if value.present?
           end
           req.body = canonical_body
-          add_identity_headers(
-            req:,
-            method: 'POST',
-            operation:,
-            params: canonical_params,
-            body: canonical_body,
-            user_id:
-          )
+          add_identity_headers(req:, request_context: signed_request_context)
         end
       end
     end
 
-    def add_identity_headers(req:, method:, operation:, params:, body:, user_id:)
-      resolved_user_id = user_id.to_s
+    def add_identity_headers(req:, request_context:)
+      resolved_user_id = request_context[:user_id].to_s
       raise Idp::Error, 'IDP user identity is required' if resolved_user_id.blank?
 
       req.headers[HMAC_HEADER_USER_ID] = resolved_user_id
@@ -116,12 +126,8 @@ module Idp
       req.headers[HMAC_HEADER_TIMESTAMP] = timestamp
       req.headers[HMAC_HEADER_KEY_ID] = hmac_key_id if hmac_key_id.present?
       req.headers[HMAC_HEADER_SIGNATURE] = hmac_signature(
-        method:,
-        operation:,
-        params:,
-        body:,
-        timestamp:,
-        user_id: resolved_user_id
+        request_context: request_context.merge(user_id: resolved_user_id),
+        timestamp:
       )
     end
 
@@ -129,14 +135,14 @@ module Idp
       hmac_secret.present?
     end
 
-    def hmac_signature(method:, operation:, params:, body:, timestamp:, user_id:)
+    def hmac_signature(request_context:, timestamp:)
       payload = [
         timestamp,
-        method.to_s.upcase,
-        operation.to_s,
-        canonical_query(params),
-        Digest::SHA256.hexdigest(body.to_s),
-        user_id.to_s
+        request_context[:method].to_s.upcase,
+        request_context[:operation].to_s,
+        canonical_query(request_context[:params]),
+        Digest::SHA256.hexdigest(request_context[:body].to_s),
+        request_context[:user_id].to_s
       ].join("\n")
 
       OpenSSL::HMAC.hexdigest('SHA256', hmac_secret, payload)
