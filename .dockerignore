@@ -10,7 +10,6 @@ log
 tmp
 script/vcr_inspector
 spec
-clamav_tmp
 helmCharts
 postman
 datadog-service-catalog
