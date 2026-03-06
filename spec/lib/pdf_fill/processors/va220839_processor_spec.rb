@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/processors/va220839_processor'
 require 'pdf_fill/filler'
+require 'pdf-reader'
 
 describe PdfFill::Processors::VA220839Processor do
   let(:form_data) { saved_claim.parsed_form }
@@ -56,6 +57,30 @@ describe PdfFill::Processors::VA220839Processor do
         expect(get_field_value(fields, 'institution_name')).to eq 'Test University'
         expect(get_field_value(fields, 'institution_facility_code')).to eq '12345678'
         expect(get_field_value(fields, 'num_eligible_students')).to eq '476'
+      end
+    end
+
+    context 'when the officials do overflow_us_college' do
+      let(:saved_claim) { create(:va0839_overflow1_degree) }
+
+      it 'creates the pdf correctly' do
+        expect(filler).to receive(:combine_extras).once.and_call_original
+        processor.process
+        expect(File.exist?('tmp/pdfs/22-0839_abc_final.pdf')).to be(true)
+      end
+
+      it 'fills in the form fields' do
+        processor.process
+        fields = PdfForms.new(Settings.binaries.pdftk).get_fields('tmp/pdfs/22-0839_abc_final.pdf')
+        expect(get_field_value(fields, 'num_eligible_students')).to eq '67'
+        expect(get_field_value(fields, 'us_school_0_college')).to eq 'See add&apos;l info page'
+        expect(get_field_value(fields, 'us_school_2_college')).to eq 'See add&apos;l info page'
+
+        reader = PDF::Reader.new('tmp/pdfs/22-0839_abc_final.pdf')
+        additional_info_page = reader.pages.last.text
+        expect(additional_info_page).to include('Additional Information')
+        expect(additional_info_page).to include('Applied Theoretical Physics and Astronomy')
+        expect(additional_info_page).to include('Decision and Information Science')
       end
     end
 

@@ -111,7 +111,11 @@ module PdfFill
             key: "us_school_#{ITERATOR}_degree_level"
           },
           'degreeProgram' => {
-            key: "us_school_#{ITERATOR}_college"
+            key: "us_school_#{ITERATOR}_college",
+            limit: 25,
+            question_num: 6,
+            question_suffix: 'C',
+            question_text: 'COLLEGE OR PROFESSONAL SCHOOL'
           },
           'maximumContributionAmount' => {
             key: "us_school_#{ITERATOR}_maximum_contribution"

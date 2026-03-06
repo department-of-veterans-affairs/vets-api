@@ -48,6 +48,10 @@ module PdfFill
 
         file_path = File.join(TMP_DIR, "22-0839_#{@file_name_suffix}.pdf")
         PDF_FORMS.fill_form(DEFAULT_TEMPLATE_PATH, file_path, pdf_data_hash, flatten: Rails.env.production?)
+
+        # capture overflow when College or professonal school exceeds 25 characters
+        combine_extras(file_path, hash_converter.extras_generator, FORM_CLASS)
+
         file_path
       end
 
