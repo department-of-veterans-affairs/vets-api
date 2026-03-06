@@ -17,13 +17,14 @@ module UploaderVirusScan
     return unless Rails.env.production?
 
     temp_file_path = Common::FileHelpers.generate_clamav_temp_file(file.read)
-    result = Common::VirusScan.scan(temp_file_path)
+    upload_context = model&.class&.name || self.class.name
+    result = Common::VirusScan.scan(temp_file_path, upload_context:)
     File.delete(temp_file_path)
 
-    # Common::VirusScan result will return true or false
+    # Common::VirusScan emits AU-2 audit log and returns true/false
     unless result # unless safe
       file.delete
-      raise VirusFoundError, "Virus Found + #{temp_file_path}"
+      raise VirusFoundError, 'virus or malware detected'
     end
   end
 end
