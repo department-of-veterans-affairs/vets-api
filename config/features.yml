@@ -2318,10 +2318,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service.
-  va_online_scheduling_recent_locations_filter:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for displaying the most recent facilities on the Choose your VA location page.
   va_online_scheduling_parallel_travel_claims:
     actor_type: user
     enable_in_development: true
