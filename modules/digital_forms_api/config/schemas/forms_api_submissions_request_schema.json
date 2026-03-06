@@ -1,0 +1,88 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Forms API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/submissions": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "envelope": {
+                    "type": "object",
+                    "properties": {
+                      "formId": {
+                        "type": "string"
+                      },
+                      "veteranId": {
+                        "type": "object",
+                        "properties": {
+                          "identifierType": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "identifierType",
+                          "value"
+                        ]
+                      },
+                      "claimantId": {
+                        "type": "object",
+                        "properties": {
+                          "identifierType": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "identifierType",
+                          "value"
+                        ]
+                      },
+                      "epCode": {
+                        "type": "string"
+                      },
+                      "claimLabel": {
+                        "type": "string"
+                      },
+                      "payload": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "formId",
+                      "veteranId",
+                      "claimantId",
+                      "epCode",
+                      "claimLabel",
+                      "payload"
+                    ]
+                  }
+                },
+                "required": [
+                  "envelope"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Submission created successfully"
+          }
+        }
+      }
+    }
+  }
+}

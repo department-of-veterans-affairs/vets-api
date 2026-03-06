@@ -370,6 +370,7 @@ digital_forms_api:
   include_request: false
   jwt_secret: fake-secret
   mock: false
+  request_schema: modules/digital_forms_api/config/schemas/forms_api_submissions_request_schema.json
   ssl: false
   timeout:
     open: 30

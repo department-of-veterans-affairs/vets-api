@@ -34,10 +34,13 @@ module DigitalFormsApi
     class Service < Monitor
       # StatsD metric
       METRIC = 'module.digital_forms_api.service.request'
+      # StatsD metric for schema payload parsing failures
+      SCHEMA_PAYLOAD_ERROR_METRIC = 'module.digital_forms_api.service.schema_payload_error'
       # allowed logging params
       ALLOWLIST = %w[
         code
         endpoint
+        form_id
         method
         reason
       ].freeze
@@ -64,6 +67,22 @@ module DigitalFormsApi
         level = /^2\d\d$/.match?(code.to_s.strip) ? :info : :error
 
         track_request(level, message, METRIC, call_location:, reason:, tags: format_tags(tags), **tags)
+      end
+
+      # track schema payload parsing/shape failures separately from API request outcomes
+      #
+      # @param form_id [String]
+      # @param reason [String]
+      # @param call_location [Logging::CallLocation|Thread::Backtrace::Location]
+      def track_schema_payload_error(form_id, reason, call_location: nil)
+        call_location ||= caller_locations.first
+
+        endpoint = 'schemas'
+        message = format_message(reason)
+        tags = { endpoint:, form_id: }
+
+        track_request(:error, message, SCHEMA_PAYLOAD_ERROR_METRIC,
+                      call_location:, reason:, tags: format_tags(tags), **tags)
       end
     end
   end
