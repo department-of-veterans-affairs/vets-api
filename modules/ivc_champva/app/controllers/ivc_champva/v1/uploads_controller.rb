@@ -306,22 +306,14 @@ module IvcChampva
       end
 
       def call_handle_file_uploads(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
-        else
-          handle_file_uploads(form_id, parsed_form_data)
-        end
+        handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
       end
 
       ##
       # Wrapper around handle_file_uploads that allows us to use the new retry logic
       # based on the feature flag
       def call_upload_form(form_id, file_paths, metadata)
-        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          upload_form_with_refactored_retry(form_id, file_paths, metadata)
-        else
-          upload_form(form_id, file_paths, metadata)
-        end
+        upload_form_with_refactored_retry(form_id, file_paths, metadata)
       end
 
       # Modified from claim_documents_controller.rb:
@@ -726,89 +718,6 @@ module IvcChampva
         Rails.logger.error message
         Rails.logger.error exception.backtrace.join("\n") if exception
         render json: { error_message: message }, status: :internal_server_error
-      end
-
-      ##
-      # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
-      #
-      # TODO: Remove this method once `champva_send_to_ves` feature flag is removed
-      # also consider renaming new 'upload_form' methods back to 'handle_file_uploads'
-      #
-      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
-      # @param [Hash] parsed_form_data complete form submission data object
-      #
-      # @return [Array<Integer, String>] An array with 1 or more http status codes
-      #   and an array with 1 or more message strings.
-      def handle_file_uploads(form_id, parsed_form_data)
-        attempt = 0
-        max_attempts = 1
-
-        # Initialize with default values to handle nil reference cases
-        statuses = [500]
-        error_messages = ['Server error occurred']
-
-        begin
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
-          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
-          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
-
-          # Since some or all of the files failed to upload to S3, trigger retry
-          raise StandardError, error_messages if error_messages.compact.length.positive?
-        rescue => e
-          attempt += 1
-          error_message_downcase = e.message.downcase
-          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
-
-          if should_retry?(error_message_downcase, attempt, max_attempts)
-            Rails.logger.error 'Retrying in 1 seconds...'
-            sleep 1
-            retry
-          end
-        end
-
-        [statuses, error_messages]
-      end
-
-      ##
-      # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
-      #
-      # TODO: Rename this method once `champva_send_to_ves` feature flag is removed back to 'handle_file_uploads'
-      #
-      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
-      # @param [Array<String>] file_paths The file paths of the files to upload
-      # @param [Hash] metadata The metadata for the form
-      #
-      # @return [Array<Integer, String>] An array with 1 or more http status codes
-      #   and an array with 1 or more message strings.
-      def upload_form(form_id, file_paths, metadata)
-        attempt = 0
-        max_attempts = 1
-
-        # Initialize with default values to handle nil reference cases
-        statuses = [500]
-        error_messages = ['Server error occurred']
-
-        begin
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
-          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
-
-          # Since some or all of the files failed to upload to S3, trigger retry
-          raise StandardError, error_messages if error_messages.compact.length.positive?
-        rescue => e
-          attempt += 1
-          error_message_downcase = e.message.downcase
-          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
-
-          if should_retry?(error_message_downcase, attempt, max_attempts)
-            Rails.logger.error 'Retrying in 1 seconds...'
-            sleep 1
-            retry
-          end
-        end
-
-        [statuses, error_messages]
       end
 
       ##

@@ -24,15 +24,11 @@ RSpec.describe 'Transformation Pega', type: :request do
 
   describe '#submit' do
     champva_send_to_ves = [true, true, false, false]
-    champva_retry_logic_refactor = [true, false, true, false]
-    champva_send_to_ves.each_with_index do |flipper_value, flipper_index|
+    champva_send_to_ves.each do |flipper_value|
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:champva_send_to_ves, @current_user)
           .and_return(flipper_value)
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_retry_logic_refactor, @current_user)
-          .and_return(champva_retry_logic_refactor[flipper_index])
 
         allow(SecureRandom).to receive(:uuid).and_return(uuid)
         allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
