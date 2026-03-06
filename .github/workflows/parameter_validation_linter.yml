@@ -1,0 +1,106 @@
+name: Parameter Validation Linter
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'app/controllers/**'
+      - 'app/services/**'
+      - 'app/jobs/**'
+      - 'lib/**'
+      - 'modules/**/app/**'
+      - 'modules/**/lib/**'
+
+jobs:
+  lint-parameter-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Run parameter validation linter
+        id: lint
+        run: |
+          ruby scripts/parameter_validation_linter.rb .
+        continue-on-error: true
+
+      - name: Upload linter report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: parameter-validation-report
+          path: parameter_validation_report.json
+          retention-days: 30
+
+      - name: Comment PR with results
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync('parameter_validation_report.json', 'utf8'));
+            } catch (e) {
+              console.log('No report file found');
+              return;
+            }
+
+            const { summary, violations } = report;
+
+            let comment = `## ❌ Parameter Validation Issues Found\n\n`;
+            comment += `**Total Violations:** ${summary.total_violations}\n\n`;
+
+            if (summary.by_type.service_missing_validation) {
+              comment += `### Service Violations (${summary.by_type.service_missing_validation})\n\n`;
+              const serviceViolations = violations.filter(v => v.type === 'service_missing_validation').slice(0, 10);
+              serviceViolations.forEach(v => {
+                comment += `- \`${v.file}\`\n`;
+                comment += `  - Parameter: \`${v.parameter}\`\n`;
+                comment += `  - ${v.message}\n\n`;
+              });
+              if (summary.by_type.service_missing_validation > 10) {
+                comment += `... and ${summary.by_type.service_missing_validation - 10} more\n\n`;
+              }
+            }
+
+            if (summary.by_type.controller_missing_validation) {
+              comment += `### Controller Violations (${summary.by_type.controller_missing_validation})\n\n`;
+              const controllerViolations = violations.filter(v => v.type === 'controller_missing_validation').slice(0, 10);
+              controllerViolations.forEach(v => {
+                comment += `- \`${v.file}:${v.line}\`\n`;
+                comment += `  - Service: \`${v.service}\`\n`;
+                comment += `  - Parameter: \`${v.parameter}\`\n`;
+                comment += `  - ${v.message}\n\n`;
+              });
+              if (summary.by_type.controller_missing_validation > 10) {
+                comment += `... and ${summary.by_type.controller_missing_validation - 10} more\n\n`;
+              }
+            }
+
+            comment += `### How to Fix\n\n`;
+            comment += `**For Services:**\n\`\`\`ruby\ndef initialize(icn)\n  raise ArgumentError, 'ICN is required' unless icn.present?\n  @icn = icn\nend\n\`\`\`\n\n`;
+            comment += `**For Controllers:**\n\`\`\`ruby\ndef show\n  return render_error unless current_user.icn.present?\n  service = SomeService.new(current_user.icn)\nend\n\`\`\`\n\n`;
+            comment += `Download the full report from the workflow artifacts for details.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail if violations found
+        if: steps.lint.outcome == 'failure'
+        run: |
+          echo "Parameter validation violations found. Please fix them before merging."
+          exit 1

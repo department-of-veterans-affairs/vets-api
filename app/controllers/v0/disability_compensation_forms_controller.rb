@@ -31,6 +31,21 @@ module V0
       render json: RatedDisabilitiesSerializer.new(response)
     end
 
+    def new_rated_disabilities
+      invoker = 'V0::DisabilityCompensationFormsController#new_rated_disabilities'
+      api_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+        provider: :lighthouse,
+        options: { icn: @current_user.icn.to_s, auth_headers: },
+        current_user: @current_user,
+        feature_toggle: nil
+      )
+
+      response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
+
+      render json: RatedDisabilitiesSerializer.new(response)
+    end
+
     def separation_locations
       response = Lighthouse::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
         :all_users,
