@@ -75,6 +75,74 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
           end
 
+            it "sets returnUrl to 'conditions/summary' when disability_comp_new_conditions_workflow is true (boolean)" do
+              fd = JSON.parse(in_progress_form_lighthouse.form_data)
+              fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+              fd['disability_comp_new_conditions_workflow'] = true
+              in_progress_form_lighthouse.update(form_data: fd)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                VCR.use_cassette('disability_max_ratings/max_ratings') do
+                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+                end
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['metadata']['returnUrl']).to eq('/conditions/summary')
+            end
+
+            it "sets returnUrl to 'conditions/summary' when disability_comp_new_conditions_workflow is 'true' (string)" do
+              fd = JSON.parse(in_progress_form_lighthouse.form_data)
+              fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+              fd['disability_comp_new_conditions_workflow'] = 'true'
+              in_progress_form_lighthouse.update(form_data: fd)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                VCR.use_cassette('disability_max_ratings/max_ratings') do
+                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+                end
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['metadata']['returnUrl']).to eq('/conditions/summary')
+            end
+
+            it "sets returnUrl to '/disabilities/rated-disabilities' when disability_comp_new_conditions_workflow is false" do
+              fd = JSON.parse(in_progress_form_lighthouse.form_data)
+              fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+              fd['disability_comp_new_conditions_workflow'] = false
+              in_progress_form_lighthouse.update(form_data: fd)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                VCR.use_cassette('disability_max_ratings/max_ratings') do
+                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+                end
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
+            end
+
+            it "sets returnUrl to '/disabilities/rated-disabilities' when disability_comp_new_conditions_workflow is not present" do
+              fd = JSON.parse(in_progress_form_lighthouse.form_data)
+              fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+              fd.delete('disability_comp_new_conditions_workflow')
+              in_progress_form_lighthouse.update(form_data: fd)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                VCR.use_cassette('disability_max_ratings/max_ratings') do
+                  get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+                end
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
+            end
+
           it 'returns an unaltered form if Lighthouse returns an error' do
             rated_disabilities_before = JSON.parse(in_progress_form_lighthouse.form_data)['ratedDisabilities']
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/503_response') do
