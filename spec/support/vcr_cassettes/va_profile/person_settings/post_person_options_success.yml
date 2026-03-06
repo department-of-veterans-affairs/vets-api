@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<VETS360_URL>/settings-hub/person-options/v1/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA"
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"personOptions":[{"itemId":1,"optionId":5,"sourceDate":"2026-03-04T21:30:00.000Z"}]}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Ratelimit-Remaining:
+      - '49'
+      X-Ratelimit-Burst-Capacity:
+      - '50'
+      X-Ratelimit-Replenish-Rate:
+      - '50'
+      Vaprofiletxauditid:
+      - ed10f703-e2b8-4eae-9198-d981131bfb55
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 04 Mar 2026 22:02:08 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"f7cbebd2-68e1-4da2-97b8-0e286da8d65d","status":"COMPLETED_SUCCESS","bio":{"personOptions":[{"sourceDate":"2026-03-04T21:30:00Z","optionId":5,"itemId":1,"effectiveStartDate":"2026-03-04T21:30:00Z"}]}}'
+  recorded_at: Wed, 04 Mar 2026 21:30:00 GMT
+recorded_with: VCR 6.4.0

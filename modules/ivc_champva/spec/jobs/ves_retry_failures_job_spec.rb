@@ -52,9 +52,15 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     allow(recent_record).to receive_messages(update: true, reload: recent_record)
     allow(old_record).to receive_messages(update: true, reload: old_record)
 
-    # Default: records have legacy ves_request_data but no request_json
-    allow(recent_record).to receive_messages(ves_request_data: legacy_request_data, request_json: nil)
-    allow(old_record).to receive_messages(ves_request_data: legacy_request_data, request_json: nil)
+    # Set up ves_request_data
+    allow(recent_record).to receive(:ves_request_data).and_return(initial_request_data)
+    allow(old_record).to receive(:ves_request_data).and_return(initial_request_data)
+
+    # Mock submit_1010d to verify the request data is properly modified
+    allow(ves_client).to receive(:submit_1010d) do |uuid, request_data|
+      expect(request_data['transaction_uuid']).to eq(uuid)
+      success_response
+    end
   end
 
   describe '#perform' do
@@ -85,6 +91,10 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
         expect(recent_record).to have_received(:update).with(
           ves_status: 'ok'
         )
+
+        expect(ves_client).to have_received(:submit_1010d) do |transaction_uuid, _request|
+          expect(transaction_uuid).to eq('tx-new')
+        end
       end
 
       it 'increments StatsD counter for old records with form_uuid tag' do
@@ -200,7 +210,7 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
       end
 
       it 'parses ves_request_data and submits directly' do
-        expect(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+        expect(ves_client).to receive(:submit_1010d) do |uuid, request_data|
           expect(request_data['transaction_uuid']).to eq(uuid)
           success_response
         end

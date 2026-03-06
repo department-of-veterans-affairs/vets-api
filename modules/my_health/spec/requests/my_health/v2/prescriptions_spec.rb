@@ -87,6 +87,38 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           end
         end
 
+        it 'increments StatsD refill metric with source_app tag for successful refills' do
+          allow(UniqueUserEvents).to receive(:log_event)
+          allow(StatsD).to receive(:increment).and_call_original
+
+          VCR.use_cassette('unified_health_data/refill_prescription_success') do
+            post refill_path,
+                 params: [
+                   { stationNumber: '556', id: '15220389459' },
+                   { stationNumber: '570', id: '0000000000001' }
+                 ].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(StatsD).to have_received(:increment).with(
+            'api.uhd.refills.requested', 1, tags: ['source_app:not_provided']
+          )
+        end
+
+        it 'does not increment StatsD refill metric when no successful refills' do
+          allow(StatsD).to receive(:increment).and_call_original
+
+          VCR.use_cassette('unified_health_data/refill_prescription_empty') do
+            post refill_path,
+                 params: [{ stationNumber: '663', id: '21431810851' }].to_json,
+                 headers: { 'Content-Type' => 'application/json' }
+          end
+
+          expect(StatsD).not_to have_received(:increment).with(
+            'api.uhd.refills.requested', any_args
+          )
+        end
+
         it 'logs event with station numbers from the request' do
           allow(UniqueUserEvents).to receive(:log_event)
 
@@ -744,7 +776,7 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           prescription_names = prescriptions.map { |rx| rx['attributes']['prescription_name'] }
 
           # Verify they are sorted alphabetically (case-insensitive)
-          expect(prescription_names).to eq(prescription_names.sort)
+          expect(prescription_names).to eq(prescription_names.sort_by { |n| n.to_s.downcase })
 
           # If prescriptions have the same name, verify secondary sort by dispensed_date (newest first)
           prescriptions.group_by { |rx| rx['attributes']['prescription_name'] }.each_value do |meds|
@@ -799,10 +831,10 @@ RSpec.describe 'MyHealth::V2::Prescriptions', type: :request do
           prescriptions.each do |rx|
             attrs = rx['attributes']
             status = attrs['disp_status'] || ''
-            name = attrs['prescription_name'] || ''
+            name = (attrs['prescription_name'] || '').downcase
 
             if prev_status && prev_status == status && prev_name
-              # Within same status, names should be ascending
+              # Within same status, names should be ascending (case-insensitive)
               expect(name).to be >= prev_name
             end
 

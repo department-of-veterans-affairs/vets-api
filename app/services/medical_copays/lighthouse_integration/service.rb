@@ -137,6 +137,8 @@ module MedicalCopays
           page += 1
         end
 
+        collected_entries.sort_by! { |entry| entry.dig('resource', 'date') }.reverse!
+
         {
           'raw_bundle' => last_raw_bundle,
           'entries' => collected_entries

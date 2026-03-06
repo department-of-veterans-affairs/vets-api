@@ -9,6 +9,7 @@ module EducationBenefitsClaims
   class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
     VALID_FORM_IDS = %w[
       22-0989
+      22-10278
     ].freeze
     # A little bit of metaprogramming here: we want one handler to handle
     # several different form types. This works fine for all the instance methods

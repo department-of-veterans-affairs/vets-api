@@ -133,7 +133,7 @@ module IvcChampva
       # Generate a new transaction UUID
       ves_request['transaction_uuid'] = SecureRandom.uuid
 
-      response = ves_client.submit_1010d(ves_request['transaction_uuid'], 'fake-user', ves_request)
+      response = ves_client.submit_1010d(ves_request['transaction_uuid'], ves_request)
 
       update_record_status(record, response)
     end
@@ -169,9 +169,9 @@ module IvcChampva
     def send_to_ves_by_form_type(ves_client, ves_request, form_number)
       case form_number
       when '10-10D', '10-10D-EXTENDED'
-        ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
+        ves_client.submit_1010d(ves_request.transaction_uuid, ves_request)
       when '10-7959C'
-        ves_client.submit_7959c(ves_request.transaction_uuid, 'fake-user', ves_request)
+        ves_client.submit_7959c(ves_request.transaction_uuid, ves_request)
       else
         raise ArgumentError, "Unknown form type for VES submission: #{form_number}"
       end
