@@ -382,8 +382,8 @@ module ClaimsApi
       end
 
       def invalid_special_issue_for_type_increase?(special_issues)
-        # if 'specialIssues' includes 'EMP' or 'RRD', then EVSS allows the disability to be submitted with a type of
-        # INCREASE otherwise, the disability must not have any special issues
+        # if 'specialIssues' includes 'EMP' (or 'RRD' which we allow in v1 but not v2), then EVSS allows the
+        # disability to be submitted with a type of INCREASE otherwise, the disability must not have any special issues
         special_issues.exclude?('EMP')
       end
 
