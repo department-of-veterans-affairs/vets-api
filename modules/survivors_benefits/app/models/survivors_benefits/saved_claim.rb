@@ -105,5 +105,13 @@ module SurvivorsBenefits
     def send_email(email_type)
       SurvivorsBenefits::NotificationEmail.new(id).deliver(email_type)
     end
+
+    ##
+    # Converts the form_data into json that can be read by the IBM - GOVCIO mms connection
+    #
+    def to_ibm
+      structured_data_service = SurvivorsBenefits::StructuredData::StructuredDataService.new(parsed_form)
+      structured_data_service.build_structured_data
+    end
   end
 end
