@@ -294,6 +294,7 @@ module VBADocuments
       metadata['status'] ||= {}
       metadata['status'][to] ||= {}
       metadata['status'][to]['start'] = time
+      Rails.logger.info('Benefits Intake Status Change', { guid:, from_status: from, to_status: to })
 
       # set new current status
       @current_status = to
