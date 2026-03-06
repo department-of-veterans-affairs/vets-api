@@ -434,15 +434,16 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           'serviceInformation' => {
             'servicePeriods' => [
               {
+                'serviceBranch' => 'Army Reserves',
                 'activeDutyBeginDate' => '2010-01-01',
                 'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
               },
               {
+                'serviceBranch' => 'Army',
                 'activeDutyBeginDate' => '2000-01-01',
                 'activeDutyEndDate' => 1.year.ago.to_date.iso8601
               }
-            ],
-            'reservesNationalGuardService' => { 'someField' => 'someValue' }
+            ]
           }
         }
       end
@@ -458,11 +459,11 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           'serviceInformation' => {
             'servicePeriods' => [
               {
+                'serviceBranch' => 'Army Reserves',
                 'activeDutyBeginDate' => '2010-01-01',
                 'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
               }
-            ],
-            'reservesNationalGuardService' => { 'someField' => 'someValue' }
+            ]
           }
         }
       end
@@ -479,11 +480,11 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
           'serviceInformation' => {
             'servicePeriods' => [
               {
+                'serviceBranch' => 'Army',
                 'activeDutyBeginDate' => '2010-01-01',
                 'activeDutyEndDate' => 200.days.from_now.to_date.iso8601
               }
             ]
-            # reservesNationalGuardService is missing
           }
         }
       end

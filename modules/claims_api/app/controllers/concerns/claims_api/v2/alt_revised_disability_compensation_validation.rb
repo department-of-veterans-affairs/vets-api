@@ -1,12 +1,14 @@
 # frozen_string_literal: false
 
 require 'claims_api/v2/disability_compensation_shared_service_module'
+require 'claims_api/disability_compensation_validations_helper'
 require 'claims_api/lighthouse_military_address_validator'
 
 module ClaimsApi
   module V2
     module AltRevisedDisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
       include DisabilityCompensationSharedServiceModule
+      include ClaimsApi::DisabilityCompensationValidationsHelper
       include LighthouseMilitaryAddressValidator
 
       DATE_FORMATS = {
@@ -574,19 +576,19 @@ module ClaimsApi
       end
 
       def alt_rev_validate_claim_date_to_active_duty_end_date(service_information)
-        ant_sep_date = service_information&.dig('federalActivation', 'anticipatedSeparationDate')
         return unless service_periods_present?(service_information)
 
-        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        service_periods = service_information['servicePeriods']
+        max_period = service_periods.max_by { |sp| sp['activeDutyEndDate'] }
         max_active_duty_end_date = max_period['activeDutyEndDate']
         max_date_valid = date_is_valid?(max_active_duty_end_date,
                                         'serviceInformation/servicePeriods/activeDutyBeginDate', true)
 
-        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil? || ant_sep_date.nil?
+        return if !max_date_valid || max_period&.dig('activeDutyEndDate').nil?
 
-        beyond_180_days = duty_end_date_check(max_period) || anticipated_separation_date_check(ant_sep_date)
+        beyond_180_days = duty_end_date_check(max_period)
 
-        return if !beyond_180_days || eligible_for_future_end_date?(service_information)
+        return if !beyond_180_days || eligible_for_future_end_date?(max_period, service_periods)
 
         collect_error_messages(
           detail: 'Service members cannot submit a claim until they are within 180 days of their separation date.'
@@ -596,24 +598,6 @@ module ClaimsApi
       def duty_end_date_check(max_period)
         Date.strptime(max_period['activeDutyEndDate'],
                       '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
-      end
-
-      def anticipated_separation_date_check(ant_sep_date)
-        Date.strptime(ant_sep_date, '%Y-%m-%d') > Date.strptime(CLAIM_DATE.to_s, '%Y-%m-%d') + 180.days
-      end
-
-      def eligible_for_future_end_date?(service_information)
-        reserves_national_guard_service = service_information['reservesNationalGuardService']
-        reserves_national_guard_service.present? && past_service_period?(service_information['servicePeriods'])
-      end
-
-      def past_service_period?(service_periods)
-        service_periods.any? do |sp|
-          end_date = sp['activeDutyEndDate']
-          next false if end_date.blank?
-
-          Date.parse(end_date) <= Time.zone.today.end_of_day
-        end
       end
 
       def alt_rev_validate_service_periods(service_information)
