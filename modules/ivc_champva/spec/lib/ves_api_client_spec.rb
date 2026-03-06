@@ -6,7 +6,6 @@ require 'ves_api/client'
 RSpec.describe IvcChampva::VesApi::Client do
   let(:client) { described_class.new }
   let(:transaction_uuid) { '12345' }
-  let(:acting_user) { 'test_user' }
   let(:ves_request_data) { instance_double(IvcChampva::VesRequest, to_json: '{}') }
 
   describe '#submit_1010d' do
@@ -19,7 +18,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'does not raise an error' do
         expect do
-          client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+          client.submit_1010d(transaction_uuid, ves_request_data)
         end.not_to raise_error
       end
 
@@ -34,11 +33,11 @@ RSpec.describe IvcChampva::VesApi::Client do
           status: 200
         )
 
-        client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+        client.submit_1010d(transaction_uuid, ves_request_data)
       end
 
       it 'does not return nil on success' do
-        expect(client.submit_1010d(transaction_uuid, acting_user, ves_request_data).nil?).to be(false)
+        expect(client.submit_1010d(transaction_uuid, ves_request_data).nil?).to be(false)
       end
     end
 
@@ -47,7 +46,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'raises a VesApiError' do
         expect do
-          client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+          client.submit_1010d(transaction_uuid, ves_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
 
@@ -63,7 +62,7 @@ RSpec.describe IvcChampva::VesApi::Client do
         )
 
         expect do
-          client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+          client.submit_1010d(transaction_uuid, ves_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
@@ -73,7 +72,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'raises a VesApiError' do
         expect do
-          client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+          client.submit_1010d(transaction_uuid, ves_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
@@ -83,7 +82,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'raises a VesApiError' do
         expect do
-          client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+          client.submit_1010d(transaction_uuid, ves_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
@@ -101,7 +100,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'does not raise an error' do
         expect do
-          client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
         end.not_to raise_error
       end
 
@@ -116,11 +115,11 @@ RSpec.describe IvcChampva::VesApi::Client do
           status: 200
         )
 
-        client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+        client.submit_7959c(transaction_uuid, ves_ohi_request_data)
       end
 
       it 'returns the response on success' do
-        result = client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+        result = client.submit_7959c(transaction_uuid, ves_ohi_request_data)
         expect(result).to eq(response)
         expect(result.status).to eq(200)
       end
@@ -132,7 +131,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'raises a VesApiError' do
         expect do
-          client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
 
@@ -148,7 +147,7 @@ RSpec.describe IvcChampva::VesApi::Client do
         )
 
         expect do
-          client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
@@ -158,7 +157,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'raises a VesApiError' do
         expect do
-          client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
@@ -169,7 +168,7 @@ RSpec.describe IvcChampva::VesApi::Client do
 
       it 'raises a VesApiError' do
         expect do
-          client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
@@ -187,28 +186,18 @@ RSpec.describe IvcChampva::VesApi::Client do
           double('request', headers: {}, body: nil).as_null_object
         ).and_return(response)
 
-        client.submit_7959c(transaction_uuid, acting_user, ves_ohi_request_data)
+        client.submit_7959c(transaction_uuid, ves_ohi_request_data)
       end
     end
   end
 
   describe 'headers' do
     it 'returns the right headers with provided api key' do
-      result = client.headers('the_right_uuid', 'the_right_acting_user', 'my_api_key')
+      result = client.headers('the_right_uuid', 'my_api_key')
 
       expect(result[:content_type]).to eq('application/json')
       expect(result['apiKey']).to eq('my_api_key')
       expect(result['transactionUUId']).to eq('the_right_uuid')
-      expect(result['acting-user']).to eq('the_right_acting_user')
-    end
-
-    it 'returns the right headers with nil acting user' do
-      result = client.headers('the_right_uuid', nil, 'my_api_key')
-
-      expect(result[:content_type]).to eq('application/json')
-      expect(result['apiKey']).to eq('my_api_key')
-      expect(result['transactionUUId']).to eq('the_right_uuid')
-      expect(result['acting-user']).to eq('')
     end
   end
 
@@ -239,13 +228,12 @@ RSpec.describe IvcChampva::VesApi::Client do
         :content_type => 'application/json',
         # use the following line when running locally tp pull the key from an environment variable
         'x-api-key' => ENV.fetch('VES_API_KEY'), # to set: export VES_API_KEY=insert1the2api3key4here
-        'transactionUUId' => '1234',
-        'acting-user' => ''
+        'transactionUUId' => '1234'
       }
     end
 
     before do
-      allow_any_instance_of(IvcChampva::VesApi::Client).to receive(:headers).with(anything, anything)
+      allow_any_instance_of(IvcChampva::VesApi::Client).to receive(:headers).with(anything)
                                                                             .and_return(forced_headers)
     end
   end

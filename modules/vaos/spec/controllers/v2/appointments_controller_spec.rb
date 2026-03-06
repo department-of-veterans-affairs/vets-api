@@ -44,11 +44,11 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
       expect(controller.send(:appointment_error_status, 'internal-error')).to eq(:bad_gateway)
     end
 
-    it 'returns :unprocessable_entity for other errors' do
-      expect(controller.send(:appointment_error_status, 'too-far-in-the-future')).to eq(:unprocessable_entity)
-      expect(controller.send(:appointment_error_status, 'already-canceled')).to eq(:unprocessable_entity)
-      expect(controller.send(:appointment_error_status, 'too-late-to-cancel')).to eq(:unprocessable_entity)
-      expect(controller.send(:appointment_error_status, 'unknown-error')).to eq(:unprocessable_entity)
+    it 'returns :unprocessable_content for other errors' do
+      expect(controller.send(:appointment_error_status, 'too-far-in-the-future')).to eq(:unprocessable_content)
+      expect(controller.send(:appointment_error_status, 'already-canceled')).to eq(:unprocessable_content)
+      expect(controller.send(:appointment_error_status, 'too-late-to-cancel')).to eq(:unprocessable_content)
+      expect(controller.send(:appointment_error_status, 'unknown-error')).to eq(:unprocessable_content)
     end
   end
 

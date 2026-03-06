@@ -2438,7 +2438,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
         Timecop.freeze(Time.zone.parse('2025-03-05T08:00:00Z'))
       end
 

@@ -132,6 +132,22 @@ RSpec.describe JunitToRuntimeLog do
       expect(result).to eq('spec/c_spec.rb' => 3.0)
     end
 
+    it 'handles > characters inside attribute values' do
+      xml = <<~XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuite>
+          <testcase name="context 'when rad date is > 180 away'" file="spec/models/date_spec.rb" time="1.5"/>
+          <testcase name="handles values > threshold" file="spec/models/date_spec.rb" time="2.0"/>
+        </testsuite>
+      XML
+      xml_path = File.join(temp_dir, 'rspec.xml')
+      File.write(xml_path, xml)
+
+      result = described_class.aggregate_times([xml_path])
+
+      expect(result).to eq('spec/models/date_spec.rb' => 3.5)
+    end
+
     it 'skips XML files containing DOCTYPE declarations and continues processing valid ones' do
       doctype_xml_path = File.join(temp_dir, 'evil.xml')
       File.write(doctype_xml_path, <<~XML)

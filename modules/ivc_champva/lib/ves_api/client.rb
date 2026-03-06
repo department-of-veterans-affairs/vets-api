@@ -30,11 +30,10 @@ module IvcChampva
       # HTTP POST call to the VES VFMP CHAMPVA Application service to submit a 10-10d application.
       #
       # @param transaction_uuid [string] the UUID for the application
-      # @param acting_user [string, nil] the acting user for the application
       # @param ves_request_data [IvcChampva::VesRequest] preformatted request data
-      def submit_1010d(transaction_uuid, acting_user, ves_request_data)
+      def submit_1010d(transaction_uuid, ves_request_data)
         resp = connection.post("#{config.base_path}/ves-vfmp-app-svc/champva-applications") do |req|
-          req.headers = headers(transaction_uuid, acting_user, settings.api_key)
+          req.headers = headers(transaction_uuid, settings.api_key)
           req.body = ves_request_data.to_json
         end
 
@@ -51,13 +50,12 @@ module IvcChampva
       # HTTP POST call to the VES VFMP service to submit a 10-7959c OHI certification.
       #
       # @param transaction_uuid [string] the UUID for the transaction
-      # @param acting_user [string, nil] the acting user for the application
       # @param ves_request_data [IvcChampva::VesOhiRequest] preformatted request data
       # @return [Faraday::Response] the response from VES
       # @raise [VesApiError] if the response status is not 200
-      def submit_7959c(transaction_uuid, acting_user, ves_request_data)
+      def submit_7959c(transaction_uuid, ves_request_data)
         resp = connection.post("#{config.base_path}/ves-vfmp-app-svc/champva-insurance-form") do |req|
-          req.headers = headers(transaction_uuid, acting_user, ohi_api_key)
+          req.headers = headers(transaction_uuid, ohi_api_key)
           req.body = ves_request_data.to_json
         end
 
@@ -74,15 +72,13 @@ module IvcChampva
       # Assembles headers for VES API requests
       #
       # @param transaction_uuid [string] the transaction UUID
-      # @param acting_user [string, nil] the acting user
       # @param key [string] the API key to use
       # @return [Hash] the headers
-      def headers(transaction_uuid, acting_user, key)
+      def headers(transaction_uuid, key)
         {
           :content_type => 'application/json',
           'apiKey' => key,
-          'transactionUUId' => transaction_uuid.to_s,
-          'acting-user' => acting_user.to_s
+          'transactionUUId' => transaction_uuid.to_s
         }
       end
 

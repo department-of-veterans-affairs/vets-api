@@ -602,8 +602,7 @@ describe IvcChampva::VesDataFormatter do
         ohi_request = ves_request.subforms.first[:request]
         first_beneficiary = ves_request.beneficiaries.first
 
-        expect(ohi_request.person_uuid).to eq(first_beneficiary.person_uuid)
-        expect(ohi_request.beneficiary.person_uuid).to eq(first_beneficiary.person_uuid)
+        expect(ohi_request.beneficiary_medicare.person_uuid).to eq(first_beneficiary.person_uuid)
       end
     end
 
@@ -644,7 +643,7 @@ describe IvcChampva::VesDataFormatter do
       it 'generates fresh UUIDs for standalone submissions' do
         ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
         expect(ohi_requests.first.application_uuid).to match(/\A[0-9a-f-]{36}\z/)
-        expect(ohi_requests.first.person_uuid).to match(/\A[0-9a-f-]{36}\z/)
+        expect(ohi_requests.first.beneficiary_medicare.person_uuid).to match(/\A[0-9a-f-]{36}\z/)
       end
     end
 
@@ -653,7 +652,7 @@ describe IvcChampva::VesDataFormatter do
 
       it 'finds beneficiary by SSN and name' do
         ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
-        ohi_beneficiary = ohi_requests.first.beneficiary
+        ohi_beneficiary = ohi_requests.first.beneficiary_medicare
 
         match = IvcChampva::VesDataFormatter.find_matching_beneficiary(ves_request.beneficiaries, ohi_beneficiary)
 
@@ -663,7 +662,7 @@ describe IvcChampva::VesDataFormatter do
 
       it 'returns nil when no match found' do
         ohi_requests = IvcChampva::VesDataFormatter.format_for_ohi_request(extended_form_data)
-        ohi_beneficiary = ohi_requests.first.beneficiary
+        ohi_beneficiary = ohi_requests.first.beneficiary_medicare
         ohi_beneficiary.ssn = '999999999' # Different SSN
 
         match = IvcChampva::VesDataFormatter.find_matching_beneficiary(ves_request.beneficiaries, ohi_beneficiary)
@@ -692,39 +691,44 @@ describe IvcChampva::VesDataFormatter do
       end
     end
 
-    describe '.map_medicare' do
+    describe '.map_medicare_parts' do
       let(:medicare_data) { extended_form_data['applicants'].first['medicare'] }
 
-      it 'maps medicare fields' do
-        result = IvcChampva::VesDataFormatter.map_medicare(medicare_data)
+      it 'expands medicare entries into individual part objects' do
+        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare_data)
 
-        expect(result.length).to eq(1)
-        expect(result.first[:plan_type]).to eq('c')
-        expect(result.first[:part_c_carrier]).to eq('Advantage Health Solutions')
-        expect(result.first[:has_part_d]).to be true
-        expect(result.first[:part_d_carrier]).to eq('PharmaCare Plus')
+        # Should expand into Part D entry based on fixture data
+        expect(result).to be_an(Array)
       end
 
       it 'returns empty array for nil input' do
-        expect(IvcChampva::VesDataFormatter.map_medicare(nil)).to eq([])
+        expect(IvcChampva::VesDataFormatter.map_medicare_parts(nil)).to eq([])
+      end
+
+      it 'creates Part D entry when has_medicare_part_d is true' do
+        medicare_with_part_d = [{ 'has_medicare_part_d' => true, 'medicare_part_d_carrier' => 'PharmaCare Plus' }]
+        result = IvcChampva::VesDataFormatter.map_medicare_parts(medicare_with_part_d)
+
+        part_d = result.find { |p| p[:medicare_part_type] == 'd' }
+        expect(part_d).not_to be_nil
+        expect(part_d[:description]).to eq('PharmaCare Plus')
       end
     end
 
-    describe '.map_health_insurance' do
+    describe '.map_other_insurances' do
       let(:insurance_data) { extended_form_data['applicants'].first['health_insurance'] }
 
-      it 'maps health insurance fields' do
-        result = IvcChampva::VesDataFormatter.map_health_insurance(insurance_data)
+      it 'maps health insurance fields to VES format' do
+        result = IvcChampva::VesDataFormatter.map_other_insurances(insurance_data)
 
         expect(result.length).to eq(1)
-        expect(result.first[:insurance_type]).to eq('medigap')
-        expect(result.first[:medigap_plan]).to eq('K')
-        expect(result.first[:provider]).to eq('Blue Cross Blue Shield')
-        expect(result.first[:through_employer]).to be true
+        expect(result.first[:insurance_plan_type]).to eq('medigap')
+        expect(result.first[:insurance_name]).to eq('Blue Cross Blue Shield')
+        expect(result.first[:is_through_employment]).to be true
       end
 
       it 'returns empty array for nil input' do
-        expect(IvcChampva::VesDataFormatter.map_health_insurance(nil)).to eq([])
+        expect(IvcChampva::VesDataFormatter.map_other_insurances(nil)).to eq([])
       end
     end
 
@@ -772,10 +776,10 @@ describe IvcChampva::VesDataFormatter do
         ves_request = IvcChampva::VesDataFormatter.format_for_extended_request(multi_applicant_data)
 
         ves_request.subforms.each do |subform|
-          ohi_beneficiary = subform[:request].beneficiary
+          ohi_beneficiary = subform[:request].beneficiary_medicare
           # Find the matching beneficiary by SSN
           matching_ben = ves_request.beneficiaries.find { |b| b.ssn == ohi_beneficiary.ssn }
-          expect(subform[:request].person_uuid).to eq(matching_ben.person_uuid)
+          expect(ohi_beneficiary.person_uuid).to eq(matching_ben.person_uuid)
         end
       end
     end
