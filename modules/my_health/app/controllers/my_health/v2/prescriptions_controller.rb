@@ -86,17 +86,31 @@ module MyHealth
       def show
         return unless validate_feature_flag
 
-        raise Common::Exceptions::ParameterMissing, 'station_number' if params[:station_number].blank?
-
         prescriptions = service.get_prescriptions(current_only: false).compact
-        prescription = prescriptions.find do |p|
-          p.prescription_id.to_s == params[:id].to_s &&
-            p.station_number.to_s == params[:station_number].to_s
+
+        if params[:station_number].present?
+          result = prescriptions.find do |p|
+            p.prescription_id.to_s == params[:id].to_s &&
+              p.station_number.to_s == params[:station_number].to_s
+          end
+
+          raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
+        else
+          matches = prescriptions.select { |p| p.prescription_id.to_s == params[:id].to_s }
+
+          raise Common::Exceptions::RecordNotFound, params[:id] if matches.empty?
+
+          if matches.size > 1
+            raise Common::Exceptions::UnprocessableEntity.new(
+              detail: 'Multiple prescriptions found with this ID across different stations. ' \
+                      'Please retry the request with a station_number parameter to disambiguate.'
+            )
+          end
+
+          result = matches.first
         end
 
-        raise Common::Exceptions::RecordNotFound, params[:id] unless prescription
-
-        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(prescription)
+        render json: MyHealth::V2::PrescriptionDetailsSerializer.new(result)
       end
 
       def list_refillable_prescriptions
