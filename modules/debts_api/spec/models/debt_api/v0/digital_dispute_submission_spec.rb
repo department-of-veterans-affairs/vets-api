@@ -203,11 +203,14 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
   describe 'email functionality' do
     let(:user) { create(:user, :loa3, uuid: form_submission.user_uuid, email: 'test@example.com', first_name: 'John') }
 
+    before do
+      allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
+    end
+
     describe '#send_failure_email' do
       include_examples 'handles email send errors with StatsD', :send_failure_email, 'send_failed_form_email'
 
       it 'enqueues failure email when user is found with user_pii and never cache' do
-        allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
         allow(DebtsApi::EncryptionService).to receive(:encrypt).and_call_original
         allow(DebtsApi::EncryptionService).to receive(:encrypt).with('John').and_return('encrypted_first_name')
         allow(DebtsApi::EncryptionService).to receive(:encrypt).with('test@example.com').and_return('encrypted_email')
@@ -230,9 +233,7 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     describe '#send_success_email' do
       include_examples 'handles email send errors with StatsD', :send_success_email, 'send_success_email'
 
-      it 'enqueues confirmation email when user is found' do
-        allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
-
+      it 'enqueues confirmation email when user is found with user_pii and no cache' do
         expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_async).with(
           hash_including(
             'submission_type' => 'digital_dispute',

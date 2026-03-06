@@ -50,9 +50,7 @@ class Sidekiq::FilterArgsMiddleware
   end
 
   def call(_worker, job, _queue)
-    if PII_REDACT_JOB_CLASSES.include?(job['class'].to_s)
-      job['args'] = filter_sensitive_args(job['class'], job['args'])
-    end
+    job['args'] = filter_sensitive_args(job['class'], job['args']) if PII_REDACT_JOB_CLASSES.include?(job['class'].to_s)
     yield
   end
 
