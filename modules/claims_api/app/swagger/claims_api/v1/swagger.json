@@ -3191,7 +3191,7 @@
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -5144,7 +5144,6 @@
                               "type": "array",
                               "minItems": 1,
                               "maxItems": 100,
-                              "uniqueItems": true,
                               "items": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -7006,7 +7005,6 @@
                                 "type": "array",
                                 "minItems": 1,
                                 "maxItems": 100,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "additionalProperties": false,
@@ -9257,7 +9255,6 @@
                                 "type": "array",
                                 "minItems": 1,
                                 "maxItems": 100,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "object",
                                   "additionalProperties": false,

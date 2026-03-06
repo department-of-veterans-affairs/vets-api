@@ -358,5 +358,28 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
     end
+
+    context 'alternateNames validations' do
+      context 'when alternateNames contains duplicate names' do
+        it 'allows duplicate alternate names when FES validation is enabled' do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+
+          mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+            VCR.use_cassette('claims_api/disability_comp') do
+              json_data = JSON.parse(data)
+              json_data['data']['attributes']['serviceInformation']['alternateNames'] = [
+                'John Smith',
+                'john smith',
+                'Johnny Smith',
+                'John Smith'
+              ]
+
+              post synchronous_path, params: json_data.to_json, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+      end
+    end
   end
 end

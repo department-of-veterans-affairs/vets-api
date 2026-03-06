@@ -1608,7 +1608,6 @@
                                   "type": "array",
                                   "nullable": true,
                                   "maxItems": 100,
-                                  "uniqueItems": true,
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
@@ -3051,7 +3050,6 @@
                                 "type": "array",
                                 "nullable": true,
                                 "maxItems": 100,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "string",
                                   "additionalProperties": false,
@@ -5230,7 +5228,6 @@
                                 "type": "array",
                                 "nullable": true,
                                 "maxItems": 100,
-                                "uniqueItems": true,
                                 "items": {
                                   "type": "string",
                                   "additionalProperties": false,

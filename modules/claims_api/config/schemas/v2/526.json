@@ -741,7 +741,6 @@
           "type": ["array", "null"],
           "nullable": true,
           "maxItems": 100,
-          "uniqueItems": true,
           "items": {
             "type": "string",
             "additionalProperties": false,
