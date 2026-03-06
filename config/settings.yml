@@ -55,6 +55,11 @@ avs:
   mock: <%= ENV['avs__mock'] %>
   timeout: 55
   url: <%= ENV['avs__url'] %>
+backend_cop:
+  members:
+    - rachal.cassity@va.gov
+    - foo@va.gov
+    - judy.morrison@id.me
 banners:
   drupal_password: <%= ENV['banners__drupal_password'] %>
   drupal_url: <%= ENV['banners__drupal_url'] %>
