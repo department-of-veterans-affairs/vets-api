@@ -58,6 +58,76 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:create, body: valid_payload.to_json, as: :json)
     end
 
+    describe 'monitoring' do
+      let(:monitor) { instance_double(Form21p530a::Monitor) }
+
+      before do
+        allow(Form21p530a::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_submission_begun)
+        allow(monitor).to receive(:track_submission_success)
+        allow(monitor).to receive(:track_submission_failure)
+        allow(monitor).to receive(:track_request_code)
+      end
+
+      it 'tracks submission begun' do
+        expect(monitor).to receive(:track_submission_begun).with(
+          an_instance_of(SavedClaim::Form21p530a),
+          user_uuid: nil
+        )
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks submission success' do
+        expect(monitor).to receive(:track_submission_success).with(
+          an_instance_of(SavedClaim::Form21p530a),
+          user_uuid: nil
+        )
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      it 'tracks request code on success' do
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'create'))
+        post(:create, body: valid_payload.to_json, as: :json)
+      end
+
+      context 'with authenticated user' do
+        let(:user) { create(:user, :loa3) }
+
+        before { sign_in_as(user) }
+
+        it 'tracks submission with user_uuid' do
+          expect(monitor).to receive(:track_submission_begun).with(
+            an_instance_of(SavedClaim::Form21p530a),
+            user_uuid: user.uuid
+          )
+          expect(monitor).to receive(:track_submission_success).with(
+            an_instance_of(SavedClaim::Form21p530a),
+            user_uuid: user.uuid
+          )
+          post(:create, body: valid_payload.to_json, as: :json)
+        end
+      end
+
+      context 'on validation failure' do
+        let(:invalid_payload) { { veteranInformation: { fullName: { first: 'OnlyFirst' } } } }
+
+        it 'tracks submission begun even when save fails' do
+          expect(monitor).to receive(:track_submission_begun)
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end
+
+        it 'tracks submission failure when claim save fails' do
+          expect(monitor).to receive(:track_submission_failure)
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end
+
+        it 'tracks request code' do
+          expect(monitor).to receive(:track_request_code)
+          post(:create, body: invalid_payload.to_json, as: :json)
+        end
+      end
+    end
+
     context 'with 3-character country code' do
       let(:payload_with_3char_country) do
         payload = valid_payload.deep_dup
@@ -102,11 +172,6 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(json['errors']).to be_present
         expect(json['errors'].first['detail']).to include("'ZZZ' is not a valid country code")
       end
-
-      it 'increments failure stats' do
-        expect(StatsD).to receive(:increment).with('api.form21p530a.failure')
-        post(:create, body: payload_with_invalid_country.to_json, as: :json)
-      end
     end
 
     context 'when feature flag is disabled' do
@@ -135,11 +200,6 @@ RSpec.describe V0::Form21p530aController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-      end
-
-      it 'increments failure stats' do
-        expect(StatsD).to receive(:increment).with('api.form21p530a.failure')
-        post(:create, body: invalid_payload.to_json, as: :json)
       end
     end
 
@@ -236,7 +296,7 @@ RSpec.describe V0::Form21p530aController, type: :controller do
 
     it 'deletes temporary file even when PDF generation fails' do
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF generation error')
-      # File.delete should not be called since source_file_path is nil
+      # File.delete should not be called since source_file_path is nil (file never created)
       expect(File).not_to receive(:delete)
 
       post(:download_pdf, body: valid_payload.to_json, as: :json)
@@ -249,7 +309,9 @@ RSpec.describe V0::Form21p530aController, type: :controller do
     end
 
     it 'deletes temporary file even when file read fails' do
-      allow(File).to receive(:read).with(temp_file_path).and_raise(StandardError, 'Read error')
+      read_error = StandardError.new('Read error')
+      allow(File).to receive(:read).with(temp_file_path).and_raise(read_error)
+      # File should still be deleted in ensure block (file was created by Filler)
       expect(File).to receive(:delete).with(temp_file_path)
 
       post(:download_pdf, body: valid_payload.to_json, as: :json)
@@ -264,6 +326,81 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       post(:download_pdf, body: valid_payload.to_json, as: :json)
 
       expect(response).to have_http_status(:ok)
+    end
+
+    describe 'monitoring' do
+      let(:monitor) { instance_double(Form21p530a::Monitor) }
+
+      before do
+        allow(Form21p530a::Monitor).to receive(:new).and_return(monitor)
+        allow(monitor).to receive(:track_request_code)
+        allow(monitor).to receive(:track_pdf_generation_success)
+        allow(monitor).to receive(:track_pdf_generation_failure)
+      end
+
+      it 'tracks request code on success' do
+        expect(monitor).to receive(:track_request_code).with(200, hash_including(action: 'download_pdf'))
+        post(:download_pdf, body: valid_payload.to_json, as: :json)
+      end
+
+      context 'on PDF generation failure' do
+        let(:pdf_error) { StandardError.new('PDF error') }
+
+        before do
+          allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(pdf_error)
+        end
+
+        it 'tracks PDF generation failure through monitor' do
+          expect(monitor).to receive(:track_pdf_generation_failure).with(pdf_error)
+          post(:download_pdf, body: valid_payload.to_json, as: :json)
+          expect(response).to have_http_status(:internal_server_error)
+
+          json = JSON.parse(response.body)
+          expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+        end
+
+        it 'does not delete temp file when filler fails (no file created)' do
+          # source_file_path is never set since Filler fails, so nothing to delete
+          expect(File).not_to receive(:delete)
+          post(:download_pdf, body: valid_payload.to_json, as: :json)
+          expect(response).to have_http_status(:internal_server_error)
+
+          json = JSON.parse(response.body)
+          expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+        end
+      end
+
+      context 'on failure after PDF file is created' do
+        let(:stamp_error) { StandardError.new('Stamp error') }
+
+        before do
+          allow(PdfFill::Forms::Va21p530a).to receive(:stamp_signature).and_raise(stamp_error)
+        end
+
+        it 'deletes temp file even when stamping fails' do
+          # File was created by Filler, so it should be deleted in ensure block
+          expect(File).to receive(:delete).with(temp_file_path)
+          expect(monitor).to receive(:track_pdf_generation_failure).with(stamp_error)
+          post(:download_pdf, body: valid_payload.to_json, as: :json)
+          expect(response).to have_http_status(:internal_server_error)
+
+          json = JSON.parse(response.body)
+          expect(json['errors'].first['title']).to eq('PDF Generation Failed')
+        end
+      end
+
+      context 'on validation failure' do
+        let(:invalid_payload) do
+          payload = valid_payload.deep_dup
+          payload['burialInformation']['recipientOrganization']['address']['country'] = 'XX'
+          payload
+        end
+
+        it 'tracks request code on validation failure' do
+          expect(monitor).to receive(:track_request_code)
+          post(:download_pdf, body: invalid_payload.to_json, as: :json)
+        end
+      end
     end
 
     context 'with 3-character country code' do
@@ -323,21 +460,6 @@ RSpec.describe V0::Form21p530aController, type: :controller do
       it 'returns 404 Not Found (routing error)' do
         post(:download_pdf, body: valid_payload.to_json, as: :json)
         expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'error handling' do
-      it 'returns 500 for PDF generation failures' do
-        allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_raise(StandardError, 'PDF error')
-
-        post(:download_pdf, body: valid_payload.to_json, as: :json)
-
-        expect(response).to have_http_status(:internal_server_error)
-
-        json = JSON.parse(response.body)
-        expect(json['errors']).to be_present
-        expect(json['errors'].first['title']).to eq('PDF Generation Failed')
-        expect(json['errors'].first['status']).to eq('500')
       end
     end
   end

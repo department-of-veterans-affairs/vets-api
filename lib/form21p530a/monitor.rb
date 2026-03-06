@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'logging/monitor'
+require 'logging/base_monitor'
 
 module Form21p530a
   ##
@@ -8,20 +8,22 @@ module Form21p530a
   #
   # Provides methods for tracking Committee validation failures and other
   # form-related events with StatsD metrics and structured logging.
-  #
-  class Monitor < ::Logging::Monitor
+  class Monitor < ::Logging::BaseMonitor
     SERVICE_NAME = 'form21p530a'
     FORM_ID = '21P-530A'
-    STATS_KEY = 'api.form21p530a'
+    CLAIM_STATS_KEY = 'api.form21p530a'
 
     # Parameters allowed in logs (no PII)
     ALLOWLIST = %w[
+      action
       data_pointer
       error_type
-      form_id
       method
       path
       source_app
+      code
+      user_uuid
+      claim_guid
     ].freeze
 
     def initialize
@@ -33,19 +35,14 @@ module Form21p530a
     #
     # Called when Committee middleware rejects a request that doesn't conform
     # to the OpenAPI schema. Logs the field path and error type without PII.
-    #
-    # @param error [Committee::InvalidRequest] The validation error from Committee
-    # @param request [Rack::Request] The incoming request
     def track_request_validation_error(error:, request:)
-      call_location = caller_locations.first
-
       validation_details = extract_validation_details(error)
 
       track_request(
         :warn,
         "#{self.class.name} #{FORM_ID} Committee validation failed",
-        "#{STATS_KEY}.validation_error",
-        call_location:,
+        "#{CLAIM_STATS_KEY}.validation_error",
+        call_location: caller_locations.first,
         form_id: FORM_ID,
         path: request.path,
         method: request.request_method,
@@ -55,13 +52,86 @@ module Form21p530a
       )
     end
 
-    private
+    # Required BaseMonitor abstract method implementations
+    def claim_stats_key = CLAIM_STATS_KEY
+    def name = SERVICE_NAME
+    def form_id = FORM_ID
 
     ##
-    # Extracts validation details from Committee error without exposing PII
+    # Track submission begun in controller
+    # Called when submission processing starts, before validation and persistence
+    def track_submission_begun(claim, user_uuid: nil)
+      submit_event(:info, "#{message_prefix} submission begun", "#{CLAIM_STATS_KEY}.submission.begun",
+                   claim:, user_uuid:, claim_guid: claim&.guid)
+    end
+
+    ##
+    # Track successful submission in controller
+    # Called when claim is successfully validated, saved,
+    # and attachments processed
+    def track_submission_success(claim, user_uuid: nil)
+      submit_event(:info, "#{message_prefix} submission success", "#{CLAIM_STATS_KEY}.submission.success",
+                   claim:, user_uuid:, claim_guid: claim&.guid)
+    end
+
+    ##
+    # Track submission failure in controller
+    # Called when claim validation or save fails in the controller action
+    def track_submission_failure(claim, error, user_uuid: nil)
+      submit_event(:error, "#{message_prefix} submission failure: #{error.class}",
+                   "#{CLAIM_STATS_KEY}.submission.failure",
+                   claim:, user_uuid:, claim_guid: claim&.guid,
+                   error_class: error.class.name, error_message: error.message)
+    end
+
+    ##
+    # Track HTTP response codes for API endpoint monitoring
+    # Enables response code distribution tracking in Datadog
     #
-    # @param error [Committee::InvalidRequest] The validation error
-    # @return [Hash] Hash with :error_type and :data_pointer
+    # @param code [Integer] HTTP status code (200, 422, 429, 500, etc.)
+    # @param action [String, nil] Optional action name
+    #   (e.g., 'create', 'download_pdf')
+    # @param user_uuid [String, nil] Optional user UUID for correlation
+    # @param claim_guid [String, nil] Optional claim GUID for correlation
+    def track_request_code(code, action: nil, user_uuid: nil, claim_guid: nil)
+      submit_event(:info, "#{message_prefix} request completed with status #{code}",
+                   "#{CLAIM_STATS_KEY}.request", code:, action:, user_uuid:, claim_guid:)
+    end
+
+    ##
+    # Track PDF generation success with timing
+    #
+    # @param start_time [Time] When PDF generation started
+    def track_pdf_generation_success(start_time)
+      duration_ms = (Time.current - start_time) * 1000
+      StatsD.measure("#{CLAIM_STATS_KEY}.pdf_generation.duration", duration_ms)
+
+      submit_event(
+        :info,
+        "#{message_prefix} PDF generation success",
+        "#{CLAIM_STATS_KEY}.pdf_generation.success",
+        pdf_generation_duration_ms: duration_ms.round(2)
+      )
+    end
+
+    ##
+    # Track PDF generation failure
+    #
+    # @param error [Exception] The error that occurred
+    def track_pdf_generation_failure(error)
+      submit_event(
+        :error,
+        "#{message_prefix} PDF generation failure: #{error.class}",
+        "#{CLAIM_STATS_KEY}.pdf_generation.failure",
+        error_class: error.class.name,
+        error_message: error.message
+      )
+    end
+
+    private
+
+    def message_prefix = "#{SERVICE_NAME}:#{FORM_ID}"
+
     def extract_validation_details(error)
       message = error.message.to_s
 

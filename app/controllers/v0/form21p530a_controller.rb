@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'form21p530a/monitor'
+
 module V0
   class Form21p530aController < ApplicationController
     include RetriableConcern
@@ -10,42 +12,41 @@ module V0
     before_action :load_user, :check_feature_enabled
 
     def create
-      claim = build_and_save_claim!
-      handle_successful_claim(claim)
+      claim = build_claim
+      monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
 
-      clear_saved_form(claim.form_id)
-      render json: SavedClaimSerializer.new(claim)
-    rescue Common::Exceptions::ValidationErrors => e
-      handle_validation_error(e)
+      if claim.save
+        claim.process_attachments!
+        monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
+        clear_saved_form(claim.form_id)
+        render json: SavedClaimSerializer.new(claim)
+      else
+        raise Common::Exceptions::ValidationErrors, claim
+      end
     rescue => e
-      handle_general_error(e, claim)
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
+      raise
+    ensure
+      track_response_code('create', claim)
     end
 
     def download_pdf
-      # Parse raw JSON to get camelCase keys (bypasses OliveBranch transformation)
-      raw_payload = request.raw_post
-      transformed_payload = transform_country_codes(raw_payload)
-      parsed_form = JSON.parse(transformed_payload)
-
-      source_file_path = with_retries('Generate 21P-530A PDF') do
-        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530A')
-      end
-
-      # Stamp signature (SignatureStamper returns original path if signature is blank)
+      pdf_start_time = Time.current
+      parsed_form = parse_and_transform_payload
+      source_file_path = generate_pdf(parsed_form)
       source_file_path = PdfFill::Forms::Va21p530a.stamp_signature(source_file_path, parsed_form)
 
+      monitor.track_pdf_generation_success(pdf_start_time)
+
       client_file_name = "21P-530a_#{SecureRandom.uuid}.pdf"
-
       file_contents = File.read(source_file_path)
-
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     rescue Common::Exceptions::ValidationErrors
-      # Re-raise validation errors so they're handled by the exception handling concern
-      # This ensures they return 422 instead of 500
       raise
     rescue => e
       handle_pdf_generation_error(e)
     ensure
+      track_response_code('download_pdf')
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
@@ -53,17 +54,6 @@ module V0
 
     def check_feature_enabled
       routing_error unless Flipper.enabled?(:form_530a_enabled, current_user)
-    end
-
-    def handle_pdf_generation_error(error)
-      Rails.logger.error('Form21p530a: Error generating PDF', error: error.message, backtrace: error.backtrace)
-      render json: {
-        errors: [{
-          title: 'PDF Generation Failed',
-          detail: 'An error occurred while generating the PDF',
-          status: '500'
-        }]
-      }, status: :internal_server_error
     end
 
     def stats_key
@@ -94,38 +84,48 @@ module V0
       raise Common::Exceptions::ValidationErrors, claim
     end
 
-    def build_and_save_claim!
-      # Body parsed by Rails,schema validated by committee before hitting here.
+    def build_claim
       payload = request.raw_post
       transformed_payload = transform_country_codes(payload)
-      claim = SavedClaim::Form21p530a.new(form: transformed_payload)
-
-      raise Common::Exceptions::ValidationErrors, claim unless claim.save
-
-      claim
+      SavedClaim::Form21p530a.new(form: transformed_payload)
     end
 
-    def handle_successful_claim(claim)
-      claim.process_attachments!
-      Rails.logger.info("ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}")
-      StatsD.increment("#{stats_key}.success")
+    def parse_and_transform_payload
+      raw_payload = request.raw_post
+      transformed_payload = transform_country_codes(raw_payload)
+      JSON.parse(transformed_payload)
     end
 
-    def handle_validation_error(error)
-      StatsD.increment("#{stats_key}.failure")
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: error.message, claim_errors: error.resource&.errors&.full_messages }
+    def generate_pdf(parsed_form)
+      with_retries('Generate 21P-530A PDF') do
+        PdfFill::Filler.fill_ancillary_form(parsed_form, SecureRandom.uuid, '21P-530A')
+      end
+    end
+
+    def track_response_code(action, claim = nil)
+      return unless response.status
+
+      monitor.track_request_code(
+        response.status,
+        action:,
+        user_uuid: current_user&.uuid,
+        claim_guid: claim&.guid
       )
-      raise
     end
 
-    def handle_general_error(error, claim)
-      Rails.logger.error(
-        'Form21p530a: error submitting claim',
-        { error: error.message, claim_errors: defined?(claim) && claim&.errors&.full_messages }
-      )
-      raise
+    def monitor
+      @monitor ||= Form21p530a::Monitor.new
+    end
+
+    def handle_pdf_generation_error(error)
+      monitor.track_pdf_generation_failure(error)
+      render json: {
+        errors: [{
+          title: 'PDF Generation Failed',
+          detail: 'An error occurred while generating the PDF',
+          status: '500'
+        }]
+      }, status: :internal_server_error
     end
   end
 end
