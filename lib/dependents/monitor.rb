@@ -245,12 +245,10 @@ module Dependents
     end
 
     def track_no_ssn_claims(form_id:, type:)
-      tags = ["form_id:#{form_id}"]
       metric = "#{NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
       payload = default_payload.merge({ statsd: metric, form_id:, claim_id: @claim_id })
 
-      StatsD.increment(metric, tags:)
-      Rails.logger.info("No-SSN claim #{type}", payload)
+      track_event('info', "No-SSN claim #{type} for claim: #{@claim_id}", metric, payload)
     end
 
     def track_event(level, message, stats_key, payload = {})

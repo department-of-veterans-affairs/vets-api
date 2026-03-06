@@ -20,7 +20,34 @@ module Burials
     SUBMISSION_STATS_KEY = 'app.burial.submit_benefits_intake_claim'
 
     def initialize
-      super('burial-application')
+      super('burial-application', allowlist: %w[relationship_to_veteran])
+    end
+
+    ##
+    # Override of {Logging::Include::Controller#track_create_success} to include
+    # the claimant's relationship to the veteran in the logged context.
+    #
+    # Extracts `relationshipToVeteran` from the claim's parsed form data and
+    # passes it as `relationship_to_veteran` for DataDog tracking. This value
+    # (e.g., "spouse", "child") is not PII and is safe to log.
+    #
+    # @param in_progress_form [InProgressForm, nil] the in-progress form, if any
+    # @param claim [SavedClaim] the burial claim being submitted
+    # @param current_user [User, nil] the authenticated user, if present
+    #
+    def track_create_success(in_progress_form, claim, current_user)
+      parsed_form = claim&.parsed_form || {}
+      relationship_to_veteran = parsed_form['relationshipToVeteran']
+
+      submit_event(
+        :info,
+        "#{message_prefix} submission to Sidekiq success",
+        "#{claim_stats_key}.success",
+        claim:,
+        user_account_uuid: current_user&.user_account_uuid,
+        in_progress_form_id: in_progress_form&.id,
+        relationship_to_veteran:
+      )
     end
 
     private

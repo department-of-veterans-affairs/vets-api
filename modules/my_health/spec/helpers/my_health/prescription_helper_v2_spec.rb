@@ -361,5 +361,128 @@ RSpec.describe MyHealth::PrescriptionHelperV2 do
                              })
       end
     end
+
+    describe 'case-insensitive sorting' do
+      let(:upper_med) do
+        double('upper_med',
+               prescription_name: 'BACITRACIN',
+               disp_status: 'Active',
+               dispensed_date: Date.new(2024, 1, 1),
+               prescription_source: 'VA',
+               dispenses: [],
+               orderable_item: nil)
+      end
+
+      let(:lower_med) do
+        double('lower_med',
+               prescription_name: 'atorvastatin',
+               disp_status: 'Active',
+               dispensed_date: Date.new(2024, 2, 1),
+               prescription_source: 'VA',
+               dispenses: [],
+               orderable_item: nil)
+      end
+
+      let(:title_med) do
+        double('title_med',
+               prescription_name: 'Celecoxib',
+               disp_status: 'Active',
+               dispensed_date: Date.new(2024, 3, 1),
+               prescription_source: 'VA',
+               dispenses: [],
+               orderable_item: nil)
+      end
+
+      let(:mixed_case_resource) do
+        records = [upper_med, lower_med, title_med]
+        metadata = {}
+        double('resource').tap do |r|
+          allow(r).to receive_messages(records:, metadata:)
+          allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
+          allow(r).to receive(:metadata=) { |new_metadata| metadata.replace(new_metadata) }
+        end
+      end
+
+      before do
+        [upper_med, lower_med, title_med].each do |med|
+          allow(med).to receive(:respond_to?).with(:dispenses).and_return(true)
+          allow(med).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+        end
+      end
+
+      context 'with alphabetical-rx-name sort' do
+        it 'sorts names case-insensitively' do
+          result = helper.apply_sorting(mixed_case_resource, 'alphabetical-rx-name')
+          names = result.records.map(&:prescription_name)
+
+          expect(names).to eq(%w[atorvastatin BACITRACIN Celecoxib])
+        end
+      end
+
+      context 'with default sort' do
+        it 'sorts names case-insensitively within the same status' do
+          result = helper.apply_sorting(mixed_case_resource, nil)
+          names = result.records.map(&:prescription_name)
+
+          expect(names).to eq(%w[atorvastatin BACITRACIN Celecoxib])
+        end
+      end
+
+      context 'with Active: Non-VA medications' do
+        let(:non_va_upper) do
+          double('non_va_upper',
+                 prescription_name: nil,
+                 disp_status: 'Active: Non-VA',
+                 dispensed_date: Date.new(2024, 1, 1),
+                 prescription_source: 'NV',
+                 dispenses: [],
+                 orderable_item: 'DOCUSATE')
+        end
+
+        let(:non_va_lower) do
+          double('non_va_lower',
+                 prescription_name: nil,
+                 disp_status: 'Active: Non-VA',
+                 dispensed_date: Date.new(2024, 2, 1),
+                 prescription_source: 'NV',
+                 dispenses: [],
+                 orderable_item: 'aspirin')
+        end
+
+        let(:non_va_title) do
+          double('non_va_title',
+                 prescription_name: nil,
+                 disp_status: 'Active: Non-VA',
+                 dispensed_date: Date.new(2024, 3, 1),
+                 prescription_source: 'NV',
+                 dispenses: [],
+                 orderable_item: 'Buspirone')
+        end
+
+        let(:non_va_resource) do
+          records = [non_va_upper, non_va_lower, non_va_title]
+          metadata = {}
+          double('resource').tap do |r|
+            allow(r).to receive_messages(records:, metadata:)
+            allow(r).to receive(:records=) { |new_records| records.replace(new_records) }
+            allow(r).to receive(:metadata=) { |new_metadata| metadata.replace(new_metadata) }
+          end
+        end
+
+        before do
+          [non_va_upper, non_va_lower, non_va_title].each do |med|
+            allow(med).to receive(:respond_to?).with(:dispenses).and_return(true)
+            allow(med).to receive(:respond_to?).with(:sorted_dispensed_date).and_return(false)
+          end
+        end
+
+        it 'sorts Non-VA orderable_item names case-insensitively with alphabetical-rx-name' do
+          result = helper.apply_sorting(non_va_resource, 'alphabetical-rx-name')
+          names = result.records.map(&:orderable_item)
+
+          expect(names).to eq(%w[aspirin Buspirone DOCUSATE])
+        end
+      end
+    end
   end
 end
