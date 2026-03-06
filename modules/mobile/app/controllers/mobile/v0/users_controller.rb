@@ -44,13 +44,15 @@ module Mobile
       end
 
       def handle_vet360_id
-        if @current_user.vet360_id.blank?
-          Mobile::V0::Vet360LinkingJob.perform_async(@current_user.uuid)
-        elsif (mobile_user = Mobile::User.find_by(icn: @current_user.icn, vet360_linked: false))
-          Rails.logger.info('Mobile Vet360 account linking was successful request succeeded for user with uuid',
-                            { user_icn: @current_user.icn, attempts: mobile_user.vet360_link_attempts })
-          mobile_user.update(vet360_linked: true)
-        end
+        return if @current_user.vet360_id.present?
+        return log_missing_icn if @current_user.icn.blank?
+
+        Mobile::V0::Vet360LinkingJob.perform_async(@current_user.uuid)
+      end
+
+      def log_missing_icn
+        Rails.logger.warn('Mobile Vet360LinkingJob skipped - user has no ICN',
+                          { user_uuid: @current_user.uuid })
       end
     end
   end
