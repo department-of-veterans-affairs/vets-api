@@ -111,11 +111,51 @@ RSpec.describe SurvivorsBenefits::BenefitsIntake::SubmitClaimJob, :uploader_help
       expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        SurvivorsBenefits::BenefitsIntake::SubmitClaimJob::MedicalExpenseReportsBenefitIntakeError,
+        SurvivorsBenefits::BenefitsIntake::SubmitClaimJob::SurvivorsBenefitsBenefitIntakeError,
         "Unable to find SurvivorsBenefits::SavedClaim #{claim.id}"
       )
     end
+
+    it 'calls claim.to_ibm method to generate IBM payload and returns a hash' do
+      expect(claim).to receive(:to_ibm).and_return({ test: 'data' })
+      job.perform(claim.id, user_account_uuid)
+      expect(job.instance_variable_get(:@ibm_payload)).to eq({ test: 'data' })
+    end
     # perform
+  end
+
+  describe 'govcio_upload' do
+    let(:ibm_service) { double('ibm_service') }
+    let(:response) { double('response') }
+
+    before do
+      job.instance_variable_set(:@intake_service, service)
+      allow(service).to receive(:guid).and_return('test_guid')
+
+      job.instance_variable_set(:@ibm_payload, { test: 'data' })
+
+      allow(Ibm::Service).to receive(:new).and_return(ibm_service)
+      allow(ibm_service).to receive(:upload_form).and_return(response)
+      allow(response).to receive(:success?).and_return(true)
+    end
+
+    it 'uploads to IBM MMS when transmit structured data flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:survivors_benefitsstructured_data_transmission).and_return(true)
+
+      expect(Ibm::Service).to receive(:new)
+      expect(ibm_service).to receive(:upload_form).with(form: { test: 'data' }.to_json, guid: 'test_guid')
+
+      job.send(:govcio_upload)
+    end
+
+    it 'does not upload to IBM MMS when transmit structured data flipper is disabled' do
+      allow(Flipper).to receive(:enabled?).with(:survivors_benefits_structured_data_transmission).and_return(false)
+
+      expect(Ibm::Service).not_to receive(:new)
+      expect(ibm_service).not_to receive(:upload_form)
+
+      job.send(:govcio_upload)
+    end
   end
 
   describe '#process_document' do

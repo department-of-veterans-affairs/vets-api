@@ -3,19 +3,23 @@
 require 'common/client/configuration/rest'
 
 module Ibm
-  # HTTP client configuration for the {BenefitsIntake::Service},
+  # HTTP client configuration for the { Ibm::Service },
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.ibm.timeout || 30
 
     # @return [Config::Options] Settings for validated-forms API.
-    def intake_settings
+    def structured_data_transmission_settings
       Settings.ibm
     end
 
     # @return [String] Base path.
     def service_path
-      url = [intake_settings.host, intake_settings.path, intake_settings.version]
+      url = [
+        structured_data_transmission_settings.host,
+        structured_data_transmission_settings.path,
+        structured_data_transmission_settings.version
+      ]
       "https://#{url.map { |segment| segment.sub(%r{^/}, '').chomp('/') }.join('/')}"
     end
 
@@ -42,12 +46,12 @@ module Ibm
 
     # @return [Boolean] Should the service use mock data in lower environments.
     def use_mocks?
-      intake_settings.use_mocks || false
+      structured_data_transmission_settings.use_mocks || false
     end
 
     # breakers will be tripped if error rate reaches 80% over a two minute period.
     def breakers_error_threshold
-      intake_settings.breakers_error_threshold || 80
+      structured_data_transmission_settings.breakers_error_threshold || 80
     end
   end
 end
