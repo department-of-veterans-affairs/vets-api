@@ -341,6 +341,132 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       end
     end
 
+    describe "'treatments' validations" do
+      describe 'when FES is enabled' do
+        let(:treatments) do
+          [
+            {
+              center: {
+                name: 'Some Treatment Center',
+                city: 'Portland',
+                state: 'OR'
+              },
+              treatedDisabilityNames: [
+                'PTSD (post traumatic stress disorder)'
+              ],
+              beginDate: treatment_begin_date
+            }
+          ]
+        end
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+        end
+
+        context 'it does not require the treatment beginDate to be after the earliest activeDutyBeginDate' do
+          let(:treatment_begin_date) { '1970-01-01' }
+
+          it 'returns a 202' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                temp = JSON.parse(data)
+                temp['data']['attributes']['treatments'] = treatments
+                test_data = temp.to_json
+                post synchronous_path, params: test_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context 'it does not require the begin date to be in yyyy-mm-dd format' do
+          let(:treatment_begin_date) { '1985-01' }
+
+          it 'returns a 202' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                temp = JSON.parse(data)
+                temp['data']['attributes']['treatments'] = treatments
+                test_data = temp.to_json
+                post synchronous_path, params: test_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        # Note: This test currently fails because JSON schema validation runs before
+        # custom FES validation logic, even though beginDate is marked as nullable
+        context 'it allows the begin date to be nil' do
+          let(:treatment_begin_date) { nil }
+        
+          it 'returns a 202' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                temp = JSON.parse(data)
+                temp['data']['attributes']['treatments'] = treatments
+                test_data = temp.to_json
+                post synchronous_path, params: test_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context 'it does not require a treatment begin date' do
+          let(:treatments) do
+            [
+              {
+                center: {
+                  name: 'Some Treatment Center',
+                  city: 'Portland',
+                  state: 'OR'
+                },
+                treatedDisabilityNames: [
+                  'PTSD (post traumatic stress disorder)'
+                ]
+              }
+            ]
+          end
+
+          it 'returns a 202' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                temp = JSON.parse(data)
+                temp['data']['attributes']['treatments'] = treatments
+                test_data = temp.to_json
+                post synchronous_path, params: test_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+
+        context 'it does not require the center name, city, state, or treatedDisabilityNames' do
+          let(:treatments) do
+            [
+              {
+                center: {},
+                treatedDisabilityNames: []
+              }
+            ]
+          end
+
+          it 'returns a 202' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                temp = JSON.parse(data)
+                temp['data']['attributes']['treatments'] = treatments
+                test_data = temp.to_json
+                post synchronous_path, params: test_data, headers: auth_header
+                expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+        end
+      end
+    end
+
     context 'handling for missing first and last name' do
       context 'without the first and last name present' do
         it 'does not allow the submit to occur' do
