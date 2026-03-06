@@ -139,7 +139,7 @@ class FormProfile
     hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
-    mdot: ['MDOT'],
+    mdot: ['MDOT'], # Medical Device Ordering Tool - see app/models/form_profiles/mdot.rb
     memorials: %w[40-1330M],
     pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ 21-2680 21P-601 21P-0537],
     vre_counseling: ['28-8832'],
@@ -194,7 +194,7 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
     'FORM-MOCK-PREFILL' => ::FormProfiles::FormMockPrefill,
-    'MDOT' => ::FormProfiles::MDOT,
+    'MDOT' => ::FormProfiles::MDOT, # See app/models/form_profiles/mdot.rb, config/form_profile_mappings/MDOT.yml
     '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,

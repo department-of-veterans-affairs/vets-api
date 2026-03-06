@@ -1,5 +1,23 @@
 # frozen_string_literal: true
 
+# MDOT (Medical Device Ordering Tool) Form Profile
+#
+# This form profile handles prefilling data for the MDOT form, which allows veterans
+# to order medical supplies.
+#
+# Related files:
+# - Form profile mapping: config/form_profile_mappings/MDOT.yml
+# - MDOT client library: lib/mdot/client.rb
+# - MDOT models: lib/mdot/address.rb, lib/mdot/eligibility.rb, lib/mdot/supply.rb
+# - MDOT configuration: lib/mdot/configuration.rb
+# - MDOT response handler: lib/mdot/response.rb
+# - Test helpers: spec/support/mdot_helpers.rb
+#
+# For in_progress_forms integration:
+# - See app/models/form_profile.rb (line 142: mdot: ['MDOT'])
+# - See app/models/form_profile.rb (line 196: 'MDOT' => ::FormProfiles::MDOT)
+# - See app/models/in_progress_form.rb for form persistence logic
+
 require 'mdot/address'
 require 'mdot/client'
 require 'mdot/eligibility'
