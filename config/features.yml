@@ -1788,6 +1788,10 @@ features:
   mhv_vaccine_mobile_return_empty_location_data:
     actor_type: user
     description: Returns empty response for mobile health locations endpoint when enabled
+  mhv_show_missing_records_alert:
+    actor_type: user
+    description: Show alert to users when they have missing medical records data in MHV
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
