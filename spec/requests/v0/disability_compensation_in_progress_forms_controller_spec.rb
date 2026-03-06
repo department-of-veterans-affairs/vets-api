@@ -75,7 +75,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
           end
 
-          def perform_return_url_test(workflow_value:, expected_url:)
+          def perform_return_url_test(workflow_value:)
             fd = JSON.parse(in_progress_form_lighthouse.form_data)
             fd['ratedDisabilities'].first['diagnosticCode'] = '111'
             if workflow_value == :absent
@@ -93,23 +93,27 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
             expect(response).to have_http_status(:ok)
             json_response = JSON.parse(response.body)
-            expect(json_response['metadata']['returnUrl']).to eq(expected_url)
+            json_response['metadata']['returnUrl']
+          end
+
+          it "sets returnUrl to 'conditions/summary' when new-flow is true (boolean)" do
+            return_url = perform_return_url_test(workflow_value: true)
+            expect(return_url).to eq('/conditions/summary')
+          end
+
+          it "sets returnUrl to 'conditions/summary' when new-flow is 'true' (string)" do
+            return_url = perform_return_url_test(workflow_value: 'true')
+            expect(return_url).to eq('/conditions/summary')
+          end
+
+          it "sets returnUrl to '/disabilities/rated-disabilities' when new-flow is false" do
+            return_url = perform_return_url_test(workflow_value: false)
+            expect(return_url).to eq('/disabilities/rated-disabilities')
           end
           
-          it "sets returnUrl to 'conditions/summary' when disability_comp_new_conditions_workflow is true (boolean)" do
-            perform_return_url_test(workflow_value: true, expected_url: '/conditions/summary')
-          end
-
-          it "sets returnUrl to 'conditions/summary' when disability_comp_new_conditions_workflow is 'true' (string)" do
-            perform_return_url_test(workflow_value: 'true', expected_url: '/conditions/summary')
-          end
-
-          it "sets returnUrl to '/disabilities/rated-disabilities' when disability_comp_new_conditions_workflow is false" do
-            perform_return_url_test(workflow_value: false, expected_url: '/disabilities/rated-disabilities')
-          end
-
-          it "sets returnUrl to '/disabilities/rated-disabilities' when disability_comp_new_conditions_workflow is not present" do
-            perform_return_url_test(workflow_value: :absent, expected_url: '/disabilities/rated-disabilities')
+          it "sets returnUrl to '/disabilities/rated-disabilities' when new-flow key is not present" do
+            return_url = perform_return_url_test(workflow_value: :absent)
+            expect(return_url).to eq('/disabilities/rated-disabilities')
           end
 
           it 'returns an unaltered form if Lighthouse returns an error' do
