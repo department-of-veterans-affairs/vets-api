@@ -72,6 +72,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_API_KEY>') do
     Settings.lighthouse.benefits_intake.api_key
   end
+  c.filter_sensitive_data('<IBM_CLIENT_HOST>') { Settings.ibm.host }
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_INTAKE_URL>') do
     BenefitsIntake::Service.configuration.service_path
   end
