@@ -177,44 +177,6 @@ module AccreditedRepresentativePortal
         }
       ].freeze
 
-      USER_ACCOUNT_ACCREDITED_INDIVIDUALS = [
-        {
-          accredited_individual_registration_number: '10000',
-          user_account_email: 'vets.gov.user+0@gmail.com',
-          user_account_icn: '1012667122V019349'
-        },
-        {
-          accredited_individual_registration_number: '10001',
-          user_account_email: 'vets.gov.user+1@gmail.com',
-          user_account_icn: '1012666182V203559'
-        },
-        {
-          accredited_individual_registration_number: '10002',
-          user_account_email: 'vets.gov.user+2@gmail.com',
-          user_account_icn: '1012829932V238054'
-        },
-        {
-          accredited_individual_registration_number: '10003',
-          user_account_email: 'vets.gov.user+4@gmail.com',
-          user_account_icn: '1012659372V317896'
-        },
-        {
-          accredited_individual_registration_number: '10004',
-          user_account_email: 'vets.gov.user+5@gmail.com',
-          user_account_icn: '1012667179V787205'
-        },
-        {
-          accredited_individual_registration_number: '10005',
-          user_account_email: 'vets.gov.user+6@gmail.com',
-          user_account_icn: '1012830899V368969'
-        },
-        {
-          accredited_individual_registration_number: '10006',
-          user_account_email: 'vets.gov.user+7@gmail.com',
-          user_account_icn: '1012643432V477452'
-        }
-      ].freeze
-
       CLAIMANTS = [
         {
           id: '7de8ce1e-af1c-4c5d-8caf-4002593dac69'

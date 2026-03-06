@@ -78,11 +78,6 @@ module AccreditedRepresentativePortal
           insert_poa_requests(
             accreditations
           )
-
-          insert_all(
-            Records::USER_ACCOUNT_ACCREDITED_INDIVIDUALS,
-            factory: %i[user_account_accredited_individual]
-          )
         end
       end
 
@@ -157,9 +152,6 @@ module AccreditedRepresentativePortal
               :power_of_attorney_request
             ]
           )
-
-        insert_all(Records::USER_ACCOUNT_ACCREDITED_INDIVIDUALS,
-                   factory: %i[user_account_accredited_individual])
 
         ##
         # Forms and resolutions can't happen in bulk because encryption happens
