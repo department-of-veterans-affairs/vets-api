@@ -27,7 +27,7 @@ class LighthouseRatedDisabilitiesProvider
   # @option options [string] :invoker where this method was called from
   def get_rated_disabilities(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
     data = get_data(lighthouse_client_id, lighthouse_rsa_key_path, options)
-    transform(data['data']['attributes']['individual_ratings'])
+    transform(data.dig('data', 'attributes', 'individual_ratings') || [])
   end
 
   # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
