@@ -395,11 +395,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           end
         end
 
-        # Note: This test currently fails because JSON schema validation runs before
-        # custom FES validation logic, even though beginDate is marked as nullable
         context 'it allows the begin date to be nil' do
           let(:treatment_begin_date) { nil }
-        
+
           it 'returns a 202' do
             mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
               VCR.use_cassette('claims_api/disability_comp') do
