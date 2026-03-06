@@ -236,7 +236,7 @@ module VAOS
           log_referral_validation_failure(referral, validation_result[:missing_attributes])
           return set_error(
             "Required referral data is missing or incomplete: #{validation_result[:missing_attributes]}",
-            :unprocessable_entity
+            :unprocessable_content
           )
         end
 
@@ -270,7 +270,7 @@ module VAOS
                                            referral_number: referral_id,
                                            failure_reason: 'Referral is already used for an existing appointment'
                                          })
-          set_error('No new appointment created: referral is already used', :unprocessable_entity)
+          set_error('No new appointment created: referral is already used', :unprocessable_content)
         end
       end
 
@@ -306,7 +306,7 @@ module VAOS
       # @return [OpenStruct, nil] The created draft appointment object, or nil if error occurred
       def create_draft_appointment(referral_id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        return set_error('Could not create draft appointment', :unprocessable_entity) if draft.id.blank?
+        return set_error('Could not create draft appointment', :unprocessable_content) if draft.id.blank?
 
         draft
       end
