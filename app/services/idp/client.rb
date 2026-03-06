@@ -187,7 +187,7 @@ module Idp
                         })
       response.body
     rescue Faraday::Error => e
-      error_type = e.response&.body&.dig('error_type')
+      error_type = extract_error_type(e.response)
       Rails.logger.error('[Idp::Client] request error', {
                            operation:,
                            duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - start).round(4),
@@ -195,6 +195,19 @@ module Idp
                            error_type:
                          })
       raise Idp::Error.new(e.message, error_type:, operation:)
+    end
+
+    def extract_error_type(response)
+      body = response&.[](:body)
+
+      case body
+      when Hash
+        body['error_type']
+      when String
+        JSON.parse(body)['error_type']
+      end
+    rescue JSON::ParserError, TypeError
+      nil
     end
   end
 end
