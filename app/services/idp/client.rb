@@ -68,7 +68,7 @@ module Idp
     end
 
     def get(path, params = {}, operation:, user_id:)
-      perform_request do
+      perform_request(operation:) do
         connection.get(path, params) do |req|
           add_identity_headers(
             req:,
@@ -85,7 +85,7 @@ module Idp
     def post(path, body, operation:, user_id:, headers: {}, params: {})
       canonical_body = canonical_json(body)
       canonical_params = params.to_h
-      perform_request do
+      perform_request(operation:) do
         connection.post(path) do |req|
           req.params.update(canonical_params) if canonical_params.present?
           req.headers['Content-Type'] = 'application/json'
@@ -171,11 +171,24 @@ module Idp
       end
     end
 
-    def perform_request
+    def perform_request(operation:)
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       response = yield
+      Rails.logger.info('[Idp::Client] request success', {
+                          operation:,
+                          duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - start).round(4),
+                          status: response.status
+                        })
       response.body
     rescue Faraday::Error => e
-      raise Idp::Error, e.message
+      error_type = e.response&.body&.dig('error_type')
+      Rails.logger.error('[Idp::Client] request error', {
+                           operation:,
+                           duration: (Process.clock_gettime(Process::CLOCK_MONOTONIC) - start).round(4),
+                           error_class: e.class.name,
+                           error_type:
+                         })
+      raise Idp::Error.new(e.message, error_type:, operation:)
     end
   end
 end

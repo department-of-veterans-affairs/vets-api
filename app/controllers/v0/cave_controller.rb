@@ -5,6 +5,8 @@ module V0
     service_tag 'cave'
 
     before_action :require_cave_feature_enabled
+    before_action :log_cave_request, only: %i[create status output download]
+    after_action :log_cave_response, only: %i[create status output download]
 
     rescue_from Idp::Error, with: :render_service_error
 
@@ -96,10 +98,26 @@ module V0
       routing_error unless Flipper.enabled?(:cave_idp)
     end
 
+    def log_cave_request
+      Rails.logger.info('[CaveController] incoming request', {
+                          action: action_name,
+                          document_id: params[:id]
+                        })
+    end
+
+    def log_cave_response
+      Rails.logger.info('[CaveController] request complete', {
+                          action: action_name,
+                          document_id: params[:id],
+                          success: response.successful?
+                        })
+    end
+
     def render_service_error(error)
       log_exception_to_sentry(
         error,
-        { cave_document_id: params[:id], cave_endpoint: request.path }
+        { cave_document_id: params[:id], cave_endpoint: request.path },
+        { error_type: error.error_type, operation: error.operation }
       )
 
       render json: {

@@ -1,8 +1,16 @@
 # frozen_string_literal: true
 
 module Idp
-  class Error < StandardError; end
+  class Error < StandardError
+    attr_reader :error_type, :operation
 
+    def initialize(message = nil, error_type: nil, operation: nil)
+      super(message)
+      @error_type = error_type
+      @operation = operation
+    end
+  end
+end
   # Returns the appropriate IDP client for the current environment.
   #
   # - Production/staging: Idp::Client (real HTTP calls)
