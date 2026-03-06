@@ -1021,8 +1021,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     context "when disabilityActionType is 'INCREASE' and specialIssues includes 'EMP'" do
-      let(:disabilities) { [{ 'specialIssues' => ['EMP'] }] }
-      let(:disability_action_type) { 'INCREASE' }
+      let(:disabilities) { [{ 'specialIssues' => ['EMP'], 'disabilityActionType' => 'INCREASE' }] }
 
       it 'does not raise an error' do
         expect { subject.validate_form_526_special_issues! }.not_to raise_error
@@ -1030,8 +1029,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     context "when disabilityActionType is 'INCREASE' and specialIssues includes 'RRD'" do
-      let(:disabilities) { [{ 'specialIssues' => ['RRD'] }] }
-      let(:disability_action_type) { 'INCREASE' }
+      let(:disabilities) { [{ 'specialIssues' => ['RRD'], 'disabilityActionType' => 'INCREASE' }] }
 
       it 'does not raise an error' do
         expect { subject.validate_form_526_special_issues! }.not_to raise_error
@@ -1039,8 +1037,7 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
     end
 
     context "when disabilityActionType is 'INCREASE' and specialIssues includes other value" do
-      let(:disabilities) { [{ 'specialIssues' => ['OTHER'] }] }
-      let(:disability_action_type) { 'INCREASE' }
+      let(:disabilities) { [{ 'specialIssues' => ['OTHER'], 'disabilityActionType' => 'INCREASE' }] }
 
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_special_issues! }

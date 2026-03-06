@@ -256,7 +256,7 @@ module ClaimsApi
         alt_rev_validate_form_526_disability_approximate_begin_date
         alt_rev_validate_form_526_disability_service_relevance
         alt_rev_validate_form_526_disability_secondary_disabilities
-        alt_rev_validate_special_issues
+        alt_rev_validate_special_issues(form_attributes['disabilities'])
       end
 
       def alt_rev_validate_disability_name
@@ -334,24 +334,57 @@ module ClaimsApi
         end
       end
 
-      def alt_rev_validate_special_issues
-        form_attributes['disabilities'].each_with_index do |disability, idx|
+      def alt_rev_validate_special_issues(disabilities)
+        disabilities.each_with_index do |disability, idx|
           next if disability['specialIssues'].blank?
 
+          special_issues = disability['specialIssues']
           confinements = form_attributes['serviceInformation']&.dig('confinements')
-          disability_action_type = disability&.dig('disabilityActionType')
-          if disability['specialIssues'].include? 'POW'
-            if confinements.blank?
-              collect_error_messages(source: "disabilities/#{idx}/specialIssues",
-                                     detail: "serviceInformation.confinements (#{idx}) is required if " \
-                                             'specialIssues includes POW.')
-            elsif disability_action_type == 'INCREASE'
-              collect_error_messages(source: "disabilities/#{idx}/specialIssues",
-                                     detail: "disabilityActionType (#{idx}) cannot be INCREASE if " \
-                                             'specialIssues includes POW.')
-            end
-          end
+
+          validate_hepatitis_c(special_issues, idx, disability)
+          validate_pow(special_issues, idx, confinements)
+          validate_increase(idx, special_issues) if disability['disabilityActionType'] == 'INCREASE'
         end
+      end
+
+      def validate_hepatitis_c(special_issues, idx, disability)
+        if invalid_hepatitis_c_special_issue?(special_issues, disability)
+          collect_error_messages(source: "disabilities/#{idx}/specialIssues",
+                                 detail: "'disability.specialIssues' :: Claim must include a disability " \
+                                         "with the name 'hepatitis'")
+        end
+      end
+
+      def invalid_hepatitis_c_special_issue?(special_issues, disability)
+        # if 'specialIssues' includes 'HEPC', then FES requires the disability 'name' to equal 'hepatitis'
+        special_issues.include?('HEPC') && !disability['name'].casecmp?('hepatitis')
+      end
+
+      def validate_pow(special_issues, idx, confinements = nil)
+        if invalid_pow_special_issue?(special_issues, confinements)
+          collect_error_messages(source: "disabilities/#{idx}/specialIssues",
+                                 detail: "'disability.specialIssues' :: Claim must include " \
+                                         "valid 'serviceInformation.confinements' value")
+        end
+      end
+
+      def invalid_pow_special_issue?(special_issues, confinements = nil)
+        # if 'specialIssues' includes 'POW', then FES requires there also be a 'serviceInformation.confinements'
+        special_issues.include?('POW') && confinements.blank?
+      end
+
+      def validate_increase(idx, special_issues)
+        if invalid_special_issue_for_type_increase?(special_issues)
+          collect_error_messages(source: "disabilities/#{idx}/specialIssues",
+                                 detail: "'disability.specialIssues' :: A Special Issue cannot be " \
+                                         'added to a primary disability after the disability has been rated')
+        end
+      end
+
+      def invalid_special_issue_for_type_increase?(special_issues)
+        # if 'specialIssues' includes 'EMP' (or 'RRD' which we allow in v1 but not v2), then EVSS allows the
+        # disability to be submitted with a type of INCREASE otherwise, the disability must not have any special issues
+        special_issues.exclude?('EMP')
       end
 
       def alt_rev_validate_form_526_disability_secondary_disabilities
