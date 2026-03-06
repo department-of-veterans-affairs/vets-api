@@ -161,7 +161,7 @@ module V0
         if form_data['ratedDisabilities'].present? &&
            form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
-          if form_data[WORKFLOW_FLAG_KEY] == true || form_data[WORKFLOW_FLAG_KEY] == 'true'
+          if [true, 'true'].include?(form_data[WORKFLOW_FLAG_KEY])
             metadata['returnUrl'] = '/conditions/summary'
           end
         end
