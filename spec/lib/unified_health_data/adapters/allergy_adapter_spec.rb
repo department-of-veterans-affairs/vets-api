@@ -34,21 +34,31 @@ RSpec.describe 'AllergyAdapter' do
   end
 
   describe '#parse' do
-    # Helper method to simulate what the service's remap_vista_identifier does
+    # Helper method to simulate what the service's remap_vista_id does.
+    # Mirrors the identifier precedence: vista-uid first, then https://va.gov/systems/.
+    # If the value starts with 'urn:va:', extracts the last 3 colon-separated segments joined by '-'.
     def add_vista_ids(vista_records)
       vista_records.each do |record|
-        resource = record['resource']
-        next unless resource && resource['identifier']
+        identifiers = record.dig('resource', 'identifier')
+        next if identifiers.blank?
 
-        identifier = resource['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
-        resource['id'] = identifier['value'] if identifier
+        vista_identifier = identifiers.find { |id| id['system'] == 'vista-uid' } ||
+                           identifiers.find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+        next unless vista_identifier && vista_identifier['value'].present?
+
+        value = vista_identifier['value']
+        record['resource']['id'] = if value.start_with?('urn:va:')
+                                     value.split(':')[-3..].join('-')
+                                   else
+                                     value
+                                   end
       end
     end
 
     context 'when filter_by_status is true (default)' do
       it 'filters out VistA allergies without active clinicalStatus' do
         vista_records = allergy_sample_response['vista']['entry']
-        # Add IDs like the service's remap_vista_identifier method does
+        # Add IDs like the service's remap_vista_id method does
         add_vista_ids(vista_records)
 
         # First verify that a non-active record exists in fixture data
@@ -127,7 +137,7 @@ RSpec.describe 'AllergyAdapter' do
     context 'when filter_by_status is false' do
       it 'includes VistA allergies without active clinicalStatus' do
         vista_records = allergy_sample_response['vista']['entry']
-        # Add IDs like the service's remap_vista_identifier method does
+        # Add IDs like the service's remap_vista_id method does
         add_vista_ids(vista_records)
 
         parsed_allergies = adapter.parse(vista_records, filter_by_status: false)
@@ -197,7 +207,10 @@ RSpec.describe 'AllergyAdapter' do
 
       it 'returns the allergy for VistA record with active clinicalStatus' do
         vista_single_record = allergy_sample_response['vista']['entry'][0]
-        vista_identifier = vista_single_record['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+        # Simulate the service's remap_vista_id: prefer vista-uid, fall back to https://va.gov/systems/
+        identifiers = vista_single_record['resource']['identifier']
+        vista_identifier = identifiers.find { |id| id['system'] == 'vista-uid' } ||
+                           identifiers.find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
         vista_single_record['resource']['id'] = vista_identifier['value']
 
         parsed_allergy = adapter.parse_single_allergy(vista_single_record)
@@ -222,9 +235,11 @@ RSpec.describe 'AllergyAdapter' do
     context 'when filter_by_status is false' do
       it 'returns VistA allergy without active clinicalStatus' do
         record = vista_non_active_record
-        # Add ID like the service does
-        identifier = record['resource']['identifier'].find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
-        record['resource']['id'] = identifier['value'] if identifier
+        # Simulate the service's remap_vista_id: prefer vista-uid, fall back to https://va.gov/systems/
+        identifiers = record['resource']['identifier']
+        vista_identifier = identifiers.find { |id| id['system'] == 'vista-uid' } ||
+                           identifiers.find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+        record['resource']['id'] = vista_identifier['value'] if vista_identifier
 
         parsed_allergy = adapter.parse_single_allergy(record, filter_by_status: false)
 
@@ -250,8 +265,10 @@ RSpec.describe 'AllergyAdapter' do
 
     it 'returns the expected fields for happy path for vista allergy with all fields' do
       vista_single_record = allergy_sample_response['vista']['entry'][0]
-      # This normally happens in the service, but we need the id for the test so we're mocking it here
-      vista_identifier = vista_single_record['resource']['identifier'].find { |id| id['system'].starts_with?('https://va.gov/systems/') }
+      # Simulate the service's remap_vista_id: prefer vista-uid, fall back to https://va.gov/systems/
+      identifiers = vista_single_record['resource']['identifier']
+      vista_identifier = identifiers.find { |id| id['system'] == 'vista-uid' } ||
+                         identifiers.find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
       vista_single_record['resource']['id'] = vista_identifier['value']
       # This also checks fallbacks and nil guards since VistA data is missing many fields
       parsed_allergy = adapter.parse_single_allergy(vista_single_record)

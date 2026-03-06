@@ -146,7 +146,6 @@ module UnifiedHealthData
         body = response.body
         warnings = extract_warnings(body)
 
-        remap_vista_uid(body)
         combined_records = fetch_combined_records(body)
         doc_ref_records = combined_records.select { |record| record['resource']['resourceType'] == 'DocumentReference' }
         parsed_notes = parse_notes(doc_ref_records)
@@ -193,7 +192,6 @@ module UnifiedHealthData
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
 
-        remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
 
         allergy_adapter.parse(combined_records)
@@ -209,7 +207,6 @@ module UnifiedHealthData
         response = uhd_client.get_allergies_by_date(patient_id: @user.icn, start_date:, end_date:)
         body = response.body
 
-        remap_vista_identifier(body)
         combined_records = fetch_combined_records(body)
 
         filtered = combined_records.find { |record| record['resource']['id'] == allergy_id }
@@ -303,7 +300,7 @@ module UnifiedHealthData
       return [] if body.nil?
 
       vista_records = (body.dig(SourceConstants::VISTA, 'entry') || []).map do |r|
-        r.merge('source' => SourceConstants::VISTA)
+        remap_vista_id(r.merge('source' => SourceConstants::VISTA))
       end
       oracle_health_records = (body.dig(SourceConstants::ORACLE_HEALTH, 'entry') || []).map do |r|
         r.merge('source' => SourceConstants::ORACLE_HEALTH)
@@ -390,15 +387,69 @@ module UnifiedHealthData
       end
     end
 
-    def remap_vista_identifier(records)
-      records[SourceConstants::VISTA]['entry']&.each do |allergy|
-        vista_identifier = allergy['resource']['identifier']&.find do |id|
-          id['system'].starts_with?('https://va.gov/systems/')
-        end
-        next unless vista_identifier && vista_identifier['value']
+    # Remaps a single VistA record's ID to the most specific identifier available.
+    # Called during fetch_combined_records for each VistA record.
+    # Supports all VistA record types with the following identifier formats:
+    #
+    # Allergies identifier:
+    #    "identifier"=>
+    # [{"use"=>"official", "system"=>"https://va.gov/systems/200CRNR_120.8", "value"=>"157916429"}],
+    #
+    # Conditions identifier:
+    #    "identifier"=>
+    # [...
+    #  {"use"=>"usual", "system"=>"vista-uid", "value"=>"XXXXX"}],
+    #
+    # Notes identifier:
+    #    "identifier"=>
+    # [{"use"=>"usual", "system"=>"urn:oid:2.16.840.1.113883.4.349.4.989", "value"=>"NoteTO.1845039"},
+    #  {"system"=>"vista-uid", "value"=>"urn:va:document:F253:7227761:1845039"}],
+    #
+    # Labs identifier:
+    # "identifier"=>[{"system"=>"vista-uid", "value"=>"urn:va:lab:F253:7227761:MI;6749872.83748"}],
+    #
+    # Immunizations identifier:
+    #  N/A
+    #
 
-        allergy['resource']['id'] = vista_identifier['value']
-      end
+    # Prefers `vista-uid` identifiers, falls back to `https://va.gov/systems/`.
+    # Returns the (possibly mutated) record so callers can chain or inline the call.
+    #
+    # Resolution order:
+    # 1. Identifier with system == 'vista-uid' (e.g., Notes, Labs, Conditions)
+    # 2. Identifier with system starting with 'https://va.gov/systems/' (e.g., Allergies)
+    # 3. Fallback: keep the original resource ID
+    #
+    # If the matched identifier value starts with 'urn:va:', drop the first 3 colon-separated
+    # segments (urn:va:<type>) and join the remaining segments with '-'
+    # (e.g., "urn:va:document:F253:7227761:1845039" -> "F253-7227761-1845039").
+    # Otherwise, use the value directly.
+    #
+    # After extraction, semicolons and periods are replaced with dashes to produce
+    # URL-safe IDs. Periods would cause Rails to interpret them as format extensions
+    # (e.g., ".83748" → format "83748"), and semicolons are URL parameter delimiters
+    # in some specs. For example:
+    #   "urn:va:lab:F253:7227761:MI;6749872.83748" -> "F253-7227761-MI-6749872-83748"
+    def remap_vista_id(record)
+      identifiers = record.dig('resource', 'identifier')
+      return record if identifiers.blank?
+
+      vista_identifier = identifiers.find { |id| id['system'] == 'vista-uid' } ||
+                         identifiers.find { |id| id['system']&.starts_with?('https://va.gov/systems/') }
+
+      return record unless vista_identifier && vista_identifier['value'].present?
+
+      value = vista_identifier['value']
+
+      remapped_id = if value.start_with?('urn:va:')
+                      value.split(':')[3..].join('-')
+                    else
+                      value
+                    end
+
+      record['resource']['id'] = remapped_id.tr('.;', '-')
+
+      record
     end
 
     def log_care_summaries_metrics(doc_ref_records, parsed_notes, start_date, end_date)
@@ -437,16 +488,6 @@ module UnifiedHealthData
       warn_date_parse_failures(date_parse_failure_count, notes.size) if date_parse_failure_count.positive?
 
       filtered
-    end
-
-    def remap_vista_uid(records)
-      records[SourceConstants::VISTA]['entry']&.each do |note|
-        vista_uid_identifier = note['resource']['identifier']&.find { |id| id['system'] == 'vista-uid' }
-        next unless vista_uid_identifier && vista_uid_identifier['value']
-
-        new_id_array = vista_uid_identifier['value'].split(':')
-        note['resource']['id'] = new_id_array[-3..].join('-')
-      end
     end
 
     def parse_notes(records)
