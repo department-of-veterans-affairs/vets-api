@@ -1758,7 +1758,7 @@ features:
     enable_in_development: false
   mhv_medications_oh_transition_refill_block:
     actor_type: user
-    description: Blocks prescription refills for facilities transitioning to Oracle Health during phases p4-p6 (T-3 to T+2)
+    description: Blocks prescription refills for facilities transitioning to Oracle Health during phases p4-p5 (T-3 to T+2)
     enable_in_development: true
   mhv_medications_oracle_health_cutover:
     actor_type: user

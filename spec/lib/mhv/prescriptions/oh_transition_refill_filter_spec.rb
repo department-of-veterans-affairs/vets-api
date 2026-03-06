@@ -156,8 +156,8 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
         end
       end
 
-      it 'blocks each of the defined blocked phases (p4, p5, p6)' do
-        %w[p4 p5 p6].each do |phase|
+      it 'blocks each of the defined blocked phases (p4, p5)' do
+        %w[p4 p5].each do |phase|
           allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
             .and_return({ '556' => phase, '570' => phase })
 
@@ -167,8 +167,8 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
         end
       end
 
-      it 'does not block phases outside p4-p6' do
-        %w[p0 p1 p2 p3 p7].each do |phase|
+      it 'does not block phases outside p4-p5' do
+        %w[p0 p1 p2 p3 p6 p7].each do |phase|
           allow(mock_oh_helper).to receive(:get_phases_for_station_numbers)
             .and_return({ '556' => phase, '570' => phase })
 

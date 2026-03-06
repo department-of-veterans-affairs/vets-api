@@ -5,7 +5,7 @@ require 'mhv/oh_facilities_helper/service'
 module MHV
   module Prescriptions
     # Filters prescription refill orders based on Oracle Health migration status.
-    # Facilities in blocking phases (p4-p6, i.e. T-3 to T+2) are returned as failures
+    # Facilities in blocking phases (p4-p5, i.e. T-3 to T+2) are returned as failures
     # without being sent to the upstream service.
     #
     # Usage:
@@ -14,7 +14,7 @@ module MHV
     #
     # Gated by the :mhv_medications_oh_transition_refill_block Flipper flag.
     class OhTransitionRefillFilter
-      BLOCKED_PHASES = %w[p4 p5 p6].freeze
+      BLOCKED_PHASES = %w[p4 p5].freeze
       BLOCKED_ERROR_MESSAGE = 'Refill blocked: facility is transitioning to Oracle Health'
 
       # @param user [User] the current user
