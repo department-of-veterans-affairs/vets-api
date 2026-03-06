@@ -825,6 +825,8 @@
                 "name": {
                   "description": "What the Disability is called.",
                   "type": "string",
+                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
+                  "maxLength": 255,
                   "example": "PTSD"
                 },
                 "disabilityActionType": {

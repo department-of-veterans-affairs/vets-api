@@ -1159,4 +1159,114 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       # rubocop:enable RSpec/NoExpectationExample
     end
   end
+
+  describe '#alt_rev_validate_form_526_disability_secondary_disabilities' do
+    describe 'uniqueness validation' do
+      context 'when secondary disability name duplicates primary disability name' do
+        let(:form_attributes) do
+          {
+            'disabilities' => [{
+              'name' => 'PTSD',
+              'disabilityActionType' => 'NEW',
+              'secondaryDisabilities' => [{
+                'name' => 'ptsd',
+                'disabilityActionType' => 'SECONDARY',
+                'serviceRelevance' => 'Caused by primary'
+              }]
+            }]
+          }
+        end
+
+        before do
+          allow_any_instance_of(described_class).to receive(:form_attributes).and_return(form_attributes)
+        end
+
+        it 'collects an error' do
+          test_526_validation_instance.send(:alt_rev_validate_form_526_disability_secondary_disability_names_unique!)
+          expect(current_error_array.count).to be >= 1
+          expect(current_error_array[0][:detail]).to include("The disability name 'ptsd' is duplicated")
+        end
+      end
+
+      context 'when all disability names are unique' do
+        let(:form_attributes) do
+          {
+            'disabilities' => [{
+              'name' => 'Primary',
+              'disabilityActionType' => 'NEW',
+              'secondaryDisabilities' => [{
+                'name' => 'Secondary',
+                'disabilityActionType' => 'SECONDARY',
+                'serviceRelevance' => 'Caused by primary'
+              }]
+            }]
+          }
+        end
+
+        before do
+          allow_any_instance_of(described_class).to receive(:form_attributes).and_return(form_attributes)
+        end
+
+        it 'does not collect an error' do
+          test_526_validation_instance.send(:alt_rev_validate_form_526_disability_secondary_disability_names_unique!)
+          expect(current_error_array).to be_nil
+        end
+      end
+
+      context 'when primary has NONE action type' do
+        let(:form_attributes) do
+          {
+            'disabilities' => [{
+              'name' => 'Primary',
+              'disabilityActionType' => 'NONE',
+              'secondaryDisabilities' => [{
+                'name' => 'Primary',
+                'disabilityActionType' => 'SECONDARY',
+                'serviceRelevance' => 'Caused by primary'
+              }]
+            }]
+          }
+        end
+
+        before do
+          allow_any_instance_of(described_class).to receive(:form_attributes).and_return(form_attributes)
+        end
+
+        it 'does not collect an error because primary is excluded' do
+          test_526_validation_instance.send(:alt_rev_validate_form_526_disability_secondary_disability_names_unique!)
+          expect(current_error_array).to be_nil
+        end
+      end
+    end
+
+    describe '#flatten_disabilities' do
+      context 'when there are primaries and secondaries' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary1',
+            'disabilityActionType' => 'NEW',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary1',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }, {
+            'name' => 'Primary2',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary2',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'flattens all disabilities excluding NONE action type primaries' do
+          result = test_526_validation_instance.send(:flatten_disabilities, disabilities)
+          expect(result.length).to eq(3)
+          expect(result.map { |d| d['name'] }).to contain_exactly('Primary1', 'Secondary1', 'Secondary2')
+        end
+      end
+    end
+  end
 end

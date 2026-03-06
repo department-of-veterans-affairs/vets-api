@@ -355,6 +355,8 @@ module ClaimsApi
       end
 
       def alt_rev_validate_form_526_disability_secondary_disabilities
+        alt_rev_validate_form_526_disability_secondary_disability_names_unique!
+
         form_attributes['disabilities'].each_with_index do |disability, dis_idx|
           next if disability['secondaryDisabilities'].blank?
 
@@ -373,6 +375,35 @@ module ClaimsApi
                                                                                                sd_idx)
             end
           end
+        end
+      end
+
+      def alt_rev_validate_form_526_disability_secondary_disability_names_unique!
+        all_included_disabilities = flatten_disabilities(form_attributes['disabilities'])
+        # Find duplicates (case-insensitive)
+        duplicates = all_included_disabilities
+                     .group_by { |d| d['name'].to_s.downcase }
+                     .select { |_, group| group.size > 1 }
+
+        duplicates.each_key do |name|
+          collect_error_messages(
+            source: '/disabilities',
+            detail: "The disability name '#{name}' is duplicated. " \
+                    'All disability names must be unique across primary and secondary disabilities.'
+          )
+        end
+      end
+
+      def flatten_disabilities(disabilities_array)
+        disabilities_array.flat_map do |disability|
+          primary_disability = disability.dup
+          secondaries = primary_disability.delete('secondaryDisabilities') || []
+
+          list = []
+          list << primary_disability unless primary_disability['disabilityActionType'] == 'NONE'
+          list.concat(secondaries)
+
+          list
         end
       end
 

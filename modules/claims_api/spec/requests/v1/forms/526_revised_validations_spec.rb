@@ -1100,4 +1100,335 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       expect(subject.mask_all_but_first_character('hepatitis')).to eq('h********')
     end
   end
+
+  describe '#validate_form_526_secondary_disabilities!' do
+    let(:form_attributes) { { 'disabilities' => disabilities } }
+
+    context 'when there are no disabilities' do
+      let(:disabilities) { [] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+      end
+    end
+
+    context 'when there are no secondary disabilities' do
+      let(:disabilities) { [{ 'name' => 'PTSD', 'disabilityActionType' => 'NEW' }] }
+
+      it 'does not raise an error' do
+        expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+      end
+    end
+
+    describe 'classification code validation' do
+      let(:classification_type_codes) { [{ clsfcn_id: '1111', end_dt: nil }] }
+
+      [true, false].each do |flipped|
+        context "when feature flag is #{flipped}" do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+            if flipped
+              expect_any_instance_of(ClaimsApi::StandardDataService)
+                .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+            else
+              allow(subject).to receive(:bgs_service).and_return(double(data: double(
+                get_contention_classification_type_code_list: classification_type_codes
+              )))
+            end
+          end
+
+          context 'when secondary disability has valid classification code' do
+            let(:disabilities) do
+              [{
+                'name' => 'Primary',
+                'disabilityActionType' => 'NONE',
+                'secondaryDisabilities' => [{
+                  'name' => 'Secondary',
+                  'classificationCode' => '1111',
+                  'disabilityActionType' => 'SECONDARY',
+                  'serviceRelevance' => 'Caused by primary'
+                }]
+              }]
+            end
+
+            it 'does not raise an error' do
+              expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+            end
+          end
+
+          context 'when secondary disability has invalid classification code' do
+            let(:disabilities) do
+              [{
+                'name' => 'Primary',
+                'disabilityActionType' => 'NONE',
+                'secondaryDisabilities' => [{
+                  'name' => 'Secondary',
+                  'classificationCode' => '9999',
+                  'disabilityActionType' => 'SECONDARY',
+                  'serviceRelevance' => 'Caused by primary'
+                }]
+              }]
+            end
+
+            it 'raises an InvalidFieldValue error' do
+              expect { subject.validate_form_526_secondary_disabilities! }
+                .to raise_error(Common::Exceptions::InvalidFieldValue)
+            end
+          end
+
+          context 'when secondary disability classification code has ended' do
+            let(:classification_type_codes) { [{ clsfcn_id: '1111', end_dt: 1.year.ago.iso8601 }] }
+            let(:disabilities) do
+              [{
+                'name' => 'Primary',
+                'disabilityActionType' => 'NONE',
+                'secondaryDisabilities' => [{
+                  'name' => 'Secondary',
+                  'classificationCode' => '1111',
+                  'disabilityActionType' => 'SECONDARY',
+                  'serviceRelevance' => 'Caused by primary'
+                }]
+              }]
+            end
+
+            it 'raises an InvalidFieldValue error' do
+              expect { subject.validate_form_526_secondary_disabilities! }
+                .to raise_error(Common::Exceptions::InvalidFieldValue)
+            end
+          end
+        end
+      end
+    end
+
+    describe 'special issues validation' do
+      context 'when secondary disability has HEPC special issue with hepatitis name' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'hepatitis',
+              'specialIssues' => ['HEPC'],
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'does not raise an error' do
+          expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+        end
+      end
+
+      context 'when secondary disability has HEPC special issue without hepatitis name' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Other condition',
+              'specialIssues' => ['HEPC'],
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'raises an InvalidFieldValue error' do
+          expect { subject.validate_form_526_secondary_disabilities! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+      end
+
+      context 'when secondary disability has POW special issue with confinements' do
+        let(:form_attributes) do
+          {
+            'disabilities' => [{
+              'name' => 'Primary',
+              'disabilityActionType' => 'NONE',
+              'secondaryDisabilities' => [{
+                'name' => 'Secondary',
+                'specialIssues' => ['POW'],
+                'disabilityActionType' => 'SECONDARY',
+                'serviceRelevance' => 'Caused by primary'
+              }]
+            }],
+            'serviceInformation' => {
+              'confinements' => [{
+                'confinementBeginDate' => '2000-01-01',
+                'confinementEndDate' => '2000-12-31'
+              }]
+            }
+          }
+        end
+
+        it 'does not raise an error' do
+          expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+        end
+      end
+
+      context 'when secondary disability has POW special issue without confinements' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary',
+              'specialIssues' => ['POW'],
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+        let(:form_attributes) do
+          { 'disabilities' => disabilities, 'serviceInformation' => { 'confinements' => [] } }
+        end
+
+        it 'raises an InvalidFieldValue error' do
+          expect { subject.validate_form_526_secondary_disabilities! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+      end
+    end
+
+    describe 'approximate begin date validation' do
+      context 'when secondary disability has approximate begin date in the past' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary',
+              'approximateBeginDate' => 1.year.ago.to_date.iso8601,
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'does not raise an error' do
+          expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+        end
+      end
+
+      context 'when secondary disability has approximate begin date in the future' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary',
+              'approximateBeginDate' => 1.day.from_now.to_date.iso8601,
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'raises an InvalidFieldValue error' do
+          expect { subject.validate_form_526_secondary_disabilities! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue)
+        end
+      end
+    end
+
+    describe 'uniqueness validation' do
+      context 'when secondary disability name duplicates primary disability name' do
+        let(:disabilities) do
+          [{
+            'name' => 'PTSD',
+            'disabilityActionType' => 'NEW',
+            'secondaryDisabilities' => [{
+              'name' => 'ptsd',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'raises an InvalidFieldValue error' do
+          expect { subject.validate_form_526_secondary_disabilities! }
+            .to raise_error(Common::Exceptions::InvalidFieldValue) do |error|
+              expect(error.errors.first[:detail]).to include('Duplicate disability name found')
+            end
+        end
+      end
+
+      context 'when secondary disability names are unique' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary1',
+            'disabilityActionType' => 'NEW',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary1',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }, {
+            'name' => 'Primary2',
+            'disabilityActionType' => 'NEW',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary2',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'does not raise an error' do
+          expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+        end
+      end
+
+      context 'when primary disability has NONE action type' do
+        let(:disabilities) do
+          [{
+            'name' => 'Primary',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Primary',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        end
+
+        it 'does not raise an error because primary is excluded from uniqueness check' do
+          expect { subject.validate_form_526_secondary_disabilities! }.not_to raise_error
+        end
+      end
+    end
+  end
+
+  describe '#flatten_all_disabilities' do
+    context 'when there are primaries and secondaries' do
+      let(:form_attributes) do
+        {
+          'disabilities' => [{
+            'name' => 'Primary1',
+            'disabilityActionType' => 'NEW',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary1',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }, {
+            'name' => 'Primary2',
+            'disabilityActionType' => 'NONE',
+            'secondaryDisabilities' => [{
+              'name' => 'Secondary2',
+              'disabilityActionType' => 'SECONDARY',
+              'serviceRelevance' => 'Caused by primary'
+            }]
+          }]
+        }
+      end
+
+      it 'flattens all disabilities excluding NONE action type primaries' do
+        result = subject.flatten_all_disabilities
+        expect(result.length).to eq(3)
+        expect(result.map { |d| d['name'] }).to contain_exactly('Primary1', 'Secondary1', 'Secondary2')
+      end
+    end
+  end
 end

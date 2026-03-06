@@ -3191,7 +3191,7 @@
                           "poa_code": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "submitted"
                     }
                   }
                 },
@@ -5415,6 +5415,8 @@
                                     "name": {
                                       "description": "What the Disability is called.",
                                       "type": "string",
+                                      "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
+                                      "maxLength": 255,
                                       "example": "PTSD"
                                     },
                                     "disabilityActionType": {
@@ -7277,6 +7279,8 @@
                                       "name": {
                                         "description": "What the Disability is called.",
                                         "type": "string",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
+                                        "maxLength": 255,
                                         "example": "PTSD"
                                       },
                                       "disabilityActionType": {
@@ -9528,6 +9532,8 @@
                                       "name": {
                                         "description": "What the Disability is called.",
                                         "type": "string",
+                                        "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,#\\[\\] ])?)+$",
+                                        "maxLength": 255,
                                         "example": "PTSD"
                                       },
                                       "disabilityActionType": {

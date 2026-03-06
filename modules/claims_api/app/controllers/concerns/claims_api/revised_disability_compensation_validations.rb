@@ -267,6 +267,7 @@ module ClaimsApi
       validate_form_526_disability_approximate_begin_date!
       validate_form_526_special_issues!
       validate_form_526_disability_unique_names!
+      validate_form_526_secondary_disabilities!
     end
 
     def validate_form_526_fewer_than_150_disabilities!
@@ -383,7 +384,8 @@ module ClaimsApi
       return if disabilities.blank?
 
       names = disabilities.map { |d| d['name'].downcase }
-      duplicates = names.select { |name| names.count(name) > 1 }.uniq
+      name_counts = names.tally
+      duplicates = name_counts.select { |_, count| count > 1 }.keys
       masked_duplicates = duplicates.map { |name| mask_all_but_first_character(name) }
 
       unless duplicates.empty?
@@ -406,6 +408,117 @@ module ClaimsApi
       Date.parse(date_string)
     rescue ArgumentError, TypeError
       raise ::Common::Exceptions::InvalidFieldValue.new('date', date_string)
+    end
+
+    def validate_form_526_secondary_disabilities!
+      # Since secondary disabilities are flattened into primary disabilities,
+      # we need to perform similar validations on the secondary disabilities.
+      disabilities = form_attributes['disabilities']
+      return if disabilities.blank?
+
+      validate_form_526_secondary_disabilities_uniqueness!
+
+      disabilities.each_with_index do |disability, dx|
+        secondary_disabilities = disability['secondaryDisabilities']
+        next if secondary_disabilities.blank?
+
+        validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities, dx)
+        validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities, dx)
+        validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities, dx)
+      end
+    end
+
+    def validate_form_526_secondary_disabilities_classification_code!(secondary_disabilities, dx)
+      # FES requires that if a secondary disability has a 'classificationCode', that code must be valid in BGS
+      secondary_disabilities.each_with_index do |secondary_disability, index|
+        classification_code = secondary_disability['classificationCode']
+        next if classification_code.nil? || classification_code.blank?
+
+        if bgs_classification_ids.include?(classification_code)
+          # Also check if the classification code has an end date that has passed
+          bgs_disability = contention_classification_type_code_list.find { |d| d[:clsfcn_id] == classification_code }
+          end_date = bgs_disability[:end_dt] if bgs_disability
+
+          if end_date.present? && parse_date_safely(end_date) < Time.zone.today
+            raise ::Common::Exceptions::InvalidFieldValue.new(
+              "disabilities.#{dx}.secondaryDisabilities.#{index}.classificationCode",
+              classification_code
+            )
+          end
+        else
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            "disabilities.#{dx}.secondaryDisabilities.#{index}.classificationCode",
+            classification_code
+          )
+        end
+      end
+    end
+
+    def validate_form_526_secondary_disabilities_special_issues!(secondary_disabilities, dx)
+      # specialIssues cannot contain “HEPC” unless secondary disability name is Hepatitis.
+      # specialIssues cannot be POW unless the JSON request also has a valid confinements element.
+      secondary_disabilities.each_with_index do |secondary_disability, index|
+        special_issues = secondary_disability['specialIssues']
+        next if special_issues.blank?
+
+        if invalid_hepatitis_c_special_issue?(special_issues:, disability: secondary_disability)
+          message = "'disabilities.#{dx}.secondaryDisabilities.#{index}.specialIssues'" \
+                    " :: specialIssues cannot include 'HEPC' unless the secondary disability name is 'hepatitis'"
+          raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
+        end
+
+        if invalid_pow_special_issue?(special_issues:)
+          message = "'disabilities.#{dx}.secondaryDisabilities.#{index}.specialIssues'" \
+                    ':: serviceInformation.confinements is required if specialIssues includes POW'
+          raise ::Common::Exceptions::InvalidFieldValue.new(message, special_issues)
+        end
+      end
+    end
+
+    def validate_form_526_secondary_disabilities_approximate_begin_date!(secondary_disabilities, dx)
+      # FES requires that if a secondary disability has an 'approximateBeginDate', that date must be in the past
+      secondary_disabilities.each_with_index do |secondary_disability, index|
+        approx_begin_date = secondary_disability['approximateBeginDate']
+        next if approx_begin_date.blank?
+
+        if parse_date_safely(approx_begin_date) >= Time.zone.today
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            "disabilities.#{dx}.secondaryDisabilities.#{index}.approximateBeginDate",
+            approx_begin_date
+          )
+        end
+      end
+    end
+
+    def validate_form_526_secondary_disabilities_uniqueness!
+      # secondary disability names must be unique across the entire claim,
+      # so we need to check them against each other and the primary disability name
+      all_disabilities = flatten_all_disabilities
+      names = all_disabilities.map { |d| d['name'].downcase }
+      duplicates = names.select { |name| names.count(name) > 1 }.uniq
+      masked_duplicates = duplicates.map { |name| mask_all_but_first_character(name) }
+
+      unless duplicates.empty?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'disabilities.name / secondaryDisabilities.name',
+          'Duplicate disability name found: ' \
+          "#{masked_duplicates.join(', ')}"
+        )
+      end
+    end
+
+    def flatten_all_disabilities
+      form_attributes['disabilities'].flat_map do |disability|
+        primary_disability = disability.dup
+        secondaries = primary_disability.delete('secondaryDisabilities') || []
+
+        list = []
+        # Include primary disability unless it's action type NONE
+        list << primary_disability unless primary_disability['disabilityActionType'] == 'NONE'
+        list.concat(secondaries)
+
+        list
+      end
     end
   end
 end
