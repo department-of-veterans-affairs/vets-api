@@ -750,7 +750,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(first_dispense[:facility_name]).to eq('SLC4')
         expect(first_dispense[:instructions]).to eq('APPLY TEASPOONFUL(S) TO THE AFFECTED AREA EVERY DAY')
         expect(first_dispense[:quantity]).to eq(1)
-        expect(first_dispense[:medication_name]).to eq('COAL TAR 2.5% TOP SOLN')
+        expect(first_dispense[:prescription_name]).to eq('COAL TAR 2.5% TOP SOLN')
         expect(first_dispense[:id]).to eq('rf-1')
         expect(first_dispense[:prescription_number]).to eq('RX001')
         expect(first_dispense[:cmop_division_phone]).to eq('800-555-0100')
@@ -834,7 +834,7 @@ describe UnifiedHealthData::Adapters::PrescriptionsAdapter do
         expect(first_dispense[:facility_name]).to eq('Portland VA Medical Center')
         expect(first_dispense[:instructions]).to eq('See Instructions, daily, 1 EA, 0 Refill(s)')
         expect(first_dispense[:quantity]).to eq(30)
-        expect(first_dispense[:medication_name]).to eq('amLODIPine (amLODIPine 5 mg tablet)')
+        expect(first_dispense[:prescription_name]).to eq('amLODIPine (amLODIPine 5 mg tablet)')
         expect(first_dispense[:id]).to eq('dispense-1')
         # Verify Vista-only fields are nil for Oracle Health
         expect(first_dispense[:refill_submit_date]).to be_nil

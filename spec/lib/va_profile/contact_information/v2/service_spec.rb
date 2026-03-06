@@ -591,6 +591,33 @@ describe VAProfile::ContactInformation::V2::Service do
 
   describe '#get_person_options_transaction_status' do
     context 'when successful' do
+      let(:transaction_id) { 'f7cbebd2-68e1-4da2-97b8-0e286da8d65d' }
+
+      it 'returns 200 using the recorded cassette' do
+        VCR.use_cassette('va_profile/person_settings/person_options_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_options_transaction_status(transaction_id)
+
+          expect(response).to be_ok
+          expect(response.transaction.id).to eq(transaction_id)
+        end
+      end
+    end
+
+    context 'when transaction is not found' do
+      let(:transaction_id) { 'invalid-transaction-id' }
+
+      it 'returns a status of 400' do
+        VCR.use_cassette('va_profile/person_settings/person_options_transaction_status_not_found',
+                         VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person_options_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+          end
+        end
+      end
+    end
+
+    context 'service delegation' do
       let(:transaction_id) { '95ea4993-ade7-4ce9-a584-9a4f8a34e0e0' }
       let(:person_settings_service) { instance_double(VAProfile::PersonSettings::Service) }
       let(:raw_response) { double('raw_response', body: { 'tx_status' => 'COMPLETED_SUCCESS' }, status: 200) }
@@ -609,33 +636,6 @@ describe VAProfile::ContactInformation::V2::Service do
           .with(:get, "person-options/v1/status/#{transaction_id}")
 
         subject.get_person_options_transaction_status(transaction_id)
-      end
-
-      it 'returns a status of 200' do
-        expect(transaction_response).to receive(:ok?).and_return(true)
-        expect(transaction_response).to receive(:transaction).and_return(double(id: transaction_id))
-
-        response = subject.get_person_options_transaction_status(transaction_id)
-        expect(response).to be_ok
-        expect(response.transaction.id).to eq(transaction_id)
-      end
-    end
-
-    context 'when not successful' do
-      let(:transaction_id) { '2aed546d-d3b4-4ded-8bf9-1577ae6595f3' }
-      let(:person_settings_service) { instance_double(VAProfile::PersonSettings::Service) }
-      let(:error) { Common::Client::Errors::ClientError.new('Bad Request', 400, { 'messages' => [{ 'code' => 'STNG302' }] }) }
-
-      before do
-        allow(VAProfile::PersonSettings::Service).to receive(:new).with(user).and_return(person_settings_service)
-        allow(person_settings_service).to receive(:perform).and_raise(error)
-      end
-
-      it 'returns a status of 400' do
-        expect { subject.get_person_options_transaction_status(transaction_id) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-        end
       end
     end
   end
