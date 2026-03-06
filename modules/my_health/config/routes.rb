@@ -109,6 +109,7 @@ MyHealth::Engine.routes.draw do
         get :thread, on: :member
         get :categories, on: :collection
         get :signature, on: :collection
+        get :oh_sync_status, on: :collection
         patch :move, on: :member
         post :reply, on: :member
         resources :attachments, only: [:show], defaults: { format: :json }

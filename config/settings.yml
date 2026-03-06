@@ -604,7 +604,7 @@ gclaws:
     veteran_service_organizations:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
   accreditation_xlsx:
-    password: <%= ENV['gclaws__accreditation_xlsx__password'] %>
+    password: "<%= ENV['gclaws__accreditation_xlsx__password'] %>"
     url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
     username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:
@@ -1293,6 +1293,8 @@ representation_management:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  case_get_document:
+    mock: <%= ENV['res__case_get_document__mock'] %>
   ch_31_case_details:
     mock: <%= ENV['res__ch_31_case_details__mock'] %>
   ch_31_case_milestones:
@@ -1648,6 +1650,11 @@ vanotify:
           template_id: ~
         received:
           flipper_id: ~
+          template_id: ~
+    "22_10278":
+      api_key: <%= ENV['vanotify__services__22_10278__api_key'] %>
+      email:
+        error:
           template_id: ~
     accredited_representative_portal:
       api_key: <%= ENV['vanotify__services__accredited_representative_portal__api_key'] %>

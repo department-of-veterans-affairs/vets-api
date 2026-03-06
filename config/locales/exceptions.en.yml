@@ -818,6 +818,36 @@ en:
         code: 'PPMS_502'
         detail: 'PPMS returned an invalid response'
         status: 502
+      RES_CASE_GET_DOCUMENT_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'RES_CASE_GET_DOCUMENT_400'
+        detail: 'Bad Request'
+        status: 400
+      RES_CASE_GET_DOCUMENT_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'RES_CASE_GET_DOCUMENT_403'
+        detail: 'Forbidden'
+        status: 403
+      RES_CASE_GET_DOCUMENT_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'RES_CASE_GET_DOCUMENT_404'
+        detail: 'Not Found'
+        status: 404
+      RES_CASE_GET_DOCUMENT_500:
+        <<: *external_defaults
+        title: Internal Server Error
+        code: 'RES_CASE_GET_DOCUMENT_500'
+        detail: 'Internal Server Error'
+        status: 500
+      RES_CASE_GET_DOCUMENT_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'RES_CASE_GET_DOCUMENT_503'
+        detail: 'Service Unavailable'
+        status: 503
       RES_CH31_CASE_DETAILS_400:
         <<: *external_defaults
         title: Bad Request
@@ -1612,7 +1642,7 @@ en:
         <<: *external_defaults
         title: Bio not null
         code: VET360_CORE300
-        detail: The submitted person contact bio is invalid/null and cannot be.
+        detail: The submitted bio is invalid/null and cannot be.
         status: 400
       VET360_CORE301:
         <<: *external_defaults
@@ -1853,6 +1883,18 @@ en:
         code: VET360_MVI204
         detail: MVI Service returned an existing Vet360 ID Identifier
         status: 400
+      VET360_MVI206:
+        <<: *external_defaults
+        title: Request ID not found
+        code: VET360_MVI206
+        detail: The IEN requested was not found in Correlation Response.
+        status: 400
+      VET360_MVI207:
+        <<: *external_defaults
+        title: MVI identifier deprecated
+        code: VET360_MVI207
+        detail: Identifier is marked as deprecated.
+        status: 400
       VET360_MVI209:
         <<: *external_defaults
         title: MVIIdentifierPCE
@@ -1887,8 +1929,14 @@ en:
       VET360_PERS200:
         <<: *external_defaults
         title: Duplicate create veteran
-        code: 'VET360_PERS200'
-        detail: 'The veteran with the id requested has already been created.'
+        code: VET360_PERS200
+        detail: The veteran with the id requested has already been created.
+        status: 400
+      VET360_PERS203:
+        <<: *external_defaults
+        title: vaProfileId deprecated
+        code: VET360_PERS203
+        detail: The given vaProfileId is deprecated
         status: 400
       VET360_PERS300:
         <<: *external_defaults
@@ -1919,6 +1967,12 @@ en:
         title: Check confirmationDate
         code: VET360_PERS304
         detail: ConfirmationDate can not be greater than sourceDate.
+        status: 400
+      VET360_PERS500:
+        <<: *external_defaults
+        title: Person creation retry
+        code: VET360_PERS500
+        detail: Person creation not final state
         status: 400
       VET360_PHON100:
         <<: *external_defaults
@@ -2181,6 +2235,116 @@ en:
         title: Permission ID Not Null
         code: VET360_PERM101
         detail: Permission ID must be null
+        status: 400
+      VET360_STNG001:
+        <<: *external_defaults
+        title: Person Options Not Null
+        code: VET360_STNG001
+        detail: bio must not be null
+        status: 400
+      VET360_STNG002:
+        <<: *external_defaults
+        title: Person Options Size
+        code: VET360_STNG002
+        detail: size must be between 1 and 10000
+        status: 400
+      VET360_STNG100:
+        <<: *external_defaults
+        title: Source Date Not Null
+        code: VET360_STNG100
+        detail: sourceDate must not be null
+        status: 400
+      VET360_STNG101:
+        <<: *external_defaults
+        title: Item ID Not Null
+        code: VET360_STNG101
+        detail: itemId must not be null
+        status: 400
+      VET360_STNG102:
+        <<: *external_defaults
+        title: Option ID Not Null
+        code: VET360_STNG102
+        detail: optionId must not be null
+        status: 400
+      VET360_STNG104:
+        <<: *external_defaults
+        title: Container ID Exists
+        code: VET360_STNG104
+        detail: The container requested does not exist, or is no longer available
+        status: 400
+      VET360_STNG215:
+        <<: *external_defaults
+        title: Effective Start Date Past
+        code: VET360_STNG215
+        detail: effectiveStartDate must be a past date
+        status: 400
+      VET360_STNG216:
+        <<: *external_defaults
+        title: Effective End Date Past
+        code: VET360_STNG216
+        detail: effectiveEndDate must be a past date
+        status: 400
+      VET360_STNG222:
+        <<: *external_defaults
+        title: Past Source Date
+        code: VET360_STNG222
+        detail: sourceDate must not be more than 60 minutes in the past
+        status: 400
+      VET360_STNG223:
+        <<: *external_defaults
+        title: Future Source Date
+        code: VET360_STNG223
+        detail: sourceDate must not be more than 60 minutes in the future
+        status: 400
+      VET360_STNG224:
+        <<: *external_defaults
+        title: Effective Start Date
+        code: VET360_STNG224
+        detail: Attempt to use a different effective start date for itemID {0},
+          all person options for the same item, must have the same effective start date
+        status: 400
+      VET360_STNG225:
+        <<: *external_defaults
+        title: Source Date
+        code: VET360_STNG225
+        detail: Attempt to use a different source date for itemID {0},
+          all person options for the same item, must have the same source date
+        status: 400
+      VET360_STNG300:
+        <<: *external_defaults
+        title: Item ID Exists
+        code: VET360_STNG300
+        detail: The itemId does not exist, or is no longer available
+        status: 400
+      VET360_STNG301:
+        <<: *external_defaults
+        title: Option ID Exists
+        code: VET360_STNG301
+        detail: The optionId does not exist, or is no longer available
+        status: 400
+      VET360_STNG302:
+        <<: *external_defaults
+        title: Option ID Valid
+        code: VET360_STNG302
+        detail: The optionId does not belong to the itemId
+        status: 400
+      VET360_STNG303:
+        <<: *external_defaults
+        title: Person Options Single Select
+        code: VET360_STNG303
+        detail: Attempt to add more than one option for itemID {0}, that is a single select
+        status: 400
+      VET360_STNG304:
+        <<: *external_defaults
+        title: Person Options Multi Select
+        code: VET360_STNG304
+        detail: Attempt to update the same option more than once for an itemID {0} and optionID {1}
+        status: 400
+      VET360_STNG305:
+        <<: *external_defaults
+        title: Invalid End Date
+        code: VET360_STNG305
+        detail: Attempt to delete a person option that does not exist for an itemID {0} and optionID {1}
         status: 400
       VETEXT_400:
         <<: *external_defaults

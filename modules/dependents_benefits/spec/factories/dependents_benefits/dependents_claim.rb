@@ -489,6 +489,10 @@ FactoryBot.define do
         }
       }.to_json
     end
+
+    trait :with_attachments do
+      persistent_attachments { create_list(:claim_evidence, 2) }
+    end
   end
 
   factory :student_claim, class: 'DependentsBenefits::SchoolAttendanceApproval' do
