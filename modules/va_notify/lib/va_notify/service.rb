@@ -133,11 +133,11 @@ module VaNotify
       metadata.slice(:notification_type, :form_number)
     end
 
-    def log_error_details(error, context = {})
+    def log_error_details(error)
       log_message_to_rails(
         error.message,
         'error',
-        { url: config.base_path, body: error.try(:body) }.merge(context.compact)
+        { url: config.base_path, body: error.try(:body) }
       )
     end
 
