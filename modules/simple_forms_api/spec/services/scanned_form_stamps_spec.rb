@@ -15,7 +15,7 @@ RSpec.describe SimpleFormsApi::ScannedFormStamps do
     end
 
     context 'with forms that do not have stamps' do
-      %w[21-4192 21-509 21P-4706B 99-9999].each do |form_number|
+      %w[21-4192 21-509 21P-4706b 99-9999].each do |form_number|
         it "returns false for #{form_number}" do
           expect(described_class.stamps?(form_number)).to be false
         end
