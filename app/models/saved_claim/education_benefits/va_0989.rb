@@ -11,6 +11,11 @@ class SavedClaim::EducationBenefits::VA0989 < SavedClaim::EducationBenefits
     60.days
   end
 
+  def after_submit(user)
+    user_account_uuid = user&.user_account_uuid
+    EducationForm::SubmitEducationBenefitsClaimJob.perform_async(id, user_account_uuid)
+  end
+
   def generate_benefits_intake_metadata
     ::BenefitsIntake::Metadata.generate(
       parsed_form['applicantName']['first'],
