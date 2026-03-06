@@ -151,7 +151,7 @@ class SavedClaim::Form210779 < SavedClaim
       # Box 14B: Date Medicaid plan began (MM/DD/YYYY format)
       'MEDICAID_START' => format_date_for_ibm(general_info['medicaidStartDate']),
       # Box 15: Monthly amount patient is responsible for out of pocket
-      'OUT_OF_POCKET' => general_info['monthlyCosts'],
+      'OUT_OF_POCKET' => format_currency_for_ibm(general_info['monthlyCosts']),
       # Box 16: Type of care (skilled or intermediate - always include both)
       'SKILLED_CARE' => build_checkbox_value(general_info['certificationLevelOfCare'] == 'skilled'),
       'INTERMEDIATE_CARE' => build_checkbox_value(general_info['certificationLevelOfCare'] == 'intermediate'),
@@ -175,8 +175,8 @@ class SavedClaim::Form210779 < SavedClaim
     {
       'FLASH_TEXT' => nil,
       'CB_VA_STAMP' => nil,
-      'FORM_TYPE' => '21-0779',
-      'FORM_TYPE_1' => '21-0779'
+      'FORM_TYPE' => 'VA FORM 21-0779, SEP 2023',
+      'FORM_TYPE_1' => 'VA FORM 21-0779, SEP 2023'
     }
   end
 end

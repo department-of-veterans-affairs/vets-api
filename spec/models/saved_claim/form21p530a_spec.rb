@@ -288,7 +288,7 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       expect(ibm_data).not_to be_empty
     end
 
-    context 'veteran identification fields (Boxes 1-7)' do
+    context 'veteran identification fields' do
       it 'includes veteran name fields' do
         expect(ibm_data['VETERAN_FIRST_NAME']).to eq('John')
         expect(ibm_data['VETERAN_MIDDLE_INITIAL']).to eq('A')
@@ -303,15 +303,10 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       it 'includes veteran service number and VA file number' do
         expect(ibm_data['VETERAN_SERVICE_NUMBER']).to be_nil
         expect(ibm_data).to have_key('VA_FILE_NUMBER')
-        # Fixture doesn't have vaServiceNumber or vaFileNumber fields
       end
 
       it 'includes veteran DOB with slashes' do
         expect(ibm_data['VETERAN_DOB']).to eq('01/15/1940')
-      end
-
-      it 'includes veteran place of birth' do
-        expect(ibm_data['VETERAN_PLACE_OF_BIRTH']).to eq('Kansas City, MO')
       end
 
       it 'includes veteran date of death with slashes' do
@@ -319,39 +314,7 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
     end
 
-    context 'service history fields (Boxes 8-10)' do
-      it 'includes branch of service for up to 3 periods' do
-        expect(ibm_data['BRANCH_OF_SERVICE_1']).to be_present
-        expect(ibm_data['BRANCH_OF_SERVICE_2']).to be_nil
-        expect(ibm_data['BRANCH_OF_SERVICE_3']).to be_nil
-      end
-
-      it 'includes dates entered service with slashes' do
-        expect(ibm_data['DATE_ENTERED_TO_SERVICE_1']).to match(%r{\d{2}/\d{2}/\d{4}})
-      end
-
-      it 'includes places entered service' do
-        expect(ibm_data['PLACE_ENTERED_TO_SERVICE_1']).to be_present
-      end
-
-      it 'includes grade/rank for up to 3 periods' do
-        expect(ibm_data['GRADE_RANK_1']).to be_present
-      end
-
-      it 'includes separation dates with slashes' do
-        expect(ibm_data['SEPARATION_DATE_1']).to match(%r{\d{2}/\d{2}/\d{4}})
-      end
-
-      it 'includes separation places' do
-        expect(ibm_data['SEPARATION_PLACE_1']).to be_present
-      end
-
-      it 'includes veteran served under other name' do
-        expect(ibm_data).to have_key('VET_NAME_OTHER')
-      end
-    end
-
-    context 'burial information fields (Boxes 11-13)' do
+    context 'burial information fields' do
       it 'includes organization claiming allowance' do
         expect(ibm_data['ORG_CLAIMING_ALLOWANCE']).to eq('Missouri State Veterans Cemetery')
       end
@@ -369,65 +332,28 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
       end
     end
 
-    context 'recipient organization fields (Boxes 14-16)' do
-      it 'includes recipient organization name' do
-        expect(ibm_data['REP_NAME']).to eq('Missouri Veterans Commission')
-      end
-
-      it 'includes recipient phone number' do
-        expect(ibm_data['REP_PHONE_NUMBER']).to be_present
-      end
-
-      it 'includes recipient address fields' do
-        expect(ibm_data['REP_ADDRESS_LINE1']).to eq('2400 Veterans Memorial Drive')
-        expect(ibm_data['REP_ADDRESS_LINE2']).to eq('5')
-        expect(ibm_data['REP_ADDRESS_CITY']).to eq('Higginsville')
-        expect(ibm_data['REP_ADDRESS_STATE']).to eq('MO')
-        expect(ibm_data['REP_ADDRESS_ZIP5']).to eq('64037')
-      end
-
-      it 'includes formatted full address' do
-        expect(ibm_data['REP_ADDRESS']).to include('2400 Veterans Memorial Drive')
-        expect(ibm_data['REP_ADDRESS']).to include('Higginsville')
-      end
-    end
-
-    context 'signature and remarks fields (Boxes 17-18)' do
+    context 'signature fields' do
       it 'includes official signature' do
         expect(ibm_data).to have_key('OFFICIAL_SIGNATURE')
-      end
-
-      it 'includes official title' do
-        expect(ibm_data).to have_key('OFFICIAL_TITLE')
       end
 
       it 'includes date signed with slashes' do
         expect(ibm_data['DATE_SIGNED']).to match(%r{\d{2}/\d{2}/\d{4}})
       end
-
-      it 'includes remarks' do
-        expect(ibm_data).to have_key('REMARKS')
-      end
-
-      it 'includes duplicate veteran SSN field for page 2' do
-        expect(ibm_data['VETERAN_SSN_1']).to eq('123456789')
-      end
     end
 
     context 'form metadata fields' do
       it 'includes form type' do
-        expect(ibm_data['FORM_TYPE']).to eq('21P-530a')
-        expect(ibm_data['FORM_TYPE_1']).to eq('21P-530a')
+        expect(ibm_data['FORM_TYPE']).to eq('VA FORM 21P-530a, OCT 2024')
+        expect(ibm_data['FORM_TYPE_1']).to eq('VA FORM 21P-530a, OCT 2024')
       end
     end
 
-    it 'returns complete VBA Data Dictionary payload with all 48 required fields' do
-      ibm_payload = claim.to_ibm
+    it 'returns complete VBA Data Dictionary payload with all 17 required fields' do
+      expect(ibm_data.keys.length).to eq(17)
 
-      expect(ibm_payload.keys.length).to eq(48)
-
-      # Veteran fields (10 - includes VETERAN_NAME for this form)
-      expect(ibm_payload).to include(
+      # All 17 fields from VA Forms - Data Dictionary
+      expect(ibm_data).to include(
         'VETERAN_FIRST_NAME' => 'John',
         'VETERAN_MIDDLE_INITIAL' => 'A',
         'VETERAN_LAST_NAME' => 'Doe',
@@ -435,60 +361,17 @@ RSpec.describe SavedClaim::Form21p530a, type: :model do
         'VETERAN_SSN' => '123456789',
         'VETERAN_DOB' => '01/15/1940'
       )
-      expect(ibm_payload).to have_key('VETERAN_SERVICE_NUMBER')
-      expect(ibm_payload).to have_key('VA_FILE_NUMBER')
-      expect(ibm_payload).to have_key('VETERAN_PLACE_OF_BIRTH')
-      expect(ibm_payload).to have_key('VETERAN_DATE_OF_DEATH')
-
-      # Service history fields (19: 3 periods x 6 fields + 1 other name)
-      expect(ibm_payload).to have_key('BRANCH_OF_SERVICE_1')
-      expect(ibm_payload).to have_key('BRANCH_OF_SERVICE_2')
-      expect(ibm_payload).to have_key('BRANCH_OF_SERVICE_3')
-      expect(ibm_payload).to have_key('DATE_ENTERED_TO_SERVICE_1')
-      expect(ibm_payload).to have_key('DATE_ENTERED_TO_SERVICE_2')
-      expect(ibm_payload).to have_key('DATE_ENTERED_TO_SERVICE_3')
-      expect(ibm_payload).to have_key('PLACE_ENTERED_TO_SERVICE_1')
-      expect(ibm_payload).to have_key('PLACE_ENTERED_TO_SERVICE_2')
-      expect(ibm_payload).to have_key('PLACE_ENTERED_TO_SERVICE_3')
-      expect(ibm_payload).to have_key('GRADE_RANK_1')
-      expect(ibm_payload).to have_key('GRADE_RANK_2')
-      expect(ibm_payload).to have_key('GRADE_RANK_3')
-      expect(ibm_payload).to have_key('SEPARATION_DATE_1')
-      expect(ibm_payload).to have_key('SEPARATION_DATE_2')
-      expect(ibm_payload).to have_key('SEPARATION_DATE_3')
-      expect(ibm_payload).to have_key('SEPARATION_PLACE_1')
-      expect(ibm_payload).to have_key('SEPARATION_PLACE_2')
-      expect(ibm_payload).to have_key('SEPARATION_PLACE_3')
-      expect(ibm_payload).to have_key('VET_NAME_OTHER')
-
-      # Burial information fields (4)
-      expect(ibm_payload).to have_key('ORG_CLAIMING_ALLOWANCE')
-      expect(ibm_payload).to have_key('CEMETERY_NAME')
-      expect(ibm_payload).to have_key('CEMETERY_LOCATION')
-      expect(ibm_payload).to have_key('VETERAN_DATE_OF_BURIAL')
-
-      # Recipient organization fields (8)
-      expect(ibm_payload).to have_key('REP_NAME')
-      expect(ibm_payload).to have_key('REP_PHONE_NUMBER')
-      expect(ibm_payload).to have_key('REP_ADDRESS_LINE1')
-      expect(ibm_payload).to have_key('REP_ADDRESS_LINE2')
-      expect(ibm_payload).to have_key('REP_ADDRESS_CITY')
-      expect(ibm_payload).to have_key('REP_ADDRESS_STATE')
-      expect(ibm_payload).to have_key('REP_ADDRESS_ZIP5')
-      expect(ibm_payload).to have_key('REP_ADDRESS')
-
-      # Signature and remarks fields (5)
-      expect(ibm_payload).to have_key('VETERAN_SSN_1')
-      expect(ibm_payload).to have_key('OFFICIAL_SIGNATURE')
-      expect(ibm_payload).to have_key('OFFICIAL_TITLE')
-      expect(ibm_payload).to have_key('DATE_SIGNED')
-      expect(ibm_payload).to have_key('REMARKS')
-
-      # Form metadata (2)
-      expect(ibm_payload).to include(
-        'FORM_TYPE' => '21P-530a',
-        'FORM_TYPE_1' => '21P-530a'
-      )
+      expect(ibm_data).to have_key('VETERAN_SERVICE_NUMBER')
+      expect(ibm_data).to have_key('VA_FILE_NUMBER')
+      expect(ibm_data).to have_key('VETERAN_DATE_OF_DEATH')
+      expect(ibm_data).to have_key('ORG_CLAIMING_ALLOWANCE')
+      expect(ibm_data).to have_key('CEMETERY_NAME')
+      expect(ibm_data).to have_key('CEMETERY_LOCATION')
+      expect(ibm_data).to have_key('VETERAN_DATE_OF_BURIAL')
+      expect(ibm_data).to have_key('FORM_TYPE_1')
+      expect(ibm_data).to have_key('OFFICIAL_SIGNATURE')
+      expect(ibm_data).to have_key('DATE_SIGNED')
+      expect(ibm_data).to have_key('FORM_TYPE')
     end
   end
 

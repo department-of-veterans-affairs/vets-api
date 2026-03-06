@@ -130,15 +130,15 @@ class SavedClaim::Form214192 < SavedClaim
 
     {
       'EMPLOYER_NAME_ADDRESS' => build_employer_name_and_address(employment['employerName'], employer_address)
-    }.compact
+    }
   end
 
   # Build form metadata
   # @return [Hash]
   def build_form_metadata_fields
     {
-      'FORM_TYPE' => '21-4192',
-      'FORM_TYPE_1' => '21-4192'
+      'FORM_TYPE' => 'VA FORM 21-4192, AUG 2024',
+      'FORM_TYPE_1' => 'VA FORM 21-4192, AUG 2024'
     }
   end
 

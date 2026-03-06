@@ -319,8 +319,8 @@ RSpec.describe SavedClaim::Form214192, type: :model do
 
     it 'includes form metadata' do
       expect(ibm_payload).to include(
-        'FORM_TYPE' => '21-4192',
-        'FORM_TYPE_1' => '21-4192'
+        'FORM_TYPE' => 'VA FORM 21-4192, AUG 2024',
+        'FORM_TYPE_1' => 'VA FORM 21-4192, AUG 2024'
       )
     end
 
