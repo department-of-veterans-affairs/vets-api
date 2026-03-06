@@ -139,7 +139,7 @@ module UnifiedHealthData
             facility_name: facility_resolver.resolve_facility_name(dispense),
             instructions: extract_sig_from_dispense(dispense),
             quantity: dispense.dig('quantity', 'value'),
-            medication_name: dispense.dig('medicationCodeableConcept', 'text'),
+            prescription_name: dispense.dig('medicationCodeableConcept', 'text'),
             id: dispense['id'],
             refill_submit_date: nil,
             prescription_number: nil,

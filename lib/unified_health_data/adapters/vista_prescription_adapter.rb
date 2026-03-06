@@ -84,7 +84,7 @@ module UnifiedHealthData
             ndc_number: medication['ndcNumber'],
             prescription_id: medication['prescriptionId'],
             tracking_number: tracking['trackingNumber'],
-            shipped_date: format_shipped_date(tracking['shippedDate']),
+            complete_date_time: format_shipped_date(tracking['shippedDate']),
             carrier: tracking['deliveryService'],
             other_prescriptions: build_other_prescriptions(tracking['otherPrescriptionListIncluded'] || [])
           }
@@ -127,7 +127,7 @@ module UnifiedHealthData
           facility_name: record['facilityApiName'].presence || record['facilityName'],
           instructions: record['sig'],
           quantity: record['quantity'],
-          medication_name: record['prescriptionName'],
+          prescription_name: record['prescriptionName'],
           id: record['id'],
           refill_submit_date: convert_to_iso8601(record['refillSubmitDate'], field_name: 'refill_submit_date'),
           prescription_number: record['prescriptionNumber'],
