@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'claims_evidence_api/uploader'
 require 'dependents_benefits/user_data'
+require 'pdf_utilities/pdf_stamper'
 
 RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJob, type: :job do
   before do
@@ -10,7 +11,7 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
   end
 
   let(:user) { create(:evss_user) }
-  let(:parent_claim) { create(:dependents_claim) }
+  let(:parent_claim) { create(:dependents_claim, :with_attachments) }
   let(:saved_claim) { create(:student_claim) }
   let(:user_data) { DependentsBenefits::UserData.new(user, saved_claim.parsed_form).get_user_json }
   let!(:parent_group) { create(:parent_claim_group, parent_claim:, user_data:) }
@@ -18,19 +19,27 @@ RSpec.describe DependentsBenefits::Sidekiq::ClaimsEvidence::ClaimsEvidenceFormJo
   let(:job) { described_class.new }
   let(:claims_evidence_uploader) { instance_double(ClaimsEvidenceApi::Uploader) }
   let(:lighthouse_submission) { instance_double(DependentsBenefits::BenefitsIntake::LighthouseSubmission) }
+  let(:stamper) { instance_double(PDFUtilities::PDFStamper) }
 
   describe '#submit_claims_to_service' do
     let(:child_claims) { [saved_claim] }
 
     before do
-      allow(job).to receive(:child_claims).and_return(child_claims)
       allow(job).to receive(:submit_claim_to_service).with(saved_claim).and_return(
         DependentsBenefits::ServiceResponse.new(status: true)
       )
+      allow(job).to receive(:claims_evidence_uploader).with(parent_claim).and_return(claims_evidence_uploader)
+      allow(job).to receive_messages(child_claims:, saved_claim: parent_claim)
+
+      allow(PDFUtilities::PDFStamper).to receive(:new).and_return(stamper)
     end
 
-    it 'submits each child claim to the service' do
+    it 'submits each child claim and attachments to the service' do
       expect(job).to receive(:submit_claim_to_service).with(saved_claim)
+
+      expect(stamper).to receive(:run).twice
+      expect(claims_evidence_uploader).to receive(:upload_evidence).twice
+
       response = job.submit_claims_to_service
       expect(response).to be_a(DependentsBenefits::ServiceResponse)
       expect(response.success?).to be true
