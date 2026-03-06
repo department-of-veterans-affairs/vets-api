@@ -53,18 +53,22 @@ module ClaimsApi
     def validate_form_526_location_codes!
       # only retrieve separation locations if we'll need them
       need_locations = form_attributes['serviceInformation']['servicePeriods'].detect do |service_period|
-        Date.parse(service_period['activeDutyEndDate']) > Time.zone.today
+        Date.parse(service_period['activeDutyEndDate']) > Time.zone.today &&
+          service_period['separationLocationCode'].present?
       end
       separation_locations = retrieve_separation_locations if need_locations
 
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
+
+        sep_loc_code = service_period['separationLocationCode']
+        next if sep_loc_code.blank?
         next if separation_locations.any? do |location|
-          location[:id]&.to_s == service_period['separationLocationCode']
+          location[:id]&.to_s == sep_loc_code
         end
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
-                                                          service_period['separationLocationCode'])
+                                                          sep_loc_code)
       end
     end
 

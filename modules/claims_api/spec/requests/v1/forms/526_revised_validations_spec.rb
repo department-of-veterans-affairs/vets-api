@@ -157,6 +157,22 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
         end
       end
 
+      context 'with a blank or missing separation location code' do
+        let(:form_attributes) do
+          {
+            'serviceInformation' => {
+              'servicePeriods' => [
+                { 'activeDutyEndDate' => 1.month.from_now.to_date.iso8601, 'separationLocationCode' => '' }
+              ]
+            }
+          }
+        end
+
+        it 'does not raise an error' do
+          expect { subject.validate_form_526_location_codes! }.not_to raise_error
+        end
+      end
+
       context 'with multiple service periods' do
         let(:form_attributes) do
           {
