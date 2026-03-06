@@ -23,8 +23,8 @@ RUN groupadd --gid $USER_ID nonroot \
 
 WORKDIR /app
 
-RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget unzip ca-certificates ca-certificates-java openssl file \
+RUN apt-get update --fix-missing \
+  && apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget unzip ca-certificates ca-certificates-java openssl file \
   imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -43,12 +43,9 @@ RUN update-ca-certificates
 COPY ./import-va-certs.sh .
 RUN ./import-va-certs.sh
 
-COPY config/clamd.conf /etc/clamav/clamd.conf
-
 RUN mkdir -p /clamav_tmp && \
     chown -R nonroot:nonroot /clamav_tmp && \
     chmod 777 /clamav_tmp
-
 
 ENV LANG=C.UTF-8 \
    BUNDLE_JOBS=4 \
@@ -71,6 +68,8 @@ RUN bundle install \
          find "$d" -type d -exec chmod a+rx {} \; ; \
        fi \
      done
+
+COPY config/clamd.conf /etc/clamav/clamd.conf
 COPY --chown=nonroot:nonroot . .
 
 # Make the ImageMagick script executable
