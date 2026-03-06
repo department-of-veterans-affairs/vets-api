@@ -386,6 +386,158 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
       end
+
+      describe 'when FES is enabled' do
+        let(:treatments) do
+          [
+            {
+              center: {
+                name: 'Some Treatment Center',
+                country: 'United States of America'
+              },
+              treatedDisabilityNames: [
+                'PTSD (post traumatic stress disorder)'
+              ],
+              startDate: treatment_start_date,
+              endDate: treatment_end_date
+            }
+          ]
+        end
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+        end
+
+        context 'it does not require treatment endDate and startDate being in chronological order' do
+          let(:treatment_start_date) { '1985-01-01' }
+          let(:treatment_end_date) { '1984-01-01' }
+
+          it 'returns a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'it does not require the start date and end date to be in yyyy-mm-dd format' do
+          let(:treatment_start_date) { '1985-01' }
+          let(:treatment_end_date) { '1984-01' }
+
+          it 'returns a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'it allows the start date to be nil' do
+          let(:treatment_start_date) { nil }
+
+          it 'returns a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'it does not require the treatment startDate to be after the earliest activeDutyBeginDate' do
+          let(:treatment_start_date) { '1970-01-01' }
+          let(:treatment_end_date) { nil }
+
+          it 'returns a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'it does not require a treatment start date or treatment end date' do
+          let(:treatments) do
+            [
+              {
+                center: {
+                  name: 'Some Treatment Center',
+                  country: 'United States of America'
+                },
+                treatedDisabilityNames: [
+                  'PTSD (post traumatic stress disorder)'
+                ]
+              }
+            ]
+          end
+
+          it 'returns a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'it does not require the country, treatmentCenterName, or treatedDisabilityNames' do
+          let(:treatments) do
+            [
+              {
+                center: {},
+                treatedDisabilityNames: []
+              }
+            ]
+          end
+
+          it 'returns a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['treatments'] = treatments
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'when Veteran has all necessary identifiers' do
