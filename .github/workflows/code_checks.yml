@@ -139,7 +139,7 @@ jobs:
         run: docker save vets-api | zstd -T0 -o /tmp/vets-api.tar.zst
 
       - name: Save Docker image to cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: /tmp/vets-api.tar.zst
           key: docker-image-${{ github.sha }}
@@ -195,7 +195,7 @@ jobs:
           mask-password: true
 
       - name: Restore Docker image from cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: /tmp/vets-api.tar.zst
           key: docker-image-${{ github.sha }}
@@ -217,7 +217,7 @@ jobs:
       # If no cache exists at all (e.g. first-ever run), parallel_test uses
       # filesize grouping automatically.
       - name: Restore runtime log from cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: tmp/parallel_runtime_rspec.log
           key: parallel-runtime-log-${{ github.ref }}-${{ github.run_id }}
@@ -362,7 +362,7 @@ jobs:
 
       - name: Save runtime log to cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: tmp/parallel_runtime_rspec.log
           key: parallel-runtime-log-${{ github.ref }}-${{ github.run_id }}
