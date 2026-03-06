@@ -118,14 +118,16 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         context "when 'treatment.startDate' is included but empty" do
           let(:treatment_start_date) { '' }
 
-          it 'returns a 422' do
+          # schema validations no longer validate this for FES
+          # so returns 500 instead of 422
+          it 'returns a 500' do
             mock_acg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/brd/countries') do
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['treatments'] = treatments
                 post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:unprocessable_entity)
+                expect(response).to have_http_status(:internal_server_error)
               end
             end
           end
@@ -405,7 +407,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_enable_FES).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
         end
 
         context 'it does not require treatment endDate and startDate being in chronological order' do
@@ -448,6 +450,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
         context 'it allows the start date to be nil' do
           let(:treatment_start_date) { nil }
+          let(:treatment_end_date) { nil }
 
           it 'returns a 200' do
             mock_acg(scopes) do |auth_header|
