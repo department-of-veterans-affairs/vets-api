@@ -63,7 +63,12 @@ module Mobile
       end
 
       def send_confirmation_email
-        VANotifyDdEmailJob.send_to_emails(@current_user.all_emails)
+        if @current_user.icn.present?
+          all_emails = @current_user.all_emails
+          VANotifyDdEmailJob.send_to_emails(all_emails)
+        else
+          Rails.logger.info('Mobile::V0::PaymentInformation#send_confirmation_email NO ICN for user')
+        end
       end
 
       # this handles a bug that has been observed in datadog.
