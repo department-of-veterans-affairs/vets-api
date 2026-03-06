@@ -9,6 +9,7 @@ require 'dependents_benefits/user_data'
 
 require 'claims_evidence_api/uploader'
 require 'digital_forms_api/service/submissions'
+require 'pdf_utilities/pdf_stamper'
 
 module DependentsBenefits
   module V0
@@ -42,6 +43,7 @@ module DependentsBenefits
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
+        claim.process_attachments!
         user_data = DependentsBenefits::UserData.new(current_user, claim.parsed_form)
 
         # Matching parent_claim_id and saved_claim_id indicates this is a parent claim
