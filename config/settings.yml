@@ -1378,6 +1378,15 @@ test_user_dashboard:
   github_oauth:
     client_id: <%= ENV['test_user_dashboard__github_oauth__client_id'] %>
     client_secret: <%= ENV['test_user_dashboard__github_oauth__client_secret'] %>
+time_of_need:
+  mulesoft:
+    host: <%= ENV['time_of_need__mulesoft__host'] || 'https://staging-api.va.gov' %>
+    timeout: 600
+    auth:
+      token_url: <%= ENV['time_of_need__mulesoft__auth__token_url'] || 'https://staging-api.va.gov' %>
+      token_path: /oauth/token
+      client_id: <%= ENV['time_of_need__mulesoft__auth__client_id'] %>
+      client_secret: <%= ENV['time_of_need__mulesoft__auth__client_secret'] %>
 token_validation:
   url: <%= ENV['token_validation__url'] %>
 travel_pay:

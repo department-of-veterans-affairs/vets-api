@@ -466,6 +466,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount SOB::Engine, at: '/sob'
+  mount TimeOfNeed::Engine, at: '/time_of_need'
   mount TravelPay::Engine, at: '/travel_pay'
   mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
