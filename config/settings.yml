@@ -1372,6 +1372,8 @@ sidekiq:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['sidekiq__github_team'] %>
 sidekiq_admin_panel: <%= ENV['sidekiq_admin_panel'] %>
+survivors_benefits:
+  prefill: true
 test_database_url: <%= ENV['test_database_url'] %>
 test_user_dashboard:
   env: <%= ENV['test_user_dashboard__env'] %>

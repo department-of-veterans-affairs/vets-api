@@ -245,6 +245,7 @@ app/models/form_profiles/va_2122.rb @department-of-veterans-affairs/accredited-r
 app/models/form_profiles/va_2122a.rb @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 app/models/form_profiles/va_212680.rb @department-of-veterans-affairs/benefits-optimization-aquia @department-of-veterans-affairs/backend-review-group
 app/models/form_profiles/va_214140.rb @department-of-veterans-affairs/benefits-intake-pingwind @department-of-veterans-affairs/backend-review-group
+app/models/form_profiles/va_21p534ez.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bio-huntridge
 app/models/form_profiles/va_686c674v2.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group
 app/models/form_profiles/va_526ez.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 app/models/form_submission_attempt.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -731,6 +732,7 @@ config/form_profile_mappings/21P-0537.yml @department-of-veterans-affairs/bio-he
 config/form_profile_mappings/21P-0969.yml @department-of-veterans-affairs/income-and-assets @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21P-527EZ.yml @department-of-veterans-affairs/pensions @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/21P-530EZ.yml @department-of-veterans-affairs/burials @department-of-veterans-affairs/backend-review-group
+config/form_profile_mappings/21P-534ez.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bio-huntridge
 config/form_profile_mappings/22-0803.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-0810.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/22-0989.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/backend-review-group
