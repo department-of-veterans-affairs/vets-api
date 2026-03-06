@@ -5,11 +5,15 @@ require 'sidekiq_stats_instrumentation/server_middleware'
 require 'sidekiq/retry_monitoring'
 require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
+require 'sidekiq/filter_args_middleware'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 require 'admin/redis_health_checker'
 require 'kafka/producer_manager'
+
+# Allowlist for PII redaction (defined in FilterArgsMiddleware; use for error_handlers).
+SIDEKIQ_PII_REDACT_JOB_CLASSES = Sidekiq::FilterArgsMiddleware::PII_REDACT_JOB_CLASSES
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
@@ -23,6 +27,7 @@ Rails.application.reloader.to_prepare do
     config.super_fetch! if defined?(Sidekiq::Pro)
 
     config.server_middleware do |chain|
+      chain.add Sidekiq::FilterArgsMiddleware
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
@@ -46,6 +51,14 @@ Rails.application.reloader.to_prepare do
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
     end
+
+    # Redact PII from job in exception context before any handler logs it (only for job classes that carry PII).
+    config.error_handlers.unshift(lambda do |_ex, ctx, _config = nil|
+      job = ctx.is_a?(Hash) && ctx[:job]
+      next unless job && Sidekiq::FilterArgsMiddleware::PII_REDACT_JOB_CLASSES.include?(job['class'].to_s)
+
+      Sidekiq::FilterArgsMiddleware.filter_job!(job)
+    end)
 
     config.death_handlers << lambda do |job, ex|
       Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
