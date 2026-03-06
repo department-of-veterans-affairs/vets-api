@@ -30,7 +30,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     Aws.config.update(stub_responses: true)
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
-    allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
+    allow(ves_client).to receive(:submit_1010d).with(anything, anything)
     allow(ves_request).to receive_messages(transaction_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b',
                                            application_uuid: 'test-uuid')
     allow(ves_request).to receive(:transaction_uuid=)
@@ -107,7 +107,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
               # make sure submit_1010d is called with the request object from the formatter
-              expect(ves_client).to have_received(:submit_1010d).with(anything, anything, ves_request)
+              expect(ves_client).to have_received(:submit_1010d).with(anything, ves_request)
             else
               expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
               expect(ves_client).not_to have_received(:submit_1010d)
@@ -201,7 +201,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                 controller = IvcChampva::V1::UploadsController.new
 
                 allow(ves_client).to receive(:submit_1010d)
-                  .with(anything, anything, anything)
+                  .with(anything, anything)
                   .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
 
                 allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)

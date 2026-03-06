@@ -242,6 +242,66 @@
           }
         }
       },
+      "accreditedOrganizationWithLimitedProperties": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "123"
+              },
+              "type": {
+                "type": "string",
+                "example": "accredited_organization"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "poa_code": {
+                    "type": "string",
+                    "example": "123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Organization Name"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555",
+                    "nullable": true
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Anytown",
+                    "nullable": true
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "NY",
+                    "nullable": true
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "12345",
+                    "nullable": true
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "6789",
+                    "nullable": true
+                  },
+                  "can_accept_digital_poa_requests": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "error": {
         "type": "string",
         "example": "Veteran first name can't be blank"
@@ -915,6 +975,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/representation_management/v0/accredited_organizations": {
+      "get": {
+        "summary": "Accredited Organizations",
+        "tags": [
+          "Accredited Organizations"
+        ],
+        "operationId": "accreditedOrganizations",
+        "description": "Returns all accredited organizations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/accreditedOrganizationWithLimitedProperties"
+                  }
                 }
               }
             }
