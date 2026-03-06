@@ -40,6 +40,7 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
 
       it 'checks actor-aware flag for foreign_medical_program letter type' do
         user = build(:user)
+        allow(Flipper).to receive(:enabled?).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(true)
         service = Lighthouse::LettersGenerator::Service.new
 
@@ -50,6 +51,7 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
 
     context 'when fmp_benefits_authorization_letter feature flag is disabled' do
       it 'returns false for foreign_medical_program letter type' do
+        allow(Flipper).to receive(:enabled?).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter).and_return(false)
         service = Lighthouse::LettersGenerator::Service.new
 
@@ -59,6 +61,7 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
 
       it 'checks actor-aware flag for foreign_medical_program letter type' do
         user = build(:user)
+        allow(Flipper).to receive(:enabled?).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(false)
         service = Lighthouse::LettersGenerator::Service.new
 
