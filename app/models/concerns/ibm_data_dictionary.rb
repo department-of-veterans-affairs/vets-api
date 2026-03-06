@@ -126,11 +126,22 @@ module IbmDataDictionary
   end
 
   # Build checkbox value
-  # Returns true for checked, false for unchecked (IBM MMS convention)
+  # Returns 1 for checked, 0 for unchecked (IBM MMS VBA Data Dictionary convention)
   # @param value [Boolean, nil]
-  # @return [Boolean]
+  # @return [Integer]
   def build_checkbox_value(value)
-    value == true
+    value == true ? 1 : 0
+  end
+
+  # Format currency value for IBM MMS
+  # Adds "$" prefix and formats with commas and 2 decimal places
+  # @param amount [String, Integer, Float, nil] Numeric amount
+  # @return [String, nil] Formatted currency (e.g., "$1,138.00") or nil
+  def format_currency_for_ibm(amount)
+    return nil if amount.nil? || amount.to_s.strip.empty?
+
+    numeric_value = amount.to_s.gsub(/[^0-9.]/, '').to_f
+    format('$%<amount>.2f', amount: numeric_value).gsub(/(\d)(?=(\d{3})+\.)/, '\1,')
   end
 
   # Build form metadata fields

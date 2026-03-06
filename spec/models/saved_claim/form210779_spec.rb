@@ -152,8 +152,8 @@ RSpec.describe SavedClaim::Form210779, type: :model do
 
     it 'includes form metadata and system fields' do
       ibm_payload = claim.to_ibm
-      expect(ibm_payload['FORM_TYPE']).to eq('21-0779')
-      expect(ibm_payload['FORM_TYPE_1']).to eq('21-0779')
+      expect(ibm_payload['FORM_TYPE']).to eq('VA FORM 21-0779, SEP 2023')
+      expect(ibm_payload['FORM_TYPE_1']).to eq('VA FORM 21-0779, SEP 2023')
       expect(ibm_payload['FLASH_TEXT']).to be_nil
       expect(ibm_payload['CB_VA_STAMP']).to be_nil
     end
@@ -198,16 +198,16 @@ RSpec.describe SavedClaim::Form210779, type: :model do
 
       # General information fields (17 from generalInformation section)
       expect(ibm_payload['DATE_ADMISSION_TO_FACILITY_C']).to eq('01/01/2024')
-      expect(ibm_payload['MEDICAID_APPROVED_Y']).to be true
-      expect(ibm_payload['MEDICAID_APPROVED_N']).to be false
-      expect(ibm_payload['MEDICAID_APPLIED_Y']).to be true
-      expect(ibm_payload['MEDICAID_APPLIED_N']).to be false
-      expect(ibm_payload['MEDICAID_COVERAGE_Y']).to be true
-      expect(ibm_payload['MEDICAID_COVERAGE_N']).to be false
+      expect(ibm_payload['MEDICAID_APPROVED_Y']).to eq(1)
+      expect(ibm_payload['MEDICAID_APPROVED_N']).to eq(0)
+      expect(ibm_payload['MEDICAID_APPLIED_Y']).to eq(1)
+      expect(ibm_payload['MEDICAID_APPLIED_N']).to eq(0)
+      expect(ibm_payload['MEDICAID_COVERAGE_Y']).to eq(1)
+      expect(ibm_payload['MEDICAID_COVERAGE_N']).to eq(0)
       expect(ibm_payload['MEDICAID_START']).to eq('02/01/2024')
-      expect(ibm_payload['OUT_OF_POCKET']).to eq('3000.00')
-      expect(ibm_payload['SKILLED_CARE']).to be true
-      expect(ibm_payload['INTERMEDIATE_CARE']).to be false
+      expect(ibm_payload['OUT_OF_POCKET']).to eq('$3,000.00')
+      expect(ibm_payload['SKILLED_CARE']).to eq(1)
+      expect(ibm_payload['INTERMEDIATE_CARE']).to eq(0)
       expect(ibm_payload['NAME_COMPLETING_WORKSHEET_C']).to eq('Dr. Sarah Smith')
       expect(ibm_payload['ROLE_PERFORM_AT_FACILITY_C']).to eq('Director of Nursing')
       expect(ibm_payload['FACILITY_TELEPHONE_NUMBER_C']).to eq('5557890123')
@@ -219,8 +219,8 @@ RSpec.describe SavedClaim::Form210779, type: :model do
       expect(ibm_payload).to include(
         'FLASH_TEXT' => nil,
         'CB_VA_STAMP' => nil,
-        'FORM_TYPE' => '21-0779',
-        'FORM_TYPE_1' => '21-0779'
+        'FORM_TYPE' => 'VA FORM 21-0779, SEP 2023',
+        'FORM_TYPE_1' => 'VA FORM 21-0779, SEP 2023'
       )
     end
   end
