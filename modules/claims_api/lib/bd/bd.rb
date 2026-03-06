@@ -34,6 +34,27 @@ module ClaimsApi
     end
 
     ##
+    # Search documents by docTypeIds and file number
+    # Used to get document uuids
+    #
+    # @return Documents list
+    def claim_letters_search(doc_type_ids, file_number)
+      @multipart = false
+      body = { data: { docTypeIds: doc_type_ids, fileNumber: file_number } }
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "calling benefits documents claim-letters search for docTypeIds #{doc_type_ids}")
+      res = client.post('claim-letters/search', body)&.body
+
+      raise ::Common::Exceptions::GatewayTimeout.new(detail: 'Upstream service error.') unless res.is_a?(Hash)
+
+      res.deep_symbolize_keys
+    rescue => e
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "claim-letters/search failure for docTypeIds #{doc_type_ids}, #{e.message}")
+      {}
+    end
+
+    ##
     # Upload document of mapped claim
     #
     # @return success or failure
