@@ -5,6 +5,7 @@ require_relative '../reference_range_formatter'
 require_relative '../facility_service'
 require_relative 'date_normalizer'
 require_relative 'fhir_helpers'
+require_relative 'facility_name_resolver'
 require 'medical_records/medical_records_log'
 
 module UnifiedHealthData
@@ -14,6 +15,8 @@ module UnifiedHealthData
       include FhirHelpers
 
       ALLOWED_STATUSES = %w[final amended corrected appended].freeze
+      VISTA_HOSTNAME_PATTERN = /\.MED\.VA\.GOV$/i
+      VA_STATION_OID = 'urn:oid:2.16.840.1.113883.4.349'
       LABS = MedicalRecords::MedicalRecordsLog::LABS_AND_TESTS
 
       # @param mr_log [MedicalRecords::MedicalRecordsLog, nil] Structured logger (nil = Rails.logger fallback)
@@ -242,16 +245,46 @@ module UnifiedHealthData
         performers = record.dig('resource', 'performer') || []
         performer_ref_ids = performers.map { |p| get_reference_id(p['reference']) }.compact
 
-        # Find matching Organization or Location
         match = contained.find do |r|
           %w[Organization Location].include?(r['resourceType']) &&
             performer_ref_ids.include?(r['id'])
         end
 
-        return match['name'] if match&.dig('name')
+        name = match&.dig('name')
+
+        if name.present? && match['resourceType'] == 'Organization' && name.match?(VISTA_HOSTNAME_PATTERN)
+          return resolve_hostname_location(match)
+        end
+
+        return name if name.present?
 
         # Fallback: first Organization
         contained.find { |r| r['resourceType'] == 'Organization' }&.dig('name')
+      end
+
+      def resolve_hostname_location(organization)
+        identifier = organization&.dig('identifier')&.find { |id| id['system'] == VA_STATION_OID }
+        station_number = identifier&.dig('value')
+        return nil if station_number.blank?
+
+        facility_name_resolver.lookup(station_number)
+      rescue => e
+        Rails.logger.warn(
+          'Failed to resolve facility name for hostname location ' \
+          "(organization_id=#{organization['id']}, station_number=#{station_number}, " \
+          "error_class=#{e.class}): #{e.message}",
+          {
+            service: 'unified_health_data',
+            organization_id: organization['id'],
+            station_number:,
+            error_class: e.class.to_s
+          }
+        )
+        nil
+      end
+
+      def facility_name_resolver
+        @facility_name_resolver ||= UnifiedHealthData::Adapters::FacilityNameResolver.new
       end
 
       def get_code(record)
