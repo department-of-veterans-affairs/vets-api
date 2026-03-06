@@ -506,7 +506,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
         end
       end
 
-      context 'when user does not have an vet360_id or icn' do
+      context 'when user does not have a vet360_id or icn' do
         let!(:user) { sis_user(vet360_id: nil, icn: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
         it 'does not enqueue vet360 linking job and logs missing icn' do
