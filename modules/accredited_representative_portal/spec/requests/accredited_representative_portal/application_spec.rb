@@ -95,8 +95,8 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
         allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_killswitch).and_return(true)
       end
 
-      it 'denies access to all endpoints with routing error' do
-        expect(subject).to have_http_status(:not_found)
+      it 'denies access to all endpoints with service unavailable' do
+        expect(subject).to have_http_status(:service_unavailable)
       end
     end
   end

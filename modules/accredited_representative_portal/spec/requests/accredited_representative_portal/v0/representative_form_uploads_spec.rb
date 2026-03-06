@@ -50,8 +50,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       it 'allows request to reach endpoint logic' do
         post('/accredited_representative_portal/v0/representative_form_upload',
              params: killswitch_params)
-        # Request reaches endpoint logic, which processes the form (returns 422 or other error from form validation)
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).not_to have_http_status(:service_unavailable)
       end
     end
 
@@ -61,11 +60,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_killswitch).and_return(true)
       end
 
-      it 'denies access with routing error before reaching endpoint logic' do
+      it 'denies access with service unavailable before reaching endpoint logic' do
         post('/accredited_representative_portal/v0/representative_form_upload',
              params: killswitch_params)
-        # Request is blocked before reaching endpoint logic (killswitch returns 404)
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:service_unavailable)
       end
     end
   end

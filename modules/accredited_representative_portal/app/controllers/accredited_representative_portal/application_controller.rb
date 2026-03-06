@@ -31,7 +31,7 @@ module AccreditedRepresentativePortal
     private
 
     def enforce_accredited_representative_portal_killswitch
-      routing_error if Flipper.enabled?(:accredited_representative_portal_killswitch)
+      raise Common::Exceptions::ServiceUnavailable if Flipper.enabled?(:accredited_representative_portal_killswitch)
     end
 
     def deny_access_unless_form_enabled(form_id)
