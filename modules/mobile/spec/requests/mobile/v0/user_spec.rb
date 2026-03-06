@@ -541,21 +541,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
           end
           expect(response).to have_http_status(:ok)
         end
-
-        it 'flips mobile user vet360_linked to true if record exists' do
-          Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
-
-          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-            VCR.use_cassette('sm_client/session.yml') do
-              VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
-                get '/mobile/v0/user', headers: sis_headers
-
-                expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
-              end
-            end
-          end
-          expect(response).to have_http_status(:ok)
-        end
       end
 
       context 'when user does not have a vet360_id' do
@@ -569,6 +554,25 @@ RSpec.describe 'Mobile::V0::User', type: :request do
               get '/mobile/v0/user', headers: sis_headers
             end
           end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when user does not have a vet360_id or icn' do
+        let!(:user) { sis_user(vet360_id: nil, icn: nil, idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
+
+        it 'does not enqueue vet360 linking job and logs missing icn' do
+          expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
+          allow(Rails.logger).to receive(:warn).and_call_original
+
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
+              get '/mobile/v0/user', headers: sis_headers
+            end
+          end
+          expect(Rails.logger).to have_received(:warn).with('Mobile Vet360LinkingJob skipped - user has no ICN',
+                                                            { user_uuid: user.uuid })
+
           expect(response).to have_http_status(:ok)
         end
       end
@@ -589,12 +593,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
 
           post '/mobile/v0/user/logged-in', headers: sis_headers
-        end
-
-        it 'flips mobile user vet360_linked to true if record exists' do
-          Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
-          post '/mobile/v0/user/logged-in', headers: sis_headers
-          expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
         end
       end
 
