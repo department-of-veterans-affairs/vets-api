@@ -471,7 +471,6 @@ module ClaimsApi
 
       def alt_rev_validate_form_526_service_pay
         alt_rev_validate_from_526_military_retired_pay_branch
-        alt_rev_validate_form_526_separation_pay_received_date
         alt_rev_validate_from_526_separation_severance_pay_branch
       end
 
@@ -485,12 +484,6 @@ module ClaimsApi
                                detail: "'servicePay.militaryRetiredPay.branchOfService' must match a service branch " \
                                        'returned from the /service-branches endpoint of the Benefits ' \
                                        'Reference Data API.')
-      end
-
-      def alt_rev_validate_form_526_separation_pay_received_date
-        separation_pay_received_date = form_attributes.dig('servicePay', 'separationSeverancePay',
-                                                           'datePaymentReceived')
-        nil if separation_pay_received_date.blank?
       end
 
       def alt_rev_validate_from_526_separation_severance_pay_branch
