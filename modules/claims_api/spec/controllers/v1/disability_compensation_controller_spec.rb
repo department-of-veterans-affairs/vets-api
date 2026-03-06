@@ -103,4 +103,215 @@ RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :co
       end
     end
   end
+
+  describe '#upload_form_526' do
+    def upload_form_526!
+      subject.send(:upload_form_526) # rubocop:disable Naming/VariableNumber
+    end
+
+    let(:pending_claim) do
+      create(
+        :auto_established_claim,
+        form_data: { 'autoCestPDFGenerationDisabled' => auto_cest_pdf_generation_disabled }
+      )
+    end
+    let(:attachment) do
+      Rack::Test::UploadedFile.new(
+        Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'extras.pdf'),
+        'application/pdf'
+      )
+    end
+    let(:upload_form_526_params) do
+      ActionController::Parameters.new(
+        'id' => pending_claim&.id || '123',
+        'attachment' => attachment
+      )
+    end
+
+    # common error messages
+    let(:field_required_error) do
+      'Claim submission requires that the "autoCestPDFGenerationDisabled" field ' \
+        'must be set to "true" in order to allow a 526 PDF to be uploaded'
+    end
+
+    let(:not_found_error) { 'Resource not found' }
+
+    before do
+      allow(controller).to receive(:claims_v1_logging)
+      allow(controller).to receive(:render)
+      allow(controller).to receive(:params).and_return(upload_form_526_params)
+    end
+
+    describe 'with FES service enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(true)
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:pending?).and_return(pending_claim)
+      end
+
+      context 'when autoCestPDFGenerationDisabled is false on the form' do
+        let(:auto_cest_pdf_generation_disabled) { false }
+
+        it 'throws an UnprocessableEntity error with the expected detail message' do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is true on the form' do
+        let(:auto_cest_pdf_generation_disabled) { true }
+
+        before do
+          allow(ClaimsApi::V1::Form526EstablishmentUpload).to receive(:perform_async).with(pending_claim&.id)
+        end
+
+        it 'calls the FES claim establishment and upload method' do
+          upload_form_526!
+          expect(ClaimsApi::V1::Form526EstablishmentUpload).to have_received(
+            :perform_async
+          ).with(pending_claim&.id).once
+        end
+
+        it 'does not call the ClaimEstablisher and ClaimUploader jobs' do
+          allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+          allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+          upload_form_526!
+          expect(ClaimsApi::ClaimEstablisher).not_to have_received(:perform_async)
+          expect(ClaimsApi::ClaimUploader).not_to have_received(:perform_async)
+        end
+
+        it 'renders the serialized pending claim' do
+          expect(controller).to receive(:render) do |args|
+            expect(args[:json]).to be_a(ClaimsApi::AutoEstablishedClaimSerializer)
+            expect(args[:json].serializable_hash[:data][:id]).to eq(pending_claim.id)
+          end
+
+          upload_form_526!
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is nil on the form' do
+        let(:auto_cest_pdf_generation_disabled) { nil }
+
+        it "returns a 'resource not found' error" do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+        let(:pending_claim) { create(:auto_established_claim, form_data: {}) }
+
+        it "returns a 'resource not found' error" do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when the pending claim cannot be found' do
+        before do
+          allow(ClaimsApi::AutoEstablishedClaim).to receive(:pending?).and_return(nil)
+        end
+
+        it "returns a 'resource not found' error" do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
+              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            }
+        end
+      end
+    end
+
+    describe 'with the FES service disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v1_enable_FES).and_return(false)
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:pending?).and_return(pending_claim)
+      end
+
+      context 'when autoCestPDFGenerationDisabled is false on the form' do
+        let(:auto_cest_pdf_generation_disabled) { false }
+
+        it 'throws an UnprocessableEntity error with the expected detail message' do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is true on the form' do
+        let(:auto_cest_pdf_generation_disabled) { true }
+
+        before do
+          allow(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+          allow(ClaimsApi::ClaimUploader).to receive(:perform_async)
+        end
+
+        it 'calls the claim establishment and upload method' do
+          upload_form_526!
+          expect(ClaimsApi::ClaimEstablisher).to have_received(
+            :perform_async
+          ).with(pending_claim.id).once
+          expect(ClaimsApi::ClaimUploader).to have_received(
+            :perform_async
+          ).with(pending_claim.id, 'claim').once
+        end
+
+        it 'does not call the FES Form526EstablishmentUpload job' do
+          allow(ClaimsApi::V1::Form526EstablishmentUpload).to receive(:perform_async)
+          upload_form_526!
+          expect(ClaimsApi::V1::Form526EstablishmentUpload).not_to have_received(:perform_async)
+        end
+
+        it 'renders the serialized pending claim' do
+          expect(controller).to receive(:render) do |args|
+            expect(args[:json]).to be_a(ClaimsApi::AutoEstablishedClaimSerializer)
+            expect(args[:json].serializable_hash[:data][:id]).to eq(pending_claim.id)
+          end
+
+          upload_form_526!
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is nil on the form' do
+        let(:auto_cest_pdf_generation_disabled) { nil }
+
+        it "returns a 'resource not found' error" do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when autoCestPDFGenerationDisabled is not present on the form' do
+        let(:pending_claim) { create(:auto_established_claim, form_data: {}) }
+
+        it "returns a 'resource not found' error" do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::UnprocessableEntity) { |error|
+              expect(error.errors.first.detail.squish).to eq(field_required_error)
+            }
+        end
+      end
+
+      context 'when the pending claim cannot be found' do
+        before do
+          allow(ClaimsApi::AutoEstablishedClaim).to receive(:pending?).and_return(nil)
+        end
+
+        it "returns a 'resource not found' error" do
+          expect { upload_form_526! }
+            .to raise_error(Common::Exceptions::ResourceNotFound) { |error|
+              expect(error.errors.first.detail.squish).to eq(not_found_error)
+            }
+        end
+      end
+    end
+  end
 end

@@ -47,7 +47,7 @@ module ClaimsApi
           # so that if validator (instance) methods call other instance methods within the module
           # they all have access to the the same instance
           # rubocop:disable Style/IdenticalConditionalBranches
-          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          if fes_enabled?
             extend(ClaimsApi::RevisedDisabilityCompensationValidations)
             validate_form_526_submission_values!
           else
@@ -97,7 +97,7 @@ module ClaimsApi
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
-            if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+            if fes_enabled?
               ClaimsApi::V1::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id, veteran_middle_initial)
             else
               ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
@@ -111,34 +111,16 @@ module ClaimsApi
         # Required if first ever claim for Veteran.
         #
         # @return [JSON] Claim record
-        def upload_form_526 # rubocop:disable Metrics/MethodLength
+        def upload_form_526
           validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
 
           pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless pending_claim
 
-          if pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == true)
-            pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
-            pending_claim.save!
-
-            ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
-            ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
-            ClaimsApi::ClaimUploader.perform_async(pending_claim.id, 'claim')
-
-            render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
-
-          elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
-            message = <<-MESSAGE
-            Claim submission requires that the "autoCestPDFGenerationDisabled" field
-            must be set to "true" in order to allow a 526 PDF to be uploaded
-            MESSAGE
-            claims_v1_logging('526_upload', message:)
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
-          else
-            claims_v1_logging('526_upload', message: 'Resource not found')
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-          end
+          establish_and_upload(pending_claim)
+          render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
         end
 
         # POST to upload additional documents to support relevent disability compensation claim.
@@ -176,7 +158,7 @@ module ClaimsApi
           validate_json_schema
 
           # rubocop:disable Style/IdenticalConditionalBranches
-          if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          if fes_enabled?
             extend(ClaimsApi::RevisedDisabilityCompensationValidations)
             validate_form_526_submission_values!
           else
@@ -320,7 +302,7 @@ module ClaimsApi
         end
 
         def build_validation_service
-          return ClaimsApi::FesService::Base.new if Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
+          return ClaimsApi::FesService::Base.new if fes_enabled?
           return ClaimsApi::EVSSService::Base.new if Flipper.enabled?(:claims_status_v1_lh_auto_establish_claim_enabled)
           return EVSS::DisabilityCompensationForm::Service.new(auth_headers) if Flipper.enabled?(:form526_legacy)
 
@@ -346,6 +328,48 @@ module ClaimsApi
           {
             errors: [{ status: 422, detail: e&.message, source: e&.key }]
           }.to_json
+        end
+
+        # 526 PDF upload process
+        def establish_and_upload(pending_claim)
+          if pending_claim.form_data['autoCestPDFGenerationDisabled'] == true
+
+            pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
+            pending_claim.save!
+
+            if fes_enabled?
+              fes_claim_establishment_and_upload(pending_claim)
+            else
+              claim_establishment_and_upload(pending_claim)
+            end
+          else
+            message = <<-MESSAGE
+            Claim submission requires that the "autoCestPDFGenerationDisabled" field
+            must be set to "true" in order to allow a 526 PDF to be uploaded
+            MESSAGE
+            claims_v1_logging('526_upload', message:)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
+          end
+        end
+
+        # pre-FES claim establishment process
+        def claim_establishment_and_upload(pending_claim)
+          ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
+          ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
+          ClaimsApi::ClaimUploader.perform_async(pending_claim.id, 'claim')
+        end
+
+        # FES claim establishment process - ClaimEstablisher is deprecated with FES
+        # and replaced by Form526EstablishmentUpload (for upload, not PDF generation)
+        def fes_claim_establishment_and_upload(pending_claim)
+          ClaimsApi::Logger.log(
+            '526', claim_id: pending_claim.id, detail: 'Starting FES claim establishment and upload'
+          )
+          ClaimsApi::V1::Form526EstablishmentUpload.perform_async(pending_claim&.id)
+        end
+
+        def fes_enabled?
+          Flipper.enabled?(:lighthouse_claims_api_v1_enable_FES)
         end
       end
     end
