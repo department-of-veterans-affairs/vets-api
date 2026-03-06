@@ -123,8 +123,7 @@ describe MHV::AccountCreation::Service do
       let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_found' }
       let(:expected_log_message) { "#{log_prefix} create_account success" }
       let(:expected_log_payload) do
-        { icn:, account: expected_response_body, from_cache: expected_from_cache_log,
-          duration_ms: expected_duration }.compact
+        { icn:, account: expected_response_body, duration_ms: expected_duration }.compact
       end
 
       let(:expected_duration) { 10_000.0 }
@@ -152,8 +151,6 @@ describe MHV::AccountCreation::Service do
       end
 
       context 'when the MHV account does not exist' do
-        let(:expected_from_cache_log) { false }
-
         context 'when the user is not a VA patient' do
           let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_created_no_sm' }
           let(:champ_va) { false }
@@ -174,13 +171,10 @@ describe MHV::AccountCreation::Service do
       end
 
       context 'when the account is not in the cache' do
-        let(:expected_from_cache_log) { false }
-
         it_behaves_like 'a successful external request'
       end
 
       context 'when the account is in the cache' do
-        let(:expected_from_cache_log) { true }
         let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
         let(:expected_expires_in) { 1.day }
 
@@ -198,9 +192,9 @@ describe MHV::AccountCreation::Service do
             expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")).not_to have_been_made
           end
 
-          it 'logs the create account request' do
+          it 'does not log when returning cached response' do
             subject
-            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            expect(Rails.logger).not_to have_received(:info).with(expected_log_message, anything)
           end
 
           it 'returns the expected response from the cache' do
@@ -210,7 +204,6 @@ describe MHV::AccountCreation::Service do
 
         context 'when break_cache is true' do
           let(:break_cache) { true }
-          let(:expected_from_cache_log) { false }
 
           before do
             allow(Rails.cache).to receive(:fetch)

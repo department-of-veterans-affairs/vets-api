@@ -26,14 +26,7 @@ module MHV
       private
 
       def find_cached_response(icn)
-        account = Rails.cache.read("#{config.service_name}_#{icn}")
-
-        if account.present?
-          log_payload = { icn:, account:, from_cache: true, from_cache_only: true }
-          Rails.logger.info("#{config.logging_prefix} create_account success", log_payload)
-        end
-
-        account
+        Rails.cache.read("#{config.service_name}_#{icn}")
       end
 
       def create_account_with_cache(icn:, force:, expires_in:, &request)
@@ -44,10 +37,12 @@ module MHV
           start = Time.current
           request.call
         end
-        duration_ms = cache_hit ? nil : (Time.current - start).seconds.in_milliseconds
 
-        Rails.logger.info("#{config.logging_prefix} create_account success",
-                          { icn:, account:, duration_ms:, from_cache: cache_hit }.compact)
+        unless cache_hit
+          duration_ms = (Time.current - start).seconds.in_milliseconds
+          Rails.logger.info("#{config.logging_prefix} create_account success",
+                            { icn:, account:, duration_ms: })
+        end
         account
       end
 
