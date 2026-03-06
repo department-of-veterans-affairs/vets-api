@@ -1,0 +1,180 @@
+<play id="handle-401-token-ownership" title="Handle 401 Authentication Errors (Token Ownership Matters!)" severity="CRITICAL">
+
+  <context>
+    Checking whose credentials failed before choosing a status code
+    ensures consumers get actionable auth errors and SREs can
+    distinguish client token issues from service account
+    misconfigurations. When the user's token is invalid, 401 tells
+    them to re-authenticate. When our service credentials fail, 500
+    routes the problem to our team instead of sending consumers on
+    futile re-auth loops. Accurate credential attribution keeps
+    auth-related alerting meaningful and shortens incident response.
+  </context>
+
+  <applies_to>
+    <glob>app/controllers/**/*.rb</glob>
+    <glob>modules/*/app/controllers/**/*.rb</glob>
+    <glob>lib/**/*.rb</glob>
+    <glob>modules/*/lib/**/*.rb</glob>
+  </applies_to>
+
+  <rules>
+    <rule enforcement="must">
+      Check whose credentials failed before choosing a status code
+      for upstream 401 errors: return 500 when our service account
+      credentials fail, 401 when the user's token fails.
+    </rule>
+    <rule enforcement="must">
+      Include `auth_type` ("user_token" or "service_account")
+      in either exception `meta` (via `errors:` +
+      `Common::Exceptions::SerializableError`) or structured logs,
+      so monitoring can distinguish failure modes.
+    </rule>
+    <rule enforcement="must">
+      Preserve upstream context (`upstream_status: 401`,
+      `upstream_service`) in exception `meta` or structured logs.
+      Ruby's implicit cause chain preserves the original exception
+      automatically.
+    </rule>
+    <rule enforcement="should">
+      Include actionable detail messages: "Session expired. Please
+      sign in again." for user tokens, "Service authentication
+      configuration error" for service accounts.
+    </rule>
+  </rules>
+
+  <investigate_before_answering>
+    <step>Read the full method containing the rescue block to understand what upstream service is being called and what credentials are used for the request.</step>
+    <step>Determine whether the upstream call uses user-provided credentials (OAuth token from session) or service account credentials (configured API keys, service accounts from environment variables or credential stores).</step>
+    <step>Check if the service client configuration includes service account credentials (look for API key settings, service account configs, or client certificate configurations in the service wrapper).</step>
+    <step>Identify whether the module already has helper methods for checking credential type (e.g., `using_service_account_credentials?`, `service_auth?`).</step>
+    <step>Check what meta fields are already included on the raised exception to determine what upstream context is preserved. Do not suggest fixes without understanding which credentials the upstream call uses. The correct status code depends entirely on whose credentials failed.</step>
+  </investigate_before_answering>
+
+  <severity_assessment>
+    <critical>upstream 401 from a service using service account credentials
+is passed through as 401 to the client</critical>
+    <critical>rescue Faraday::UnauthorizedError raises Unauthorized without
+checking credential type</critical>
+    <high>401 handling missing auth_type context (in exception meta or
+  structured logs), cannot distinguish user token from service account
+  failures</high>
+    <high>service account failure returns 401 and monitoring attributes
+it to client authentication</high>
+    <medium>401 handling missing upstream context
+  (`upstream_service`, `upstream_status`) in exception meta or logs</medium>
+    <false_positive>Proxy endpoints where the service account IS the
+user; some integrations use a single credential model where the
+upstream 401 genuinely means the user's session is invalid (e.g.,
+token exchange flows where vets-api forwards the user's token
+directly). Also, hybrid auth scenarios where the code explicitly
+checks credential ownership before deciding the status code; if
+the check is present and correct, do not flag.</false_positive>
+    <false_positive>**Token-forwarding services:** When vets-api forwards
+the user's OAuth token directly to the upstream service (look for
+`headers: { 'Authorization' => token }` or `token_headers` methods
+that pass through the user's session token), the upstream 401
+genuinely means the user's token is invalid. Passing through 401 is
+correct. Check the Faraday connection configuration and middleware
+stack to identify whether credentials come from the user's session
+or from service account config before flagging.</false_positive>
+    <false_positive>**Single-endpoint credential check already present:**
+If the rescue block already contains a conditional checking credential
+type (e.g., `if service_account?` / `else`, or `if
+using_service_account_credentials?`), and the check correctly maps
+service account failures to 500 and user token failures to 401, do
+not flag. The play's intent is to catch *missing* credential ownership
+checks, not to second-guess *present* ones.</false_positive>
+  </severity_assessment>
+
+  <pr_comment_template>
+    **Handle 401 Authentication Errors (Token Ownership Matters!)** | `CRITICAL`
+
+    `{{file_path}}:{{line_number}}` - Upstream 401 passed through as 401 without
+    checking whose credentials failed. If this service uses service account
+    credentials, the 401 should be remapped to 500 (our config error, not client's
+    auth failure).
+
+    **Why this matters:** When our service account credentials fail upstream and we
+    return 401, the client thinks THEY need to re-authenticate. They refresh their
+    token and retry, but it still fails. Metrics blame the client. Wrong team gets
+    paged. The actual fix requires our team to update service account configuration.
+
+    **Suggested fix:**
+    ```ruby
+    rescue Faraday::UnauthorizedError => e
+      if using_service_account_credentials?
+        Rails.logger.error(
+          message: 'Upstream service-account authentication failed',
+          auth_type: 'service_account',
+          upstream_status: 401,
+          upstream_service: 'replace_with_service_name'
+        )
+        raise Common::Exceptions::InternalServerError.new(e)
+      else
+        detail = 'User authentication failed. Please re-authenticate.'
+        error = Common::Exceptions::SerializableError.new(
+          status: '401',
+          detail:,
+          meta: {
+            auth_type: 'user_token',
+            upstream_status: 401,
+            upstream_service: 'replace_with_service_name'
+          }
+        )
+        raise Common::Exceptions::Unauthorized.new(detail:, errors: [error])
+      end
+    end
+    ```
+
+    **Verify:**
+    - [ ] Checks whose credentials failed before choosing status code
+    - [ ] Service account failures return 500, user token failures return 401
+    - [ ] Includes `auth_type` context in exception `meta` or structured logs
+    - [ ] Preserves upstream context (`upstream_status`, `upstream_service`) in exception `meta` or logs
+    - [ ] Cause chain preserved (raise inside rescue; Ruby sets `$!.cause` automatically)
+
+    [Play: Handle 401 Authentication Errors](06-handle-401-token-ownership.xml)
+  </pr_comment_template>
+
+  <examples>
+    <example name="Blind pass-through of upstream 401">
+      <bad>
+rescue Faraday::UnauthorizedError
+  raise Common::Exceptions::Unauthorized.new(
+    detail: 'Upstream authentication failed'
+  )
+  # Always returns 401, regardless of whose credentials failed
+  # If OUR service account is misconfigured, we blame the CLIENT!
+      </bad>
+      <good>
+rescue Faraday::UnauthorizedError => e
+  if using_service_account_credentials?
+    # Our service account failed: this is OUR problem, return 500
+    Rails.logger.error(
+      message: 'Upstream service-account authentication failed',
+      auth_type: 'service_account',
+      upstream_status: 401,
+      upstream_service: 'replace_with_service_name'
+    )
+    raise Common::Exceptions::InternalServerError.new(e)
+  else
+    # User's token failed: this is THEIR problem, return 401
+    detail = 'User authentication failed. Please re-authenticate.'
+    error = Common::Exceptions::SerializableError.new(
+      status: '401',
+      detail:,
+      meta: {
+        auth_type: 'user_token',
+        upstream_status: 401,
+        upstream_service: 'replace_with_service_name'
+      }
+    )
+    raise Common::Exceptions::Unauthorized.new(detail:, errors: [error])
+  end
+  # Ruby automatically preserves the cause chain
+      </good>
+    </example>
+  </examples>
+
+</play>

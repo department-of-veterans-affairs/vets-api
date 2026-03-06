@@ -1,0 +1,165 @@
+<play id="handle-403-permission" title="Handle 403 Authorization Errors (Permission vs Existence)" severity="CRITICAL">
+
+  <context>
+    Using the right authorization status code gives consumers clear
+    guidance and closes enumeration vectors. 404 hides whether a
+    resource exists from unauthorized callers, 401 signals expired
+    or missing credentials, and 403 confirms the user is
+    authenticated but lacks permission. Precise status codes make
+    the API's authorization model predictable for consumers and
+    prevent information leakage that could expose resource IDs.
+  </context>
+
+  <applies_to>
+    <glob>app/controllers/**/*.rb</glob>
+    <glob>modules/*/app/controllers/**/*.rb</glob>
+  </applies_to>
+
+  <rules>
+    <rule enforcement="must">
+      Match status code to the actual problem: 401 for expired or
+      missing tokens, 403 only for authenticated users who lack
+      permission, 404 for non-existent resources, 422 for
+      validation failures.
+    </rule>
+    <rule enforcement="must">
+      Return 404 instead of 403 when the resource's existence
+      should be hidden from unauthorized users to prevent
+      enumeration attacks.
+    </rule>
+    <rule enforcement="should">
+      Include `meta.required_permission` in 403 responses to guide
+      clients and administrators. However, never include
+      `meta.required_permission` when returning 404 to hide resource
+      existence -- doing so reveals the resource exists and has
+      specific access controls, defeating the enumeration protection.
+    </rule>
+  </rules>
+
+  <investigate_before_answering>
+    <step>Read the full controller action to understand the resource type and access pattern.</step>
+    <step>Determine whether the resource's existence should be hidden from unauthorized users. Claims, prescriptions, and health records should be hidden. Admin endpoints and public features with restricted access should not.</step>
+    <step>Check whether the method has separate code paths for "not found" and "not authorized" that return different status codes (enumeration risk).</step>
+    <step>Verify whether the 403 is actually an authentication issue (expired token, missing credentials) that should be 401, or a validation issue that should be 422.</step>
+    <step>Check if `meta.required_permission` is included in 403 responses. If the endpoint uses unified 404 to hide resource existence, verify that `meta.required_permission` is NOT included on the 404 response -- it would leak that the resource exists and has access controls.</step>
+  </investigate_before_answering>
+
+  <severity_assessment>
+    <critical>controller returns both 403 and 404 for the same resource
+type, enabling enumeration of veteran claims, health records,
+or prescriptions</critical>
+    <critical>403 returned for expired or missing authentication tokens
+instead of 401</critical>
+    <high>403 returned for validation errors instead of 422</high>
+    <high>403 response missing meta.required_permission, providing no
+guidance for remediation</high>
+    <medium>403 used for resource where existence is already public
+knowledge</medium>
+    <false_positive>Public resources where enumeration is not a risk:
+if the resource type is publicly known (e.g., facility IDs, form
+types, public announcements), returning 403 instead of 404 does not
+leak sensitive information. Admin-only endpoints where all callers
+are authenticated staff with known permissions. Nested resources
+accessed through a parent that was already authorized; the child
+resource's existence is already implied by the parent access.</false_positive>
+  </severity_assessment>
+
+  <pr_comment_template>
+    **Handle 403 Authorization Errors (Permission vs Existence)** | `CRITICAL`
+
+    `{{file_path}}:{{line_number}}` - {{one_line_violation_description}}
+
+    **Why this matters:** {{why_it_matters_summary}} (e.g., split 403/404 responses
+    allow attackers to enumerate valid resource IDs by observing which status code
+    is returned for each ID).
+
+    **Suggested fix:**
+    ```ruby
+    unless current_user.token_valid?
+      raise Common::Exceptions::Unauthorized.new(
+        detail: 'Session expired. Please sign in again.'
+      )
+    end
+
+    unless current_user.can_access?(resource)
+      detail = 'Access denied'
+      error = Common::Exceptions::SerializableError.new(
+        status: '403',
+        detail:,
+        meta: { required_permission: 'replace_with_permission_name' }
+      )
+      raise Common::Exceptions::Forbidden.new(detail:, errors: [error])
+    end
+    ```
+
+    - [ ] Correct status code for failure type (401/403/404/422)
+    - [ ] No split 403/404 on same resource (use unified 404 for hidden resources)
+    - [ ] `meta.required_permission` included in 403 responses
+    - [ ] `find_by` used instead of `find` for unified 404 pattern
+
+    [Play: Handle 403 Authorization Errors](07-handle-403-permission-vs-existence.xml)
+  </pr_comment_template>
+
+  <examples>
+    <example name="Information leakage via split 403/404 status codes">
+      <bad>
+def show
+  claim = Claim.find(params[:id])
+  unless current_user.can_access?(claim)
+    raise Common::Exceptions::Forbidden.new(detail: "Access denied")
+    # Returns 403: tells attacker claim ID exists!
+  end
+  render json: claim
+rescue ActiveRecord::RecordNotFound
+  raise Common::Exceptions::RecordNotFound.new(params[:id])
+  # Returns 404: tells attacker claim ID doesn't exist
+end
+      </bad>
+      <good>
+def show
+  claim = Claim.find_by(id: params[:id])
+  # Return 404 for both "doesn't exist" AND "exists but you can't access"
+  unless claim &amp;&amp; current_user.can_access?(claim)
+    raise Common::Exceptions::RecordNotFound.new(params[:id])
+  end
+  render json: claim
+end
+      </good>
+    </example>
+
+    <example name="Wrong status for expired token">
+      <bad>
+raise Common::Exceptions::Forbidden.new(
+  detail: "Access denied"
+) unless current_user.token_valid?
+# Expired token returns 403 instead of 401
+      </bad>
+      <good>
+unless current_user.token_valid?
+  raise Common::Exceptions::Unauthorized.new(
+    detail: "Session expired. Please sign in again."
+  )
+end
+      </good>
+    </example>
+
+    <example name="403 response includes required_permission guidance">
+      <bad>
+raise Common::Exceptions::Forbidden.new(
+  detail: 'Access denied'
+)
+# Missing required permission context for clients/admins
+      </bad>
+      <good>
+detail = 'Access denied'
+error = Common::Exceptions::SerializableError.new(
+  status: '403',
+  detail:,
+  meta: { required_permission: 'claims.read' }
+)
+raise Common::Exceptions::Forbidden.new(detail:, errors: [error])
+      </good>
+    </example>
+  </examples>
+
+</play>

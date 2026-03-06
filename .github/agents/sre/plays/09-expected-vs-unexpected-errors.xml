@@ -1,0 +1,164 @@
+<play id="expected-vs-unexpected" title="Expected vs Unexpected Errors (Logging + APM)" severity="CRITICAL">
+
+  <context>
+    Separating expected errors (4xx) from unexpected errors (5xx) in
+    APM and logging keeps error-rate SLIs accurate and alerting
+    actionable. 4xx responses are normal API behavior; log them at
+    WARN for trend analysis but do not mark them as APM errors. 5xx
+    responses represent real problems; log at ERROR and call
+    span.set_error so dashboards and alerts reflect actual system
+    health. Clean separation means on-call pages only for genuine
+    failures, not routine client input issues.
+  </context>
+
+  <applies_to>
+    <glob>app/controllers/concerns/exception_handling.rb</glob>
+    <glob>app/controllers/**/*.rb</glob>
+    <glob>modules/*/app/controllers/**/*.rb</glob>
+  </applies_to>
+
+  <rules>
+    <rule enforcement="must">
+      Log expected errors (4xx) as WARN and do NOT call
+      span.set_error; they are normal business outcomes.
+    </rule>
+    <rule enforcement="must">
+      Log unexpected errors (5xx) as ERROR and call span.set_error
+      ; they need investigation.
+    </rule>
+    <rule enforcement="must">
+      Let ExceptionHandling own APM error classification; do not
+      manually tag spans with error metadata in controllers.
+    </rule>
+    <rule enforcement="should">
+      Monitor 4xx spike patterns (baseline x 3 anomaly detection)
+      to catch validation bugs that return "correct" 422s.
+    </rule>
+  </rules>
+
+  <investigate_before_answering>
+    <step>Read `app/controllers/concerns/exception_handling.rb` fully, especially the `report_mapped_exception` method, to understand the current flow from exception to APM span tagging.</step>
+    <step>Identify whether `va_exception.status_code` is available in the method scope. The fix depends on being able to check the status code before calling `set_error`.</step>
+    <step>Check if the violation is in ExceptionHandling (centralized fix) or in a specific controller (remove manual span tagging, let ExceptionHandling decide).</step>
+    <step>If in a controller, check whether the controller manually tags spans AND re-raises to ExceptionHandling. If so, the fix is to remove manual tagging, not to add status checks in the controller.</step>
+    <step>Verify whether the controller's exception will flow to ExceptionHandling. If the controller catches and does not re-raise, that is a separate issue. Do not suggest adding status checks to individual controllers. The fix belongs in ExceptionHandling, which is the single point of responsibility for APM error classification.</step>
+    <step>**Distinguish request-level spans from internal trace spans (HARD GATE).** If the `span.set_error` call is inside a generic tracing utility (e.g., a `Monitoring#trace` method that creates Datadog sub-spans via `Datadog::Tracing.trace`), this is NOT the same as the request-level ExceptionHandling span. Internal sub-spans marking all exceptions can be useful for trace debugging; they help pinpoint which internal operation failed within a trace tree. **Exclude the finding entirely**; do not report it even as INFO. Internal sub-spans are not request-level error classification and do not inflate request-level error rate SLIs. The recommendation should NOT be to add status-code checks inside the utility (the utility doesn't know HTTP semantics). The request-level ExceptionHandling concern is the correct place for 4xx/5xx classification.</step>
+  </investigate_before_answering>
+
+  <severity_assessment>
+    <critical>set_error called for all exceptions in ExceptionHandling
+concern (affects entire application)</critical>
+    <critical>APM error rate includes 4xx client errors making SLI metrics
+useless</critical>
+    <high>manual span.set_error in controller rescue block for expected
+error types</high>
+    <high>manual span.set_tag with error metadata in controller
+(violates layering)</high>
+    <medium>Rails.logger.error used for 4xx validation failures (should be
+warn)</medium>
+    <info>span.set_error in an internal tracing utility (Datadog sub-span,
+not request-level span), useful for trace debugging, does not
+directly inflate request-level error rate SLIs</info>
+    <false_positive>Internal sub-spans created for debugging within a
+single request (e.g., `Datadog::Tracing.trace('my_service.call')`)
+where `set_error` marks the sub-span, not the request-level span.
+These do not inflate top-level error rate SLIs and are a legitimate
+tracing pattern for isolating slow or failing subsystems within a
+request. **This is a hard exclusion gate**: if the `set_error` call
+is inside an internal tracing utility that creates Datadog sub-spans,
+exclude the finding entirely. Do not report it at any severity
+level.</false_positive>
+  </severity_assessment>
+
+  <pr_comment_template>
+    **Expected vs Unexpected Errors (Logging + APM)** | `CRITICAL`
+
+    `{{file_path}}:{{line_number}}` -- {{one_line_violation_description}}
+
+    **Why this matters:** Calling `span.set_error` for expected errors (4xx) floods
+    APM with validation failures. On-call gets paged for "user entered invalid email."
+    Real 500s are buried under thousands of 422s. SLI error rate shows 95% when the
+    system is healthy.
+
+    **The Rule:**
+    - Expected errors (4xx) -> `Rails.logger.warn` + NO `span.set_error`
+    - Unexpected errors (5xx) -> `Rails.logger.error` + YES `span.set_error`
+
+    **Suggested fix:**
+    ```ruby
+    def report_mapped_exception(exception, va_exception)
+      log_level = va_exception.status_code >= 500 ? :error : :warn
+      Rails.logger.public_send(log_level, 'Exception occurred', {
+        exception: exception.class.name,
+        message: exception.message,
+        status: va_exception.status_code
+      })
+      log_exception_to_sentry(exception) if va_exception.status_code >= 500
+      if va_exception.status_code >= 500
+        Datadog::Tracing.active_span&amp;.set_error(exception)
+        request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&amp;.set_error(exception)
+      end
+    end
+    ```
+
+    **Verify:**
+    - [ ] `span.set_error` called only when `status_code >= 500`
+    - [ ] 4xx validation errors logged as WARN, not marked as APM errors
+    - [ ] No manual span tagging in controllers
+    - [ ] APM error rate reflects only 5xx system failures
+    - [ ] 4xx spike monitoring in place (Error Code Paradox)
+
+    [Play: Expected vs Unexpected Errors](09-expected-vs-unexpected-errors.xml)
+  </pr_comment_template>
+
+  <examples>
+    <example name="ExceptionHandling calls set_error for ALL exceptions">
+      <bad>
+def report_mapped_exception(exception, va_exception)
+  # ... logging to Sentry and Rails ...
+  Datadog::Tracing.active_span&amp;.set_error(exception)
+  request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&amp;.set_error(exception)
+  # Calls set_error for ALL exceptions including expected 4xx errors
+end
+      </bad>
+      <good>
+def report_mapped_exception(exception, va_exception)
+  log_level = va_exception.status_code >= 500 ? :error : :warn
+  Rails.logger.public_send(log_level, 'Exception occurred', {
+    exception: exception.class.name,
+    message: exception.message,
+    status: va_exception.status_code
+  })
+  log_exception_to_sentry(exception) if va_exception.status_code >= 500
+  if va_exception.status_code >= 500
+    Datadog::Tracing.active_span&amp;.set_error(exception)
+    request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&amp;.set_error(exception)
+  end
+  # Expected errors (4xx) logged as WARN but NOT marked as APM errors
+end
+      </good>
+    </example>
+
+    <example name="Manual span tagging in controller">
+      <bad>
+rescue service::RecordInvalidError => e
+  span = Datadog::Tracing.active_span
+  span.set_tag('error.type', 'record_invalid')
+  span.set_tag('error.specific_reason', 'record_invalid')
+  span.set_tag('error.original_class', e.class.name)
+  raise Common::Exceptions::ValidationErrors, e.record
+  # Manually tags span before re-raising: violates layering
+      </bad>
+      <good>
+# Just validate and throw (no rescue, no span tagging)
+def upload
+  form = service.create_form(params)
+  # If validation fails, service raises Common::Exceptions::ValidationErrors
+  # ExceptionHandling catches it, logs WARN, returns 422, does NOT call span.set_error
+  render json: form, status: :created
+end
+      </good>
+    </example>
+  </examples>
+
+</play>

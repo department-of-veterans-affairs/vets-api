@@ -1,0 +1,264 @@
+<play
+    id="bare-rescue"
+    title="Never Use Broad or Bare Rescues"
+    severity="CRITICAL"
+>
+
+  <context>
+    Specific rescue clauses ensure the API returns meaningful error
+    responses and that every unexpected failure is visible in APM.
+    Consumers get proper status codes instead of 200s with missing
+    data, and SREs can distinguish upstream outages from code bugs
+    in monitoring. Bare rescues catch everything (typos, signals,
+    system exits) and typically swallow them silently, producing
+    no alerts, no traces, and no way to tell what actually failed.
+  </context>
+
+  <applies_to>
+    <glob>app/controllers/**/*.rb</glob>
+    <glob>app/sidekiq/**/*.rb</glob>
+    <glob>app/models/**/*.rb</glob>
+    <glob>modules/*/app/controllers/**/*.rb</glob>
+    <glob>modules/*/app/models/**/*.rb</glob>
+    <glob>modules/*/app/sidekiq/**/*.rb</glob>
+    <glob>lib/**/*.rb</glob>
+  </applies_to>
+
+  <rules>
+    <rule enforcement="must">
+      Always specify exception classes in rescue blocks; bare
+      `rescue`, `rescue => e`, and `rescue Exception` all catch
+      too broadly (typos, system signals, load errors).
+    </rule>
+    <rule enforcement="should">
+      Use `rescue StandardError` only at controller/job boundaries
+      as the outermost handler.
+    </rule>
+    <rule enforcement="note">
+      The platform's `ExceptionHandling` concern uses
+      `rescue_from 'Exception'` as the outermost boundary handler
+      for all controllers. This is the sanctioned platform-level
+      catch-all and is NOT a Play 03 violation. Play 03 applies to
+      module code (controllers, services, models, jobs), not to the
+      platform concern itself.
+    </rule>
+  </rules>
+
+  <investigate_before_answering>
+    <step>Read the full method to understand what code is protected</step>
+    <step>Identify exception types the called methods can raise</step>
+    <step>Determine if at boundary (controller/job) or inner code</step>
+    <step>Check if typed exceptions exist in the module's namespace</step>
+    <step>Check what callers expect: nil returns or exceptions</step>
+    <step>**Defensive-rescue context check (MANDATORY).** Bare rescue
+    is acceptable in these specific contexts where failure of the
+    rescued code must never crash the caller. If ANY of these apply,
+    downgrade to INFO or skip entirely:
+    - **Healthcheck endpoints**: `rescue => e` returning a status
+      hash (e.g., `{ status: 'degraded' }`) is intentional;
+      healthchecks must never raise
+    - **Feature flag checks**: `rescue; false; end` around
+      `Flipper.enabled?` is standard; if Redis/Flipper is down,
+      the feature should be off, not crash the request
+    - **Cache operations**: `rescue; nil; end` around
+      `Rails.cache.fetch` or Redis calls is correct; cache failure
+      should fall through to the uncached path
+    - **Serializer fields**: `rescue; nil; end` on a non-critical
+      display field (date formatting, optional association) is
+      acceptable; one broken field should not crash the response
+    - **Monitoring/instrumentation**: `rescue; end` around StatsD,
+      Datadog, or Sentry calls is correct; metrics/telemetry
+      failure must never affect the request
+    - **Initialization/config**: `rescue; DEFAULT; end` for loading
+      optional configuration with a safe fallback is standard
+    - **Non-critical data enrichment**: `rescue; nil; end` around
+      optional data that supplements but is not essential to the
+      main response (e.g., AVS links, optional PDF attachments,
+      supplementary metadata); one missing enrichment should not
+      crash the primary operation
+    - **Notification/email side-effects**: `rescue; end` around
+      email sending, VA Notify job enqueues, or other async
+      notification side-effects; notification failure must not
+      crash the parent operation (failure registration, success
+      confirmation, etc.)
+    - **Webhook/callback handlers**: `rescue; end` at the top level
+      of an inbound webhook or callback handler; the handler must
+      respond gracefully to the caller regardless of internal errors
+    This list covers the common defensive patterns. The underlying
+    principle is: the rescued code is a non-critical side-effect or
+    must-not-fail boundary where failure should be absorbed with a
+    safe fallback, not propagated. Apply the same exclusion to any
+    context that clearly meets this principle, even if not listed
+    above. However, do NOT apply this exclusion to primary business
+    logic; a bare rescue around the main operation of a controller
+    action, service call, or job is never defensive.
+
+    **Rescue body side-effect check (MANDATORY).** Does the rescue
+    body perform cleanup or bookkeeping (marking attempts as failed,
+    releasing locks, closing connections) that should execute for ALL
+    errors, not just expected ones? If so, narrowing the rescue to
+    typed exceptions would skip this cleanup for unexpected errors.
+    In this case, the recommendation should either: (a) move the
+    cleanup to an `ensure` block so it runs regardless, then narrow
+    the rescue; or (b) keep the broad rescue but note it as
+    intentional bookkeeping. Do not recommend narrowing a rescue
+    when doing so would break cleanup behavior without also
+    suggesting the `ensure` migration.
+
+    **Log-and-reraise is NOT defensive.** A bare rescue that logs
+    the error and then re-raises (`rescue => e; log; raise`) in
+    primary business logic is still a Play 03 violation. The bare
+    rescue catches too broadly (typos, signals, etc.) even though
+    the error is not swallowed. The fix is to type the rescue to
+    the expected exception classes. Only exclude log-and-reraise
+    when it occurs in a cleanup/teardown path (e.g., `ensure`-like
+    cleanup that must not mask the original error).
+
+    **Sidekiq job context check (MANDATORY for jobs).** When the
+    bare rescue is inside a Sidekiq job, assess two additional
+    dimensions that controllers don't have:
+
+    1. **Does the rescue swallow the exception (no re-raise)?**
+       If yes, Sidekiq considers the job successful. No retry
+       occurs. This is CRITICAL when the swallowed exception could
+       be a code bug (NoMethodError, NameError, ArgumentError)
+       rather than the expected service failure. A NoMethodError
+       from a typo silently "succeeds" and may trigger downstream
+       side-effects (failure notifications, status updates) that
+       are incorrect, the job didn't fail due to a service
+       outage, it failed due to a bug.
+
+    2. **Does the rescue trigger user-facing side-effects?**
+       If the rescue block sends notifications (email, SMS, VA
+       Notify), updates status records, or enqueues other jobs,
+       a code bug caught by the bare rescue will trigger these
+       side-effects incorrectly. The veteran receives a "your
+       appointment could not be confirmed" email when the actual
+       problem is a deployment bug. This is worse than a missing
+       notification, it's a false notification.
+
+    When both conditions are true (swallows + triggers
+    side-effects), severity is CRITICAL regardless of what data
+    the job handles. The fix is to type the rescue to expected
+    service exceptions and let unexpected errors (code bugs)
+    propagate to Sidekiq for retry or dead-queue handling.</step>
+  </investigate_before_answering>
+
+  <severity_assessment>
+    <critical
+        >bare rescue in code handling PII, PHI, or financial data</critical>
+    <critical
+        >bare rescue in controller actions handling user requests</critical>
+    <critical
+        >bare rescue + nil return in code calling external services</critical>
+    <critical>bare rescue that swallows exceptions in a Sidekiq job's
+primary operation (e.g., the method called from `perform`); swallowing
+prevents Sidekiq retries and treats code bugs (NoMethodError, typos)
+identically to legitimate service failures, the job reports success,
+no retry occurs, and the user may receive an incorrect failure
+notification triggered by a bug rather than an actual failure</critical>
+    <critical>bare rescue whose rescue body triggers an alternative
+business path (e.g., fallback submission to a different service); a
+code bug (NoMethodError, NameError) in the primary path silently
+activates the fallback, routing the operation through the wrong path
+for the wrong reason, the fallback was designed for upstream failures,
+not code defects</critical>
+    <high>bare rescue in service layer calling external APIs</high>
+    <high>bare rescue in Sidekiq job that logs and re-raises; the
+re-raise preserves retry behavior but the bare rescue still catches
+too broadly (typos, signals), potentially triggering retries for
+non-retryable code bugs and logging misleading error context. When
+the log statement adds contextual identifiers not present in the
+exception itself (user_uuid, claim_id, submission_id), note this as
+lower priority within HIGH, the log adds operational value even
+though the rescue is too broad</high>
+    <medium
+        >bare rescue in internal utility with no external dependencies</medium>
+    <false_positive>bare rescue in defensive contexts: healthcheck
+endpoints, feature flag checks, cache operations, serializer fields,
+monitoring/instrumentation, initialization/config with safe defaults,
+non-critical data enrichment, notification/email side-effects, or
+webhook/callback handlers. The underlying principle is that the
+rescued code is a non-critical side-effect or must-not-fail boundary
+where failure should be absorbed with a safe fallback. **Exclude
+entirely**; do not report at any severity. The defensive-rescue
+context check in investigation step 6 is a **hard gate**: if the
+context meets this principle, the finding is excluded, not
+downgraded. Do NOT apply to primary business logic; bare rescues
+around the main operation of a controller action, service call,
+or job are never defensive.</false_positive>
+  </severity_assessment>
+
+  <pr_comment_template>
+    **Never Use Broad or Bare Rescues** | `CRITICAL`
+
+    `{{file_path}}:{{line_number}}` - `{{rescue_pattern}}` catches all exceptions
+    including `NoMethodError` from typos. APM cannot see errors caught this way.
+
+    **Why this matters:** All failures return the same result. On-call can't
+    distinguish service outage from code bug. BGS timeout looks like "no file number."
+
+    **Suggested fix:**
+    ```ruby
+    rescue BGS::ShareError, Common::Client::Errors::ClientError => e
+      Rails.logger.warn('Service unavailable', { error: e.class.name })
+      raise Common::Exceptions::BadGateway.new(detail: 'Upstream service unavailable')
+    end
+    ```
+
+    - [ ] Rescue specifies exception class(es)
+    - [ ] No nil/false return for failures
+    - [ ] Cause chain preserved (raise inside rescue block; Ruby sets `$!.cause` automatically)
+
+    [Play: Never Use Broad or Bare Rescues](03-never-use-bare-rescues.xml)
+  </pr_comment_template>
+
+  <examples>
+    <example name="BGS file number lookup - bare rescue returns nil">
+      <bad>
+response = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+response[:file_nbr]
+rescue  # Bare rescue catches ALL exceptions
+  Rails.logger.warn('Unable to look up VA File Number')
+  nil  # Returns nil for ALL failures including code bugs
+      </bad>
+      <good>
+response = service.people.find_person_by_ptcpnt_id(participant_id, ssn)
+response[:file_nbr]
+rescue BGS::ShareError, Common::Client::Errors::ClientError => e
+  Rails.logger.warn('Unable to look up VA File Number', { error_class: e.class.name })
+  nil
+# NoMethodError and other code bugs surface naturally
+      </good>
+    </example>
+
+    <example name="Cemeteries Controller - rescue => e catches everything">
+      <bad>
+rescue => e  # Same as bare rescue: catches EVERYTHING
+  Rails.logger.error "Cemetery controller error: #{e.message}"
+  Rails.logger.error e.backtrace.join("\n")
+  render json: { error: 'Unable to load cemetery data' }, status: :internal_server_error
+      </bad>
+      <good>
+rescue SimpleFormsApi::ProcessingError, Faraday::Error => e
+  render_errors(e)
+# NoMethodError raises to APM: code bugs visible
+      </good>
+    </example>
+
+    <example name="SAML User - bare rescue tags all exceptions">
+      <bad>
+rescue  # Bare rescue catches everything just to set Sentry tags
+  Sentry.set_tags(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+  raise  # Re-raises after catching: tags ALL exceptions including bugs
+      </bad>
+      <good>
+rescue SAML::UserAttributeError, SAML::FormError => e
+  Sentry.set_tags(controller_name: 'sessions', sign_in_method: 'not-signed-in:saml-error')
+  raise
+# Unexpected errors raise without misleading tags
+      </good>
+    </example>
+  </examples>
+
+</play>

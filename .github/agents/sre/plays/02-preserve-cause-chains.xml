@@ -1,0 +1,183 @@
+<play
+    id="preserve-cause-chains"
+    title="Always Preserve the Cause Chain When Wrapping Exceptions"
+    severity="CRITICAL"
+>
+
+  <context>
+    Preserving exception cause chains gives SREs a complete failure
+    trail, from the original upstream error through each layer that
+    handled it. APM can group failures by root cause, background jobs
+    apply the correct retry strategy based on exception type, and
+    incident responders see the full chain instead of a generic
+    message. When cause chains are destroyed, every failure looks
+    the same in monitoring and root-cause analysis requires manual
+    log correlation.
+  </context>
+
+  <applies_to>
+    <glob>app/controllers/**/*.rb</glob>
+    <glob>app/sidekiq/**/*.rb</glob>
+    <glob>app/models/**/*.rb</glob>
+    <glob>modules/*/app/controllers/**/*.rb</glob>
+    <glob>modules/*/app/models/**/*.rb</glob>
+    <glob>modules/*/app/sidekiq/**/*.rb</glob>
+    <glob>lib/**/*.rb</glob>
+  </applies_to>
+
+  <rules>
+    <rule enforcement="must">
+      When catching an exception and raising a new one, ensure the
+      cause chain is preserved. Ruby automatically sets `$!.cause`
+      when you `raise` a new exception from within a `rescue` block
+      ; you do NOT need to pass `cause: e` explicitly.
+    </rule>
+    <rule enforcement="must">
+      Never use `cause: e` with `Common::Exceptions` classes; they
+      do not accept it (it is silently ignored). Ruby's implicit
+      cause chain handles this automatically.
+    </rule>
+    <rule enforcement="should">
+      If not adding context when re-raising, use bare `raise` to
+      preserve the original exception automatically.
+    </rule>
+    <rule enforcement="should">
+      For custom exception classes, verify the constructor accepts
+      `cause:` before using it. Read the class definition. If it
+      does not accept `cause:`, rely on Ruby's implicit cause chain.
+    </rule>
+  </rules>
+
+  <investigate_before_answering>
+    <step
+        >Read the full method containing the rescue block to understand what exception is being caught and what new exception is being raised.</step>
+    <step
+        >Identify the exception class being raised: does its constructor accept a `cause:` keyword argument? If not, the class itself may need to be updated before the fix can be applied.</step>
+    <step
+        >Check if the code uses `raise "string"` pattern; this always creates a new RuntimeError and is never correct. The fix is `raise` without arguments, or a typed exception raised inside the rescue block (Ruby automatically sets the cause chain).</step>
+    <step
+        >Determine whether the rescue block catches specific exceptions or uses bare rescue. If bare rescue, the cause chain fix should be combined with narrowing the rescue clause (see Play: Never Use Broad Rescues).</step>
+    <step
+        >Check if Sidekiq retry behavior depends on the exception type. If so, preserving the original class is critical for correct retry strategy. Do not suggest adding `cause: e` without first verifying that the exception constructor accepts it. Read the exception class definition if needed.</step>
+  </investigate_before_answering>
+
+  <severity_assessment>
+    <critical>cause chain lost in code handling PII, PHI, or benefits claims
+data</critical>
+    <critical>stringified re-raise in Sidekiq job where retry strategy
+depends on exception type</critical>
+    <critical>cause chain lost in service layer calling external APIs (BGS,
+MPI, Lighthouse), causing APM blackout for upstream errors</critical>
+    <high>cause chain lost when wrapping exception in controller handling
+user-facing requests</high>
+    <high>cause chain lost in code where HTTP status codes must
+propagate for correct error responses</high>
+    <medium>cause chain lost in internal utility with no external
+dependencies or retry behavior</medium>
+    <false_positive>Intentional cause-chain breaks for PII scrubbing:
+when the original exception contains PII/PHI in its message (e.g.,
+upstream errors that echo veteran data), raising a new exception
+without the cause is a deliberate security measure. Also, custom
+exception constructors that chain internally (e.g., `initialize`
+calls `super` and stores the original exception as an attribute)
+preserve the chain through a different mechanism than Ruby's implicit
+`cause`; read the exception class definition before flagging.</false_positive>
+  </severity_assessment>
+
+  <pr_comment_template>
+    **Always Preserve the Cause Chain When Wrapping Exceptions** | `CRITICAL`
+
+    `{{file_path}}:{{line_number}}` - {{one_line_violation_description}}
+
+    **Why this matters:** Without the cause chain, APM shows only the wrapper
+    exception at the re-raise line. The original error's stack trace, HTTP status
+    code, and exception class are lost. Engineers cannot determine root cause
+    without manual log analysis. Sidekiq retry strategies may apply the wrong
+    policy when the original exception type is destroyed.
+
+    **Suggested fix:**
+    ```ruby
+    rescue Faraday::ClientError
+      raise Common::Exceptions::BadGateway.new(detail: 'Upstream client error')
+    end
+    # Ruby automatically preserves cause chain when raising inside rescue
+    ```
+
+    **Verify:**
+    - [ ] Raise happens inside a rescue block (Ruby automatically sets `$!.cause`)
+    - [ ] No `raise "error: #{e}"` patterns remain (destroys cause chain)
+    - [ ] No `cause: e` kwargs used with `Common::Exceptions` classes (silently ignored)
+    - [ ] APM traces show full chain: wrapper -> original exception
+    - [ ] Stack trace shows original failure location
+
+    [Play: Always Preserve the Cause Chain](02-preserve-cause-chains.xml)
+  </pr_comment_template>
+
+  <examples>
+    <example name="Stringified re-raise destroys cause chain">
+      <bad>
+rescue => e
+  raise "error: #{e}"
+  # Creates NEW RuntimeError: original class, backtrace, and cause chain destroyed
+      </bad>
+      <good>
+rescue
+  raise  # Re-raises original exception with full context
+  # Or if adding context:
+  # raise ImportError.new("CSV import failed")
+  # Ruby automatically sets $!.cause to the caught exception
+      </good>
+    </example>
+
+    <example
+            name="Wraps only message string, discards exception type and backtrace"
+        >
+      <bad>
+rescue Faraday::ClientError => e
+  raise StandardError.new(e.message)
+  # Discards original exception class and backtrace; cause chain is set
+  # but the wrapper is a generic StandardError with only a string message
+      </bad>
+      <good>
+rescue Faraday::ClientError
+  raise Common::Exceptions::BadGateway.new(detail: 'Upstream client error')
+  # Ruby automatically sets $!.cause to the caught Faraday exception
+  # Typed exception maps to correct HTTP status (502)
+      </good>
+    </example>
+
+    <example name="Mobile Dependents - wraps only message string">
+      <bad>
+rescue => e
+  raise Common::Exceptions::BackendServiceException.new(
+    nil,
+    detail: e.message  # Only e.message preserved in error detail; exception class and structured metadata lost from response (Ruby's $!.cause chain is preserved, but consumers only see the string)
+  )
+      </bad>
+      <good>
+rescue BGS::ShareError, Common::Client::Errors::ClientError
+  raise Common::Exceptions::BadGateway.new(
+    detail: 'BGS service unavailable'
+  )
+  # Ruby automatically preserves the cause chain
+  # BadGateway (502) correctly signals upstream failure
+      </good>
+    </example>
+
+    <example name="Re-raise typed Common::Exceptions - do NOT use cause: e">
+      <bad>
+rescue Faraday::TimeoutError => e
+  raise Common::Exceptions::GatewayTimeout.new(detail: 'Upstream timed out', cause: e)
+  # cause: e is silently ignored by Common::Exceptions
+  # GatewayTimeout#errors ignores constructor arguments (it always returns i18n data); detail: and cause: are absorbed by StandardError#initialize but never used
+      </bad>
+      <good>
+rescue Faraday::TimeoutError
+  raise Common::Exceptions::GatewayTimeout.new
+  # Ruby automatically sets $!.cause to the caught Faraday::TimeoutError
+  # GatewayTimeout takes no arguments; it always returns 504
+      </good>
+    </example>
+  </examples>
+
+</play>

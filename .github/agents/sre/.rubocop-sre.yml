@@ -1,0 +1,47 @@
+# SRE Playbook Enforcement Cops
+#
+# These cops are NOT part of the standard RuboCop pipeline. They are only
+# invoked as a pre-scan step before the SRE agent audit.
+#
+# Usage:
+#   bundle exec rubocop -c .github/agents/sre/.rubocop-sre.yml --only Sre <target_path>
+#   bundle exec rubocop -c .github/agents/sre/.rubocop-sre.yml --only Sre --format json <target_path>
+
+require:
+  - '../../../lib/rubocop/cop/sre/dont_leak_pii'
+  - '../../../lib/rubocop/cop/sre/preserve_cause_chains'
+  - '../../../lib/rubocop/cop/sre/no_bare_rescues'
+  - '../../../lib/rubocop/cop/sre/prefer_typed_exceptions'
+  - '../../../lib/rubocop/cop/sre/no_module_frameworks'
+
+AllCops:
+  DisabledByDefault: true
+  Exclude:
+    - '../../../spec/**/*'
+    - '../../../modules/*/spec/**/*'
+    - '../../../db/**/*'
+    - '../../../vendor/**/*'
+    - '../../../tmp/**/*'
+
+Sre/DontLeakPii:
+  Enabled: true
+  Severity: error
+
+Sre/PreserveCauseChains:
+  Enabled: true
+  Severity: error
+
+Sre/NoBareRescues:
+  Enabled: true
+  Severity: error
+
+Sre/PreferTypedExceptions:
+  Enabled: true
+  Severity: error
+
+Sre/NoModuleFrameworks:
+  Enabled: true
+  Severity: error
+  Include:
+    - '../../../modules/**/*.rb'
+
