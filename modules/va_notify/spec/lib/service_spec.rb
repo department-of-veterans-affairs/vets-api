@@ -480,6 +480,53 @@ describe VaNotify::Service do
         end
       end
     end
+
+    describe 'error context includes template_id' do
+      let(:notification_client) { instance_double(Notifications::Client) }
+      let(:client_error) do
+        Common::Client::Errors::ClientError.new('Forbidden', 403, { 'errors' => [{ 'error' => 'AuthError',
+                                                                                   'message' => 'Invalid token' }] })
+      end
+
+      before do
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+        allow(notification_client).to receive(:send_sms).and_raise(client_error)
+      end
+
+      context 'when args have symbol keys' do
+        let(:symbol_key_sms_params) do
+          {
+            phone_number: '+19876543210',
+            template_id: 'sms-symbol-template-1234',
+            personalisation: { foo: 'bar' }
+          }
+        end
+
+        it 'includes template_id in error context' do
+          expect { subject.send_sms(symbol_key_sms_params) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::Forbidden)
+            expect(e.context[:template_id]).to eq('sms-symbol-template-1234')
+          end
+        end
+      end
+
+      context 'when args have string keys (Sidekiq serialization)' do
+        let(:string_key_sms_params) do
+          {
+            'phone_number' => '+19876543210',
+            'template_id' => 'sms-string-template-5678',
+            'personalisation' => { 'foo' => 'bar' }
+          }
+        end
+
+        it 'includes template_id in error context' do
+          expect { subject.send_sms(string_key_sms_params) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::Forbidden)
+            expect(e.context[:template_id]).to eq('sms-string-template-5678')
+          end
+        end
+      end
+    end
   end
 
   describe 'error handling', test_service: false do
@@ -552,6 +599,46 @@ describe VaNotify::Service do
           expect(e).to be_a(VANotify::Forbidden)
           expect(e.status_code).to eq(403)
           expect(e.message).to include('AuthError: Invalid token: signature, api token is not valid')
+        end
+      end
+    end
+
+    describe 'error context includes template_id' do
+      context 'when args have symbol keys' do
+        let(:symbol_key_params) do
+          {
+            email_address: 'test@email.com',
+            template_id: 'symbol-template-1234',
+            personalisation: { foo: 'bar' }
+          }
+        end
+
+        it 'includes template_id in error context for send_email' do
+          VCR.use_cassette('va_notify/auth_error_invalid_token') do
+            expect { subject.send_email(symbol_key_params) }.to raise_error do |e|
+              expect(e).to be_a(VANotify::Forbidden)
+              expect(e.context[:template_id]).to eq('symbol-template-1234')
+            end
+          end
+        end
+      end
+
+      context 'when args have string keys (Sidekiq serialization)' do
+        let(:string_key_params) do
+          {
+            'email_address' => 'test@email.com',
+            'template_id' => 'string-template-5678',
+            'personalisation' => { 'foo' => 'bar' }
+          }
+        end
+
+        it 'includes template_id in error context for send_email' do
+          VCR.use_cassette('va_notify/auth_error_invalid_token') do
+            expect { subject.send_email(string_key_params) }.to raise_error do |e|
+              expect(e).to be_a(VANotify::Forbidden)
+              expect(e.context[:template_id]).to eq('string-template-5678')
+            end
+          end
         end
       end
     end
@@ -693,6 +780,55 @@ describe VaNotify::Service do
 
       it 'does not create a notification record' do
         expect { subject.send_push(send_push_parameters) }.not_to change(VANotify::Notification, :count)
+      end
+    end
+
+    describe 'error context includes template_id' do
+      subject { VaNotify::Service.new(test_api_key) }
+
+      let(:client_error) do
+        Common::Client::Errors::ClientError.new('Forbidden', 403, { 'errors' => [{ 'error' => 'AuthError',
+                                                                                   'message' => 'Invalid token' }] })
+      end
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_notify_push_notifications).and_return(true)
+        allow(VaNotify::Client).to receive(:new).and_return(push_client)
+        allow(push_client).to receive(:send_push).and_raise(client_error)
+      end
+
+      context 'when args have symbol keys' do
+        let(:symbol_key_push_params) do
+          {
+            mobile_app: 'VA_FLAGSHIP_APP',
+            template_id: 'push-symbol-template-1234',
+            recipient_identifier: { id_type: 'ICN', id_value: 'fake-icn' }
+          }
+        end
+
+        it 'includes template_id in error context' do
+          expect { subject.send_push(symbol_key_push_params) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::Forbidden)
+            expect(e.context[:template_id]).to eq('push-symbol-template-1234')
+          end
+        end
+      end
+
+      context 'when args have string keys (Sidekiq serialization)' do
+        let(:string_key_push_params) do
+          {
+            'mobile_app' => 'VA_FLAGSHIP_APP',
+            'template_id' => 'push-string-template-5678',
+            'recipient_identifier' => { 'id_type' => 'ICN', 'id_value' => 'fake-icn' }
+          }
+        end
+
+        it 'includes template_id in error context' do
+          expect { subject.send_push(string_key_push_params) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::Forbidden)
+            expect(e.context[:template_id]).to eq('push-string-template-5678')
+          end
+        end
       end
     end
 
