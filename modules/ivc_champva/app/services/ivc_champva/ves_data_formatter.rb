@@ -9,12 +9,29 @@ module IvcChampva
     VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by(&:downcase).freeze
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
 
-    # Transform parsed form data from frontend format to a VES request & validate
-    #
-    # Use format_for_extended_request for 10-10D-EXTENDED submissions.
-    #
-    # @param parsed_form_data [Hash] the parsed form data from the frontend
-    # @return [IvcChampva::VesRequest] the VES request object
+    MEDICARE_PART_TYPE_MAP = {
+      'a' => 'MEDICARE_PART_A',
+      'b' => 'MEDICARE_PART_B',
+      'd' => 'MEDICARE_PART_D'
+    }.freeze
+
+    INSURANCE_PLAN_TYPE_MAP = {
+      'hmo' => 'HMO',
+      'ppo' => 'PPO',
+      'medicare_advantage' => 'MEDICARE_ADVANTAGE',
+      'medicaid' => 'MEDICAID',
+      'medigap' => 'MEDIGAP_PLAN',
+      'medigap_plan' => 'MEDIGAP_PLAN',
+      'other' => 'OTHER'
+    }.freeze
+
+    SSN_PATTERN = /^\d{9}$/
+    MEDICARE_BENE_ID_PATTERN = /^[a-zA-Z0-9]{1,11}$/
+    EMAIL_PATTERN = URI::MailTo::EMAIL_REGEXP
+    PHONE_PATTERN = /^[0-9+]+$/
+    DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+    # @return [IvcChampva::VesRequest]
     def self.format_for_request(parsed_form_data)
       ves_data = transform_to_ves_format(parsed_form_data)
       validate_ves_data(ves_data)
@@ -28,27 +45,15 @@ module IvcChampva
       )
     end
 
-    ##
-    # Formats 10-10D-EXTENDED form data into a VesRequest with OHI subforms attached.
-    # Builds the 10-10D request, then builds OHI requests for applicants with health
-    # insurance data, propagates UUIDs, and attaches them as subforms.
-    #
-    # @param parsed_form_data [Hash] the parsed form data from the frontend
-    # @return [IvcChampva::VesRequest] the VES request object with OHI subforms
+    # Builds 10-10D request with OHI subforms attached, UUIDs propagated.
+    # @return [IvcChampva::VesRequest]
     def self.format_for_extended_request(parsed_form_data)
-      # Build the 10-10D request
       ves_request = format_for_request(parsed_form_data)
-
-      # Build standalone OHI requests
       ohi_requests = format_for_ohi_request(parsed_form_data)
 
-      # Propagate UUIDs and attach as subforms
       ohi_requests.each do |ohi_request|
-        # Find matching beneficiary by SSN + name (using beneficiary_medicare for new structure)
         ohi_bene = ohi_request.beneficiary_medicare
         matching_beneficiary = find_matching_beneficiary(ves_request.beneficiaries, ohi_bene)
-
-        # Propagate UUIDs from parent
         ohi_request.application_uuid = ves_request.application_uuid
         ohi_bene.person_uuid = matching_beneficiary.person_uuid if matching_beneficiary
 
@@ -58,11 +63,7 @@ module IvcChampva
       ves_request
     end
 
-    ##
-    # Formats OHI (10-7959C) form data into VesOhiRequest(s) for standalone submissions.
-    #
-    # @param parsed_form_data [Hash] the parsed form data from the frontend
-    # @return [Array<IvcChampva::VesOhiRequest>] array of OHI request objects
+    # @return [Array<IvcChampva::VesOhiRequest>]
     def self.format_for_ohi_request(parsed_form_data)
       applicants = parsed_form_data['applicants'] || []
       ohi_requests = []
@@ -71,9 +72,7 @@ module IvcChampva
         next unless applicant_has_ohi_data?(applicant)
 
         ohi_data = transform_ohi_to_ves_format(applicant, parsed_form_data)
-
-        # TODO: Enable validation once VES swagger spec is available
-        # validate_ohi_data(ohi_data)
+        validate_ohi_data(ohi_data)
 
         ohi_requests << IvcChampva::VesOhiRequest.new(
           application_uuid: ohi_data[:application_uuid],
@@ -85,13 +84,7 @@ module IvcChampva
       ohi_requests
     end
 
-    ##
-    # Finds a matching beneficiary by SSN and name.
-    # Used to propagate person_uuid from 10-10D beneficiaries to OHI requests.
-    #
-    # @param beneficiaries [Array<VesRequest::Beneficiary>] the beneficiaries from the VesRequest
-    # @param ohi_beneficiary [VesOhiRequest::Beneficiary] the OHI beneficiary to match
-    # @return [VesRequest::Beneficiary, nil] the matching beneficiary or nil
+    # Finds matching beneficiary by SSN and name for UUID propagation.
     def self.find_matching_beneficiary(beneficiaries, ohi_beneficiary)
       beneficiaries.find do |ben|
         ben.ssn == ohi_beneficiary.ssn &&
@@ -219,24 +212,37 @@ module IvcChampva
         (medicare.is_a?(Array) && medicare.any?)
     end
 
-    ##
-    # Transforms applicant data to VES OHI format.
-    # Returns the combined beneficiary_medicare structure per VES swagger.
-    #
     # @param applicant_data [Hash] the applicant data
     # @param parsed_form_data [Hash] the full form data (for certification)
     # @return [Hash] the transformed data
     def self.transform_ohi_to_ves_format(applicant_data, parsed_form_data)
       beneficiary_data = map_ohi_beneficiary(applicant_data)
+      medicare_array = applicant_data['medicare'] || []
 
       {
         application_uuid: SecureRandom.uuid,
         beneficiary_medicare: beneficiary_data.merge(
-          medicare_parts: map_medicare_parts(applicant_data['medicare'] || []),
-          other_insurances: map_other_insurances(applicant_data['health_insurance'] || [])
+          medicare_bene_id: extract_medicare_bene_id(medicare_array),
+          medicare_parts: map_medicare_parts(medicare_array),
+          other_insurances: map_ohi_other_insurances(applicant_data)
         ),
         certification: map_ohi_certification(parsed_form_data)
       }
+    end
+
+    # Combines health_insurance entries with Medicare Part C (treated as other insurance).
+    # @return [Array<Hash>] array of insurance hashes, empty if none found
+    def self.map_ohi_other_insurances(applicant_data)
+      health_insurance = map_other_insurances(applicant_data['health_insurance'] || [])
+      medicare_part_c = extract_medicare_part_c(applicant_data['medicare'] || [])
+      health_insurance + medicare_part_c
+    end
+
+    # Extracts medicare beneficiary ID (first non-blank medicare_number found).
+    def self.extract_medicare_bene_id(medicare_array)
+      return nil unless medicare_array.is_a?(Array)
+
+      medicare_array.lazy.map { |m| m['medicare_number'] }.find(&:present?)
     end
 
     ##
@@ -253,30 +259,49 @@ module IvcChampva
         middle_initial: applicant_data.dig('applicant_name', 'middle'),
         last_name: transliterate_and_strip(applicant_data.dig('applicant_name', 'last')),
         suffix: applicant_data.dig('applicant_name', 'suffix'),
-        ssn: applicant_data['ssn_or_tin'] || applicant_data['applicant_ssn'],
-        date_of_birth: applicant_data['applicant_dob'],
-        gender: normalize_gender(applicant_data.dig('applicant_gender',
-                                                    'gender') || applicant_data['applicant_gender']),
+        ssn: extract_ssn(applicant_data),
+        date_of_birth: format_date(applicant_data['applicant_dob']),
+        gender: normalize_gender(extract_gender(applicant_data)),
         email_address: applicant_data['applicant_email_address'] || applicant_data['applicant_email'],
         phone_number: format_phone_number(applicant_data['applicant_phone']),
-        address: map_address(applicant_data['applicant_address'])
-      }
+        address: map_address(applicant_data['applicant_address']),
+        is_new_address: normalize_yes_no(applicant_data['applicant_new_address'])
+      }.compact
     end
 
+    # Handles both nested { 'applicant_gender' => { 'gender' => 'male' } } and flat structures.
+    def self.extract_gender(applicant_data)
+      gender_field = applicant_data['applicant_gender']
+      return nil if gender_field.nil?
+      return gender_field['gender'] if gender_field.is_a?(Hash)
+
+      gender_field
+    end
+
+    # Handles both nested { 'applicant_ssn' => { 'ssn' => '...' } } and flat structures.
+    def self.extract_ssn(applicant_data)
+      ssn = applicant_data.dig('applicant_ssn', 'ssn') if applicant_data['applicant_ssn'].is_a?(Hash)
+      ssn || applicant_data['ssn_or_tin'] || applicant_data['applicant_ssn']
+    end
+
+    def self.normalize_yes_no(value)
+      return nil if value.nil?
+      return value if [true, false].include?(value)
+
+      case value.to_s.downcase
+      when 'yes', 'true', '1' then true
+      when 'no', 'false', '0' then false
+      end
+    end
+
+    # Parts A, B, D go into medicareParts; Part C goes to otherInsurances as MEDICARE_ADVANTAGE
     MEDICARE_PART_CONFIGS = [
-      { type: 'a', date_key: 'medicare_part_a_effective_date', desc_keys: ['medicare_part_a_description'] },
-      { type: 'b', date_key: 'medicare_part_b_effective_date', desc_keys: ['medicare_part_b_description'] },
-      { type: 'd',
-        date_key: 'medicare_part_d_effective_date',
-        desc_keys: %w[medicare_part_d_carrier medicare_part_d_description],
-        flag_key: 'has_medicare_part_d' }
+      { type: 'MEDICARE_PART_A', date_key: 'medicare_part_a_effective_date' },
+      { type: 'MEDICARE_PART_B', date_key: 'medicare_part_b_effective_date' },
+      { type: 'MEDICARE_PART_D', date_key: 'medicare_part_d_effective_date', flag_key: 'has_medicare_part_d' }
     ].freeze
 
-    ##
-    # Maps medicare data array to VES medicareParts format.
-    #
-    # @param medicare_array [Array<Hash>] medicare entries from the form
-    # @return [Array<Hash>] array of medicare part hashes for VesOhiRequest::MedicarePart
+    # Maps A, B, D medicare parts. Returns [] if no parts found.
     def self.map_medicare_parts(medicare_array)
       return [] unless medicare_array.is_a?(Array)
 
@@ -294,46 +319,70 @@ module IvcChampva
 
       {
         medicare_part_type: config[:type],
-        effective_date: format_date(medicare[config[:date_key]]),
-        description: config[:desc_keys].lazy.map { |k| medicare[k] }.find(&:present?)
+        effective_date: format_date(medicare[config[:date_key]])
       }.compact
     end
 
-    ##
-    # Maps health_insurance data array to VES otherInsurances format.
-    #
-    # @param health_insurance_array [Array<Hash>] health insurance entries from the form
-    # @return [Array<Hash>] array of insurance hashes for VesOhiRequest::OtherInsurance
+    # Extracts Medicare Part C entries as other insurances. Returns [] if none found.
+    def self.extract_medicare_part_c(medicare_array)
+      return [] unless medicare_array.is_a?(Array)
+
+      medicare_array.filter_map do |medicare|
+        plan_type = medicare['medicare_plan_type']&.to_s&.downcase
+        has_part_c = plan_type&.include?('c') || medicare['medicare_part_c_effective_date'].present?
+        next unless has_part_c
+
+        {
+          insurance_name: medicare['medicare_part_c_carrier'],
+          insurance_plan_type: 'MEDICARE_ADVANTAGE',
+          effective_date: format_date(medicare['medicare_part_c_effective_date']),
+          comments: medicare['medicare_part_c_description'],
+          is_prescription_covered: medicare['has_pharmacy_benefits']
+        }.compact
+      end
+    end
+
+    # Maps health_insurance entries to otherInsurances format. Returns [] if none.
     def self.map_other_insurances(health_insurance_array)
       return [] unless health_insurance_array.is_a?(Array)
 
       health_insurance_array.map do |insurance|
+        plan_type = insurance['insurance_type'] || insurance['insurance_plan_type']
         {
-          description: insurance['description'],
           insurance_name: insurance['provider'] || insurance['insurance_name'],
           effective_date: format_date(insurance['effective_date']),
           termination_date: format_date(insurance['expiration_date'] || insurance['termination_date']),
-          insurance_plan_type: insurance['insurance_type'] || insurance['insurance_plan_type'],
+          insurance_plan_type: normalize_insurance_plan_type(plan_type),
           is_through_employment: insurance['through_employer'] || insurance['is_through_employment'],
-          is_prescription_covered: insurance['is_prescription_covered'],
-          eob_indicator: insurance['eob'] || insurance['eob_indicator'],
+          is_prescription_covered: insurance['is_prescription_covered'] || insurance['has_prescription'],
+          eob_indicator: normalize_eob_indicator(insurance['eob'] || insurance['eob_indicator']),
           comments: insurance['additional_comments'] || insurance['comments']
         }.compact
       end
     end
 
-    ##
-    # Maps certification data for OHI submissions.
-    #
-    # @param form_data [Hash] the parsed form data containing certification info
-    # @return [Hash]
+    # Normalizes to VES enum: HMO, PPO, MEDICARE_ADVANTAGE, MEDICAID, MEDIGAP_PLAN, OTHER
+    def self.normalize_insurance_plan_type(plan_type)
+      return nil if plan_type.blank?
+
+      INSURANCE_PLAN_TYPE_MAP[plan_type.to_s.downcase] || 'OTHER'
+    end
+
+    # EOB indicator comes in as boolean from frontend form data
+    def self.normalize_eob_indicator(value)
+      return nil if value.nil?
+      return value if [true, false].include?(value)
+
+      normalize_yes_no(value)
+    end
+
     def self.map_ohi_certification(form_data)
       return {} if form_data.nil?
 
       certification = form_data['certification'] || {}
       {
         signature: form_data['statement_of_truth_signature'],
-        signature_date: certification['date'] || form_data['certification_date'],
+        signature_date: format_date(certification['date'] || form_data['certification_date']),
         first_name: transliterate_and_strip(certification['first_name']),
         last_name: transliterate_and_strip(certification['last_name']),
         middle_initial: certification['middle_initial'],
@@ -343,15 +392,107 @@ module IvcChampva
       }.compact
     end
 
-    ##
-    # Validates OHI data before building request.
-    # TODO: Implement validation once VES swagger spec is available
-    #
-    # @param data [Hash] the transformed OHI data
+    # Validates transformed data against schema requirements. Raises ArgumentError on failure.
     def self.validate_ohi_data(data)
-      # TODO: Add validation rules based on VES swagger spec
-      # For now, just return the data as-is
+      validate_ohi_application_uuid(data[:application_uuid])
+      validate_ohi_beneficiary_medicare(data[:beneficiary_medicare])
+      validate_ohi_certification(data[:certification])
       data
+    end
+
+    def self.validate_ohi_certification(cert)
+      raise ArgumentError, 'certification is required' if cert.blank?
+
+      validate_presence_and_stringiness(cert[:signature], 'certification.signature')
+      cert[:signature_date] = validate_date(cert[:signature_date], 'certification.signatureDate')
+    end
+
+    def self.validate_ohi_application_uuid(uuid)
+      validate_uuid(uuid, 'applicationUUID')
+    end
+
+    def self.validate_ohi_beneficiary_medicare(bene)
+      raise ArgumentError, 'beneficiaryMedicare is required' if bene.nil?
+
+      validate_uuid(bene[:person_uuid], 'beneficiaryMedicare.personUUID')
+      validate_name_fields(bene, 'beneficiaryMedicare')
+
+      validate_ssn(bene[:ssn], 'beneficiaryMedicare.ssn')
+
+      validate_presence_and_stringiness(bene[:gender], 'beneficiaryMedicare.gender')
+      validate_enum(bene[:gender], GENDERS, 'beneficiaryMedicare.gender')
+
+      validate_ohi_address(bene[:address], 'beneficiaryMedicare.address')
+
+      # Optional fields: validate format if present
+      if bene[:medicare_bene_id].present?
+        validate_pattern(bene[:medicare_bene_id], MEDICARE_BENE_ID_PATTERN, 'beneficiaryMedicare.medicareBeneId',
+                         'must be 1-11 alphanumeric characters')
+      end
+      validate_email(bene[:email_address]) if bene[:email_address].present?
+      validate_phone(bene, 'beneficiaryMedicare.phoneNumber') if bene[:phone_number].present?
+      if bene[:date_of_birth].present?
+        bene[:date_of_birth] = validate_date(bene[:date_of_birth], 'beneficiaryMedicare.dateOfBirth')
+      end
+
+      validate_ohi_medicare_parts(bene[:medicare_parts] || [])
+      validate_ohi_other_insurances(bene[:other_insurances] || [])
+    end
+
+    def self.validate_ohi_address(address, field_prefix)
+      validate_address(address, field_prefix)
+    end
+
+    def self.validate_ohi_medicare_parts(medicare_parts)
+      medicare_parts.each_with_index do |part, idx|
+        prefix = "beneficiaryMedicare.medicareParts[#{idx}]"
+
+        part[:effective_date] = validate_date(part[:effective_date], "#{prefix}.effectiveDate")
+
+        validate_presence_and_stringiness(part[:medicare_part_type], "#{prefix}.medicarePartType")
+        validate_enum(part[:medicare_part_type], MEDICARE_PART_TYPE_MAP.values, "#{prefix}.medicarePartType")
+
+        # Optional field: validate format if present
+        if part[:termination_date].present?
+          part[:termination_date] = validate_date(part[:termination_date], "#{prefix}.terminationDate")
+        end
+      end
+    end
+
+    def self.validate_ohi_other_insurances(other_insurances)
+      other_insurances.each_with_index do |ins, idx|
+        prefix = "beneficiaryMedicare.otherInsurances[#{idx}]"
+
+        validate_nonempty_presence_and_stringiness(ins[:insurance_name], "#{prefix}.insuranceName")
+
+        ins[:effective_date] = validate_date(ins[:effective_date], "#{prefix}.effectiveDate")
+
+        validate_presence_and_stringiness(ins[:insurance_plan_type], "#{prefix}.insurancePlanType")
+        validate_enum(ins[:insurance_plan_type], INSURANCE_PLAN_TYPE_MAP.values, "#{prefix}.insurancePlanType")
+
+        # Optional field: validate format if present
+        if ins[:termination_date].present?
+          ins[:termination_date] = validate_date(ins[:termination_date], "#{prefix}.terminationDate")
+        end
+      end
+    end
+
+    def self.validate_pattern(value, pattern, field_name, message)
+      return if value.blank?
+      raise ArgumentError, "#{field_name} #{message}" unless value.to_s.match?(pattern)
+    end
+
+    def self.validate_enum(value, allowed_values, field_name)
+      return if value.blank?
+
+      unless allowed_values.include?(value)
+        raise ArgumentError, "#{field_name} '#{value}' is invalid. Must be one of: #{allowed_values.join(', ')}"
+      end
+    end
+
+    def self.validate_date_format(value, field_name)
+      return if value.blank?
+      raise ArgumentError, "#{field_name} must be in YYYY-MM-DD format" unless value.to_s.match?(DATE_PATTERN)
     end
 
     # ============================================================================
@@ -360,13 +501,8 @@ module IvcChampva
     def self.format_phone_number(phone)
       return nil if phone.blank?
 
-      phone = phone.to_s.gsub(/\D/, '')
-
-      # regex from VES swagger
-      return phone if phone.match?(/^[0-9+]+$/)
-
-      # TODO: add country code check/formatting
-      phone.to_s.gsub(/\D/, '')
+      # Strip all non-digit/non-plus characters to match VES PHONE_PATTERN
+      phone.to_s.gsub(/[^0-9+]/, '')
     end
 
     def self.format_ssn(ssn)
@@ -381,18 +517,22 @@ module IvcChampva
       digits
     end
 
+    ##
+    # Normalizes date strings to YYYY-MM-DD format.
+    # Handles MM-DD-YYYY, MM/DD/YYYY, and already formatted dates.
+    #
+    # @param date_string [String, nil] the date string to format
+    # @return [String, nil] the formatted date or original string if unparseable
     def self.format_date(date_string)
       return nil if date_string.blank?
+      return date_string if date_string.match?(DATE_PATTERN)
 
-      return date_string if date_string.match?(/^\d{4}-\d{2}-\d{2}$/)
-
-      begin
-        # parsed_form_data should be correct already
-        # TODO: add checks for other delimiters
-        "#{date_string[6..]}-#{date_string[0..4]}" if date_string.match?(/^\d{2}-\d{2}-\d{4}$/)
-      rescue
-        date_string
+      # MM-DD-YYYY or MM/DD/YYYY -> YYYY-MM-DD
+      if (match = date_string.match(%r{^(\d{2})[-/](\d{2})[-/](\d{4})$}))
+        return "#{match[3]}-#{match[1]}-#{match[2]}"
       end
+
+      date_string
     end
 
     def self.normalize_gender(gender)
@@ -561,11 +701,8 @@ module IvcChampva
 
     def self.validate_date(date, name)
       validate_presence_and_stringiness(date, name)
-
-      # If we can, coerce date into proper format
       date = format_date(date)
-
-      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD#{date}" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
+      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD" unless date.match?(DATE_PATTERN)
 
       date
     end
@@ -579,8 +716,9 @@ module IvcChampva
 
     def self.validate_ssn(ssn, name)
       validate_presence_and_stringiness(ssn, name)
-      unless ssn.match?(/^\d{9}$/)
-        raise ArgumentError, "#{name} is invalid. Must be 9 digits (see regex for more detail)"
+      unless ssn.match?(SSN_PATTERN)
+        raise ArgumentError,
+              "#{name} is invalid. Must be 9 digits (see regex for more detail)"
       end
 
       ssn
@@ -596,7 +734,7 @@ module IvcChampva
     def self.validate_phone(object, name)
       validate_presence_and_stringiness(object[:phone_number], 'phone number')
 
-      unless object[:phone_number].match?(/^[0-9+]+$/) && object[:phone_number].length >= 10
+      unless object[:phone_number].match?(PHONE_PATTERN) && object[:phone_number].length >= 10
         raise ArgumentError, "#{name} is invalid. See regex for more detail"
       end
 

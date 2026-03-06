@@ -11,6 +11,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
     double('IvcChampva::VesRequest',
            application_uuid: 'test-uuid',
            transaction_uuid: 'fake-id',
+           form_type: 'vha_10_10d',
            to_json: '{}',
            subforms?: false,
            subforms: [])
@@ -267,6 +268,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
       double('VesOhiRequest',
              application_uuid: 'parent-app-uuid',
              transaction_uuid: nil,
+             form_type: 'vha_10_7959c',
              to_json: '{"type": "ohi"}')
     end
 
@@ -395,6 +397,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
           double('VesOhiRequest2',
                  application_uuid: 'parent-app-uuid',
                  transaction_uuid: nil,
+                 form_type: 'vha_10_7959c',
                  to_json: '{"type": "ohi2"}')
         end
 
@@ -442,8 +445,9 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
     describe '#send_to_ves_by_form_type' do
       it 'routes vha_10_10d to submit_1010d' do
         allow(ves_request).to receive(:transaction_uuid).and_return('test-uuid')
+        allow(ves_request).to receive(:form_type).and_return('vha_10_10d')
 
-        controller.send(:send_to_ves_by_form_type, ves_client, ves_request, 'vha_10_10d')
+        controller.send(:send_to_ves_by_form_type, ves_client, ves_request)
 
         expect(ves_client).to have_received(:submit_1010d).with('test-uuid', ves_request)
       end
@@ -451,15 +455,18 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
       it 'routes vha_10_7959c to submit_7959c' do
         allow(ves_client).to receive(:submit_7959c).and_return(success_response)
         allow(mock_ohi_request).to receive(:transaction_uuid).and_return('ohi-uuid')
+        allow(mock_ohi_request).to receive(:form_type).and_return('vha_10_7959c')
 
-        controller.send(:send_to_ves_by_form_type, ves_client, mock_ohi_request, 'vha_10_7959c')
+        controller.send(:send_to_ves_by_form_type, ves_client, mock_ohi_request)
 
         expect(ves_client).to have_received(:submit_7959c).with('ohi-uuid', mock_ohi_request)
       end
 
       it 'raises ArgumentError for unknown form types' do
+        allow(ves_request).to receive(:form_type).and_return('unknown_form')
+
         expect do
-          controller.send(:send_to_ves_by_form_type, ves_client, ves_request, 'unknown_form')
+          controller.send(:send_to_ves_by_form_type, ves_client, ves_request)
         end.to raise_error(ArgumentError, /Unknown VES form type/)
       end
     end

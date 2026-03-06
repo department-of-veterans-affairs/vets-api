@@ -96,40 +96,78 @@ module IvcChampva
       #
       # @return [Hash] response from build_json
       def handle_file_uploads_wrapper(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
-          # first, prepare and validate the VES request
-          ves_request = prepare_ves_request(parsed_form_data)
-
-          # get file_paths and metadata so we can use the metadata to update the VES records
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-
-          # call handle_file_uploads with new signature
-          statuses, error_messages = call_upload_form(form_id, file_paths, metadata)
-
-          response = build_json(statuses, error_messages)
-
-          if should_generate_ves_json?(form_id)
-            # Remove the VES JSON file from disk after upload
-            ves_json_file = file_paths.find { |path| path.end_with?('_ves.json') }
-            FileUtils.rm_f(ves_json_file) if ves_json_file
-          end
-
-          # if the response is successful, submit the VES request
-          submit_to_ves(ves_request, metadata) if response[:status] == 200
-
-          response
+        if should_process_ves?(form_id)
+          handle_ves_submission(form_id, parsed_form_data)
         else
           statuses, error_messages = call_handle_file_uploads(form_id, parsed_form_data)
-
           build_json(statuses, error_messages)
         end
       end
 
+      # Determines if this form should be processed through VES flow
+      def should_process_ves?(form_id)
+        return true if Flipper.enabled?(:champva_send_to_ves, @current_user) && form_id == 'vha_10_10d'
+        return true if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user) && form_id == 'vha_10_7959c'
+
+        false
+      end
+
+      # Handles VES submission flow for supported forms (10-10D, 10-7959C standalone)
+      def handle_ves_submission(form_id, parsed_form_data)
+        ves_request = prepare_ves_request(parsed_form_data)
+
+        file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+        statuses, error_messages = call_upload_form(form_id, file_paths, metadata)
+        response = build_json(statuses, error_messages)
+
+        if should_generate_ves_json?(form_id)
+          ves_json_file = file_paths.find { |path| path.end_with?('_ves.json') }
+          FileUtils.rm_f(ves_json_file) if ves_json_file
+        end
+
+        submit_to_ves(ves_request, metadata) if response[:status] == 200
+
+        response
+      end
+
+      # Routes VES submission based on request type.
+      # By this point, flipper checks are complete - just route based on request structure.
+      #
+      # @param [IvcChampva::VesRequest, Array<IvcChampva::VesOhiRequest>] ves_request
+      # @param [Hash] metadata
       def submit_to_ves(ves_request, metadata)
-        if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user)
-          submit_ves_request_with_subforms(ves_request, metadata)
+        return if ves_request.nil?
+
+        ves_client = IvcChampva::VesApi::Client.new
+
+        if ves_request.is_a?(Array)
+          # Standalone OHI submissions
+          submit_ves_requests(ves_client, ves_request, metadata)
+        elsif ves_request.subforms?
+          # 10-10D-EXTENDED: submit parent, then subforms on success
+          response = submit_ves_form(ves_client, ves_request, metadata)
+          if response&.status == 200
+            subform_requests = ves_request.subforms.map { |sf| sf[:request] }
+            submit_ves_requests(ves_client, subform_requests, metadata)
+          end
         else
-          submit_ves_request(ves_request, metadata)
+          # Standard 10-10D
+          submit_ves_form(ves_client, ves_request, metadata)
+        end
+      end
+
+      # Submits multiple VES requests.
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client
+      # @param [Array] requests - Array of request objects (each must respond to #form_type)
+      # @param [Hash] metadata
+      def submit_ves_requests(ves_client, requests, metadata)
+        return if requests.blank?
+
+        requests.each do |request|
+          submit_ves_form(ves_client, request, metadata)
+        rescue => e
+          Rails.logger.error "Error submitting VES request: #{e.message}"
         end
       end
 
@@ -166,12 +204,34 @@ module IvcChampva
         nil
       end
 
-      # Prepares data for VES, raising an exception if this cannot be done
+      # Prepares data for VES based on form type and feature flags.
+      #
+      # When champva_send_7959c_to_ves is ENABLED:
+      # - 10-10D: format_for_request (standalone)
+      # - 10-10D-EXTENDED: format_for_extended_request (with OHI subforms)
+      # - 10-7959C: format_for_ohi_request (standalone OHI)
+      #
+      # When champva_send_7959c_to_ves is DISABLED (legacy flow):
+      # - All 10-10D variants: format_for_request (no subforms)
+      # - 10-7959C: should not reach here (blocked by should_process_ves?)
+      #
       # @param [Hash] parsed_form_data complete form submission data object
-      # @return [IvcChampva::VesRequest, nil] the formatted request data
+      # @return [IvcChampva::VesRequest, Array<IvcChampva::VesOhiRequest>, nil] the formatted request data
       def prepare_ves_request(parsed_form_data)
-        # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+        ves_request = if Flipper.enabled?(:champva_send_7959c_to_ves, @current_user)
+                        case parsed_form_data['form_number']
+                        when '10-10D'
+                          IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+                        when '10-10D-EXTENDED'
+                          IvcChampva::VesDataFormatter.format_for_extended_request(parsed_form_data)
+                        when '10-7959C'
+                          IvcChampva::VesDataFormatter.format_for_ohi_request(parsed_form_data)
+                        end
+                      else
+                        # Legacy flow: all 10-10D variants use format_for_request (no subforms)
+                        IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+                      end
+
         raise 'Failed to format data for VES submission' if ves_request.nil?
 
         ves_request
@@ -223,13 +283,13 @@ module IvcChampva
         ves_client = IvcChampva::VesApi::Client.new
 
         # Submit the primary form
-        parent_response = submit_ves_form(ves_client, ves_request, 'vha_10_10d', metadata)
+        parent_response = submit_ves_form(ves_client, ves_request, metadata)
 
         # Only submit subforms if parent succeeded
         return parent_response if parent_response.nil? || parent_response.status != 200 || !ves_request.subforms?
 
         ves_request.subforms.each do |subform|
-          submit_ves_form(ves_client, subform[:request], subform[:form_type], metadata)
+          submit_ves_form(ves_client, subform[:request], metadata)
         rescue => e
           Rails.logger.error "Error submitting VES subform (#{subform[:form_type]}): #{e.message}"
         end
@@ -238,14 +298,14 @@ module IvcChampva
       end
 
       ##
-      # Submits a VES form request with retry logic (used by submit_ves_request_with_subforms).
+      # Submits a VES form request with retry logic.
       #
       # @param [IvcChampva::VesApi::Client] ves_client the VES API client
       # @param [Object] request the VES request object (VesRequest or VesOhiRequest)
-      # @param [String] form_type the form type identifier (e.g., 'vha_10_10d', 'vha_10_7959c')
       # @param [Hash] metadata the metadata for the form
       # @return [Faraday::Response, nil] the VES API response or nil on failure
-      def submit_ves_form(ves_client, request, form_type, metadata)
+      def submit_ves_form(ves_client, request, metadata)
+        form_type = request.form_type
         on_failure = lambda { |e, attempt|
           Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
         }
@@ -255,7 +315,7 @@ module IvcChampva
         begin
           IvcChampva::Retry.do(1, on_failure:) do
             request.transaction_uuid = SecureRandom.uuid
-            response = send_to_ves_by_form_type(ves_client, request, form_type)
+            response = send_to_ves_by_form_type(ves_client, request)
           end
 
           update_ves_records(metadata['uuid'], request.application_uuid, response, request.to_json)
@@ -270,17 +330,16 @@ module IvcChampva
       # Routes the VES submission to the appropriate client method based on form type.
       #
       # @param [IvcChampva::VesApi::Client] ves_client the VES API client
-      # @param [Object] request the VES request object
-      # @param [String] form_type the form type identifier
+      # @param [Object] request the VES request object (must respond to #form_type)
       # @return [Faraday::Response] the VES API response
-      def send_to_ves_by_form_type(ves_client, request, form_type)
-        case form_type
+      def send_to_ves_by_form_type(ves_client, request)
+        case request.form_type
         when 'vha_10_10d'
           ves_client.submit_1010d(request.transaction_uuid, request)
         when 'vha_10_7959c'
           ves_client.submit_7959c(request.transaction_uuid, request)
         else
-          raise ArgumentError, "Unknown VES form type: #{form_type}"
+          raise ArgumentError, "Unknown VES form type: #{request.form_type}"
         end
       end
 

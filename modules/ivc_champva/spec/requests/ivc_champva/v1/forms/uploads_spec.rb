@@ -28,11 +28,15 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   before do
     @original_aws_config = Aws.config.dup
     Aws.config.update(stub_responses: true)
-    allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
+    allow(IvcChampva::VesDataFormatter).to receive_messages(format_for_request: ves_request,
+                                                            format_for_extended_request: ves_request,
+                                                            format_for_ohi_request: [])
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything)
     allow(ves_request).to receive_messages(transaction_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b',
-                                           application_uuid: 'test-uuid')
+                                           application_uuid: 'test-uuid',
+                                           form_type: 'vha_10_10d',
+                                           subforms?: false)
     allow(ves_request).to receive(:transaction_uuid=)
     allow(ves_request).to receive(:to_json).and_return('{}')
     allow(Flipper).to receive(:enabled?).with(:champva_update_metadata_keys).and_return(false)
@@ -223,13 +227,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     before do
       # Mirror the setup from the passing tests, but enable champva_update_datadog_tracking
       allow(Flipper).to receive(:enabled?)
-        .with(:champva_send_to_ves, @current_user)
+        .with(:champva_send_to_ves, anything)
         .and_return(true)
       allow(Flipper).to receive(:enabled?)
-        .with(:champva_retry_logic_refactor, @current_user)
+        .with(:champva_retry_logic_refactor, anything)
         .and_return(false)
       allow(Flipper).to receive(:enabled?)
-        .with(:champva_update_datadog_tracking, @current_user)
+        .with(:champva_update_datadog_tracking, anything)
         .and_return(true)
     end
 
@@ -307,6 +311,222 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       it 'does not submit to VES' do
         post '/ivc_champva/v1/forms', params: data
         expect(ves_client).not_to have_received(:submit_1010d)
+      end
+    end
+  end
+
+  describe '#prepare_ves_request routing' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:mock_ves_request) { double('IvcChampva::VesRequest') }
+    let(:mock_extended_ves_request) { double('IvcChampva::VesRequest with subforms') }
+    let(:mock_ohi_requests) { [double('IvcChampva::VesOhiRequest')] }
+
+    before do
+      allow(IvcChampva::VesDataFormatter).to receive_messages(
+        format_for_request: mock_ves_request,
+        format_for_extended_request: mock_extended_ves_request,
+        format_for_ohi_request: mock_ohi_requests
+      )
+    end
+
+    context 'when champva_send_7959c_to_ves is DISABLED (legacy flow)' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(false)
+      end
+
+      context 'when form_number is 10-10D' do
+        let(:parsed_form_data) { { 'form_number' => '10-10D' } }
+
+        it 'calls format_for_request' do
+          result = controller.send(:prepare_ves_request, parsed_form_data)
+
+          expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
+          expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_extended_request)
+          expect(result).to eq(mock_ves_request)
+        end
+      end
+
+      context 'when form_number is 10-10D-EXTENDED' do
+        let(:parsed_form_data) { { 'form_number' => '10-10D-EXTENDED' } }
+
+        it 'calls format_for_request (NO subforms in legacy flow)' do
+          result = controller.send(:prepare_ves_request, parsed_form_data)
+
+          expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
+          expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_extended_request)
+          expect(result).to eq(mock_ves_request)
+        end
+      end
+    end
+
+    context 'when champva_send_7959c_to_ves is ENABLED' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(true)
+      end
+
+      context 'when form_number is 10-10D' do
+        let(:parsed_form_data) { { 'form_number' => '10-10D' } }
+
+        it 'calls format_for_request (standalone 10-10D)' do
+          result = controller.send(:prepare_ves_request, parsed_form_data)
+
+          expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
+          expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_extended_request)
+          expect(result).to eq(mock_ves_request)
+        end
+      end
+
+      context 'when form_number is 10-10D-EXTENDED' do
+        let(:parsed_form_data) { { 'form_number' => '10-10D-EXTENDED' } }
+
+        it 'calls format_for_extended_request (10-10D with OHI subforms)' do
+          result = controller.send(:prepare_ves_request, parsed_form_data)
+
+          expect(IvcChampva::VesDataFormatter).to have_received(:format_for_extended_request).with(parsed_form_data)
+          expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+          expect(result).to eq(mock_extended_ves_request)
+        end
+
+        context 'when OHI formatting fails' do
+          before do
+            allow(IvcChampva::VesDataFormatter).to receive(:format_for_extended_request)
+              .and_raise(ArgumentError, 'OHI validation failed')
+          end
+
+          it 'raises the error (strict validation - no fallback)' do
+            expect do
+              controller.send(:prepare_ves_request, parsed_form_data)
+            end.to raise_error(ArgumentError, 'OHI validation failed')
+          end
+        end
+      end
+
+      context 'when form_number is 10-7959C (standalone OHI)' do
+        let(:parsed_form_data) { { 'form_number' => '10-7959C' } }
+
+        it 'calls format_for_ohi_request' do
+          result = controller.send(:prepare_ves_request, parsed_form_data)
+
+          expect(IvcChampva::VesDataFormatter).to have_received(:format_for_ohi_request).with(parsed_form_data)
+          expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_request)
+          expect(IvcChampva::VesDataFormatter).not_to have_received(:format_for_extended_request)
+          expect(result).to eq(mock_ohi_requests)
+        end
+      end
+    end
+  end
+
+  describe '#should_process_ves?' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    context 'when form is vha_10_10d' do
+      it 'returns true when champva_send_to_ves is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(true)
+
+        expect(controller.send(:should_process_ves?, 'vha_10_10d')).to be true
+      end
+
+      it 'returns false when champva_send_to_ves is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(false)
+
+        expect(controller.send(:should_process_ves?, 'vha_10_10d')).to be false
+      end
+    end
+
+    context 'when form is vha_10_7959c (standalone OHI)' do
+      it 'returns true when champva_send_7959c_to_ves is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(true)
+
+        expect(controller.send(:should_process_ves?, 'vha_10_7959c')).to be true
+      end
+
+      it 'returns false when champva_send_7959c_to_ves is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(false)
+
+        expect(controller.send(:should_process_ves?, 'vha_10_7959c')).to be false
+      end
+    end
+
+    context 'when form is other type' do
+      it 'returns false' do
+        allow(Flipper).to receive(:enabled?).with(:champva_send_to_ves, anything).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:champva_send_7959c_to_ves, anything).and_return(true)
+
+        expect(controller.send(:should_process_ves?, 'vha_10_7959f_1')).to be false
+      end
+    end
+  end
+
+  describe '#submit_to_ves' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+    let(:metadata) { { 'uuid' => 'test-uuid' } }
+    let(:mock_ves_client) { double('IvcChampva::VesApi::Client') }
+    let(:success_response) { double('Response', status: 200) }
+
+    before do
+      allow(IvcChampva::VesApi::Client).to receive(:new).and_return(mock_ves_client)
+      allow(controller).to receive(:submit_ves_form).and_return(success_response)
+      allow(controller).to receive(:submit_ves_requests)
+    end
+
+    context 'when ves_request is nil' do
+      it 'does nothing' do
+        controller.send(:submit_to_ves, nil, metadata)
+
+        expect(controller).not_to have_received(:submit_ves_form)
+        expect(controller).not_to have_received(:submit_ves_requests)
+      end
+    end
+
+    context 'when ves_request is an array (standalone OHI)' do
+      let(:ohi_requests) { [double('VesOhiRequest1'), double('VesOhiRequest2')] }
+
+      it 'calls submit_ves_requests' do
+        controller.send(:submit_to_ves, ohi_requests, metadata)
+
+        expect(controller).to have_received(:submit_ves_requests).with(mock_ves_client, ohi_requests, metadata)
+      end
+    end
+
+    context 'when ves_request is a VesRequest without subforms (10-10D)' do
+      let(:mock_request) { double('VesRequest', form_type: 'vha_10_10d', subforms?: false) }
+
+      it 'calls submit_ves_form directly' do
+        controller.send(:submit_to_ves, mock_request, metadata)
+
+        expect(controller).to have_received(:submit_ves_form).with(mock_ves_client, mock_request, metadata)
+        expect(controller).not_to have_received(:submit_ves_requests)
+      end
+    end
+
+    context 'when ves_request has subforms (10-10D-EXTENDED)' do
+      let(:ohi_request) { double('VesOhiRequest') }
+      let(:subforms) { [{ form_type: 'vha_10_7959c', request: ohi_request }] }
+      let(:mock_request) { double('VesRequest', form_type: 'vha_10_10d', subforms?: true, subforms:) }
+
+      it 'submits parent and then mapped subform requests on success' do
+        controller.send(:submit_to_ves, mock_request, metadata)
+
+        expect(controller).to have_received(:submit_ves_form).with(mock_ves_client, mock_request, metadata)
+        expect(controller).to have_received(:submit_ves_requests).with(mock_ves_client, [ohi_request], metadata)
+      end
+
+      context 'when parent submission fails' do
+        let(:failed_response) { double('Response', status: 500) }
+
+        before do
+          allow(controller).to receive(:submit_ves_form).and_return(failed_response)
+        end
+
+        it 'does not submit subforms' do
+          controller.send(:submit_to_ves, mock_request, metadata)
+
+          expect(controller).to have_received(:submit_ves_form)
+          expect(controller).not_to have_received(:submit_ves_requests)
+        end
       end
     end
   end
