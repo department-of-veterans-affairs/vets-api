@@ -14,6 +14,10 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
   end
 
   describe 'index' do
+    before do
+      allow_any_instance_of(User).to receive(:cerner_facility_ids).and_return([])
+    end
+
     it 'returns a formatted hash response' do
       travel_to Time.utc(2025, 8, 1) do
         VCR.use_cassette('lighthouse/hcc/copay_list_by_month', match_requests_on: %i[method path query]) do
@@ -71,6 +75,25 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
 
         response_body = JSON.parse(response.body)
         expect(response_body['data']).to eq([])
+      end
+    end
+
+    context 'cerner facility ids present' do
+      let(:copays) { { data: [], status: 200 } }
+
+      before do
+        allow_any_instance_of(User).to receive(:cerner_facility_ids).and_return(['267MHV'])
+      end
+
+      it 'returns vbs response' do
+        travel_to Time.utc(2025, 8, 1) do
+          allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copays).and_return(copays)
+
+          get '/v1/medical_copays'
+
+          response_body = JSON.parse(response.body)
+          expect(response_body).to eq({ 'data' => [], 'status' => 200, 'isCerner' => true })
+        end
       end
     end
   end

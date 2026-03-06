@@ -11,32 +11,13 @@ class Swagger::V1::Requests::MedicalCopays
 
       parameter :authorization
 
-      parameter do
-        key :name, :count
-        key :in, :query
-        key :description, 'Number of Invoices to return per page'
-        key :required, false
-        key :type, :integer
-        key :format, :int32
-        key :default, 10
-      end
-
-      parameter do
-        key :name, :page
-        key :in, :query
-        key :description, 'Page number of Invoice results'
-        key :required, false
-        key :type, :integer
-        key :format, :int32
-        key :default, 1
-        key :minimum, 1
-      end
-
       response 200 do
         key :description, 'Successful copays lookup'
 
         schema do
-          # JSON:API top-level data
+          property :isCerner, type: :boolean, example: false
+          property :status, type: :integer, example: 200
+          # Lighthouse response (conditionally returned based on Cerner location(s))
           property :data, type: :array do
             items do
               property :id, type: :string, example: '675-K3FD983'
@@ -87,19 +68,97 @@ class Swagger::V1::Requests::MedicalCopays
                          format: :'date-time',
                          example: '2012-11-01T04:00:00.000+00:00'
               end
+
+              # VBS response (conditionally returned based on Cerner location(s))
+              property :accountNumber, type: :string
+              property :pSSeqNum, type: :integer, example: 0
+              property :pSTotSeqNum, type: :integer, example: 0
+              property :pSFacilityNum, type: :string
+              property :pSFacPhoneNum, type: :string
+              property :pSTotStatement, type: :integer, example: 0
+              property :pSStatementVal, type: :string
+              property :pSStatementDate, type: :string
+              property :pSStatementDateOutput, type: :string
+              property :pSProcessDate, type: :string
+              property :pSProcessDateOutput, type: :string
+              property :pHPatientLstNme, type: :string
+              property :pHPatientFstNme, type: :string
+              property :pHPatientMidNme, type: :string
+              property :pHAddress1, type: :string
+              property :pHAddress2, type: :string
+              property :pHAddress3, type: :string
+              property :pHCity, type: :string
+              property :pHState, type: :string
+              property :pHZipCde, type: :string
+              property :pHZipCdeOutput, type: :string
+              property :pHCtryNme, type: :string
+              property :pHAmtDue, type: :integer, example: 0
+              property :pHAmtDueOutput, type: :string
+              property :pHPrevBal, type: :integer, example: 0
+              property :pHPrevBalOutput, type: :string
+              property :pHTotCharges, type: :integer, example: 0
+              property :pHTotChargesOutput, type: :string
+              property :pHTotCredits, type: :integer, example: 0
+              property :pHTotCreditsOutput, type: :string
+              property :pHNewBalance, type: :integer, example: 0
+              property :pHNewBalanceOutput, type: :string
+              property :pHSpecialNotes, type: :string
+              property :pHroParaCdes, type: :string
+              property :pHNumOfLines, type: :integer, example: 0
+              property :pHDfnNumber, type: :integer, example: 0
+              property :pHCernerStatementNumber, type: :integer, example: 0
+              property :pHCernerPatientId, type: :string
+              property :pHCernerAccountNumber, type: :string
+              property :pHIcnNumber, type: :string
+              property :pHAccountNumber, type: :integer, example: 0
+              property :pHLargeFontIndcator, type: :integer, example: 0
+              property :details, type: :array do
+                items do
+                  property :pDDatePosted, type: :string
+                  property :pDDatePostedOutput, type: :string
+                  property :pDTransDesc, type: :string
+                  property :pDTransDescOutput, type: :string
+                  property :pDTransAmt, type: :integer, example: 0
+                  property :pDTransAmtOutput, type: :string
+                  property :pDRefNo, type: :string
+                end
+              end
+              property :station, type: :object do
+                property :facilitYNum, type: :string
+                property :visNNum, type: :string
+                property :facilitYDesc, type: :string
+                property :cyclENum, type: :string
+                property :remiTToFlag, type: :string
+                property :maiLInsertFlag, type: :string
+                property :staTAddress1, type: :string
+                property :staTAddress2, type: :string
+                property :staTAddress3, type: :string
+                property :city, type: :string
+                property :state, type: :string
+                property :ziPCde, type: :string
+                property :ziPCdeOutput, type: :string
+                property :baRCde, type: :string
+                property :teLNumFlag, type: :string
+                property :teLNum, type: :string
+                property :teLNum2, type: :string
+                property :contacTInfo, type: :string
+                property :dM2TelNum, type: :string
+                property :contacTInfo2, type: :string
+                property :toPTelNum, type: :string
+                property :lbXFedexAddress1, type: :string
+                property :lbXFedexAddress2, type: :string
+                property :lbXFedexAddress3, type: :string
+                property :lbXFedexCity, type: :string
+                property :lbXFedexState, type: :string
+                property :lbXFedexZipCde, type: :string
+                property :lbXFedexBarCde, type: :string
+                property :lbXFedexContact, type: :string
+                property :lbXFedexContactTelNum, type: :string
+              end
             end
           end
 
-          # Pagination links (built from Bundle#links)
-          property :links, type: :object do
-            property :self, type: :string, example: 'https://api.va.gov/v1/medical_copays?count=10&page=1'
-            property :first, type: :string, example: 'https://api.va.gov/v1/medical_copays?count=10&page=1'
-            property :prev, type: :string, example: 'https://api.va.gov/v1/medical_copays?count=10&page=0'
-            property :next, type: :string, example: 'https://api.va.gov/v1/medical_copays?count=10&page=2'
-            property :last, type: :string, example: 'https://api.va.gov/v1/medical_copays?count=10&page=5'
-          end
-
-          # Pagination meta (built from Bundle#meta)
+          # Only in Lighthouse response (conditionally returned based on Cerner location(s))c
           property :meta, type: :object do
             property :total, type: :integer, example: 50
             property :page, type: :integer, example: 1

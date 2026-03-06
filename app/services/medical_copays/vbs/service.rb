@@ -13,8 +13,8 @@ module MedicalCopays
     #   @return [ResponseData]
     class Service
       include RedisCaching
-      class StatementNotFound < StandardError
-      end
+      class StatementNotFound < StandardError; end
+      class ServiceError < StandardError; end
 
       attr_reader :request, :request_data, :user
 
@@ -83,6 +83,10 @@ module MedicalCopays
         end
 
         response
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.summary.failure")
+        Rails.logger.error("MedicalCopays::VBS::Service#get_cached_copay_response error: #{e.class}")
+        raise ServiceError
       end
 
       ##
