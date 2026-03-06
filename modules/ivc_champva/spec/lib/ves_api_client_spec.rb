@@ -89,29 +89,133 @@ RSpec.describe IvcChampva::VesApi::Client do
   end
 
   describe '#submit_7959c' do
-    let(:ves_ohi_request_data) { double('VesOhiRequest', to_json: '{}') }
+    let(:ves_ohi_request_data) { instance_double(IvcChampva::VesOhiRequest, to_json: '{}') }
 
-    it 'raises NotImplementedError as a stub' do
-      expect do
-        client.submit_7959c(transaction_uuid, ves_ohi_request_data)
-      end.to raise_error(NotImplementedError, /VES OHI submission endpoint not yet implemented/)
+    before do
+      allow(client).to receive(:connection).and_return(double(post: response))
     end
 
-    it 'includes a message about awaiting VES API specification' do
-      expect do
+    context 'successful response from VES' do
+      let(:response) { instance_double(Faraday::Response, status: 200, body: '{"messages":[]}') }
+
+      it 'does not raise an error' do
+        expect do
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+        end.not_to raise_error
+      end
+
+      it 'calls monitor.track_request for success' do
+        expect(client.monitor).to receive(:track_request).with(
+          'info',
+          "IVC ChampVa Forms - Successful submission to VES for form #{transaction_uuid}",
+          'api.ivc_champva_form.ves_response.success',
+          call_location: anything,
+          form_uuid: transaction_uuid,
+          messages: '{"messages":[]}',
+          status: 200
+        )
+
         client.submit_7959c(transaction_uuid, ves_ohi_request_data)
-      end.to raise_error(NotImplementedError, /awaiting VES API specification/)
+      end
+
+      it 'returns the response on success' do
+        result = client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+        expect(result).to eq(response)
+        expect(result.status).to eq(200)
+      end
+    end
+
+    context '400 response from VES' do
+      let(:error_body) { '{"messages":[{"code":"INVALID_REQUEST","description":"Invalid data"}]}' }
+      let(:response) { instance_double(Faraday::Response, status: 400, body: error_body) }
+
+      it 'raises a VesApiError' do
+        expect do
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
+      end
+
+      it 'calls monitor.track_request for failure' do
+        expect(client.monitor).to receive(:track_request).with(
+          'error',
+          "IVC ChampVa Forms - Error on submission to VES for form #{transaction_uuid}",
+          'api.ivc_champva_form.ves_response.failure',
+          call_location: anything,
+          form_uuid: transaction_uuid,
+          messages: error_body,
+          status: 400
+        )
+
+        expect do
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
+      end
+    end
+
+    context 'not authorized response from VES' do
+      let(:response) { instance_double(Faraday::Response, status: 403, body: '{"messages":[]}') }
+
+      it 'raises a VesApiError' do
+        expect do
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
+      end
+    end
+
+    context '500 response from VES' do
+      let(:error_body) { '{"messages":[{"code":"INTERNAL_ERROR","description":"Server error"}]}' }
+      let(:response) { instance_double(Faraday::Response, status: 500, body: error_body) }
+
+      it 'raises a VesApiError' do
+        expect do
+          client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
+      end
+    end
+
+    context 'posts to the correct endpoint' do
+      let(:response) { instance_double(Faraday::Response, status: 200, body: '{}') }
+      let(:mock_connection) { double('connection') }
+
+      before do
+        allow(client).to receive(:connection).and_return(mock_connection)
+      end
+
+      it 'posts to the champva-insurance-form endpoint' do
+        expect(mock_connection).to receive(:post).with(%r{/ves-vfmp-app-svc/champva-insurance-form}).and_yield(
+          double('request', headers: {}, body: nil).as_null_object
+        ).and_return(response)
+
+        client.submit_7959c(transaction_uuid, ves_ohi_request_data)
+      end
     end
   end
 
   describe 'headers' do
-    it 'returns the right headers' do
-      result = client.headers('the_right_uuid')
+    it 'returns the right headers with provided api key' do
+      result = client.headers('the_right_uuid', 'my_api_key')
 
       expect(result[:content_type]).to eq('application/json')
-      expect(result['apiKey']).to eq('fake_api_key')
+      expect(result['apiKey']).to eq('my_api_key')
       expect(result['transactionUUId']).to eq('the_right_uuid')
-      expect(result).not_to have_key('acting-user')
+    end
+  end
+
+  describe 'ohi_api_key' do
+    it 'returns ohi_api_key when configured' do
+      expect(client.ohi_api_key).to eq('fake_ohi_api_key')
+    end
+
+    it 'falls back to api_key when ohi_api_key is not configured' do
+      allow(client.settings).to receive(:ohi_api_key).and_return(nil)
+
+      expect(client.ohi_api_key).to eq('fake_api_key')
+    end
+
+    it 'falls back to api_key when ohi_api_key is blank' do
+      allow(client.settings).to receive(:ohi_api_key).and_return('')
+
+      expect(client.ohi_api_key).to eq('fake_api_key')
     end
   end
 

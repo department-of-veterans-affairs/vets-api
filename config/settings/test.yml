@@ -680,6 +680,7 @@ ivc_champva_ves_api:
   app_id: ~
   host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
+  ohi_api_key: fake_ohi_api_key
   subject: "Proxy Client"
 ivc_forms:
   form_status_job:
