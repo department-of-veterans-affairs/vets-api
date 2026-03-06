@@ -1965,6 +1965,26 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
     end
 
+    describe "'claimantCertification'" do
+      describe 'is optional' do
+        context 'when not provided' do
+          it 'responds with a 200' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes'].delete('claimantCertification')
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
     context 'when submitted separationLocationCode is missing for a future activeDutyEndDate' do
       it 'responds with bad request' do
         mock_acg(scopes) do |auth_header|

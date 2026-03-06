@@ -63,6 +63,23 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           expect(parsed['data']['attributes']['status']).to eq('valid')
         end
       end
+
+      describe "'claimantCertification'" do
+        context 'when not provided' do
+          it 'is optional and returns a successful response' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes'].delete('claimantCertification')
+              post validation_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:ok)
+              parsed = JSON.parse(response.body)
+              expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+              expect(parsed['data']['attributes']['status']).to eq('valid')
+            end
+          end
+        end
+      end
     end
 
     describe '#generate_pdf' do
@@ -316,6 +333,23 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
             post synchronous_path, params: data, headers: auth_header
 
             expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
+
+      describe "'claimantCertification'" do
+        context 'when not provided' do
+          it 'is optional and returns a 202 response' do
+            mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+              VCR.use_cassette('claims_api/disability_comp') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes'].delete('claimantCertification')
+                post synchronous_path, params: params.to_json, headers: auth_header
+
+                expect(response).to have_http_status(:accepted)
+              end
+            end
           end
         end
       end
