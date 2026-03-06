@@ -1003,7 +1003,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:vsurvivors_benefits_expected) do
+  let(:v21P_534EZ_expected) do
     {
       'claimant_full_name' => {
         'first' => user.first_name&.capitalize,
