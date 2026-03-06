@@ -314,6 +314,134 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           end
         end
 
+        context 'fix_duplicate_key_ipf (additional information cleanup)' do
+          let(:duplicate_key_fix_toggle) { :disability_compensation_fix_duplicate_key_ipf }
+
+          context 'when fix_duplicate_key_ipf toggle is ON' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(duplicate_key_fix_toggle, instance_of(User)).and_return(true)
+            end
+
+            it 'removes camelCase additionalInformation when value is an empty object' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additionalInformation')
+            end
+
+            it 'removes snake_case additional_information when value is an empty object' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additional_information')
+            end
+
+            it 'removes camelCase additionalInformation when value is an empty array' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = []
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additionalInformation')
+            end
+
+            it 'removes snake_case additional_information when value is an empty array' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = []
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additional_information')
+            end
+
+            it 'preserves additionalInformation when it contains text' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = 'Additional information text.'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additionalInformation']).to eq('Additional information text.')
+            end
+
+            it 'preserves additional_information when it contains text' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = 'Additional information text.'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additional_information']).to eq('Additional information text.')
+            end
+          end
+
+          context 'when fix_duplicate_key_ipf toggle is OFF' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(duplicate_key_fix_toggle, instance_of(User)).and_return(false)
+            end
+
+            it 'does not remove empty camelCase additionalInformation' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additionalInformation']).to eq({})
+            end
+
+            it 'does not remove empty snake_case additional_information' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additional_information']).to eq({})
+            end
+          end
+        end
+
         context 'fix_new_conditions_workflow_flag (returnUrl-based)' do
           let(:fix_toggle) { :disability_compensation_fix_poisoned_ipf }
 

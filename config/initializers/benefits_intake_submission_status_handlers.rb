@@ -6,10 +6,13 @@
 require_all 'lib/lighthouse/benefits_intake/submission_handler'
 
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+require 'education_benefits_claims/submission_handler'
 
 # Registers handlers for various form IDs
 # @see modules/burials
 # @see modules/pensions
-{}.each do |form_id, handler_class|
+{
+  '22-10278' => EducationBenefitsClaims::SubmissionHandler
+}.each do |form_id, handler_class|
   BenefitsIntake::SubmissionStatusJob.register_handler(form_id, handler_class)
 end

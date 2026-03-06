@@ -79,24 +79,4 @@ module RepresentationManagement
       AccreditedRepresentation::Constants::MAX_PER_PAGE
     end
   end
-
-  # Adapter for Veteran::Service::Organization to make it compatible with AccreditedOrganization serializer
-  class AccreditedOrganizationAdapter
-    attr_reader :organization
-
-    delegate :id, :name, :phone, :state, to: :organization
-
-    def initialize(organization)
-      @organization = organization
-    end
-
-    def poa_code
-      organization.poa
-    end
-
-    # Support ActiveRecord-style .model_name for serializers
-    def self.model_name
-      AccreditedOrganization.model_name
-    end
-  end
 end

@@ -31,7 +31,7 @@ RSpec.describe UnifiedHealthData::Serializers::PrescriptionSerializer do
           ndc_number: '00123456789',
           prescription_id: 12_345,
           tracking_number: '1Z999AA1234567890',
-          shipped_date: '2023-05-16T00:00:00.000Z',
+          complete_date_time: '2023-05-16T00:00:00.000Z',
           carrier: 'UPS',
           other_prescriptions: []
         }

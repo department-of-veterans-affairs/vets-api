@@ -23,6 +23,10 @@ class AltTestDisabilityCompensationValidationClass
         'form_526_json_api.json'
       ).read
     ).dig('data', 'attributes')
+
+    @form_attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+      "#{Time.current.year + 1}-12-20"
+    @form_attributes
   end
 end
 
@@ -31,8 +35,75 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
   let(:created_at) { Timecop.freeze(Time.zone.now) }
 
+  let(:valid_countries) do
+    ['USA']
+  end
+
+  let(:brd_classification_ids) do
+    [9014]
+  end
+
+  let(:brd_service_branch_names) do
+    ['Army', 'Public Health Service', 'Naval Academy']
+  end
+
+  let(:brd_disabilities) do
+    [
+      { id: 10, name: 'abnormal heart', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 190, name: 'ALS', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 2650, name: 'foot condition, bilateral', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 6880, name: 'tooth condition', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 8987, name: 'Leg Condition - Heart/Veins/Arteries', endDateTime: nil },
+      { id: 9014, name: 'Scars (Head, Face, Or Neck)', endDateTime: nil },
+      { id: 7290, name: 'PTSD personal trauma', endDateTime: '2016-02-04T17:51:56Z' },
+      { id: 249_483, name: 'Aid & Attendance Spouse', endDateTime: nil },
+      { id: 249_479, name: 'Cyst/Benign Growth - Heart/Veins/Arteries', endDateTime: nil }
+    ]
+  end
+
+  let(:separation_locations) do
+    [
+      { id: 98_283, description: 'Test Academy' },
+      { id: 98_282, description: 'Test Academy II' }
+    ]
+  end
+
+  let(:auth_headers) do
+    {
+      'va_eauth_birthdate' => 35.years.ago.to_date.iso8601
+    }
+  end
+
   def current_error_array
     test_526_validation_instance.instance_variable_get('@errors')
+  end
+
+  describe '#alt_rev_validate_form_526_submission_values' do
+    context 'with valid form_attributes' do
+      before do
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_disabilities).and_return(brd_disabilities)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:valid_countries).and_return(valid_countries)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_classification_ids).and_return(brd_classification_ids)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:brd_service_branch_names).and_return(brd_service_branch_names)
+        allow_any_instance_of(
+          ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+        ).to receive(:retrieve_separation_locations).and_return(separation_locations)
+        allow_any_instance_of(described_class).to receive(:auth_headers).and_return(auth_headers)
+      end
+
+      it 'does not return or raise any errors' do
+        expect { subject.send(:alt_rev_validate_form_526_submission_values) }.not_to raise_error
+        expect(current_error_array).to be_nil
+      end
+    end
   end
 
   describe '#alt_rev_validate_form_526_service_information' do
@@ -530,9 +601,44 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         expect(res).to be_nil
       end
     end
+
+    context 'when the country is not USA and internationalPostalCode is missing' do
+      it 'returns an error array' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Canada'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = nil
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
+        expect(res[0][:detail])
+          .to eq('The internationalPostalCode is required if the country is not USA (international).')
+        expect(res[0][:source]).to eq('/veteranIdentification/mailingAddress/internationalPostalCode')
+      end
+    end
+
+    context 'when the country is not USA and internationalPostalCode is present' do
+      it 'responds with nil' do
+        subject.form_attributes['veteranIdentification']['mailingAddress']['country'] = 'Japan'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '151-8557'
+        subject.form_attributes['veteranIdentification']['mailingAddress']['zipFirstFive'] = ''
+        subject.form_attributes['veteranIdentification']['mailingAddress']['state'] = nil
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_current_mailing_address_zip)
+        expect(res).to be_nil
+      end
+    end
   end
 
   describe 'validation of claimant change of address elements' do
+    context 'when changeOfAddress is not included' do
+      it 'skips change of address validations' do
+        subject.form_attributes.delete('changeOfAddress')
+
+        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address)
+
+        expect(res).to be_nil
+        expect(current_error_array).to be_nil
+      end
+    end
+
     context "'typeOfAddressChange','addressLine1','country' are conditionally required" do
       context 'without the required country value present' do
         it 'returns an error array' do
@@ -627,6 +733,38 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
+    context 'conditional validations when the country is not USA' do
+      before do
+        subject.form_attributes['changeOfAddress']['country'] = 'Afghanistan'
+        subject.form_attributes['changeOfAddress']['zipFirstFive'] = ''
+        subject.form_attributes['changeOfAddress']['state'] = nil
+      end
+
+      context 'internationalPostalCode is included' do
+        it 'does not return an error array' do
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = '151-8557'
+
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
+
+          expect(res).to be_nil
+          expect(current_error_array).to be_nil
+        end
+      end
+
+      context 'internationalPostalCode is not included' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['internationalPostalCode'] = ''
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_zip)
+
+          expect(current_error_array[0][:detail]).to eq(
+            'The internationalPostalCode is required if the country is not USA.'
+          )
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/internationalPostalCode')
+        end
+      end
+    end
+
     context 'when the country is not provided' do
       it 'returns an error array' do
         subject.form_attributes['changeOfAddress']['country'] = ''
@@ -655,49 +793,275 @@ describe AltTestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       end
     end
 
-    context 'when the end date is an invalid date' do
-      end_date = '2022-91-99'
-      it 'returns an error array' do
-        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
-        subject.form_attributes['changeOfAddress']['dates']['endDate'] = end_date
-        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
-        expect(current_error_array[0][:detail]).to eq("#{end_date} is not a valid date.")
-        expect(current_error_array[0][:source]).to eq('data/attributes/changeOfAddress/dates/endDate')
+    describe 'when typeOfAddressChange is TEMPORARY' do
+      context 'when the end date is an invalid date' do
+        end_date = '2022-91-99'
+
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = end_date
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+          expect(current_error_array[0][:detail]).to eq("#{end_date} is not a valid date. Expected format: yyyy-mm-dd.")
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        end
+      end
+
+      context 'when the type is temporary and end date is missing' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+          subject.form_attributes['changeOfAddress']['dates'].delete('endDate')
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+          expect(current_error_array[0][:detail]).to eq(
+            'Change of address endDate is required if addressChangeType is TEMPORARY'
+          )
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        end
+      end
+
+      context 'when the begin date is after the end date' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2022-01-01'
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+          expect(res[0][:detail]).to eq('endDate needs to be after beginDate.')
+          expect(res[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        end
+      end
+
+      context 'when the begin date is the same as the end date' do
+        it 'does not return an error' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.next_day(3).iso8601
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(3).iso8601
+
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+          expect(res).to be_nil
+          expect(current_error_array).to be_nil
+        end
+      end
+
+      context 'when the type is temporary and begin date equals end date' do
+        it 'does not return an error' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2024-01-01'
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
+
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+          expect(res).to be_nil
+          expect(current_error_array).to be_nil
+        end
+      end
+
+      context 'when the type is temporary and begin date is in the past' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+          expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be ' \
+                                                        'in the future if addressChangeType is TEMPORARY')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+        end
+      end
+
+      context 'when the type is temporary and begin date is today' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.iso8601
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(1).iso8601
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+        end
+      end
+
+      context 'when typeOfAddressChange is mixed case temporary with an invalid end date' do
+        it 'passes the temporary type validation and fails the end date validation' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'temporary'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.next_day(1).iso8601
+          subject.form_attributes['changeOfAddress']['dates'].delete('endDate')
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        end
+      end
+
+      context 'when the type is temporary with mixed case and begin date is missing' do
+        it 'passes the temporary type validation and fails the begin date validation' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'tEMpORARy'
+          subject.form_attributes['changeOfAddress']['dates'].delete('beginDate')
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(2).iso8601
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+          expect(current_error_array[0][:detail]).to eq(
+            'Change of address beginDate is required if addressChangeType is TEMPORARY'
+          )
+        end
+      end
+
+      context 'when the type is temporary with mixed case and begin date is in the past' do
+        it 'passes the temporary type validation and fails the begin date validation' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'tEMpORARy'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = Date.current.prev_day.iso8601
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = Date.current.next_day(2).iso8601
+
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+          expect(current_error_array[0][:detail]).to eq(
+            'Change of address beginDate must be in the future if addressChangeType is TEMPORARY'
+          )
+        end
+      end
+
+      context 'when the type is temporary and begin date is missing' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
+          subject.form_attributes['changeOfAddress']['dates'].delete('beginDate')
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
+
+          expect(current_error_array[0][:detail]).to eq(
+            'Change of address beginDate is required if addressChangeType is TEMPORARY'
+          )
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
+        end
       end
     end
 
-    context 'when the begin date is after the end date' do
-      it 'returns an error array' do
-        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
-        subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2022-01-01'
-        res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
-        expect(res[0][:detail]).to eq('endDate needs to be after beginDate.')
-        expect(res[0][:source]).to eq('/changeOfAddress/dates/endDate')
+    describe 'when typeOfAddressChange is PERMANENT' do
+      context 'when the type is permanent the end date is prohibited' do
+        it 'returns an error array' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
+          subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
+          test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+          expect(current_error_array[0][:detail]).to eq('Change of address endDate cannot be included ' \
+                                                        'when typeOfAddressChange is PERMANENT')
+          expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
+        end
+      end
+
+      context 'when the type is permanent and end date is not present' do
+        it 'does not return an error' do
+          subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
+          subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2024-01-01'
+          subject.form_attributes['changeOfAddress']['dates'].delete('endDate')
+
+          res = test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
+
+          expect(res).to be_nil
+          expect(current_error_array).to be_nil
+        end
       end
     end
+  end
 
-    context 'when the type is temporary and begin date is in the past' do
-      it 'returns an error array' do
-        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'TEMPORARY'
-        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '2023-01-01'
-        subject.form_attributes['changeOfAddress']['dates']['endDate'] = '2024-01-01'
-        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_beginning_date)
-        expect(current_error_array[0][:detail]).to eq('Change of address beginDate must be ' \
-                                                      'in the future if addressChangeType is TEMPORARY')
-        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/beginDate')
-      end
+  describe '#alt_rev_validate_reserves_tos_dates' do
+    let(:reserves) do
+      {
+        'reservesNationalGuardService' => {
+          'component' => 'National Guard',
+          'obligationTermsOfService' => {
+            'beginDate' => '1990-11-24',
+            'endDate' => '1995-11-17'
+          },
+          'unitName' => 'National Guard Unit Name',
+          'unitAddress' => '1243 Main Street',
+          'unitPhone' => {
+            'areaCode' => '555',
+            'phoneNumber' => '5555555'
+          },
+          'receivingInactiveDutyTrainingPay' => 'YES'
+        }
+      }
+    end
+    let(:base_path) do
+      'serviceInformation/reservesNationalGuardService/obligationTermsOfService'
     end
 
-    context 'when the type is permanent the end date is prohibited' do
-      it 'returns an error array' do
-        subject.form_attributes['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
-        subject.form_attributes['changeOfAddress']['dates']['beginDate'] = '01-01-2023'
-        subject.form_attributes['changeOfAddress']['dates']['endDate'] = '01-01-2024'
-        test_526_validation_instance.send(:alt_rev_validate_form_526_change_of_address_ending_date)
-        expect(current_error_array[0][:detail]).to eq('Change of address endDate cannot be included ' \
-                                                      'when typeOfAddressChange is PERMANENT')
-        expect(current_error_array[0][:source]).to eq('/changeOfAddress/dates/endDate')
-      end
+    it 'returns a 422 if the beginDate is not inlcuded' do
+      reserves['reservesNationalGuardService']['obligationTermsOfService'].delete('beginDate')
+      no_begin_reserves = reserves['reservesNationalGuardService']
+
+      test_526_validation_instance.send(:alt_rev_validate_reserves_tos_dates, no_begin_reserves)
+
+      expect(current_error_array[0][:detail]).to eq("The begin date is required for #{base_path}/beginDate.")
+      expect(current_error_array[0][:source]).to eq("#{base_path}/beginDate")
+    end
+
+    it 'returns a 422 if the endDate is not included' do
+      reserves['reservesNationalGuardService']['obligationTermsOfService'].delete('endDate')
+      no_end_reserves = reserves['reservesNationalGuardService']
+
+      test_526_validation_instance.send(:alt_rev_validate_reserves_tos_dates, no_end_reserves)
+
+      expect(current_error_array[0][:detail]).to eq("The end date is required for #{base_path}/endDate.")
+      expect(current_error_array[0][:source]).to eq("#{base_path}/endDate")
+    end
+  end
+
+  describe '#alt_rev_validate_federal_activation_and_duty_date_order' do
+    let(:past_federal_activation_date) { '1901-01-01' }
+    let(:future_federal_activation_date) { "#{Time.current.year + 1}-12-20" }
+
+    it 'returns a 422 if the activation date is not after the duty begin date' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_and_duty_date_order,
+                                        past_federal_activation_date)
+
+      expect(current_error_array.count).to eq(1)
+      expect(current_error_array[0][:detail]).to eq(
+        'The activationDate must be after the earliest service period active duty begin date.'
+      )
+      expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
+    end
+
+    it 'does not raise an error if the activation date is not after the duty begin date' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_and_duty_date_order,
+                                        future_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+  end
+
+  describe '#alt_rev_validate_federal_activation_date_chronology', run_at: '2024-03-21 00:00:00 EDT' do
+    let(:past_federal_activation_date) { '1901-01-01' }
+    let(:future_federal_activation_date) { "#{Time.current.year + 1}-12-20" }
+    let(:today_federal_activation_date) { Date.current.strftime('%Y-%m-%d') }
+
+    it 'returns a 422 if the activation date is not in the past' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        future_federal_activation_date)
+
+      expect(current_error_array[0][:detail]).to eq(
+        'The activationDate must be today or a date in the past.'
+      )
+      expect(current_error_array[0][:source]).to eq('/serviceInformation/federalActivation/')
+    end
+
+    it 'does not raise an error if the activation date is not in the past' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        past_federal_activation_date)
+
+      expect(current_error_array).to be_nil
+    end
+
+    it 'does not raise an error if the activation date is today' do
+      test_526_validation_instance.send(:alt_rev_validate_federal_activation_date_chronology,
+                                        today_federal_activation_date)
+
+      expect(current_error_array).to be_nil
     end
   end
 

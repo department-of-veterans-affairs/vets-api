@@ -9,6 +9,7 @@ require 'dependents_benefits/user_data'
 
 require 'claims_evidence_api/uploader'
 require 'digital_forms_api/service/submissions'
+require 'pdf_utilities/pdf_stamper'
 
 module DependentsBenefits
   module V0
@@ -42,6 +43,7 @@ module DependentsBenefits
 
         raise Common::Exceptions::ValidationErrors, claim unless claim.save
 
+        claim.process_attachments!
         user_data = DependentsBenefits::UserData.new(current_user, claim.parsed_form)
 
         # Matching parent_claim_id and saved_claim_id indicates this is a parent claim
@@ -53,17 +55,20 @@ module DependentsBenefits
 
         # FDF pilot
         # TODO move to separate job (future)
-        forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled)
+        forms_api_enabled = Flipper.enabled?(:dependents_digital_forms_api_submission_enabled, current_user)
         if forms_api_enabled && (claim.claim_form_type == '21-686c')
           begin
             claim_info = claim.get_claim_information(current_user)
             if claim_info[:proc_state] == 'MANUAL_VAGOV' && claim_info[:participant_id].present?
-              submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
+              submission = submit_via_forms_api(claim, claim_info[:claim_label], claim_info[:participant_id])
 
               monitor.track_create_success(in_progress_form, claim, current_user)
               DependentsBenefits::NotificationEmail.new(claim.id).send_submitted_notification
 
-              return render json: SavedClaimSerializer.new(claim)
+              response = SavedClaimSerializer.new(claim).serializable_hash
+              response[:data][:digital_forms_api] = { submission: }
+
+              return render json: response
             end
           rescue => e
             monitor.track_request(:error, e.message, 'dependents_controller.forms_api_submission')
@@ -105,14 +110,13 @@ module DependentsBenefits
         }
 
         response = digital_forms_api_submission_service.submit(payload, metadata)
-        raise response.to_s.to_s unless response.success?
+        raise response.to_s unless response.success?
 
         monitor.track_request(:info, 'success', 'dependents_controller.forms_api_submission', claim:, response:)
 
         upload_evidence_documents(claim, participant_id)
 
-        # TODO: parse the response body and pass back the identifier to be used by the form viewer (future)
-        'submission-id'
+        response.body['submission'] || {}
       end
 
       # upload evidence documents - temp for FDF pilot
@@ -188,7 +192,7 @@ module DependentsBenefits
 
       # Creates a new monitor instance for tracking events
       def monitor
-        @monitor ||= DependentsBenefits::Monitor.new
+        @monitor ||= DependentsBenefits::Monitor.new(nil, current_user)
       end
     end
   end

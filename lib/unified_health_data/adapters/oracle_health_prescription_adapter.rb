@@ -139,7 +139,7 @@ module UnifiedHealthData
             facility_name: facility_resolver.resolve_facility_name(dispense),
             instructions: extract_sig_from_dispense(dispense),
             quantity: dispense.dig('quantity', 'value'),
-            medication_name: dispense.dig('medicationCodeableConcept', 'text'),
+            prescription_name: dispense.dig('medicationCodeableConcept', 'text'),
             id: dispense['id'],
             refill_submit_date: nil,
             prescription_number: nil,
@@ -393,7 +393,7 @@ module UnifiedHealthData
       # @param expiration_date [Time, nil] Parsed UTC expiration date
       # @param has_in_progress_dispense [Boolean] Whether the most recent dispense is in-progress
       # @return [String] VistA status value
-      def normalize_active_status(refills_remaining, expiration_date, has_in_progress_dispense, resource = nil)
+      def normalize_active_status(_refills_remaining, expiration_date, has_in_progress_dispense, resource = nil)
         # Rule: Expired more than 120 days ago → discontinued
         return 'discontinued' if expiration_date && expiration_date < 120.days.ago.utc
 
@@ -401,11 +401,10 @@ module UnifiedHealthData
         # This takes priority over expired status since an active refill is being processed
         return 'refillinprocess' if has_in_progress_dispense
 
-        # Rule: No refills remaining AND past expiration date → expired (UNLESS it's a Non-VA medication)
-        # Non-VA meds are always reported with 0 refills but should still be 'active' if status is 'active'
+        # Rule: Past expiration date → expired (UNLESS it's a Non-VA medication)
         is_non_va = resource && non_va_med?(resource)
         is_past_expiration = expiration_date && expiration_date < Time.current.utc
-        return 'expired' if refills_remaining.zero? && is_past_expiration && !is_non_va
+        return 'expired' if is_past_expiration && !is_non_va
 
         # Default: active
         'active'

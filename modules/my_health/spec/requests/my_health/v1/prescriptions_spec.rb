@@ -327,8 +327,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s
         }
       end
-      # Expect alphabetical order of prescription names
-      expect(objects.map { |o| o['prescription_name'] }).to eq(objects.map { |o| o['prescription_name'] }.sort)
+      # Expect alphabetical order of prescription names (case-insensitive)
+      expect(objects.map { |o| o['prescription_name'] }).to eq(objects.map { |o| o['prescription_name'] }.sort_by { |n| n.to_s.downcase })
 
       # If prescription is the same, verify sort is by newest sorted_dispensed_date to oldest
       objects.group_by { |o| o['prescription_name'] }.each_value do |meds|
@@ -418,7 +418,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           'disp_status' => item.dig('attributes', 'disp_status')
         }
       end
-      expect(objects).to eq(objects.sort_by { |object| [object['disp_status'], object['prescription_name']] })
+      expect(objects).to eq(objects.sort_by { |object| [object['disp_status'], object['prescription_name'].to_s.downcase] })
     end
 
     it 'responds to GET #index with refill_status=active' do

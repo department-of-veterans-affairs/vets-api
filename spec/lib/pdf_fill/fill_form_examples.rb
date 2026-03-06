@@ -3,6 +3,19 @@
 require 'rails_helper'
 
 ##
+# Returns the expected overflow fixture file suffix based on fill options.
+#
+# @param extras_redesign [Boolean] Whether the extras redesign is enabled.
+# @param show_jumplinks [Boolean] Whether jumplinks are shown.
+# @return [String] The file suffix for the overflow fixture.
+#
+def overflow_file_suffix(extras_redesign, show_jumplinks)
+  return '_extras.pdf' unless extras_redesign
+
+  show_jumplinks ? '_redesign_extras_jumplinks.pdf' : '_redesign_extras.pdf'
+end
+
+##
 # Converts each page of a PDF to images and saves them to the specified output directory.
 #
 # @param pdf_path [String] The path to the PDF file.

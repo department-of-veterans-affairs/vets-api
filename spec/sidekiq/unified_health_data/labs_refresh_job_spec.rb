@@ -27,7 +27,8 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
 
         expect(uhd_service).to receive(:get_labs).with(
           start_date: start_date.strftime('%Y-%m-%d'),
-          end_date: end_date.strftime('%Y-%m-%d')
+          end_date: end_date.strftime('%Y-%m-%d'),
+          caller: 'labs_refresh_job'
         )
 
         described_class.new.perform(user.uuid)
@@ -41,7 +42,8 @@ RSpec.describe UnifiedHealthData::LabsRefreshJob, type: :job do
 
         expect(uhd_service).to receive(:get_labs).with(
           start_date: start_date.strftime('%Y-%m-%d'),
-          end_date: end_date.strftime('%Y-%m-%d')
+          end_date: end_date.strftime('%Y-%m-%d'),
+          caller: 'labs_refresh_job'
         )
 
         described_class.new.perform(user.uuid)

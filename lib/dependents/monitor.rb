@@ -42,14 +42,18 @@ module Dependents
     #
     # @param claim_id [Integer] the database SavedClaim id
     # @param form_id [String] the form being monitored; 686c-674 or 21-674, etc
-    def initialize(claim_id = nil, form_id = nil)
+    # @param user [Object] the user associated with the claim
+    def initialize(claim_id = nil, form_id = nil, user = nil)
       @claim_id = claim_id
       @claim = claim(claim_id)
       @form_id = form_id || @claim&.form_id
+      @user = user
 
       super('dependents-application', allowlist: ALLOWLIST)
 
-      @tags += ["service:#{service}"]
+      @use_v3 = get_use_v3
+      @use_v3_removal = get_use_v3_removal(@claim)
+      @tags = get_tags
     end
 
     def name
@@ -58,6 +62,10 @@ module Dependents
 
     def form_id
       @form_id ||= @claim&.form_id
+    end
+
+    def v3_logging_enabled?
+      @v3_logging_enabled ||= Flipper.enabled?(:dependents_v3_removal_picklist_logging)
     end
 
     def submission_stats_key
@@ -69,6 +77,57 @@ module Dependents
     rescue => e
       Rails.logger.warn('Unable to find claim for Dependents::Monitor', { claim_id:, e: })
       nil
+    end
+
+    # tag used for logging to identify ALL claims with v3 flipper active
+    def get_use_v3
+      return false unless v3_logging_enabled?
+      return false if @user.nil?
+
+      Flipper.enabled?(:va_dependents_v3, @user)
+    end
+
+    # tag used for logging to identify claims with v3 removal flow active
+    def get_use_v3_removal(claim)
+      return false unless v3_logging_enabled?
+      return false if claim.nil?
+
+      # The code below is really just for spec purposes, since in prod the claim.parsed_form should always be present
+      # and return a Hash object. If for some reason it doesn't, we don't want the entire monitor to fail,
+      # so we rescue and return false.
+      begin
+        parsed_form = claim.parsed_form
+      rescue
+        return false
+      end
+
+      return false if parsed_form.nil?
+
+      # Handle parsed_form being a JSON string, nil, or a Hash-like object
+      parsed = if parsed_form.is_a?(String)
+                 begin
+                   JSON.parse(parsed_form)
+                 rescue JSON::ParserError
+                   {}
+                 end
+               else
+                 parsed_form
+               end
+
+      parsed = parsed.with_indifferent_access if parsed.respond_to?(:with_indifferent_access)
+
+      !!parsed['is_v3_removal_flow']
+    end
+
+    def get_tags
+      additional_tags = @tags.dup || []
+      additional_tags << "service:#{service}"
+      if v3_logging_enabled?
+        # if user is nil, but claim data has is_v3_removal_flow true, we know that feature flag is ON
+        additional_tags << "use_v3:#{@use_v3 || @use_v3_removal}" if @user.present? || @use_v3_removal
+        additional_tags << "v3_removal:#{@use_v3_removal}" if @claim.present?
+      end
+      additional_tags
     end
 
     def default_payload
@@ -186,12 +245,10 @@ module Dependents
     end
 
     def track_no_ssn_claims(form_id:, type:)
-      tags = ["form_id:#{form_id}"]
       metric = "#{NO_SSN_SUBMISSION_STATS_KEY}.#{type}"
       payload = default_payload.merge({ statsd: metric, form_id:, claim_id: @claim_id })
 
-      StatsD.increment(metric, tags:)
-      Rails.logger.info("No-SSN claim #{type}", payload)
+      track_event('info', "No-SSN claim #{type} for claim: #{@claim_id}", metric, payload)
     end
 
     def track_event(level, message, stats_key, payload = {})
