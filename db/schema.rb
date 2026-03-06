@@ -1508,7 +1508,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_132346) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["organization_poa", "representative_id"], name: "idx_org_reps_on_org_poa_and_rep_id", unique: true
-    t.check_constraint "acceptance_mode::text = ANY (ARRAY['any_request'::character varying::text, 'self_only'::character varying::text, 'no_acceptance'::character varying::text])", name: "org_reps_acceptance_mode_check"
+    t.check_constraint "acceptance_mode::text = ANY (ARRAY['any_request'::character varying, 'self_only'::character varying, 'no_acceptance'::character varying]::text[])", name: "org_reps_acceptance_mode_check"
   end
 
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
