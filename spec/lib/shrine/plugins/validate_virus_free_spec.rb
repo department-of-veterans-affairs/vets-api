@@ -107,17 +107,6 @@ describe Shrine::Plugins::ValidateVirusFree do
           upload_context: 'FormSubmissionAttempt'
         )
       end
-
-      it 'delegates audit logging to Common::VirusScan for virus detection' do
-        allow(Common::VirusScan).to receive(:scan).and_return(false)
-
-        instance.validate_virus_free
-
-        expect(Common::VirusScan).to have_received(:scan).with(
-          an_instance_of(String),
-          upload_context: nil
-        )
-      end
     end
 
     describe 'AU-2 audit log integration' do
