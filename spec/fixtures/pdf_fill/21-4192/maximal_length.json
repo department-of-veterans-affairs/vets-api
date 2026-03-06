@@ -1,0 +1,55 @@
+{
+    "veteranInformation": {
+        "fullName": {
+            "first": "first6789012345678901234END",
+            "middle": "e",
+            "last": "last56789012345678901234END"
+        },
+        "ssn": "444444444",
+        "vaFileNumber": "55555555",
+        "dateOfBirth": "1906-06-06"
+    },
+    "employmentInformation": {
+        "employerName": "Name of employer Name of employer Name of employer Name of employer Name of employer Name of empEND",
+        "employerAddress": {
+            "state": "AL",
+            "postalCode": "12345",
+            "country": "US",
+            "street": "Street addressStreet addreEND",
+            "street2": "Street address line 2StreEND",
+            "city": "CityCityCityCitEND"
+        },
+        "beginningDateOfEmployment": "1907-07-07",
+        "endingDateOfEmployment": "1908-08-08",
+        "typeOfWorkPerformed": "What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What type of work does a a do? What END",
+        "terminationReason": " IF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOR TERMINATION OF EMPLOYMENTIF VETERAN IS NOT WORKING, STATE THE REASON FOREND",
+        "dateLastWorked": "1914-12-14",
+        "amountEarnedLast12MonthsOfEmployment": 999998.01,
+        "timeLostLast12MonthsOfEmployment": "119999998.01",
+        "hoursWorkedDaily": 24,
+        "hoursWorkedWeekly": 168,
+        "concessions": "What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or disability? What concessions (if any) are made to a a because of age or END",
+        "lastPaymentDate": "1915-05-15",
+        "lastPaymentGrossAmount": 15,
+        "lumpSumPaymentMade": true,
+        "grossAmountPaid": 16,
+        "datePaid": "1916-06-16"
+    },
+    "militaryDutyStatus": {
+        "currentDutyStatus": "What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current duty status?What is a a's current END",
+        "veteranDisabilitiesPreventMilitaryDuties": true
+    },
+    "benefitEntitlementPayments": {
+        "sickRetirementOtherBenefits": true,
+        "typeOfBenefit": "ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype of benefit ype END",
+        "grossMonthlyAmountOfBenefit": 999998.01,
+        "dateBenefitBegan": "1921-12-21",
+        "dateFirstPaymentIssued": "1821-12-21",
+        "dateBenefitWillStop": "1921-12-21",
+        "remarks": "You can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this claimYou can provide any additional information that may be helpful in processing this END"
+    },
+    "certification": {
+        "signature": "your full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nameYour full nEND",
+        "certified": true
+    }
+}

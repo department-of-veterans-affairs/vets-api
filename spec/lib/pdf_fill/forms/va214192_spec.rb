@@ -14,7 +14,7 @@ RSpec.describe PdfFill::Forms::Va214192 do
     factory: :fake_saved_claim,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/21-4192',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/21-4192',
-    test_data_types: %w[simple kitchen_sink],
+    test_data_types: %w[simple kitchen_sink maximal_length],
     fill_options: {
       sign: false
     }
