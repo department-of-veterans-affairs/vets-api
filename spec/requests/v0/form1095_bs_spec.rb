@@ -7,7 +7,6 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   let(:invalid_user) { build(:user, :loa1) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:fetch_1095b_from_enrollment_system, any_args).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:form1095b_multiple_years, any_args).and_return(true)
   end
 

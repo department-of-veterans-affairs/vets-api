@@ -17,11 +17,13 @@ RSpec.describe Message do
                                                                :suggested_name_display, :is_oh_message,
                                                                :oh_migration_phase,
                                                                :triage_group_name, :triage_group_id,
+                                                               :triage_group,
                                                                :proxy_sender_name,
                                                                :has_attachments, :attachment1_id,
                                                                :attachment2_id, :attachment3_id,
                                                                :attachment4_id, :metadata,
-                                                               :is_large_attachment_upload, :reply_disabled)
+                                                               :is_large_attachment_upload, :reply_disabled,
+                                                               :migrated_to_oracle_health)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])

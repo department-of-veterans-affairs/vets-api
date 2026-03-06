@@ -36,9 +36,6 @@ module SimpleFormsApi
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007 40-1330M 21P-0537 21P-601].freeze
 
       def submit
-        # Temporarily gate submissions to 21P-0537 while in development
-        return if (params[:form_number] == '21P-0537') && !Flipper.enabled?(:form21p0537, @current_user)
-
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         response = if intent_service.use_intent_api?
@@ -181,6 +178,7 @@ module SimpleFormsApi
           presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
 
           add_vsi_flash_safely(form, submission)
+          submit_to_mms_if_applicable(form, confirmation_number)
         end
 
         build_response(confirmation_number, presigned_s3_url, status)
@@ -398,6 +396,32 @@ module SimpleFormsApi
       rescue => e
         Rails.logger.error('Simple Forms API - Controller-level VSI Flash Error', error: e.message,
                                                                                   submission_id: submission.id)
+      end
+
+      def submit_to_mms_if_applicable(form, confirmation_number)
+        return unless Flipper.enabled?("#{form_id}_ibm_mms_connection")
+        return if confirmation_number.blank?
+
+        converter_class = mms_converter_for(params[:form_number])
+        return unless converter_class
+
+        ibm_payload = converter_class.convert(form)
+        jid = SimpleFormsApi::Mms::IbmUploadJob.perform_async(ibm_payload, params[:form_number], confirmation_number)
+        Rails.logger.info(
+          'SimpleFormsAPI - IbmUploadJob Queued',
+          jid:,
+          form_number: params[:form_number],
+          confirmation_number:
+        )
+      end
+
+      def mms_converter_for(form_number)
+        return nil if form_number.blank?
+
+        normalized = form_number.delete('-').delete('P').downcase
+        class_name = "SimpleFormsApi::Mms::VBA#{normalized}IbmConverter"
+
+        class_name.safe_constantize
       end
     end
   end

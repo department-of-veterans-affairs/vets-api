@@ -314,8 +314,174 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           end
         end
 
+        context 'fix_duplicate_key_ipf (additional information cleanup)' do
+          let(:duplicate_key_fix_toggle) { :disability_compensation_fix_duplicate_key_ipf }
+
+          context 'when fix_duplicate_key_ipf toggle is ON' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(duplicate_key_fix_toggle, instance_of(User)).and_return(true)
+            end
+
+            it 'removes camelCase additionalInformation when value is an empty object' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additionalInformation')
+            end
+
+            it 'removes snake_case additional_information when value is an empty object' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additional_information')
+            end
+
+            it 'removes camelCase additionalInformation when value is an empty array' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = []
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additionalInformation')
+            end
+
+            it 'removes snake_case additional_information when value is an empty array' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = []
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']).not_to have_key('additional_information')
+            end
+
+            it 'preserves additionalInformation when it contains text' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = 'Additional information text.'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additionalInformation']).to eq('Additional information text.')
+            end
+
+            it 'preserves additional_information when it contains text' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = 'Additional information text.'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additional_information']).to eq('Additional information text.')
+            end
+          end
+
+          context 'when fix_duplicate_key_ipf toggle is OFF' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(duplicate_key_fix_toggle, instance_of(User)).and_return(false)
+            end
+
+            it 'does not remove empty camelCase additionalInformation' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additionalInformation'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additionalInformation']).to eq({})
+            end
+
+            it 'does not remove empty snake_case additional_information' do
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['additional_information'] = {}
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json)
+
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['additional_information']).to eq({})
+            end
+          end
+        end
+
         context 'fix_new_conditions_workflow_flag (returnUrl-based)' do
           let(:fix_toggle) { :disability_compensation_fix_poisoned_ipf }
+
+          context 'DB round-trip key casing verification' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(fix_toggle, instance_of(User)).and_return(true)
+            end
+
+            it 'stores and retrieves the workflow flag as snake_case (disability_comp_new_conditions_workflow)' do
+              # Write snake_case key into form_data — this matches how OliveBranch stores it in production
+              parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              parsed_form_data['disability_comp_new_conditions_workflow'] = true
+              raw_meta = in_progress_form_lighthouse[:metadata] || {}
+              raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
+              in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
+
+              # Verify the key is persisted as snake_case in the DB
+              in_progress_form_lighthouse.reload
+              db_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+              expect(db_form_data).to have_key('disability_comp_new_conditions_workflow')
+              expect(db_form_data).not_to have_key('disabilityCompNewConditionsWorkflow')
+              expect(db_form_data['disability_comp_new_conditions_workflow']).to be(true)
+
+              # Now hit the endpoint — the fix should see the snake_case key and reset it
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
+
+              # Verify the fix persisted to the DB as snake_case
+              in_progress_form_lighthouse.reload
+              persisted = JSON.parse(in_progress_form_lighthouse.form_data)
+              expect(persisted).to have_key('disability_comp_new_conditions_workflow')
+              expect(persisted).not_to have_key('disabilityCompNewConditionsWorkflow')
+              expect(persisted['disability_comp_new_conditions_workflow']).to be(false)
+            end
+          end
 
           context 'when fix_poisoned_ipf toggle is OFF (kill switch)' do
             before do
@@ -324,7 +490,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
             it 'does not modify the flag even when returnUrl is an old-flow page' do
               parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-              parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+              parsed_form_data['disability_comp_new_conditions_workflow'] = true
               raw_meta = in_progress_form_lighthouse[:metadata] || {}
               raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
               in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -335,7 +501,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
               expect(response).to have_http_status(:ok)
               json_response = JSON.parse(response.body)
-              expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
+              expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(true)
             end
           end
 
@@ -347,7 +513,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             context 'when flag is true and returnUrl is an old-flow conditions page' do
               it 'resets flag to false' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -358,12 +524,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'resets for follow-up intro page too' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/follow-up'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -374,12 +540,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'persists the fix to the database' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -390,12 +556,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 in_progress_form_lighthouse.reload
                 persisted = JSON.parse(in_progress_form_lighthouse.form_data)
-                expect(persisted['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(persisted['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'handles string "true" the same as boolean true' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = 'true'
+                parsed_form_data['disability_comp_new_conditions_workflow'] = 'true'
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -406,12 +572,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'resets for new-disabilities/add page (redirect loop)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/add'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -422,12 +588,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'resets for claim-type page (redirect loop)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/claim-type'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -438,12 +604,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'resets for disabilities/orientation page (redirect loop)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/disabilities/orientation'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -454,12 +620,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'resets for disabilities/rated-disabilities page (redirect loop)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/disabilities/rated-disabilities'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -470,14 +636,14 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
             end
 
             context 'when flag is true but returnUrl is NOT an old-flow conditions page' do
               it 'keeps flag true when returnUrl is a safe page' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/veteran-information'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -488,12 +654,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(true)
               end
 
               it 'keeps flag true when returnUrl is a new-flow conditions page' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/conditions/summary'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -504,12 +670,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(true)
               end
 
               it 'keeps flag true when returnUrl is new-disabilities/additional-remarks-781 (not add)' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = true
+                parsed_form_data['disability_comp_new_conditions_workflow'] = true
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/additional-remarks-781'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -520,14 +686,14 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(true)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(true)
               end
             end
 
             context 'when flag is not true' do
               it 'does nothing when flag is false' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data['disabilityCompNewConditionsWorkflow'] = false
+                parsed_form_data['disability_comp_new_conditions_workflow'] = false
                 raw_meta = in_progress_form_lighthouse[:metadata] || {}
                 raw_meta['returnUrl'] = '/new-disabilities/follow-up/0'
                 in_progress_form_lighthouse.update!(form_data: parsed_form_data.to_json, metadata: raw_meta)
@@ -538,12 +704,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be(false)
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be(false)
               end
 
               it 'does nothing when flag is absent' do
                 parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
-                parsed_form_data.delete('disabilityCompNewConditionsWorkflow')
+                parsed_form_data.delete('disability_comp_new_conditions_workflow')
                 in_progress_form_lighthouse.update(form_data: parsed_form_data.to_json)
 
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
@@ -552,7 +718,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
                 expect(response).to have_http_status(:ok)
                 json_response = JSON.parse(response.body)
-                expect(json_response['formData']['disabilityCompNewConditionsWorkflow']).to be_nil
+                expect(json_response['formData']['disability_comp_new_conditions_workflow']).to be_nil
               end
             end
           end

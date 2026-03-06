@@ -79,6 +79,11 @@ module VAOS
                            pagination_params = {},
                            include = {},
                            tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
+        if user.icn.blank?
+          raise ArgumentError,
+                'no ICN passed in for VAOS::V2::GetAppointments request'
+        end
+
         cnp_count = 0
 
         # Determine if we should fetch travel claims in parallel
@@ -113,10 +118,10 @@ module VAOS
 
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
-        if Flipper.enabled?(:va_online_scheduling_log_mobile) && tp_client == 'mobile' &&
-           start_date.is_a?(DateTime) && start_date >= DateTime.now.utc.to_datetime
-          # Only log for future appointments from mobile
-          # Prepare appointments already happened so we have :pending
+        if Flipper.enabled?(:va_online_scheduling_log_mobile, user) && tp_client == 'mobile'
+          # Log upcoming mobile appointments when feature flag is enabled
+          # Appointments have already been prepared so can check :pending (and also determine)
+          # if :pending can be used in the later adapter
           some_appointments = appointments.any? { |appt| appt[:pending] == true }
           Rails.logger.info("VAOS: include: #{include} statuses: #{statuses} pending?: #{some_appointments}")
         end
@@ -161,9 +166,12 @@ module VAOS
         final_eps_facilities = extract_facility_identifiers(final_eps_appts)
         Rails.logger.info("EPS Debug: Final response #{final_eps_facilities.any? ? final_eps_facilities : 'none'}")
 
+        meta = pagination(pagination_params).merge(partial_errors(response, __method__))
+        append_eps_failures(meta)
+
         {
           data: deserialized_appointments(appointments),
-          meta: pagination(pagination_params).merge(partial_errors(response, __method__))
+          meta:
         }
       end
 
@@ -241,6 +249,8 @@ module VAOS
 
       # rubocop:enable Metrics/MethodLength
       def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
+        raise ArgumentError, 'no ICN passed in for VAOS::V2::GetAppointment request' if user.icn.blank?
+
         params = {}
         with_monitoring do
           response =  if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
@@ -266,6 +276,8 @@ module VAOS
 
       # rubocop:disable Metrics/MethodLength
       def post_appointment(request_object_body)
+        raise ArgumentError, 'no ICN passed in for VAOS::V2::PostAppointment request' if user.icn.blank?
+
         filtered_reason_code_text = filter_reason_code_text(request_object_body)
         request_object_body[:reason_code][:text] = filtered_reason_code_text if filtered_reason_code_text.present?
 
@@ -318,8 +330,9 @@ module VAOS
         end
       end
 
-      # rubocop:enable Metrics/MethodLength
       def update_appointment(appt_id, status)
+        raise ArgumentError, 'no ICN passed in for VAOS::V2::UpdateAppointment request' if user.icn.blank?
+
         with_monitoring do
           if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
@@ -342,6 +355,7 @@ module VAOS
           end
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Retrieves the most recent clinic appointment within the last year.
       #
@@ -1635,16 +1649,28 @@ module VAOS
       end
 
       def eps_appointments
-        @eps_appointments ||= begin
-          eps_appts = eps_appointments_service.get_appointments_with_providers
-          if eps_appts.blank?
-            []
-          else
-            kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
-            log_appointment_separation(kept_appts, removed_appts)
-            kept_appts
-          end
+        @eps_appointments ||= fetch_eps_appointments
+      end
+
+      def fetch_eps_appointments
+        eps_appts = eps_appointments_service.get_appointments_with_providers
+        if eps_appts.blank?
+          []
+        else
+          kept_appts, removed_appts = separate_appointments_by_start_time(eps_appts)
+          log_appointment_separation(kept_appts, removed_appts)
+          kept_appts
         end
+      rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError,
+             Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::ConnectionFailed
+        @eps_fetch_failure = { source: 'EPS', detail: 'EPS appointment data unavailable' }
+        []
+      end
+
+      def append_eps_failures(meta)
+        return unless @eps_fetch_failure
+
+        meta[:failures] = Array.wrap(meta[:failures]) << @eps_fetch_failure
       end
 
       def eps_serializer

@@ -7,5 +7,9 @@ module AccreditedRepresentativePortal
     def search?
       @user.representative?
     end
+
+    def show?
+      @user.representative?
+    end
   end
 end

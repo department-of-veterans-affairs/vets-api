@@ -54,7 +54,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(service).to receive(:perform_upload)
         expect(job).to receive(:cleanup_file_paths)
 
-        result = job.perform(claim.id, user_account_uuid, service)
+        result = job.perform(claim.id, user_account_uuid)
         expect(result).to eq(service.uuid)
       end
 
@@ -65,7 +65,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
         expect(claim).not_to receive(:to_pdf)
         expect(service).not_to receive(:perform_upload)
 
-        result = job.perform(claim.id, user_account_uuid, service)
+        result = job.perform(claim.id, user_account_uuid)
         expect(result).to be_nil
       end
     end
@@ -89,7 +89,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
       )
       expect(job).to receive(:cleanup_file_paths)
 
-      job.perform(claim.id, :user_account_uuid, service)
+      job.perform(claim.id, :user_account_uuid)
     end
 
     it 'is unable to find user_account' do
@@ -221,7 +221,7 @@ RSpec.describe IncreaseCompensation::BenefitsIntake::SubmitClaimJob, :uploader_h
 
     it 'errors and logs but does not reraise' do
       expect(IncreaseCompensation::NotificationEmail).to receive(:new).with(claim.id, 'test_guid')
-      expect(notification).to receive(:deliver).with(:received)
+      expect(notification).to receive(:deliver).with(:submitted)
       expect(monitor).to receive(:track_send_email_failure)
       job.send(:send_received_email)
       # IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)

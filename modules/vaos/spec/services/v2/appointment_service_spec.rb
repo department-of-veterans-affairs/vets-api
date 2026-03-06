@@ -179,6 +179,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.post_appointment(va_booked_request_body)
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method path query]) do
@@ -304,6 +316,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.post_appointment(va_booked_request_body)
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
@@ -354,6 +378,18 @@ describe VAOS::V2::AppointmentsService do
             expect(response[:data][6][:requested_periods][0][:local_start_time]).to eq(
               'Wed, 08 Sep 2021 06:00:00 -0600'
             )
+          end
+        end
+
+        context 'when user has an invalid ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'requires a valid ICN' do
+            expect do
+              subject.get_appointments(start_date2, end_date2)
+            end.to raise_error(ArgumentError)
           end
         end
       end
@@ -1083,6 +1119,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.get_appointment('159472')
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method path query]) do
@@ -1257,6 +1305,18 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when user has an invalid ICN' do
+        before do
+          allow(user).to receive(:icn).and_return(nil)
+        end
+
+        it 'requires a valid ICN' do
+          expect do
+            subject.get_appointment('159472')
+          end.to raise_error(ArgumentError)
+        end
+      end
+
       context 'when the upstream server returns a 500' do
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_500_vpg', match_requests_on: %i[method path query]) do
@@ -1311,6 +1371,18 @@ describe VAOS::V2::AppointmentsService do
           end
         end
 
+        context 'when user has an invalid ICN' do
+          before do
+            allow(user).to receive(:icn).and_return(nil)
+          end
+
+          it 'requires a valid ICN' do
+            expect do
+              subject.update_appointment('42081', 'cancelled')
+            end.to raise_error(ArgumentError)
+          end
+        end
+
         context 'using vaos-service' do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
@@ -1333,6 +1405,18 @@ describe VAOS::V2::AppointmentsService do
                   expect(response[:future]).to be(false)
                 end
               end
+            end
+          end
+
+          context 'when user has an invalid ICN' do
+            before do
+              allow(user).to receive(:icn).and_return(nil)
+            end
+
+            it 'requires a valid ICN' do
+              expect do
+                subject.update_appointment('42081', 'cancelled')
+              end.to raise_error(ArgumentError)
             end
           end
 
@@ -1617,6 +1701,74 @@ describe VAOS::V2::AppointmentsService do
 
         eps_appointment = VAOS::V2::EpsAppointment.new(eps_appointment_data)
         expect(eps_appointment.provider_name).to eq('unknown')
+      end
+    end
+  end
+
+  describe '#get_appointments EPS graceful degradation' do
+    before do
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:appointments_consolidation,
+                                                instance_of(User)).and_return(true)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    context 'when EPS appointment fetch raises an error' do
+      it 'returns VAOS appointments and includes EPS failure in meta' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          eps_service = instance_double(Eps::AppointmentService)
+          allow(Eps::AppointmentService).to receive(:new).and_return(eps_service)
+          allow(eps_service).to receive(:get_appointments_with_providers)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VAOS_502'))
+
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+
+          expect(result[:data]).not_to be_empty
+          expect(result[:meta][:failures]).to include(
+            hash_including(source: 'EPS', detail: 'EPS appointment data unavailable')
+          )
+        end
+      end
+    end
+
+    context 'when EPS is not included in the request' do
+      it 'returns VAOS appointments with empty failures' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: false })
+
+          expect(result[:data]).not_to be_empty
+          expect(result[:meta][:failures]).to be_empty
+        end
+      end
+    end
+
+    context 'when EPS appointment fetch succeeds' do
+      it 'returns empty failures in meta' do
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/token/token_200',
+                           match_requests_on: %i[method path],
+                           allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_appointments/200_empty',
+                             match_requests_on: %i[method path query],
+                             allow_playback_repeats: true, tag: :force_utf8) do
+              result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+
+              expect(result[:data]).not_to be_empty
+              expect(result[:meta][:failures]).to be_empty
+            end
+          end
+        end
       end
     end
   end

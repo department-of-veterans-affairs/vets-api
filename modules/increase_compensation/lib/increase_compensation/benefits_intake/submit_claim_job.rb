@@ -39,20 +39,20 @@ module IncreaseCompensation
       #
       # @return [UUID] benefits intake upload uuid
       #
-      def perform(saved_claim_id, user_account_uuid = nil, benefits_intake_service = nil)
+      def perform(saved_claim_id, user_account_uuid = nil)
         return unless Flipper.enabled?(:increase_compensation_form_enabled)
 
         init(saved_claim_id, user_account_uuid)
+        # benefits_intake_uuid come from here
+        @intake_service ||= reset_intake_service
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf(@claim.guid, { omit_esign_stamp: true }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
+        log_attachment_meta(@attachment_paths, @claim, user_account_uuid, @intake_service.uuid)
         form = @claim.parsed_form
         @metadata = generate_metadata(form)
         @ibm_payload = @claim.to_ibm
-        # benefits_intake_uuid come from here
-        @intake_service ||= benefits_intake_service
-        reset_intake_service if @intake_service.nil?
 
         # upload must be performed within 15 minutes of this request
         upload_document
@@ -89,6 +89,19 @@ module IncreaseCompensation
       # @see IncreaseCompensation::Monitor
       def monitor
         @monitor ||= IncreaseCompensation::Monitor.new
+      end
+
+      def log_attachment_meta(attachment_paths, claim, user_account_uuid, benefits_intake_uuid)
+        Rails.logger.info(
+          "IncreaseCompensation::Monitor 21-8940V1 - Attachments Count: #{attachment_paths.length}",
+          {
+            guid: claim.guid,
+            attacments: claim.persistent_attachments.count,
+            attachment_proccessed: attachment_paths.length,
+            user_account_uuid:,
+            benefits_intake_uuid:
+          }
+        )
       end
 
       # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
@@ -148,10 +161,8 @@ module IncreaseCompensation
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, tracked_payload)
         response = @intake_service.perform_upload(**payload)
-        if response.success?
-          update_form_submission_attempt # these are created in the s3 upload so update if different or on retry
-          govcio_upload
-        end
+        update_form_submission_attempt # these are created in the s3 upload so update if different or on retry
+        govcio_upload if response.success?
         raise IncreaseCompensationBenefitIntakeError, response.to_s unless response.success?
       end
 
@@ -211,9 +222,9 @@ module IncreaseCompensation
 
       # VANotify job to send Submission in Progress email to veteran
       def send_received_email
-        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:received)
+        IncreaseCompensation::NotificationEmail.new(@claim.id, @intake_service.uuid).deliver(:submitted)
       rescue => e
-        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'received', e)
+        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
       end
 
       # Delete temporary stamped PDF files for this instance.

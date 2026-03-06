@@ -18,7 +18,7 @@ module IvcChampva
         response = client.put_object(
           bucket:,
           key:,
-          body: File.read(file),
+          body: read_file(file),
           metadata:
         )
         result = { success: true }
@@ -31,6 +31,10 @@ module IvcChampva
       else
         result
       end
+    end
+
+    def read_file(file)
+      File.read(file)
     end
 
     def upload_file(key, file)

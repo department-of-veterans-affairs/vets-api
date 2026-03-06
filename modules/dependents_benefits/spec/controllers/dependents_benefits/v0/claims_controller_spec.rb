@@ -12,6 +12,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
     allow(DependentsBenefits::PdfFill::Filler).to receive(:fill_form).and_return('tmp/pdfs/mock_form_final.pdf')
     sign_in_as(user)
     allow(Flipper).to receive(:enabled?).with(:dependents_module_enabled, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_dependents_v3, instance_of(User)).and_return(false)
     allow_any_instance_of(SavedClaim).to receive(:pdf_overflow_tracking)
   end
 
@@ -162,7 +163,7 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
       let(:dfa) { double(DigitalFormsApi::Service::Submissions) }
       let(:uploader) { double(ClaimsEvidenceApi::Uploader) }
-      let(:response) { double('response', success?: true) }
+      let(:response) { double('response', success?: true, body: { 'submission' => 'TEST' }) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:dependents_digital_forms_api_submission_enabled,
@@ -173,7 +174,8 @@ RSpec.describe DependentsBenefits::V0::ClaimsController do
       end
 
       it 'submits to forms api and uploads evidence' do
-        expect(claim).to receive(:claim_form_type).and_return('21-686c').thrice
+        allow(claim).to receive(:claim_form_type).and_return('21-686c')
+
         expect(claim).to receive(:get_claim_information).and_return(claim_information)
         expect(dfa).to receive(:submit).and_return(response)
         expect(uploader).to receive(:upload_evidence)
