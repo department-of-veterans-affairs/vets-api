@@ -34,7 +34,7 @@ jobs:
         with:
           mask-password: true
       - name: Build vets-api Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
