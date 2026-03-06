@@ -41,5 +41,85 @@ describe Forms::SubmissionStatuses::Formatters::BenefitsIntakeFormatter,
       result = subject.format_data(dataset)
       expect(result).not_to be_empty
     end
+
+    context 'when form supports pdf download' do
+      let(:mock_url) { 'https://s3.example.com/presigned-url' }
+
+      before do
+        allow_any_instance_of(Forms::SubmissionStatuses::PdfUrls)
+          .to receive(:supported?).and_return(true)
+        allow_any_instance_of(Forms::SubmissionStatuses::PdfUrls)
+          .to receive(:fetch_url).and_return(mock_url)
+      end
+
+      it 'includes a presigned_url in the result' do
+        dataset = instance_double(
+          Forms::SubmissionStatuses::Dataset,
+          submissions?: true,
+          submissions:,
+          intake_statuses?: false,
+          intake_statuses: nil
+        )
+
+        result = subject.format_data(dataset)
+        expect(result.first.presigned_url).to eq(mock_url)
+        expect(result.first.pdf_support).to be(true)
+      end
+    end
+
+    context 'when form does not support pdf download' do
+      let(:unsupported_submissions) do
+        [
+          OpenStruct.new(
+            id: 2,
+            form_type: '999-unsupported',
+            benefits_intake_uuid: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+            user_account_id: '43134f0c-a772-4afa-857a-e5dedf8ea65a'
+          )
+        ]
+      end
+
+      it 'sets presigned_url to nil and pdf_support to false' do
+        dataset = instance_double(
+          Forms::SubmissionStatuses::Dataset,
+          submissions?: true,
+          submissions: unsupported_submissions,
+          intake_statuses?: false,
+          intake_statuses: nil
+        )
+
+        result = subject.format_data(dataset)
+        expect(result.first.presigned_url).to be_nil
+        expect(result.first.pdf_support).to be(false)
+      end
+    end
+
+    context 'when fetching the presigned url raises an error' do
+      before do
+        allow_any_instance_of(Forms::SubmissionStatuses::PdfUrls)
+          .to receive(:supported?).and_return(true)
+        allow_any_instance_of(Forms::SubmissionStatuses::PdfUrls)
+          .to receive(:fetch_url).and_raise(StandardError, 'S3 connection failed')
+      end
+
+      it 'returns nil for presigned_url without raising' do
+        dataset = instance_double(
+          Forms::SubmissionStatuses::Dataset,
+          submissions?: true,
+          submissions:,
+          intake_statuses?: false,
+          intake_statuses: nil
+        )
+
+        expect(Rails.logger).to receive(:warn).with(
+          'Failed to fetch presigned URL for submission in Forms::SubmissionStatuses',
+          hash_including(submission_guid: '4b846069-e496-4f83-8587-42b570f24483', error: 'S3 connection failed')
+        )
+
+        result = subject.format_data(dataset)
+        expect(result.first.presigned_url).to be_nil
+        expect(result.first.pdf_support).to be(true)
+      end
+    end
   end
 end
