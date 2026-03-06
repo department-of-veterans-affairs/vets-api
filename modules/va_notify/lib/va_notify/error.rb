@@ -28,7 +28,16 @@ module VANotify
       @body = body
       @context = context
       super(build_message)
-      log_error
+    end
+
+    def log_error
+      Rails.logger.error(
+        self.class.name,
+        status_code:,
+        body:,
+        context:,
+        message:
+      )
     end
 
     private
@@ -47,16 +56,6 @@ module VANotify
                 else
                   body['message']
                 end
-    end
-
-    def log_error
-      Rails.logger.error(
-        'VANotify::Error',
-        status_code:,
-        body:,
-        context:,
-        message:
-      )
     end
   end
 

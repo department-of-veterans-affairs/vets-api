@@ -87,7 +87,6 @@ module VaNotify
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        log_error_details(error)
         if error.status >= 400
           context = {
             template_id:,
@@ -95,7 +94,11 @@ module VaNotify
               callback_options[:callback_metadata] || callback_options['callback_metadata']
             )
           }
-          raise VANotify::Error.from_generic_error(error, context)
+          va_notify_error = VANotify::Error.from_generic_error(error, context)
+          va_notify_error.log_error
+          raise va_notify_error
+        else
+          log_error_details(error)
         end
       else
         raise error

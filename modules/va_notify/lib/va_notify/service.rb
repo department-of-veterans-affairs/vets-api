@@ -115,8 +115,9 @@ module VaNotify
               callback_options[:callback_metadata] || callback_options['callback_metadata']
             )
           }
-          log_error_details(error, context)
-          raise VANotify::Error.from_generic_error(error, context)
+          va_notify_error = VANotify::Error.from_generic_error(error, context)
+          va_notify_error.log_error
+          raise va_notify_error
         else
           log_error_details(error)
         end
