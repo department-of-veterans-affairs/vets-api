@@ -611,7 +611,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           facility_name: 'Salt Lake City VAMC',
           instructions: 'Take one tablet by mouth twice daily',
           quantity: 60,
-          medication_name: 'METFORMIN HCL 500MG TAB',
+          prescription_name: 'METFORMIN HCL 500MG TAB',
           id: 'dispense-1',
           prescription_number: 'RX123456',
           cmop_division_phone: '555-1234',
@@ -628,7 +628,7 @@ describe UnifiedHealthData::Adapters::VistaPrescriptionAdapter do
           facility_name: 'Salt Lake City VAMC',
           instructions: 'Take one tablet by mouth twice daily',
           quantity: 60,
-          medication_name: 'METFORMIN HCL 500MG TAB',
+          prescription_name: 'METFORMIN HCL 500MG TAB',
           id: 'dispense-2'
         )
         # Verify new fields default to nil when not present

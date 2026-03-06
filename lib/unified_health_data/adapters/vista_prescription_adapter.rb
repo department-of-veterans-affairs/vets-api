@@ -127,7 +127,7 @@ module UnifiedHealthData
           facility_name: record['facilityApiName'].presence || record['facilityName'],
           instructions: record['sig'],
           quantity: record['quantity'],
-          medication_name: record['prescriptionName'],
+          prescription_name: record['prescriptionName'],
           id: record['id'],
           refill_submit_date: convert_to_iso8601(record['refillSubmitDate'], field_name: 'refill_submit_date'),
           prescription_number: record['prescriptionNumber'],
