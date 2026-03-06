@@ -160,10 +160,10 @@ module V0
 
         if form_data['ratedDisabilities'].present? &&
            form_data.dig('view:claimType', 'view:claimingIncrease')
-          metadata['returnUrl'] = '/disabilities/rated-disabilities'
-
-          # the new-flow conditions uses a different url
-          metadata['returnUrl'] = '/conditions/summary' if [true, 'true'].include?(form_data[WORKFLOW_FLAG_KEY])
+          return_url = '/disabilities/rated-disabilities'
+          # For the new conditions flow, use a different return URL
+          return_url = '/conditions/summary' if [true, 'true'].include?(form_data[WORKFLOW_FLAG_KEY])
+          metadata['returnUrl'] = return_url
         end
         # Use as_json instead of JSON.parse(to_json) to avoid string allocation overhead
         evss_rated_disabilities = rated_disabilities_evss&.rated_disabilities&.map(&:as_json)
