@@ -156,6 +156,27 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
         end
       end
 
+      context 'when form_type is 40-1330M' do
+        let(:form_type) { '40-1330M' }
+        let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_40_1330m.json').read }
+
+        let(:vba_40_1330m_instance) { instance_double(SimpleFormsApi::VBA401330m, metadata:) }
+
+        before do
+          allow(SimpleFormsApi::VBA401330m).to receive(:new).and_return(vba_40_1330m_instance)
+          allow(vba_40_1330m_instance).to(
+            receive_messages(zip_code_is_us_based: true, handle_attachments: true, 'signature_date=' => true)
+          )
+        end
+
+        it 'calls handle_attachments and does not return separate attachments' do
+          hydrated
+
+          expect(vba_40_1330m_instance).to have_received(:handle_attachments).with(file_path)
+          expect(hydrated.attachments).to eq([])
+        end
+      end
+
       context 'when the form is not 20-10207' do
         let(:form_type) { '21-10210' }
         let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_21_10210.json').read }

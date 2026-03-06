@@ -84,7 +84,7 @@ module SimpleFormsApi
 
       def process_attachments(form, form_number)
         case form_number
-        when 'vba_40_0247', 'vba_40_10007'
+        when 'vba_40_0247', 'vba_40_10007', 'vba_40_1330m'
           form.handle_attachments(file_path)
           []
         when 'vba_20_10207'
