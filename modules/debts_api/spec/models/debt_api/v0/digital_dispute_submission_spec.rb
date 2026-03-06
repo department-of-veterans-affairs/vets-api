@@ -206,18 +206,23 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmission do
     describe '#send_failure_email' do
       include_examples 'handles email send errors with StatsD', :send_failure_email, 'send_failed_form_email'
 
-      it 'enqueues failure email when user is found' do
+      it 'enqueues failure email when user is found with user_pii and never cache' do
         allow(User).to receive(:find).with(form_submission.user_uuid).and_return(user)
-        allow(Sidekiq::AttrPackage).to receive(:create).and_return('cache_key_123')
+        allow(DebtsApi::EncryptionService).to receive(:encrypt).and_call_original
+        allow(DebtsApi::EncryptionService).to receive(:encrypt).with('John').and_return('encrypted_first_name')
+        allow(DebtsApi::EncryptionService).to receive(:encrypt).with('test@example.com').and_return('encrypted_email')
 
         expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
           24.hours,
-          nil,
+          'encrypted_email',
           described_class::FAILURE_TEMPLATE,
-          nil,
-          hash_including(id_type: 'email', failure_mailer: true, cache_key: 'cache_key_123')
+          hash_including(
+            'first_name' => 'encrypted_first_name',
+            'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
+            'confirmation_number' => form_submission.guid
+          ),
+          { id_type: 'email', failure_mailer: true }
         )
-
         form_submission.send(:send_failure_email)
       end
     end
