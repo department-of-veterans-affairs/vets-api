@@ -104,7 +104,7 @@ module IvcChampva
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
 
           # call handle_file_uploads with new signature
-          statuses, error_messages = call_upload_form(form_id, file_paths, metadata)
+          statuses, error_messages = call_upload_form(form_id, file_paths, metadata, parsed_form_data)
 
           response = build_json(statuses, error_messages)
 
@@ -170,8 +170,15 @@ module IvcChampva
       # @param [Hash] parsed_form_data complete form submission data object
       # @return [IvcChampva::VesRequest, nil] the formatted request data
       def prepare_ves_request(parsed_form_data)
-        # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+        # Format data for VES submission based on form type
+        form_number = parsed_form_data['form_number']
+
+        ves_request = if form_number == '10-10D-EXTENDED'
+                        IvcChampva::VesDataFormatter.format_for_extended_request(parsed_form_data)
+                      else
+                        IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+                      end
+
         raise 'Failed to format data for VES submission' if ves_request.nil?
 
         ves_request
@@ -228,13 +235,47 @@ module IvcChampva
         # Only submit subforms if parent succeeded
         return parent_response if parent_response.nil? || parent_response.status != 200 || !ves_request.subforms?
 
+        # Track subform failures - if any fail, we need to mark for retry
+        subform_failed = false
+
         ves_request.subforms.each do |subform|
-          submit_ves_form(ves_client, subform[:request], subform[:form_type], metadata)
+          response = submit_single_ves_request(ves_client, subform[:request], subform[:form_type])
+          subform_failed = true if response.nil? || response.status != 200
         rescue => e
           Rails.logger.error "Error submitting VES subform (#{subform[:form_type]}): #{e.message}"
+          subform_failed = true
         end
 
+        # If any subform failed, mark the record for retry
+        update_ves_records(metadata['uuid'], ves_request.application_uuid, nil, nil) if subform_failed
+
         parent_response
+      end
+
+      ##
+      # Submits a single VES request without updating DB records.
+      # Used for subforms where we track overall success separately.
+      #
+      # @param [IvcChampva::VesApi::Client] ves_client the VES API client
+      # @param [Object] request the VES request object
+      # @param [String] form_type the form type identifier
+      # @return [Faraday::Response, nil] the VES API response or nil on failure
+      def submit_single_ves_request(ves_client, request, form_type)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
+        }
+
+        response = nil
+
+        IvcChampva::Retry.do(1, on_failure:) do
+          request.transaction_uuid = SecureRandom.uuid
+          response = send_to_ves_by_form_type(ves_client, request, form_type)
+        end
+
+        response
+      rescue => e
+        Rails.logger.error "Error in VES submission for #{form_type}: #{e.message}"
+        nil
       end
 
       ##
@@ -258,7 +299,15 @@ module IvcChampva
             response = send_to_ves_by_form_type(ves_client, request, form_type)
           end
 
-          update_ves_records(metadata['uuid'], request.application_uuid, response, request.to_json)
+          # Only store ves_request_data for 10-10D (primary form), not OHI subforms
+          # OHI forms can be reconstructed from request_json when needed
+          ves_request_data = if Flipper.enabled?(:champva_store_request_json, @current_user)
+                               form_type == 'vha_10_10d' ? request.to_json : nil
+                             else
+                               request.to_json
+                             end
+
+          update_ves_records(metadata['uuid'], request.application_uuid, response, ves_request_data)
         rescue => e
           Rails.logger.error "Error in VES submission for #{form_type}: #{e.message}"
         end
@@ -316,11 +365,11 @@ module IvcChampva
       ##
       # Wrapper around handle_file_uploads that allows us to use the new retry logic
       # based on the feature flag
-      def call_upload_form(form_id, file_paths, metadata)
+      def call_upload_form(form_id, file_paths, metadata, parsed_form_data = nil)
         if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          upload_form_with_refactored_retry(form_id, file_paths, metadata)
+          upload_form_with_refactored_retry(form_id, file_paths, metadata, parsed_form_data)
         else
-          upload_form(form_id, file_paths, metadata)
+          upload_form(form_id, file_paths, metadata, parsed_form_data)
         end
       end
 
@@ -739,7 +788,7 @@ module IvcChampva
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def handle_file_uploads(form_id, parsed_form_data)
+      def handle_file_uploads(form_id, parsed_form_data) # rubocop:disable Metrics/MethodLength
         attempt = 0
         max_attempts = 1
 
@@ -749,7 +798,8 @@ module IvcChampva
 
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
+          uploader = FileUploader.new(form_id, metadata, file_paths, true, @current_user, parsed_form_data)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -778,10 +828,11 @@ module IvcChampva
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
       # @param [Array<String>] file_paths The file paths of the files to upload
       # @param [Hash] metadata The metadata for the form
+      # @param [Hash] parsed_form_data Optional original form data for storage
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def upload_form(form_id, file_paths, metadata)
+      def upload_form(form_id, file_paths, metadata, parsed_form_data = nil)
         attempt = 0
         max_attempts = 1
 
@@ -790,7 +841,8 @@ module IvcChampva
         error_messages = ['Server error occurred']
 
         begin
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          uploader = FileUploader.new(form_id, metadata, file_paths, true, @current_user, parsed_form_data)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -830,7 +882,8 @@ module IvcChampva
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
+          uploader = FileUploader.new(form_id, metadata, file_paths, true, @current_user, parsed_form_data)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -847,10 +900,11 @@ module IvcChampva
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
       # @param [Array<String>] file_paths The file paths of the files to upload
       # @param [Hash] metadata The metadata for the form
+      # @param [Hash] parsed_form_data Optional original form data for storage
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def upload_form_with_refactored_retry(form_id, file_paths, metadata)
+      def upload_form_with_refactored_retry(form_id, file_paths, metadata, parsed_form_data = nil)
         on_failure = lambda { |e, attempt|
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
         }
@@ -860,7 +914,8 @@ module IvcChampva
         error_messages = ['Server error occurred']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          uploader = FileUploader.new(form_id, metadata, file_paths, true, @current_user, parsed_form_data)
+          hu_result = uploader.handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 

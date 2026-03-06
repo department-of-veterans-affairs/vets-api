@@ -21,6 +21,16 @@ RSpec.describe IvcChampvaForm, type: :model do
     end
   end
 
+  describe 'encryption' do
+    it 'ves_request_data is encrypted' do
+      expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
+    end
+
+    it 'request_json is encrypted' do
+      expect(IvcChampvaForm.new).to encrypt_attr(:request_json)
+    end
+  end
+
   describe 'methods' do
     describe '#create' do
       it 'creates a new form' do
