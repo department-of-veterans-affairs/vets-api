@@ -2,6 +2,14 @@
 
 namespace :vso do
   desc 'Enable online submission of VA Form 21-22 for the given POA code(s)'
+  #
+  # Usage:
+  #   # Single POA:
+  #   bundle exec rake "vso:enable_online_submission_for_vso[083]"
+  #
+  #   # Multiple POAs (comma-separated in brackets):
+  #   bundle exec rake "vso:enable_online_submission_for_vso[083,074,095]"
+  #
   task :enable_online_submission_for_vso, [:poa_codes] => :environment do |_t, args|
     raise ArgumentError, 'POA codes required (comma-separated)' if args[:poa_codes].blank?
 
@@ -13,7 +21,8 @@ namespace :vso do
 
       result = AccreditedRepresentativePortal::EnableOnlineSubmission2122Service.call(poa_codes:)
 
-      Rails.logger.info("Enabled online submission for #{result} organization(s).")
+      Rails.logger.info("Enabled online submission for #{result[:orgs_updated]} organization(s).")
+      Rails.logger.info("Set acceptance_mode=any_request for #{result[:reps_updated]} active rep-org relationship(s).")
     end
   end
 end
