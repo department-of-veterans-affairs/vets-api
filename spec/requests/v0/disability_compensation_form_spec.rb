@@ -145,6 +145,28 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           expect(response).to match_response_schema('submit_disability_form')
         end
 
+        context 'feature toggle logging' do
+          before do
+            allow(Rails.logger).to receive(:info)
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_extra_bdd_pages_enabled, anything)
+              .and_return(true)
+          end
+
+          it 'logs feature toggle context for start_evss_submission_job' do
+            post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
+
+            expect(response).to have_http_status(:ok)
+            expect(Rails.logger).to have_received(:info).with(
+              hash_including(
+                wrapped_method: 'Form526Submission#start_evss_submission_job',
+                user_uuid: user.uuid,
+                feature_toggles: hash_including(disability_526_extra_bdd_pages_enabled: true)
+              )
+            ).at_least(:once)
+          end
+        end
+
         describe 'temp_toxic_exposure_optional_dates_fix' do
           # Helper that handles POST + response check + returning the submission form
           def post_and_get_submission(payload)

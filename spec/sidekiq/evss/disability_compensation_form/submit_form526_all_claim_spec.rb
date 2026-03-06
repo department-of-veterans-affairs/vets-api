@@ -410,6 +410,38 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         expect(Form526JobStatus.last.status).to eq 'success'
       end
 
+      it 'logs feature toggle context for tracking events' do
+        allow(Rails.logger).to receive(:info)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_extra_bdd_pages_enabled, kind_of(User))
+                                            .and_return(true)
+
+        subject.perform_async(submission.id)
+        expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
+        expect(Form526JobStatus.last.status).to eq 'success'
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Form526 Submission',
+          hash_including(
+            'saved_claim_id' => submission.saved_claim_id,
+            'submission_id' => submission.id,
+            'service_provider' => 'evss',
+            'feature_toggles' => hash_including(disability_526_extra_bdd_pages_enabled: true),
+            'status' => 'try'
+          )
+        ).once
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Form526 Submission',
+          hash_including(
+            'saved_claim_id' => submission.saved_claim_id,
+            'submission_id' => submission.id,
+            'service_provider' => 'evss',
+            'feature_toggles' => hash_including(disability_526_extra_bdd_pages_enabled: true),
+            'status' => 'success'
+          )
+        ).once
+      end
+
       it 'submits successfully without calling classification service' do
         subject.perform_async(submission.id)
         expect do

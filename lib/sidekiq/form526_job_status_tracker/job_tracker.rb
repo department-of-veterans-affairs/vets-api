@@ -78,12 +78,14 @@ module Sidekiq
       # @param submission_id [Integer] The {Form526Submission} id
       # @param service_provider [String] Either 'lighthouse' or 'evss'
       #
-      def with_tracking(job_title, saved_claim_id, submission_id, is_bdd = nil, service_provider = nil)
+      def with_tracking(job_title, saved_claim_id, submission_id, is_bdd = nil, service_provider = nil, # rubocop:disable Metrics/ParameterLists
+                        feature_toggle_context = nil)
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
         @status_submission_id = submission_id
         @is_bdd = is_bdd
         @service_provider = service_provider
+        @feature_toggle_context = feature_toggle_context
 
         job_try
         begin
@@ -198,6 +200,7 @@ module Sidekiq
                             'saved_claim_id' => @status_saved_claim_id,
                             'submission_id' => @status_submission_id,
                             'service_provider' => @service_provider,
+                            'feature_toggles' => @feature_toggle_context,
                             'job_id' => jid,
                             'status' => status)
       end
@@ -207,6 +210,7 @@ module Sidekiq
                              'saved_claim_id' => @status_saved_claim_id,
                              'submission_id' => @status_submission_id,
                              'service_provider' => @service_provider,
+                             'feature_toggles' => @feature_toggle_context,
                              'job_id' => jid,
                              'status' => status,
                              'error_message' => error)

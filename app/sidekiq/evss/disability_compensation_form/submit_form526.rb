@@ -101,7 +101,7 @@ module EVSS
         service = service(submission.auth_headers)
 
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?,
-                      service_provider) do
+                      service_provider, submission.feature_toggle_context) do
           submission.mark_birls_id_as_tried!
 
           return unless successfully_prepare_submission_for_evss?(submission)
