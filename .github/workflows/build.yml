@@ -51,7 +51,7 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build Postman Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
@@ -61,7 +61,7 @@ jobs:
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
       - name: Build vets-api Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
