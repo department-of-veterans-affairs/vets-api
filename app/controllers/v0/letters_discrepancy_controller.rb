@@ -20,7 +20,7 @@ module V0
 
     def index
       # Call lighthouse endpoint
-      lh_response = lh_service.get_eligible_letter_types(@current_user.icn)
+      lh_response = lh_service.get_eligible_letter_types(@current_user.icn, @current_user)
       # Format response into lh_letters array
       lh_letters = lh_response[:letters].pluck(:letterType)
 

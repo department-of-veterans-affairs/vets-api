@@ -233,6 +233,61 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       expect(response).to have_key(:letter_destination)
     end
 
+    context 'with actor-aware FMP filtering' do
+      let(:user) { build(:user) }
+      let(:eligible_letters_response) do
+        {
+          'letters' => [
+            { 'letterType' => 'PROOF_OF_SERVICE', 'letterName' => 'Proof of service letter' },
+            { 'letterType' => 'FOREIGN_MEDICAL_PROGRAM', 'letterName' => 'Foreign medical program enrollment letter' }
+          ],
+          'letterDestination' => { 'name' => 'DOLLY PARTON' }
+        }
+      end
+
+      it 'includes foreign_medical_program when fmp_benefits_authorization_letter is enabled for the user' do
+        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(true)
+
+        expect_any_instance_of(Lighthouse::LettersGenerator::Configuration)
+          .to receive(:get_access_token)
+          .once
+          .and_return('faketoken')
+
+        @stubs.get('/eligible-letters?icn=DOLLYPARTON') do
+          [200, {}, eligible_letters_response]
+        end
+
+        client = Lighthouse::LettersGenerator::Service.new
+
+        response = client.get_eligible_letter_types('DOLLYPARTON', user)
+        letter_types = response[:letters].pluck(:letterType)
+
+        expect(letter_types).to include('foreign_medical_program')
+      end
+
+      it 'excludes foreign_medical_program when fmp_benefits_authorization_letter is disabled for the user' do
+        allow(Flipper).to receive(:enabled?).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:fmp_benefits_authorization_letter, user).and_return(false)
+
+        expect_any_instance_of(Lighthouse::LettersGenerator::Configuration)
+          .to receive(:get_access_token)
+          .once
+          .and_return('faketoken')
+
+        @stubs.get('/eligible-letters?icn=DOLLYPARTON') do
+          [200, {}, eligible_letters_response]
+        end
+
+        client = Lighthouse::LettersGenerator::Service.new
+
+        response = client.get_eligible_letter_types('DOLLYPARTON', user)
+        letter_types = response[:letters].pluck(:letterType)
+
+        expect(letter_types).not_to include('foreign_medical_program')
+      end
+    end
+
     context 'Error handling' do
       it 'handles an error that returns a detailed response' do
         ## This test covers classes of client errors in lighthouse that
