@@ -540,7 +540,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_132346) do
     t.integer "evss_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "md5"
     t.string "source"
     t.string "flashes", default: [], array: true
     t.jsonb "special_issues", default: []
@@ -558,7 +557,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_132346) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["header_hash"], name: "index_claims_api_auto_established_claims_on_header_hash"
-    t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["needs_kms_rotation"], name: "index_claims_api_auto_established_claims_on_needs_kms_rotation"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
     t.index ["veteran_icn"], name: "index_claims_api_auto_established_claims_on_veteran_icn"
@@ -613,14 +611,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_132346) do
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status"
     t.string "current_poa"
-    t.string "md5"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "vbms_new_document_version_ref_id"
     t.string "vbms_document_series_ref_id"
     t.string "vbms_error_message"
     t.integer "vbms_upload_failure_count", default: 0
-    t.string "header_md5"
     t.string "signature_errors", default: [], array: true
     t.text "form_data_ciphertext"
     t.text "auth_headers_ciphertext"
@@ -631,7 +627,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_132346) do
     t.string "header_hash"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["header_hash"], name: "index_claims_api_power_of_attorneys_on_header_hash"
-    t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
     t.index ["needs_kms_rotation"], name: "index_claims_api_power_of_attorneys_on_needs_kms_rotation"
   end
 
