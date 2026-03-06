@@ -26,7 +26,11 @@ RSpec.describe 'V0::Form210779',
         expect(metrics.collect(&:source)).to include(
           'saved_claim.create:1|c|#form_id:21-0779,doctype:222',
           'shared.sidekiq.default.Lighthouse_SubmitBenefitsIntakeClaim.enqueue:1|c',
-          'api.form210779.success:1|c|#form:21-0779',
+          'api.form210779.submission.begun:1|c|#service:form210779,function:track_submission_begun,' \
+          'form_id:21-0779',
+          'api.form210779.submission.success:1|c|#service:form210779,function:track_submission_success,' \
+          'form_id:21-0779',
+          'api.form210779.request:1|c|#service:form210779,function:track_request_code,form_id:21-0779',
           'api.rack.request:1|c|#controller:v0/form210779,action:create,source_app:21-0779-nursing-home-information,' \
           'status:200'
         )

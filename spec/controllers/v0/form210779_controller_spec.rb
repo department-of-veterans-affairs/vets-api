@@ -6,6 +6,16 @@ RSpec.describe V0::Form210779Controller, type: :controller do
   let(:form_id) { '21-0779' }
   let(:form_data) { { form: VetsJsonSchema::EXAMPLES[form_id].to_json }.to_json }
   let(:invalid_data) { { form: build(:va210779_invalid).form }.to_json }
+  let(:monitor) { instance_double(Form210779::Monitor) }
+
+  before do
+    allow(Form210779::Monitor).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_submission_begun)
+    allow(monitor).to receive(:track_submission_success)
+    allow(monitor).to receive(:track_submission_failure)
+    allow(monitor).to receive(:track_request_code)
+    allow(monitor).to receive(:track_request_validation_error)
+  end
 
   def parsed_response
     JSON.parse(response.body)
@@ -111,15 +121,67 @@ RSpec.describe V0::Form210779Controller, type: :controller do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    describe 'monitoring' do
+      it 'tracks submission begun when claim is created' do
+        expect(monitor).to receive(:track_submission_begun) do |claim|
+          expect(claim).to be_a(SavedClaim::Form210779)
+        end
+
+        post(:create, body: form_data, as: :json)
+      end
+
+      it 'tracks submission success when claim saves successfully' do
+        expect(monitor).to receive(:track_submission_success) do |claim|
+          expect(claim).to be_a(SavedClaim::Form210779)
+          expect(claim.persisted?).to be true
+        end
+
+        post(:create, body: form_data, as: :json)
+      end
+
+      it 'tracks submission failure when validation fails' do
+        expect(monitor).to receive(:track_submission_failure) do |claim, error|
+          expect(claim).to be_a(SavedClaim::Form210779)
+          expect(error.message).to eq('Validation failed')
+        end
+
+        post(:create, body: invalid_data, as: :json)
+      end
+
+      it 'tracks validation error when ActiveRecord validation fails' do
+        expect(monitor).to receive(:track_request_validation_error).with(
+          error: kind_of(Common::Exceptions::ValidationErrors),
+          request: kind_of(ActionDispatch::Request),
+          claim: kind_of(SavedClaim::Form210779)
+        )
+
+        post(:create, body: invalid_data, as: :json)
+      end
+
+      it 'tracks request code for successful submission' do
+        expect(monitor).to receive(:track_request_code).with(200,
+                                                             hash_including(action: 'create',
+                                                                            user_uuid: nil,
+                                                                            claim_guid: kind_of(String)))
+
+        post(:create, body: form_data, as: :json)
+      end
+    end
   end
 
   describe 'get #download_pdf' do
     let(:claim) { create(:va210779) }
     let(:filled_pdf_path) { "tmp/pdfs/21-0779_#{claim.id}.pdf" }
     let(:stamped_pdf_path) { 'tmp/8607c198992feedf899d78f98e5af856.pdf' }
+    let(:monitor) { instance_double(Form210779::Monitor) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:form_0779_enabled, nil).and_return(true)
+      allow(Form210779::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive(:track_request_code)
+      allow(monitor).to receive(:track_pdf_generation_success)
+      allow(monitor).to receive(:track_pdf_generation_failure)
     end
 
     it 'generates and downloads PDF' do
@@ -168,6 +230,34 @@ RSpec.describe V0::Form210779Controller, type: :controller do
       expect(response).to have_http_status(:internal_server_error)
 
       expect(parsed_response['errors']).to be_present
+    end
+
+    describe 'monitoring' do
+      let(:temp_pdf) { '/tmp/test_210779.pdf' }
+
+      it 'tracks request code for PDF download success' do
+        allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_return(temp_pdf)
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(temp_pdf).and_return('PDF_CONTENT')
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(temp_pdf).and_return(true)
+        allow(File).to receive(:delete).and_call_original
+        allow(File).to receive(:delete).with(temp_pdf)
+
+        expect(monitor).to receive(:track_request_code).with(200,
+                                                             hash_including(action: 'download_pdf',
+                                                                            user_uuid: nil))
+
+        get(:download_pdf, params: { guid: claim.guid })
+      end
+
+      it 'tracks request code for PDF generation errors' do
+        allow_any_instance_of(SavedClaim::Form210779).to receive(:to_pdf).and_raise(StandardError, 'PDF error')
+        expect(monitor).to receive(:track_pdf_generation_failure)
+
+        get(:download_pdf, params: { guid: claim.guid })
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
 
     it 'does not require authentication' do
