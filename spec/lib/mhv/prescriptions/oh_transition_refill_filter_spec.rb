@@ -47,6 +47,7 @@ RSpec.describe MHV::Prescriptions::OhTransitionRefillFilter do
       before do
         allow(Flipper).to receive(:enabled?)
           .with(:mhv_medications_oh_transition_refill_block, user).and_return(true)
+        allow(StatsD).to receive(:increment)
       end
 
       context 'when all facilities are in blocked phases' do

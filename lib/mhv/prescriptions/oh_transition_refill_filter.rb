@@ -71,26 +71,24 @@ module MHV
       end
 
       def log_blocked_orders(blocked_failures, total_count)
-        blocked_stations = blocked_failures.map { |f| f[:station_number] }.uniq
+        station_counts = blocked_failures.map { |f| f[:station_number] }.tally
         Rails.logger.warn(
           'OhTransitionRefillFilter: blocked refill orders for OH-transitioning facilities',
           {
             blocked_count: blocked_failures.size,
             total_count:,
-            blocked_stations:
+            blocked_stations: station_counts.keys
           }
         )
-        blocked_stations.each do |station|
-          station_count = blocked_failures.count { |f| f[:station_number] == station }
-          StatsD.increment('api.uhd.oh_transition.refills.blocked', station_count,
+        station_counts.each do |station, count|
+          StatsD.increment('api.uhd.oh_transition.refills.blocked', count,
                            tags: ["station_number:#{station}", "platform:#{@platform}"])
         end
       end
 
       def track_requested_by_station(orders)
-        stations = orders.map { |o| o['stationNumber'] }.compact.uniq
-        stations.each do |station|
-          count = orders.count { |o| o['stationNumber'] == station }
+        station_counts = orders.map { |o| o['stationNumber'] }.compact.tally
+        station_counts.each do |station, count|
           StatsD.increment('api.uhd.oh_transition.refills.requested_by_station', count,
                            tags: ["station_number:#{station}", "platform:#{@platform}"])
         end
