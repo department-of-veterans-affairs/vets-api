@@ -26,6 +26,9 @@ features:
     actor_type: user
     description: Enables the claimant details page on the frontend
     enable_in_development: true
+  accredited_representative_portal_disable_ogc_client:
+    actor_type: user
+    description: Disables outbound OGC accreditation requests from ARP for debugging
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
@@ -176,6 +179,11 @@ features:
     description: >
       Kill switch for the fix that resets erroneously injected
       disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
+    enable_in_development: true
+  disability_compensation_fix_duplicate_key_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that removes duplicate additionalInformation keys on InProgressForms
     enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
@@ -1255,6 +1263,9 @@ features:
     actor_type: user
     description: If enabled enforces validation to ensure an email address is provided for Form 21-4140.
     enable_in_development: true
+  vba_21_4140_ibm_mms_connection:
+    actor_type: user
+    description: If enabled performs MMS IBM Upload for 21-4140.
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -2296,6 +2307,10 @@ features:
   va_dependents_no_ssn:
     actor_type: user
     description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
+  va_online_scheduling_backend_oh_migration_check:
+    actor_type: user
+    enable_in_development: true
+    description: Check OH migration status for appointments
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
@@ -3012,9 +3027,6 @@ features:
     actor_type: cookie_id
     enable_in_development: true
     description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
-  fetch_1095b_from_enrollment_system:
-    actor_type: user
-    description: Enables fetching of form 1095b from enrollment system instead of from local database
   form1095b_multiple_years:
     actor_type: user
     description: Enables access to multiple years of form 1095b
