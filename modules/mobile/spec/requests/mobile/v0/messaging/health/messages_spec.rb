@@ -593,6 +593,139 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           expect(response.parsed_body['errors'].first['detail']).to include('id')
         end
       end
+
+      describe 'migration phase custom errors' do
+        let(:message_params) { { category: 'OTHER', body: 'Test', recipient_id: '1', subject: 'Test' } }
+        let(:reply_message_id) { 674_838 }
+        let(:oh_service) { instance_double(MHV::OhFacilitiesHelper::Service) }
+        let(:expected_error_response) do
+          { 'errors' => [{ 'title' => "You can't send this message right now",
+                           'body' => "You can't send messages to providers at some facilities " \
+                                     'right now. For more information, update the app.',
+                           'status' => 418,
+                           'source' => 'SM',
+                           'telephone' => nil,
+                           'refreshable' => false }] }
+        end
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:sm_custom_migration_errors).and_return(true)
+          allow(MHV::OhFacilitiesHelper::Service).to receive(:new).and_return(oh_service)
+        end
+
+        %w[p3 p4 p5].each do |phase|
+          context "when station is in migration phase #{phase}" do
+            before do
+              allow(oh_service).to receive(:get_phase_for_station_number).with('983').and_return(phase)
+              allow(StatsD).to receive(:increment)
+            end
+
+            it "returns 418 on create when facility is in #{phase}" do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: message_params.merge(station_number: '983') }
+
+              expect(response).to have_http_status(418)
+              expect(response.parsed_body).to eq(expected_error_response)
+              expect(StatsD).to have_received(:increment)
+                .with('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
+            end
+
+            it "returns 418 on reply when facility is in #{phase}" do
+              post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
+                   headers: sis_headers,
+                   params: { message: message_params.merge(station_number: '983') }
+
+              expect(response).to have_http_status(418)
+              expect(response.parsed_body).to eq(expected_error_response)
+              expect(StatsD).to have_received(:increment)
+                .with('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
+            end
+          end
+        end
+
+        context 'when station is not in a blocked migration phase' do
+          before do
+            allow(oh_service).to receive(:get_phase_for_station_number).with('983').and_return('p1')
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'does not return 418 on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: message_params.merge(station_number: '983') }
+            end
+
+            expect(response).not_to have_http_status(418)
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+          end
+        end
+
+        context 'when feature flag is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:sm_custom_migration_errors).and_return(false)
+            allow(oh_service).to receive(:get_phase_for_station_number).with('983').and_return('p3')
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'does not return 418 on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: message_params.merge(station_number: '983') }
+            end
+
+            expect(response).not_to have_http_status(418)
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+          end
+        end
+
+        context 'when station_number is not provided' do
+          before do
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'does not return 418 on create' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: message_params }
+            end
+
+            expect(response).not_to have_http_status(418)
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+          end
+        end
+
+        context 'when migration phase lookup raises an error' do
+          before do
+            allow(oh_service).to receive(:get_phase_for_station_number)
+              .and_raise(StandardError.new('connection timeout'))
+            allow(Rails.logger).to receive(:error)
+            allow(StatsD).to receive(:increment)
+          end
+
+          it 'fails open and allows the message to be sent' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+              post '/mobile/v0/messaging/health/messages',
+                   headers: sis_headers,
+                   params: { message: message_params.merge(station_number: '983') }
+            end
+
+            expect(response).not_to have_http_status(418)
+            expect(Rails.logger).to have_received(:error).with(
+              'Error checking migration phase',
+              { error_class: 'StandardError', error_message: 'connection timeout' }
+            )
+            expect(StatsD).not_to have_received(:increment)
+              .with('mobile.sm.send_to_facility_in_migration_error', anything)
+          end
+        end
+      end
     end
   end
 end

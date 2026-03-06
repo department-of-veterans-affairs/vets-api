@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'mobile/v0/exceptions/custom_errors'
 require 'unique_user_events'
 
 module Mobile
@@ -8,6 +9,7 @@ module Mobile
       include Filterable
 
       before_action :validate_message_id, only: %i[show destroy thread reply move]
+      before_action :raise_if_in_migration, only: %i[create reply]
       before_action :extend_timeout, only: %i[create reply], if: :oh_triage_group?
 
       def index
@@ -219,6 +221,35 @@ module Mobile
 
       def validate_message_id
         raise Common::Exceptions::ParameterMissing, 'id' if params[:id].blank?
+      end
+
+      def raise_if_in_migration
+        return unless Flipper.enabled?(:sm_custom_migration_errors)
+
+        station_number = message_params[:station_number]
+        return if station_number.blank?
+
+        phase = migration_phase_for(station_number)
+        return unless %w[p3 p4 p5].include?(phase)
+
+        StatsD.increment('mobile.sm.send_to_facility_in_migration_error', tags: ["phase:#{phase}"])
+        raise Mobile::V0::Exceptions::CustomErrors.new(
+          title: 'You can\'t send this message right now',
+          body: 'You can\'t send messages to providers at some facilities right now. ' \
+                'For more information, update the app.',
+          source: 'SM',
+          telephone: nil,
+          refreshable: false
+        )
+      end
+
+      def migration_phase_for(station_number)
+        oh_service = MHV::OhFacilitiesHelper::Service.new(@current_user)
+        oh_service.get_phase_for_station_number(station_number)
+      rescue => e
+        Rails.logger.error('Error checking migration phase',
+                           { error_class: e.class.name, error_message: e.message })
+        ''
       end
     end
   end
