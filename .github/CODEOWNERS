@@ -2370,6 +2370,7 @@ spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_r
 spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/413_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/lighthouse/benefits_claims/submit_power_of_attorney_request/422_response.yml @department-of-veterans-affairs/accredited-representative-crew @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/apps @department-of-veterans-affairs/lighthouse-pivot
+spec/support/vcr_cassettes/ask_va_api @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/ask_va_api/dynamics @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/avs @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/after-visit-summary
 spec/support/vcr_cassettes/banners/get_banners_success.yml @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/backend-review-group

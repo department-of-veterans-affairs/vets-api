@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/institutions?name=illinois"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 06 Mar 2026 20:27:33 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-store
+      Expires:
+      - 2025-03-06 20:27:21 UTC
+      Pragma:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      - deny
+      X-Request-Id:
+      - c4d8e2a8-5d30-4912-81d9-4b6921eb782c
+      X-Runtime:
+      - '1.053544'
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Xss-Protection:
+      - 1; report=/csp-report
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"4754372","type":"institutions","attributes":{"name":"ILLINOIS
+        INSTITUTE OF TECHNOLOGY","facility_code":"31935113","city":"CHICAGO","state":"IL","country":"USA","accreditation_type":null,"student_count":48,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PRIVATE","caution_flags":[],"caution_flag":null,"student_veteran":null,"yr":true,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":3102,"bah":3225.0,"latitude":41.8361641,"longitude":-87.6264723,"distance":null,"accredited":true,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":51763,"tuition_out_of_state":51763},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/31935113"}},{"id":"4714200","type":"institutions","attributes":{"name":"UNIVERSITY
+        OF ILLINOIS POLICE TRAINING INSTITUTE","facility_code":"15822613","city":"CHAMPAIGN","state":"IL","country":"USA","accreditation_type":null,"student_count":null,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":true,"yr":false,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":1407,"bah":1530.0,"latitude":40.1064034,"longitude":-88.2330312,"distance":null,"accredited":false,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":16004,"tuition_out_of_state":34501},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/15822613"}},{"id":"4750948","type":"institutions","attributes":{"name":"ILLINOIS
+        COLLEGE","facility_code":"31001313","city":"JACKSONVILLE","state":"IL","country":"USA","accreditation_type":null,"student_count":18,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PRIVATE","caution_flags":[],"caution_flag":null,"student_veteran":null,"yr":true,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":66,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":1308,"bah":1431.0,"latitude":39.732443,"longitude":-90.245648,"distance":null,"accredited":true,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":37470,"tuition_out_of_state":37470},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/31001313"}},{"id":"4698032","type":"institutions","attributes":{"name":"ILLINOIS
+        STATE UNIVERSITY","facility_code":"11000413","city":"NORMAL","state":"IL","country":"USA","accreditation_type":null,"student_count":624,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":true,"yr":false,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":1542,"bah":1665.0,"latitude":40.5179938,"longitude":-89.0084607,"distance":null,"accredited":true,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":16021,"tuition_out_of_state":28086},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/11000413"}},{"id":"4700162","type":"institutions","attributes":{"name":"EASTERN
+        ILLINOIS UNIVERSITY","facility_code":"11969113","city":"CHARLESTON","state":"IL","country":"USA","accreditation_type":null,"student_count":199,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":true,"yr":false,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":1323,"bah":1446.0,"latitude":39.483017,"longitude":-88.175505,"distance":null,"accredited":true,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":13403,"tuition_out_of_state":15879},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/11969113"}},{"id":"4711806","type":"institutions","attributes":{"name":"ILLINOIS
+        STATE POLICE ACADEMY","facility_code":"15051713","city":"SPRINGFIELD","state":"IL","country":"USA","accreditation_type":null,"student_count":null,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":null,"yr":false,"campus_type":"Y","highest_degree":"Certificate","hbcu":null,"menonly":null,"womenonly":null,"relaffil":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"preferred_provider":false,"dod_bah":1515,"bah":1638.0,"latitude":39.688749,"longitude":-89.640863,"distance":null,"accredited":false,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":null,"tuition_out_of_state":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/15051713"}},{"id":"4699724","type":"institutions","attributes":{"name":"UNIVERSITY
+        OF ILLINOIS AT CHICAGO","facility_code":"11822113","city":"CHICAGO","state":"IL","country":"USA","accreditation_type":null,"student_count":569,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":true,"yr":false,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":1,"nanti":0,"annhi":0,"aanapii":1,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":3102,"bah":3225.0,"latitude":41.872651,"longitude":-87.651145,"distance":null,"accredited":true,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":14338,"tuition_out_of_state":29360},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/11822113"}},{"id":"4693232","type":"institutions","attributes":{"name":"ILLINOIS
+        STATE UNIVERSITY POLICE DEPARTMENT","facility_code":"10700613","city":"NORMAL","state":"IL","country":"USA","accreditation_type":null,"student_count":null,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"OJT","caution_flags":[],"caution_flag":null,"student_veteran":null,"yr":false,"campus_type":"Y","highest_degree":null,"hbcu":null,"menonly":null,"womenonly":null,"relaffil":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"preferred_provider":false,"dod_bah":1542,"bah":1665.0,"latitude":40.5105115,"longitude":-89.0002792,"distance":null,"accredited":false,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":false,"employer_provider":true,"vrrap":null,"tuition_in_state":null,"tuition_out_of_state":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10700613"}},{"id":"4710035","type":"institutions","attributes":{"name":"UNIVERSITY
+        OF ILLINOIS-ILLINOIS FIRE SERVICE INSTITUTE","facility_code":"15005713","city":"CHAMPAIGN","state":"IL","country":"USA","accreditation_type":null,"student_count":1,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":true,"yr":false,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":1407,"bah":1530.0,"latitude":40.0869619,"longitude":-88.2431135,"distance":null,"accredited":false,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":16004,"tuition_out_of_state":34501},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/15005713"}},{"id":"4700134","type":"institutions","attributes":{"name":"UNIVERSITY
+        OF ILLINOIS AT URBANA-CHAMPAIGN","facility_code":"11953113","city":"CHAMPAIGN","state":"IL","country":"USA","accreditation_type":null,"student_count":674,"rating_average":null,"rating_count":0,"institution_rating":null,"type":"PUBLIC","caution_flags":[],"caution_flag":null,"student_veteran":true,"yr":false,"campus_type":"Y","highest_degree":4,"hbcu":0,"menonly":0,"womenonly":0,"relaffil":null,"hsi":0,"nanti":0,"annhi":0,"aanapii":0,"pbi":0,"tribal":0,"preferred_provider":false,"dod_bah":1407,"bah":1530.0,"latitude":40.108864,"longitude":-88.230309,"distance":null,"accredited":true,"vet_tec_provider":false,"program_count":null,"program_length_in_hours":null,"school_provider":true,"employer_provider":false,"vrrap":null,"tuition_in_state":16004,"tuition_out_of_state":34501},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/11953113"}}],"links":{"self":"https://dev-platform-api.va.gov/gids/v1/institutions?name=illinois","first":"https://dev-platform-api.va.gov/gids/v1/institutions?name=illinois\u0026page=1\u0026per_page=10","prev":null,"next":"https://dev-platform-api.va.gov/gids/v1/institutions?name=illinois\u0026page=2\u0026per_page=10","last":"https://dev-platform-api.va.gov/gids/v1/institutions?name=illinois\u0026page=18\u0026per_page=10"},"meta":{"version":{"number":79,"created_at":"2026-01-16T04:39:42.700Z","preview":false},"count":179,"facets":{"category":{"school":47,"employer":132},"state":{"ct":1,"ga":1,"il":176,"pa":1},"country":[{"name":"USA","count":179}],"student_vet_group":{"true":null,"false":null},"yellow_ribbon_scholarship":{"true":null,"false":null},"principles_of_excellence":{"true":null,"false":null},"eight_keys_to_veteran_success":{"true":null,"false":null},"stem_offered":{"true":null,"false":null},"independent_study":{"true":null,"false":null},"online_only":{"true":null,"false":null},"distance_learning":{"true":null,"false":null},"priority_enrollment":{"true":null,"false":null},"menonly":{"true":null,"false":null},"womenonly":{"true":null,"false":null},"hbcu":{"true":null,"false":null},"relaffil":{"66":1},"hsi":{"true":null,"false":null},"nanti":{"true":null,"false":null},"annhi":{"true":null,"false":null},"aanapii":{"true":null,"false":null},"pbi":{"true":null,"false":null},"tribal":{"true":null,"false":null},"vet_tec_provider":{"true":null,"false":null},"section_103_message":{"true":null,"false":null}}}}'
+  recorded_at: Fri, 06 Mar 2026 20:27:33 GMT
+recorded_with: VCR 6.4.0
