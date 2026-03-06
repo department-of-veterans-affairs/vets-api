@@ -749,11 +749,10 @@ module IvcChampva
 
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          uploader = FileUploader.new(form_id, metadata, file_paths, true, @current_user, parsed_form_data)
-          hu_result = uploader.handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user,
+                                       parsed_form_data).upload_files
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
-
           # Since some or all of the files failed to upload to S3, trigger retry
           raise StandardError, error_messages if error_messages.compact.length.positive?
         rescue => e
