@@ -1279,7 +1279,6 @@
       "description": "Financial Direct Deposit information for Veteran.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["accountType", "accountNumber", "routingNumber"],
       "properties": {
         "accountType": {
           "description": "Veteran Account Type (value is case insensitive).",
