@@ -255,7 +255,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         expect(result.refill_status).to eq('discontinued')
       end
 
-      it 'maintains active status to "active" when no refills remaining' do
+      it 'maintains active status when no refills remain but expiration is in the future' do
         result = subject.parse(fhir_resource(status: 'active', refills: 0, dispense_status: nil))
         expect(result.refill_status).to eq('active')
       end
@@ -263,6 +263,11 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
       it 'maps active to "refillinprocess" when most recent dispense is in-progress' do
         result = subject.parse(fhir_resource(status: 'active', dispense_status: 'in-progress'))
         expect(result.refill_status).to eq('refillinprocess')
+      end
+
+      it 'maps active to "expired" when past expiration date regardless of refills remaining' do
+        result = subject.parse(fhir_resource(status: 'active', refills: 3, expiration: 1.day.ago, source: 'VA'))
+        expect(result.refill_status).to eq('expired')
       end
     end
 
@@ -392,7 +397,7 @@ describe UnifiedHealthData::Adapters::OracleHealthPrescriptionAdapter do
         tracking = result.tracking.first
         expect(tracking[:tracking_number]).to eq('9400111899223100000001')
         expect(tracking[:carrier]).to eq('USPS')
-        expect(tracking[:shipped_date]).to eq('2026-01-10 14:35:02.0')
+        expect(tracking[:complete_date_time]).to eq('2026-01-10 14:35:02.0')
         expect(tracking[:prescription_name]).to eq('albuterol 90 mcg/inh Aerosol')
         expect(tracking[:ndc_number]).to eq('00487-9801-01')
         expect(tracking[:prescription_number]).to eq('RX-PLACER-001')
