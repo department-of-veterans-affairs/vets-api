@@ -1310,6 +1310,38 @@ paths:
       summary: /v1/messaging/messages/categories
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+  /v1/messaging/messages/oh_sync_status:
+    get:
+      description: Get the Oracle Health sync status
+      operationId: get_oh_sync_status
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OhSyncStatus'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Gateway – upstream secure messaging service error
+      summary: /v1/messaging/messages/oh_sync_status
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -2197,7 +2229,7 @@ paths:
             maximum: 100
             example: 20
         - description: |
-            The attribute to sort by. Prefix with "-" for descending order. 
+            The attribute to sort by. Prefix with "-" for descending order.
             Supported values: "alphabetical-rx-name", "last-fill-date", or field names like "disp_status", "prescription_name", "dispensed_date"
           in: query
           name: sort
@@ -2264,7 +2296,7 @@ paths:
                       recently_requested:
                         type: array
                         description: |
-                          List of prescriptions with status "Active: Refill in Process"  or "Active: Submitted"
+                          List of prescriptions with status "Active: Refill in Process" or "Active: Submitted"
                         items:
                           type: object
           description: OK
@@ -3410,7 +3442,7 @@ components:
         category:
           type: string
           description: |
-            Message category. This must be one of the values returned by the 
+            Message category. This must be one of the values returned by the
             <pre>/v1/messaging/messages/categories</pre> endpoint.
           example: OTHER
         body:
@@ -3709,6 +3741,41 @@ components:
                     - MEDICATIONS
                     - TEST_RESULTS
                     - EDUCATION
+    OhSyncStatus:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Resource identifier
+            type:
+              type: string
+              example: oh_sync_status
+            attributes:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: |
+                    The current Oracle Health sync status.
+                  enum:
+                    - FINISHED
+                    - ERROR
+                    - NOT_STARTED
+                    - STARTED
+                    - IN_PROGRESS
+                    - UNKNOWN
+                sync_complete:
+                  type: boolean
+                  description: |
+                    Whether the sync process has completed. True when status is FINISHED, ERROR, NOT_STARTED, or UNKNOWN. False when STARTED or IN_PROGRESS.
+                error:
+                  type: string
+                  nullable: true
+                  description: |
+                    Optional error message providing details when an error occurred during sync.
     SecureMessageReplyRequest:
       type: object
       required:

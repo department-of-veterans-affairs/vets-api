@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<VETS360_URL>/settings-hub/person-options/v1/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA"
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"personOptions":[{"itemId":1,"optionId":999,"sourceDate":"2026-03-04T21:30:10Z","effectiveEndDate":"2026-03-04T21:30:00.000Z"}]}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      X-Ratelimit-Remaining:
+      - '49'
+      X-Ratelimit-Burst-Capacity:
+      - '50'
+      X-Ratelimit-Replenish-Rate:
+      - '50'
+      Vaprofiletxauditid:
+      - d9d8b779-4d03-4b8a-9278-426338a2caca
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 04 Mar 2026 22:03:55 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"STNG301","key":"personOptions[0].optionIdExists","text":"The
+        optionId does not exist, or is no longer available.","severity":"ERROR","potentiallySelfCorrectingOnRetry":false}],"txAuditId":"af639102-29aa-43d2-a13f-804f42c41ca2","status":"COMPLETED_FAILURE"}'
+  recorded_at: Wed, 04 Mar 2026 21:30:00 GMT
+recorded_with: VCR 6.4.0
