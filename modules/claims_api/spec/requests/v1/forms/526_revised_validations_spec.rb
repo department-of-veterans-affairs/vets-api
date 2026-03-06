@@ -825,12 +825,59 @@ RSpec.describe ClaimsApi::RevisedDisabilityCompensationValidations do
       end
     end
 
+    context 'when disabilityActionType is NONE' do
+      let(:form_attributes) do
+        {
+          'disabilities' => Array.new(152).map.with_index do |_, i|
+            {
+              'name' => 'PTSD',
+              'disabilityActionType' => i.odd? ? 'NONE' : 'INCREASE'
+            }
+          end
+        }
+      end
+
+      it 'does not count the disability' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }.not_to raise_error
+      end
+    end
+
+    context 'when the composite count of disabilities and secondary disabilities is above the max' do
+      let(:form_attributes) do
+        {
+          'disabilities' => Array.new(76) do
+            {
+              'name' => 'PTSD',
+              'secondaryDisabilities' => Array.new(1) do
+                {
+                  'name' => 'secondary disability'
+                }
+              end
+            }
+          end
+        }
+      end
+
+      it 'raises an error' do
+        expect { subject.validate_form_526_fewer_than_150_disabilities! }
+          .to raise_error(Common::Exceptions::InvalidFieldValue) do |error|
+            expect(error.errors.first.detail).to include(
+              "A maximum of #{described_class::DISABILITY_COUNT_MAX} disabilities allowed"
+            )
+          end
+      end
+    end
+
     context 'when disabilities count is greater than 150' do
       let(:form_attributes) { { 'disabilities' => Array.new(151) { { 'name' => 'PTSD' } } } }
 
       it 'raises an InvalidFieldValue error' do
         expect { subject.validate_form_526_fewer_than_150_disabilities! }
-          .to raise_error(Common::Exceptions::InvalidFieldValue)
+          .to raise_error(Common::Exceptions::InvalidFieldValue) do |error|
+            expect(error.errors.first.detail).to include(
+              "A maximum of #{described_class::DISABILITY_COUNT_MAX} disabilities allowed"
+            )
+          end
       end
     end
   end
