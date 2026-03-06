@@ -1364,7 +1364,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           context 'when require_all_s3_success feature is enabled' do
-            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row: true) }
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
@@ -1491,7 +1491,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           context 'when require_all_s3_success feature is enabled' do
-            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row: true) }
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
