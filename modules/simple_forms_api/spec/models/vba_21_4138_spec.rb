@@ -34,51 +34,203 @@ RSpec.describe SimpleFormsApi::VBA214138 do
   end
 
   describe '#metadata' do
-    let(:data) do
-      {
-        'full_name' => { 'first' => 'John', 'last' => 'Doe' },
-        'id_number' => { 'ssn' => '123456789' },
-        'mailing_address' => { 'postal_code' => '12345' },
-        'form_number' => '21-4138'
-      }
+    context 'when a non-Veteran is filing' do
+      let(:data) do
+        {
+          'claimant_type' => 'forVeteran',
+          'veteran_full_name' => { 'first' => 'John', 'last' => 'Lawrence' },
+          'veteran_id_number' => { 'ssn' => '432959594' },
+          'veteran_mailing_address' => { 'postal_code' => '46375' },
+          'full_name' => { 'first' => 'Ally', 'last' => 'Soto' },
+          'form_number' => '21-4138'
+        }
+      end
+
+      it 'uses the Veterans name and ID in metadata' do
+        result = described_class.new(data).metadata
+        expect(result['veteranFirstName']).to eq('John')
+        expect(result['veteranLastName']).to eq('Lawrence')
+        expect(result['fileNumber']).to eq('432959594')
+        expect(result['zipCode']).to eq('46375')
+        expect(result['source']).to eq('VA Platform Digital Forms')
+        expect(result['docType']).to eq('21-4138')
+        expect(result['businessLine']).to eq('CMP')
+      end
     end
 
-    it 'returns metadata hash with SSN' do
-      result = described_class.new(data).metadata
-      expect(result['veteranFirstName']).to eq('John')
-      expect(result['veteranLastName']).to eq('Doe')
-      expect(result['fileNumber']).to eq('123456789')
-      expect(result['zipCode']).to eq('12345')
-      expect(result['source']).to eq('VA Platform Digital Forms')
-      expect(result['docType']).to eq('21-4138')
-      expect(result['businessLine']).to eq('CMP')
+    context 'when the Veteran is filing' do
+      context 'with top-level profile keys (from profile confirm page)' do
+        let(:data) do
+          {
+            'claimant_type' => 'self',
+            'first' => 'Hector',
+            'middle' => 'J',
+            'last' => 'Allen',
+            'id_number' => { 'ssn' => '796126859' },
+            'mailing_address' => { 'postal_code' => '12345' },
+            'form_number' => '21-4138'
+          }
+        end
+
+        it 'reads name from top-level profile keys' do
+          result = described_class.new(data).metadata
+          expect(result['veteranFirstName']).to eq('Hector')
+          expect(result['veteranLastName']).to eq('Allen')
+          expect(result['fileNumber']).to eq('796126859')
+          expect(result['zipCode']).to eq('12345')
+        end
+      end
+
+      context 'with nested full_name (fallback)' do
+        let(:data) do
+          {
+            'claimant_type' => 'self',
+            'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+            'id_number' => { 'ssn' => '123456789' },
+            'mailing_address' => { 'postal_code' => '12345' },
+            'form_number' => '21-4138'
+          }
+        end
+
+        it 'falls back to full_name when top-level keys are absent' do
+          result = described_class.new(data).metadata
+          expect(result['veteranFirstName']).to eq('John')
+          expect(result['veteranLastName']).to eq('Doe')
+          expect(result['fileNumber']).to eq('123456789')
+          expect(result['zipCode']).to eq('12345')
+        end
+      end
+
+      it 'uses VA file number when available' do
+        data = {
+          'claimant_type' => 'self',
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'id_number' => { 'va_file_number' => 'C12345678', 'ssn' => '123456789' },
+          'mailing_address' => { 'postal_code' => '12345' },
+          'form_number' => '21-4138'
+        }
+        result = described_class.new(data).metadata
+        expect(result['fileNumber']).to eq('C12345678')
+      end
+
+      it 'falls back to SSN when VA file number is blank' do
+        data = {
+          'claimant_type' => 'self',
+          'full_name' => { 'first' => 'John', 'last' => 'Doe' },
+          'id_number' => { 'va_file_number' => '', 'ssn' => '123456789' },
+          'mailing_address' => { 'postal_code' => '12345' },
+          'form_number' => '21-4138'
+        }
+        result = described_class.new(data).metadata
+        expect(result['fileNumber']).to eq('123456789')
+      end
+    end
+  end
+
+  describe '#veteran_full_name' do
+    context 'when non-Veteran is filing' do
+      let(:data) do
+        {
+          'claimant_type' => 'forVeteran',
+          'veteran_full_name' => { 'first' => 'John', 'middle' => 'Dear', 'last' => 'Lawrence' },
+          'full_name' => { 'first' => 'Ally', 'last' => 'Soto' }
+        }
+      end
+
+      it 'returns veteran_full_name' do
+        expect(described_class.new(data).veteran_full_name).to eq({
+                                                                    'first' => 'John',
+                                                                    'middle' => 'Dear',
+                                                                    'last' => 'Lawrence'
+                                                                  })
+      end
     end
 
-    it 'uses VA file number when available' do
-      data['id_number'] = { 'va_file_number' => 'C12345678', 'ssn' => '123456789' }
-      result = described_class.new(data).metadata
-      expect(result['fileNumber']).to eq('C12345678')
+    context 'when Veteran is filing' do
+      context 'with top-level profile keys' do
+        let(:data) do
+          {
+            'claimant_type' => 'self',
+            'first' => 'Hector',
+            'middle' => 'J',
+            'last' => 'Allen'
+          }
+        end
+
+        it 'returns name from top-level keys' do
+          expect(described_class.new(data).veteran_full_name).to eq({
+                                                                      'first' => 'Hector',
+                                                                      'middle' => 'J',
+                                                                      'last' => 'Allen'
+                                                                    })
+        end
+      end
+
+      context 'when top-level keys are absent, falls back to full_name' do
+        let(:data) do
+          {
+            'claimant_type' => 'self',
+            'full_name' => { 'first' => 'John', 'last' => 'Veteran' }
+          }
+        end
+
+        it 'falls back to full_name' do
+          expect(described_class.new(data).veteran_full_name).to eq({
+                                                                      'first' => 'John',
+                                                                      'last' => 'Veteran'
+                                                                    })
+        end
+      end
+
+      context 'when veteran_full_name is an empty hash' do
+        let(:data) do
+          {
+            'claimant_type' => 'self',
+            'veteran_full_name' => {},
+            'full_name' => { 'first' => 'John', 'last' => 'Veteran' }
+          }
+        end
+
+        it 'falls back to full_name' do
+          expect(described_class.new(data).veteran_full_name).to eq({
+                                                                      'first' => 'John',
+                                                                      'last' => 'Veteran'
+                                                                    })
+        end
+      end
+    end
+  end
+
+  describe '#veteran_id_data' do
+    context 'when veteran_id_number is present (non-Veteran filer)' do
+      let(:data) do
+        {
+          'veteran_id_number' => { 'ssn' => '432959594' },
+          'id_number' => { 'ssn' => '999999999' }
+        }
+      end
+
+      it 'returns veteran_id_number' do
+        expect(described_class.new(data).veteran_id_data).to eq({ 'ssn' => '432959594' })
+      end
     end
 
-    it 'falls back to SSN when VA file number is blank' do
-      data['id_number'] = { 'va_file_number' => '', 'ssn' => '123456789' }
-      result = described_class.new(data).metadata
-      expect(result['fileNumber']).to eq('123456789')
+    context 'when veteran_id_number is absent (Veteran filer)' do
+      let(:data) { { 'id_number' => { 'ssn' => '123456789' } } }
+
+      it 'falls back to id_number' do
+        expect(described_class.new(data).veteran_id_data).to eq({ 'ssn' => '123456789' })
+      end
     end
   end
 
   describe '#notification_first_name' do
-    let(:data) do
-      {
-        'full_name' => {
-          'first' => 'John',
-          'last' => 'Doe'
-        }
-      }
-    end
+    context 'when Veteran is filing' do
+      let(:data) { { 'full_name' => { 'first' => 'John', 'last' => 'Doe' } } }
 
-    it 'returns the first name' do
-      expect(described_class.new(data).notification_first_name).to eq('John')
+      it 'returns the first name from full_name' do
+        expect(described_class.new(data).notification_first_name).to eq('John')
+      end
     end
   end
 
@@ -101,8 +253,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns nil' do
-        result = described_class.new(data).overflow_pdf
-        expect(result).to be_nil
+        expect(described_class.new(data).overflow_pdf).to be_nil
       end
     end
 
@@ -119,8 +270,6 @@ RSpec.describe SimpleFormsApi::VBA214138 do
         result = described_class.new(data).overflow_pdf
         expect(result).to be_a(String)
         expect(File.exist?(result)).to be true
-
-        # Cleanup
         File.delete(result) if result && File.exist?(result)
       end
     end
@@ -135,8 +284,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns nil' do
-        result = described_class.new(data).overflow_pdf
-        expect(result).to be_nil
+        expect(described_class.new(data).overflow_pdf).to be_nil
       end
     end
 
@@ -152,8 +300,6 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       it 'returns a file path' do
         result = described_class.new(data).overflow_pdf
         expect(result).not_to be_nil
-
-        # Cleanup
         File.delete(result) if result && File.exist?(result)
       end
     end
@@ -168,8 +314,7 @@ RSpec.describe SimpleFormsApi::VBA214138 do
       end
 
       it 'returns nil' do
-        result = described_class.new(data).overflow_pdf
-        expect(result).to be_nil
+        expect(described_class.new(data).overflow_pdf).to be_nil
       end
     end
   end
@@ -185,6 +330,92 @@ RSpec.describe SimpleFormsApi::VBA214138 do
 
     it 'defines ALLOTTED_REMARKS_LAST_INDEX' do
       expect(described_class::ALLOTTED_REMARKS_LAST_INDEX).to eq(3685)
+    end
+
+    it 'defines CLAIMANT_TYPE_VETERAN' do
+      expect(described_class::CLAIMANT_TYPE_VETERAN).to eq('self')
+    end
+  end
+
+  describe '#remarks_with_claimant_header' do
+    context 'when the Veteran is filing (claimant_type: self)' do
+      let(:data) do
+        {
+          'claimant_type' => 'self',
+          'statement' => 'Some statement text.',
+          'full_name' => { 'first' => 'John', 'last' => 'Veteran' }
+        }
+      end
+
+      it 'returns the statement unchanged with no header' do
+        expect(described_class.new(data).remarks_with_claimant_header).to eq('Some statement text.')
+      end
+    end
+
+    context 'when a non-Veteran is filing (claimant_type: forVeteran)' do
+      let(:data) do
+        {
+          'claimant_type' => 'forVeteran',
+          'statement' => 'Some statement text.',
+          'full_name' => { 'first' => 'Ally', 'last' => 'Soto' },
+          'relationship_to_veteran' => 'spouse'
+        }
+      end
+
+      it 'prepends the claimant header to the statement' do
+        result = described_class.new(data).remarks_with_claimant_header
+        expect(result).to start_with('Submitted by: Ally Soto (spouse)')
+        expect(result).to include('Some statement text.')
+      end
+    end
+
+    context 'when relationship is notListed' do
+      let(:data) do
+        {
+          'claimant_type' => 'forVeteran',
+          'statement' => 'Some statement text.',
+          'full_name' => { 'first' => 'Ally', 'last' => 'Soto' },
+          'relationship_to_veteran' => 'notListed',
+          'relationship_to_veteran_other' => 'ex wife'
+        }
+      end
+
+      it 'uses the other relationship description' do
+        result = described_class.new(data).remarks_with_claimant_header
+        expect(result).to start_with('Submitted by: Ally Soto (ex wife)')
+      end
+    end
+
+    context 'when statement is nil' do
+      let(:data) do
+        {
+          'claimant_type' => 'forVeteran',
+          'statement' => nil,
+          'full_name' => { 'first' => 'Ally', 'last' => 'Soto' },
+          'relationship_to_veteran' => 'spouse'
+        }
+      end
+
+      it 'does not raise and still includes the header' do
+        result = described_class.new(data).remarks_with_claimant_header
+        expect(result).to start_with('Submitted by: Ally Soto (spouse)')
+      end
+    end
+
+    context 'when name fields are missing' do
+      let(:data) do
+        {
+          'claimant_type' => 'forVeteran',
+          'statement' => 'Some statement text.',
+          'full_name' => {},
+          'relationship_to_veteran' => 'spouse'
+        }
+      end
+
+      it 'falls back to Not provided for the name' do
+        result = described_class.new(data).remarks_with_claimant_header
+        expect(result).to start_with('Submitted by: Not provided (spouse)')
+      end
     end
   end
 end

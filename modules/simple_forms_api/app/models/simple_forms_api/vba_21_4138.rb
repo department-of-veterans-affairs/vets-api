@@ -8,6 +8,7 @@ module SimpleFormsApi
     REMARKS_SLICE_1 = 0..1510
     REMARKS_SLICE_2 = 1511..3685
     ALLOTTED_REMARKS_LAST_INDEX = REMARKS_SLICE_2.end
+    CLAIMANT_TYPE_VETERAN = 'self'
 
     def desired_stamps
       [{
@@ -35,15 +36,51 @@ module SimpleFormsApi
     end
 
     def metadata
+      id_data = veteran_id_data
       {
-        'veteranFirstName' => notification_first_name,
-        'veteranLastName' => data.dig('full_name', 'last'),
-        'fileNumber' => data.dig('id_number', 'va_file_number').presence || data.dig('id_number', 'ssn'),
-        'zipCode' => data.dig('mailing_address', 'postal_code'),
+        'veteranFirstName' => veteran_full_name['first'],
+        'veteranLastName' => veteran_full_name['last'],
+        'fileNumber' => id_data['va_file_number'].presence || id_data['ssn'],
+        'zipCode' => veteran_mailing_address['postal_code'],
         'source' => 'VA Platform Digital Forms',
         'docType' => data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def veteran_full_name
+      if veteran_is_filing?
+        # for self/veteran, profile confirms name as top-level first/middle/last
+        name = {
+          'first' => data['first'],
+          'middle' => data['middle'],
+          'last' => data['last']
+        }.compact_blank
+        name.presence || data['full_name'] || {}
+      else
+        # for non-veteran claimant, veteran's name is in veteran_full_name
+        data['veteran_full_name'].presence || {}
+      end
+    end
+
+    def veteran_id_data
+      data['veteran_id_number'].presence || data['id_number'] || {}
+    end
+
+    def veteran_mailing_address
+      data['veteran_mailing_address'].presence || data['mailing_address'] || {}
+    end
+
+    def veteran_date_of_birth
+      data['veteran_date_of_birth'].presence || data['date_of_birth']
+    end
+
+    def veteran_phone
+      data['veteran_phone'].presence || data['phone']
+    end
+
+    def veteran_email
+      data['veteran_email_address'].presence || data['email_address']
     end
 
     def notification_first_name
@@ -58,6 +95,13 @@ module SimpleFormsApi
       data.dig('mailing_address', 'country') == 'USA'
     end
 
+    def remarks_with_claimant_header
+      statement = data['statement'].to_s
+      return statement if veteran_is_filing?
+
+      "#{build_claimant_header}\n\n\n#{statement}"
+    end
+
     def overflow_pdf
       statement = (data['statement'] || '').to_s
       return nil if statement.length <= ALLOTTED_REMARKS_LAST_INDEX
@@ -68,5 +112,23 @@ module SimpleFormsApi
     end
 
     def track_user_identity(confirmation_number); end
+
+    def veteran_is_filing?
+      data['claimant_type'] == CLAIMANT_TYPE_VETERAN
+    end
+
+    def build_claimant_header
+      first = data.dig('full_name', 'first').to_s
+      last  = data.dig('full_name', 'last').to_s
+      name  = [first, last].compact_blank.join(' ')
+
+      relationship = if data['relationship_to_veteran'] == 'notListed'
+                       data['relationship_to_veteran_other'].to_s
+                     else
+                       data['relationship_to_veteran'].to_s
+                     end
+
+      "Submitted by: #{name.presence || 'Not provided'} (#{relationship.presence || 'Not provided'})"
+    end
   end
 end
