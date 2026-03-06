@@ -42,6 +42,7 @@ RSpec.describe 'V1::MedicalCopays', type: :request do
                 currentBalance
                 previousBalance
                 previousUnpaidBalance
+                invoice_date
               ]
             )
         end
