@@ -6,10 +6,11 @@ require 'dependents/monitor'
 require 'dependents/notification_email'
 
 # temporary for FDF
+require 'dependents_benefits/claim_behavior'
 require 'dependents_benefits/claim_behavior/vbms_information'
 
 class SavedClaim::DependencyClaim < CentralMailClaim
-  include DependentsBenefits::ClaimBehavior::FormTypeChecking
+  include DependentsBenefits::ClaimBehavior
   include DependentsBenefits::ClaimBehavior::VBMSInformation
 
   FORM = '686C-674'
