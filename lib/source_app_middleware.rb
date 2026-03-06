@@ -172,7 +172,8 @@ class SourceAppMiddleware
     'welcome-va-setup-review-information',
     'yellow-ribbon',
     'your-debt',
-    'ch31-eligibility-entitlement'
+    'ch31-eligibility-entitlement',
+    'track-your-vre-benefits'
   ].freeze
 
   MOBILE_APP_NAMES = Set.new %w[

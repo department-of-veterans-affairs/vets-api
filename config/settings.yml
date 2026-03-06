@@ -514,12 +514,6 @@ form0781_remediation:
   aws:
     bucket: <%= ENV['evidence_remediation__aws__bucket'] %>
     region: us-gov-west-1
-form1095_b:
-  s3:
-    aws_access_key_id: <%= ENV['form1095_b__s3__aws_access_key_id'] %>
-    aws_secret_access_key: <%= ENV['form1095_b__s3__aws_secret_access_key'] %>
-    bucket: <%= ENV['form1095_b__s3__bucket'] %>
-    region: us-gov-west-1
 form526_backup:
   api_key: <%= ENV['form526_backup__api_key'] %>
   aws:
@@ -604,7 +598,7 @@ gclaws:
     veteran_service_organizations:
       url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
   accreditation_xlsx:
-    password: <%= ENV['gclaws__accreditation_xlsx__password'] %>
+    password: "<%= ENV['gclaws__accreditation_xlsx__password'] %>"
     url: <%= ENV['gclaws__accreditation_xlsx__url'] %>
     username: <%= ENV['gclaws__accreditation_xlsx__username'] %>
 genisis:

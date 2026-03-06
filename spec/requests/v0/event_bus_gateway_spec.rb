@@ -42,21 +42,21 @@ RSpec.describe 'V0::EventBusGateway', type: :request do
 
     context 'with the authentication header included' do
       it 'invokes the notification-sending job with both templates' do
-        expect(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async).with('1234', '5678', '9012')
+        expect(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async).with('1234', '5678', '9012', nil)
         post '/v0/event_bus_gateway/send_notifications', params:, headers: service_account_auth_header
         expect(response).to have_http_status(:ok)
       end
 
       it 'invokes the notification-sending job with only email template' do
         params_email_only = { email_template_id: '5678' }
-        expect(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async).with('1234', '5678', nil)
+        expect(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async).with('1234', '5678', nil, nil)
         post '/v0/event_bus_gateway/send_notifications', params: params_email_only, headers: service_account_auth_header
         expect(response).to have_http_status(:ok)
       end
 
       it 'invokes the notification-sending job with only push template' do
         params_push_only = { push_template_id: '9012' }
-        expect(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async).with('1234', nil, '9012')
+        expect(EventBusGateway::LetterReadyNotificationJob).to receive(:perform_async).with('1234', nil, '9012', nil)
         post '/v0/event_bus_gateway/send_notifications', params: params_push_only, headers: service_account_auth_header
         expect(response).to have_http_status(:ok)
       end

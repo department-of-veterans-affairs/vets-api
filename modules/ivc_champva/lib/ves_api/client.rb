@@ -24,11 +24,10 @@ module IvcChampva
       # HTTP POST call to the VES VFMP CHAMPVA Application service to submit a 10-10d application.
       #
       # @param transaction_uuid [string] the UUID for the application
-      # @param acting_user [string, nil] the acting user for the application
       # @param ves_request_data [IvcChampva::VesRequest] preformatted request data
-      def submit_1010d(transaction_uuid, acting_user, ves_request_data)
+      def submit_1010d(transaction_uuid, ves_request_data)
         resp = connection.post("#{config.base_path}/ves-vfmp-app-svc/champva-applications") do |req|
-          req.headers = headers(transaction_uuid, acting_user)
+          req.headers = headers(transaction_uuid)
           req.body = ves_request_data.to_json
         end
 
@@ -45,11 +44,10 @@ module IvcChampva
       # HTTP POST call to the VES VFMP service to submit a 10-7959c OHI certification.
       #
       # @param transaction_uuid [string] the UUID for the transaction
-      # @param acting_user [string, nil] the acting user for the application
       # @param ves_request_data [IvcChampva::VesOhiRequest] preformatted request data
       #
       # @raise [NotImplementedError] This method is a stub pending VES API endpoint availability
-      def submit_7959c(_transaction_uuid, _acting_user, _ves_request_data)
+      def submit_7959c(_transaction_uuid, _ves_request_data)
         # TODO: Implement once VES OHI endpoint is available
         # Expected endpoint: "#{config.base_path}/ves-vfmp-app-svc/ohi-certifications"
         raise NotImplementedError, 'VES OHI submission endpoint not yet implemented - awaiting VES API specification'
@@ -58,15 +56,13 @@ module IvcChampva
       ##
       # Assembles headers for the VES API request
       #
-      # @param transaction_uuid [string] the start date of the report
-      # @param acting_user [string, nil] the end date of the report
+      # @param transaction_uuid [string] the transaction UUID for the request
       # @return [Hash] the headers
-      def headers(transaction_uuid, acting_user)
+      def headers(transaction_uuid)
         {
           :content_type => 'application/json',
           'apiKey' => settings.api_key,
-          'transactionUUId' => transaction_uuid.to_s,
-          'acting-user' => acting_user.to_s
+          'transactionUUId' => transaction_uuid.to_s
         }
       end
 
