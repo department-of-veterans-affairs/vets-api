@@ -17,25 +17,6 @@ FactoryBot.define do
   end
 
   factory :digital_forms_service_error, class: 'Common::Client::Errors::ClientError' do
-    trait 'unauthorized' do
-      status { 401 }
-      body do
-        JSON.parse('{
-          "messages": [
-            {
-              "timestamp": "2024-05-20T15:53:29.389",
-              "key": "UNAUTHORIZED",
-              "severity": "ERROR",
-              "status": "401",
-              "text": "No JWT Token in Header."
-            }
-          ]
-        }')
-      end
-
-      initialize_with { new('UNAUTHORIZED', status, body) }
-    end
-
     trait 'error' do
       status { 503 }
       body do
@@ -45,8 +26,8 @@ FactoryBot.define do
               "timestamp": "2024-05-20T15:53:29.389",
               "key": "bip.framework.service.unavailable",
               "severity": "ERROR",
-              "status": "401",
-              "text": "No JWT Token in Header."
+              "status": "503",
+              "text": "Service unavailable."
             }
           ]
         }')
