@@ -55,6 +55,10 @@ class Swagger::V1::Requests::MedicalCopays
                          type: :string,
                          example: 'Tampa'
 
+                property :invoiceDate,
+                         type: :string,
+                         example: '2024-11-30T17:10:47Z'
+
                 property :facilityId,
                          type: :string,
                          example: '1234'
