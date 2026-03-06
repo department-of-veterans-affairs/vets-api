@@ -39,6 +39,9 @@ features:
       When enabled, shows form 21a in the accredited representative portal.
       NOTE: content-build is using "vagovprod: false" to also hide the form 21a in production.
     enable_in_development: true
+  accredited_representative_portal_killswitch:
+    actor_type: user
+    description: Killswitch for the accredited representative portal
   accredited_representative_portal_lighthouse_api_key:
     actor_type: user
     description: Switches ARP LH benefits intake API key to be ARP-specific
