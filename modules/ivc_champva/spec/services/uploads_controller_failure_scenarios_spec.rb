@@ -47,6 +47,8 @@ RSpec.describe 'IVC CHAMPVA Integration Failure Scenarios', type: :request do
     ves_request = instance_double(IvcChampva::VesRequest,
                                   transaction_uuid: 'test-uuid',
                                   application_uuid: 'app-uuid',
+                                  form_type: 'vha_10_10d',
+                                  subforms?: false,
                                   to_json: '{"test": "data"}')
     allow(ves_request).to receive(:transaction_uuid=)
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request)

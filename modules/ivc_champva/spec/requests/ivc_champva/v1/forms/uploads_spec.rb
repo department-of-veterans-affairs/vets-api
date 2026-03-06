@@ -35,6 +35,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(ves_client).to receive(:submit_1010d).with(anything, anything)
     allow(ves_request).to receive_messages(transaction_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b',
                                            application_uuid: 'test-uuid',
+                                           form_type: 'vha_10_10d',
                                            subforms?: false)
     allow(ves_request).to receive(:transaction_uuid=)
     allow(ves_request).to receive(:to_json).and_return('{}')
@@ -226,13 +227,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     before do
       # Mirror the setup from the passing tests, but enable champva_update_datadog_tracking
       allow(Flipper).to receive(:enabled?)
-        .with(:champva_send_to_ves, @current_user)
+        .with(:champva_send_to_ves, anything)
         .and_return(true)
       allow(Flipper).to receive(:enabled?)
-        .with(:champva_retry_logic_refactor, @current_user)
+        .with(:champva_retry_logic_refactor, anything)
         .and_return(false)
       allow(Flipper).to receive(:enabled?)
-        .with(:champva_update_datadog_tracking, @current_user)
+        .with(:champva_update_datadog_tracking, anything)
         .and_return(true)
     end
 
@@ -392,14 +393,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
               .and_raise(ArgumentError, 'OHI validation failed')
           end
 
-          it 'logs the error and falls back to format_for_request' do
-            expect(Rails.logger).to receive(:error).with(/Error building OHI subforms/)
-            expect(Rails.logger).to receive(:error).with(anything)
-
-            result = controller.send(:prepare_ves_request, parsed_form_data)
-
-            expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request).with(parsed_form_data)
-            expect(result).to eq(mock_ves_request)
+          it 'raises the error (strict validation - no fallback)' do
+            expect do
+              controller.send(:prepare_ves_request, parsed_form_data)
+            end.to raise_error(ArgumentError, 'OHI validation failed')
           end
         end
       end
