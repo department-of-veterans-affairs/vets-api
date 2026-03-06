@@ -650,6 +650,14 @@ features:
     actor_type: user
     description: Enables rebuild of Certificate of Eligibility form
     enable_in_development: true
+  coe_enable_cve_intro:
+    actor_type: user
+    description: Enables new introduction page for the Certificate of Eligibility form
+    enable_in_development: true
+  coe_enable_cve_status:
+    actor_type: user
+    description: Enables new status page for the Certificate of Eligibility form
+    enable_in_development: true
   combined_debt_portal_access:
     actor_type: user
     description: Enables users to interact with combined debt portal experience
