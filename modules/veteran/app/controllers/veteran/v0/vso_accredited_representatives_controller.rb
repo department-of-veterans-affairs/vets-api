@@ -21,6 +21,10 @@ module Veteran
                 .where('? = ANY(veteran_representatives.user_types)', search_params[:type])
                 .group(Veteran::Service::Representative.column_names.map { |col| "veteran_representatives.#{col}" })
 
+        if search_params[:org_name] && Flipper.enabled?(:find_a_representative_enabled)
+          query = query.having('? = ANY(array_agg(veteran_organizations.name))', search_params[:org_name])
+        end
+
         search_params[:name] ? find_with_name_similar_to(query) : query
       end
 

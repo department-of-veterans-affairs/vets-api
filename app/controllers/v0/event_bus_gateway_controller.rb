@@ -20,6 +20,14 @@ module V0
       head :ok
     end
 
+    def send_sms
+      EventBusGateway::LetterReadySmsJob.perform_async(
+        participant_id,
+        send_sms_params.require(:template_id)
+      )
+      head :ok
+    end
+
     def send_notifications
       validate_at_least_one_template!
       return if performed?
@@ -27,7 +35,8 @@ module V0
       EventBusGateway::LetterReadyNotificationJob.perform_async(
         participant_id,
         send_notifications_params[:email_template_id],
-        send_notifications_params[:push_template_id]
+        send_notifications_params[:push_template_id],
+        send_notifications_params[:sms_template_id]
       )
       head :ok
     end
@@ -46,18 +55,23 @@ module V0
       params.permit(:template_id)
     end
 
+    def send_sms_params
+      params.permit(:template_id)
+    end
+
     def send_notifications_params
-      params.permit(:email_template_id, :push_template_id)
+      params.permit(:email_template_id, :push_template_id, :sms_template_id)
     end
 
     def validate_at_least_one_template!
       return if send_notifications_params[:email_template_id].present? ||
-                send_notifications_params[:push_template_id].present?
+                send_notifications_params[:push_template_id].present? ||
+                send_notifications_params[:sms_template_id].present?
 
       render json: {
         errors: [{
           title: 'Bad Request',
-          detail: 'At least one of email_template_id or push_template_id is required',
+          detail: 'At least one of email_template_id, push_template_id, or sms_template_id is required',
           status: '400'
         }]
       }, status: :bad_request
