@@ -48,26 +48,22 @@ module BenefitsClaims
     # @return [Faraday::Response] response from GET request
     #
     def get(path, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      connection.get(path, options[:params], { Authorization: "Bearer #{
-        access_token(
-          lighthouse_client_id,
-          lighthouse_rsa_key_path,
-          options
-        )
-      }" })
+      token = access_token(lighthouse_client_id, lighthouse_rsa_key_path, options)
+      headers = {}
+      headers[:Authorization] = "Bearer #{token}" if token
+
+      connection.get(path, options[:params], headers)
     end
 
     ##
     # @return [Faraday::Response] response from POST request
     #
     def post(path, body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      connection.post(path, body, { Authorization: "Bearer #{
-        access_token(
-          lighthouse_client_id,
-          lighthouse_rsa_key_path,
-          options
-        )
-      }" })
+      token = access_token(lighthouse_client_id, lighthouse_rsa_key_path, options)
+      headers = {}
+      headers[:Authorization] = "Bearer #{token}" if token
+
+      connection.post(path, body, headers)
     end
 
     ##
@@ -79,7 +75,9 @@ module BenefitsClaims
       connection.post(path) do |req|
         req.body = body
         req.params = params
-        req.headers['Authorization'] = "Bearer #{access_token(nil, nil, options)}"
+
+        token = access_token(nil, nil, options)
+        req.headers['Authorization'] = "Bearer #{token}" if token
       end
     end
 
@@ -108,11 +106,15 @@ module BenefitsClaims
     # @return [Boolean] Should the service use mock data in lower environments.
     #
     def use_mocks?
-      settings.use_mocks || false
+      settings_use_mocks = ActiveModel::Type::Boolean.new.cast(settings.use_mocks)
+      betamocks_enabled = ActiveModel::Type::Boolean.new.cast(Settings.betamocks&.enabled)
+
+      settings_use_mocks || betamocks_enabled
     end
 
     def get_access_token?
-      !use_mocks? || Settings.betamocks.recording
+      betamocks_recording = ActiveModel::Type::Boolean.new.cast(Settings.betamocks&.recording)
+      !use_mocks? || betamocks_recording
     end
 
     def access_token(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
