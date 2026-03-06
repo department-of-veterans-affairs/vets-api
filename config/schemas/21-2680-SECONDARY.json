@@ -1,0 +1,421 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VA Form 21-2680 - Examination for Housebound Status or Permanent Need for Regular Aid and Attendance",
+  "description": "Form 21-2680 Secondary Party (Medical Examiner) Schema - Sections VI-VIII",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "examinationInformation",
+    "examinersSignature",
+    "examinersInformation"
+  ],
+  "properties": {
+    "examinationInformation": {
+      "type": "object",
+      "description": "Section VI: Examination Information (IMPORTANT: Remainder of form MUST be filled out by Examiner)",
+      "additionalProperties": false,
+      "required": [
+        "dateOfExamination"
+      ],
+      "properties": {
+        "dateOfExamination": {
+          "type": "string",
+          "description": "Date of examination (Field 16)",
+          "pattern": "^[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+          "example": "10-15-2025"
+        },
+        "completeDiagnosis": {
+          "type": "string",
+          "description": "Provide complete diagnosis with most significant symptoms for each condition (Field 17)",
+          "example": "Chronic kidney disease stage 4 with mobility limitations and fatigue"
+        },
+        "permanentlyDisablingConditions": {
+          "type": "array",
+          "description": "What disability(ies) are considered permanent and totally disabling? (Field 18 A-F)",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "example": [
+            "Chronic kidney disease",
+            "Severe arthritis"
+          ]
+        },
+        "age": {
+          "type": "integer",
+          "description": "Age (Field 19A)",
+          "maximum": 999,
+          "example": 68
+        },
+        "weight": {
+          "type": "object",
+          "description": "Weight (Field 19B)",
+          "additionalProperties": false,
+          "properties": {
+            "actual": {
+              "type": "integer",
+              "description": "Actual lbs.",
+              "maximum": 999,
+              "example": 176
+            },
+            "estimated": {
+              "type": "integer",
+              "description": "Estimated lbs.",
+              "maximum": 999,
+              "example": 180
+            }
+          }
+        },
+        "height": {
+          "type": "object",
+          "description": "Height (Field 19C)",
+          "additionalProperties": false,
+          "properties": {
+            "feet": {
+              "type": "integer",
+              "description": "Feet",
+              "maximum": 9,
+              "example": 5
+            },
+            "inches": {
+              "type": "integer",
+              "description": "Inches",
+              "maximum": 11,
+              "example": 10
+            }
+          }
+        },
+        "nutrition": {
+          "type": "string",
+          "description": "Nutrition (Field 20)",
+          "example": "Adequate dietary intake but some weight loss"
+        },
+        "gait": {
+          "type": "string",
+          "description": "Gait (Field 21)",
+          "example": "Requires walker"
+        },
+        "bloodPressure": {
+          "type": "string",
+          "description": "Blood pressure (Field 22)",
+          "pattern": "^[0-9]{2,3}/[0-9]{2,3}$",
+          "example": "130/85"
+        },
+        "pulseRate": {
+          "type": "integer",
+          "description": "Pulse rate (Field 23)",
+          "maximum": 999,
+          "example": 72
+        },
+        "respiratoryRate": {
+          "type": "integer",
+          "description": "Respiratory rate (Field 24)",
+          "maximum": 999,
+          "example": 16
+        },
+        "disabilitiesRestrictingActivities": {
+          "type": "string",
+          "description": "What disabilities restrict the listed activities/functions? (Field 25)",
+          "example": "Chronic kidney disease limits mobility"
+        },
+        "bedConfinement": {
+          "type": "object",
+          "description": "If the patient is confined to bed, indicate the number of hours in bed (Field 26)",
+          "additionalProperties": false,
+          "properties": {
+            "hours9pmTo9am": {
+              "type": "integer",
+              "description": "From 9 PM to 9 AM",
+              "minimum": 0,
+              "maximum": 12,
+              "example": 10
+            },
+            "hours9amTo9pm": {
+              "type": "integer",
+              "description": "From 9 AM to 9 PM",
+              "minimum": 0,
+              "maximum": 12,
+              "example": 4
+            }
+          }
+        },
+        "requiresAssistanceWith": {
+          "type": "object",
+          "description": "Does the patient require assistance with any of the following activities? (Field 27)",
+          "additionalProperties": false,
+          "properties": {
+            "bathingShowering": {
+              "type": "boolean",
+              "description": "Bathing/Showering",
+              "example": true
+            },
+            "eatingOrSelfFeeding": {
+              "type": "boolean",
+              "description": "Eating or self-feeding",
+              "example": false
+            },
+            "dressing": {
+              "type": "boolean",
+              "description": "Dressing",
+              "example": true
+            },
+            "ambulatingWithinHome": {
+              "type": "boolean",
+              "description": "Ambulating within the home or living area",
+              "example": true
+            },
+            "tendingToHygieneNeeds": {
+              "type": "boolean",
+              "description": "Tending to hygiene needs",
+              "example": true
+            },
+            "transferringInOutOfBedChair": {
+              "type": "boolean",
+              "description": "Transferring in or out of bed/chair",
+              "example": true
+            },
+            "toileting": {
+              "type": "boolean",
+              "description": "Toileting",
+              "example": true
+            },
+            "medicationManagement": {
+              "type": "boolean",
+              "description": "Medication management",
+              "example": true
+            },
+            "additionalActivities": {
+              "type": "boolean",
+              "description": "Additional activities (i.e., housekeeping, laundering, meal preparation, etc.)",
+              "example": true
+            }
+          }
+        },
+        "additionalActivitiesSpecify": {
+          "type": "string",
+          "description": "Specify additional activity below (Field 27 continuation)",
+          "example": "housekeeping, laundering, meal preparation"
+        },
+        "legalBlindness": {
+          "type": "object",
+          "description": "Is the patient legally blind? (Field 28)",
+          "additionalProperties": false,
+          "properties": {
+            "isLegallyBlind": {
+              "type": "boolean",
+              "description": "Yes / No",
+              "example": true
+            },
+            "correctedVision": {
+              "type": "object",
+              "description": "Corrected vision (Field 28B)",
+              "additionalProperties": false,
+              "properties": {
+                "rightEye": {
+                  "type": "string",
+                  "description": "Corrected vision right eye",
+                  "pattern": "^[0-9]{2}/[0-9]{2,3}$",
+                  "example": "20/40"
+                },
+                "leftEye": {
+                  "type": "string",
+                  "description": "Corrected vision left eye",
+                  "pattern": "^[0-9]{2}/[0-9]{2,3}$",
+                  "example": "20/50"
+                }
+              }
+            },
+            "explanation": {
+              "type": "string",
+              "description": "If \"Yes,\" provide explanation",
+              "example": "Patient has visual acuity of 20/200 or less in better eye with correction"
+            }
+          }
+        },
+        "nursingHomeCare": {
+          "type": "object",
+          "description": "Does the patient require nursing home care? (Field 29)",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "Yes / No",
+              "example": true
+            },
+            "explanation": {
+              "type": "string",
+              "description": "If \"Yes,\" provide explanation",
+              "example": "Patient requires 24-hour skilled nursing care due to advanced dementia"
+            }
+          }
+        },
+        "mentalCapacityToManageBenefitPayments": {
+          "type": "object",
+          "description": "In your judgment, does the patient have the mental capacity to manage their benefit payments, or are they able to direct someone to do so? (Field 30)",
+          "additionalProperties": false,
+          "properties": {
+            "hasCapacity": {
+              "type": "boolean",
+              "description": "Yes / No",
+              "example": false
+            },
+            "explanation": {
+              "type": "string",
+              "description": "If \"NO,\" provide the disability(ies) that prevent them from performing this function and any rationale to support your conclusion in the space provided",
+              "example": "Patient has advanced dementia preventing understanding of financial matters"
+            }
+          }
+        },
+        "postureAndGeneralAppearance": {
+          "type": "string",
+          "description": "What is the posture and general appearance of the patient? (Field 31)",
+          "example": "Patient appears frail, uses walker for support"
+        },
+        "upperExtremityRestrictions": {
+          "type": "string",
+          "description": "Describe restrictions of each upper extremity with particular reference to grip, fine movements, and ability to feed themselves, to button clothing, shave and attend to the needs of nature (Field 32)",
+          "example": "Severe arthritis in both hands limits grip strength."
+        },
+        "lowerExtremityRestrictions": {
+          "type": "string",
+          "description": "Describe restrictions of each lower extremity with particular reference to the extent of limitation of motion, atrophy, and contractures or other interference. (Field 33)",
+          "example": "Arthritis limits range of motion."
+        },
+        "spineTrunkNeckRestrictions": {
+          "type": "string",
+          "description": "Describe restriction of spine, trunk, and neck (Field 34)",
+          "example": "Chronic back pain"
+        },
+        "otherPathology": {
+          "type": "string",
+          "description": "Describe all other pathology including the loss of bowel or bladder control or the effects of advancing age; such as dizziness, loss of memory or poor balance, that affects patient's ability to perform self-care, or if hospitalized, beyond the ward or clinical area (Field 35)",
+          "example": "Short-term memory loss."
+        },
+        "abilityToLeaveHome": {
+          "type": "string",
+          "description": "How often per day or week and under what circumstances (to include the level of assistance required) is the patient able to leave the home or immediate premises (Field 36)",
+          "example": "Patient leaves home 2-3 times per week for medical appointments only, requires assistance of one person and wheelchair"
+        },
+        "aidsRequiredForLocomotion": {
+          "type": "object",
+          "description": "Are aids such as canes, braces, crutches, or the assistance of another person required for locomotion? (Field 37)",
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "Yes / No",
+              "example": true
+            },
+            "distanceCapability": {
+              "type": "object",
+              "description": "If \"YES,\" check the applicable box or specify distance",
+              "additionalProperties": false,
+              "properties": {
+                "oneBlock": {
+                  "type": "boolean",
+                  "description": "1 block"
+                },
+                "fiveToSixBlocks": {
+                  "type": "boolean",
+                  "description": "5 or 6 blocks"
+                },
+                "oneMile": {
+                  "type": "boolean",
+                  "description": "1 mile"
+                },
+                "other": {
+                  "type": "string",
+                  "description": "Other (Specify distance)",
+                  "example": "Can walk approximately 2 blocks with walker"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "examinersSignature": {
+      "type": "object",
+      "description": "Section VII: Examiner's Signature",
+      "additionalProperties": false,
+      "required": [
+        "printedName",
+        "signature",
+        "dateSigned"
+      ],
+      "properties": {
+        "printedName": {
+          "type": "string",
+          "description": "Printed name of examiner (Field 38)",
+          "example": "John Smith"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of examiner (Field 39)",
+          "example": "MD"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Signature of examiner (Field 40)",
+          "example": "Dr. John Smith"
+        },
+        "dateSigned": {
+          "type": "string",
+          "description": "Date signed (Field 41)",
+          "pattern": "^[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+          "example": "10-25-2025"
+        }
+      }
+    },
+    "examinersInformation": {
+      "type": "object",
+      "description": "Section VIII: Examiner's Information",
+      "additionalProperties": false,
+      "required": [
+        "nationalProviderIdentifier",
+        "medicalFacility"
+      ],
+      "properties": {
+        "nationalProviderIdentifier": {
+          "type": "string",
+          "description": "National Provider Identifier (NPI) number of examiner (Field 42)",
+          "pattern": "^[0-9]{10}$",
+          "example": "1234567890"
+        },
+        "medicalFacility": {
+          "type": "object",
+          "description": "Medical facility information (Fields 43-45)",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "phoneNumber"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of medical facility (Field 43)",
+              "example": "Boston VA Medical Center"
+            },
+            "address": {
+              "type": "string",
+              "description": "Address of medical facility (Field 44)",
+              "example": "150 S Huntington Ave, Boston, MA 02130"
+            },
+            "phoneNumber": {
+              "type": "string",
+              "description": "Telephone number of medical facility (Field 45)",
+              "pattern": "^[0-9]{10}$",
+              "example": "6175551234"
+            },
+            "internationalPhoneNumber": {
+              "type": "string",
+              "description": "Enter international phone number (If applicable) (Field 45)",
+              "maxLength": 14,
+              "example": "+441234567890"
+            }
+          }
+        }
+      }
+    }
+  }
+}
