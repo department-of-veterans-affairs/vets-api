@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/institutions/autocomplete?term=university"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 06 Mar 2026 20:52:08 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-store
+      Expires:
+      - 2025-03-06 20:52:14 UTC
+      Pragma:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      - deny
+      X-Request-Id:
+      - ebe518c2-2517-404e-a02e-0279f38b08cf
+      X-Runtime:
+      - '0.079278'
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Xss-Protection:
+      - 1; report=/csp-report
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":4698147,"value":"11001074","label":"UNIVERSITY OF STIRLING","distance":null},{"id":4683975,"value":"10000117","label":"UNIVERSITY
+        OF KENTUCKY POLICE DEPARTMENT","distance":null},{"id":4684288,"value":"10001801","label":"UNIVERSITY
+        OF ALABAMA AT BIRMINGHAM-RADIOLOGY","distance":null},{"id":4685460,"value":"10023449","label":"UNIVERSITY
+        OF WISCONSIN - PARKSIDE APPRENTICESHIP","distance":null},{"id":4689652,"value":"10430346","label":"UNIVERSITY
+        OF VIRGINIA MEDICAL CENTER","distance":null},{"id":4689950,"value":"10464015","label":"UNIVERSITY
+        OF NORTHERN IOWA-MAINTENANCE","distance":null}],"meta":{"version":{"number":79,"created_at":"2026-01-16T04:39:42.700Z","preview":false},"term":"university"},"links":{"self":"https://dev-platform-api.va.gov/gids/v1/institutions/autocomplete?term=university"}}'
+  recorded_at: Fri, 06 Mar 2026 20:52:08 GMT
+recorded_with: VCR 6.4.0

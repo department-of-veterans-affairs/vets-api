@@ -1,0 +1,92 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/institutions/10086018/children"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 06 Mar 2026 20:52:08 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-store
+      Expires:
+      - 2025-03-06 20:51:56 UTC
+      Pragma:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      - deny
+      X-Request-Id:
+      - 60470dd1-79ef-4a51-b1bd-93984d86ae41
+      X-Runtime:
+      - '0.099423'
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Xss-Protection:
+      - 1; report=/csp-report
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"4686882","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-ALEXANDRIA","facility_code":"10086818","alias":null,"type":"OJT","city":"ALEXANDRIA","state":"LA","zip":"71303","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"96
+        GEORGE THOMPSON DRIVE","address_2":null,"address_3":null,"physical_address_1":"96
+        GEORGE THOMPSON DRIVE","physical_address_2":null,"physical_address_3":null,"physical_city":"ALEXANDRIA","physical_state":"LA","physical_zip":"71303","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1194,"bah":1317.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10086818"}},{"id":"4686864","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-BATON ROUGE","facility_code":"10085318","alias":null,"type":"OJT","city":"BATON
+        ROUGE","state":"LA","zip":"70809","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"18211
+        EAST PETROLEUM DRIVE","address_2":null,"address_3":null,"physical_address_1":"18211
+        EAST PETROLEUM DRIVE","physical_address_2":null,"physical_address_3":null,"physical_city":"BATON
+        ROUGE","physical_state":"LA","physical_zip":"70809","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1839,"bah":1962.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10085318"}},{"id":"4684840","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-CHATTANOOGA","facility_code":"10012142","alias":null,"type":"OJT","city":"CHATTANOOGA","state":"TN","zip":"37421","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"2150
+        STEIN DR","address_2":"OFFICE OF ENFORCEMENT  REMOVAL OP","address_3":null,"physical_address_1":"2150
+        STEIN DR","physical_address_2":"OFFICE OF ENFORCEMENT  REMOVAL OP","physical_address_3":null,"physical_city":"CHATTANOOGA","physical_state":"TN","physical_zip":"37421","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1950,"bah":2073.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10012142"}},{"id":"4688694","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-FAYETTEVILLE","facility_code":"10302604","alias":null,"type":"OJT","city":"FAYETTEVILLE","state":"AR","zip":"72701","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"2887
+        N POINT CIR","address_2":null,"address_3":null,"physical_address_1":"2887
+        N POINT CIR","physical_address_2":null,"physical_address_3":null,"physical_city":"FAYETTEVILLE","physical_state":"AR","physical_zip":"72701","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1662,"bah":1785.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10302604"}},{"id":"4688698","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-FT SMITH","facility_code":"10302804","alias":null,"type":"OJT","city":"FT
+        SMITH","state":"AR","zip":"72903","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"4991
+        OLD GREENWOOD RD","address_2":null,"address_3":null,"physical_address_1":"4991
+        OLD GREENWOOD RD","physical_address_2":null,"physical_address_3":null,"physical_city":"FT
+        SMITH","physical_state":"AR","physical_zip":"72903","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1233,"bah":1356.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10302804"}},{"id":"4694916","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-GADSDEN","facility_code":"10A12201","alias":null,"type":"OJT","city":"GADSDEN","state":"AL","zip":"35901","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"800
+        FOREST AVENUE","address_2":"3RD FLOOR","address_3":null,"physical_address_1":"800
+        FOREST AVENUE","physical_address_2":"3RD FLOOR","physical_address_3":null,"physical_city":"GADSDEN","physical_state":"AL","physical_zip":"35901","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1131,"bah":1254.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10A12201"}},{"id":"4692299","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-GULFPORT","facility_code":"10636424","alias":null,"type":"OJT","city":"GULFPORT","state":"MS","zip":"39501","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"2510
+        14TH STREET","address_2":"SUITE 915","address_3":null,"physical_address_1":"2510
+        14TH STREET","physical_address_2":"SUITE 915","physical_address_3":null,"physical_city":"GULFPORT","physical_state":"MS","physical_zip":"39501","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1503,"bah":1626.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10636424"}},{"id":"4694922","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-HOMEWOOD","facility_code":"10A12401","alias":null,"type":"OJT","city":"HOMEWOOD","state":"AL","zip":"35209","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"234
+        GOODWIN CREST DRIVE","address_2":"SUITE 100","address_3":null,"physical_address_1":"234
+        GOODWIN CREST DRIVE","physical_address_2":"SUITE 100","physical_address_3":null,"physical_city":"HOMEWOOD","physical_state":"AL","physical_zip":"35209","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":2106,"bah":2229.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10A12401"}},{"id":"4686867","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-JENA","facility_code":"10085518","alias":null,"type":"OJT","city":"JENA","state":"LA","zip":"71342","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"830
+        PINE HILL ROAD","address_2":null,"address_3":null,"physical_address_1":"830
+        PINE HILL ROAD","physical_address_2":null,"physical_address_3":null,"physical_city":"JENA","physical_state":"LA","physical_zip":"71342","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1353,"bah":1476.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10085518"}},{"id":"4684847","type":"institutions","attributes":{"name":"DHS
+        ICE IMMIGRATION ENFORCEMENT-KNOXVILLE","facility_code":"10012242","alias":null,"type":"OJT","city":"KNOXVILLE","state":"TN","zip":"37923","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2026-01-16T04:39:42.000Z","updated_at":"2026-01-16T04:39:42.000Z","address_1":"324
+        PROSPERITY DRIVE","address_2":"OFFICE OF ENFORCEMENT  REMOVAL OP","address_3":null,"physical_address_1":"324
+        PROSPERITY DRIVE","physical_address_2":"OFFICE OF ENFORCEMENT  REMOVAL OP","physical_address_3":null,"physical_city":"KNOXVILLE","physical_state":"TN","physical_zip":"37923","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":2052,"bah":2175.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":"10086018","campus_type":"N","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null,"hsi":null,"nanti":null,"annhi":null,"aanapii":null,"pbi":null,"tribal":null,"rating_count":0,"rating_average":null,"institution_rating":null},"links":{"self":"https://dev-platform-api.va.gov/gids/v0/institutions/10012242"}}],"links":{"self":"https://dev-platform-api.va.gov/gids/v1/institutions/10086018/children?","first":"https://dev-platform-api.va.gov/gids/v1/institutions/10086018/children?page=1\u0026per_page=10","prev":null,"next":"https://dev-platform-api.va.gov/gids/v1/institutions/10086018/children?page=2\u0026per_page=10","last":"https://dev-platform-api.va.gov/gids/v1/institutions/10086018/children?page=3\u0026per_page=10"},"meta":{"version":{"number":79,"created_at":"2026-01-16T04:39:42.700Z","preview":false},"count":21}}'
+  recorded_at: Fri, 06 Mar 2026 20:52:08 GMT
+recorded_with: VCR 6.4.0
