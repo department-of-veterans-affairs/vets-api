@@ -16,7 +16,13 @@ module AccreditedRepresentativePortal
     end
 
     def form_id
-      claim.class::PROPER_FORM_ID
+      if claim.class.const_defined?(:PROPER_FORM_ID)
+        claim.class::PROPER_FORM_ID
+      elsif claim.class.const_defined?(:FORM_ID)
+        claim.class::FORM_ID
+      else
+        claim.form_id
+      end
     end
 
     def saved_claim_claimant_representative
@@ -36,7 +42,7 @@ module AccreditedRepresentativePortal
 
       {
         'form_id' => form_id,
-        'confirmation_number' => claim&.latest_submission_attempt&.benefits_intake_uuid,
+        'confirmation_number' => claim&.latest_submission_attempt&.benefits_intake_uuid || claim&.confirmation_number,
         'first_name' => representative&.first_name || 'Representative',
         'submission_date' => claim&.created_at&.strftime('%B %-d, %Y')
       }.reverse_merge(default)
