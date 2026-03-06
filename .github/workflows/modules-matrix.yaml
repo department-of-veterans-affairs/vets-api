@@ -1,0 +1,51 @@
+name: Modules Matrix
+
+on:
+  push:
+    paths:
+      - ".github/workflows/modules-matrix.yaml"
+  pull_request:
+    paths:
+      - ".github/workflows/modules-matrix.yaml"
+  workflow_dispatch: {}
+
+jobs:
+  discover-modules:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build matrix from modules
+        id: set-matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          matrix=$(ls -1 modules | jq -R -s -c 'split("\n")[:-1] | map({name:., path:("modules/" + .)}) | {include:.}')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  run-per-module:
+    needs: discover-modules
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover-modules.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run module job
+        if: ${{ matrix.name != '__none__' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Running for module: ${{ matrix.name }} at ${{ matrix.path }}"
+
+      - name: No modules found
+        if: ${{ matrix.name == '__none__' }}
+        run: |
+          set -euo pipefail
+          echo "No module folders found under modules/; skipping."
