@@ -48,6 +48,10 @@ describe UploaderVirusScan, :uploader_helpers do
     end
 
     describe 'AU-2 audit logging via Common::VirusScan' do
+      before do
+        allow(Rails.env).to receive(:production?).and_return(true)
+      end
+
       it 'passes upload_context to Common::VirusScan.scan' do
         allow(Common::VirusScan).to receive(:scan).and_return(true)
 
