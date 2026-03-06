@@ -51,6 +51,11 @@ describe Shrine::Plugins::ValidateVirusFree do
           expect(result).to be(false)
           expect(instance.errors).to include('virus or malware detected')
         end
+
+        it 'does not leak the file path in the error message' do
+          instance.validate_virus_free
+          expect(instance.errors).not_to include(a_string_matching(%r{clamav_tmp/}))
+        end
       end
 
       context 'with a custom error message' do
@@ -78,86 +83,90 @@ describe Shrine::Plugins::ValidateVirusFree do
       end
     end
 
-    describe 'virus detection logging (AU-2)' do
-      let(:test_remote_ip) { '10.0.0.42' }
+    describe 'AU-2 audit logging via Common::VirusScan' do
+      it 'passes upload_context to Common::VirusScan.scan' do
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
 
-      before do
-        allow(Common::VirusScan).to receive(:scan).and_return(false)
-        RequestStore.store['additional_request_attributes'] = { 'remote_ip' => test_remote_ip }
+        instance.validate_virus_free
+
+        expect(Common::VirusScan).to have_received(:scan).with(
+          an_instance_of(String),
+          upload_context: nil
+        )
       end
 
-      it 'emits a structured warn log when a virus is detected' do
-        expect(Rails.logger).to receive(:warn).with(
-          'Virus or malware detected during upload scan',
+      it 'passes the record class name as upload_context' do
+        record_double = instance_double(FormSubmissionAttempt, class: FormSubmissionAttempt)
+        allow(instance).to receive(:record).and_return(record_double)
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+
+        instance.validate_virus_free
+
+        expect(Common::VirusScan).to have_received(:scan).with(
+          an_instance_of(String),
+          upload_context: 'FormSubmissionAttempt'
+        )
+      end
+    end
+
+    describe 'AU-2 audit log integration' do
+      let(:test_remote_ip) { '10.0.0.42' }
+      let(:scan_result_hash) { { safe: false, virus_name: 'Win.Test.EICAR_HDB-1' } }
+
+      before do
+        allow(File).to receive(:chmod).and_call_original
+        RequestStore.store['additional_request_attributes'] = { 'remote_ip' => test_remote_ip }
+        allow(Common::VirusScan).to receive(:mock_enabled?).and_return(false)
+        allow(ClamAV::PatchClient).to receive(:new).and_return(
+          instance_double(ClamAV::PatchClient, scan_with_result: scan_result_hash)
+        )
+      end
+
+      it 'emits a ClamAV Virus Scan Audit log with all AU-2 fields when a virus is detected' do
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        instance.validate_virus_free
+
+        expect(Rails.logger).to have_received(:info).with(
+          'ClamAV Virus Scan Audit',
           hash_including(
-            scan_result: 'virus_detected',
-            remote_ip: test_remote_ip,
-            file_name_hash: an_instance_of(String),
+            event: 'virus_scan',
+            ip_address: test_remote_ip,
+            scan_result: 'infected',
+            virus_name: 'Win.Test.EICAR_HDB-1',
+            file_name: match(/\A[a-f0-9]{64}\z/),
+            file_size: an_instance_of(Integer),
+            scan_duration_ms: an_instance_of(Float),
             upload_context: nil
           )
         )
-
-        instance.validate_virus_free
       end
 
-      it 'hashes the file name instead of logging it in plaintext' do
-        allow(Rails.logger).to receive(:warn)
-
-        instance.validate_virus_free
-
-        expect(Rails.logger).to have_received(:warn).with(
-          'Virus or malware detected during upload scan',
-          hash_including(file_name_hash: match(/\A[a-f0-9]{64}\z/))
-        )
-      end
-
-      it 'does not include user_uuid in the log payload' do
-        RequestStore.store['additional_request_attributes'] =
-          { 'remote_ip' => test_remote_ip, 'user_uuid' => 'some-uuid' }
-
-        allow(Rails.logger).to receive(:warn)
-
-        instance.validate_virus_free
-
-        expect(Rails.logger).to have_received(:warn).with(
-          'Virus or malware detected during upload scan',
-          hash_not_including(:user_uuid)
-        )
-      end
-
-      it 'includes the upload_context from the record class name' do
+      it 'includes upload_context in the audit log when a record is present' do
         record_double = instance_double(FormSubmissionAttempt, class: FormSubmissionAttempt)
         allow(instance).to receive(:record).and_return(record_double)
-
-        allow(Rails.logger).to receive(:warn)
+        allow(Rails.logger).to receive(:info).and_call_original
 
         instance.validate_virus_free
 
-        expect(Rails.logger).to have_received(:warn).with(
-          'Virus or malware detected during upload scan',
+        expect(Rails.logger).to have_received(:info).with(
+          'ClamAV Virus Scan Audit',
           hash_including(upload_context: 'FormSubmissionAttempt')
         )
       end
 
-      it 'gracefully handles missing RequestStore context' do
-        RequestStore.store['additional_request_attributes'] = nil
-
-        allow(Rails.logger).to receive(:warn)
-
-        instance.validate_virus_free
-
-        expect(Rails.logger).to have_received(:warn).with(
-          'Virus or malware detected during upload scan',
-          hash_including(remote_ip: nil)
+      it 'emits the audit log for clean scans too' do
+        allow(ClamAV::PatchClient).to receive(:new).and_return(
+          instance_double(ClamAV::PatchClient, scan_with_result: { safe: true, virus_name: nil })
         )
-      end
-
-      it 'does not log when the scan result is safe' do
-        allow(Common::VirusScan).to receive(:scan).and_return(true)
-
-        expect(Rails.logger).not_to receive(:warn)
+        allow(Rails.logger).to receive(:info).and_call_original
 
         instance.validate_virus_free
+
+        expect(Rails.logger).to have_received(:info).with(
+          'ClamAV Virus Scan Audit',
+          hash_including(scan_result: 'clean', virus_name: nil)
+        )
       end
     end
   end
