@@ -23,7 +23,8 @@ module SM
         args.merge!(kwargs)
         track_with_status('post_create_message', is_oh:) do |tags|
           validate_create_context(args)
-          json = perform_with_logging(:post, 'message', args)
+          path = renewal_message?(args) ? 'message/renewal' : 'message'
+          json = perform_with_logging(:post, path, args)
           tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message')
         end
@@ -41,7 +42,8 @@ module SM
         track_with_status('post_create_message_with_attachment', is_oh:) do |tags|
           validate_create_context(args)
           Rails.logger.info('MESSAGING: post_create_message_with_attachments')
-          json = perform_with_logging(:post, 'message/attach', args, headers: multipart_headers)
+          path = renewal_message?(args) ? 'message/renewal/attach' : 'message/attach'
+          json = perform_with_logging(:post, path, args, headers: multipart_headers)
           tags[:station_number] = resolve_station_number(json.dig(:data, :recipient_id))
           build_message_response(json, is_oh, 'post_create_message_with_attachment')
         end
@@ -61,7 +63,8 @@ module SM
         track_with_status('post_create_message_with_lg_attachments', is_oh:) do |tags|
           validate_create_context(args)
           Rails.logger.info('MESSAGING: post_create_message_with_lg_attachments')
-          message = create_message_with_lg_attachments_request('message/attach', args)
+          path = renewal_message?(args) ? 'message/renewal/attach' : 'message/attach'
+          message = create_message_with_lg_attachments_request(path, args)
           tags[:station_number] = resolve_station_number(message&.recipient_id)
           build_lg_message_response(message, is_oh, 'post_create_message_with_lg_attachments')
         end
@@ -132,6 +135,15 @@ module SM
       end
 
       private
+
+      # Checks whether the message args contain a prescription_id, indicating
+      # this should be routed to the upstream MHV renewal endpoint.
+      # Handles both flat args (post_create_message) and nested args
+      # (attachment methods where prescription_id is under the :message key).
+      def renewal_message?(args)
+        prescription_id = args[:prescription_id] || args.dig(:message, :prescription_id)
+        prescription_id.present?
+      end
 
       def validate_create_context(args)
         if args[:id].present? && reply_draft?(args[:id])

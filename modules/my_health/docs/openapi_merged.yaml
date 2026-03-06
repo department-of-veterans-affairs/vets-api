@@ -1198,7 +1198,10 @@ paths:
       summary: /v1/messaging/message_drafts/{reply_id}/replydraft/{draft_id}
   /v1/messaging/messages:
     post:
-      description: Send a new secure message
+      description: |
+        Send a new secure message. When `prescription_id` is included in the request body,
+        the message is routed to the upstream MHV `POST message/renewal` endpoint for
+        prescription renewal messages.
       operationId: post_create_message
       parameters:
         - description: Indicates if this message is for an OH triage group (allows larger attachments)
@@ -1283,6 +1286,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: |
+            Unprocessable Entity - Validation failed for one or more message fields
+            (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages
   /v1/messaging/messages/categories:
     get:
@@ -1589,6 +1600,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: |
+            Unprocessable Entity - Validation failed for one or more message fields
+            (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages/{id}/reply
   /v1/messaging/messages/{id}/thread:
     get:
@@ -3462,6 +3481,13 @@ components:
             Used for analytics tracking of Oracle Health facility messages. If not provided, facility
             tracking is skipped.
           example: '989'
+        prescription_id:
+          type: string
+          description: |
+            Optional. When present, the message is routed to the upstream MHV `POST message/renewal`
+            endpoint instead of the standard `POST message` endpoint. The Faraday camelcase middleware
+            auto-transforms this to `prescriptionId` for the upstream API.
+          example: '24654491'
     SecureMessageAttachment:
       type: object
       required:

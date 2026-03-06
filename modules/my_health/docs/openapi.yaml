@@ -1209,7 +1209,10 @@ paths:
       summary: /v1/messaging/message_drafts/{reply_id}/replydraft/{draft_id}
   /v1/messaging/messages:
     post:
-      description: Send a new secure message
+      description: |
+        Send a new secure message. When `prescription_id` is included in the request body,
+        the message is routed to the upstream MHV `POST message/renewal` endpoint for
+        prescription renewal messages.
       operationId: post_create_message
       parameters:
         - description: Indicates if this message is for an OH triage group (allows larger attachments)
@@ -1297,6 +1300,14 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: |
+            Unprocessable Entity - Validation failed for one or more message fields
+            (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages
   /v1/messaging/messages/categories:
     get:
@@ -1605,6 +1616,14 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: |
+            Unprocessable Entity - Validation failed for one or more message fields
+            (for example, missing or empty `body`), as defined by the request schema.
       summary: /v1/messaging/messages/{id}/reply
   /v1/messaging/messages/{id}/thread:
     get:

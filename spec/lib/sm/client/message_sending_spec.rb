@@ -129,4 +129,125 @@ describe SM::Client, '#message_sending' do
       end
     end
   end
+
+  describe '#post_create_message' do
+    let(:message_params) { { subject: 's', category: 'OTHER', recipient_id: 1, body: 'test' } }
+
+    before do
+      allow(client).to receive(:validate_create_context)
+      allow(client).to receive_messages(resolve_station_number: nil, build_message_response: double('Message'))
+    end
+
+    it 'routes to message path when prescription_id is absent' do
+      expect(client).to receive(:perform_with_logging).with(:post, 'message', message_params)
+                                                      .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message(message_params)
+    end
+
+    it 'routes to message/renewal path when prescription_id is present' do
+      params_with_rx = message_params.merge(prescription_id: '24654491')
+      expect(client).to receive(:perform_with_logging).with(:post, 'message/renewal', params_with_rx)
+                                                      .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message(params_with_rx)
+    end
+
+    it 'routes to message path when prescription_id is blank' do
+      params_with_blank_rx = message_params.merge(prescription_id: '')
+      expect(client).to receive(:perform_with_logging).with(:post, 'message', params_with_blank_rx)
+                                                      .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message(params_with_blank_rx)
+    end
+
+    it 'routes to message path when prescription_id is nil' do
+      params_with_nil_rx = message_params.merge(prescription_id: nil)
+      expect(client).to receive(:perform_with_logging).with(:post, 'message', params_with_nil_rx)
+                                                      .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message(params_with_nil_rx)
+    end
+  end
+
+  describe '#post_create_message_with_attachment' do
+    let(:attachment_params) do
+      { message: { subject: 's', category: 'OTHER', recipient_id: 1, body: 'test' }, uploads: ['file'] }
+    end
+
+    before do
+      allow(client).to receive(:validate_create_context)
+      allow(client).to receive_messages(resolve_station_number: nil, build_message_response: double('Message'),
+                                        multipart_headers: {})
+    end
+
+    it 'routes to message/attach when prescription_id is absent' do
+      expect(client).to receive(:perform_with_logging)
+        .with(:post, 'message/attach', attachment_params, headers: {})
+        .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message_with_attachment(attachment_params)
+    end
+
+    it 'routes to message/renewal/attach when prescription_id is present' do
+      params_with_rx = attachment_params.deep_merge(message: { prescription_id: '24654491' })
+      expect(client).to receive(:perform_with_logging)
+        .with(:post, 'message/renewal/attach', params_with_rx, headers: {})
+        .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message_with_attachment(params_with_rx)
+    end
+
+    it 'routes to message/attach when prescription_id is blank' do
+      params_with_blank_rx = attachment_params.deep_merge(message: { prescription_id: '' })
+      expect(client).to receive(:perform_with_logging)
+        .with(:post, 'message/attach', params_with_blank_rx, headers: {})
+        .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message_with_attachment(params_with_blank_rx)
+    end
+
+    it 'routes to message/attach when prescription_id is nil' do
+      params_with_nil_rx = attachment_params.deep_merge(message: { prescription_id: nil })
+      expect(client).to receive(:perform_with_logging)
+        .with(:post, 'message/attach', params_with_nil_rx, headers: {})
+        .and_return({ data: { id: 1 }, metadata: {} })
+      client.post_create_message_with_attachment(params_with_nil_rx)
+    end
+  end
+
+  describe '#post_create_message_with_lg_attachments' do
+    let(:lg_attachment_params) do
+      { message: { subject: 's', category: 'OTHER', recipient_id: 1, body: 'test' }, uploads: ['file'] }
+    end
+
+    before do
+      allow(client).to receive(:validate_create_context)
+      allow(client).to receive_messages(resolve_station_number: nil, build_lg_message_response: double('Message'))
+    end
+
+    it 'routes to message/attach when prescription_id is absent' do
+      expect(client).to receive(:create_message_with_lg_attachments_request)
+        .with('message/attach', lg_attachment_params)
+        .and_return(double('Message', recipient_id: 1))
+      client.post_create_message_with_lg_attachments(lg_attachment_params)
+    end
+
+    it 'routes to message/renewal/attach when prescription_id is present' do
+      params_with_rx = lg_attachment_params.deep_merge(message: { prescription_id: '24654491' })
+      expect(client).to receive(:create_message_with_lg_attachments_request)
+        .with('message/renewal/attach', params_with_rx)
+        .and_return(double('Message', recipient_id: 1))
+      client.post_create_message_with_lg_attachments(params_with_rx)
+    end
+
+    it 'routes to message/attach when prescription_id is blank' do
+      params_with_blank_rx = lg_attachment_params.deep_merge(message: { prescription_id: '' })
+      expect(client).to receive(:create_message_with_lg_attachments_request)
+        .with('message/attach', params_with_blank_rx)
+        .and_return(double('Message', recipient_id: 1))
+      client.post_create_message_with_lg_attachments(params_with_blank_rx)
+    end
+
+    it 'routes to message/attach when prescription_id is nil' do
+      params_with_nil_rx = lg_attachment_params.deep_merge(message: { prescription_id: nil })
+      expect(client).to receive(:create_message_with_lg_attachments_request)
+        .with('message/attach', params_with_nil_rx)
+        .and_return(double('Message', recipient_id: 1))
+      client.post_create_message_with_lg_attachments(params_with_nil_rx)
+    end
+  end
 end

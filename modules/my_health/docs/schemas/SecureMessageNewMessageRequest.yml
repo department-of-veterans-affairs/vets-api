@@ -33,3 +33,10 @@ properties:
       Used for analytics tracking of Oracle Health facility messages. If not provided, facility
       tracking is skipped.
     example: "989"
+  prescription_id:
+    type: string
+    description: |
+      Optional. When present, the message is routed to the upstream MHV `POST message/renewal`
+      endpoint instead of the standard `POST message` endpoint. The Faraday camelcase middleware
+      auto-transforms this to `prescriptionId` for the upstream API.
+    example: "24654491"

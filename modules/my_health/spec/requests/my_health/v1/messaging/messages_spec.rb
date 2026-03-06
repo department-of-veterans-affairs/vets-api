@@ -228,6 +228,77 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           )
         end
 
+        it 'routes to message/renewal when prescription_id is present' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          # VCR matches on :method + :uri only (no body matching), so verify prescription_id
+          # actually reaches the SM client and routes to the renewal path.
+          expect_any_instance_of(SM::Client).to receive(:perform)
+            .with(:post, 'message/renewal', anything, anything)
+            .and_call_original
+
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages', params: { message: params_with_rx }
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_response_schema('my_health/messaging/v1/message')
+        end
+
+        it 'routes to message/renewal when camel-inflected' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params_with_rx },
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
+        end
+
+        it 'tracks facility when prescription_id and station_number are present' do
+          allow(UniqueUserEvents).to receive(:log_event)
+
+          params_with_rx_and_station = params.merge(prescription_id: '24654491', station_number: '979')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            post '/my_health/v1/messaging/messages', params: { message: params_with_rx_and_station }
+          end
+
+          expect(response).to be_successful
+          expect(UniqueUserEvents).to have_received(:log_event).with(
+            user: anything,
+            event_name: UniqueUserEvents::EventRegistry::SECURE_MESSAGING_MESSAGE_SENT,
+            event_facility_ids: ['979']
+          )
+        end
+
+        it 'routes to message/renewal/attach with attachments when prescription_id is present' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          expect_any_instance_of(SM::Client).to receive(:perform)
+            .with(:post, 'message/renewal/attach', anything, anything)
+            .and_call_original
+
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message_with_attachments') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params_with_rx, uploads: }
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
+        it 'routes to message/renewal/attach with attachments when camel-inflected' do
+          params_with_rx = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message_with_attachments') do
+            post '/my_health/v1/messaging/messages',
+                 params: { message: params_with_rx, uploads: },
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_with_attachment')
+        end
+
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments
@@ -399,6 +470,19 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           end
         end
 
+        it 'extends timeout when is_oh_triage_group=true on renewal via create' do
+          renewal_params = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/a_renewal_message') do
+            VCR.use_cassette('sm_client/messages/creates/status_sent') do
+              post '/my_health/v1/messaging/messages?is_oh_triage_group=true',
+                   params: { message: renewal_params }
+
+              expect(response).to be_successful
+              expect(request.env['rack-timeout.timeout']).to eq(Settings.mhv.sm.timeout)
+            end
+          end
+        end
+
         it 'does not extend timeout when is_oh_triage_group=false on create' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
             post '/my_health/v1/messaging/messages?is_oh_triage_group=false',
@@ -437,6 +521,15 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
             expect(request.env['rack-timeout.timeout']).not_to eq(Settings.mhv.sm.timeout)
           end
         end
+      end
+    end
+
+    describe 'removed /messages/renewal route' do
+      it 'returns 404 for POST /messages/renewal' do
+        post '/my_health/v1/messaging/messages/renewal',
+             params: { message: { subject: 'test', category: 'OTHER', recipient_id: 1, body: 'test' } }
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -637,6 +730,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
           VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url') do
             post '/my_health/v1/messaging/messages', params: params_with_attachments
+          end
+
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']['id']).to be_present
+        end
+
+        it 'routes to message/renewal/attach with large attachments when prescription_id is present' do
+          expect_any_instance_of(SM::Client).not_to receive(:poll_message_status)
+          params_with_rx = params.merge(prescription_id: '24654491')
+          VCR.use_cassette('sm_client/messages/creates/aws_s3_attachment_upload_pre_signed_url_renewal') do
+            post '/my_health/v1/messaging/messages', params: { message: params_with_rx, uploads: }
           end
 
           expect(response).to be_successful
