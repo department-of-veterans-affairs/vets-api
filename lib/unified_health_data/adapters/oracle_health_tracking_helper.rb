@@ -91,7 +91,7 @@ module UnifiedHealthData
           ndc_number: data[:ndc_number] || extract_ndc_code(resource),
           prescription_id: resource['id'],
           tracking_number: data[:tracking_number],
-          shipped_date: data[:shipped_date],
+          complete_date_time: data[:shipped_date],
           carrier: data[:carrier],
           other_prescriptions: []
         }
