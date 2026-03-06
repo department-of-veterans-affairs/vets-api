@@ -145,6 +145,11 @@ paths:
             type: string
           description: Name to search for.
         - in: query
+          name: org_name
+          schema:
+            type: string
+          description: Name of the Veteran Service Organization (VSO). Must be an exact match.
+        - in: query
           name: page
           schema:
             type: integer
