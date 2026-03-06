@@ -91,9 +91,17 @@ module DecisionReviews
 
       def process_submission
         req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
+
+        if Flipper.enabled?(:decision_review_sc_redesign_nov2025, @current_user) && req_body_obj['scRedesign']
+          req_body_obj = format_evidence_data_for_lighthouse_schema(req_body_obj)
+          formatted_private_evidence = format_private_evidence_entries(req_body_obj['form4142'])
+          req_body_obj['form4142'] = formatted_private_evidence
+        end
+
         # For now, we have to address schema issues before serializing, since our SavedClaim model
         # uses a copy of the same Lighthouse schema to validate the data before saving.
-        req_body_obj = normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
+        normalize_evidence_retrieval_for_lighthouse_schema(req_body_obj)
+
         req_body_obj = normalize_area_code_for_lighthouse_schema(req_body_obj)
         saved_claim_request_body = req_body_obj.to_json
         form4142 = req_body_obj.delete('form4142')
@@ -116,6 +124,73 @@ module DecisionReviews
           clear_in_progress_form
         end
         render json: sc_response.body, status: sc_response.status
+      end
+
+      # Schema reference: https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/src/schemas/SC-create-request-body_v1/schema.json#L193-L201
+      def set_evidence_types(evidence_submission, has_uploaded_evidence, has_va_evidence)
+        evidence_submission['evidenceType'] << 'retrieval' if has_va_evidence
+        evidence_submission['evidenceType'] << 'upload' if has_uploaded_evidence
+
+        evidence_submission['evidenceType'] << 'none' if !has_uploaded_evidence && !has_va_evidence
+
+        evidence_submission
+      end
+
+      # Schema reference: https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/src/schemas/SC-create-request-body_v1/schema.json#L173-L192
+      def set_treatment_locations(evidence_submission, req_body_obj)
+        treatment_locations = req_body_obj.dig('data', 'attributes', 'treatmentLocations')
+        treatment_location_other = req_body_obj.dig('data', 'attributes', 'treatmentLocationOther')
+
+        if treatment_locations.is_a?(Array) && treatment_locations.any?
+          evidence_submission['treatmentLocations'] =
+            treatment_locations
+        end
+
+        if treatment_location_other.is_a?(String) && !treatment_location_other.empty?
+          evidence_submission['treatmentLocationOther'] =
+            treatment_location_other
+        end
+
+        # Remove treatmentLocations and treatmentLocationOther from their original location
+        # since they have moved into evidenceSubmission
+        req_body_obj['data']['attributes'].delete('treatmentLocations')
+        req_body_obj['data']['attributes'].delete('treatmentLocationOther')
+
+        evidence_submission
+      end
+
+      # Schema reference: https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/src/schemas/SC-create-request-body_v1/schema.json#L203-L238
+      def set_va_evidence(evidence_submission, va_evidence)
+        formatted_va_evidence = format_va_evidence_entries(va_evidence)
+
+        evidence_submission['retrieveFrom'] = formatted_va_evidence
+        evidence_submission
+      end
+
+      # For the new array builder UI, we are passing the raw FE evidence data as-is to the BE,
+      # so we need to transform it to match the Lighthouse schema here
+      def format_evidence_data_for_lighthouse_schema(req_body_obj)
+        evidence_submission = {
+          'evidenceType' => []
+        }
+
+        uploaded_evidence = req_body_obj['additionalDocuments']
+        va_evidence = req_body_obj.dig('data', 'attributes', 'vaEvidence')
+
+        has_uploaded_evidence = uploaded_evidence.is_a?(Array) && uploaded_evidence.any?
+        has_va_evidence = va_evidence.is_a?(Array) && va_evidence.any?
+
+        set_evidence_types(evidence_submission, has_uploaded_evidence, has_va_evidence)
+        set_treatment_locations(evidence_submission, req_body_obj)
+
+        set_va_evidence(evidence_submission, va_evidence) if has_va_evidence
+
+        req_body_obj['data']['attributes']['evidenceSubmission'] = evidence_submission
+
+        # Remove vaEvidence from its original location since it has moved into evidenceSubmission
+        req_body_obj['data']['attributes'].delete('vaEvidence')
+
+        req_body_obj
       end
 
       def create_appeal_submission(submitted_appeal_uuid, backup_zip)

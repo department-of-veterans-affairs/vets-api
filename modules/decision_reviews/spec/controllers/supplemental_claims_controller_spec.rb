@@ -12,6 +12,264 @@ RSpec.describe DecisionReviews::V1::SupplementalClaimsController, type: :control
     sign_in_as(user)
   end
 
+  describe '#format_evidence_data_for_lighthouse_schema' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:decision_review_sc_redesign_nov2025).and_return(true)
+    end
+
+    context 'when the redesign flipper is on, and there is uploaded evidence and VA evidence' do
+      subject(:transformed_data) { controller.send(:format_evidence_data_for_lighthouse_schema, req_body_obj) }
+
+      let(:req_body_obj) do
+        {
+          'scRedesign' => true,
+          'data' => {
+            'type' => 'supplementalClaim',
+            'attributes' => {
+              'benefitType' => 'compensation',
+              'claimantType' => 'veteran',
+              'homeless' => false,
+              'veteran' => {
+                'timezone' => 'America/Chicago',
+                'address' => {
+                  'addressLine1' => '123 Mailing Address St.',
+                  'addressLine2' => 'Apt 1',
+                  'city' => 'Fulton',
+                  'stateCode' => 'NY',
+                  'countryCodeISO2' => 'US',
+                  'zipCode5' => '97063'
+                },
+                'phone' => {
+                  'countryCode' => '1',
+                  'areaCode' => '989',
+                  'phoneNumber' => '8981233'
+                },
+                'email' => 'myemail72585885@unattended.com'
+              },
+              'treatmentLocations' => [
+                'VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)',
+                'PRIVATE HEALTH CARE PROVIDER'
+              ],
+              'socOptIn' => true,
+              'vaEvidence' => [
+                {
+                  'treatmentBefore2005' => 'N',
+                  'issuesVA' => {
+                    'Left Knee Instability' => true,
+                    'Right Knee Injury' => true
+                  },
+                  'vaTreatmentLocation' => 'Midwest Alabama VA Facility'
+                },
+                {
+                  'treatmentBefore2005' => 'Y',
+                  'treatmentMonthYear' => '2000-05',
+                  'issuesVA' => {
+                    'Hypertension' => true,
+                    'Impotence' => true
+                  },
+                  'vaTreatmentLocation' => 'Southwest Georgia VA Facility'
+                }
+              ]
+            }
+          },
+          'included' => [
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Hypertension - 0% - Service connection for hypertension is denied.',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '8891'
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Impotence - 0% - Evaluation of impotence, which is currently 0% disabling, is continued.',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '7902'
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Left Knee Instability - 10% - Evaluation of left knee instability, which is currently 10% disabling, is increased to 10% effective February 13',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '7952'
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Right Knee Injury - 30% - Evaluation of right knee injury, which is currently 30% disabling, is continued.',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '7884'
+              }
+            }
+          ],
+          'form4142' => {
+            'authorization' => true,
+            'lcPrompt' => 'N',
+            'evidenceEntries' => [
+              'treatmentStart' => '2012-10-11',
+              'treatmentEnd' => '2012-10-12',
+              'issuesPrivate' => {
+                'Hypertension' => true,
+                'Impotence' => true,
+                'Left Knee Instability' => true
+              },
+              'privateTreatmentLocation' => 'South Texas VA Facility',
+              'address' => {
+                'view:militaryBaseDescription' => {},
+                'country' => 'USA',
+                'street' => '123 Main Street',
+                'street2' => 'Street address 2',
+                'city' => 'San Antonio',
+                'state' => 'TX',
+                'postalCode' => '78258'
+              }
+            ]
+          },
+          'additionalDocuments' => [{
+            'name' => 'document.pdf',
+            'size' => 123,
+            'confirmationCode' => '123-456-789',
+            'attachmentId' => 'L123',
+            'isEncrypted' => false
+          }]
+        }
+      end
+
+      let(:expected_result) do
+        {
+          'scRedesign' => true,
+          'data' => {
+            'type' => 'supplementalClaim',
+            'attributes' => {
+              'benefitType' => 'compensation',
+              'claimantType' => 'veteran',
+              'homeless' => false,
+              'veteran' => {
+                'timezone' => 'America/Chicago',
+                'address' => {
+                  'addressLine1' => '123 Mailing Address St.',
+                  'addressLine2' => 'Apt 1',
+                  'city' => 'Fulton',
+                  'stateCode' => 'NY',
+                  'countryCodeISO2' => 'US',
+                  'zipCode5' => '97063'
+                },
+                'phone' => {
+                  'countryCode' => '1',
+                  'areaCode' => '989',
+                  'phoneNumber' => '8981233'
+                },
+                'email' => 'myemail72585885@unattended.com'
+              },
+              'evidenceSubmission' => {
+                'evidenceType' => %w[retrieval upload],
+                'treatmentLocations' => [
+                  'VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)',
+                  'PRIVATE HEALTH CARE PROVIDER'
+                ],
+                'retrieveFrom' => [
+                  {
+                    'type' => 'retrievalEvidence',
+                    'attributes' => {
+                      'locationAndName' => 'Midwest Alabama VA Facility',
+                      'noTreatmentDates' => true
+                    }
+                  },
+                  {
+                    'type' => 'retrievalEvidence',
+                    'attributes' => {
+                      'locationAndName' => 'Southwest Georgia VA Facility',
+                      'noTreatmentDates' => false,
+                      'evidenceDates' => [{
+                        'startDate' => '2000-05-01',
+                        'endDate' => '2000-05-01'
+                      }]
+                    }
+                  }
+                ]
+              },
+              'socOptIn' => true
+            }
+          },
+          'included' => [
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Hypertension - 0% - Service connection for hypertension is denied.',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '8891'
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Impotence - 0% - Evaluation of impotence, which is currently 0% disabling, is continued.',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '7902'
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Left Knee Instability - 10% - Evaluation of left knee instability, which is currently 10% disabling, is increased to 10% effective February 13',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '7952'
+              }
+            },
+            {
+              'type' => 'contestableIssue',
+              'attributes' => {
+                'issue' => 'Right Knee Injury - 30% - Evaluation of right knee injury, which is currently 30% disabling, is continued.',
+                'decisionDate' => '2023-09-26',
+                'ratingIssueReferenceId' => '7884'
+              }
+            }
+          ],
+          'form4142' => {
+            'authorization' => true,
+            'lcPrompt' => 'N',
+            'evidenceEntries' => [
+              {
+                'treatmentStart' => '2012-10-11',
+                'treatmentEnd' => '2012-10-12',
+                'issuesPrivate' => {
+                  'Hypertension' => true,
+                  'Impotence' => true,
+                  'Left Knee Instability' => true
+                },
+                'privateTreatmentLocation' => 'South Texas VA Facility',
+                'address' => {
+                  'view:militaryBaseDescription' => {},
+                  'country' => 'USA',
+                  'street' => '123 Main Street',
+                  'street2' => 'Street address 2',
+                  'city' => 'San Antonio',
+                  'state' => 'TX',
+                  'postalCode' => '78258'
+                }
+              }
+            ]
+          },
+          'additionalDocuments' => [{
+            'name' => 'document.pdf',
+            'size' => 123,
+            'confirmationCode' => '123-456-789',
+            'attachmentId' => 'L123',
+            'isEncrypted' => false
+          }]
+        }
+      end
+
+      it 'transforms the payload correctly' do
+        expect(transformed_data).to eq(expected_result)
+      end
+    end
+  end
+
   describe '#normalize_evidence_retrieval_for_lighthouse_schema' do
     subject(:normalized_data) { controller.send(:normalize_evidence_retrieval_for_lighthouse_schema, req_body_obj) }
 
