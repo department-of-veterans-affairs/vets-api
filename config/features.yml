@@ -180,6 +180,11 @@ features:
       Kill switch for the fix that resets erroneously injected
       disabilityCompNewConditionsWorkflow flag on poisoned InProgressForms
     enable_in_development: true
+  disability_compensation_fix_duplicate_key_ipf:
+    actor_type: user
+    description: >
+      Kill switch for the fix that removes duplicate additionalInformation keys on InProgressForms
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -2305,6 +2310,10 @@ features:
   va_dependents_no_ssn:
     actor_type: user
     description: Allows us to toggle the no SSN flow for adding dependents in 686C-674
+  va_online_scheduling_backend_oh_migration_check:
+    actor_type: user
+    enable_in_development: true
+    description: Check OH migration status for appointments
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
@@ -3021,9 +3030,6 @@ features:
     actor_type: cookie_id
     enable_in_development: true
     description: "Toggle the sending of data to IBM GOVCIO for form 21-2680 (Examination for Housebound Status or Permanent Need for Regular Aid and Attendance)"
-  fetch_1095b_from_enrollment_system:
-    actor_type: user
-    description: Enables fetching of form 1095b from enrollment system instead of from local database
   form1095b_multiple_years:
     actor_type: user
     description: Enables access to multiple years of form 1095b
