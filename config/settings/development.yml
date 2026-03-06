@@ -122,6 +122,14 @@ caseflow:
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
   mock: true
   timeout: 119
+cave:
+  idp:
+    base_url: ~
+    hmac:
+      key_id: ~
+      secret: ~
+    mock: true
+    timeout: ~
 central_mail:
   upload:
     enabled: true

@@ -128,6 +128,16 @@ Rails.application.routes.draw do
 
     resource :upload_supporting_evidence, only: :create
 
+    resources :cave, only: [:create] do
+      member do
+        get :status
+        get :output
+        get :download
+      end
+    end
+    post 'cave/diff', to: 'cave#diff'
+    post 'cave/:id/update', to: 'cave#update'
+
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
       collection do
