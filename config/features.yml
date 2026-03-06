@@ -2139,9 +2139,6 @@ features:
     actor_type: user
     description: Enables additional confirmation field for bank information pages across MEB applications
     enable_in_development: true
-  meb_1995_re_reroute:
-    actor_type: user
-    description: Show the questionnaire to determine where to re-route the user
   meb_1995_rudisill_access:
     actor_type: user
     description: Enable Rudisill review option on form 22-1995
