@@ -83,7 +83,7 @@ describe UploaderVirusScan, :uploader_helpers do
       before do
         allow(Rails.env).to receive(:production?).and_return(true)
         allow(Common::VirusScan).to receive(:scan).and_call_original
-        allow(File).to receive(:chmod).and_call_original
+        allow(File).to receive(:chmod)
         RequestStore.store['additional_request_attributes'] = { 'remote_ip' => test_remote_ip }
         allow(Common::VirusScan).to receive(:mock_enabled?).and_return(false)
         allow(ClamAV::PatchClient).to receive(:new).and_return(
