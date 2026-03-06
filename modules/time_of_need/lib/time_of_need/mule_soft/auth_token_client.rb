@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'time_of_need/mule_soft/configuration'
 
 module TimeOfNeed
   module MuleSoft
@@ -10,17 +11,13 @@ module TimeOfNeed
     # Fetches a bearer token using client_id and client_secret.
     # Modeled after CARMA::Client::MuleSoftAuthTokenClient.
     #
-    # TODO: Configure once we have OAuth2 credentials:
-    #   - Token endpoint URL
-    #   - Client ID
-    #   - Client secret
-    #   - Scope (if required)
-    #
     class AuthTokenClient < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.time_of_need.mulesoft.auth'
       GRANT_TYPE = 'client_credentials'
+
+      configuration TimeOfNeed::MuleSoft::AuthTokenConfiguration
 
       class GetAuthTokenError < StandardError; end
 
@@ -60,15 +57,15 @@ module TimeOfNeed
       end
 
       def client_id
-        Settings.time_of_need.mulesoft.auth.client_id
+        config.settings.client_id
       end
 
       def client_secret
-        Settings.time_of_need.mulesoft.auth.client_secret
+        config.settings.client_secret
       end
 
       def auth_token_path
-        Settings.time_of_need.mulesoft.auth.token_path
+        config.settings.token_path
       end
     end
   end

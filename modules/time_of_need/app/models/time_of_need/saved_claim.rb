@@ -19,6 +19,9 @@ module TimeOfNeed
     # Form ID constant required by SavedClaim
     FORM = TimeOfNeed::FORM_ID
 
+    # Track when the form was started (from InProgressForm)
+    attr_accessor :form_start_date
+
     ##
     # KMS encryption context for this claim type
     #
@@ -53,7 +56,15 @@ module TimeOfNeed
     #
     # @return [String, nil]
     def email
-      parsed_form['applicantEmail']
+      parsed_form['emailAddress']
+    end
+
+    ##
+    # Regional office for claim routing
+    #
+    # @return [String]
+    def regional_office
+      []
     end
   end
 end

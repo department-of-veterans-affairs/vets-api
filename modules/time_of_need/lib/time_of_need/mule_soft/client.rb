@@ -10,15 +10,9 @@ module TimeOfNeed
     # HTTP client for submitting Time of Need claims to NCA's MuleSoft API.
     #
     # Authenticates via OAuth2 client credentials (bearer token) and POSTs
-    # structured form data + file attachments to the MuleSoft endpoint.
+    # structured form data to the MuleSoft endpoint.
     #
     # Data flow: vets-api → MuleSoft → MDW → CaMEO (Salesforce)
-    #
-    # TODO: Implement once we have from the MuleSoft team:
-    #   - Endpoint URL and resource path
-    #   - Expected payload schema (JSON structure)
-    #   - File format preference (base64 inline vs multipart)
-    #   - OAuth2 credentials
     #
     class Client < Common::Client::Base
       include Common::Client::Concerns::Monitoring
@@ -50,7 +44,7 @@ module TimeOfNeed
 
       ##
       # The API resource path for ToN submissions
-      # TODO: Update once endpoint is confirmed
+      # NOTE: Update once final MuleSoft endpoint is confirmed
       def resource_path
         'v1/time-of-need/submit'
       end

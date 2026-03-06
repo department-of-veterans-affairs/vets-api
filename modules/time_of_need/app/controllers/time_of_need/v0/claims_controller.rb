@@ -58,8 +58,10 @@ module TimeOfNeed
 
         process_attachments(in_progress_form, claim)
 
-        # Queue async MuleSoft submission (when implemented)
-        # TimeOfNeed::MuleSoft::SubmitJob.perform_async(claim.id) if Flipper.enabled?(:time_of_need_mulesoft_enabled)
+        # Queue async MuleSoft submission when feature flag is enabled
+        if Flipper.enabled?(:time_of_need_mulesoft_enabled, @current_user)
+          TimeOfNeed::MuleSoft::SubmitJob.perform_async(claim.id)
+        end
 
         monitor.track_create_success(in_progress_form, claim, current_user)
 

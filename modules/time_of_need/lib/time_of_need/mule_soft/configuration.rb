@@ -9,10 +9,6 @@ module TimeOfNeed
     #
     # Reads settings from Settings.time_of_need.mulesoft
     #
-    # TODO: Configure once we have:
-    #   - MuleSoft endpoint URL
-    #   - Timeout values
-    #
     class Configuration < Common::Client::Configuration::REST
       def connection
         Faraday.new(base_path) do |conn|
@@ -42,6 +38,38 @@ module TimeOfNeed
       # @return [String] Base URL for the MuleSoft API
       def base_path
         settings.host
+      end
+    end
+
+    ##
+    # Configuration for the MuleSoft auth token endpoint
+    #
+    class AuthTokenConfiguration < Common::Client::Configuration::REST
+      def connection
+        Faraday.new(base_path) do |conn|
+          conn.use(:breakers, service_name:)
+          conn.request :instrumentation, name: service_name
+          conn.options.timeout = timeout
+          conn.adapter Faraday.default_adapter
+        end
+      end
+
+      def service_name
+        'TimeOfNeed/MuleSoft/Auth'
+      end
+
+      def timeout
+        settings.key?(:timeout) ? settings.timeout : 30
+      end
+
+      def settings
+        Settings.time_of_need.mulesoft.auth
+      end
+
+      private
+
+      def base_path
+        "#{settings.token_url}/"
       end
     end
   end

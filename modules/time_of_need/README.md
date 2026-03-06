@@ -34,8 +34,9 @@ modules/time_of_need/
 │   ├── monitor.rb                                        # StatsD + logging
 │   └── mule_soft/
 │       ├── client.rb                                     # MuleSoft HTTP client
-│       ├── configuration.rb                              # Client configuration
+│       ├── configuration.rb                              # Client + auth config
 │       ├── auth_token_client.rb                          # OAuth2 token fetch
+│       ├── payload_builder.rb                            # Form → MuleSoft payload mapper
 │       └── submit_job.rb                                 # Sidekiq async job
 └── spec/
 ```
@@ -45,20 +46,31 @@ modules/time_of_need/
 - **Users**: Both authenticated and unauthenticated users can submit (skip_before_action :authenticate)
 - **MuleSoft**: OAuth2 client credentials flow (client_id + client_secret → bearer token)
 
+### Payload Mapping
+
+The `PayloadBuilder` transforms flat frontend form fields (camelCase) into the Salesforce object/field
+structure expected by MuleSoft/MDW/CaMEO. Key mappings documented in the TON Field Gap Analysis:
+
+- **Applicant** → Personal Representative (Contact)
+- **Deceased** → Claimant/Veteran (Contact, MBMS_Case_Details__c)
+- **Service Periods** → Military Service (MBMS_Military_Service_Info__c)
+- **Interment** → Case Details interment fields
+- **Funeral Home** → Account
+
 ## Configuration
 
-Add to `config/settings.yml` (or environment-specific):
+Settings in `config/settings.yml`:
 
 ```yaml
 time_of_need:
   mulesoft:
-    host: <MuleSoft endpoint URL - TBD>
+    host: <MuleSoft endpoint URL>
     timeout: 600
     auth:
-      host: <OAuth2 token endpoint - TBD>
+      token_url: <OAuth2 token endpoint>
       token_path: /oauth/token
-      client_id: <%= ENV['time_of_need__mulesoft__client_id'] %>
-      client_secret: <%= ENV['time_of_need__mulesoft__client_secret'] %>
+      client_id: <from environment>
+      client_secret: <from environment>
 ```
 
 ## Feature Flags
@@ -74,6 +86,10 @@ time_of_need:
 | POST | `/time_of_need/v0/claims` | Create a new Time of Need claim |
 | GET | `/time_of_need/v0/claims/:id` | Retrieve a claim by GUID |
 
+## JSON Schema
+
+The form is validated against the `40-4962` schema in `vets-json-schema`.
+
 ## Testing
 
 ```bash
@@ -83,13 +99,17 @@ bundle exec rspec modules/time_of_need
 ## Status
 
 - [x] Module scaffolding
-- [x] Controller (save claim to DB)
-- [x] SavedClaim model
-- [x] Monitor (StatsD + logging)
-- [x] Sidekiq job skeleton
-- [x] MuleSoft client skeleton
-- [ ] MuleSoft endpoint URL + payload schema (blocked on MuleSoft team)
-- [ ] OAuth2 credentials (blocked on MuleSoft team)
-- [ ] File attachment format (base64 vs multipart — blocked on MuleSoft team)
-- [ ] Frontend wiring (submitUrl update)
+- [x] Controller (save claim to DB + queue submission)
+- [x] SavedClaim model with schema validation
+- [x] JSON Schema (40-4962) in vets-json-schema
+- [x] Monitor (StatsD + logging) with submission tracking
+- [x] PayloadBuilder (form → MuleSoft/CaMEO field mapping)
+- [x] Sidekiq SubmitJob (builds payload, calls client)
+- [x] MuleSoft client + auth token client
+- [x] Settings configuration
+- [x] Feature flag (time_of_need_mulesoft_enabled)
+- [x] Frontend form ID corrected (FORM_40_4962)
+- [ ] MuleSoft endpoint URL confirmed (using placeholder)
+- [ ] OAuth2 credentials provisioned
+- [ ] Production deployment and testing
 - [ ] Zero silent failure alerts configuration

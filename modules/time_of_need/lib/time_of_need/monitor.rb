@@ -23,6 +23,69 @@ module TimeOfNeed
       super('time-of-need')
     end
 
+    # ---- Sidekiq submission tracking ----
+
+    ##
+    # Track when a MuleSoft submission attempt begins
+    #
+    # @param claim [TimeOfNeed::SavedClaim]
+    def track_submission_attempt(claim)
+      submit_event(
+        :info,
+        "#{message_prefix} submission attempt",
+        "#{SUBMISSION_STATS_KEY}.attempt",
+        claim:,
+        call_location: caller_locations.first
+      )
+    end
+
+    ##
+    # Track a successful MuleSoft submission
+    #
+    # @param claim [TimeOfNeed::SavedClaim]
+    # @param response [Hash] MuleSoft response
+    def track_submission_success(claim, response = nil)
+      submit_event(
+        :info,
+        "#{message_prefix} submission success",
+        "#{SUBMISSION_STATS_KEY}.success",
+        claim:,
+        call_location: caller_locations.first
+      )
+    end
+
+    ##
+    # Track a MuleSoft submission failure
+    #
+    # @param claim [TimeOfNeed::SavedClaim]
+    # @param error [Exception]
+    def track_submission_failure(claim, error = nil)
+      submit_event(
+        :error,
+        "#{message_prefix} submission failure: #{error&.message}",
+        "#{SUBMISSION_STATS_KEY}.failure",
+        claim:,
+        error:,
+        call_location: caller_locations.first
+      )
+    end
+
+    ##
+    # Track when Sidekiq retries are exhausted for a submission
+    #
+    # @param msg [Hash] Sidekiq message
+    # @param claim [TimeOfNeed::SavedClaim, nil]
+    def track_submission_exhaustion(msg, claim = nil)
+      submit_event(
+        :error,
+        "#{message_prefix} submission retries exhausted",
+        "#{SUBMISSION_STATS_KEY}.exhausted",
+        claim:,
+        error: msg['error_message'],
+        call_location: caller_locations.first
+      )
+    end
+
     private
 
     ##
