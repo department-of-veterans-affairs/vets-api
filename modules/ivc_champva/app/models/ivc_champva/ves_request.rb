@@ -31,6 +31,8 @@ end
 
 module IvcChampva
   class VesRequest
+    FORM_TYPE = 'vha_10_10d'
+
     attr_accessor :application_type, :application_uuid, :sponsor, :beneficiaries, :certification, :transaction_uuid,
                   :subforms
 
@@ -52,6 +54,14 @@ module IvcChampva
     # @param request [Object] The subform request object (e.g., VesOhiRequest)
     def add_subform(form_type, request)
       @subforms << { form_type:, request: }
+    end
+
+    ##
+    # Returns the form type identifier.
+    #
+    # @return [String] the form type constant
+    def form_type
+      FORM_TYPE
     end
 
     ##
