@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'form212680/monitor'
+
 module V0
   class Form212680Controller < ApplicationController
     include RetriableConcern
@@ -7,33 +9,38 @@ module V0
     before_action :check_feature_enabled
 
     def create
-      claim = nil
-      claim = build_and_save_claim!
-      handle_successful_claim(claim)
+      claim = build_claim
+      monitor.track_submission_begun(claim, user_uuid: current_user&.uuid)
 
-      clear_saved_form(claim.form_id)
-      render json: SavedClaimSerializer.new(claim)
-    rescue JSON::ParserError => e
-      handle_json_parse_error(e)
+      if claim.save
+        monitor.track_submission_success(claim, user_uuid: current_user&.uuid)
+        clear_saved_form(claim.form_id)
+        render json: SavedClaimSerializer.new(claim)
+      else
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+    rescue Common::Exceptions::ValidationErrors => e
+      monitor.track_request_validation_error(error: e, request:, claim:)
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
+      raise
     rescue => e
-      handle_general_error(e, claim)
+      monitor.track_submission_failure(claim, e, user_uuid: current_user&.uuid)
+      raise
+    ensure
+      track_response_code('create', claim)
     end
 
     # get /v0/form212680/download_pdf/{guid}
     # Generate and download a pre-filled PDF with veteran sections (I-V) completed
     # Physician sections (VI-VIII) are left blank for manual completion
-    #
     def download_pdf
+      pdf_start_time = Time.current
       claim = saved_claim_class.find_by!(guid: params[:guid])
-      source_file_path = with_retries('Generate 21-2680 PDF') do
-        claim.generate_prefilled_pdf
-      end
 
-      unless source_file_path
-        raise Common::Exceptions::InternalServerError,
-              ArgumentError.new('Failed to generate PDF')
-      end
+      source_file_path = generate_pdf_with_retry(claim)
+      validate_pdf_generated!(source_file_path)
 
+      monitor.track_pdf_generation_success(pdf_start_time)
       send_data File.read(source_file_path),
                 filename: download_file_name(claim),
                 type: 'application/pdf',
@@ -43,7 +50,8 @@ module V0
     rescue => e
       handle_pdf_generation_error(e)
     ensure
-      File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
+      track_response_code('download_pdf', claim)
+      cleanup_pdf_file(source_file_path)
     end
 
     private
@@ -73,16 +81,7 @@ module V0
     end
 
     def handle_pdf_generation_error(error)
-      Rails.logger.error(
-        'Form212680: Error generating PDF',
-        {
-          form: '21-2680',
-          guid: params[:guid],
-          user_id: current_user&.uuid,
-          error: error.message,
-          backtrace: error.backtrace
-        }
-      )
+      monitor.track_pdf_generation_failure(error)
       render json: {
         errors: [{
           title: 'PDF Generation Failed',
@@ -92,67 +91,43 @@ module V0
       }, status: :internal_server_error
     end
 
-    def build_and_save_claim!
-      claim = saved_claim_class.new(
-        form: filtered_params,
-        user_account_id: current_user&.user_account_uuid
-      )
-      Rails.logger.info(
-        'Begin claim submission',
-        {
-          claim_guid: claim.guid,
-          form: claim.class::FORM,
-          user_id: current_user&.uuid
-        }
-      )
+    def monitor
+      @monitor ||= Form212680::Monitor.new
+    end
 
-      if claim.save
-        # NOTE: we are not calling process_attachments! because we are not submitting yet
-        claim
-      else
-        StatsD.increment("#{stats_key}.failure", tags: ["form:#{claim.class::FORM}"])
-        raise Common::Exceptions::ValidationErrors, claim
+    def generate_pdf_with_retry(claim)
+      with_retries('Generate 21-2680 PDF') do
+        claim.generate_prefilled_pdf
       end
     end
 
-    def handle_successful_claim(claim)
-      StatsD.increment("#{stats_key}.success", tags: ["form:#{claim.class::FORM}"])
-      Rails.logger.info(
-        'Claim submission successful',
-        {
-          confirmation_number: claim.confirmation_number,
-          claim_guid: claim.guid,
-          form: claim.class::FORM,
-          user_id: current_user&.uuid
-        }
+    def validate_pdf_generated!(source_file_path)
+      return if source_file_path
+
+      raise Common::Exceptions::InternalServerError,
+            ArgumentError.new('Failed to generate PDF')
+    end
+
+    def track_response_code(action, claim = nil)
+      return unless response.status
+
+      monitor.track_request_code(
+        response.status,
+        action:,
+        user_uuid: current_user&.uuid,
+        claim_guid: claim&.guid
       )
     end
 
-    def handle_json_parse_error(error)
-      Rails.logger.error(
-        'Form212680: JSON parse error in form data',
-        {
-          form: '21-2680',
-          error: error.message,
-          user_id: current_user&.uuid
-        }
-      )
-      raise Common::Exceptions::ParameterMissing, 'form'
+    def cleanup_pdf_file(source_file_path)
+      File.delete(source_file_path) if defined?(source_file_path) && source_file_path && File.exist?(source_file_path)
     end
 
-    def handle_general_error(error, claim)
-      Rails.logger.error(
-        'Form212680: error submitting claim',
-        {
-          form: '21-2680',
-          claim_guid: claim&.guid,
-          user_id: current_user&.uuid,
-          error: error.message,
-          backtrace: error.backtrace,
-          claim_errors: defined?(claim) && claim&.errors&.full_messages
-        }
+    def build_claim
+      saved_claim_class.new(
+        form: filtered_params,
+        user_account_id: current_user&.user_account_uuid
       )
-      raise
     end
   end
 end
