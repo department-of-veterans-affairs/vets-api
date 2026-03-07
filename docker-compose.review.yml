@@ -20,7 +20,6 @@ x-app: &common
   image: vets-api:${DOCKER_IMAGE:-latest}
   restart: unless-stopped
   volumes:
-    - ".:/app:cached"
     - "../vets-api-mockdata:/cache"
     - ../.secret:/srv/vets-api/secret:cached
     - ../.pki:/srv/vets-api/pki:cached
