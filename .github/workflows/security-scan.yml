@@ -1,0 +1,21 @@
+name: Consolidated Security Scan
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+permissions:
+  contents: read  
+jobs:
+  build:  
+    uses: department-of-veterans-affairs/vsp-github-actions/.github/workflows/security-pipeline.yml@main
+    with:
+      image-name: vets-api-pipeline-testing
+      aws-region: us-gov-west-1
+      run-brakeman-scan: true
+      run-codeql-scan: false
+      run-trivy-scan: true
+    secrets:
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      AWS_ASSUME_ROLE: ${{ vars.AWS_ASSUME_ROLE }}
+      
