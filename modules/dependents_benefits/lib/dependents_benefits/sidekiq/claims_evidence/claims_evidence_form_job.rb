@@ -3,6 +3,7 @@
 require 'dependents_benefits/service_response'
 require 'dependents_benefits/sidekiq/dependent_submission_job'
 require 'claims_evidence_api/uploader'
+require 'pdf_utilities/pdf_stamper'
 
 module DependentsBenefits
   # Background jobs for dependent benefits claim processing
@@ -37,6 +38,8 @@ module DependentsBenefits
             raise DependentSubmissionError, service_response&.error unless service_response&.success?
           end
 
+          submit_attachments
+
           DependentsBenefits::ServiceResponse.new(status: true)
         end
 
@@ -56,6 +59,22 @@ module DependentsBenefits
         # @return [void]
         def submit_674_form(claim)
           submit_to_claims_evidence_api(claim)
+        end
+
+        ##
+        # Submit the attachments to the Claims Evidence API
+        #
+        # @return [void]
+        def submit_attachments
+          stamp_set = [{ text: 'VA.GOV', x: 5, y: 5 }]
+          form_id = saved_claim.claim_form_type
+          uploader = claims_evidence_uploader(saved_claim)
+
+          saved_claim.persistent_attachments.each do |pa|
+            doctype = pa.document_type
+            file_path = PDFUtilities::PDFStamper.new(stamp_set).run(pa.to_pdf, timestamp: pa.created_at)
+            uploader.upload_evidence(saved_claim.id, pa.id, file_path:, form_id:, doctype:)
+          end
         end
 
         ##

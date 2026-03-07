@@ -44,7 +44,7 @@ module Veteran
 
       def search_params
         params.require(%i[lat long type])
-        params.permit(:distance, :lat, :long, :name, :page, :per_page, :sort, :type)
+        params.permit(:distance, :lat, :long, :name, :org_name, :page, :per_page, :sort, :type)
       end
 
       def pagination_params
