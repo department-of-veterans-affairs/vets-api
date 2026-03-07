@@ -1100,6 +1100,7 @@ lib/sftp_writer @department-of-veterans-affairs/backend-review-group
 lib/shrine @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/attr_package.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/error_tag.rb @department-of-veterans-affairs/backend-review-group
+lib/sidekiq/filter_args_middleware.rb @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/form526_backup_submission_process @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/form526_backup_submission_process/submit_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/form526_historical_data_exporter @department-of-veterans-affairs/vagov-claim-classification @department-of-veterans-affairs/backend-review-group
@@ -1701,6 +1702,7 @@ spec/lib/shrine @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq_stats_instrumentation @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/attr_package_spec.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/error_tag_spec.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/sidekiq/filter_args_middleware_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_backup_submission_process @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_historical_data_exporter @department-of-veterans-affairs/vagov-claim-classification @department-of-veterans-affairs/backend-review-group

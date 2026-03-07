@@ -36,10 +36,7 @@ module DebtsApi
     end
 
     def perform(args)
-      submission_type = args['submission_type'] || 'fsr'
-      cache_key = args['cache_key']
-      pii = fetch_pii(cache_key, args)
-
+      submission_type = args['submission_type'] || 'fsr' # TODO: make this file not fsr specific
       submissions_data = find_submissions(args['user_uuid'], submission_type)
 
       if submissions_data.blank?
@@ -47,12 +44,15 @@ module DebtsApi
           "DebtsApi::SendConfirmationEmailJob (#{submission_type}) - " \
           "No submissions found for user_uuid: #{args['user_uuid']}"
         )
-        Sidekiq::AttrPackage.delete(cache_key) if cache_key
+        Sidekiq::AttrPackage.delete(args['cache_key']) if args['cache_key']
         return
       end
 
-      send_vanotify_email(args['template_id'], pii, submissions_data, submission_type)
-      Sidekiq::AttrPackage.delete(cache_key) if cache_key
+      should_use_cache = args['user_pii'].blank?
+      is_retry = args['cache_key'].present?
+      pii = resolve_pii(args, should_use_cache, is_retry)
+
+      send_vanotify_email(args['template_id'], pii, should_use_cache, submissions_data, submission_type)
     rescue Sidekiq::AttrPackageError => e
       # Log AttrPackage errors as application logic errors (no retries)
       Rails.logger.error('V0::Form5655::SendConfirmationEmailJob', { error: e.message })
@@ -64,24 +64,29 @@ module DebtsApi
 
     private
 
-    def send_vanotify_email(template_id, pii, submissions_data, submission_type)
-      cache_key = Sidekiq::AttrPackage.create(
-        email: pii[:email],
-        personalisation: email_personalization_info(pii, submissions_data, submission_type)
-      )
+    def send_vanotify_email(template_id, pii, should_use_cache, submissions_data, submission_type)
+      personalisation = email_personalization_info(pii, submissions_data, submission_type)
+      cache_key = if pii.blank?
+                    Sidekiq::AttrPackage.create(
+                      email: pii&.dig(:email),
+                      personalisation:
+                    )
+                  end
+      identifier = should_use_cache ? pii&.dig(:email) : nil
+      options = should_use_cache ? { id_type: 'email', cache_key: } : {}
+
       DebtManagementCenter::VANotifyEmailJob.perform_async(
-        nil, template_id, nil, { id_type: 'email', cache_key: }
+        identifier, template_id, personalisation, options
       )
     end
 
-    # Temporary fallback, after all pre-migration jobs have processed we will remove
-    def fetch_pii(cache_key, args)
-      if cache_key
-        attributes = Sidekiq::AttrPackage.find(cache_key)
-        return { email: attributes[:email], first_name: attributes[:first_name] } if attributes
-      end
+    def fetch_pii_from_cache(cache_key)
+      attributes = Sidekiq::AttrPackage.find(cache_key)
+      { email: attributes[:email], first_name: attributes[:first_name] } if attributes
+    end
 
-      { email: args['email'], first_name: args['first_name'] }
+    def resolve_pii(args, should_use_cache, is_retry)
+      is_retry && should_use_cache ? fetch_pii_from_cache(args['cache_key']) : args['user_pii']
     end
 
     def email_personalization_info(pii, submissions_data, submission_type)
@@ -92,7 +97,7 @@ module DebtsApi
                             end
 
       {
-        'first_name' => pii[:first_name],
+        'first_name' => pii&.dig(:first_name),
         'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
         'confirmation_number' => confirmation_number
       }
@@ -101,7 +106,6 @@ module DebtsApi
     def find_submissions(user_uuid, submission_type)
       case submission_type
       when 'digital_dispute'
-        # Fix: Add explicit ordering to get most recent submission
         DebtsApi::V0::DigitalDisputeSubmission.where(user_uuid:, state: 1)
                                               .order(created_at: :desc).first
       else
