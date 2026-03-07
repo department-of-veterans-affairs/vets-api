@@ -216,6 +216,8 @@ features:
     description: Percentage rollout flag for push notifications in LetterReadyNotificationJob
   event_bus_gateway_letter_ready_sms_notifications:
     description: Percentage rollout flag for SMS notifications in LetterReadyNotificationJob
+  event_bus_gateway_mobile_link_template_rollout:
+    description: Percentage rollout flag for mobile link template in decision letter emails
   event_bus_gateway_pension_email_template:
     description: Toggle to enable pension email template in eventbus-gateway
   event_bus_gateway_push_notifications:
