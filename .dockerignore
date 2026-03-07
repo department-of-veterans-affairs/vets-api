@@ -9,3 +9,16 @@ docs
 log
 tmp
 script/vcr_inspector
+spec
+helmCharts
+postman
+datadog-service-catalog
+docker-compose*
+Dockerfile
+Dangerfile
+Guardfile
+Makefile
+Brewfile
+mkdocs.yaml
+catalog-info.yaml
+*.md

@@ -49,7 +49,6 @@ RUN mkdir -p /clamav_tmp && \
     chown -R nonroot:nonroot /clamav_tmp && \
     chmod 777 /clamav_tmp
 
-
 ENV LANG=C.UTF-8 \
    BUNDLE_JOBS=4 \
    BUNDLE_PATH=/usr/local/bundle/cache \
@@ -71,6 +70,7 @@ RUN bundle install \
          find "$d" -type d -exec chmod a+rx {} \; ; \
        fi \
      done
+
 COPY --chown=nonroot:nonroot . .
 
 # Make the ImageMagick script executable

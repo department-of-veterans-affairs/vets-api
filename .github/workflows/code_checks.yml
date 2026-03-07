@@ -130,13 +130,14 @@ jobs:
             USER_ID=1001
           context: .
           push: false
-          load: true
+          load: false
           tags: vets-api
+          outputs: type=docker,dest=/tmp/vets-api.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Export Docker image
-        run: docker save vets-api | zstd -T0 -o /tmp/vets-api.tar.zst
+      - name: Compress Docker image
+        run: zstd -T0 /tmp/vets-api.tar -o /tmp/vets-api.tar.zst
 
       - name: Save Docker image to cache
         uses: actions/cache/save@v4
