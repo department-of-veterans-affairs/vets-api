@@ -253,7 +253,6 @@ app/models/form1010_ezr_attachment.rb @department-of-veterans-affairs/vfs-authen
 app/models/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/models/form1010cg/attachment.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
 app/models/form1010cg/submission.rb @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
-app/models/form1095_b.rb @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 app/models/form526_job_status.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/models/form526_submission_remediation.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 app/models/form526_submission.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
@@ -657,6 +656,7 @@ app/swagger/swagger/schemas/health/trackings.rb @department-of-veterans-affairs/
 app/swagger/swagger/schemas/health/triage_teams.rb @department-of-veterans-affairs/vfs-mhv-integration @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/intent_to_file.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/disability-benefits
 app/swagger/swagger/schemas/letter_beneficiary.rb @department-of-veterans-affairs/mobile-api-team
+app/swagger/swagger/schemas/letters.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/maintenance_windows.rb @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/onsite_notifications.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -1807,7 +1807,6 @@ spec/models/form_profiles/va1330m_spec.rb @department-of-veterans-affairs/bah-mb
 spec/models/form_submission_attempt_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/models/form_submission_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/models/form1010cg @department-of-veterans-affairs/health-apps-backend @department-of-veterans-affairs/backend-review-group
-spec/models/form1095_b_spec.rb @department-of-veterans-affairs/va-core-veteran-experiences @department-of-veterans-affairs/backend-review-group
 spec/models/form526_job_status_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/models/form526_submission_remediation_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group
 spec/models/form526_submission_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/backend-review-group

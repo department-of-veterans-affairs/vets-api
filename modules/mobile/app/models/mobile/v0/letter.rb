@@ -13,6 +13,7 @@ module Mobile
         'certificate_of_eligibility_home_loan',
         'civil_service',
         'commissary',
+        'foreign_medical_program',
         'medicare_partd',
         'minimum_essential_coverage',
         'proof_of_service',
@@ -25,6 +26,7 @@ module Mobile
         certificate_of_eligibility_home_loan
         civil_service
         commissary
+        foreign_medical_program
         medicare_partd
         minimum_essential_coverage
         proof_of_service
@@ -39,13 +41,24 @@ module Mobile
       def initialize(attributes)
         if attributes[:letter_type] == 'benefit_summary'
           attributes[:name] = 'Benefit Summary and Service Verification Letter'
+        elsif attributes[:letter_type] == 'foreign_medical_program'
+          attributes[:name] = 'Foreign Medical Program Enrollment Letter'
         end
 
         super
       end
 
-      def displayable?
-        self.class::VISIBLE_TYPES.include?(letter_type)
+      def displayable?(user = nil)
+        return false unless self.class::VISIBLE_TYPES.include?(letter_type)
+
+        # Hide foreign_medical_program behind user-specific feature flag
+        if letter_type == 'foreign_medical_program'
+          return Flipper.enabled?(:fmp_benefits_authorization_letter) if user.nil?
+
+          return Flipper.enabled?(:fmp_benefits_authorization_letter, user)
+        end
+
+        true
       end
     end
   end
