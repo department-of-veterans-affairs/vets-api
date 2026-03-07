@@ -53,7 +53,7 @@ module SignIn
     end
 
     def authorize_sso_params
-      @authorize_sso_params ||= params.permit(:client_id, :code_challenge, :code_challenge_method, :state)
+      @authorize_sso_params ||= params.permit(:client_id, :code_challenge, :code_challenge_method, :state, :app_name)
     end
 
     def validate_authorize_sso_params!
@@ -93,11 +93,8 @@ module SignIn
     end
 
     def log_authorize_sso_success
-      sign_in_logger.info('authorize sso', client_id: authorize_sso_params[:client_id])
-      StatsD.increment(
-        Constants::Statsd::STATSD_SIS_AUTHORIZE_SSO_SUCCESS,
-        tags: ["client_id:#{authorize_sso_params[:client_id]}"]
-      )
+      sign_in_logger.info('authorize sso', **authorize_sso_log_params)
+      StatsD.increment(Constants::Statsd::STATSD_SIS_AUTHORIZE_SSO_SUCCESS, tags: authorize_sso_statsd_tags)
     end
 
     def log_authorize_sso_error(error, handler)
@@ -107,9 +104,16 @@ module SignIn
                      Constants::Statsd::STATSD_SIS_AUTHORIZE_SSO_FAILURE
                    end
 
-      sign_in_logger.info("authorize sso #{handler}", error: error.message,
-                                                      client_id: authorize_sso_params[:client_id])
-      StatsD.increment(statsd_key)
+      sign_in_logger.info("authorize sso #{handler}", error: error.message, **authorize_sso_log_params)
+      StatsD.increment(statsd_key, tags: authorize_sso_statsd_tags)
+    end
+
+    def authorize_sso_log_params
+      { client_id: authorize_sso_params[:client_id], app_name: authorize_sso_params[:app_name] }
+    end
+
+    def authorize_sso_statsd_tags
+      authorize_sso_log_params.map { |k, v| "#{k}:#{v}" }
     end
   end
 end

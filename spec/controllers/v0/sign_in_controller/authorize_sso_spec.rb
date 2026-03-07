@@ -8,6 +8,7 @@ RSpec.describe V0::SignInController, '#authorize_sso', type: :controller do
 
     let(:client_id) { 'some-client-id' }
     let(:client_id_param) { client_id }
+    let(:app_name) { 'some-app-name' }
     let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
     let(:code_challenge_method) { 'S256' }
     let(:private_key) { OpenSSL::PKey::RSA.new(2048) }
@@ -17,6 +18,7 @@ RSpec.describe V0::SignInController, '#authorize_sso', type: :controller do
     let(:authorize_sso_params) do
       {
         client_id: client_id_param,
+        app_name:,
         code_challenge:,
         code_challenge_method:,
         state:
@@ -51,6 +53,7 @@ RSpec.describe V0::SignInController, '#authorize_sso', type: :controller do
     before do
       request.cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = existing_access_token_cookie
       allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:increment)
     end
 
     shared_examples 'a redirect to USIP' do
@@ -60,13 +63,16 @@ RSpec.describe V0::SignInController, '#authorize_sso', type: :controller do
       let(:expected_log_payload) do
         {
           error: expected_error_message,
-          client_id: client_id_param
+          client_id: client_id_param,
+          app_name:
         }
       end
+      let(:expected_statsd_tags) { ["client_id:#{client_id_param}", "app_name:#{app_name}"] }
 
       it 'logs and redirects to USIP' do
         expect(subject).to redirect_to("#{expected_redirect_uri}?#{expected_query_params}")
         expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+        expect(StatsD).to have_received(:increment).with('api.sis.auth_sso.redirect', tags: expected_statsd_tags)
       end
     end
 
@@ -77,15 +83,18 @@ RSpec.describe V0::SignInController, '#authorize_sso', type: :controller do
       let(:expected_log_payload) do
         {
           error: expected_error_message,
-          client_id: client_id_param.to_s
+          client_id: client_id_param.to_s,
+          app_name:
         }
       end
+      let(:expected_statsd_tags) { ["client_id:#{client_id_param}", "app_name:#{app_name}"] }
 
       it 'logs and renders expected error' do
         response = subject
         expect(response).to have_http_status(expected_error_status)
         expect(JSON.parse(response.body)).to eq(expected_error_json)
         expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+        expect(StatsD).to have_received(:increment).with('api.sis.auth_sso.failure', tags: expected_statsd_tags)
       end
     end
 
@@ -171,6 +180,8 @@ RSpec.describe V0::SignInController, '#authorize_sso', type: :controller do
           expect(response.body).to include("URL=#{client_config.redirect_uri}")
           expect(response.body).to include('code=')
           expect(response.body).to include("state=#{state}")
+          expect(StatsD).to have_received(:increment).with('api.sis.auth_sso.success',
+                                                           tags: ["client_id:#{client_id}", "app_name:#{app_name}"])
         end
       end
     end
