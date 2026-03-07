@@ -75,6 +75,47 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
           end
 
+          def perform_return_url_test(workflow_value:)
+            fd = JSON.parse(in_progress_form_lighthouse.form_data)
+            fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+            if workflow_value == :absent
+              fd.delete('disability_comp_new_conditions_workflow')
+            else
+              fd['disability_comp_new_conditions_workflow'] = workflow_value
+            end
+            in_progress_form_lighthouse.update(form_data: fd)
+
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              VCR.use_cassette('disability_max_ratings/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
+            end
+
+            expect(response).to have_http_status(:ok)
+            json_response = JSON.parse(response.body)
+            json_response['metadata']['returnUrl']
+          end
+
+          it "sets returnUrl to 'conditions/summary' when new-flow is true (boolean)" do
+            return_url = perform_return_url_test(workflow_value: true)
+            expect(return_url).to eq('/conditions/summary')
+          end
+
+          it "sets returnUrl to 'conditions/summary' when new-flow is 'true' (string)" do
+            return_url = perform_return_url_test(workflow_value: 'true')
+            expect(return_url).to eq('/conditions/summary')
+          end
+
+          it "sets returnUrl to '/disabilities/rated-disabilities' when new-flow is false" do
+            return_url = perform_return_url_test(workflow_value: false)
+            expect(return_url).to eq('/disabilities/rated-disabilities')
+          end
+
+          it "sets returnUrl to '/disabilities/rated-disabilities' when new-flow key is not present" do
+            return_url = perform_return_url_test(workflow_value: :absent)
+            expect(return_url).to eq('/disabilities/rated-disabilities')
+          end
+
           it 'returns an unaltered form if Lighthouse returns an error' do
             rated_disabilities_before = JSON.parse(in_progress_form_lighthouse.form_data)['ratedDisabilities']
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/503_response') do
